@@ -42,6 +42,15 @@ export async function listNeighborhoods(cityId: string) {
     .orderBy(asc(neighborhoods.name));
 }
 
+export async function getNeighborhoodBySlug(cityId: string, slug: string) {
+  const [n] = await db
+    .select()
+    .from(neighborhoods)
+    .where(and(eq(neighborhoods.cityId, cityId), eq(neighborhoods.slug, slug)))
+    .limit(1);
+  return n ?? null;
+}
+
 export async function getCityBySlug(slug: string): Promise<CityRow | null> {
   const [city] = await db
     .select()
