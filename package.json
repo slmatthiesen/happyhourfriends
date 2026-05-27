@@ -12,6 +12,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
+    "seed:cities": "tsx scripts/seed-cities.ts",
     "import:neighborhoods": "tsx scripts/import-neighborhoods.ts"
   },
   "dependencies": {
