@@ -1,0 +1,25 @@
+# Local dev database with PostGIS. Production uses DO Managed Postgres (SFO3);
+# DATABASE_URL is the single switch between them.
+#   docker compose up -d
+#   DATABASE_URL=postgresql://hhf:hhf@localhost:5432/happyhourfriends
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: hhf-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: hhf
+      POSTGRES_PASSWORD: hhf
+      POSTGRES_DB: happyhourfriends
+    ports:
+      - "5432:5432"
+    volumes:
+      - hhf_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hhf -d happyhourfriends"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  hhf_pgdata:
