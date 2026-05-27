@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter, Geist } from "next/font/google";
 import { PostHogProvider } from "@/lib/observability/posthog-provider";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+
+// Applies the saved palette before first paint (no flash). Mirrors ThemeSwitcher.
+const THEME_INIT = `try{var t=localStorage.getItem('hhf_theme');if(t&&t!=='twilight')document.documentElement.setAttribute('data-theme',t);}catch(e){}`;
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -32,8 +36,12 @@ export default function RootLayout({
       lang="en"
       className={cn("h-full", "antialiased", fraunces.variable, inter.variable, "font-sans", geist.variable)}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
+      </head>
       <body className="min-h-full flex flex-col">
         <PostHogProvider>{children}</PostHogProvider>
+        <ThemeSwitcher />
       </body>
     </html>
   );

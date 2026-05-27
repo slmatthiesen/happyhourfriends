@@ -1,19 +1,19 @@
-import { cookies } from "next/headers";
-import { isFirebaseConfigured, verifyAdmin } from "@/lib/firebase/admin";
+import Link from "next/link";
+import { AdminSignIn } from "@/components/admin/sign-in";
+import { SignOutButton } from "@/components/admin/sign-out";
+import { getAdmin } from "@/lib/admin/auth";
 
 /**
- * Auth gate for all /admin routes. Reads the Firebase session token from a cookie
- * and requires an allowlisted admin email. The interactive sign-in UI (Firebase
- * client SDK) lands with the Phase 2 admin queue; the gate + verification is wired
- * now so admin pages are never publicly reachable.
+ * Auth gate for all /admin routes. Resolves the Firebase session cookie to an
+ * allowlisted admin; renders the sign-in screen otherwise. Mutating actions
+ * re-check auth via requireAdmin (the layout does not protect server actions).
  */
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const token = (await cookies()).get("hhf_admin_token")?.value;
-  const admin = token ? await verifyAdmin(token) : null;
+  const admin = await getAdmin();
 
   if (!admin) {
     return (
@@ -24,14 +24,44 @@ export default async function AdminLayout({
         >
           Admin
         </h1>
-        <p className="mt-4 text-text-muted">
-          {isFirebaseConfigured()
-            ? "Please sign in. (Sign-in UI ships with the Phase 2 admin queue.)"
-            : "Admin auth is not configured. Set FIREBASE_* and ADMIN_EMAIL, then reload."}
-        </p>
+        <p className="mt-4 text-text-muted">Sign in to manage submissions.</p>
+        <AdminSignIn />
       </main>
     );
   }
 
-  return <>{children}</>;
+  return (
+    <div className="mx-auto w-full max-w-5xl px-6 py-8">
+      <header className="flex items-center justify-between border-b border-border pb-4">
+        <nav className="flex items-center gap-4 text-sm">
+          <Link href="/admin" className="text-text-primary hover:text-accent-cool">
+            Queue
+          </Link>
+          <Link
+            href="/admin/audit"
+            className="text-text-primary hover:text-accent-cool"
+          >
+            Audit log
+          </Link>
+          <Link
+            href="/admin/budget"
+            className="text-text-primary hover:text-accent-cool"
+          >
+            Budget
+          </Link>
+          <Link
+            href="/admin/promotions"
+            className="text-text-primary hover:text-accent-cool"
+          >
+            Promotions
+          </Link>
+        </nav>
+        <div className="flex items-center gap-3 text-sm text-text-muted">
+          <span>{admin.email}</span>
+          <SignOutButton />
+        </div>
+      </header>
+      {children}
+    </div>
+  );
 }

@@ -24,14 +24,18 @@
 .DS_Store
 *.pem
 
+# user-uploaded evidence photos (menu snaps) — runtime data, not source
+/public/uploads
+
 # debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files — keep real secrets out, but the example/config contract IS committed
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -39,3 +43,21 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# editor / IDE
+.idea/
+*.swp
+
+# OS junk
+Thumbs.db
+Desktop.ini
+
+# local Claude Code settings (per-user permissions; not shared)
+.claude/settings.local.json
+
+# Project datasets we do NOT redistribute — curated/scraped venue data.
+# Kept out of the repo for anti-scrape + unresolved seed-data licensing
+# (see CONTRIBUTING.md#data-and-licensing). Public boundary GeoJSON
+# (council districts / neighborhoods) stays tracked so clones/CI work.
+/data/*.json
+/data/**/*.json

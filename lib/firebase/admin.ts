@@ -56,3 +56,40 @@ export async function verifyAdmin(idToken: string): Promise<AdminUser | null> {
     return null;
   }
 }
+
+const DEFAULT_SESSION_MS = 5 * 24 * 60 * 60 * 1000; // 5 days
+
+/**
+ * Exchange a freshly-minted ID token for a long-lived session cookie, but only for
+ * an allowlisted admin. Returns null if the user isn't authorized or Firebase is
+ * unconfigured. The cookie is set httpOnly by the /api/admin/session route.
+ */
+export async function createAdminSession(
+  idToken: string,
+  expiresInMs: number = DEFAULT_SESSION_MS,
+): Promise<string | null> {
+  const admin = await verifyAdmin(idToken);
+  if (!admin) return null;
+  try {
+    return await getAuth(getAdminApp()).createSessionCookie(idToken, {
+      expiresIn: expiresInMs,
+    });
+  } catch {
+    return null;
+  }
+}
+
+/** Verify a session cookie (checking revocation) and re-check the allowlist. */
+export async function verifyAdminSessionCookie(
+  cookie: string,
+): Promise<AdminUser | null> {
+  if (!isFirebaseConfigured()) return null;
+  try {
+    const decoded = await getAuth(getAdminApp()).verifySessionCookie(cookie, true);
+    const email = (decoded.email ?? "").toLowerCase();
+    if (!email || !adminEmails().includes(email)) return null;
+    return { uid: decoded.uid, email };
+  } catch {
+    return null;
+  }
+}

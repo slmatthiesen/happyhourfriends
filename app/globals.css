@@ -50,6 +50,37 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+/* ── Selectable palettes (set via data-theme on <html>; see ThemeSwitcher) ──────
+   Default :root above is "Twilight" (the original purple). These override only the
+   Happy-Hour-Friends palette tokens; everything cascades through @theme inline. */
+[data-theme="warm"] {
+  --bg-deep: #15161a;
+  --bg-surface: #1e2024;
+  --bg-elevated: #2a2d33;
+  --accent-warm: #e8a04b;
+  --accent-cool: #4bbfb0;
+  --accent-hot: #e0708a;
+  --text-primary: #f4ece0;
+  --text-muted: #9aa0ab;
+  --border: #2f333b;
+  --row-hover: #23262c;
+  --row-promoted: rgba(232, 160, 75, 0.08);
+}
+
+[data-theme="teal"] {
+  --bg-deep: #11201f;
+  --bg-surface: #16292a;
+  --bg-elevated: #1e3536;
+  --accent-warm: #efa14a;
+  --accent-cool: #36b3a6;
+  --accent-hot: #e0708a;
+  --text-primary: #eef0ea;
+  --text-muted: #8ba6a3;
+  --border: #244241;
+  --row-hover: #1b3231;
+  --row-promoted: rgba(239, 161, 74, 0.08);
+}
+
 /* Expose tokens as Tailwind theme colors (bg-bg-deep, text-text-muted, etc.) */
 @theme inline {
   --color-bg-deep: var(--bg-deep);

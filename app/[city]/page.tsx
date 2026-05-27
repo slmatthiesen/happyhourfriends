@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { VenueTable } from "@/components/venue-table";
+import { SiteWordmark } from "@/components/site-wordmark";
+import { VenueTableClient } from "@/components/venue-table-client";
 import {
   getCityBySlug,
   listNeighborhoods,
@@ -39,6 +40,7 @@ export default async function CityPage({
 
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-12">
+      <SiteWordmark className="mb-6" />
       <header>
         <h1
           className="text-4xl font-semibold text-text-primary"
@@ -67,7 +69,17 @@ export default async function CityPage({
         </nav>
       )}
 
-      <VenueTable citySlug={city.slug} venues={venues} />
+      <VenueTableClient citySlug={city.slug} venues={venues} />
+
+      <p className="mt-6 text-sm text-text-muted">
+        Know a spot we&apos;re missing?{" "}
+        <Link
+          href={`/submit/new-venue?city=${city.slug}`}
+          className="text-accent-cool hover:underline"
+        >
+          Add a venue →
+        </Link>
+      </p>
     </main>
   );
 }

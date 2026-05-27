@@ -1,11 +1,13 @@
-import { and, asc, eq, inArray, isNull } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import {
   cities,
   happyHours,
   neighborhoods,
   offerings,
+  tags,
   venues,
+  venueTags,
 } from "@/db/schema";
 
 type CityRow = typeof cities.$inferSelect;
@@ -24,11 +26,84 @@ export interface VenueListItem
     | "dataCompleteness"
     | "promotionTier"
     | "timezone"
+    | "type"
   > {
   neighborhoodName: string | null;
   neighborhoodSlug: string | null;
   happyHours: HappyHourRow[];
+  tags: string[];
+  /** Up to a handful of representative deals for the table preview column. */
+  offerings: { label: string; priceCents: number | null }[];
+  /** Cheapest priced offering across this venue's hours (drives the $ indicator). */
+  minPriceCents: number | null;
 }
+
+export interface CityListItem {
+  id: string;
+  slug: string;
+  name: string;
+  state: string | null;
+  /** City centroid, used to find the nearest city from a visitor's location. */
+  centerLat: number | null;
+  centerLng: number | null;
+  status: CityRow["status"];
+  /** Active venues (non-deleted) with at least one active happy hour. */
+  venueCount: number;
+}
+
+/**
+ * All cities for the landing-page picker, with a live count of venues that have
+ * happy hours so the list reflects which cities actually have data. Two small
+ * round trips; the count is grouped in SQL.
+ */
+export async function listCities(): Promise<CityListItem[]> {
+  const rows = await db
+    .select({
+      id: cities.id,
+      slug: cities.slug,
+      name: cities.name,
+      state: cities.state,
+      centerLat: cities.centerLat,
+      centerLng: cities.centerLng,
+      status: cities.status,
+    })
+    .from(cities)
+    .orderBy(asc(cities.name));
+
+  if (rows.length === 0) return [];
+
+  const counts = await db
+    .select({
+      cityId: venues.cityId,
+      count: sql<number>`count(distinct ${venues.id})`.mapWith(Number),
+    })
+    .from(venues)
+    .innerJoin(
+      happyHours,
+      and(
+        eq(happyHours.venueId, venues.id),
+        eq(happyHours.active, true),
+        isNull(happyHours.deletedAt),
+      ),
+    )
+    .where(isNull(venues.deletedAt))
+    .groupBy(venues.cityId);
+  const countByCity = new Map(counts.map((c) => [c.cityId, c.count]));
+
+  return rows.map((r) => ({
+    ...r,
+    centerLat: r.centerLat == null ? null : Number(r.centerLat),
+    centerLng: r.centerLng == null ? null : Number(r.centerLng),
+    venueCount: countByCity.get(r.id) ?? 0,
+  }));
+}
+
+/**
+ * A neighborhood is only surfaced once it has at least this many venues — a lone
+ * venue in its own area reads as noise, not a useful filter. Tunable; the operator
+ * is still feeling out the right rule (2026-05).
+ */
+export const MIN_VENUES_PER_NEIGHBORHOOD = 2;
 
 export async function listNeighborhoods(cityId: string) {
   return db
@@ -38,7 +113,13 @@ export async function listNeighborhoods(cityId: string) {
       slug: neighborhoods.slug,
     })
     .from(neighborhoods)
+    .leftJoin(
+      venues,
+      and(eq(venues.neighborhoodId, neighborhoods.id), isNull(venues.deletedAt)),
+    )
     .where(eq(neighborhoods.cityId, cityId))
+    .groupBy(neighborhoods.id, neighborhoods.name, neighborhoods.slug)
+    .having(sql`count(${venues.id}) >= ${MIN_VENUES_PER_NEIGHBORHOOD}`)
     .orderBy(asc(neighborhoods.name));
 }
 
@@ -78,6 +159,7 @@ export async function listVenuesForCity(
       dataCompleteness: venues.dataCompleteness,
       promotionTier: venues.promotionTier,
       timezone: venues.timezone,
+      type: venues.type,
       neighborhoodName: neighborhoods.name,
       neighborhoodSlug: neighborhoods.slug,
     })
@@ -114,7 +196,84 @@ export async function listVenuesForCity(
     else byVenue.set(h.venueId, [h]);
   }
 
-  return rows.map((r) => ({ ...r, happyHours: byVenue.get(r.id) ?? [] }));
+  const tagRows = await db
+    .select({ venueId: venueTags.venueId, label: tags.label })
+    .from(venueTags)
+    .innerJoin(tags, eq(venueTags.tagId, tags.id))
+    .where(inArray(venueTags.venueId, venueIds));
+  const tagsByVenue = new Map<string, string[]>();
+  for (const t of tagRows) {
+    const list = tagsByVenue.get(t.venueId);
+    if (list) list.push(t.label);
+    else tagsByVenue.set(t.venueId, [t.label]);
+  }
+
+  // Offerings → per-venue deal previews + min price. Mapped back to the venue via
+  // each offering's happy_hour. One round trip; fine at city scale.
+  const hourToVenue = new Map<string, string>();
+  for (const h of hours) hourToVenue.set(h.id, h.venueId);
+  const hourIds = hours.map((h) => h.id);
+  const offerRows = hourIds.length
+    ? await db
+        .select({
+          happyHourId: offerings.happyHourId,
+          name: offerings.name,
+          category: offerings.category,
+          priceCents: offerings.priceCents,
+        })
+        .from(offerings)
+        .where(
+          and(
+            inArray(offerings.happyHourId, hourIds),
+            eq(offerings.active, true),
+            isNull(offerings.deletedAt),
+          ),
+        )
+    : [];
+  const offersByVenue = new Map<string, VenueListItem["offerings"]>();
+  const minPriceByVenue = new Map<string, number>();
+  const seenLabel = new Map<string, Set<string>>();
+  for (const o of offerRows) {
+    const venueId = hourToVenue.get(o.happyHourId);
+    if (!venueId) continue;
+    const label = (o.name ?? o.category).replace(/_/g, " ");
+    const seen = seenLabel.get(venueId) ?? new Set<string>();
+    if (!seen.has(label)) {
+      seen.add(label);
+      seenLabel.set(venueId, seen);
+      const list = offersByVenue.get(venueId) ?? [];
+      list.push({ label, priceCents: o.priceCents });
+      offersByVenue.set(venueId, list);
+    }
+    if (o.priceCents != null) {
+      const cur = minPriceByVenue.get(venueId);
+      if (cur == null || o.priceCents < cur) minPriceByVenue.set(venueId, o.priceCents);
+    }
+  }
+
+  // Suppress neighborhoods with fewer than MIN_VENUES_PER_NEIGHBORHOOD venues — a
+  // single-venue neighborhood isn't a useful label or filter (operator rule 2026-05).
+  const hoodCount = new Map<string, number>();
+  for (const r of rows) {
+    if (r.neighborhoodSlug) {
+      hoodCount.set(r.neighborhoodSlug, (hoodCount.get(r.neighborhoodSlug) ?? 0) + 1);
+    }
+  }
+
+  return rows.map((r) => {
+    const showHood =
+      r.neighborhoodSlug != null &&
+      (hoodCount.get(r.neighborhoodSlug) ?? 0) >= MIN_VENUES_PER_NEIGHBORHOOD;
+    return {
+      ...r,
+      neighborhoodName: showHood ? r.neighborhoodName : null,
+      neighborhoodSlug: showHood ? r.neighborhoodSlug : null,
+      happyHours: byVenue.get(r.id) ?? [],
+      tags: tagsByVenue.get(r.id) ?? [],
+      offerings: offersByVenue.get(r.id) ?? [],
+      minPriceCents: minPriceByVenue.get(r.id) ?? null,
+    };
+  });
 }
 
 export interface VenueDetail extends VenueRow {
