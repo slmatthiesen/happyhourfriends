@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DirectionsButton } from "@/components/directions-button";
 import { SiteWordmark } from "@/components/site-wordmark";
+import { AddHappyHour } from "@/components/submit/add-happy-hour";
 import { ReportChange } from "@/components/submit/report-change";
 import { formatDays, formatDaysLong, formatPrice, formatTime } from "@/lib/format";
 import { getCityBySlug, getVenueBySlug } from "@/lib/queries/venues";
@@ -190,9 +191,19 @@ export default async function VenuePage({
         </h2>
 
         {activeHours.length === 0 ? (
-          <div className="mt-4 rounded-lg border border-border bg-bg-surface p-6 text-text-muted">
-            We don&apos;t have confirmed happy hour info for {venue.name} yet.{" "}
-            <span className="text-accent-cool">Know it? Help us add it →</span>
+          <div
+            id="add-happy-hour"
+            className="mt-4 rounded-lg border border-border bg-bg-surface p-6"
+          >
+            <p className="text-text-muted">
+              We don&apos;t have confirmed happy hour info for {venue.name} yet. Know
+              it? Help us add it — paste a link or upload a photo of the menu, and
+              fill in whatever details you have. An operator reviews everything
+              before it goes live.
+            </p>
+            <div className="mt-4">
+              <AddHappyHour venueId={venue.id} venueName={venue.name} />
+            </div>
           </div>
         ) : (
           <ul className="mt-4 space-y-4">

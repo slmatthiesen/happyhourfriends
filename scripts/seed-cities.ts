@@ -3,10 +3,25 @@
  *   tsx scripts/seed-cities.ts
  *
  * Coordinates are the city centroid (reference data) used as the default map
- * center / discovery anchor — not venue data.
+ * center / discovery anchor — not venue data. `seedConfig` is per-city discovery
+ * tuning (radius, locality filter) read by scripts/seed-discover-tacoma.ts.
  */
 import "dotenv/config";
 import postgres from "postgres";
+
+/**
+ * Per-city discovery configuration stored in cities.seed_config (JSONB). The discover
+ * script reads it to size the search grid + filter the locality. Optional — Tacoma
+ * keeps its historical defaults if absent.
+ */
+interface SeedConfig {
+  /** Search + locality radius from the city centroid, in km. */
+  radiusKm: number;
+  /** Per-tile search radius in metres. 3000 is a sensible default. */
+  cellMeters: number;
+  /** Place must list one of these as its locality. Filters out neighboring towns. */
+  serviceLocalities: string[];
+}
 
 interface CitySeed {
   slug: string;
@@ -17,6 +32,7 @@ interface CitySeed {
   currency: string;
   centerLat: number;
   centerLng: number;
+  seedConfig: SeedConfig;
 }
 
 const CITIES: CitySeed[] = [
@@ -29,6 +45,28 @@ const CITIES: CitySeed[] = [
     currency: "USD",
     centerLat: 47.2529,
     centerLng: -122.4443,
+    seedConfig: {
+      radiusKm: 7, // matches the historical SERVICE_RADIUS_KM gate
+      cellMeters: 3000,
+      serviceLocalities: ["Tacoma", "Ruston"],
+    },
+  },
+  {
+    // "Central Phoenix" — downtown centroid, 5-mile cap per operator (2026-05-27).
+    // Both the radius AND the locality filter drop Tempe / Mesa / Scottsdale / Glendale.
+    slug: "phoenix-central",
+    name: "Central Phoenix",
+    state: "AZ",
+    country: "US",
+    timezone: "America/Phoenix",
+    currency: "USD",
+    centerLat: 33.4484,
+    centerLng: -112.074,
+    seedConfig: {
+      radiusKm: 8, // ~5 miles
+      cellMeters: 3000,
+      serviceLocalities: ["Phoenix"],
+    },
   },
 ];
 
@@ -40,10 +78,12 @@ async function main() {
     for (const c of CITIES) {
       await sql`
         INSERT INTO cities
-          (slug, name, state, country, default_timezone, currency_code, center_lat, center_lng, status)
+          (slug, name, state, country, default_timezone, currency_code,
+           center_lat, center_lng, seed_config, status)
         VALUES
           (${c.slug}, ${c.name}, ${c.state}, ${c.country}, ${c.timezone},
-           ${c.currency}, ${c.centerLat}, ${c.centerLng}, 'discovery')
+           ${c.currency}, ${c.centerLat}, ${c.centerLng},
+           ${JSON.stringify(c.seedConfig)}::jsonb, 'discovery')
         ON CONFLICT (slug) DO UPDATE SET
           name = EXCLUDED.name,
           state = EXCLUDED.state,
@@ -52,10 +92,11 @@ async function main() {
           currency_code = EXCLUDED.currency_code,
           center_lat = EXCLUDED.center_lat,
           center_lng = EXCLUDED.center_lng,
+          seed_config = EXCLUDED.seed_config,
           updated_at = now()
       `;
     }
-    const rows = await sql`SELECT slug, name, country FROM cities ORDER BY slug`;
+    const rows = await sql`SELECT slug, name, country, seed_config FROM cities ORDER BY slug`;
     console.log("Cities:", rows);
   } finally {
     await sql.end();

@@ -124,7 +124,7 @@ const RECORD_TOOL: ToolUnion = {
               enum: [...INTERPRET_ACTIONS],
               description:
                 "update_venue (name/address/phone/websiteUrl/otherUrl/status), " +
-                "update_happy_hour (startTime/endTime/notes/active), " +
+                "update_happy_hour (startTime/endTime/notes/active/daysOfWeek), " +
                 "update_offering (name/priceCents/discountCents/etc), " +
                 "new_offering (a new deal on an existing happy hour).",
             },

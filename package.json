@@ -16,7 +16,6 @@
     "import:neighborhoods": "tsx scripts/import-neighborhoods.ts",
     "seed:discover": "tsx scripts/seed-discover-tacoma.ts",
     "seed:enrich": "tsx scripts/seed-enrich-candidates.ts",
-    "seed:venues": "tsx scripts/seed-venues.ts",
     "backfill:neighborhoods": "tsx scripts/backfill-neighborhoods.ts",
     "backfill:timezones": "tsx scripts/backfill-timezones.ts",
     "backfill:place-ids": "tsx scripts/backfill-place-ids.ts",

@@ -39,7 +39,8 @@ docker compose up -d         # local postgis; DATABASE_URL in .env points here
 npm install
 npm run db:migrate           # apply versioned migrations
 npm run seed:cities          # seed the Tacoma city row (idempotent)
-npm run seed:venues          # load committed real seed data into /tacoma
+# Then populate venues via the AI seed pipeline (needs GOOGLE_PLACES_API_KEY +
+# ANTHROPIC_API_KEY): npm run seed:discover  →  npm run seed:enrich
 npm run dev                  # http://localhost:3000  ->  /tacoma
 ```
 

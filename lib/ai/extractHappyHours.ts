@@ -173,23 +173,22 @@ const RECORD_TOOL: ToolUnion = {
   },
 };
 
-// Recall matters more than shaving pennies: many venues publish happy hours on a
-// sub-page, a PDF, or only on Facebook/an aggregator — NOT the homepage. So we give the
-// model room to look: a web_search (to find the HH/menu page when the site doesn't link
-// it) plus several fetches. Still bounded so cost stays ~10–15¢/venue, not $1.
+// Cost-tuned 2026-05-28: was max_uses 6 / 12k tokens which cost ~10¢/venue. Dropped
+// to 4 / 6k — input tokens (web_fetch payload) dominate cost, so halving the per-fetch
+// payload roughly halves spend without hurting recall (most HH pages fit in 6k tokens).
 // (allowed_callers: direct — Haiku doesn't do programmatic tool calling.)
 const TOOLS: ToolUnion[] = [
   {
     type: "web_search_20260209",
     name: "web_search",
-    max_uses: 3,
+    max_uses: 2,
     allowed_callers: ["direct"],
   },
   {
     type: "web_fetch_20260209",
     name: "web_fetch",
-    max_uses: 6,
-    max_content_tokens: 12_000,
+    max_uses: 4,
+    max_content_tokens: 6_000,
     allowed_callers: ["direct"],
   },
   RECORD_TOOL,
@@ -219,20 +218,20 @@ function fillPlaceholders(template: string, input: ExtractInput): string {
     .replace("{{other_url}}", input.otherUrl ?? "none");
 }
 
-// We never store a source that points at a competing happy-hour listing site — on our
-// own site that's both off-brand and exactly the stale data we're replacing (operator
-// directive). A row whose only source is one of these is dropped (→ becomes a stub).
+// Only block COMPETITOR happy-hour listing sites whose business is exactly what we do
+// (operator directive 2026-05-27). General listings like Yelp / OpenTable / TripAdvisor
+// are fine as sources — the AI often parses better-structured HH offering data from
+// them than from the venue's PDF menu, and dropping them silently costs us real data
+// (2026-05-28 Blue Hound incident: 9 offerings dropped because Yelp was blocked).
 const SOURCE_DENYLIST = [
   "ultimatehappyhours",
   "seattletravel",
-  "happyhour", // happyhours.com, happyhourdealfinder, etc.
-  "groupon",
-  "tripadvisor",
-  "wanderlog",
+  "happyhourdealfinder",
+  "happyhour.com",
+  "happyhours.com",
   "restaurantji",
   "sirved",
   "singleplatform",
-  "yelp", // listing aggregator, not first-party
 ];
 
 function isDenylistedSource(url: string): boolean {
@@ -350,6 +349,9 @@ export async function extractHappyHours(
     );
     if (recordCall) {
       raw = recordCall.input as RawExtract;
+      if (process.env.EXTRACT_DEBUG) {
+        console.error("[extract] raw tool input:", JSON.stringify(raw, null, 2));
+      }
       recorded = true;
       break;
     }

@@ -602,10 +602,15 @@ export function VenueTableClient({
                       <td className="px-4 py-3">{v.neighborhoodName ?? "—"}</td>
                     )}
                     <td
-                      className="px-4 py-3 text-accent-cool"
+                      className="px-4 py-3"
                       colSpan={colCount - stubLeadingCols}
                     >
-                      Does this place have a happy hour? Help us add it →
+                      <Link
+                        href={`/${citySlug}/venue/${v.slug}#add-happy-hour`}
+                        className="text-accent-cool hover:underline"
+                      >
+                        Does this place have a happy hour? Help us add it →
+                      </Link>
                     </td>
                   </tr>
                 ))}
@@ -690,9 +695,12 @@ export function VenueTableClient({
                       .join(" · ")}
                   </p>
                 )}
-                <p className="mt-1 text-sm text-accent-cool">
+                <Link
+                  href={`/${citySlug}/venue/${v.slug}#add-happy-hour`}
+                  className="mt-1 block text-sm text-accent-cool hover:underline"
+                >
                   Does this place have a happy hour? Help us add it →
-                </p>
+                </Link>
               </div>
             ))}
           </div>

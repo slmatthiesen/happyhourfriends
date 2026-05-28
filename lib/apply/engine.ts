@@ -35,6 +35,8 @@ const TABLE_BY_TARGET = {
   // but the map must be total over the enum. happy_hours is a harmless placeholder.
   intent: "happy_hours",
   new_offering: "offerings",
+  // new_happy_hour inserts into happy_hours (and optionally offerings in the same txn).
+  new_happy_hour: "happy_hours",
 } as const;
 
 // Column allowlists — only these keys are read out of a submission's `after` blob,
@@ -158,6 +160,20 @@ function withSourceUrl(
 }
 
 /**
+ * happy_hours.days_of_week is part of the natural unique index, which compares arrays
+ * element-wise — so [1,2,3] and [2,1,3] would be two different keys. Every write must
+ * therefore go in sorted+deduped (matches the seed scripts' convention), or AI-proposed
+ * unsorted arrays could silently break seed idempotency and create duplicate windows.
+ */
+function normaliseDaysOfWeek(after: Record<string, unknown>): Record<string, unknown> {
+  const raw = after.daysOfWeek;
+  if (!Array.isArray(raw)) return after;
+  const days = [...new Set(raw.map(Number).filter((n) => Number.isInteger(n) && n >= 1 && n <= 7))]
+    .sort((a, b) => a - b);
+  return { ...after, daysOfWeek: days };
+}
+
+/**
  * Apply a pending submission. `overrideAfter` lets an admin edit-then-apply: the
  * supplied object replaces the submission's `after` (a record of the override is
  * kept in the audit reason).
@@ -208,6 +224,71 @@ export async function applySubmission(
       rowId = inserted.id;
       beforeJsonb = null;
       afterJsonb = inserted as Record<string, unknown>;
+    } else if (sub.targetType === "new_happy_hour") {
+      // The "add a happy hour" path for stub venues: visitor submitted days/times
+      // (and optionally a list of offerings) directly, source already enforced. We
+      // insert the HH row and any offerings in a single txn; only the HH gets an
+      // audit_log entry — reverting it soft-deletes the HH, and the venue queries
+      // join offerings via happy_hour_id, so the offerings become invisible too.
+      const hhValues = pick(
+        withSourceUrl("happy_hours", normaliseDaysOfWeek(after), diff.sourceUrl),
+        HAPPY_HOUR_FIELDS,
+      );
+      const venueId = hhValues.venueId as string | undefined;
+      const days = hhValues.daysOfWeek as number[] | undefined;
+      if (!venueId || !days?.length || !hhValues.startTime) {
+        throw new Error(
+          "new_happy_hour requires venueId, daysOfWeek, startTime, and a source.",
+        );
+      }
+      const [insertedHh] = await tx
+        .insert(happyHours)
+        .values(hhValues as typeof happyHours.$inferInsert)
+        .returning();
+      rowId = insertedHh.id;
+
+      // Offerings ride along in the same txn. They default currency from the
+      // venue's city (mirrors the seed pipeline + new_offering path).
+      const rawOfferings = Array.isArray(
+        (after as { offerings?: unknown }).offerings,
+      )
+        ? ((after as { offerings: Record<string, unknown>[] }).offerings)
+        : [];
+      let defaultCurrency: string | null = null;
+      if (rawOfferings.length) {
+        const [v] = await tx
+          .select({ cityId: venues.cityId })
+          .from(venues)
+          .where(eq(venues.id, venueId))
+          .limit(1);
+        const [c] = v
+          ? await tx
+              .select({ cc: cities.currencyCode })
+              .from(cities)
+              .where(eq(cities.id, v.cityId))
+              .limit(1)
+          : [];
+        defaultCurrency = c?.cc ?? null;
+      }
+      const insertedOfferings: Record<string, unknown>[] = [];
+      for (const raw of rawOfferings) {
+        const o = pick(
+          { ...raw, happyHourId: insertedHh.id, sourceUrl: hhValues.sourceUrl },
+          OFFERING_FIELDS,
+        );
+        if (!o.kind || !o.category) continue;
+        if (!o.currencyCode && defaultCurrency) o.currencyCode = defaultCurrency;
+        const [insertedOff] = await tx
+          .insert(offerings)
+          .values(o as typeof offerings.$inferInsert)
+          .returning();
+        insertedOfferings.push(insertedOff as Record<string, unknown>);
+      }
+      beforeJsonb = null;
+      afterJsonb = {
+        ...(insertedHh as Record<string, unknown>),
+        offerings: insertedOfferings,
+      };
     } else if (sub.targetType === "new_offering") {
       // Insert a brand-new offering onto an EXISTING happy hour (e.g. an interpreted
       // "they added $5 wings"). Source is required just like an offering update.
@@ -261,8 +342,10 @@ export async function applySubmission(
       rowId = sub.targetId;
       const before = await readRow(tx, tableName, rowId);
       if (!before) throw new Error(`Target ${tableName}:${rowId} not found`);
+      const normalised =
+        tableName === "happy_hours" ? normaliseDaysOfWeek(after) : after;
       const values = pick(
-        withSourceUrl(tableName, after, diff.sourceUrl),
+        withSourceUrl(tableName, normalised, diff.sourceUrl),
         ALLOWED[tableName],
       );
       await updateRow(tx, tableName, rowId, values);

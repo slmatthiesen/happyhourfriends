@@ -39,7 +39,9 @@ HARD RULES — violations produce unusable data and are discarded:
   the venue id.
 - `update_happy_hour` — change an existing window. `after` may include: `startTime`,
   `endTime` (24h "HH:MM", or `null` for "until close"), `notes`, `active` (set `false`
-  if they say a window stopped). `targetId` is the happy hour id.
+  if they say a window stopped), and `daysOfWeek` (ISO int array, e.g. `[1,2,3,4,5,7]`
+  to add Sunday to a Mon–Fri window). When changing the day set, send the COMPLETE
+  intended set, not a delta. `targetId` is the happy hour id.
 - `update_offering` — change an existing deal. `after` may include: `name`, `priceCents`,
   `originalPriceCents`, `discountCents`, `description`, `conditions`, `category`, `kind`,
   `active`. `targetId` is the offering id.

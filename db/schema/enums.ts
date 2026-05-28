@@ -87,6 +87,9 @@ export const tagCategory = pgEnum("tag_category", [
 // prose; the interpret stage fans it out into concrete child submissions).
 // `new_offering` is server-created only — the interpreter proposes a brand-new
 // offering attached to an existing happy hour (e.g. "they added $5 wings").
+// `new_happy_hour` is the structured "add the first happy hour" path for stub
+// venues: the visitor fills in days/times/offerings directly, so no AI interpret
+// runs. Engine inserts the HH + its offerings in one txn. Never auto-applies.
 export const editTargetType = pgEnum("edit_target_type", [
   "venue",
   "happy_hour",
@@ -94,6 +97,7 @@ export const editTargetType = pgEnum("edit_target_type", [
   "new_venue",
   "intent",
   "new_offering",
+  "new_happy_hour",
 ]);
 
 export const aiRiskLevel = pgEnum("ai_risk_level", [
