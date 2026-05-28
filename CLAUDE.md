@@ -305,17 +305,58 @@ scripts/             seed-cities, import-neighborhoods (source-agnostic: --city 
 data/                tacoma-council-districts.geojson (real, committed)
 ```
 
-## Suggested next step (2026-05-27)
+## Tacoma seed run + neighborhood snap (2026-05-28, branch `cluster-schema-seed-pipeline`, commit `54ea326`)
 
-You're on branch **`cluster-schema-seed-pipeline`** (commit `7fb9c6a`). DB has
-migrations 0004+0005 applied; venue tables are empty (wiped, disposable). The other
-model's queued update is expected to land on top of this commit — review the merged
-result first, focusing on the shared files (`engine.ts`, `verify.ts`, `interpreter.ts`,
-`payload.ts`, venue page, `submission-form.tsx`) and any new migration's numbering.
+Tacoma effectively wrapped: 25 candidates processed across 3 enrich batches
+(~$1.50 spend), **2 confirmed** (Fuego Nightclub 1 window; Farrelli's Pizza 2 windows),
+21 stubs, 1 alcohol-filtered (Waffle Stop), 1 retry-as-stub (The Red Hot — see
+extractor finding below). 0 unprocessed Tacoma candidates remaining.
 
-Then to actually see a venue land end-to-end (the part that hasn't happened yet):
-`docker compose up -d && npm run dev` → `npm run reset:for-resource -- --city tacoma`
-(re-arm candidates) → `npx tsx scripts/seed-enrich-candidates.ts --limit 5` (cap at 5
-to spend ~40¢, not $6+) → load `/tacoma`. Read `[[working-style-lessons]]` before
-starting if you've never seeded with this operator. Known broken: hero photos
-(Google Place Details returns no `photoName`).
+**Landed (committed):** `lib/geo/assignNeighborhoods.ts` — replaced strict
+`ST_Contains` with `ST_DWithin(100m)` + distance-ranked ORDER BY. Generic
+snap-to-nearest-polygon-within-100m. Fixed 4 venues on the West End / North End
+polygon edges (Ruston cluster + Duke's Seafood pier). Cross-bridge venues (>>100m,
+e.g. the deleted Tides Tavern in Gig Harbor) correctly stay NULL. No per-city polygon
+imports needed — scales to every city. Plus: `.gitignore` ignores personal
+`STEVEN_GITHUB.md`.
+
+**Discovered (NOT fixed — highest-leverage extractor work):** The seed extractor
+systematically misses **weekday-labeled all-day specials** ("Monday: $2 burgers all
+damn day"). Verified end-to-end against `redhottacoma.com` — the M/Tue/Wed specials
+are plainly in text on the page; extractor returned 0 windows / conf 0.00 twice.
+Root cause is structural, confirmed by code reading:
+- `lib/ai/extractHappyHours.ts:142` — `RECORD_TOOL` schema marks `startTime` as a
+  required non-null string.
+- `prompts/seed-extract-hh.md:25-26` — prompt explicitly forbids fabricating times.
+- Result: model has no legal way to record an "all-day Monday" deal → emits empty.
+Affects every city, not just Tacoma — dive-bar / brewery / "industry night" / brunch
+patterns all hit this. Likely part of why Tacoma yield trails AZ. Fix sketch + the
+canonical smoke-test candidate (Red Hot, id `bdb4572a-…`) are in memory
+`[[project_extractor_misses_all_day_specials]]`.
+
+**Latent, not chased:** **Discovery gate let Tides Tavern (Gig Harbor, 2.6km outside
+any Tacoma polygon) through** and it enriched as a real venue before we caught it.
+Deleted in this session. Worth a look at the gate metric in `seed-discover-tacoma.ts`
+before the next city's discovery run — the 7km Tacoma/Ruston service-locality gate
+clearly isn't catching cross-bridge venues.
+
+**Other facts worth knowing before touching this:** Tacoma small businesses publish
+HH info online much less than AZ — many genuine stubs are correct outcomes, not
+extractor bugs (memory `[[project_tacoma_vs_az_hh_publishing]]`). Don't fabricate
+URLs or "known" venue facts to support arguments — verify or hedge
+(`[[feedback_no_fabricated_specifics]]`). Prefer generic logic/threshold fixes over
+per-city data additions — Tacoma is city #1 of 50+
+(`[[feedback_scalable_not_one_off]]`).
+
+**State:** Docker postgis up, DB has migrations 0004+0005 applied, 57 active Tacoma
+venues / 22 stubs / 0 missing-neighborhood, 0 unprocessed candidates. Month-to-date
+AI spend ≈ $13.50 (`npm run ai:spend`). Branch is 1 commit ahead of
+`origin/cluster-schema-seed-pipeline` (the snap commit; not pushed).
+
+## Previous suggested next step (2026-05-27 — partially superseded)
+
+Other model's queued update was expected to land on top of `7fb9c6a` — still pending,
+review shared files (`engine.ts`, `verify.ts`, `interpreter.ts`, `payload.ts`, venue
+page, `submission-form.tsx`) and any new migration's numbering when it lands. The
+"see a venue land end-to-end" demo is now done (Fuego + Farrelli's). Known still
+broken: hero photos (Google Place Details returns no `photoName`).
