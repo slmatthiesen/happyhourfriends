@@ -16,23 +16,33 @@ const CHAINS: string[] = [
   "chipotle", "subway", "jimmy johns", "jersey mikes", "arbys", "jack in the box",
   "carls jr", "sonic drive in", "dairy queen", "little caesars", "dominos",
   "papa johns", "pizza hut", "panda express", "five guys", "in n out", "del taco",
-  "wingstop", "raising canes", "panera", "qdoba", "wienerschnitzel", "church s chicken",
+  "wingstop", "raising canes", "panera", "qdoba", "wienerschnitzel", "churchs chicken",
   "churchs texas chicken", "mod pizza", "blaze pizza", "dutch bros", "starbucks",
+  "jollibee", "loves travel stop",
   // Casual-dining national chains (operator: ignore Applebee's / Red Lobster types)
   "applebees", "red lobster", "olive garden", "chilis", "tgi fridays", "fridays",
   "outback steakhouse", "texas roadhouse", "dennys", "ihop", "red robin",
   "black angus", "famous daves", "buffalo wild wings", "hooters", "round table pizza",
-  "macaroni grill", "claim jumper", "ruby tuesday", "golden corral", "shari s",
-  "sharis", "elmer s", "elmers", "mod sushi",
+  "macaroni grill", "claim jumper", "ruby tuesday", "golden corral", "sharis",
+  "elmers", "mod sushi", "bjs restaurant", "bjs brewhouse", "the old spaghetti factory",
+  "old spaghetti factory", "texas de brazil", "kura revolving sushi", "kura sushi",
+  "stack 571",
   // Arcade / entertainment / non-HH chains
   "chuck e cheese", "dave busters", "dave and busters", "round 1", "round1",
   "spare time", "bowlero", "main event", "topgolf", "gameworks",
 ];
 
-/** Lowercase + drop punctuation so "Applebee's Grill + Bar" → "applebees grill bar". */
+/**
+ * Normalize for matching. CRITICAL: drop apostrophes BEFORE collapsing non-alphanum
+ * to spaces. Otherwise "Applebee's Grill" → "applebee s grill" (with a space where
+ * the apostrophe was), and the denylist entry "applebees" never matches — which is
+ * exactly the bug that let Applebee's / Wendy's / Denny's / BJ's all slip through
+ * the discovery + enrich chain gates in the 2026-05-27 Tacoma run.
+ */
 function normalize(name: string): string {
   return name
     .toLowerCase()
+    .replace(/['']/g, "") // strip apostrophes (curly + straight) — DO NOT make spaces
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
 }

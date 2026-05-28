@@ -32,6 +32,7 @@ import { assignNeighborhoods } from "@/lib/geo/assignNeighborhoods";
 import {
   fetchPlaceDetails,
   fetchPlacePhoto,
+  PlaceDetailsQuotaError,
 } from "@/lib/places/placeDetails";
 import { saveVenuePhoto } from "@/lib/places/venuePhoto";
 import { isDenylistedChain } from "@/lib/places/chainDenylist";
@@ -194,6 +195,9 @@ async function main() {
         // ---- Place Details: alcohol gate + website + price tier + photo ------
         // One Google call (no AI). Gates out non-alcohol venues before any AI spend,
         // and supplies the canonical website the extractor reads.
+        // Quota-exhausted (429) escapes via PlaceDetailsQuotaError below — we abort
+        // the whole run rather than poisoning every remaining candidate as
+        // "no website" (2026-05-27 incident).
         const details =
           placesKey && candidate.google_place_id
             ? await fetchPlaceDetails(placesKey, candidate.google_place_id)
@@ -328,6 +332,16 @@ async function main() {
           );
         }
       } catch (err) {
+        // Quota exhausted → ABORT the whole run; the candidate is NOT marked processed
+        // so it gets retried tomorrow / after the operator bumps the quota.
+        if (err instanceof PlaceDetailsQuotaError) {
+          console.error(`\n${err.message}\n`);
+          console.error(
+            `Aborting run at candidate ${i + 1}/${candidates.length}. ` +
+              `${i} candidate(s) processed so far; the rest stay unprocessed for retry.`,
+          );
+          throw err;
+        }
         console.error(`  ERROR processing candidate ${candidate.id}:`, err);
         outcome = "error";
         // Continue loop — never throw out of the per-candidate iteration.
