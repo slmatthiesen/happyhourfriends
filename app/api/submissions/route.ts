@@ -60,7 +60,16 @@ export async function POST(req: Request) {
     );
   }
   const after = body.diff?.after;
-  if (!after || typeof after !== "object" || Object.keys(after).length === 0) {
+  if (!after || typeof after !== "object") {
+    return NextResponse.json(
+      { error: "Invalid change payload" },
+      { status: 400 },
+    );
+  }
+  // `new_happy_hour` may arrive with an empty `after` — the visitor might just
+  // attach a menu photo and let the operator fill in the details. Every other
+  // submission type needs at least one proposed value.
+  if (body.targetType !== "new_happy_hour" && Object.keys(after).length === 0) {
     return NextResponse.json(
       { error: "Nothing to change — no proposed values" },
       { status: 400 },
@@ -116,10 +125,13 @@ export async function POST(req: Request) {
   const providedUrl = body.diff.sourceUrl?.trim() || null;
   const effectiveSourceUrl = providedUrl ?? storedEvidence?.url ?? null;
 
-  // Evidence is required for happy-hour / offering changes — satisfied by EITHER a
-  // source URL or a photo. Venue metadata fixes (name, phone…) don't require it.
+  // Evidence is required for happy-hour / offering changes and for the "add the first
+  // happy hour" path — satisfied by EITHER a source URL or a photo. Venue metadata
+  // fixes (name, phone…) don't require it.
   const needsEvidence =
-    body.targetType === "happy_hour" || body.targetType === "offering";
+    body.targetType === "happy_hour" ||
+    body.targetType === "offering" ||
+    body.targetType === "new_happy_hour";
   if (needsEvidence && !effectiveSourceUrl) {
     return NextResponse.json(
       { error: "Add a source for this change — paste a link or upload a photo of the menu." },
@@ -130,6 +142,13 @@ export async function POST(req: Request) {
   // Record the submitter (banned submitters are still stored but never applied).
   await ensureSubmitter(fingerprint, ip ? hashIp(ip) : undefined);
 
+  // "Add the first happy hour" submissions go straight to the admin queue: the visitor
+  // is the source of truth (no prior data to verify against, and they may have only
+  // attached a photo), so no AI classify/verify spend is warranted. The engine will
+  // apply when the operator approves.
+  const initialStatus =
+    body.targetType === "new_happy_hour" ? "queued_admin" : "pending";
+
   const [row] = await db
     .insert(editSubmissions)
     .values({
@@ -137,7 +156,11 @@ export async function POST(req: Request) {
       targetId: body.targetType === "new_venue" ? null : body.targetId,
       diffJsonb: {
         before: body.diff.before ?? null,
-        after,
+        after: body.targetType === "new_happy_hour"
+          // Stamp the venue id onto the after blob so the engine has it without a
+          // separate lookup (mirrors how new_offering carries happyHourId).
+          ? { ...after, venueId: body.targetId }
+          : after,
         sourceUrl: effectiveSourceUrl,
         summary: body.diff.summary ?? undefined,
       },
@@ -147,19 +170,22 @@ export async function POST(req: Request) {
       submitterFingerprint: fingerprint,
       submitterIp: ip,
       submitterEmail: body.email?.trim() || null,
-      status: "pending",
+      status: initialStatus,
     })
     .returning({ id: editSubmissions.id, status: editSubmissions.status });
 
   // Kick off the pipeline. A free-text `intent` goes to the interpret stage (which
   // fans it out into concrete child submissions); everything else starts at classify.
+  // `new_happy_hour` skips the pipeline — it's already in the queue.
   // Non-fatal: the submission is already stored and visible in the admin queue even if
   // the queue is unavailable.
-  try {
-    if (body.targetType === "intent") await enqueueInterpret(row.id);
-    else await enqueueClassify(row.id);
-  } catch (e) {
-    console.error("Failed to enqueue pipeline job", e);
+  if (body.targetType !== "new_happy_hour") {
+    try {
+      if (body.targetType === "intent") await enqueueInterpret(row.id);
+      else await enqueueClassify(row.id);
+    } catch (e) {
+      console.error("Failed to enqueue pipeline job", e);
+    }
   }
 
   return NextResponse.json(

@@ -1,0 +1,1 @@
+ALTER TYPE "public"."edit_target_type" ADD VALUE 'new_happy_hour';

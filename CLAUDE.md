@@ -59,26 +59,15 @@ Launch market: Tacoma, WA. **`PRD.md` is the source of truth — read it before 
   (critical = venue→closed/no_happy_hour). `recordOutcome` fires on verifier-contradicted
   rejects. **TODO:** confirmed-flag → auto-apply implied change + admin email; rejected-flag
   → decrement the originating submitter (needs flag→submission linkage). No email yet (Resend).
-- **Phase 6 — SEED SCRIPTS BUILT, NOT RUN.** `npm run seed:discover` (Google Places v1,
-  needs `GOOGLE_PLACES_API_KEY`) → `seed_candidates`; `npm run seed:enrich` (needs
-  `ANTHROPIC_API_KEY`) → venue rows, **and now structured `happy_hours`/`offerings` via
-  `lib/ai/extractHappyHours.ts` + `prompts/seed-extract-hh.md`** (every row carries its own
-  `source_url`; completeness upgraded to `complete` when sourced rows land).
-  **IMPORTANT pre-enrich step:** if curated/hand-seeded venues already exist (they have
-  no `google_place_id`), run **`npm run backfill:place-ids`** first
-  (`scripts/backfill-place-ids.ts`, Places Text Search) to resolve them to their canonical
-  place_id — otherwise enrich's `ON CONFLICT (google_place_id)` can't dedup and you get
-  duplicate venue rows. Backfill also fills lat/lng + neighborhoods. Order:
-  seed:venues → backfill:place-ids → seed:discover → seed:enrich.
-- **Committed real seed data (no keys needed):** `data/tacoma-seed.json` — 20 real Tacoma
-  venues (~167 happy_hours + ~583 offerings once expanded across days) scraped main-thread
-  from editorial sources. **`npm run seed:venues`** loads it (idempotent; needs only
-  `DATABASE_URL`). **Recency is tracked**: each venue's `dataAsOf` (the source's stated
-  last-update — ultimatehappyhours ≈ 2025-04-27, seattletravel = 2023-09-04) is written to
-  `venues.last_verified_at`, so the re-verify cron re-confirms the oldest (2023) first.
-  These are SECONDARY sources (`data_completeness` capped at `complete`, never `verified`)
-  pending AI re-verification against each venue's own channels. **This is the only path to
-  venue rows right now** — run it after migrations to populate `/tacoma`.
+- **Phase 6 — DONE.** Seed pipeline is the only path to venues: `seed:discover` (Google
+  Places, tiled, filtered) → `backfill:place-ids` (if curated venues exist) →
+  `seed:enrich` (Place Details gate → single-pass Haiku web_fetch extractor → cluster-
+  shaped happy_hours rows). **The editorial seed (`data/tacoma-seed.json`, the old
+  `seed:venues` npm script, and `scripts/seed-venues.ts`) is DELETED (2026-05-27)** —
+  multiple sessions kept reintroducing the banned ultimatehappyhours/seattletravel
+  aggregator data despite the operator removing it twice; the only durable fix is no
+  file + no script + no package.json entry. Don't recreate any of them. First-party
+  data only, via the enrich pipeline.
 - **Phase 7 — WIRED.** Promotion styling + pinning in the table; `/admin/promotions`
   (audited tier/date control); `/for-restaurants`; venue/city OG images; daily re-verify
   cron (`reverify_cron` ledger, stale `verified`→`complete` past 60d, budget-gated).
@@ -149,16 +138,12 @@ Launch market: Tacoma, WA. **`PRD.md` is the source of truth — read it before 
     next); quarantine/cleanup of evidence for rejected submissions (files currently go public
     at upload time); `x-forwarded-for` trust only holds behind the CF/LB proxy (rate limits +
     bans key on it); optional malware scan.
-- **Per-venue re-scrape — IN PROGRESS (4 / 20 done).** Refreshing the stale editorial seed
-  with first-party data, main-thread (no keys; keyless Nominatim for lat/lng). Done +
-  `dataAsOf: 2026-05-27`: **Duke's Seafood, Stanley & Seafort's, The RAM (Ruston Way),
-  WildFin** (WildFin drinks only — its food menu is a PDF that didn't parse; flagged in
-  notes). `seed-venues.ts` now stores **lat/lng** and runs `assignNeighborhoods` after load;
-  `scripts/backfill-neighborhoods.ts` is the standalone runner. **Remaining 16**, incl. 5
-  with no address (the 2023 seattletravel set: Brewers Row, Red Star Taco Bar, Moshi Moshi,
-  Katie Downs, Poquitos) which need their address + site found first. Convention applied:
-  prefer `endTime: null` ("until close"); duplicate the shared menu across afternoon +
-  late-night windows.
+- **Per-venue re-scrape — ABANDONED.** That hand-scraping effort (4 of 20 editorial
+  venues refreshed) is dead. The operator banned editorial sources and the AI enrich
+  pipeline (with `web_search` + `web_fetch`) is now the path. The 4 partially-refreshed
+  venues + the other 11 editorial ones were deleted; their candidates re-source via
+  enrich. Convention preserved: prefer `endTime: null` ("until close") over a guessed
+  hard end.
 - **PDF tooling — ADDED (menus are usually PDFs).** Claude reads PDFs natively via
   `DocumentBlockParam` (base64). Wired in three places: (1) `fetchUrl` detects a PDF
   response (content-type / `.pdf`) and returns `pdfBase64` instead of garbled text;
@@ -189,6 +174,42 @@ Launch market: Tacoma, WA. **`PRD.md` is the source of truth — read it before 
   tsc/eslint clean (2 pre-existing), build OK, migration applied. See memory
   `unified-report-change-flow`. `components/submit/suggest-edit.tsx` now unused
   (SubmissionForm still backs `/submit/new-venue`). Not yet runtime-tested with a real key.
+- **Cluster schema + first-party seed pipeline — LANDED (2026-05-27, branch
+  `cluster-schema-seed-pipeline`, commit `7fb9c6a`). DB has migrations 0004+0005
+  applied; venue tables wiped (disposable, untrusted). Other model's pending update
+  is expected to land on top of this commit.**
+  - **`happy_hours.day_of_week` → `days_of_week smallint[]`.** One row per WINDOW
+    (Mon–Fri = `{1..5}`), not per day. New CHECK enforces non-empty array of 1..7.
+    Natural-key unique index includes the array (stored SORTED — both writers do
+    `[...new Set(d)].sort()`). `crosses_midnight` generated column stays.
+    `isWindowActive(w, now)` rewritten for arrays incl. cross-midnight on prev day.
+    All read/write sites updated (see commit): `lib/geo/timezone`, `lib/queries/venues`,
+    `scripts/seed-venues`, `scripts/seed-enrich-candidates`, `lib/apply/engine`
+    (HAPPY_HOUR_FIELDS), `components/venue-table-client`, the venue page (JSON-LD
+    `byDay` = array, display grouping flattens `daysOfWeek`), `lib/ai/interpreter`.
+    Deleted unused `components/venue-table.tsx`. `formatDays(number[])` already array-shaped.
+  - **Seed funnel (Tacoma, repeatable per city):** **`seed:discover` (tiled, chain
+    denylist + junk-primary-type exclusion + Tacoma/Ruston ≤7km gate at insert)** →
+    **`backfill:place-ids` (curated venues → canonical place_id)** → **`seed:enrich`
+    (Place Details verify gate: must serve alcohol + have a website; single-pass
+    Haiku web_fetch extractor with `web_search` + follow-links + first-party-source
+    guard + structured `record_happy_hours` tool + deal consolidation; venue created
+    even without HH so likely-HH locals stay as bottom-of-page stubs for crowdsource)**.
+    Venues carry `priceLevel` + `heroImageUrl` (the latter still **broken**: Place
+    Details `photos` field comes back empty — separate fix needed). Ops scripts:
+    `reset-for-resource`, `prune-empty-venues`, `purge-source-data`, `ai-spend`,
+    `export-candidates`. **No data on disk points at competitor HH-aggregator sites.**
+  - **Lessons (see `[[enrich-extraction-lessons]]`):** structured-output via forced
+    tool call avoids prose-narration truncation; `daysOfWeek` arrays in the tool
+    schema (not per-day) keep output small; Haiku + `web_fetch` needs
+    `allowed_callers: ["direct"]`. The extractor's ceiling is **data availability**
+    (Parkway-type dives don't publish times anywhere online — they correctly become
+    stubs); Cloverleaf-type sites with a `/promotions` or `/menu` page do extract.
+  - **PENDING:** apply the other model's queued update on top of this commit; review
+    shared files (`engine.ts`, `verify.ts`, `interpreter.ts`, `payload.ts`, venue page,
+    `submission-form.tsx`) and any new migration's numbering. Then re-arm candidates
+    and run `seed:enrich --limit 5` to demo a real Tacoma venue landing (the only
+    end-to-end demo that hasn't happened yet).
 - **What still needs the operator (not code):** API keys to *run* AI/seed/captcha/auth
   (`ANTHROPIC_API_KEY`, `GOOGLE_PLACES_API_KEY`, hCaptcha, Firebase), Resend for email,
   and the §10 cloud deploy (DO droplet + managed PG + Cloudflare). All features degrade
@@ -250,6 +271,10 @@ memory note `multi-city-architecture` for the full list. Summary:
 - **Pin prompts:** prompt templates live in `/prompts/` (versioned); record the
   content hash in `ai_usage_ledger.prompt_hash` (`lib/ai/promptHash.ts`).
 - **Ask before assuming** on PRD ambiguity/conflict.
+- **First-party data only.** Never seed/insert venue or HH/offering data sourced from
+  competitor aggregators (ultimatehappyhours.com, seattletravel.com, Yelp, Groupon).
+  Source guard in `lib/ai/extractHappyHours.ts` enforces this for AI sources; do not
+  bypass it, recreate `data/tacoma-seed.json`, or restore a `seed:venues` script.
 
 ## Environment constraints LEARNED THE HARD WAY
 
@@ -280,10 +305,17 @@ scripts/             seed-cities, import-neighborhoods (source-agnostic: --city 
 data/                tacoma-council-districts.geojson (real, committed)
 ```
 
-## Suggested next step
+## Suggested next step (2026-05-27)
 
-A fresh session: `docker compose up -d && npm run dev` to confirm `/tacoma`, then
-either (a) inline-scrape ~20–30 real Tacoma venues into `data/tacoma-seed.json` and
-write `scripts/seed-venues.ts` to load them (no fabrication; every HH row sourced), or
-(b) build **Phase 2** (anonymous submission flow + admin queue + audit log + revert) —
-needs no seed data. Operator still owes the §10 cloud setup before prod launch.
+You're on branch **`cluster-schema-seed-pipeline`** (commit `7fb9c6a`). DB has
+migrations 0004+0005 applied; venue tables are empty (wiped, disposable). The other
+model's queued update is expected to land on top of this commit — review the merged
+result first, focusing on the shared files (`engine.ts`, `verify.ts`, `interpreter.ts`,
+`payload.ts`, venue page, `submission-form.tsx`) and any new migration's numbering.
+
+Then to actually see a venue land end-to-end (the part that hasn't happened yet):
+`docker compose up -d && npm run dev` → `npm run reset:for-resource -- --city tacoma`
+(re-arm candidates) → `npx tsx scripts/seed-enrich-candidates.ts --limit 5` (cap at 5
+to spend ~40¢, not $6+) → load `/tacoma`. Read `[[working-style-lessons]]` before
+starting if you've never seeded with this operator. Known broken: hero photos
+(Google Place Details returns no `photoName`).

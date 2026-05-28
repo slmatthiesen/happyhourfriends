@@ -8,7 +8,8 @@ protect that promise, so please read them before opening a PR that touches the d
 
 See the [Quick start](README.md#quick-start) in the README. In short: Node 20+, Docker
 Desktop running, then `cp .env.example .env`, `docker compose up -d`, `npm install`,
-`npm run db:migrate`, `npm run seed:cities`, `npm run seed:venues`, `npm run dev`.
+`npm run db:migrate`, `npm run seed:cities`, `npm run dev`. (Venues populate via the
+AI seed pipeline — `seed:discover` + `seed:enrich` — once keys are set.)
 
 Every external integration is optional and degrades gracefully, so you can develop most
 of the app with only `DATABASE_URL` set.

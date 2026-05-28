@@ -19,7 +19,10 @@
  */
 import "dotenv/config";
 import postgres from "postgres";
-import { isDenylistedChain } from "@/lib/places/chainDenylist";
+import {
+  isDenylistedChain,
+  isLikelyNoHappyHourFormat,
+} from "@/lib/places/chainDenylist";
 
 // ---------------------------------------------------------------------------
 // Arg parsing
@@ -87,10 +90,18 @@ const TACOMA_FALLBACK = {
   radiusMeters: 15_000, // ~9 miles — covers Tacoma proper
 };
 
-// Coverage tiling: a single searchNearby caps at 20 results, so we grid the area into
-// overlapping search circles to capture far more venues (deduped by google_place_id).
-const COVERAGE_METERS = 9_000; // ~radius of Tacoma proper from center
-const CELL_METERS = 3_000; // per-tile search radius
+// Per-city discovery config stored in cities.seed_config (JSONB). Falls back to the
+// historical Tacoma defaults if absent so older city rows keep working.
+interface SeedConfig {
+  radiusKm: number;
+  cellMeters: number;
+  serviceLocalities: string[];
+}
+const DEFAULT_SEED_CONFIG: SeedConfig = {
+  radiusKm: 7,
+  cellMeters: 3000,
+  serviceLocalities: ["Tacoma", "Ruston"],
+};
 
 // We search broad (anything that could host a happy hour) but exclude junk PRIMARY
 // types at the Google query level — so 7-Elevens (convenience_store), Chick-fil-A /
@@ -120,11 +131,6 @@ const EXCLUDED_PRIMARY_TYPES = [
   "gym",
   "hamburger_restaurant",
 ] as const;
-
-// Service-area gate (operator choice: Tacoma + Ruston, ≤7 km). Out-of-area results
-// from edge tiles (Federal Way, Lakewood, …) are dropped at insert, never stored.
-const SERVICE_RADIUS_KM = 7;
-const SERVICE_LOCALITIES = ["Tacoma", "Ruston"];
 
 function haversineKm(aLat: number, aLng: number, bLat: number, bLng: number): number {
   const R = 6371;
@@ -269,8 +275,14 @@ async function main() {
   try {
     // ---- Resolve city row ---------------------------------------------------
     const [city] = await sql<
-      { id: string; center_lat: string | null; center_lng: string | null }[]
-    >`SELECT id, center_lat, center_lng FROM cities WHERE slug = ${args.city}`;
+      {
+        id: string;
+        state: string | null;
+        center_lat: string | null;
+        center_lng: string | null;
+        seed_config: SeedConfig | string | null;
+      }[]
+    >`SELECT id, state, center_lat, center_lng, seed_config FROM cities WHERE slug = ${args.city}`;
     if (!city) {
       throw new Error(
         `City '${args.city}' not found — run npm run seed:cities first.`,
@@ -283,6 +295,21 @@ async function main() {
     const lng = city.center_lng
       ? parseFloat(city.center_lng)
       : TACOMA_FALLBACK.lng;
+
+    // Per-city discovery config (radius, locality filter). Defaults to historical
+    // Tacoma values if seed_config is null so legacy rows keep working. postgres.js
+    // returns JSONB as a string by default — parse if so.
+    const rawCfg = city.seed_config;
+    const cfg: SeedConfig =
+      typeof rawCfg === "string"
+        ? (JSON.parse(rawCfg) as SeedConfig)
+        : (rawCfg ?? DEFAULT_SEED_CONFIG);
+    const COVERAGE_METERS = cfg.radiusKm * 1000;
+    const CELL_METERS = cfg.cellMeters;
+    const SERVICE_RADIUS_KM = cfg.radiusKm;
+    const SERVICE_LOCALITIES = cfg.serviceLocalities;
+    // Locality regex needs the state code (e.g. ", Tacoma, WA" / ", Phoenix, AZ").
+    const stateCode = city.state ?? "WA";
 
     // --fresh: wipe prior candidates (except those already linked to a venue) so the
     // re-discovery reflects the current type/area filters cleanly.
@@ -302,6 +329,7 @@ async function main() {
     let placesInserted = 0;
     let outOfArea = 0;
     let chainsSkipped = 0;
+    let formatsSkipped = 0;
     let placesSkipped = 0;
 
     const tiles = buildTiles(lat, lng, COVERAGE_METERS, CELL_METERS);
@@ -340,10 +368,17 @@ async function main() {
           continue;
         }
 
-        // Service-area gate: keep only Tacoma/Ruston within the radius. Out-of-area
-        // edge-tile spillover (Federal Way, Lakewood, …) is dropped, never stored.
+        // Format gate: buffets / AYCE / all-you-can-eat — these don't run happy hours.
+        if (isLikelyNoHappyHourFormat(name)) {
+          formatsSkipped++;
+          continue;
+        }
+
+        // Service-area gate: keep only the configured localities within the radius.
+        // Out-of-area edge-tile spillover (Federal Way, Lakewood for Tacoma; Tempe,
+        // Scottsdale for Phoenix-central) is dropped here, never stored.
         const inLocality = SERVICE_LOCALITIES.some((loc) =>
-          new RegExp(`,\\s*${loc},\\s*WA`).test(address ?? ""),
+          new RegExp(`,\\s*${loc},\\s*${stateCode}`).test(address ?? ""),
         );
         const inRadius =
           pLat != null && pLng != null
@@ -380,7 +415,8 @@ async function main() {
 
     console.log(
       `Google Places: ${placesInserted} in-area upserts, ${outOfArea} out-of-area dropped, ` +
-        `${chainsSkipped} chains dropped, ${placesSkipped} skipped.`,
+        `${chainsSkipped} chains dropped, ${formatsSkipped} buffet/AYCE dropped, ` +
+        `${placesSkipped} skipped.`,
     );
 
     // ---- Curated sources (optional) ----------------------------------------

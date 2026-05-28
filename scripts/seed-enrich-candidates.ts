@@ -35,7 +35,7 @@ import {
   PlaceDetailsQuotaError,
 } from "@/lib/places/placeDetails";
 import { saveVenuePhoto } from "@/lib/places/venuePhoto";
-import { isDenylistedChain } from "@/lib/places/chainDenylist";
+import { isDenylistedChain, isLikelyNoHappyHourFormat } from "@/lib/places/chainDenylist";
 
 // ---------------------------------------------------------------------------
 // Arg parsing
@@ -161,6 +161,19 @@ async function main() {
       // processed, no venue, no AI.
       if (isDenylistedChain(candidate.name)) {
         console.log("  ↷ skip — national chain");
+        await sql`
+          UPDATE seed_candidates
+          SET processed_at = now(), updated_at = now()
+          WHERE id = ${candidate.id}
+        `;
+        nFiltered++;
+        continue;
+      }
+
+      // Format gate: buffets / AYCE / all-you-can-eat — these don't run happy hours
+      // (already discounted by format). No venue, no AI. Operator directive 2026-05-27.
+      if (isLikelyNoHappyHourFormat(candidate.name)) {
+        console.log("  ↷ skip — buffet/AYCE format");
         await sql`
           UPDATE seed_candidates
           SET processed_at = now(), updated_at = now()

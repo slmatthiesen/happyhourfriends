@@ -6,12 +6,17 @@
 // correction in prose (+ optional photo/URL) and the AI interprets it into concrete
 // changes. `new_offering` exists in the DB enum but is server-created only (born from
 // interpretation) — it is intentionally NOT in the client-postable list below.
+// `new_happy_hour` is the "add the first happy hour" path on a stub venue: the visitor
+// either fills in days/times/offerings directly, or just attaches a photo/URL for the
+// operator to apply manually. Either way, source (link or photo) is required and the
+// submission goes straight to queued_admin — the AI doesn't interpret or verify it.
 export type SubmissionTargetType =
   | "venue"
   | "happy_hour"
   | "offering"
   | "new_venue"
-  | "intent";
+  | "intent"
+  | "new_happy_hour";
 
 export const SUBMISSION_TARGET_TYPES: SubmissionTargetType[] = [
   "venue",
@@ -19,6 +24,7 @@ export const SUBMISSION_TARGET_TYPES: SubmissionTargetType[] = [
   "offering",
   "new_venue",
   "intent",
+  "new_happy_hour",
 ];
 
 export interface SubmissionDiffPayload {
