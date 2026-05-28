@@ -170,6 +170,25 @@ Launch market: Tacoma, WA. **`PRD.md` is the source of truth — read it before 
   carries `{url,mime}`. This is what lets the **scalable** path (Places discovery → AI
   enrich/verify per venue) read the most common menu format — the manual main-thread
   scrape is only a no-keys bootstrap for launch data.
+- **Unified "report a change" flow — WIRED (2026-05-27).** The four venue-page edit
+  affordances (per-HH edit, menu-out-of-date, venue correction, report-closed) collapsed
+  into ONE free-text box (`components/submit/report-change.tsx`, `targetType:"intent"`).
+  New **interpret** stage (`lib/ai/interpreter.ts` + `prompts/interpret-submission.md` +
+  `lib/jobs/handlers/interpret.ts`, Haiku, forced `record_changes` tool) maps the prose +
+  optional photo onto the venue's CURRENT data and **fans out one child `edit_submissions`
+  row per concrete change** (`parentSubmissionId` self-FK; `getVenueDetailById` added).
+  Children run the normal classify→verify path but **never auto-apply** (gated on
+  `parentSubmissionId != null` in classify/verify) — they always verify to get the AI's
+  approve/don't-approve opinion, land in `queued_admin`, and **email `ADMIN_EMAIL`**
+  (`lib/email/`, Resend via fetch, graceful no-op without `RESEND_API_KEY`). Operator does
+  the final manual apply. **Scope (owner):** modify existing only; adding an offering to an
+  existing HH is allowed (engine `new_offering` insert path) but NOT new HH windows or new
+  venues (the separate `/submit/new-venue` path). Op cap 5 (`MAX_OPS`); bigger →
+  `tooLarge` → parent to `queued_admin`. Children excluded from rate-limit counts + trust
+  scoring (server-created). Migration `0003_optimal_ulik.sql` (enum values + parent col);
+  tsc/eslint clean (2 pre-existing), build OK, migration applied. See memory
+  `unified-report-change-flow`. `components/submit/suggest-edit.tsx` now unused
+  (SubmissionForm still backs `/submit/new-venue`). Not yet runtime-tested with a real key.
 - **What still needs the operator (not code):** API keys to *run* AI/seed/captcha/auth
   (`ANTHROPIC_API_KEY`, `GOOGLE_PLACES_API_KEY`, hCaptcha, Firebase), Resend for email,
   and the §10 cloud deploy (DO droplet + managed PG + Cloudflare). All features degrade

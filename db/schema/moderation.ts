@@ -11,6 +11,7 @@ import {
   text,
   timestamp,
   uuid,
+  type AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import { timestamps } from "./columns";
 import {
@@ -34,7 +35,13 @@ export const editSubmissions = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     targetType: editTargetType("target_type").notNull(),
-    targetId: uuid("target_id"), // nullable for new_venue
+    targetId: uuid("target_id"), // nullable for new_venue / new_offering / intent-parent
+    // Set on children fanned out from a free-text `intent` parent by the interpret
+    // stage. Distinguishes AI-interpreted changes (which never auto-apply and don't
+    // count toward submitter rate limits) from direct user submissions.
+    parentSubmissionId: uuid("parent_submission_id").references(
+      (): AnyPgColumn => editSubmissions.id,
+    ),
     diffJsonb: jsonb("diff_jsonb").notNull(), // { before, after }
     submitterFingerprint: text("submitter_fingerprint"),
     submitterIp: inet("submitter_ip"),
@@ -53,6 +60,7 @@ export const editSubmissions = pgTable(
     index("edit_submissions_status_idx").on(t.status),
     index("edit_submissions_target_idx").on(t.targetType, t.targetId),
     index("edit_submissions_fingerprint_idx").on(t.submitterFingerprint),
+    index("edit_submissions_parent_idx").on(t.parentSubmissionId),
   ],
 );
 

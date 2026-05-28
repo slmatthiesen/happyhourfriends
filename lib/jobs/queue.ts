@@ -2,9 +2,14 @@ import { getBoss } from "./boss";
 
 /** Queue names. Keep in one place so producer and worker can't drift. */
 export const QUEUES = {
+  interpret: "interpret-submission",
   classify: "classify-submission",
   verify: "verify-submission",
 } as const;
+
+export interface InterpretJobData {
+  submissionId: string;
+}
 
 export interface ClassifyJobData {
   submissionId: string;
@@ -12,6 +17,16 @@ export interface ClassifyJobData {
 
 export interface VerifyJobData {
   submissionId: string;
+}
+
+/**
+ * Enqueue the interpret stage for a free-text `intent` submission. Same non-fatal
+ * contract as classify — the parent is already persisted and a human can still see it.
+ */
+export async function enqueueInterpret(submissionId: string): Promise<void> {
+  const boss = await getBoss();
+  await boss.createQueue(QUEUES.interpret);
+  await boss.send(QUEUES.interpret, { submissionId } satisfies InterpretJobData);
 }
 
 /**

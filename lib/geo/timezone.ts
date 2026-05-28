@@ -49,15 +49,16 @@ function toMinutes(time: string): number {
 }
 
 export interface HappyHourWindow {
-  dayOfWeek: number; // ISO 1..7
+  daysOfWeek: number[]; // ISO 1..7, the cluster of days this window runs
   startTime: string; // "HH:MM" or "HH:MM:SS"
   endTime: string | null; // null = "until close"
   crossesMidnight?: boolean | null;
 }
 
 /**
- * Whether a window is active at `now` (already in venue-local terms). Windows that
- * cross midnight (end < start) are active late on their own day and early the next.
+ * Whether a window is active at `now` (already in venue-local terms). A window runs on
+ * every day in `daysOfWeek`. Windows that cross midnight (end < start) are active late
+ * on each of their days and early the following day.
  */
 export function isWindowActive(w: HappyHourWindow, now: VenueLocalNow): boolean {
   const start = toMinutes(w.startTime);
@@ -65,11 +66,16 @@ export function isWindowActive(w: HappyHourWindow, now: VenueLocalNow): boolean 
   const crosses = w.crossesMidnight ?? (w.endTime != null && end < start);
 
   if (!crosses) {
-    return now.dayOfWeek === w.dayOfWeek && now.minutes >= start && now.minutes < end;
+    return (
+      w.daysOfWeek.includes(now.dayOfWeek) &&
+      now.minutes >= start &&
+      now.minutes < end
+    );
   }
 
-  const nextDay = w.dayOfWeek === 7 ? 1 : w.dayOfWeek + 1;
-  const lateOnStartDay = now.dayOfWeek === w.dayOfWeek && now.minutes >= start;
-  const earlyNextDay = now.dayOfWeek === nextDay && now.minutes < end;
+  // Cross-midnight: active late on a start day, or early on the day after a start day.
+  const lateOnStartDay = w.daysOfWeek.includes(now.dayOfWeek) && now.minutes >= start;
+  const prevDay = now.dayOfWeek === 1 ? 7 : now.dayOfWeek - 1;
+  const earlyNextDay = w.daysOfWeek.includes(prevDay) && now.minutes < end;
   return lateOnStartDay || earlyNextDay;
 }

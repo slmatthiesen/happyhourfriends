@@ -27,6 +27,8 @@ export interface VenueListItem
     | "promotionTier"
     | "timezone"
     | "type"
+    | "priceLevel"
+    | "heroImageUrl"
   > {
   neighborhoodName: string | null;
   neighborhoodSlug: string | null;
@@ -34,7 +36,7 @@ export interface VenueListItem
   tags: string[];
   /** Up to a handful of representative deals for the table preview column. */
   offerings: { label: string; priceCents: number | null }[];
-  /** Cheapest priced offering across this venue's hours (drives the $ indicator). */
+  /** Cheapest priced offering across this venue's hours (fallback price signal). */
   minPriceCents: number | null;
 }
 
@@ -158,12 +160,17 @@ export async function listVenuesForCity(
       status: venues.status,
       dataCompleteness: venues.dataCompleteness,
       promotionTier: venues.promotionTier,
-      timezone: venues.timezone,
+      // Fall back to the city's tz so a venue with a null timezone still powers
+      // "happening now" — never let a missing venue tz silently disable the feature.
+      timezone: sql<string>`coalesce(${venues.timezone}, ${cities.defaultTimezone})`,
       type: venues.type,
+      priceLevel: venues.priceLevel,
+      heroImageUrl: venues.heroImageUrl,
       neighborhoodName: neighborhoods.name,
       neighborhoodSlug: neighborhoods.slug,
     })
     .from(venues)
+    .innerJoin(cities, eq(venues.cityId, cities.id))
     .leftJoin(neighborhoods, eq(venues.neighborhoodId, neighborhoods.id))
     .where(
       and(
@@ -187,7 +194,7 @@ export async function listVenuesForCity(
         isNull(happyHours.deletedAt),
       ),
     )
-    .orderBy(asc(happyHours.dayOfWeek), asc(happyHours.startTime));
+    .orderBy(asc(happyHours.startTime));
 
   const byVenue = new Map<string, HappyHourRow[]>();
   for (const h of hours) {
@@ -281,19 +288,9 @@ export interface VenueDetail extends VenueRow {
   happyHours: (HappyHourRow & { offerings: OfferingRow[] })[];
 }
 
-export async function getVenueBySlug(
-  cityId: string,
-  slug: string,
-): Promise<VenueDetail | null> {
-  const [venue] = await db
-    .select()
-    .from(venues)
-    .where(
-      and(eq(venues.cityId, cityId), eq(venues.slug, slug), isNull(venues.deletedAt)),
-    )
-    .limit(1);
-  if (!venue) return null;
-
+/** Assemble a VenueDetail (neighborhood name + active-or-not hours + offerings) from
+ *  a venue row. Shared by the slug and id lookups so both return identical shapes. */
+async function assembleVenueDetail(venue: VenueRow): Promise<VenueDetail> {
   const [hood] = venue.neighborhoodId
     ? await db
         .select({ name: neighborhoods.name })
@@ -306,7 +303,7 @@ export async function getVenueBySlug(
     .select()
     .from(happyHours)
     .where(and(eq(happyHours.venueId, venue.id), isNull(happyHours.deletedAt)))
-    .orderBy(asc(happyHours.dayOfWeek), asc(happyHours.startTime));
+    .orderBy(asc(happyHours.startTime));
 
   const hourIds = hours.map((h) => h.id);
   const offers = hourIds.length
@@ -330,4 +327,33 @@ export async function getVenueBySlug(
     neighborhoodName: hood?.name ?? null,
     happyHours: hours.map((h) => ({ ...h, offerings: offersByHour.get(h.id) ?? [] })),
   };
+}
+
+export async function getVenueBySlug(
+  cityId: string,
+  slug: string,
+): Promise<VenueDetail | null> {
+  const [venue] = await db
+    .select()
+    .from(venues)
+    .where(
+      and(eq(venues.cityId, cityId), eq(venues.slug, slug), isNull(venues.deletedAt)),
+    )
+    .limit(1);
+  if (!venue) return null;
+  return assembleVenueDetail(venue);
+}
+
+/** Like getVenueBySlug but keyed on the venue id — used by the interpret stage, which
+ *  only has the target venue's id (not its city + slug). */
+export async function getVenueDetailById(
+  venueId: string,
+): Promise<VenueDetail | null> {
+  const [venue] = await db
+    .select()
+    .from(venues)
+    .where(and(eq(venues.id, venueId), isNull(venues.deletedAt)))
+    .limit(1);
+  if (!venue) return null;
+  return assembleVenueDetail(venue);
 }

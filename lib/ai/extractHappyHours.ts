@@ -52,8 +52,8 @@ export interface ExtractedOffering {
 }
 
 export interface ExtractedHappyHour {
-  /** ISO day-of-week: 1=Mon … 7=Sun */
-  dayOfWeek: number;
+  /** ISO days this window applies to: 1=Mon … 7=Sun (expanded to one row each on insert) */
+  daysOfWeek: number[];
   /** 24-hour "HH:MM" */
   startTime: string;
   /** 24-hour "HH:MM" or null ("until close") */
@@ -94,7 +94,7 @@ interface RawOffering {
 }
 
 interface RawHappyHour {
-  dayOfWeek?: number;
+  daysOfWeek?: number[];
   startTime?: string;
   endTime?: string | null;
   locationWithinVenue?: string;
@@ -134,7 +134,11 @@ const RECORD_TOOL: ToolUnion = {
         items: {
           type: "object",
           properties: {
-            dayOfWeek: { type: "integer", description: "ISO 1=Mon … 7=Sun" },
+            daysOfWeek: {
+              type: "array",
+              items: { type: "integer" },
+              description: "ISO days this window applies to: 1=Mon … 7=Sun, e.g. [1,2,3,4,5]",
+            },
             startTime: { type: "string", description: '24h "HH:MM"' },
             endTime: { type: ["string", "null"], description: '24h "HH:MM" or null for "until close"' },
             locationWithinVenue: { type: "string", enum: ["bar", "patio", "dining", "all"] },
@@ -159,7 +163,7 @@ const RECORD_TOOL: ToolUnion = {
               },
             },
           },
-          required: ["dayOfWeek", "startTime", "sourceUrl", "offerings"],
+          required: ["daysOfWeek", "startTime", "sourceUrl", "offerings"],
         },
       },
       confidence: { type: "number", description: "0..1" },
@@ -169,21 +173,31 @@ const RECORD_TOOL: ToolUnion = {
   },
 };
 
+// Recall matters more than shaving pennies: many venues publish happy hours on a
+// sub-page, a PDF, or only on Facebook/an aggregator — NOT the homepage. So we give the
+// model room to look: a web_search (to find the HH/menu page when the site doesn't link
+// it) plus several fetches. Still bounded so cost stays ~10–15¢/venue, not $1.
+// (allowed_callers: direct — Haiku doesn't do programmatic tool calling.)
 const TOOLS: ToolUnion[] = [
+  {
+    type: "web_search_20260209",
+    name: "web_search",
+    max_uses: 3,
+    allowed_callers: ["direct"],
+  },
   {
     type: "web_fetch_20260209",
     name: "web_fetch",
-    max_uses: 3,
-    max_content_tokens: 6_000,
-    // Haiku doesn't support "programmatic" tool calling (the default for web_fetch);
-    // pin it to direct calling so cheaper models can use it.
+    max_uses: 6,
+    max_content_tokens: 12_000,
     allowed_callers: ["direct"],
   },
   RECORD_TOOL,
 ];
 
-// Max times we resume after a `pause_turn` (server tools running).
-const MAX_TURNS = 4;
+// Max times we resume after a `pause_turn` (server tools running). Higher now that the
+// model may search + fetch several pages before recording.
+const MAX_TURNS = 8;
 
 const VALID_LOCATION = new Set(["bar", "patio", "dining", "all"]);
 const VALID_KIND = new Set(["food", "drink", "other"]);
@@ -205,10 +219,36 @@ function fillPlaceholders(template: string, input: ExtractInput): string {
     .replace("{{other_url}}", input.otherUrl ?? "none");
 }
 
-/** §13: drop offerings that have no non-empty sourceUrl. */
+// We never store a source that points at a competing happy-hour listing site — on our
+// own site that's both off-brand and exactly the stale data we're replacing (operator
+// directive). A row whose only source is one of these is dropped (→ becomes a stub).
+const SOURCE_DENYLIST = [
+  "ultimatehappyhours",
+  "seattletravel",
+  "happyhour", // happyhours.com, happyhourdealfinder, etc.
+  "groupon",
+  "tripadvisor",
+  "wanderlog",
+  "restaurantji",
+  "sirved",
+  "singleplatform",
+  "yelp", // listing aggregator, not first-party
+];
+
+function isDenylistedSource(url: string): boolean {
+  let host = url.toLowerCase();
+  try {
+    host = new URL(url).hostname.toLowerCase();
+  } catch {
+    /* not a parseable URL — fall back to substring check below */
+  }
+  return SOURCE_DENYLIST.some((d) => host.includes(d));
+}
+
+/** §13: drop offerings with no non-empty sourceUrl, or a competitor-aggregator source. */
 function normaliseOffering(raw: RawOffering): ExtractedOffering | null {
   const sourceUrl = raw.sourceUrl?.trim() ?? "";
-  if (!sourceUrl) return null;
+  if (!sourceUrl || isDenylistedSource(sourceUrl)) return null;
 
   return {
     kind: VALID_KIND.has(raw.kind ?? "") ? (raw.kind as string) : "other",
@@ -229,20 +269,22 @@ function normaliseOffering(raw: RawOffering): ExtractedOffering | null {
   };
 }
 
-/** §13: drop happyHours entries that have no non-empty sourceUrl or invalid dayOfWeek. */
+/** §13: drop HH entries with no/denylisted sourceUrl or invalid dayOfWeek. */
 function normaliseHappyHour(raw: RawHappyHour): ExtractedHappyHour | null {
   const sourceUrl = raw.sourceUrl?.trim() ?? "";
-  if (!sourceUrl) return null;
+  if (!sourceUrl || isDenylistedSource(sourceUrl)) return null;
 
-  const dayOfWeek = raw.dayOfWeek ?? 0;
-  if (!Number.isInteger(dayOfWeek) || dayOfWeek < 1 || dayOfWeek > 7) return null;
+  const daysOfWeek = [...new Set(raw.daysOfWeek ?? [])].filter(
+    (d) => Number.isInteger(d) && d >= 1 && d <= 7,
+  );
+  if (daysOfWeek.length === 0) return null;
 
   const offerings: ExtractedOffering[] = (raw.offerings ?? [])
     .map(normaliseOffering)
     .filter((o): o is ExtractedOffering => o !== null);
 
   return {
-    dayOfWeek,
+    daysOfWeek,
     startTime: raw.startTime ?? "00:00",
     endTime: raw.endTime ?? null,
     locationWithinVenue: VALID_LOCATION.has(raw.locationWithinVenue ?? "")
@@ -281,7 +323,9 @@ export async function extractHappyHours(
     const lastTurn = turn === MAX_TURNS - 1;
     const response = await anthropic().messages.create({
       model,
-      max_tokens: 4096,
+      // Generous: a full menu's structured record_happy_hours call can be large, and
+      // running out mid-tool-call truncates the JSON to nothing (the 0-rows bug).
+      max_tokens: 8192,
       system,
       tools: TOOLS,
       messages,

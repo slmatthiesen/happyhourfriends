@@ -109,6 +109,13 @@ export const venues = pgTable(
     otherUrl: text("other_url"),
     googlePlaceId: text("google_place_id").unique(), // canonical dedup key
     phone: text("phone"),
+    // Google Places general price tier 1–4 (INEXPENSIVE…VERY_EXPENSIVE). The venue's
+    // overall expensiveness, NOT its happy-hour pricing — used only as a fallback for
+    // the price column when we have no extracted HH offering price.
+    priceLevel: smallint("price_level"),
+    // Locally-stored hero image (downloaded from Google Place Photos so we don't re-hit
+    // the API per render). Relative public path, e.g. /uploads/venues/<id>.jpg.
+    heroImageUrl: text("hero_image_url"),
     status: venueStatus("status").notNull().default("active"),
     flaggedAt: timestamp("flagged_at", { withTimezone: true }),
     flagReason: text("flag_reason"),
@@ -131,9 +138,12 @@ export const venues = pgTable(
 );
 
 /**
- * happy_hours — day_of_week is ISO 8601 (1=Mon … 7=Sun), enforced by a CHECK.
- * Times are venue-local. crosses_midnight is a STORED generated column so it can
- * never drift from the underlying times. end_time is nullable for "until close".
+ * happy_hours — one row per WINDOW, applied to a cluster of ISO weekdays
+ * (days_of_week, 1=Mon … 7=Sun). "Mon–Fri 3–6pm" is a single row with
+ * days_of_week = {1,2,3,4,5}, not five rows (operator decision 2026-05 — per-day rows
+ * were redundant + costly). Times are venue-local. crosses_midnight is a STORED
+ * generated column. end_time is nullable for "until close". A CHECK enforces a
+ * non-empty array whose values are all 1..7.
  */
 export const happyHours = pgTable(
   "happy_hours",
@@ -142,7 +152,7 @@ export const happyHours = pgTable(
     venueId: uuid("venue_id")
       .notNull()
       .references(() => venues.id),
-    dayOfWeek: smallint("day_of_week").notNull(),
+    daysOfWeek: smallint("days_of_week").array().notNull(),
     startTime: time("start_time").notNull(),
     endTime: time("end_time"), // null = "until close"
     crossesMidnight: boolean("crosses_midnight").generatedAlwaysAs(
@@ -160,12 +170,16 @@ export const happyHours = pgTable(
     ...softDelete,
   },
   (t) => [
-    // Unique among non-deleted rows (PRD §3.3).
+    // Unique among non-deleted rows (PRD §3.3). days_of_week is stored sorted so the
+    // array compares as a stable natural key.
     uniqueIndex("happy_hours_natural_uq")
-      .on(t.venueId, t.dayOfWeek, t.startTime, t.endTime, t.locationWithinVenue)
+      .on(t.venueId, t.daysOfWeek, t.startTime, t.endTime, t.locationWithinVenue)
       .where(sql`deleted_at IS NULL`),
     index("happy_hours_venue_idx").on(t.venueId),
-    check("happy_hours_dow_iso", sql`day_of_week BETWEEN 1 AND 7`),
+    check(
+      "happy_hours_dow_iso",
+      sql`array_length(days_of_week, 1) >= 1 AND 1 <= ALL(days_of_week) AND 7 >= ALL(days_of_week)`,
+    ),
   ],
 );
 

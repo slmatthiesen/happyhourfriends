@@ -26,11 +26,15 @@
  */
 import "dotenv/config";
 import postgres from "postgres";
-import { verify } from "@/lib/ai/verifier";
 import { extractHappyHours } from "@/lib/ai/extractHappyHours";
 import { firstOfCurrentMonth } from "@/lib/ai/budget";
 import { assignNeighborhoods } from "@/lib/geo/assignNeighborhoods";
-import { fetchPlaceDetails } from "@/lib/places/placeDetails";
+import {
+  fetchPlaceDetails,
+  fetchPlacePhoto,
+} from "@/lib/places/placeDetails";
+import { saveVenuePhoto } from "@/lib/places/venuePhoto";
+import { isDenylistedChain } from "@/lib/places/chainDenylist";
 
 // ---------------------------------------------------------------------------
 // Arg parsing
@@ -76,45 +80,7 @@ function slugify(input: string): string {
     .replace(/(^-|-$)/g, "");
 }
 
-// ---------------------------------------------------------------------------
-// Interpret verify() result into a seedOutcome
-// ---------------------------------------------------------------------------
-
 type SeedOutcome = "confirmed_hh" | "no_hh_explicit" | "no_hh_found" | "error";
-
-function interpretOutcome(
-  confirmed: boolean | null,
-  confidence: number,
-  evidence: { supportsChange: boolean }[],
-  summary: string,
-): SeedOutcome {
-  if (confirmed === true && confidence >= 0.5) {
-    return "confirmed_hh";
-  }
-
-  // Explicit "no happy hour" signal: confirmed=false with real evidence
-  if (confirmed === false && evidence.length > 0) {
-    return "no_hh_explicit";
-  }
-
-  // Lower-confidence negative or no evidence at all
-  const lowerSummary = summary.toLowerCase();
-  const explicitNegativeKeywords = [
-    "no happy hour",
-    "does not have a happy hour",
-    "discontinued happy hour",
-    "no longer offer",
-    "does not offer happy hour",
-  ];
-  const hasExplicitNegative = explicitNegativeKeywords.some((kw) =>
-    lowerSummary.includes(kw),
-  );
-  if (hasExplicitNegative) {
-    return "no_hh_explicit";
-  }
-
-  return "no_hh_found";
-}
 
 // ---------------------------------------------------------------------------
 // Main
@@ -178,10 +144,10 @@ async function main() {
     );
 
     let nConfirmed = 0;
-    let nNoHhExplicit = 0;
     let nNoHhFound = 0;
     let nError = 0;
     let nSkipped = 0;
+    let nFiltered = 0;
     const month = firstOfCurrentMonth();
 
     for (let i = 0; i < candidates.length; i++) {
@@ -189,6 +155,19 @@ async function main() {
       console.log(
         `[${i + 1}/${candidates.length}] ${candidate.name} (id=${candidate.id})…`,
       );
+
+      // National-chain gate (defensive — discovery already filters these). Mark
+      // processed, no venue, no AI.
+      if (isDenylistedChain(candidate.name)) {
+        console.log("  ↷ skip — national chain");
+        await sql`
+          UPDATE seed_candidates
+          SET processed_at = now(), updated_at = now()
+          WHERE id = ${candidate.id}
+        `;
+        nFiltered++;
+        continue;
+      }
 
       // Skip candidates already mapped to a venue (deduped by place_id) — don't re-pay
       // to enrich something we already have (e.g. hand-seeded venues after backfill).
@@ -212,191 +191,142 @@ async function main() {
       let resultingVenueId: string | null = null;
 
       try {
-        // Canonical website from Place Details so verify + extract start from the
-        // venue's real site (not a guess) — this is what makes extraction work.
+        // ---- Place Details: alcohol gate + website + price tier + photo ------
+        // One Google call (no AI). Gates out non-alcohol venues before any AI spend,
+        // and supplies the canonical website the extractor reads.
         const details =
           placesKey && candidate.google_place_id
             ? await fetchPlaceDetails(placesKey, candidate.google_place_id)
             : null;
-        const siteUrl = details?.websiteUri ?? null;
 
-        // ---- Run the Stage 2 verifier ----------------------------------------
-        const result = await verify({
-          venueName: candidate.name,
-          websiteUrl: siteUrl,
-          otherUrl: null,
-          diffSummary:
-            "Find this venue's current happy hour schedule and deals from its own website and social channels. " +
-            "Return confirmed=true only if you find specific happy hour offers with times. " +
-            "Return confirmed=false if you find an explicit statement that there is no happy hour. " +
-            "Return confirmed=null if you cannot determine either way.",
-        });
-
-        console.log(
-          `  → confirmed=${result.confirmed}, confidence=${result.confidence.toFixed(2)}, ` +
-            `cost=${result.costCents}¢, tokens=${result.usage.inputTokens}in/${result.usage.outputTokens}out`,
-        );
-
-        // ---- Interpret result -----------------------------------------------
-        outcome = interpretOutcome(
-          result.confirmed,
-          result.confidence,
-          result.evidence,
-          result.summary,
-        );
-
-        // Extract a website URL from evidence if available (best effort).
-        // Prefer a supporting website source; fall back to any website evidence.
-        const evidenceWebsiteUrl: string | null =
-          siteUrl ??
-          (result.evidence.find(
-            (e) => e.source === "website" && e.url && e.supportsChange,
-          ) ??
-            result.evidence.find((e) => e.source === "website" && e.url))?.url ??
-          null;
-
-        // ---- Insert/upsert venue row ----------------------------------------
-        if (outcome !== "error") {
-          // Confirmed venues are inserted as 'partial', then upgraded to 'complete'
-          // below if the structured extraction pass finds sourced happy_hours rows
-          // (PRD §13 — every HH/offering row carries its own source_url).
-
-          const venueStatus =
-            outcome === "no_hh_explicit" ? "no_happy_hour" : "active";
-          const completeness =
-            outcome === "confirmed_hh" ? "partial" : "stub";
-          const slug = slugify(candidate.name);
-
-          // Upsert on google_place_id when present; otherwise straight insert.
-          let venueId: string | null = null;
-
-          if (candidate.google_place_id) {
-            const rows = await sql<{ id: string }[]>`
-              INSERT INTO venues
-                (city_id, name, slug, address, lat, lng,
-                 google_place_id, website_url, status, data_completeness)
-              VALUES
-                (${city.id}, ${candidate.name}, ${slug},
-                 ${candidate.address}, ${candidate.lat}, ${candidate.lng},
-                 ${candidate.google_place_id}, ${evidenceWebsiteUrl},
-                 ${venueStatus}::venue_status, ${completeness}::data_completeness)
-              ON CONFLICT (google_place_id) DO NOTHING
-              RETURNING id
-            `;
-
-            if (rows.length > 0) {
-              venueId = rows[0].id;
-            } else {
-              // Row already existed (DO NOTHING) — look it up
-              const existing = await sql<{ id: string }[]>`
-                SELECT id FROM venues WHERE google_place_id = ${candidate.google_place_id}
-              `;
-              venueId = existing[0]?.id ?? null;
-            }
-          } else {
-            // No place_id: insert only (no unique constraint to conflict on)
-            const rows = await sql<{ id: string }[]>`
-              INSERT INTO venues
-                (city_id, name, slug, address, lat, lng,
-                 google_place_id, website_url, status, data_completeness)
-              VALUES
-                (${city.id}, ${candidate.name}, ${slug},
-                 ${candidate.address}, ${candidate.lat}, ${candidate.lng},
-                 ${null}, ${evidenceWebsiteUrl},
-                 ${venueStatus}::venue_status, ${completeness}::data_completeness)
-              ON CONFLICT (city_id, slug) DO NOTHING
-              RETURNING id
-            `;
-            venueId = rows[0]?.id ?? null;
-          }
-
-          resultingVenueId = venueId;
-
-          // ---- Structured happy-hour extraction (PRD §3.3/§3.5/§13) ----------
-          // Run whenever we're not sure there's NO happy hour. verify() uses a raw
-          // fetch and misses JS/PDF menus; the web_fetch extractor is the authoritative
-          // HH finder, so let it try and drive the final outcome. Each returned row
-          // carries a source_url (the extractor drops unsourced rows).
-          if (outcome !== "no_hh_explicit" && venueId) {
-            try {
-              const extracted = await extractHappyHours({
-                venueName: candidate.name,
-                websiteUrl: evidenceWebsiteUrl,
-                otherUrl: null,
-              });
-
-              await sql`
-                INSERT INTO ai_usage_ledger
-                  (month, model, input_tokens, output_tokens, cost_cents,
-                   stage, city_id, prompt_hash)
-                VALUES
-                  (${month}, ${extracted.model},
-                   ${extracted.usage.inputTokens}, ${extracted.usage.outputTokens},
-                   ${extracted.costCents}, ${"seed"}::ai_stage,
-                   ${city.id}, ${extracted.promptHash})
-              `;
-
-              let hhInserted = 0;
-              for (const hh of extracted.happyHours) {
-                const hhRows = await sql<{ id: string }[]>`
-                  INSERT INTO happy_hours
-                    (venue_id, day_of_week, start_time, end_time,
-                     location_within_venue, notes, active, source_url)
-                  VALUES
-                    (${venueId}, ${hh.dayOfWeek}, ${hh.startTime}, ${hh.endTime},
-                     ${hh.locationWithinVenue}::location_within_venue,
-                     ${hh.notes}, true, ${hh.sourceUrl})
-                  ON CONFLICT DO NOTHING
-                  RETURNING id
-                `;
-                if (hhRows.length === 0) continue;
-                hhInserted++;
-                const hhId = hhRows[0].id;
-                for (const off of hh.offerings) {
-                  await sql`
-                    INSERT INTO offerings
-                      (happy_hour_id, kind, category, name, price_cents,
-                       original_price_cents, discount_cents, description,
-                       conditions, active, source_url)
-                    VALUES
-                      (${hhId}, ${off.kind}::offering_kind,
-                       ${off.category}::offering_category, ${off.name},
-                       ${off.priceCents}, ${off.originalPriceCents},
-                       ${off.discountCents}, ${off.description},
-                       ${off.conditions}, true, ${off.sourceUrl})
-                  `;
-                }
-              }
-
-              if (hhInserted > 0) {
-                // The extractor found sourced HH — that's the authoritative signal.
-                outcome = "confirmed_hh";
-                await sql`
-                  UPDATE venues
-                  SET data_completeness = ${"complete"}::data_completeness,
-                      last_verified_at = now(),
-                      updated_at = now()
-                  WHERE id = ${venueId}
-                `;
-              }
-              console.log(`  → extracted ${hhInserted} sourced happy-hour row(s)`);
-            } catch (err) {
-              console.error(`  extraction failed for ${candidate.id}:`, err);
-            }
-          }
+        // Alcohol gate — only when details actually came back (don't false-skip on an
+        // API hiccup). Non-alcohol venues are marked processed with no venue, no AI.
+        if (details && !details.servesAlcohol) {
+          console.log("  ↷ filtered — Google reports no alcohol served");
+          await sql`
+            UPDATE seed_candidates
+            SET processed_at = now(), updated_at = now()
+            WHERE id = ${candidate.id}
+          `;
+          nFiltered++;
+          continue;
         }
 
-        // ---- Record AI usage in ledger --------------------------------------
-        await sql`
-          INSERT INTO ai_usage_ledger
-            (month, model, input_tokens, output_tokens, cost_cents,
-             stage, city_id, prompt_hash)
-          VALUES
-            (${month}, ${result.model},
-             ${result.usage.inputTokens}, ${result.usage.outputTokens},
-             ${result.costCents}, ${"seed"}::ai_stage,
-             ${city.id}, ${result.promptHash})
-        `;
+        const siteUrl = details?.websiteUri ?? null;
+
+        // ---- Single AI pass: extract HH straight from the venue's site -------
+        const extracted = siteUrl
+          ? await extractHappyHours({
+              venueName: candidate.name,
+              websiteUrl: siteUrl,
+              otherUrl: null,
+            })
+          : null;
+
+        if (extracted) {
+          await sql`
+            INSERT INTO ai_usage_ledger
+              (month, model, input_tokens, output_tokens, cost_cents,
+               stage, city_id, prompt_hash)
+            VALUES
+              (${month}, ${extracted.model},
+               ${extracted.usage.inputTokens}, ${extracted.usage.outputTokens},
+               ${extracted.costCents}, ${"seed"}::ai_stage,
+               ${city.id}, ${extracted.promptHash})
+          `;
+          console.log(
+            `  → confidence=${extracted.confidence.toFixed(2)}, cost=${extracted.costCents}¢, ` +
+              `${extracted.happyHours.length} window(s)`,
+          );
+        } else {
+          console.log("  → no website on file");
+        }
+
+        const hasHH = (extracted?.happyHours.length ?? 0) > 0;
+        outcome = hasHH ? "confirmed_hh" : "no_hh_found";
+
+        // We KEEP the venue even when we couldn't find times: it passed the chain +
+        // alcohol + area gates, so it's a likely-HH local spot. With HH → 'complete'
+        // (sorts into the table); without → 'stub' (shows at the bottom as
+        // "likely has a happy hour — help us add times", crowdsourced). Only genuine
+        // junk (chains, non-alcohol, out-of-area) was already filtered upstream.
+        {
+          const slug = slugify(candidate.name);
+          const completeness = hasHH ? "complete" : "stub";
+          const lastVerified = hasHH ? new Date() : null;
+          const inserted = await sql<{ id: string }[]>`
+            INSERT INTO venues
+              (city_id, name, slug, address, lat, lng, google_place_id,
+               website_url, phone, price_level, status, data_completeness, last_verified_at)
+            VALUES
+              (${city.id}, ${candidate.name}, ${slug},
+               ${candidate.address}, ${candidate.lat}, ${candidate.lng},
+               ${candidate.google_place_id ?? null}, ${siteUrl}, ${details?.phone ?? null},
+               ${details?.priceLevel ?? null}, 'active'::venue_status,
+               ${completeness}::data_completeness, ${lastVerified}::timestamptz)
+            ON CONFLICT (${candidate.google_place_id ? sql`google_place_id` : sql`city_id, slug`})
+              DO NOTHING
+            RETURNING id
+          `;
+          let venueId = inserted[0]?.id ?? null;
+          if (!venueId && candidate.google_place_id) {
+            const [ex] = await sql<{ id: string }[]>`
+              SELECT id FROM venues WHERE google_place_id = ${candidate.google_place_id}
+            `;
+            venueId = ex?.id ?? null;
+          }
+          resultingVenueId = venueId;
+
+          // ---- Hero photo (download once, store locally) ---------------------
+          if (venueId && placesKey && details?.photoName) {
+            const photo = await fetchPlacePhoto(placesKey, details.photoName);
+            if (photo) {
+              const path = await saveVenuePhoto(venueId, photo.bytes);
+              if (path) {
+                await sql`UPDATE venues SET hero_image_url = ${path}, updated_at = now() WHERE id = ${venueId}`;
+              }
+            }
+          }
+
+          // ---- Insert HH rows (one row per window, days clustered) -----------
+          if (venueId && extracted && hasHH) {
+            for (const hh of extracted.happyHours) {
+              const days = [...new Set(hh.daysOfWeek)].sort((a, b) => a - b);
+              const hhRows = await sql<{ id: string }[]>`
+                INSERT INTO happy_hours
+                  (venue_id, days_of_week, start_time, end_time,
+                   location_within_venue, notes, active, source_url)
+                VALUES
+                  (${venueId}, ${days}, ${hh.startTime}, ${hh.endTime},
+                   ${hh.locationWithinVenue}::location_within_venue,
+                   ${hh.notes}, true, ${hh.sourceUrl})
+                ON CONFLICT DO NOTHING
+                RETURNING id
+              `;
+              if (hhRows.length === 0) continue;
+              const hhId = hhRows[0].id;
+              for (const off of hh.offerings) {
+                await sql`
+                  INSERT INTO offerings
+                    (happy_hour_id, kind, category, name, price_cents,
+                     original_price_cents, discount_cents, description,
+                     conditions, active, source_url)
+                  VALUES
+                    (${hhId}, ${off.kind}::offering_kind,
+                     ${off.category}::offering_category, ${off.name},
+                     ${off.priceCents}, ${off.originalPriceCents},
+                     ${off.discountCents}, ${off.description},
+                     ${off.conditions}, true, ${off.sourceUrl})
+                `;
+              }
+            }
+          }
+          console.log(
+            hasHH
+              ? `  ✓ ${extracted!.happyHours.length} HH window(s) saved`
+              : "  ◦ likely-HH stub kept (no times found — crowdsource)",
+          );
+        }
       } catch (err) {
         console.error(`  ERROR processing candidate ${candidate.id}:`, err);
         outcome = "error";
@@ -422,7 +352,6 @@ async function main() {
 
       // Tally
       if (outcome === "confirmed_hh") nConfirmed++;
-      else if (outcome === "no_hh_explicit") nNoHhExplicit++;
       else if (outcome === "no_hh_found") nNoHhFound++;
       else nError++;
 
@@ -440,10 +369,10 @@ async function main() {
     console.log("\n── Enrichment complete ──────────────────────────────────");
     console.log(`  confirmed_hh:    ${nConfirmed}`);
     console.log(`  neighborhoods assigned: ${assigned}`);
-    console.log(`  no_hh_explicit:  ${nNoHhExplicit}`);
     console.log(`  no_hh_found:     ${nNoHhFound}`);
     console.log(`  error:           ${nError}`);
     console.log(`  skipped (existing): ${nSkipped}`);
+    console.log(`  filtered (no alcohol): ${nFiltered}`);
     console.log(`  total:           ${candidates.length}`);
     console.log(
       "\nNOTE: confirmed_hh venues run a structured-extraction pass; those with sourced" +

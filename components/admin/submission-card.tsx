@@ -15,6 +15,8 @@ export interface QueueItem {
   };
   aiRiskLevel: string | null;
   aiVerdict: string | null;
+  /** Stage-1/Stage-2 reasoning — the AI's approve/don't-approve opinion. */
+  aiReasoning?: string | null;
   status: string;
   submitterEmail: string | null;
   createdAt: string;
@@ -107,6 +109,12 @@ export function SubmissionCard({ item }: { item: QueueItem }) {
 
       {item.diff.summary && (
         <p className="mt-2 text-sm text-text-muted">{item.diff.summary}</p>
+      )}
+
+      {item.aiReasoning && (
+        <p className="mt-2 rounded-md border border-border/60 bg-bg-elevated px-3 py-2 text-xs text-text-muted">
+          <span className="text-text-primary">AI:</span> {item.aiReasoning}
+        </p>
       )}
 
       <table className="mt-3 w-full text-left text-sm">

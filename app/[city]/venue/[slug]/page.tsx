@@ -3,8 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DirectionsButton } from "@/components/directions-button";
 import { SiteWordmark } from "@/components/site-wordmark";
-import { SuggestEdit } from "@/components/submit/suggest-edit";
-import { formatDays, formatPrice, formatTime } from "@/lib/format";
+import { ReportChange } from "@/components/submit/report-change";
+import { formatDays, formatDaysLong, formatPrice, formatTime } from "@/lib/format";
 import { getCityBySlug, getVenueBySlug } from "@/lib/queries/venues";
 
 export async function generateMetadata({
@@ -37,6 +37,39 @@ export default async function VenuePage({
   const activeHours = venue.happyHours.filter((h) => h.active && !h.deletedAt);
   const currency = city.currencyCode ?? "USD";
 
+  // Most venues run the identical happy hour across several days (Mon–Fri is the
+  // common case). Collapse days that share the same window + offerings into one
+  // card so the listing isn't a noisy day-by-day repeat.
+  const offeringSig = (offerings: (typeof activeHours)[number]["offerings"]) =>
+    offerings
+      .map(
+        (o) =>
+          `${o.name ?? o.category}|${o.priceCents ?? ""}|${o.discountCents ?? ""}|${o.conditions ?? ""}|${o.currencyCode ?? ""}`,
+      )
+      .sort()
+      .join(";");
+
+  type HourGroup = {
+    days: number[];
+    rep: (typeof activeHours)[number];
+  };
+  const hourGroups = new Map<string, HourGroup>();
+  for (const h of activeHours) {
+    const sig = `${h.startTime}|${h.endTime}|${h.notes ?? ""}|${offeringSig(h.offerings)}`;
+    const group = hourGroups.get(sig);
+    if (group) group.days.push(...h.daysOfWeek);
+    else hourGroups.set(sig, { days: [...h.daysOfWeek], rep: h });
+  }
+  const groupedHours = [...hourGroups.values()].sort(
+    (a, b) => Math.min(...a.days) - Math.min(...b.days),
+  );
+
+  // Venue-level source: the first sourced happy hour (they usually share one).
+  const sourceUrl =
+    activeHours.find((h) => h.sourceUrl)?.sourceUrl ??
+    venue.happyHours.find((h) => h.sourceUrl)?.sourceUrl ??
+    null;
+
   // Schema.org recurring Event per happy-hour window (PRD §6.5). A weekly Schedule
   // models the recurrence; offerings become the event description.
   const SCHEMA_DOW: Record<number, string> = {
@@ -50,11 +83,11 @@ export default async function VenuePage({
   };
   const events = activeHours.map((h) => ({
     "@type": "Event",
-    name: `Happy Hour — ${formatDays([h.dayOfWeek])}`,
+    name: `Happy Hour — ${formatDays(h.daysOfWeek)}`,
     eventSchedule: {
       "@type": "Schedule",
       repeatFrequency: "P1W",
-      byDay: `https://schema.org/${SCHEMA_DOW[h.dayOfWeek]}`,
+      byDay: h.daysOfWeek.map((d) => `https://schema.org/${SCHEMA_DOW[d]}`),
       startTime: h.startTime?.slice(0, 5),
       ...(h.endTime ? { endTime: h.endTime.slice(0, 5) } : {}),
     },
@@ -106,6 +139,17 @@ export default async function VenuePage({
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
           {venue.address && <DirectionsButton address={venue.address} />}
+          {sourceUrl && (
+            <a
+              href={sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Where this listing's happy hour info was sourced from"
+              className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-sm text-text-muted hover:border-accent-cool hover:text-accent-cool"
+            >
+              Source ↗
+            </a>
+          )}
           {venue.websiteUrl && (
             <a
               href={venue.websiteUrl}
@@ -152,14 +196,14 @@ export default async function VenuePage({
           </div>
         ) : (
           <ul className="mt-4 space-y-4">
-            {activeHours.map((h) => (
+            {groupedHours.map(({ days, rep: h }) => (
               <li
                 key={h.id}
                 className="rounded-lg border border-border bg-bg-surface p-4"
               >
                 <div className="flex items-baseline justify-between">
                   <span className="font-medium text-text-primary">
-                    {formatDays([h.dayOfWeek])}
+                    {formatDaysLong(days)}
                   </span>
                   <span className="tabular-nums text-accent-warm">
                     {formatTime(h.startTime)} – {formatTime(h.endTime)}
@@ -194,39 +238,6 @@ export default async function VenuePage({
                     })}
                   </ul>
                 )}
-                {h.sourceUrl && (
-                  <a
-                    href={h.sourceUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title="Where this was sourced from"
-                    className="mt-3 inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 text-[11px] text-text-muted hover:border-accent-cool hover:text-accent-cool"
-                  >
-                    Source ↗
-                  </a>
-                )}
-                <SuggestEdit
-                  targetType="happy_hour"
-                  targetId={h.id}
-                  requireSource
-                  summary={`Edit ${formatDays([h.dayOfWeek])} happy hour at ${venue.name}`}
-                  fields={[
-                    {
-                      key: "startTime",
-                      label: "Start time",
-                      type: "time",
-                      current: h.startTime?.slice(0, 5) ?? null,
-                    },
-                    {
-                      key: "endTime",
-                      label: "End time",
-                      type: "time",
-                      current: h.endTime?.slice(0, 5) ?? null,
-                      help: "Leave blank for 'until close'.",
-                    },
-                    { key: "notes", label: "Notes", type: "text", current: h.notes },
-                  ]}
-                />
               </li>
             ))}
           </ul>
@@ -240,59 +251,12 @@ export default async function VenuePage({
         >
           Keep this listing accurate
         </h2>
-        <p className="mt-1 text-sm text-text-muted">
-          Spotted a change? Suggest an edit and our team reviews it before anything
-          goes live.
+        <p className="mt-1 mb-3 text-sm text-text-muted">
+          Prices changed? New deal? Closed? Just tell us in plain words — our AI sorts
+          out the details and a human approves it before anything goes live.
         </p>
 
-        <div className="mt-3 space-y-2">
-          <SuggestEdit
-            label="Menu out of date? Send the current one (photo)"
-            targetType="venue"
-            targetId={venue.id}
-            reportMode
-            summary={`Menu update reported for ${venue.name}`}
-            fields={[]}
-            submitLabel="Send update"
-          />
-          <SuggestEdit
-            label="Suggest a correction to this venue"
-            targetType="venue"
-            targetId={venue.id}
-            summary={`Venue detail correction for ${venue.name}`}
-            fields={[
-              { key: "name", label: "Name", current: venue.name },
-              {
-                key: "websiteUrl",
-                label: "Website",
-                type: "url",
-                current: venue.websiteUrl,
-              },
-              { key: "phone", label: "Phone", current: venue.phone },
-            ]}
-          />
-          <SuggestEdit
-            label="Report this place closed or no longer doing happy hour"
-            targetType="venue"
-            targetId={venue.id}
-            critical
-            requireSource
-            summary={`Status change reported for ${venue.name}`}
-            fields={[
-              {
-                key: "status",
-                label: "New status",
-                type: "select",
-                current: venue.status,
-                options: [
-                  { value: "closed", label: "Permanently closed" },
-                  { value: "no_happy_hour", label: "No longer has happy hour" },
-                  { value: "paused", label: "Temporarily paused" },
-                ],
-              },
-            ]}
-          />
-        </div>
+        <ReportChange venueId={venue.id} venueName={venue.name} />
       </section>
     </main>
   );

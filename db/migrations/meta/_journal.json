@@ -15,6 +15,34 @@
       "when": 1779852938357,
       "tag": "0001_init_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1779926590181,
+      "tag": "0002_married_unicorn",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1779929963610,
+      "tag": "0003_optimal_ulik",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1779933685354,
+      "tag": "0004_bouncy_carnage",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1779933706823,
+      "tag": "0005_lowly_korvac",
+      "breakpoints": true
     }
   ]
 }

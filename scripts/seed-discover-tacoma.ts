@@ -19,12 +19,13 @@
  */
 import "dotenv/config";
 import postgres from "postgres";
+import { isDenylistedChain } from "@/lib/places/chainDenylist";
 
 // ---------------------------------------------------------------------------
 // Arg parsing
 // ---------------------------------------------------------------------------
 
-function parseArgs(): { city: string; curated: boolean } {
+function parseArgs(): { city: string; curated: boolean; fresh: boolean } {
   const argv = process.argv.slice(2);
   const getFlag = (f: string) => {
     const i = argv.indexOf(f);
@@ -33,6 +34,10 @@ function parseArgs(): { city: string; curated: boolean } {
   return {
     city: getFlag("--city") ?? "tacoma",
     curated: argv.includes("--curated"),
+    // --fresh: clear this city's existing candidates first (re-discover from scratch,
+    // e.g. after changing the type/area filters). Candidates already linked to a venue
+    // are kept so we don't lose enrich results.
+    fresh: argv.includes("--fresh"),
   };
 }
 
@@ -57,6 +62,7 @@ interface PlaceResult {
   displayName?: { text?: string };
   formattedAddress?: string;
   location?: { latitude?: number; longitude?: number };
+  primaryType?: string;
 }
 
 interface NearbySearchResponse {
@@ -81,15 +87,89 @@ const TACOMA_FALLBACK = {
   radiusMeters: 15_000, // ~9 miles — covers Tacoma proper
 };
 
+// Coverage tiling: a single searchNearby caps at 20 results, so we grid the area into
+// overlapping search circles to capture far more venues (deduped by google_place_id).
+const COVERAGE_METERS = 9_000; // ~radius of Tacoma proper from center
+const CELL_METERS = 3_000; // per-tile search radius
+
+// We search broad (anything that could host a happy hour) but exclude junk PRIMARY
+// types at the Google query level — so 7-Elevens (convenience_store), Chick-fil-A /
+// Chipotle (fast_food_restaurant), coffee shops, bakeries, theaters, etc. never come
+// back and never cost us an AI pass. excludedPrimaryTypes removes a place when its
+// PRIMARY type is in the list, so a real restaurant that merely *also* serves coffee
+// stays. (PRD §7.3 / cost control — keep the candidate set alcohol-leaning.)
+const INCLUDED_TYPES = ["bar", "restaurant"] as const;
+const EXCLUDED_PRIMARY_TYPES = [
+  "fast_food_restaurant",
+  "convenience_store",
+  "cafe",
+  "coffee_shop",
+  "bakery",
+  "meal_takeaway",
+  "meal_delivery",
+  "sandwich_shop",
+  "ice_cream_shop",
+  "donut_shop",
+  "grocery_store",
+  "supermarket",
+  "gas_station",
+  "liquor_store",
+  "movie_theater",
+  "bowling_alley",
+  "golf_course",
+  "gym",
+  "hamburger_restaurant",
+] as const;
+
+// Service-area gate (operator choice: Tacoma + Ruston, ≤7 km). Out-of-area results
+// from edge tiles (Federal Way, Lakewood, …) are dropped at insert, never stored.
+const SERVICE_RADIUS_KM = 7;
+const SERVICE_LOCALITIES = ["Tacoma", "Ruston"];
+
+function haversineKm(aLat: number, aLng: number, bLat: number, bLng: number): number {
+  const R = 6371;
+  const dLat = ((bLat - aLat) * Math.PI) / 180;
+  const dLng = ((bLng - aLng) * Math.PI) / 180;
+  const s =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((aLat * Math.PI) / 180) *
+      Math.cos((bLat * Math.PI) / 180) *
+      Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+}
+
+/** Grid of search-circle centers covering ~coverage around the city center. */
+function buildTiles(
+  centerLat: number,
+  centerLng: number,
+  coverageMeters: number,
+  cellMeters: number,
+): { lat: number; lng: number }[] {
+  const latPerM = 1 / 111_320;
+  const lngPerM = 1 / (111_320 * Math.cos((centerLat * Math.PI) / 180));
+  const steps = Math.ceil(coverageMeters / cellMeters);
+  const tiles: { lat: number; lng: number }[] = [];
+  for (let i = -steps; i <= steps; i++) {
+    for (let j = -steps; j <= steps; j++) {
+      if (Math.hypot(i * cellMeters, j * cellMeters) > coverageMeters) continue;
+      tiles.push({
+        lat: centerLat + i * cellMeters * latPerM,
+        lng: centerLng + j * cellMeters * lngPerM,
+      });
+    }
+  }
+  return tiles;
+}
+
 async function fetchNearby(
   apiKey: string,
-  placeType: string,
   lat: number,
   lng: number,
   radiusMeters: number,
 ): Promise<PlaceResult[]> {
   const body = {
-    includedTypes: [placeType],
+    includedTypes: INCLUDED_TYPES,
+    excludedPrimaryTypes: EXCLUDED_PRIMARY_TYPES,
     maxResultCount: 20,
     locationRestriction: {
       circle: {
@@ -105,19 +185,17 @@ async function fetchNearby(
       "Content-Type": "application/json",
       "X-Goog-Api-Key": apiKey,
       "X-Goog-FieldMask":
-        "places.id,places.displayName,places.formattedAddress,places.location",
+        "places.id,places.displayName,places.formattedAddress,places.location,places.primaryType",
     },
     body: JSON.stringify(body),
   });
 
   if (!res.ok) {
     const text = await res.text().catch(() => "(no body)");
-    throw new Error(
-      `Google Places API error ${res.status} for type=${placeType}: ${text}`,
-    );
+    throw new Error(`Google Places API error ${res.status}: ${text}`);
   }
 
-  const data: NearbySearchResponse = await res.json() as NearbySearchResponse;
+  const data: NearbySearchResponse = (await res.json()) as NearbySearchResponse;
   return data.places ?? [];
 }
 
@@ -205,26 +283,44 @@ async function main() {
     const lng = city.center_lng
       ? parseFloat(city.center_lng)
       : TACOMA_FALLBACK.lng;
-    const radius = TACOMA_FALLBACK.radiusMeters;
+
+    // --fresh: wipe prior candidates (except those already linked to a venue) so the
+    // re-discovery reflects the current type/area filters cleanly.
+    if (args.fresh) {
+      const del = await sql`
+        DELETE FROM seed_candidates
+        WHERE city_id = ${city.id} AND resulting_venue_id IS NULL
+      `;
+      console.log(`--fresh: cleared ${del.count} prior unprocessed candidate(s).`);
+    }
 
     console.log(
-      `Discovering venues for city '${args.city}' (lat=${lat}, lng=${lng}, r=${radius}m)…`,
+      `Discovering venues for city '${args.city}' around (lat=${lat}, lng=${lng})…`,
     );
 
-    // ---- Google Places: bar + restaurant -----------------------------------
+    // ---- Google Places: tiled search (junk primary types excluded) ----------
     let placesInserted = 0;
+    let outOfArea = 0;
+    let chainsSkipped = 0;
     let placesSkipped = 0;
 
-    for (const placeType of ["bar", "restaurant"] as const) {
-      console.log(`  Querying Google Places for type=${placeType}…`);
+    const tiles = buildTiles(lat, lng, COVERAGE_METERS, CELL_METERS);
+    console.log(
+      `  ${tiles.length} tiles (≤20 results each); excluding ${EXCLUDED_PRIMARY_TYPES.length} ` +
+        `junk primary types; service area = ${SERVICE_LOCALITIES.join("/")} ≤${SERVICE_RADIUS_KM}km…`,
+    );
+
+    for (const tile of tiles) {
       let places: PlaceResult[];
       try {
-        places = await fetchNearby(placesKey, placeType, lat, lng, radius);
+        places = await fetchNearby(placesKey, tile.lat, tile.lng, CELL_METERS);
       } catch (err) {
-        console.error(`  ERROR fetching type=${placeType}:`, err);
+        console.error(
+          `  ERROR @ ${tile.lat.toFixed(3)},${tile.lng.toFixed(3)}:`,
+          err,
+        );
         continue;
       }
-      console.log(`    → ${places.length} results`);
 
       for (const place of places) {
         if (!place.id || !place.displayName?.text) {
@@ -233,24 +329,39 @@ async function main() {
         }
 
         const name = place.displayName.text;
-        const googlePlaceId = place.id;
         const address = place.formattedAddress ?? null;
-        const placeLat =
-          place.location?.latitude != null
-            ? String(place.location.latitude)
-            : null;
-        const placeLng =
-          place.location?.longitude != null
-            ? String(place.location.longitude)
-            : null;
+        const pLat = place.location?.latitude ?? null;
+        const pLng = place.location?.longitude ?? null;
+
+        // National-chain gate: skip Applebee's / Red Lobster / fast food etc. entirely
+        // so they never cost a Place Details or AI pass (operator: ignore these).
+        if (isDenylistedChain(name)) {
+          chainsSkipped++;
+          continue;
+        }
+
+        // Service-area gate: keep only Tacoma/Ruston within the radius. Out-of-area
+        // edge-tile spillover (Federal Way, Lakewood, …) is dropped, never stored.
+        const inLocality = SERVICE_LOCALITIES.some((loc) =>
+          new RegExp(`,\\s*${loc},\\s*WA`).test(address ?? ""),
+        );
+        const inRadius =
+          pLat != null && pLng != null
+            ? haversineKm(lat, lng, pLat, pLng) <= SERVICE_RADIUS_KM
+            : false;
+        if (!inLocality || !inRadius) {
+          outOfArea++;
+          continue;
+        }
 
         try {
           await sql`
             INSERT INTO seed_candidates
               (city_id, name, google_place_id, address, lat, lng, source_url)
             VALUES
-              (${city.id}, ${name}, ${googlePlaceId}, ${address},
-               ${placeLat}, ${placeLng}, ${"google_places"})
+              (${city.id}, ${name}, ${place.id}, ${address},
+               ${pLat != null ? String(pLat) : null},
+               ${pLng != null ? String(pLng) : null}, ${"google_places"})
             ON CONFLICT (google_place_id) DO UPDATE SET
               name    = EXCLUDED.name,
               address = EXCLUDED.address,
@@ -264,10 +375,12 @@ async function main() {
           placesSkipped++;
         }
       }
+      await new Promise((r) => setTimeout(r, 40));
     }
 
     console.log(
-      `Google Places: ${placesInserted} upserted, ${placesSkipped} skipped.`,
+      `Google Places: ${placesInserted} in-area upserts, ${outOfArea} out-of-area dropped, ` +
+        `${chainsSkipped} chains dropped, ${placesSkipped} skipped.`,
     );
 
     // ---- Curated sources (optional) ----------------------------------------

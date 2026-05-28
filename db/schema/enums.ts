@@ -83,11 +83,17 @@ export const tagCategory = pgEnum("tag_category", [
 ]);
 
 // ── Edit submissions / AI pipeline ───────────────────────────────────────────
+// `intent` is the free-text "report a change" parent (a user describes a change in
+// prose; the interpret stage fans it out into concrete child submissions).
+// `new_offering` is server-created only — the interpreter proposes a brand-new
+// offering attached to an existing happy hour (e.g. "they added $5 wings").
 export const editTargetType = pgEnum("edit_target_type", [
   "venue",
   "happy_hour",
   "offering",
   "new_venue",
+  "intent",
+  "new_offering",
 ]);
 
 export const aiRiskLevel = pgEnum("ai_risk_level", [
@@ -116,6 +122,10 @@ export const submissionStatus = pgEnum("submission_status", [
   "rejected",
   "reverted",
   "budget_exhausted",
+  // Free-text "report a change" parent lifecycle: interpreting → interpreted once
+  // it has fanned out into child submissions (the children carry the actionable work).
+  "interpreting",
+  "interpreted",
 ]);
 
 export const verificationSource = pgEnum("verification_source", [
@@ -132,6 +142,7 @@ export const aiStage = pgEnum("ai_stage", [
   "verify",
   "reverify_cron",
   "seed",
+  "interpret",
 ]);
 
 // ── Community flags ───────────────────────────────────────────────────────────

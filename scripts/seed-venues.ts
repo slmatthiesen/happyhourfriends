@@ -101,8 +101,8 @@ async function main() {
   let offeringsInserted = 0;
 
   try {
-    const [city] = await sql<{ id: string }[]>`
-      SELECT id FROM cities WHERE slug = ${citySlug}
+    const [city] = await sql<{ id: string; default_timezone: string }[]>`
+      SELECT id, default_timezone FROM cities WHERE slug = ${citySlug}
     `;
     if (!city) {
       throw new Error(`City '${citySlug}' not found — run npm run seed:cities first.`);
@@ -114,12 +114,12 @@ async function main() {
 
       const inserted = await sql<{ id: string }[]>`
         INSERT INTO venues
-          (city_id, name, slug, address, type, lat, lng, website_url, status,
+          (city_id, name, slug, address, type, lat, lng, timezone, website_url, status,
            data_completeness, last_verified_at)
         VALUES
           (${city.id}, ${v.name}, ${v.slug}, ${v.address ?? null},
            ${v.type ?? null}::venue_type, ${v.lat ?? null}, ${v.lng ?? null},
-           ${v.websiteUrl ?? null},
+           ${city.default_timezone}, ${v.websiteUrl ?? null},
            'active'::venue_status, ${completeness}::data_completeness,
            ${lastVerified}::timestamptz)
         ON CONFLICT (city_id, slug) DO NOTHING
@@ -140,37 +140,37 @@ async function main() {
       }
 
       for (const hh of v.happyHours) {
-        for (const day of hh.daysOfWeek) {
-          const hhRows = await sql<{ id: string }[]>`
-            INSERT INTO happy_hours
-              (venue_id, day_of_week, start_time, end_time,
-               location_within_venue, notes, active, source_url)
-            VALUES
-              (${venueId}, ${day}, ${hh.startTime}, ${hh.endTime},
-               ${hh.locationWithinVenue}::location_within_venue,
-               ${hh.notes ?? null}, true, ${v.sourceUrl})
-            ON CONFLICT DO NOTHING
-            RETURNING id
-          `;
-          if (hhRows.length === 0) continue; // already present — keep idempotent
-          hhInserted++;
-          const hhId = hhRows[0].id;
+        // One row per window, carrying the sorted day cluster (e.g. Mon–Fri = {1..5}).
+        const days = [...new Set(hh.daysOfWeek)].sort((a, b) => a - b);
+        const hhRows = await sql<{ id: string }[]>`
+          INSERT INTO happy_hours
+            (venue_id, days_of_week, start_time, end_time,
+             location_within_venue, notes, active, source_url)
+          VALUES
+            (${venueId}, ${days}, ${hh.startTime}, ${hh.endTime},
+             ${hh.locationWithinVenue}::location_within_venue,
+             ${hh.notes ?? null}, true, ${v.sourceUrl})
+          ON CONFLICT DO NOTHING
+          RETURNING id
+        `;
+        if (hhRows.length === 0) continue; // already present — keep idempotent
+        hhInserted++;
+        const hhId = hhRows[0].id;
 
-          for (const o of hh.offerings) {
-            await sql`
-              INSERT INTO offerings
-                (happy_hour_id, kind, category, name, price_cents,
-                 original_price_cents, discount_cents, description, conditions,
-                 active, source_url)
-              VALUES
-                (${hhId}, ${o.kind}::offering_kind, ${o.category}::offering_category,
-                 ${o.name ?? null}, ${o.priceCents ?? null},
-                 ${o.originalPriceCents ?? null}, ${o.discountCents ?? null},
-                 ${o.description ?? null}, ${o.conditions ?? null},
-                 true, ${v.sourceUrl})
-            `;
-            offeringsInserted++;
-          }
+        for (const o of hh.offerings) {
+          await sql`
+            INSERT INTO offerings
+              (happy_hour_id, kind, category, name, price_cents,
+               original_price_cents, discount_cents, description, conditions,
+               active, source_url)
+            VALUES
+              (${hhId}, ${o.kind}::offering_kind, ${o.category}::offering_category,
+               ${o.name ?? null}, ${o.priceCents ?? null},
+               ${o.originalPriceCents ?? null}, ${o.discountCents ?? null},
+               ${o.description ?? null}, ${o.conditions ?? null},
+               true, ${v.sourceUrl})
+          `;
+          offeringsInserted++;
         }
       }
     }

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/db/client";
 import { editSubmissions } from "@/db/schema";
 import { verifyCaptcha } from "@/lib/captcha/hcaptcha";
-import { enqueueClassify } from "@/lib/jobs/queue";
+import { enqueueClassify, enqueueInterpret } from "@/lib/jobs/queue";
 import {
   SUBMISSION_TARGET_TYPES,
   type SubmissionPayload,
@@ -65,6 +65,18 @@ export async function POST(req: Request) {
       { error: "Nothing to change — no proposed values" },
       { status: 400 },
     );
+  }
+
+  // A free-text "report a change" must carry a usable note (the AI interprets it).
+  // Everything else is handled by the field-diff forms.
+  if (body.targetType === "intent") {
+    const note = typeof after.note === "string" ? after.note.trim() : "";
+    if (note.length < 10) {
+      return NextResponse.json(
+        { error: "Tell us what changed — a sentence or two is plenty." },
+        { status: 400 },
+      );
+    }
   }
   const fingerprint = (body.fingerprint ?? "").trim();
   if (!fingerprint) {
@@ -139,12 +151,15 @@ export async function POST(req: Request) {
     })
     .returning({ id: editSubmissions.id, status: editSubmissions.status });
 
-  // Kick off Stage 1 classification (Phase 3). Non-fatal: the submission is already
-  // stored and visible in the admin queue even if the queue is unavailable.
+  // Kick off the pipeline. A free-text `intent` goes to the interpret stage (which
+  // fans it out into concrete child submissions); everything else starts at classify.
+  // Non-fatal: the submission is already stored and visible in the admin queue even if
+  // the queue is unavailable.
   try {
-    await enqueueClassify(row.id);
+    if (body.targetType === "intent") await enqueueInterpret(row.id);
+    else await enqueueClassify(row.id);
   } catch (e) {
-    console.error("Failed to enqueue classify job", e);
+    console.error("Failed to enqueue pipeline job", e);
   }
 
   return NextResponse.json(

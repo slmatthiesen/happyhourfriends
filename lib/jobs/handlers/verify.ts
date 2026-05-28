@@ -9,11 +9,16 @@ import {
 } from "@/db/schema";
 import { recordUsage } from "@/lib/ai/ledger";
 import { canRunStage2 } from "@/lib/ai/budget";
-import { verify, type VerifyInput } from "@/lib/ai/verifier";
+import { verify, type VerifyInput, type VerifyResult } from "@/lib/ai/verifier";
 import { applySubmission } from "@/lib/apply/engine";
 import type { SubmissionDiff } from "@/lib/apply/types";
 import { readEvidenceForModel } from "@/lib/submit/evidenceStore";
 import { recordOutcome } from "@/lib/trust/scoring";
+import { sendEmail, adminRecipients } from "@/lib/email/client";
+import {
+  interpretedChangeEmail,
+  type InterpretedVerdict,
+} from "@/lib/email/templates";
 
 interface SubmittedFileRef {
   submittedFile?: { url?: string; mime?: string };
@@ -76,6 +81,17 @@ async function venueContext(sub: Submission): Promise<VenueContext | null> {
         .limit(1);
       venueId = h?.venueId ?? null;
     }
+  } else if (sub.targetType === "new_offering") {
+    // A new offering carries its parent happy hour's id in the diff (no row yet).
+    const hhId = diff.after?.happyHourId as string | undefined;
+    if (hhId) {
+      const [h] = await db
+        .select({ venueId: happyHours.venueId })
+        .from(happyHours)
+        .where(eq(happyHours.id, hhId))
+        .limit(1);
+      venueId = h?.venueId ?? null;
+    }
   }
   if (!venueId) return null;
 
@@ -111,6 +127,59 @@ async function autoApply(
     override = { ...diff.after, sourceUrl: supportingUrl };
   }
   await applySubmission(sub.id, { actor: "ai", reason }, override);
+}
+
+function verdictFor(confirmed: boolean | null): InterpretedVerdict {
+  if (confirmed === true) return "confirmed";
+  if (confirmed === false) return "contradicted";
+  return "unconfirmed";
+}
+
+/**
+ * Email the operator about an interpreted child that just landed in the admin queue:
+ * what the visitor reported, the concrete change the AI derived, and its verdict.
+ * Best-effort — failures (incl. no RESEND_API_KEY) are logged, never thrown.
+ */
+async function notifyOperator(
+  sub: Submission,
+  venueName: string,
+  diff: SubmissionDiff,
+  result: VerifyResult,
+): Promise<void> {
+  try {
+    let note = "";
+    if (sub.parentSubmissionId) {
+      const [parent] = await db
+        .select({ diffJsonb: editSubmissions.diffJsonb })
+        .from(editSubmissions)
+        .where(eq(editSubmissions.id, sub.parentSubmissionId))
+        .limit(1);
+      const pDiff = parent?.diffJsonb as SubmissionDiff | undefined;
+      note = String(pDiff?.after?.note ?? "");
+    }
+    const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+    const fileRef = (sub.aiEvidenceJsonb as SubmittedFileRef | null)?.submittedFile;
+    const evidenceUrl =
+      result.evidence.find((e) => e.supportsChange && e.url && e.url !== "submitted-menu")
+        ?.url ??
+      diff.sourceUrl ??
+      (fileRef?.url ? `${base}${fileRef.url}` : null);
+
+    const { subject, html } = interpretedChangeEmail({
+      venueName,
+      note,
+      changeSummary: diff.summary ?? "Suggested change",
+      before: diff.before ?? null,
+      after: diff.after ?? {},
+      verdict: verdictFor(result.confirmed),
+      confidence: result.confidence,
+      evidenceUrl,
+      adminUrl: `${base}/admin`,
+    });
+    await sendEmail({ to: adminRecipients(), subject, html });
+  } catch (e) {
+    console.error("Failed to send interpreted-change email", e);
+  }
 }
 
 /**
@@ -203,6 +272,21 @@ export async function handleVerify(submissionId: string): Promise<void> {
       supportsChange: ev.supportsChange,
       confidence: String(result.confidence),
     });
+  }
+
+  // Interpreted children (fanned out from a free-text report) NEVER auto-apply or
+  // auto-reject — the operator decides (operator decision 2026-05). We attach the AI's
+  // approve/don't-approve opinion, route to the admin queue, and email the operator.
+  // We do NOT touch submitter trust here: a child is server-created, so scoring it would
+  // asymmetrically penalise the reporter (children never reach the "accurate" path).
+  if (sub.parentSubmissionId != null) {
+    const verdict = verdictFor(result.confirmed);
+    await setStatus(submissionId, {
+      status: "queued_admin",
+      aiClassifierReasoning: `AI ${verdict} (confidence ${result.confidence.toFixed(2)}): ${result.summary}`,
+    });
+    await notifyOperator(sub, ctx.name, diff, result);
+    return;
   }
 
   // Route (PRD §4.4).

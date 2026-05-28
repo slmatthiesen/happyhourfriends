@@ -17,7 +17,7 @@ export interface FieldSpec {
 
 /** A stable anonymous id kept in localStorage (PRD §1.1 — no accounts). A real
  *  device fingerprint can replace this later without schema change. */
-function getFingerprint(): string {
+export function getFingerprint(): string {
   try {
     const key = "hhf_fp";
     let v = localStorage.getItem(key);

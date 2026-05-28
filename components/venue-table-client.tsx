@@ -18,7 +18,7 @@ const DAY_LABELS: Record<number, string> = {
 };
 const ISO_DAYS = [1, 2, 3, 4, 5, 6, 7] as const;
 
-type SortKey = "startTime" | "endTime" | "name" | "neighborhood" | "type" | "price";
+type SortKey = "now" | "startTime" | "endTime" | "name" | "neighborhood" | "type" | "price";
 
 function windowBounds(v: VenueListItem) {
   const starts = v.happyHours.map((h) => h.startTime).sort();
@@ -27,18 +27,22 @@ function windowBounds(v: VenueListItem) {
     .filter((e): e is string => e != null)
     .sort();
   return {
-    days: formatDays(v.happyHours.map((h) => h.dayOfWeek)),
+    days: formatDays(v.happyHours.flatMap((h) => h.daysOfWeek)),
     start: starts[0] ?? null,
     end: ends.length ? ends[ends.length - 1] : null,
   };
 }
 
-/** Cheapest-offering → coarse $ / $$ / $$$ indicator. */
-function priceTier(minCents: number | null): string | null {
-  if (minCents == null) return null;
-  if (minCents <= 800) return "$";
-  if (minCents <= 1500) return "$$";
-  return "$$$";
+/**
+ * $ / $$ / $$$ / $$$$ indicator. Prefers Google's venue price level (a sense of the
+ * venue's general tier — what the operator wants surfaced); falls back to the cheapest
+ * happy-hour offering price only when Google has no level.
+ */
+function priceTier(v: VenueListItem): string | null {
+  if (v.priceLevel != null && v.priceLevel >= 1) return "$".repeat(v.priceLevel);
+  const c = v.minPriceCents;
+  if (c == null) return null;
+  return c <= 800 ? "$" : c <= 1500 ? "$$" : "$$$";
 }
 
 function dealsPreview(v: VenueListItem): { text: string; extra: number } {
@@ -67,7 +71,7 @@ export function VenueTableClient({
   const [selectedDays, setSelectedDays] = useState<Set<number>>(new Set());
   const [happeningNow, setHappeningNow] = useState(false);
   const [search, setSearch] = useState("");
-  const [sortKey, setSortKey] = useState<SortKey>("startTime");
+  const [sortKey, setSortKey] = useState<SortKey>("now");
   const [selectedTypes, setSelectedTypes] = useState<Set<string>>(new Set());
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
 
@@ -149,7 +153,9 @@ export function VenueTableClient({
 
       // Day filter (stub venues pass through unless days are selected — no HH rows to match)
       if (selectedDays.size > 0) {
-        const hasDay = v.happyHours.some((h) => selectedDays.has(h.dayOfWeek));
+        const hasDay = v.happyHours.some((h) =>
+          h.daysOfWeek.some((d) => selectedDays.has(d)),
+        );
         if (!hasDay) return false;
       }
 
@@ -160,7 +166,7 @@ export function VenueTableClient({
     });
 
     // Sort
-    const isDefaultSort = sortKey === "startTime";
+    const isDefaultSort = sortKey === "now";
 
     list = [...list].sort((a, b) => {
       // Promoted rows pin to top only on default Start-time asc sort (PRD §6.3)
@@ -174,6 +180,14 @@ export function VenueTableClient({
       const bB = windowBounds(b);
 
       switch (sortKey) {
+        case "now": {
+          // Happening-now venues float to the top; ties break on start time.
+          const an = isNowOpen(a) ? 0 : 1;
+          const bn = isNowOpen(b) ? 0 : 1;
+          if (an !== bn) return an - bn;
+          const s = (aB.start ?? "99:99").localeCompare(bB.start ?? "99:99");
+          return s !== 0 ? s : a.name.localeCompare(b.name);
+        }
         case "startTime": {
           const s = (aB.start ?? "99:99").localeCompare(bB.start ?? "99:99");
           return s !== 0 ? s : a.name.localeCompare(b.name);
@@ -185,8 +199,10 @@ export function VenueTableClient({
         case "name":
           return a.name.localeCompare(b.name);
         case "neighborhood": {
-          const an = a.neighborhoodName ?? "";
-          const bn = b.neighborhoodName ?? "";
+          // Venues with no neighborhood sort last (￿) rather than forming
+          // a blank group at the top.
+          const an = a.neighborhoodName ?? "￿";
+          const bn = b.neighborhoodName ?? "￿";
           const n = an.localeCompare(bn);
           return n !== 0 ? n : a.name.localeCompare(b.name);
         }
@@ -195,9 +211,12 @@ export function VenueTableClient({
           return t !== 0 ? t : a.name.localeCompare(b.name);
         }
         case "price": {
-          // Cheapest first; venues without a price sort last.
-          const ap = a.minPriceCents ?? Number.POSITIVE_INFINITY;
-          const bp = b.minPriceCents ?? Number.POSITIVE_INFINITY;
+          // Sort by the same signal the column shows: Google price level first
+          // (cents fallback ÷ a rough scale), cheapest/unknown last.
+          const lvl = (v: VenueListItem) =>
+            v.priceLevel ?? (v.minPriceCents != null ? Math.min(4, Math.ceil(v.minPriceCents / 700)) : 99);
+          const ap = lvl(a);
+          const bp = lvl(b);
           return ap !== bp ? ap - bp : a.name.localeCompare(b.name);
         }
       }
@@ -261,7 +280,7 @@ export function VenueTableClient({
     setSelectedTags(new Set());
     setHappeningNow(false);
     setSearch("");
-    setSortKey("startTime");
+    setSortKey("now");
   }
 
   const hasActiveFilters =
@@ -271,19 +290,32 @@ export function VenueTableClient({
     selectedTags.size > 0 ||
     happeningNow ||
     search !== "" ||
-    sortKey !== "startTime";
+    sortKey !== "now";
 
   const withHours = filtered.filter((v) => v.happyHours.length > 0);
   const stubs = filtered.filter((v) => v.happyHours.length === 0);
 
-  // Columns: Venue, Type, [Neighborhood], Days, Start, End, Deals, Price.
-  const colCount = 7 + (showNeighborhood ? 1 : 0);
+  // Columns: Venue, Now, Type, [Neighborhood], Days, Start, End, Deals, Price.
+  const colCount = 8 + (showNeighborhood ? 1 : 0);
+  // Leading cells a stub row renders before its "help us add it" span: Venue, Now, Type, [Nb].
+  const stubLeadingCols = 3 + (showNeighborhood ? 1 : 0);
 
-  function NowBadge() {
-    return (
-      <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-accent-warm/15 px-1.5 py-0.5 align-middle text-[10px] font-semibold uppercase tracking-wide text-accent-warm">
-        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent-warm" />
-        Now
+  function NowBadge({ open = true, className = "" }: { open?: boolean; className?: string }) {
+    return open ? (
+      <span
+        title="Happy hour happening now"
+        aria-label="Happy hour happening now"
+        className={`inline-flex items-center align-middle text-sm leading-none ${className}`}
+      >
+        🎉
+      </span>
+    ) : (
+      <span
+        title="Not happening right now — check the days and times"
+        aria-label="Not happening right now"
+        className={`inline-flex items-center align-middle text-sm leading-none opacity-40 grayscale ${className}`}
+      >
+        ⏳
       </span>
     );
   }
@@ -321,6 +353,7 @@ export function VenueTableClient({
               className="rounded border border-border bg-bg-elevated px-2 py-1.5 text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-cool"
               aria-label="Sort venues"
             >
+              <option value="now">🎉 Happening now</option>
               <option value="startTime">Start time</option>
               <option value="endTime">End time</option>
               <option value="name">Name</option>
@@ -443,8 +476,9 @@ export function VenueTableClient({
           {hasActiveFilters && (
             <button
               onClick={clearFilters}
-              className="text-accent-cool hover:underline"
+              className="inline-flex items-center gap-1 rounded-full border border-accent-hot bg-accent-hot/10 px-3 py-1 text-xs font-semibold text-accent-hot transition-colors hover:bg-accent-hot hover:text-white"
             >
+              <span aria-hidden="true">✕</span>
               Clear filters
             </button>
           )}
@@ -469,6 +503,9 @@ export function VenueTableClient({
               <thead className="bg-bg-elevated text-text-muted">
                 <tr>
                   <th className="px-4 py-2 font-medium">Venue</th>
+                  <th className="px-4 py-2 font-medium" title="Happy hour happening right now">
+                    Now
+                  </th>
                   <th className="px-4 py-2 font-medium">Type</th>
                   {showNeighborhood && (
                     <th className="px-4 py-2 font-medium">Neighborhood</th>
@@ -485,7 +522,7 @@ export function VenueTableClient({
                   const b = windowBounds(v);
                   const promoted = v.promotionTier !== "none";
                   const deals = dealsPreview(v);
-                  const tier = priceTier(v.minPriceCents);
+                  const tier = priceTier(v);
                   return (
                     <tr
                       key={v.id}
@@ -506,7 +543,9 @@ export function VenueTableClient({
                         >
                           {v.name}
                         </Link>
-                        {isNowOpen(v) && <NowBadge />}
+                      </td>
+                      <td className="px-4 py-3">
+                        <NowBadge open={isNowOpen(v)} />
                       </td>
                       <td className="px-4 py-3 text-text-muted">
                         {v.type ? v.type.replace(/_/g, " ") : "—"}
@@ -555,13 +594,17 @@ export function VenueTableClient({
                         {v.name}
                       </Link>
                     </td>
+                    <td className="px-4 py-3">—</td>
                     <td className="px-4 py-3">
                       {v.type ? v.type.replace(/_/g, " ") : "—"}
                     </td>
                     {showNeighborhood && (
                       <td className="px-4 py-3">{v.neighborhoodName ?? "—"}</td>
                     )}
-                    <td className="px-4 py-3 text-accent-cool" colSpan={colCount - 2}>
+                    <td
+                      className="px-4 py-3 text-accent-cool"
+                      colSpan={colCount - stubLeadingCols}
+                    >
                       Does this place have a happy hour? Help us add it →
                     </td>
                   </tr>
@@ -576,7 +619,7 @@ export function VenueTableClient({
               const b = windowBounds(v);
               const promoted = v.promotionTier !== "none";
               const deals = dealsPreview(v);
-              const tier = priceTier(v.minPriceCents);
+              const tier = priceTier(v);
               return (
                 <div
                   key={v.id}
@@ -596,7 +639,7 @@ export function VenueTableClient({
                       className="font-medium text-text-primary hover:text-accent-cool"
                     >
                       {v.name}
-                      {isNowOpen(v) && <NowBadge />}
+                      {isNowOpen(v) && <NowBadge className="ml-2" />}
                     </Link>
                     {tier && (
                       <span

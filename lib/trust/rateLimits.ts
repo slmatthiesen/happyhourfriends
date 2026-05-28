@@ -11,7 +11,7 @@
  * status — a submission is "critical" once the field is set.
  */
 
-import { and, count, eq, gte, sql } from "drizzle-orm";
+import { and, count, eq, gte, isNull, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { editSubmissions } from "@/db/schema";
 
@@ -47,12 +47,14 @@ function weekAgo(now: Date = new Date()): Date {
   return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 }
 
-// Simple inline counter to keep the code readable
+// Simple inline counter to keep the code readable. Children fanned out from an `intent`
+// report are server-created (not user-initiated), so they never count toward a
+// submitter's limits — only the parent report does.
 async function countSubmissions(conditions: ReturnType<typeof and>): Promise<number> {
   const [row] = await db
     .select({ n: count() })
     .from(editSubmissions)
-    .where(conditions);
+    .where(and(conditions, isNull(editSubmissions.parentSubmissionId)));
   return Number(row?.n ?? 0);
 }
 

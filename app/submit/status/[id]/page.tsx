@@ -14,6 +14,15 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const STATUS_COPY: Record<string, { label: string; detail: string }> = {
   pending: { label: "Under review", detail: "Our AI will review this shortly." },
+  interpreting: {
+    label: "Under review",
+    detail: "We're reading your report and matching it to this venue.",
+  },
+  interpreted: {
+    label: "Under review",
+    detail:
+      "We turned your report into specific changes — our team is finalizing them.",
+  },
   classifying: { label: "Under review", detail: "We're assessing this change." },
   verifying: {
     label: "Verifying",

@@ -1,8 +1,8 @@
 ---
 prompt: seed-extract-hh
-version: 2
+version: 5
 model: claude-sonnet-4-6
-notes: Pinned via sha256 content hash recorded in ai_usage_ledger.prompt_hash. v2 — server web_fetch (renders JS + reads PDFs).
+notes: Pinned via sha256 content hash recorded in ai_usage_ledger.prompt_hash. v5 — recall push (web_search + follow links/PDFs, don't give up early); v4 — consolidate deals; v3 — record_happy_hours tool + daysOfWeek arrays.
 ---
 
 # System
@@ -20,29 +20,42 @@ HARD RULES — violations produce unusable data and will be discarded:
 - Every `offerings` entry MUST include a `sourceUrl` — the exact URL you fetched that
   mentions that specific item and price. It may be the same as the parent entry's
   `sourceUrl`.
-- If you cannot find a confirmed happy-hour schedule, return `{ "happyHours": [],
-  "confidence": 0, "summary": "No happy-hour information found." }`.
+- If you cannot find a confirmed happy-hour schedule, call `record_happy_hours` with
+  `happyHours: []`, `confidence: 0`, and a one-line `summary`.
 - Do NOT extrapolate from partial information. If the page says "Mon–Fri" but gives no
   times, do NOT fabricate times.
-- Respect robots.txt (fetch_url will refuse blocked pages).
-- Return ONLY valid JSON matching the schema below — no prose, no code fences.
+- CONSOLIDATE repetitive deals — do NOT enumerate every menu item. If many items share
+  one discount (e.g. a dozen apps each "$3 off"), record ONE representative offering
+  (e.g. name "Most appetizers", category "appetizer", discountCents 300, description
+  "$2–$3 off most food items") instead of listing each. Aim for a handful of offerings
+  per window (≤ ~8 — a few drinks, a few food). The sourceUrl link lets readers open the
+  full menu, so summarize rather than transcribe.
+- Respect robots.txt (web_fetch will refuse blocked pages).
+- Report your findings by CALLING the `record_happy_hours` tool. Do NOT write the data
+  as prose or JSON in your text reply — only the tool call. (Writing it out as text too
+  wastes the output budget and truncates the tool call.) Work in one pass: fetch the
+  needed pages, then call the tool once.
 
-## Search strategy
+## Search strategy — BE THOROUGH. Most venues DO have a happy hour; your job is to find
+## where it's published. Don't give up after one page.
 
-1. Fetch `{{website_url}}` first (look for a "happy hour", "specials", or "drinks"
-   page or section).
-2. If the homepage doesn't include HH info, look for a `/specials`, `/happy-hour`,
-   `/menu`, or `/drinks` path on the same domain.
-3. If the venue has a `{{other_url}}`, fetch it (often Facebook events/posts with HH).
-4. Use `web_search` to find the venue's Google Business Profile, Yelp, or Facebook
-   page if the above yield nothing.
-5. Stop once you have found the schedule or have checked at least 3 sources with no
-   result.
+1. Fetch `{{website_url}}` and look for a "happy hour", "specials", "deals", "drinks",
+   or "menu" link. FOLLOW those links — HH is rarely on the homepage itself.
+2. Try common paths on the same domain: `/happy-hour`, `/happyhour`, `/specials`,
+   `/menu`, `/menus`, `/drinks`, `/food`. Open linked PDFs (web_fetch reads them).
+3. Run `web_search` for `"{{venue_name}}" Tacoma happy hour` and fetch the most
+   promising result — the venue's own page, its Facebook/Instagram, or a recent local
+   write-up that quotes specific times. (A first-party or recent source is best.)
+4. If the venue has a `{{other_url}}`, fetch it (Facebook often posts HH times).
+5. Only record `happyHours: []` after you have genuinely searched AND checked several
+   sources and found nothing concrete. Finding nothing should be the exception, not the
+   default — but never fabricate to avoid an empty result.
 
 ## Field rules
 
-- `dayOfWeek` MUST be ISO integer: 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday,
-  5=Friday, 6=Saturday, 7=Sunday. Invalid values will be dropped.
+- `daysOfWeek` MUST be an array of ISO integers (1=Mon … 7=Sun) listing every day this
+  one window applies to — e.g. a daily 3–6pm window is `[1,2,3,4,5,6,7]`, not seven
+  separate entries. Group identical windows; do not repeat per day. Invalid values dropped.
 - `startTime` / `endTime` MUST be 24-hour "HH:MM" strings (e.g. "16:00", "19:30").
   `endTime` may be `null` if the page says "until close" or similar.
 - `locationWithinVenue` MUST be one of: "bar", "patio", "dining", "all".
@@ -56,37 +69,12 @@ HARD RULES — violations produce unusable data and will be discarded:
 - `confidence` is your overall confidence that the returned schedule is current and
   accurate, from 0.0 (none) to 1.0 (very high). Be conservative.
 
-## Output schema
+## Recording your findings
 
-```json
-{
-  "happyHours": [
-    {
-      "dayOfWeek": 1,
-      "startTime": "16:00",
-      "endTime": "18:00",
-      "locationWithinVenue": "bar",
-      "notes": "Optional free-text from the page",
-      "sourceUrl": "https://example.com/happy-hour",
-      "offerings": [
-        {
-          "kind": "drink",
-          "category": "beer",
-          "name": "Draft beers",
-          "priceCents": 400,
-          "originalPriceCents": 700,
-          "discountCents": null,
-          "description": null,
-          "conditions": null,
-          "sourceUrl": "https://example.com/happy-hour"
-        }
-      ]
-    }
-  ],
-  "confidence": 0.9,
-  "summary": "Found Mon–Fri 4–6 pm HH on venue website with full drink specials listed."
-}
-```
+Call the `record_happy_hours` tool once, with one `happyHours` entry per
+day-of-week × time-window, each carrying its `offerings[]`. Every entry and offering
+needs the `sourceUrl` you fetched it from. Set a conservative `confidence` and a short
+`summary`. Emit nothing else in your text reply.
 
 # User
 

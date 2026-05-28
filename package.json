@@ -18,9 +18,12 @@
     "seed:enrich": "tsx scripts/seed-enrich-candidates.ts",
     "seed:venues": "tsx scripts/seed-venues.ts",
     "backfill:neighborhoods": "tsx scripts/backfill-neighborhoods.ts",
+    "backfill:timezones": "tsx scripts/backfill-timezones.ts",
     "backfill:place-ids": "tsx scripts/backfill-place-ids.ts",
     "reset:city-venues": "tsx scripts/reset-city-venues.ts",
-    "ai:spend": "tsx scripts/ai-spend.ts"
+    "ai:spend": "tsx scripts/ai-spend.ts",
+    "export:candidates": "tsx scripts/export-candidates.ts",
+    "prune:empty-venues": "tsx scripts/prune-empty-venues.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.99.0",

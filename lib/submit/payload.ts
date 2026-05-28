@@ -2,13 +2,23 @@
  * Client-safe submission types (no server/db imports), shared by the submission
  * form and the /api/submissions route. Mirrors edit_submissions (PRD §3.8).
  */
-export type SubmissionTargetType = "venue" | "happy_hour" | "offering" | "new_venue";
+// `intent` is the unified free-text "report a change" path: the user describes a
+// correction in prose (+ optional photo/URL) and the AI interprets it into concrete
+// changes. `new_offering` exists in the DB enum but is server-created only (born from
+// interpretation) — it is intentionally NOT in the client-postable list below.
+export type SubmissionTargetType =
+  | "venue"
+  | "happy_hour"
+  | "offering"
+  | "new_venue"
+  | "intent";
 
 export const SUBMISSION_TARGET_TYPES: SubmissionTargetType[] = [
   "venue",
   "happy_hour",
   "offering",
   "new_venue",
+  "intent",
 ];
 
 export interface SubmissionDiffPayload {

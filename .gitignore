@@ -61,3 +61,4 @@ Desktop.ini
 # (council districts / neighborhoods) stays tracked so clones/CI work.
 /data/*.json
 /data/**/*.json
+/data/*.csv

@@ -2,6 +2,7 @@ import { and, eq, isNull, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import {
   auditLog,
+  cities,
   editSubmissions,
   happyHours,
   offerings,
@@ -30,6 +31,10 @@ const TABLE_BY_TARGET = {
   happy_hour: "happy_hours",
   offering: "offerings",
   new_venue: "venues",
+  // intent is a free-text parent; it is never applied (it fans out into children),
+  // but the map must be total over the enum. happy_hours is a harmless placeholder.
+  intent: "happy_hours",
+  new_offering: "offerings",
 } as const;
 
 // Column allowlists — only these keys are read out of a submission's `after` blob,
@@ -41,7 +46,7 @@ const VENUE_FIELDS = [
 ] as const;
 
 const HAPPY_HOUR_FIELDS = [
-  "venueId", "dayOfWeek", "startTime", "endTime", "locationWithinVenue",
+  "venueId", "daysOfWeek", "startTime", "endTime", "locationWithinVenue",
   "validFrom", "validUntil", "notes", "active", "sourceUrl",
 ] as const;
 
@@ -199,6 +204,52 @@ export async function applySubmission(
       const [inserted] = await tx
         .insert(venues)
         .values({ ...values, cityId } as typeof venues.$inferInsert)
+        .returning();
+      rowId = inserted.id;
+      beforeJsonb = null;
+      afterJsonb = inserted as Record<string, unknown>;
+    } else if (sub.targetType === "new_offering") {
+      // Insert a brand-new offering onto an EXISTING happy hour (e.g. an interpreted
+      // "they added $5 wings"). Source is required just like an offering update.
+      const values = pick(
+        withSourceUrl("offerings", after, diff.sourceUrl),
+        OFFERING_FIELDS,
+      );
+      const happyHourId = values.happyHourId as string | undefined;
+      if (!happyHourId || !values.kind || !values.category) {
+        throw new Error(
+          "new_offering requires happyHourId, kind, and category.",
+        );
+      }
+      // The happy hour must exist and be live (FK + defence in depth).
+      const [hh] = await tx
+        .select({ venueId: happyHours.venueId })
+        .from(happyHours)
+        .where(and(eq(happyHours.id, happyHourId), isNull(happyHours.deletedAt)))
+        .limit(1);
+      if (!hh) {
+        throw new Error("new_offering references a missing or deleted happy hour.");
+      }
+      // Default the currency from the venue's city when the diff didn't carry one
+      // (mirrors the seed pipeline, which always sets it).
+      if (!values.currencyCode) {
+        const [v] = await tx
+          .select({ cityId: venues.cityId })
+          .from(venues)
+          .where(eq(venues.id, hh.venueId))
+          .limit(1);
+        const [c] = v
+          ? await tx
+              .select({ cc: cities.currencyCode })
+              .from(cities)
+              .where(eq(cities.id, v.cityId))
+              .limit(1)
+          : [];
+        if (c?.cc) values.currencyCode = c.cc;
+      }
+      const [inserted] = await tx
+        .insert(offerings)
+        .values(values as typeof offerings.$inferInsert)
         .returning();
       rowId = inserted.id;
       beforeJsonb = null;

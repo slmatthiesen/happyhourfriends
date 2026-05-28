@@ -3,7 +3,12 @@ import { aiUsageLedger } from "@/db/schema";
 import type { Usage } from "@/lib/ai/anthropic";
 import { firstOfCurrentMonth } from "@/lib/ai/budget";
 
-export type LedgerStage = "classify" | "verify" | "reverify_cron" | "seed";
+export type LedgerStage =
+  | "classify"
+  | "verify"
+  | "reverify_cron"
+  | "seed"
+  | "interpret";
 
 /**
  * Append one row to ai_usage_ledger (PRD §3.12, §4.7). Every paid call records its

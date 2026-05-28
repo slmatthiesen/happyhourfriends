@@ -1,10 +1,16 @@
 import { getBoss } from "./boss";
+import { handleInterpret } from "./handlers/interpret";
 import { handleClassify } from "./handlers/classify";
 import { handleVerify } from "./handlers/verify";
 import { handleResolveFlags } from "./handlers/resolveFlags";
 import { handleDetectAnomalies } from "./handlers/anomaly";
 import { handleReverify } from "./handlers/reverify";
-import { QUEUES, type ClassifyJobData, type VerifyJobData } from "./queue";
+import {
+  QUEUES,
+  type ClassifyJobData,
+  type InterpretJobData,
+  type VerifyJobData,
+} from "./queue";
 
 /**
  * Register all job handlers + scheduled maintenance. Booted once from
@@ -25,6 +31,11 @@ export async function startWorkers(): Promise<void> {
   const boss = await getBoss();
 
   // ── Pipeline queues ──────────────────────────────────────────────────────
+  await boss.createQueue(QUEUES.interpret);
+  await boss.work<InterpretJobData>(QUEUES.interpret, async (jobs) => {
+    for (const job of jobs) await handleInterpret(job.data.submissionId);
+  });
+
   await boss.createQueue(QUEUES.classify);
   await boss.work<ClassifyJobData>(QUEUES.classify, async (jobs) => {
     for (const job of jobs) await handleClassify(job.data.submissionId);
