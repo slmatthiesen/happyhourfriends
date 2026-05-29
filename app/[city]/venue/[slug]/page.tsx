@@ -5,7 +5,7 @@ import { DirectionsButton } from "@/components/directions-button";
 import { SiteWordmark } from "@/components/site-wordmark";
 import { AddHappyHour } from "@/components/submit/add-happy-hour";
 import { ReportChange } from "@/components/submit/report-change";
-import { formatDays, formatDaysLong, formatPrice, formatTime } from "@/lib/format";
+import { formatDays, formatDaysLong, formatPrice, formatWindow } from "@/lib/format";
 import { getCityBySlug, getVenueBySlug } from "@/lib/queries/venues";
 
 export async function generateMetadata({
@@ -56,7 +56,7 @@ export default async function VenuePage({
   };
   const hourGroups = new Map<string, HourGroup>();
   for (const h of activeHours) {
-    const sig = `${h.startTime}|${h.endTime}|${h.notes ?? ""}|${offeringSig(h.offerings)}`;
+    const sig = `${h.allDay}|${h.startTime}|${h.endTime}|${h.notes ?? ""}|${offeringSig(h.offerings)}`;
     const group = hourGroups.get(sig);
     if (group) group.days.push(...h.daysOfWeek);
     else hourGroups.set(sig, { days: [...h.daysOfWeek], rep: h });
@@ -89,8 +89,12 @@ export default async function VenuePage({
       "@type": "Schedule",
       repeatFrequency: "P1W",
       byDay: h.daysOfWeek.map((d) => `https://schema.org/${SCHEMA_DOW[d]}`),
-      startTime: h.startTime?.slice(0, 5),
-      ...(h.endTime ? { endTime: h.endTime.slice(0, 5) } : {}),
+      ...(h.allDay
+        ? {}
+        : {
+            startTime: h.startTime!.slice(0, 5),
+            ...(h.endTime ? { endTime: h.endTime.slice(0, 5) } : {}),
+          }),
     },
     location: {
       "@type": "Restaurant",
@@ -217,7 +221,7 @@ export default async function VenuePage({
                     {formatDaysLong(days)}
                   </span>
                   <span className="tabular-nums text-accent-warm">
-                    {formatTime(h.startTime)} – {formatTime(h.endTime)}
+                    {formatWindow(h)}
                   </span>
                 </div>
                 {h.notes && (
