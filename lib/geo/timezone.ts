@@ -50,8 +50,9 @@ function toMinutes(time: string): number {
 
 export interface HappyHourWindow {
   daysOfWeek: number[]; // ISO 1..7, the cluster of days this window runs
-  startTime: string; // "HH:MM" or "HH:MM:SS"
-  endTime: string | null; // null = "until close"
+  allDay: boolean; // true → active any time on listed days (open to close)
+  startTime: string | null; // "HH:MM" or "HH:MM:SS"; null when allDay is true
+  endTime: string | null; // null = "until close" (or always null when allDay)
   crossesMidnight?: boolean | null;
 }
 
@@ -61,6 +62,12 @@ export interface HappyHourWindow {
  * on each of their days and early the following day.
  */
 export function isWindowActive(w: HappyHourWindow, now: VenueLocalNow): boolean {
+  if (w.allDay) {
+    return w.daysOfWeek.includes(now.dayOfWeek);
+  }
+  // Existing logic — only reached when !allDay, so startTime is guaranteed non-null
+  // by the DB CHECK and the normaliser.
+  if (w.startTime === null) return false; // defensive — should never happen
   const start = toMinutes(w.startTime);
   const end = w.endTime == null ? 24 * 60 : toMinutes(w.endTime);
   const crosses = w.crossesMidnight ?? (w.endTime != null && end < start);
