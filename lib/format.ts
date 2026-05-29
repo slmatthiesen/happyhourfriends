@@ -57,6 +57,22 @@ export function formatTime(t: string | null): string {
   return m === 0 ? `${h} ${ampm}` : `${h}:${String(m).padStart(2, "0")} ${ampm}`;
 }
 
+/**
+ * Render an HH window for display. All-day windows always render as "Open to close" —
+ * never as a time-prefixed string. Time-windowed rows reuse {@link formatTime} for
+ * each side and join with an en-dash; a null endTime becomes "close".
+ */
+export function formatWindow(window: {
+  allDay: boolean;
+  startTime: string | null;
+  endTime: string | null;
+}): string {
+  if (window.allDay) return "Open to close";
+  // CHECK constraint guarantees startTime is non-null here; defensive fallback for type narrowing.
+  if (window.startTime === null) return "Open to close";
+  return `${formatTime(window.startTime)} – ${formatTime(window.endTime)}`;
+}
+
 export function formatPrice(cents: number | null, currency = "USD"): string | null {
   if (cents == null) return null;
   return new Intl.NumberFormat("en-US", {
