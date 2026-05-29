@@ -279,7 +279,7 @@ function normaliseOffering(raw: RawOffering): ExtractedOffering | null {
   };
 }
 
-/** §13: drop HH entries with no/denylisted sourceUrl or invalid dayOfWeek. */
+/** §13: drop HH entries with no/denylisted sourceUrl, invalid dayOfWeek, or malformed time shape. */
 function normaliseHappyHour(raw: RawHappyHour): ExtractedHappyHour | null {
   const sourceUrl = raw.sourceUrl?.trim() ?? "";
   if (!sourceUrl || isDenylistedSource(sourceUrl)) return null;
@@ -289,14 +289,35 @@ function normaliseHappyHour(raw: RawHappyHour): ExtractedHappyHour | null {
   );
   if (daysOfWeek.length === 0) return null;
 
+  const allDay = raw.allDay === true;
+  const rawStart = raw.startTime ?? null;
+  const rawEnd = raw.endTime ?? null;
+
+  // Enforce the same shape as the DB CHECK so the engine never sees an illegal row:
+  //   - allDay=true  → startTime AND endTime must be null
+  //   - allDay=false → startTime is required (endTime may be null = "until close")
+  // Reject everything else — these are malformed model outputs, not data we can save.
+  let startTime: string | null;
+  let endTime: string | null;
+  if (allDay) {
+    if (rawStart !== null || rawEnd !== null) return null;
+    startTime = null;
+    endTime = null;
+  } else {
+    if (rawStart === null) return null;
+    startTime = rawStart;
+    endTime = rawEnd;
+  }
+
   const offerings: ExtractedOffering[] = (raw.offerings ?? [])
     .map(normaliseOffering)
     .filter((o): o is ExtractedOffering => o !== null);
 
   return {
+    allDay,
     daysOfWeek,
-    startTime: raw.startTime ?? "00:00",
-    endTime: raw.endTime ?? null,
+    startTime,
+    endTime,
     locationWithinVenue: VALID_LOCATION.has(raw.locationWithinVenue ?? "")
       ? (raw.locationWithinVenue as string)
       : "all",
