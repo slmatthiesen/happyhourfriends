@@ -311,10 +311,11 @@ async function main() {
               const days = [...new Set(hh.daysOfWeek)].sort((a, b) => a - b);
               const hhRows = await sql<{ id: string }[]>`
                 INSERT INTO happy_hours
-                  (venue_id, days_of_week, start_time, end_time,
+                  (venue_id, days_of_week, all_day, start_time, end_time,
                    location_within_venue, notes, active, source_url)
                 VALUES
-                  (${venueId}, ${days}, ${hh.startTime}, ${hh.endTime},
+                  (${venueId}, ${days}, ${hh.allDay},
+                   ${hh.startTime}, ${hh.endTime},
                    ${hh.locationWithinVenue}::location_within_venue,
                    ${hh.notes}, true, ${hh.sourceUrl})
                 ON CONFLICT DO NOTHING
