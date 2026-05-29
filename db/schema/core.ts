@@ -153,8 +153,9 @@ export const happyHours = pgTable(
       .notNull()
       .references(() => venues.id),
     daysOfWeek: smallint("days_of_week").array().notNull(),
-    startTime: time("start_time").notNull(),
+    startTime: time("start_time"),
     endTime: time("end_time"), // null = "until close"
+    allDay: boolean("all_day").notNull().default(false),
     crossesMidnight: boolean("crosses_midnight").generatedAlwaysAs(
       sql`(end_time < start_time)`,
     ),
@@ -179,6 +180,14 @@ export const happyHours = pgTable(
     check(
       "happy_hours_dow_iso",
       sql`array_length(days_of_week, 1) >= 1 AND 1 <= ALL(days_of_week) AND 7 >= ALL(days_of_week)`,
+    ),
+    check(
+      "happy_hours_all_day_shape",
+      sql`
+        (all_day = true  AND start_time IS NULL AND end_time IS NULL)
+        OR
+        (all_day = false AND start_time IS NOT NULL)
+      `,
     ),
   ],
 );
