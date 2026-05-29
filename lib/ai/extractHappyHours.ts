@@ -54,8 +54,10 @@ export interface ExtractedOffering {
 export interface ExtractedHappyHour {
   /** ISO days this window applies to: 1=Mon … 7=Sun (expanded to one row each on insert) */
   daysOfWeek: number[];
-  /** 24-hour "HH:MM" */
-  startTime: string;
+  /** True when the deal applies all open hours on the listed days (no time window). */
+  allDay: boolean;
+  /** 24-hour "HH:MM"; null when allDay is true */
+  startTime: string | null;
   /** 24-hour "HH:MM" or null ("until close") */
   endTime: string | null;
   locationWithinVenue: string;
@@ -95,7 +97,8 @@ interface RawOffering {
 
 interface RawHappyHour {
   daysOfWeek?: number[];
-  startTime?: string;
+  allDay?: boolean;
+  startTime?: string | null;
   endTime?: string | null;
   locationWithinVenue?: string;
   notes?: string | null;
@@ -139,7 +142,15 @@ const RECORD_TOOL: ToolUnion = {
               items: { type: "integer" },
               description: "ISO days this window applies to: 1=Mon … 7=Sun, e.g. [1,2,3,4,5]",
             },
-            startTime: { type: "string", description: '24h "HH:MM"' },
+            allDay: {
+              type: "boolean",
+              description:
+                "True when the deal explicitly applies all open hours on the listed days (e.g. 'Monday all damn day'). When true, startTime and endTime MUST be null. Do NOT use as a fallback when times are unknown.",
+            },
+            startTime: {
+              type: ["string", "null"],
+              description: '24h "HH:MM", or null when allDay is true',
+            },
             endTime: { type: ["string", "null"], description: '24h "HH:MM" or null for "until close"' },
             locationWithinVenue: { type: "string", enum: ["bar", "patio", "dining", "all"] },
             notes: { type: ["string", "null"] },
@@ -163,7 +174,7 @@ const RECORD_TOOL: ToolUnion = {
               },
             },
           },
-          required: ["daysOfWeek", "startTime", "sourceUrl", "offerings"],
+          required: ["daysOfWeek", "sourceUrl", "offerings"],
         },
       },
       confidence: { type: "number", description: "0..1" },
