@@ -50,6 +50,13 @@
       "when": 1779986158708,
       "tag": "0006_long_pet_avengers",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1780042228871,
+      "tag": "0007_wonderful_star_brand",
+      "breakpoints": true
     }
   ]
 }
