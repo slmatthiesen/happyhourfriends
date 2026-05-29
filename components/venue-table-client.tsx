@@ -2,7 +2,7 @@
 
 import React, { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
-import { formatDays, formatPrice, formatTime } from "@/lib/format";
+import { formatDays, formatPrice, formatWindow } from "@/lib/format";
 import { venueLocalNow, isWindowActive } from "@/lib/geo/timezone";
 import type { VenueListItem } from "@/lib/queries/venues";
 
@@ -21,13 +21,18 @@ const ISO_DAYS = [1, 2, 3, 4, 5, 6, 7] as const;
 type SortKey = "now" | "startTime" | "endTime" | "name" | "neighborhood" | "type" | "price";
 
 function windowBounds(v: VenueListItem) {
-  const starts = v.happyHours.map((h) => h.startTime).sort();
+  const allDay = v.happyHours.some((h) => h.allDay);
+  const starts = v.happyHours
+    .map((h) => h.startTime)
+    .filter((s): s is string => s != null)
+    .sort();
   const ends = v.happyHours
     .map((h) => h.endTime)
     .filter((e): e is string => e != null)
     .sort();
   return {
     days: formatDays(v.happyHours.flatMap((h) => h.daysOfWeek)),
+    allDay,
     start: starts[0] ?? null,
     end: ends.length ? ends[ends.length - 1] : null,
   };
@@ -556,8 +561,9 @@ export function VenueTableClient({
                         </td>
                       )}
                       <td className="px-4 py-3">{b.days}</td>
-                      <td className="px-4 py-3 text-accent-warm">{formatTime(b.start)}</td>
-                      <td className="px-4 py-3">{formatTime(b.end)}</td>
+                      <td className="px-4 py-3 text-accent-warm" colSpan={2}>
+                        {formatWindow({ allDay: b.allDay, startTime: b.start, endTime: b.end })}
+                      </td>
                       <td className="px-4 py-3 text-text-muted">
                         {deals.text ? (
                           <>
@@ -662,9 +668,9 @@ export function VenueTableClient({
                   </p>
                   <p className="mt-1 text-sm text-text-primary">{b.days}</p>
                   <p className="mt-0.5 text-sm tabular-nums">
-                    <span className="text-accent-warm">{formatTime(b.start)}</span>
-                    {" – "}
-                    <span>{formatTime(b.end)}</span>
+                    <span className="text-accent-warm">
+                      {formatWindow({ allDay: b.allDay, startTime: b.start, endTime: b.end })}
+                    </span>
                   </p>
                   {deals.text && (
                     <p className="mt-1 text-xs text-text-muted">
