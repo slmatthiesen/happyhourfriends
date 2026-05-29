@@ -48,7 +48,7 @@ const VENUE_FIELDS = [
 ] as const;
 
 const HAPPY_HOUR_FIELDS = [
-  "venueId", "daysOfWeek", "startTime", "endTime", "locationWithinVenue",
+  "venueId", "daysOfWeek", "startTime", "endTime", "allDay", "locationWithinVenue",
   "validFrom", "validUntil", "notes", "active", "sourceUrl",
 ] as const;
 
