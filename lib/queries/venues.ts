@@ -194,7 +194,7 @@ export async function listVenuesForCity(
         isNull(happyHours.deletedAt),
       ),
     )
-    .orderBy(asc(happyHours.startTime));
+    .orderBy(asc(happyHours.allDay), asc(happyHours.startTime));
 
   const byVenue = new Map<string, HappyHourRow[]>();
   for (const h of hours) {
@@ -303,7 +303,7 @@ async function assembleVenueDetail(venue: VenueRow): Promise<VenueDetail> {
     .select()
     .from(happyHours)
     .where(and(eq(happyHours.venueId, venue.id), isNull(happyHours.deletedAt)))
-    .orderBy(asc(happyHours.startTime));
+    .orderBy(asc(happyHours.allDay), asc(happyHours.startTime));
 
   const hourIds = hours.map((h) => h.id);
   const offers = hourIds.length
