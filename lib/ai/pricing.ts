@@ -20,11 +20,19 @@ function priceFor(model: string) {
   );
 }
 
-/** Cost of a call in whole cents, rounded up (conservative for budget capping). */
-export function costCents(model: string, usage: Usage): number {
+/**
+ * Cost of a call in whole cents, rounded up (conservative for budget capping).
+ * Pass { batch: true } for Message Batches API calls — billed at 50% of standard.
+ */
+export function costCents(
+  model: string,
+  usage: Usage,
+  opts?: { batch?: boolean },
+): number {
   const { inputPerM, outputPerM } = priceFor(model);
   const dollars =
     (usage.inputTokens / 1_000_000) * inputPerM +
     (usage.outputTokens / 1_000_000) * outputPerM;
-  return Math.ceil(dollars * 100);
+  const discounted = opts?.batch ? dollars * 0.5 : dollars;
+  return Math.ceil(discounted * 100);
 }
