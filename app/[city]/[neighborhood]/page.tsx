@@ -54,7 +54,13 @@ export default async function NeighborhoodPage({
         Happy hours in {hood.name}, {city.name}.
       </p>
 
-      <VenueTableClient citySlug={city.slug} venues={venues} showNeighborhood={false} />
+      <VenueTableClient
+        citySlug={city.slug}
+        cityName={`${hood.name}, ${city.name}`}
+        cityTimezone={city.defaultTimezone}
+        venues={venues}
+        showNeighborhood={false}
+      />
     </main>
   );
 }

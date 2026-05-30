@@ -51,6 +51,8 @@ export interface CityListItem {
   status: CityRow["status"];
   /** Active venues (non-deleted) with at least one active happy hour. */
   venueCount: number;
+  /** Active venues (non-deleted) with NO active happy hour — "stubs" awaiting data. */
+  stubCount: number;
 }
 
 /**
@@ -74,13 +76,24 @@ export async function listCities(): Promise<CityListItem[]> {
 
   if (rows.length === 0) return [];
 
+  // Per-city split: venues WITH an active happy hour ("data") vs WITHOUT ("stubs").
+  // LEFT JOIN with the active-hh predicate in the ON clause — rows where
+  // happy_hours.id is null are stubs; rows where it's not null are venues with data.
+  // count(distinct venues.id) collapses multi-row venues back to one each.
   const counts = await db
     .select({
       cityId: venues.cityId,
-      count: sql<number>`count(distinct ${venues.id})`.mapWith(Number),
+      withHours:
+        sql<number>`count(distinct ${venues.id}) filter (where ${happyHours.id} is not null)`.mapWith(
+          Number,
+        ),
+      stubs:
+        sql<number>`count(distinct ${venues.id}) filter (where ${happyHours.id} is null)`.mapWith(
+          Number,
+        ),
     })
     .from(venues)
-    .innerJoin(
+    .leftJoin(
       happyHours,
       and(
         eq(happyHours.venueId, venues.id),
@@ -90,14 +103,20 @@ export async function listCities(): Promise<CityListItem[]> {
     )
     .where(isNull(venues.deletedAt))
     .groupBy(venues.cityId);
-  const countByCity = new Map(counts.map((c) => [c.cityId, c.count]));
+  const countByCity = new Map(
+    counts.map((c) => [c.cityId, { withHours: c.withHours, stubs: c.stubs }]),
+  );
 
-  return rows.map((r) => ({
-    ...r,
-    centerLat: r.centerLat == null ? null : Number(r.centerLat),
-    centerLng: r.centerLng == null ? null : Number(r.centerLng),
-    venueCount: countByCity.get(r.id) ?? 0,
-  }));
+  return rows.map((r) => {
+    const c = countByCity.get(r.id);
+    return {
+      ...r,
+      centerLat: r.centerLat == null ? null : Number(r.centerLat),
+      centerLng: r.centerLng == null ? null : Number(r.centerLng),
+      venueCount: c?.withHours ?? 0,
+      stubCount: c?.stubs ?? 0,
+    };
+  });
 }
 
 /**

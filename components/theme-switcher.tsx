@@ -9,12 +9,14 @@ import { useSyncExternalStore } from "react";
  * layout applies it before first paint so there's no flash.
  *
  * Backed by useSyncExternalStore so the persisted value is read without a
- * setState-in-effect, and SSR renders the default ("twilight") cleanly.
+ * setState-in-effect, and SSR renders the default ("warm") cleanly.
  */
 const THEMES = [
-  { key: "twilight", label: "Twilight" },
   { key: "warm", label: "Warm" },
+  { key: "twilight", label: "Twilight" },
   { key: "teal", label: "Teal" },
+  { key: "sunset", label: "Sunset" },
+  { key: "slate", label: "Slate" },
 ] as const;
 
 type ThemeKey = (typeof THEMES)[number]["key"];
@@ -32,19 +34,19 @@ function subscribe(cb: () => void): () => void {
 
 function getSnapshot(): ThemeKey {
   try {
-    return (localStorage.getItem(THEME_STORAGE_KEY) as ThemeKey) || "twilight";
+    return (localStorage.getItem(THEME_STORAGE_KEY) as ThemeKey) || "warm";
   } catch {
-    return "twilight";
+    return "warm";
   }
 }
 
 function getServerSnapshot(): ThemeKey {
-  return "twilight";
+  return "warm";
 }
 
 function applyTheme(key: ThemeKey) {
   const el = document.documentElement;
-  if (key === "twilight") el.removeAttribute("data-theme");
+  if (key === "warm") el.removeAttribute("data-theme");
   else el.setAttribute("data-theme", key);
 }
 

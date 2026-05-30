@@ -1,10 +1,14 @@
 "use client";
 
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { formatDays, formatPrice, formatWindow } from "@/lib/format";
-import { venueLocalNow, isWindowActive } from "@/lib/geo/timezone";
-import type { VenueListItem } from "@/lib/queries/venues";
+import {
+  isWindowActive,
+  minutesUntilWindowEnd,
+  venueLocalNow,
+} from "@/lib/geo/timezone";
+import type { HappyHourRow, VenueListItem } from "@/lib/queries/venues";
 
 // ISO day labels; index 1=Mon … 7=Sun
 const DAY_LABELS: Record<number, string> = {
@@ -62,12 +66,64 @@ function localISODay(): number {
   return d === 0 ? 7 : d;
 }
 
+/** "Ends in 47 min" / "Ends in 1h 12m". Callers pass a positive integer. */
+function formatRemaining(mins: number): string {
+  if (mins <= 0) return "Ending now";
+  if (mins < 60) return `Ends in ${mins} min`;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return m === 0 ? `Ends in ${h}h` : `Ends in ${h}h ${m}m`;
+}
+
+/**
+ * Pulsing live indicator. Open = solid accent dot with a soft glow + a Tailwind
+ * `animate-ping` ripple radiating outward (classic broadcast LIVE feel). Closed =
+ * dim hollow ring so the column reads as a quiet status field that lights up.
+ */
+function NowBadge({
+  open = true,
+  className = "",
+}: {
+  open?: boolean;
+  className?: string;
+}) {
+  if (open) {
+    return (
+      <span
+        title="Happy hour happening now"
+        aria-label="Happy hour happening now"
+        className={`relative inline-flex h-2.5 w-2.5 align-middle ${className}`}
+      >
+        <span
+          aria-hidden="true"
+          className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-warm opacity-75"
+        />
+        <span
+          aria-hidden="true"
+          className="relative inline-flex h-2.5 w-2.5 rounded-full bg-accent-warm shadow-[0_0_8px_var(--accent-warm)]"
+        />
+      </span>
+    );
+  }
+  return (
+    <span
+      title="Not happening right now — check the days and times"
+      aria-label="Not happening right now"
+      className={`inline-flex h-2.5 w-2.5 rounded-full border border-border bg-transparent align-middle ${className}`}
+    />
+  );
+}
+
 export function VenueTableClient({
   citySlug,
+  cityName,
+  cityTimezone,
   venues,
   showNeighborhood = true,
 }: {
   citySlug: string;
+  cityName: string;
+  cityTimezone: string;
   venues: VenueListItem[];
   showNeighborhood?: boolean;
 }): React.JSX.Element {
@@ -105,27 +161,80 @@ export function VenueTableClient({
   // Today's ISO day
   const todayISO = useMemo(() => localISODay(), []);
 
-  // Cache venueLocalNow per timezone — computed every render so the live "Now" badge
-  // is always available, not only when the happening-now filter is on.
+  // Re-render every minute so the live badge, ends-in microcopy, and city clock
+  // stay current without a page refresh. A 1s post-mount tick narrows the SSR/CSR
+  // time gap without doing a synchronous setState in the effect body.
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    const warmup = setTimeout(() => setTick((t) => t + 1), 1_000);
+    const id = setInterval(() => setTick((t) => t + 1), 60_000);
+    return () => {
+      clearTimeout(warmup);
+      clearInterval(id);
+    };
+  }, []);
+
+  // Cache venueLocalNow per timezone — computed every tick so the live "Now" badge
+  // and ends-in microcopy stay live. Includes the city tz so the header clock
+  // shows even on a city with zero venues.
   const nowByTz = useMemo(() => {
     const map = new Map<string, ReturnType<typeof venueLocalNow>>();
     const now = new Date();
+    if (cityTimezone && !map.has(cityTimezone)) {
+      map.set(cityTimezone, venueLocalNow(cityTimezone, now));
+    }
     for (const v of venues) {
       const tz = v.timezone;
       if (tz && !map.has(tz)) map.set(tz, venueLocalNow(tz, now));
     }
     return map;
-  }, [venues]);
+    // `tick` participates so we recompute every minute; lint will note it as unused.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [venues, cityTimezone, tick]);
 
-  const isNowOpen = useCallback(
-    (v: VenueListItem): boolean => {
+  const activeWindow = useCallback(
+    (v: VenueListItem): HappyHourRow | null => {
       const tz = v.timezone;
-      if (!tz) return false;
+      if (!tz) return null;
       const now = nowByTz.get(tz);
-      if (!now) return false;
-      return v.happyHours.some((h) => isWindowActive(h, now));
+      if (!now) return null;
+      return v.happyHours.find((h) => isWindowActive(h, now)) ?? null;
     },
     [nowByTz],
+  );
+
+  const isNowOpen = useCallback(
+    (v: VenueListItem): boolean => activeWindow(v) != null,
+    [activeWindow],
+  );
+
+  // City-local clock string ("4:23 PM"). The hh:mm in venueLocalNow is 24-hour;
+  // we reformat to a friendly 12-hour string + small tz abbreviation.
+  const cityClock = useMemo(() => {
+    const now = nowByTz.get(cityTimezone);
+    if (!now) return null;
+    const [hStr, mStr] = now.hhmm.split(":");
+    const h24 = parseInt(hStr, 10);
+    const m = parseInt(mStr, 10);
+    const period = h24 >= 12 ? "PM" : "AM";
+    const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+    const tzAbbr = new Intl.DateTimeFormat("en-US", {
+      timeZone: cityTimezone,
+      timeZoneName: "short",
+    })
+      .formatToParts(new Date())
+      .find((p) => p.type === "timeZoneName")?.value;
+    return {
+      time: `${h12}:${String(m).padStart(2, "0")} ${period}`,
+      tz: tzAbbr ?? "",
+    };
+  }, [nowByTz, cityTimezone]);
+
+  // Count of venues with a happy hour live right now (across the unfiltered set,
+  // so this number reflects the city, not the current filter).
+  const liveCount = useMemo(
+    () => venues.reduce((n, v) => n + (isNowOpen(v) ? 1 : 0), 0),
+    [venues, isNowOpen],
   );
 
   // Filter + sort
@@ -305,26 +414,6 @@ export function VenueTableClient({
   // Leading cells a stub row renders before its "help us add it" span: Venue, Now, Type, [Nb].
   const stubLeadingCols = 3 + (showNeighborhood ? 1 : 0);
 
-  function NowBadge({ open = true, className = "" }: { open?: boolean; className?: string }) {
-    return open ? (
-      <span
-        title="Happy hour happening now"
-        aria-label="Happy hour happening now"
-        className={`inline-flex items-center align-middle text-sm leading-none ${className}`}
-      >
-        🎉
-      </span>
-    ) : (
-      <span
-        title="Not happening right now — check the days and times"
-        aria-label="Not happening right now"
-        className={`inline-flex items-center align-middle text-sm leading-none opacity-40 grayscale ${className}`}
-      >
-        ⏳
-      </span>
-    );
-  }
-
   if (venues.length === 0) {
     return (
       <div className="mt-12 rounded-lg border border-border bg-bg-surface p-10 text-center">
@@ -338,6 +427,35 @@ export function VenueTableClient({
 
   return (
     <div className="mt-6">
+      {/* Live header strip — pulsing live count + city local clock. Counts span the
+          whole city (unfiltered) so the number reflects the place, not the filter. */}
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-bg-surface px-4 py-2.5">
+        <div className="flex items-center gap-2 text-sm text-text-primary">
+          <NowBadge open={liveCount > 0} />
+          <span className="font-medium">
+            {liveCount > 0 ? (
+              <>
+                <span className="text-accent-warm">{liveCount}</span> happy hour
+                {liveCount === 1 ? "" : "s"} live now in {cityName}
+              </>
+            ) : (
+              <>Nothing live right this minute in {cityName}</>
+            )}
+          </span>
+        </div>
+        {cityClock && (
+          <span
+            className="tabular-nums text-sm text-text-muted"
+            aria-label={`Local time in ${cityName}`}
+          >
+            {cityClock.time}
+            {cityClock.tz && (
+              <span className="ml-1 text-xs uppercase">{cityClock.tz}</span>
+            )}
+          </span>
+        )}
+      </div>
+
       {/* Filter bar */}
       <div className="sticky top-0 z-10 rounded-lg border border-border bg-bg-surface p-3 shadow-sm">
         {/* Row 1: search + sort */}
@@ -358,7 +476,7 @@ export function VenueTableClient({
               className="rounded border border-border bg-bg-elevated px-2 py-1.5 text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-cool"
               aria-label="Sort venues"
             >
-              <option value="now">🎉 Happening now</option>
+              <option value="now">Happening now</option>
               <option value="startTime">Start time</option>
               <option value="endTime">End time</option>
               <option value="name">Name</option>
@@ -473,10 +591,18 @@ export function VenueTableClient({
           </div>
         )}
 
-        {/* Count + clear */}
+        {/* Count + clear. Splits filtered results into "with data" vs "stub" so the
+            two numbers always read consistently with the city/home headers. */}
         <div className="mt-2 flex items-center justify-between text-xs text-text-muted">
           <span>
-            {filtered.length} of {total} venue{total !== 1 ? "s" : ""}
+            Showing {filtered.length} of {total} venue{total !== 1 ? "s" : ""}
+            {filtered.length > 0 && (
+              <>
+                {" — "}
+                {withHours.length} with data
+                {stubs.length > 0 && <> · {stubs.length} stub{stubs.length === 1 ? "" : "s"}</>}
+              </>
+            )}
           </span>
           {hasActiveFilters && (
             <button
@@ -528,18 +654,32 @@ export function VenueTableClient({
                   const promoted = v.promotionTier !== "none";
                   const deals = dealsPreview(v);
                   const tier = priceTier(v);
+                  const live = isNowOpen(v);
+                  // Promoted styling wins over live styling — they share the warm
+                  // left border, and a venue is unlikely to be both anyway.
+                  const rowStyle = promoted
+                    ? {
+                        backgroundColor: "var(--row-promoted)",
+                        borderLeft: "3px solid var(--accent-warm)",
+                      }
+                    : live
+                      ? {
+                          backgroundColor:
+                            "color-mix(in srgb, var(--accent-warm) 5%, transparent)",
+                          borderLeft:
+                            "3px solid color-mix(in srgb, var(--accent-warm) 45%, transparent)",
+                        }
+                      : undefined;
+                  const activeW = live ? activeWindow(v) : null;
+                  const tz = v.timezone;
+                  const tzNow = tz ? nowByTz.get(tz) : null;
+                  const endsIn =
+                    activeW && tzNow ? minutesUntilWindowEnd(activeW, tzNow) : null;
                   return (
                     <tr
                       key={v.id}
                       className="border-t border-border hover:bg-row-hover"
-                      style={
-                        promoted
-                          ? {
-                              backgroundColor: "var(--row-promoted)",
-                              borderLeft: "3px solid var(--accent-warm)",
-                            }
-                          : undefined
-                      }
+                      style={rowStyle}
                     >
                       <td className="px-4 py-3">
                         <Link
@@ -550,7 +690,14 @@ export function VenueTableClient({
                         </Link>
                       </td>
                       <td className="px-4 py-3">
-                        <NowBadge open={isNowOpen(v)} />
+                        <div className="flex items-center gap-2">
+                          <NowBadge open={live} />
+                          {live && endsIn != null && (
+                            <span className="text-xs text-text-muted">
+                              {formatRemaining(endsIn)}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-text-muted">
                         {v.type ? v.type.replace(/_/g, " ") : "—"}
@@ -566,12 +713,16 @@ export function VenueTableClient({
                       </td>
                       <td className="px-4 py-3 text-text-muted">
                         {deals.text ? (
-                          <>
+                          <Link
+                            href={`/${citySlug}/venue/${v.slug}`}
+                            className="hover:text-accent-cool"
+                            title={`See all deals at ${v.name}`}
+                          >
                             {deals.text}
                             {deals.extra > 0 && (
                               <span className="text-accent-cool"> +{deals.extra}</span>
                             )}
-                          </>
+                          </Link>
                         ) : (
                           "—"
                         )}
@@ -631,18 +782,30 @@ export function VenueTableClient({
               const promoted = v.promotionTier !== "none";
               const deals = dealsPreview(v);
               const tier = priceTier(v);
+              const live = isNowOpen(v);
+              const cardStyle = promoted
+                ? {
+                    backgroundColor: "var(--row-promoted)",
+                    borderLeft: "3px solid var(--accent-warm)",
+                  }
+                : live
+                  ? {
+                      backgroundColor:
+                        "color-mix(in srgb, var(--accent-warm) 5%, transparent)",
+                      borderLeft:
+                        "3px solid color-mix(in srgb, var(--accent-warm) 45%, transparent)",
+                    }
+                  : undefined;
+              const activeW = live ? activeWindow(v) : null;
+              const tz = v.timezone;
+              const tzNow = tz ? nowByTz.get(tz) : null;
+              const endsIn =
+                activeW && tzNow ? minutesUntilWindowEnd(activeW, tzNow) : null;
               return (
                 <div
                   key={v.id}
                   className="rounded-lg border border-border bg-bg-surface px-4 py-3"
-                  style={
-                    promoted
-                      ? {
-                          backgroundColor: "var(--row-promoted)",
-                          borderLeft: "3px solid var(--accent-warm)",
-                        }
-                      : undefined
-                  }
+                  style={cardStyle}
                 >
                   <div className="flex items-baseline justify-between gap-2">
                     <Link
@@ -650,7 +813,7 @@ export function VenueTableClient({
                       className="font-medium text-text-primary hover:text-accent-cool"
                     >
                       {v.name}
-                      {isNowOpen(v) && <NowBadge className="ml-2" />}
+                      {live && <NowBadge className="ml-2" />}
                     </Link>
                     {tier && (
                       <span
@@ -671,14 +834,23 @@ export function VenueTableClient({
                     <span className="text-accent-warm">
                       {formatWindow({ allDay: b.allDay, startTime: b.start, endTime: b.end })}
                     </span>
+                    {live && endsIn != null && (
+                      <span className="ml-2 text-xs text-text-muted">
+                        · {formatRemaining(endsIn)}
+                      </span>
+                    )}
                   </p>
                   {deals.text && (
-                    <p className="mt-1 text-xs text-text-muted">
+                    <Link
+                      href={`/${citySlug}/venue/${v.slug}`}
+                      className="mt-1 block text-xs text-text-muted hover:text-accent-cool"
+                      title={`See all deals at ${v.name}`}
+                    >
                       {deals.text}
                       {deals.extra > 0 && (
                         <span className="text-accent-cool"> +{deals.extra}</span>
                       )}
-                    </p>
+                    </Link>
                   )}
                 </div>
               );

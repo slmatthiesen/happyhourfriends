@@ -86,3 +86,29 @@ export function isWindowActive(w: HappyHourWindow, now: VenueLocalNow): boolean 
   const earlyNextDay = w.daysOfWeek.includes(prevDay) && now.minutes < end;
   return lateOnStartDay || earlyNextDay;
 }
+
+/**
+ * Minutes remaining until an active window closes, given a venue-local now. Returns
+ * null when the window has no defined end (all-day or "until close"), so callers can
+ * skip the microcopy rather than show "Ends in ?". Callers must have already
+ * confirmed the window is active.
+ */
+export function minutesUntilWindowEnd(
+  w: HappyHourWindow,
+  now: VenueLocalNow,
+): number | null {
+  if (w.allDay || w.endTime == null) return null;
+  const end = toMinutes(w.endTime);
+  const start = w.startTime != null ? toMinutes(w.startTime) : 0;
+  const crosses = w.crossesMidnight ?? (w.startTime != null && end < start);
+
+  if (!crosses) {
+    // Same-day window: end is later today.
+    return end - now.minutes;
+  }
+  // Cross-midnight: if we're late on a start day, end is tomorrow morning.
+  const onStartDay = w.daysOfWeek.includes(now.dayOfWeek) && now.minutes >= start;
+  if (onStartDay) return 24 * 60 - now.minutes + end;
+  // Otherwise we're in the early-morning tail on the day after a start day.
+  return end - now.minutes;
+}
