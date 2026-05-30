@@ -54,7 +54,7 @@ import {
 } from "@/lib/places/placeDetails";
 import { saveVenuePhoto } from "@/lib/places/venuePhoto";
 import { isDenylistedChain, isLikelyNoHappyHourFormat } from "@/lib/places/chainDenylist";
-import { slugify, resolveVenueSlug } from "@/lib/places/venueSlug";
+import { slugify, placeIdSuffix } from "@/lib/places/venueSlug";
 
 // ---------------------------------------------------------------------------
 // Arg parsing
@@ -123,6 +123,86 @@ async function isCandidateProcessed(sql: Sql, candidateId: string): Promise<bool
 }
 
 /**
+ * Insert (or find existing) the venue row, returning its id.
+ *
+ * venues has TWO unique constraints: google_place_id AND (city_id, slug). Slug is
+ * name-derived, so same-name multi-location chains (PRD §13: dedup on place_id, NEVER
+ * name — El Güero ×3, Oregano's ×3, etc.) collide on (city_id, slug). ON CONFLICT can
+ * only target one constraint, so a slug collision on a NEW place_id throws 23505.
+ *
+ * We enforce slug uniqueness at INSERT time, not via a pre-read: a read-then-insert is
+ * TOCTOU — two same-name candidates collected in the same run race against each other's
+ * reads and one still lands the base slug twice. Instead, on a slug-constraint 23505 we
+ * retry with a place_id-suffixed slug (then a numeric backstop). This is correct
+ * regardless of ordering/timing, so it survives crashed-then-resumed runs.
+ */
+async function insertVenueRow(
+  sql: Sql,
+  args: {
+    cityId: string;
+    ctx: PrepContext;
+    completeness: "complete" | "stub";
+    lastVerified: Date | null;
+  },
+): Promise<string | null> {
+  const { cityId, ctx, completeness, lastVerified } = args;
+  const baseSlug = slugify(ctx.name);
+
+  const doInsert = async (slug: string) => {
+    const inserted = await sql<{ id: string }[]>`
+      INSERT INTO venues
+        (city_id, name, slug, address, lat, lng, google_place_id,
+         website_url, phone, price_level, status, data_completeness, last_verified_at)
+      VALUES
+        (${cityId}, ${ctx.name}, ${slug},
+         ${ctx.address}, ${ctx.lat}, ${ctx.lng},
+         ${ctx.googlePlaceId}, ${ctx.siteUrl}, ${ctx.phone},
+         ${ctx.priceLevel}, 'active'::venue_status,
+         ${completeness}::data_completeness, ${lastVerified}::timestamptz)
+      ON CONFLICT (${ctx.googlePlaceId ? sql`google_place_id` : sql`city_id, slug`})
+        DO NOTHING
+      RETURNING id
+    `;
+    return inserted[0]?.id ?? null;
+  };
+
+  // Candidate slugs to try in order: base, then place_id-suffixed, then numbered.
+  // Without a place_id we can't disambiguate, so we only try the base (the
+  // ON CONFLICT (city_id, slug) target absorbs a collision as a no-op).
+  const suffix = ctx.googlePlaceId ? placeIdSuffix(ctx.googlePlaceId) : null;
+  const slugCandidates = suffix
+    ? [baseSlug, `${baseSlug}-${suffix}`, `${baseSlug}-${suffix}-2`, `${baseSlug}-${suffix}-3`]
+    : [baseSlug];
+
+  let venueId: string | null = null;
+  for (let i = 0; i < slugCandidates.length; i++) {
+    try {
+      venueId = await doInsert(slugCandidates[i]);
+      break; // inserted, or absorbed by ON CONFLICT (no row) — either way, done trying
+    } catch (err) {
+      // Retry ONLY on a (city_id, slug) unique violation with another slug to try.
+      const isSlugDup =
+        typeof err === "object" &&
+        err !== null &&
+        (err as { code?: string }).code === "23505" &&
+        String((err as { constraint_name?: string }).constraint_name ?? "").includes("slug");
+      if (isSlugDup && i < slugCandidates.length - 1) continue;
+      throw err;
+    }
+  }
+
+  // No row returned means ON CONFLICT (google_place_id) absorbed an existing venue —
+  // fetch its id so callers can still attach happy hours / mark the candidate.
+  if (!venueId && ctx.googlePlaceId) {
+    const [ex] = await sql<{ id: string }[]>`
+      SELECT id FROM venues WHERE google_place_id = ${ctx.googlePlaceId}
+    `;
+    venueId = ex?.id ?? null;
+  }
+  return venueId;
+}
+
+/**
  * Write one enriched candidate to the DB: insert the venue (complete|stub), hero
  * photo, and any HH windows + offerings. Identical output across all three paths.
  * Returns the venue id + outcome. Does NOT mark the candidate processed.
@@ -140,47 +220,14 @@ async function persistExtraction(
   const hasHH = (extracted?.happyHours.length ?? 0) > 0;
   const outcome: SeedOutcome = hasHH ? "confirmed_hh" : "no_hh_found";
 
-  // venues has TWO unique constraints: google_place_id AND (city_id, slug). Slug is
-  // derived from name, so same-name multi-location chains (PRD §13: dedup on place_id,
-  // never name) would collide on (city_id, slug). Disambiguate the slug by place_id so
-  // each location gets a unique, deterministic slug and the insert can't hit that
-  // constraint. (Curated candidates have no place_id → keep the base slug; the
-  // ON CONFLICT (city_id, slug) below absorbs any collision for those.)
-  const baseSlug = slugify(ctx.name);
-  const slug = ctx.googlePlaceId
-    ? await resolveVenueSlug(baseSlug, ctx.googlePlaceId, async (s) => {
-        const [hit] = await sql<{ one: number }[]>`
-          SELECT 1 AS one FROM venues
-          WHERE city_id = ${cityId} AND slug = ${s}
-            AND google_place_id IS DISTINCT FROM ${ctx.googlePlaceId}
-          LIMIT 1
-        `;
-        return !!hit;
-      })
-    : baseSlug;
   const completeness = hasHH ? "complete" : "stub";
   const lastVerified = hasHH ? new Date() : null;
-  const inserted = await sql<{ id: string }[]>`
-    INSERT INTO venues
-      (city_id, name, slug, address, lat, lng, google_place_id,
-       website_url, phone, price_level, status, data_completeness, last_verified_at)
-    VALUES
-      (${cityId}, ${ctx.name}, ${slug},
-       ${ctx.address}, ${ctx.lat}, ${ctx.lng},
-       ${ctx.googlePlaceId}, ${ctx.siteUrl}, ${ctx.phone},
-       ${ctx.priceLevel}, 'active'::venue_status,
-       ${completeness}::data_completeness, ${lastVerified}::timestamptz)
-    ON CONFLICT (${ctx.googlePlaceId ? sql`google_place_id` : sql`city_id, slug`})
-      DO NOTHING
-    RETURNING id
-  `;
-  let venueId = inserted[0]?.id ?? null;
-  if (!venueId && ctx.googlePlaceId) {
-    const [ex] = await sql<{ id: string }[]>`
-      SELECT id FROM venues WHERE google_place_id = ${ctx.googlePlaceId}
-    `;
-    venueId = ex?.id ?? null;
-  }
+  const venueId = await insertVenueRow(sql, {
+    cityId,
+    ctx,
+    completeness,
+    lastVerified,
+  });
 
   if (venueId && placesKey && ctx.photoName) {
     const photo = await fetchPlacePhoto(placesKey, ctx.photoName);
