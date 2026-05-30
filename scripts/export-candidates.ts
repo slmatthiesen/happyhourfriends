@@ -45,22 +45,40 @@ async function main() {
       {
         name: string;
         address: string | null;
+        primary_type: string | null;
+        types: string[] | null;
+        website_url: string | null;
+        rating: string | null;
+        user_rating_count: number | null;
+        price_level: number | null;
+        business_status: string | null;
         google_place_id: string | null;
         processed_at: Date | null;
         outcome: string | null;
       }[]
     >`
-      SELECT name, address, google_place_id, processed_at, outcome
+      SELECT name, address, primary_type, types, website_url, rating,
+             user_rating_count, price_level, business_status,
+             google_place_id, processed_at, outcome
       FROM seed_candidates
       WHERE city_id = ${city.id}
       ORDER BY name
     `;
 
-    const header = "name,address,place_id,processed,outcome";
+    const header =
+      "name,address,primary_type,types,website_url,rating,reviews,price_level," +
+      "business_status,place_id,processed,outcome";
     const lines = rows.map((r) =>
       [
         csvCell(r.name),
         csvCell(r.address),
+        csvCell(r.primary_type),
+        csvCell(r.types ? r.types.join("; ") : null),
+        csvCell(r.website_url),
+        csvCell(r.rating),
+        csvCell(r.user_rating_count != null ? String(r.user_rating_count) : null),
+        csvCell(r.price_level != null ? "$".repeat(r.price_level) : null),
+        csvCell(r.business_status),
         csvCell(r.google_place_id),
         r.processed_at ? "yes" : "no",
         csvCell(r.outcome),
