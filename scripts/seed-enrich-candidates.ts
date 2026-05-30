@@ -1,24 +1,27 @@
 /**
- * Stage B — Seed enrichment for Tacoma (PRD §7.3).
+ * Stage B — Seed enrichment for a city (PRD §7.3).
  *
  * Loads unprocessed seed_candidates (processed_at IS NULL) for the target city
- * and runs the Stage 2 AI verifier against each one to discover happy hour info.
- * Outcomes:
- *   confirmed_hh     → venue row inserted, then extractHappyHours() populates
- *                       happy_hours + offerings with a source_url per row (PRD §13).
- *                       Completeness becomes 'complete' when sourced rows land,
- *                       otherwise it stays 'partial'.
- *   no_hh_explicit   → venue row inserted (status=no_happy_hour, dataCompleteness=stub)
- *   no_hh_found      → venue row inserted (status=active, dataCompleteness=stub)
- *                       → renders as "help wanted" on the site
- *   error            → seed_candidate.outcome='error'; no venue row created
+ * and discovers happy hour info via the AI extractor. Two execution paths:
  *
- * Every AI call is recorded in ai_usage_ledger (stage='seed').
- * Processing is idempotent: candidates with processed_at set are skipped.
- * Venue rows are upserted on google_place_id when present.
+ *   (default, on-demand)  one extractHappyHours() agentic call per candidate.
+ *   (--batch)             Message Batches API — ~50% cheaper, async, polls to
+ *                         completion. Prep (Google Place Details) happens up front,
+ *                         the AI runs in the batch, results are written on collect.
+ *                         Resumable via a gitignored .enrich-batch/ state file.
+ *                         Requests that don't return a clean record fall back to the
+ *                         on-demand loop. See docs/superpowers/specs/2026-05-29-…
+ *
+ * Outcomes (both paths):
+ *   confirmed_hh   → venue row + happy_hours/offerings with a source_url per row.
+ *   no_hh_found    → venue row (status=active, dataCompleteness=stub) — "help wanted".
+ *   error          → seed_candidate.outcome='error'; no venue row.
+ *
+ * Every AI call is recorded in ai_usage_ledger (stage='seed'); batch rows carry the
+ * 50% discount. Processing is idempotent: candidates with processed_at set are skipped.
  *
  * Usage:
- *   tsx scripts/seed-enrich-candidates.ts [--city tacoma] [--limit N]
+ *   tsx scripts/seed-enrich-candidates.ts [--city tacoma] [--limit N] [--batch]
  *
  * Required env vars:
  *   DATABASE_URL       Postgres connection string
@@ -26,7 +29,22 @@
  */
 import "dotenv/config";
 import postgres from "postgres";
-import { extractHappyHours } from "@/lib/ai/extractHappyHours";
+import type { Message } from "@anthropic-ai/sdk/resources/messages";
+import {
+  extractHappyHours,
+  buildExtractRequest,
+  parseRecordedExtract,
+  type ExtractResult,
+} from "@/lib/ai/extractHappyHours";
+import { costCents } from "@/lib/ai/pricing";
+import { createBatch, pollBatch, streamResults, type BatchRequest } from "@/lib/ai/batch";
+import {
+  writeBatchState,
+  findBatchState,
+  deleteBatchState,
+  type PrepContext,
+  type BatchState,
+} from "@/lib/ai/enrichBatchState";
 import { firstOfCurrentMonth } from "@/lib/ai/budget";
 import { assignNeighborhoods } from "@/lib/geo/assignNeighborhoods";
 import {
@@ -41,7 +59,7 @@ import { isDenylistedChain, isLikelyNoHappyHourFormat } from "@/lib/places/chain
 // Arg parsing
 // ---------------------------------------------------------------------------
 
-function parseArgs(): { city: string; limit: number | null } {
+function parseArgs(): { city: string; limit: number | null; batch: boolean } {
   const argv = process.argv.slice(2);
   const getFlag = (f: string) => {
     const i = argv.indexOf(f);
@@ -51,6 +69,7 @@ function parseArgs(): { city: string; limit: number | null } {
   return {
     city: getFlag("--city") ?? "tacoma",
     limit: limitStr != null ? parseInt(limitStr, 10) : null,
+    batch: argv.includes("--batch"),
   };
 }
 
@@ -68,6 +87,24 @@ interface SeedCandidate {
   source_url: string | null;
 }
 
+interface CityRow {
+  id: string;
+  slug: string;
+}
+
+type Sql = ReturnType<typeof postgres>;
+
+type SeedOutcome = "confirmed_hh" | "no_hh_explicit" | "no_hh_found" | "error";
+
+/** Why a venue ended up with no happy-hour data — for the end-of-run report. */
+type NoDataReason = "no_website" | "zero_windows" | "all_dropped" | "errored";
+interface NoDataEntry {
+  name: string;
+  reason: NoDataReason;
+  detail?: string;
+  via?: "batch" | "fallback" | "on-demand";
+}
+
 // ---------------------------------------------------------------------------
 // Slugify helper (mirrors import-neighborhoods.ts)
 // ---------------------------------------------------------------------------
@@ -81,7 +118,138 @@ function slugify(input: string): string {
     .replace(/(^-|-$)/g, "");
 }
 
-type SeedOutcome = "confirmed_hh" | "no_hh_explicit" | "no_hh_found" | "error";
+// ---------------------------------------------------------------------------
+// Shared DB writers (used by on-demand, batch collect, and fallback paths)
+// ---------------------------------------------------------------------------
+
+/**
+ * Write one enriched candidate to the DB: insert the venue (complete|stub), hero
+ * photo, and any HH windows + offerings. Identical output across all three paths.
+ * Returns the venue id + outcome. Does NOT mark the candidate processed.
+ */
+async function persistExtraction(
+  sql: Sql,
+  args: {
+    cityId: string;
+    placesKey: string | null;
+    ctx: PrepContext;
+    extracted: ExtractResult | null;
+  },
+): Promise<{ venueId: string | null; outcome: SeedOutcome; hasHH: boolean }> {
+  const { cityId, placesKey, ctx, extracted } = args;
+  const hasHH = (extracted?.happyHours.length ?? 0) > 0;
+  const outcome: SeedOutcome = hasHH ? "confirmed_hh" : "no_hh_found";
+
+  const slug = slugify(ctx.name);
+  const completeness = hasHH ? "complete" : "stub";
+  const lastVerified = hasHH ? new Date() : null;
+  const inserted = await sql<{ id: string }[]>`
+    INSERT INTO venues
+      (city_id, name, slug, address, lat, lng, google_place_id,
+       website_url, phone, price_level, status, data_completeness, last_verified_at)
+    VALUES
+      (${cityId}, ${ctx.name}, ${slug},
+       ${ctx.address}, ${ctx.lat}, ${ctx.lng},
+       ${ctx.googlePlaceId}, ${ctx.siteUrl}, ${ctx.phone},
+       ${ctx.priceLevel}, 'active'::venue_status,
+       ${completeness}::data_completeness, ${lastVerified}::timestamptz)
+    ON CONFLICT (${ctx.googlePlaceId ? sql`google_place_id` : sql`city_id, slug`})
+      DO NOTHING
+    RETURNING id
+  `;
+  let venueId = inserted[0]?.id ?? null;
+  if (!venueId && ctx.googlePlaceId) {
+    const [ex] = await sql<{ id: string }[]>`
+      SELECT id FROM venues WHERE google_place_id = ${ctx.googlePlaceId}
+    `;
+    venueId = ex?.id ?? null;
+  }
+
+  if (venueId && placesKey && ctx.photoName) {
+    const photo = await fetchPlacePhoto(placesKey, ctx.photoName);
+    if (photo) {
+      const path = await saveVenuePhoto(venueId, photo.bytes);
+      if (path) {
+        await sql`UPDATE venues SET hero_image_url = ${path}, updated_at = now() WHERE id = ${venueId}`;
+      }
+    }
+  }
+
+  if (venueId && extracted && hasHH) {
+    for (const hh of extracted.happyHours) {
+      const days = [...new Set(hh.daysOfWeek)].sort((a, b) => a - b);
+      const hhRows = await sql<{ id: string }[]>`
+        INSERT INTO happy_hours
+          (venue_id, days_of_week, all_day, start_time, end_time,
+           location_within_venue, notes, active, source_url)
+        VALUES
+          (${venueId}, ${days}, ${hh.allDay},
+           ${hh.startTime}, ${hh.endTime},
+           ${hh.locationWithinVenue}::location_within_venue,
+           ${hh.notes}, true, ${hh.sourceUrl})
+        ON CONFLICT DO NOTHING
+        RETURNING id
+      `;
+      if (hhRows.length === 0) continue;
+      const hhId = hhRows[0].id;
+      for (const off of hh.offerings) {
+        await sql`
+          INSERT INTO offerings
+            (happy_hour_id, kind, category, name, price_cents,
+             original_price_cents, discount_cents, description,
+             conditions, active, source_url)
+          VALUES
+            (${hhId}, ${off.kind}::offering_kind,
+             ${off.category}::offering_category, ${off.name},
+             ${off.priceCents}, ${off.originalPriceCents},
+             ${off.discountCents}, ${off.description},
+             ${off.conditions}, true, ${off.sourceUrl})
+        `;
+      }
+    }
+  }
+  return { venueId, outcome, hasHH };
+}
+
+async function writeLedger(
+  sql: Sql,
+  cityId: string,
+  month: string,
+  extracted: ExtractResult,
+): Promise<void> {
+  await sql`
+    INSERT INTO ai_usage_ledger
+      (month, model, input_tokens, output_tokens, cost_cents,
+       stage, city_id, prompt_hash)
+    VALUES
+      (${month}, ${extracted.model},
+       ${extracted.usage.inputTokens}, ${extracted.usage.outputTokens},
+       ${extracted.costCents}, ${"seed"}::ai_stage,
+       ${cityId}, ${extracted.promptHash})
+  `;
+}
+
+async function markProcessed(
+  sql: Sql,
+  candidateId: string,
+  outcome: SeedOutcome,
+  venueId: string | null,
+  opts?: { skipOutcome?: boolean },
+): Promise<void> {
+  if (opts?.skipOutcome) {
+    await sql`
+      UPDATE seed_candidates SET processed_at = now(), updated_at = now()
+      WHERE id = ${candidateId}
+    `;
+    return;
+  }
+  await sql`
+    UPDATE seed_candidates
+    SET processed_at = now(), outcome = ${outcome}::seed_outcome,
+        resulting_venue_id = ${venueId}, updated_at = now()
+    WHERE id = ${candidateId}
+  `;
+}
 
 // ---------------------------------------------------------------------------
 // Main
@@ -103,7 +271,7 @@ async function main() {
         "  2. Create an API key and set a workspace spend limit of $30/mo as a backstop (PRD §10.5)\n" +
         "  3. Add to .env:  ANTHROPIC_API_KEY=<your-key>\n" +
         "  4. Re-run:  tsx scripts/seed-enrich-candidates.ts\n" +
-        "\nEstimated one-time cost for full Tacoma seed: ~$16 (PRD §7.3).\n",
+        "\nEstimated one-time cost for full Tacoma seed: ~$16 on-demand (~$8 with --batch).\n",
     );
     process.exit(0);
   }
@@ -113,13 +281,19 @@ async function main() {
 
   try {
     // ---- Resolve city row --------------------------------------------------
-    const [city] = await sql<{ id: string; slug: string }[]>`
+    const [city] = await sql<CityRow[]>`
       SELECT id, slug FROM cities WHERE slug = ${args.city}
     `;
     if (!city) {
       throw new Error(
         `City '${args.city}' not found — run npm run seed:cities first.`,
       );
+    }
+
+    // ---- Batch path branches off here --------------------------------------
+    if (args.batch) {
+      await runBatch(sql, city, args, placesKey);
+      return;
     }
 
     // ---- Load unprocessed candidates ---------------------------------------
@@ -157,34 +331,23 @@ async function main() {
         `[${i + 1}/${candidates.length}] ${candidate.name} (id=${candidate.id})…`,
       );
 
-      // National-chain gate (defensive — discovery already filters these). Mark
-      // processed, no venue, no AI.
+      // National-chain gate (defensive — discovery already filters these).
       if (isDenylistedChain(candidate.name)) {
         console.log("  ↷ skip — national chain");
-        await sql`
-          UPDATE seed_candidates
-          SET processed_at = now(), updated_at = now()
-          WHERE id = ${candidate.id}
-        `;
+        await markProcessed(sql, candidate.id, "no_hh_found", null, { skipOutcome: true });
         nFiltered++;
         continue;
       }
 
-      // Format gate: buffets / AYCE / all-you-can-eat — these don't run happy hours
-      // (already discounted by format). No venue, no AI. Operator directive 2026-05-27.
+      // Format gate: buffets / AYCE — these don't run happy hours.
       if (isLikelyNoHappyHourFormat(candidate.name)) {
         console.log("  ↷ skip — buffet/AYCE format");
-        await sql`
-          UPDATE seed_candidates
-          SET processed_at = now(), updated_at = now()
-          WHERE id = ${candidate.id}
-        `;
+        await markProcessed(sql, candidate.id, "no_hh_found", null, { skipOutcome: true });
         nFiltered++;
         continue;
       }
 
-      // Skip candidates already mapped to a venue (deduped by place_id) — don't re-pay
-      // to enrich something we already have (e.g. hand-seeded venues after backfill).
+      // Skip candidates already mapped to a venue (deduped by place_id).
       if (candidate.google_place_id) {
         const [existing] = await sql<{ id: string }[]>`
           SELECT id FROM venues WHERE google_place_id = ${candidate.google_place_id}
@@ -206,25 +369,15 @@ async function main() {
 
       try {
         // ---- Place Details: alcohol gate + website + price tier + photo ------
-        // One Google call (no AI). Gates out non-alcohol venues before any AI spend,
-        // and supplies the canonical website the extractor reads.
-        // Quota-exhausted (429) escapes via PlaceDetailsQuotaError below — we abort
-        // the whole run rather than poisoning every remaining candidate as
-        // "no website" (2026-05-27 incident).
         const details =
           placesKey && candidate.google_place_id
             ? await fetchPlaceDetails(placesKey, candidate.google_place_id)
             : null;
 
-        // Alcohol gate — only when details actually came back (don't false-skip on an
-        // API hiccup). Non-alcohol venues are marked processed with no venue, no AI.
+        // Alcohol gate — only when details actually came back.
         if (details && !details.servesAlcohol) {
           console.log("  ↷ filtered — Google reports no alcohol served");
-          await sql`
-            UPDATE seed_candidates
-            SET processed_at = now(), updated_at = now()
-            WHERE id = ${candidate.id}
-          `;
+          await markProcessed(sql, candidate.id, "no_hh_found", null, { skipOutcome: true });
           nFiltered++;
           continue;
         }
@@ -241,16 +394,7 @@ async function main() {
           : null;
 
         if (extracted) {
-          await sql`
-            INSERT INTO ai_usage_ledger
-              (month, model, input_tokens, output_tokens, cost_cents,
-               stage, city_id, prompt_hash)
-            VALUES
-              (${month}, ${extracted.model},
-               ${extracted.usage.inputTokens}, ${extracted.usage.outputTokens},
-               ${extracted.costCents}, ${"seed"}::ai_stage,
-               ${city.id}, ${extracted.promptHash})
-          `;
+          await writeLedger(sql, city.id, month, extracted);
           console.log(
             `  → confidence=${extracted.confidence.toFixed(2)}, cost=${extracted.costCents}¢, ` +
               `${extracted.happyHours.length} window(s)`,
@@ -259,95 +403,33 @@ async function main() {
           console.log("  → no website on file");
         }
 
-        const hasHH = (extracted?.happyHours.length ?? 0) > 0;
-        outcome = hasHH ? "confirmed_hh" : "no_hh_found";
-
-        // We KEEP the venue even when we couldn't find times: it passed the chain +
-        // alcohol + area gates, so it's a likely-HH local spot. With HH → 'complete'
-        // (sorts into the table); without → 'stub' (shows at the bottom as
-        // "likely has a happy hour — help us add times", crowdsourced). Only genuine
-        // junk (chains, non-alcohol, out-of-area) was already filtered upstream.
-        {
-          const slug = slugify(candidate.name);
-          const completeness = hasHH ? "complete" : "stub";
-          const lastVerified = hasHH ? new Date() : null;
-          const inserted = await sql<{ id: string }[]>`
-            INSERT INTO venues
-              (city_id, name, slug, address, lat, lng, google_place_id,
-               website_url, phone, price_level, status, data_completeness, last_verified_at)
-            VALUES
-              (${city.id}, ${candidate.name}, ${slug},
-               ${candidate.address}, ${candidate.lat}, ${candidate.lng},
-               ${candidate.google_place_id ?? null}, ${siteUrl}, ${details?.phone ?? null},
-               ${details?.priceLevel ?? null}, 'active'::venue_status,
-               ${completeness}::data_completeness, ${lastVerified}::timestamptz)
-            ON CONFLICT (${candidate.google_place_id ? sql`google_place_id` : sql`city_id, slug`})
-              DO NOTHING
-            RETURNING id
-          `;
-          let venueId = inserted[0]?.id ?? null;
-          if (!venueId && candidate.google_place_id) {
-            const [ex] = await sql<{ id: string }[]>`
-              SELECT id FROM venues WHERE google_place_id = ${candidate.google_place_id}
-            `;
-            venueId = ex?.id ?? null;
-          }
-          resultingVenueId = venueId;
-
-          // ---- Hero photo (download once, store locally) ---------------------
-          if (venueId && placesKey && details?.photoName) {
-            const photo = await fetchPlacePhoto(placesKey, details.photoName);
-            if (photo) {
-              const path = await saveVenuePhoto(venueId, photo.bytes);
-              if (path) {
-                await sql`UPDATE venues SET hero_image_url = ${path}, updated_at = now() WHERE id = ${venueId}`;
-              }
-            }
-          }
-
-          // ---- Insert HH rows (one row per window, days clustered) -----------
-          if (venueId && extracted && hasHH) {
-            for (const hh of extracted.happyHours) {
-              const days = [...new Set(hh.daysOfWeek)].sort((a, b) => a - b);
-              const hhRows = await sql<{ id: string }[]>`
-                INSERT INTO happy_hours
-                  (venue_id, days_of_week, all_day, start_time, end_time,
-                   location_within_venue, notes, active, source_url)
-                VALUES
-                  (${venueId}, ${days}, ${hh.allDay},
-                   ${hh.startTime}, ${hh.endTime},
-                   ${hh.locationWithinVenue}::location_within_venue,
-                   ${hh.notes}, true, ${hh.sourceUrl})
-                ON CONFLICT DO NOTHING
-                RETURNING id
-              `;
-              if (hhRows.length === 0) continue;
-              const hhId = hhRows[0].id;
-              for (const off of hh.offerings) {
-                await sql`
-                  INSERT INTO offerings
-                    (happy_hour_id, kind, category, name, price_cents,
-                     original_price_cents, discount_cents, description,
-                     conditions, active, source_url)
-                  VALUES
-                    (${hhId}, ${off.kind}::offering_kind,
-                     ${off.category}::offering_category, ${off.name},
-                     ${off.priceCents}, ${off.originalPriceCents},
-                     ${off.discountCents}, ${off.description},
-                     ${off.conditions}, true, ${off.sourceUrl})
-                `;
-              }
-            }
-          }
-          console.log(
-            hasHH
-              ? `  ✓ ${extracted!.happyHours.length} HH window(s) saved`
-              : "  ◦ likely-HH stub kept (no times found — crowdsource)",
-          );
-        }
+        const ctx: PrepContext = {
+          candidateId: candidate.id,
+          name: candidate.name,
+          address: candidate.address,
+          lat: candidate.lat,
+          lng: candidate.lng,
+          googlePlaceId: candidate.google_place_id,
+          siteUrl,
+          phone: details?.phone ?? null,
+          priceLevel: details?.priceLevel ?? null,
+          photoName: details?.photoName ?? null,
+        };
+        const persisted = await persistExtraction(sql, {
+          cityId: city.id,
+          placesKey,
+          ctx,
+          extracted,
+        });
+        outcome = persisted.outcome;
+        resultingVenueId = persisted.venueId;
+        console.log(
+          persisted.hasHH
+            ? `  ✓ ${extracted!.happyHours.length} HH window(s) saved`
+            : "  ◦ likely-HH stub kept (no times found — crowdsource)",
+        );
       } catch (err) {
-        // Quota exhausted → ABORT the whole run; the candidate is NOT marked processed
-        // so it gets retried tomorrow / after the operator bumps the quota.
+        // Quota exhausted → ABORT; the candidate is NOT marked processed so it retries.
         if (err instanceof PlaceDetailsQuotaError) {
           console.error(`\n${err.message}\n`);
           console.error(
@@ -358,19 +440,11 @@ async function main() {
         }
         console.error(`  ERROR processing candidate ${candidate.id}:`, err);
         outcome = "error";
-        // Continue loop — never throw out of the per-candidate iteration.
       }
 
       // ---- Mark candidate as processed -------------------------------------
       try {
-        await sql`
-          UPDATE seed_candidates
-          SET processed_at      = now(),
-              outcome           = ${outcome}::seed_outcome,
-              resulting_venue_id = ${resultingVenueId},
-              updated_at        = now()
-          WHERE id = ${candidate.id}
-        `;
+        await markProcessed(sql, candidate.id, outcome, resultingVenueId);
       } catch (err) {
         console.error(
           `  ERROR updating seed_candidate ${candidate.id} after processing:`,
@@ -383,14 +457,13 @@ async function main() {
       else if (outcome === "no_hh_found") nNoHhFound++;
       else nError++;
 
-      // Conservative pace — brief pause between candidates to avoid rate limits.
+      // Conservative pace between candidates to avoid rate limits.
       if (i < candidates.length - 1) {
         await new Promise((resolve) => setTimeout(resolve, 500));
       }
     }
 
     // ---- Assign neighborhoods by point-in-polygon --------------------------
-    // Enriched venues carry lat/lng (from Places), so this fills neighborhood_id.
     const assigned = await assignNeighborhoods(sql, city.id);
 
     // ---- Summary ------------------------------------------------------------
@@ -409,6 +482,313 @@ async function main() {
     );
   } finally {
     await sql.end();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Batch path (--batch)
+// ---------------------------------------------------------------------------
+
+interface ReportTally {
+  full: number;
+  stubs: number;
+  filtered: number;
+  skipped: number;
+  errored: number;
+  fallbackCount: number;
+  totalRequests: number;
+  batchCostCents: number;
+  fallbackCostCents: number;
+  noData: NoDataEntry[];
+}
+
+async function runBatch(
+  sql: Sql,
+  city: CityRow,
+  args: { city: string; limit: number | null },
+  placesKey: string | null,
+): Promise<void> {
+  const month = firstOfCurrentMonth();
+  const tally: ReportTally = {
+    full: 0,
+    stubs: 0,
+    filtered: 0,
+    skipped: 0,
+    errored: 0,
+    fallbackCount: 0,
+    totalRequests: 0,
+    batchCostCents: 0,
+    fallbackCostCents: 0,
+    noData: [],
+  };
+
+  // ---- Resume an in-flight batch if one exists -----------------------------
+  let state = findBatchState(city.slug);
+  if (state) {
+    console.log(`Resuming in-flight batch ${state.batchId} for '${city.slug}'…`);
+  } else {
+    state = await prepAndSubmit(sql, city, args, placesKey, tally);
+    if (!state) {
+      console.log("No eligible candidates to batch.");
+      await finalize(sql, city, tally);
+      return;
+    }
+  }
+
+  // ---- Poll to completion --------------------------------------------------
+  console.log(`Polling batch ${state.batchId} every 300s until complete…`);
+  await pollBatch(state.batchId, {
+    onTick: (b) =>
+      console.log(
+        `  …status=${b.processing_status} ` +
+          `(succeeded ${b.request_counts.succeeded}, errored ${b.request_counts.errored}, ` +
+          `processing ${b.request_counts.processing})`,
+      ),
+  });
+
+  // ---- Collect + write -----------------------------------------------------
+  // model + promptHash are input-independent (prompt template + configured model),
+  // so resolve once for ledger attribution rather than per result.
+  const { model: extractorModel, promptHash } = buildExtractRequest({
+    venueName: "",
+    websiteUrl: null,
+    otherUrl: null,
+  });
+
+  const fallback: PrepContext[] = [];
+  for await (const res of streamResults(state.batchId)) {
+    const ctx = state.contexts[res.custom_id];
+    if (!ctx) continue; // unknown id — skip defensively
+    tally.totalRequests++;
+
+    if (res.result.type !== "succeeded") {
+      fallback.push(ctx);
+      continue;
+    }
+    const message: Message = res.result.message;
+    const parsed = parseRecordedExtract(message);
+    if (!parsed.recorded) {
+      fallback.push(ctx);
+      continue;
+    }
+
+    const usage = {
+      inputTokens: message.usage.input_tokens,
+      outputTokens: message.usage.output_tokens,
+    };
+    const extracted: ExtractResult = {
+      happyHours: parsed.happyHours,
+      confidence: parsed.confidence,
+      summary: parsed.summary,
+      usage,
+      costCents: costCents(extractorModel, usage, { batch: true }),
+      promptHash,
+      model: extractorModel,
+    };
+
+    await writeLedger(sql, city.id, month, extracted);
+    tally.batchCostCents += extracted.costCents;
+
+    const persisted = await persistExtraction(sql, { cityId: city.id, placesKey, ctx, extracted });
+    await markProcessed(sql, ctx.candidateId, persisted.outcome, persisted.venueId);
+
+    if (persisted.hasHH) {
+      tally.full++;
+      console.log(`  ✓ ${ctx.name}: ${extracted.happyHours.length} window(s)`);
+    } else {
+      tally.stubs++;
+      tally.noData.push({
+        name: ctx.name,
+        reason: parsed.rawWindowCount > 0 ? "all_dropped" : "zero_windows",
+        detail: `conf ${extracted.confidence.toFixed(2)}${ctx.siteUrl ? `, ${ctx.siteUrl}` : ""}`,
+        via: "batch",
+      });
+      console.log(`  ◦ ${ctx.name}: stub (no usable windows)`);
+    }
+  }
+
+  // ---- On-demand fallback for stragglers -----------------------------------
+  if (fallback.length > 0) {
+    console.log(`\n${fallback.length} request(s) need on-demand fallback…`);
+    for (const ctx of fallback) {
+      tally.fallbackCount++;
+      console.log(`  fallback: ${ctx.name}…`);
+      try {
+        const extracted = ctx.siteUrl
+          ? await extractHappyHours({ venueName: ctx.name, websiteUrl: ctx.siteUrl, otherUrl: null })
+          : null;
+        if (extracted) {
+          await writeLedger(sql, city.id, month, extracted);
+          tally.fallbackCostCents += extracted.costCents;
+        }
+        const persisted = await persistExtraction(sql, { cityId: city.id, placesKey, ctx, extracted });
+        await markProcessed(sql, ctx.candidateId, persisted.outcome, persisted.venueId);
+        if (persisted.hasHH) {
+          tally.full++;
+        } else {
+          tally.stubs++;
+          tally.noData.push({
+            name: ctx.name,
+            reason: ctx.siteUrl ? "zero_windows" : "no_website",
+            detail: extracted ? `conf ${extracted.confidence.toFixed(2)}` : undefined,
+            via: "fallback",
+          });
+        }
+      } catch (err) {
+        console.error(`  fallback error for ${ctx.name}:`, err);
+        tally.errored++;
+        tally.noData.push({ name: ctx.name, reason: "errored", detail: String(err), via: "fallback" });
+        await markProcessed(sql, ctx.candidateId, "error", null);
+      }
+    }
+  }
+
+  deleteBatchState(city.slug, state.batchId);
+  await finalize(sql, city, tally);
+}
+
+/** Phase 1+2: run the non-AI gates, write inline outcomes, submit the batch, persist state. */
+async function prepAndSubmit(
+  sql: Sql,
+  city: CityRow,
+  args: { city: string; limit: number | null },
+  placesKey: string | null,
+  tally: ReportTally,
+): Promise<BatchState | null> {
+  const candidates = await sql<SeedCandidate[]>`
+    SELECT id, name, google_place_id, address, lat, lng, source_url
+    FROM seed_candidates
+    WHERE city_id = ${city.id} AND processed_at IS NULL
+    ORDER BY created_at ASC
+    ${args.limit != null ? sql`LIMIT ${args.limit}` : sql``}
+  `;
+  if (candidates.length === 0) return null;
+  console.log(`Prepping ${candidates.length} candidates for '${args.city}'…`);
+
+  const requests: BatchRequest[] = [];
+  const contexts: Record<string, PrepContext> = {};
+
+  for (let i = 0; i < candidates.length; i++) {
+    const c = candidates[i];
+    console.log(`[${i + 1}/${candidates.length}] prep ${c.name}…`);
+
+    if (isDenylistedChain(c.name) || isLikelyNoHappyHourFormat(c.name)) {
+      await markProcessed(sql, c.id, "no_hh_found", null, { skipOutcome: true });
+      tally.filtered++;
+      continue;
+    }
+    if (c.google_place_id) {
+      const [existing] = await sql<{ id: string }[]>`
+        SELECT id FROM venues WHERE google_place_id = ${c.google_place_id}
+      `;
+      if (existing) {
+        await sql`
+          UPDATE seed_candidates SET processed_at = now(),
+            resulting_venue_id = ${existing.id}, updated_at = now() WHERE id = ${c.id}
+        `;
+        tally.skipped++;
+        continue;
+      }
+    }
+
+    let details = null;
+    try {
+      details =
+        placesKey && c.google_place_id
+          ? await fetchPlaceDetails(placesKey, c.google_place_id)
+          : null;
+    } catch (err) {
+      if (err instanceof PlaceDetailsQuotaError) throw err;
+      console.error(`  prep error for ${c.name}:`, err);
+    }
+    if (details && !details.servesAlcohol) {
+      await markProcessed(sql, c.id, "no_hh_found", null, { skipOutcome: true });
+      tally.filtered++;
+      continue;
+    }
+
+    const ctx: PrepContext = {
+      candidateId: c.id,
+      name: c.name,
+      address: c.address,
+      lat: c.lat,
+      lng: c.lng,
+      googlePlaceId: c.google_place_id,
+      siteUrl: details?.websiteUri ?? null,
+      phone: details?.phone ?? null,
+      priceLevel: details?.priceLevel ?? null,
+      photoName: details?.photoName ?? null,
+    };
+
+    // No website → no AI possible; write the stub now and mark processed.
+    if (!ctx.siteUrl) {
+      const persisted = await persistExtraction(sql, {
+        cityId: city.id,
+        placesKey,
+        ctx,
+        extracted: null,
+      });
+      await markProcessed(sql, c.id, persisted.outcome, persisted.venueId);
+      tally.stubs++;
+      tally.noData.push({ name: c.name, reason: "no_website" });
+      continue;
+    }
+
+    const built = buildExtractRequest({ venueName: ctx.name, websiteUrl: ctx.siteUrl, otherUrl: null });
+    requests.push({ custom_id: c.id, params: built.params });
+    contexts[c.id] = ctx;
+  }
+
+  if (requests.length === 0) return null;
+
+  console.log(`Submitting batch of ${requests.length} request(s)…`);
+  const batchId = await createBatch(requests);
+  const state: BatchState = { batchId, citySlug: city.slug, cityId: city.id, contexts };
+  writeBatchState(state); // persist immediately so a crash can resume
+  console.log(`  batch id: ${batchId}`);
+  return state;
+}
+
+async function finalize(sql: Sql, city: CityRow, tally: ReportTally): Promise<void> {
+  const assigned = await assignNeighborhoods(sql, city.id);
+  const collected = tally.full + tally.stubs;
+  const usd = (c: number) => `$${(c / 100).toFixed(2)}`;
+
+  console.log("\n── Enrichment complete (batch) ───────────────────────────");
+  console.log(`Venues collected:        ${collected}`);
+  console.log(`  ├─ full data:          ${tally.full}`);
+  console.log(`  └─ stubs (no data):    ${tally.stubs}`);
+  console.log(`neighborhoods assigned:  ${assigned}`);
+  console.log("\nNot processed via batch:");
+  console.log(`  filtered:               ${tally.filtered}`);
+  console.log(`  skipped (existing):     ${tally.skipped}`);
+  console.log(`  errored:                ${tally.errored}`);
+  console.log(
+    `\nCost:  batch ${usd(tally.batchCostCents)}  ·  on-demand fallback ${usd(tally.fallbackCostCents)}  ·  total ${usd(tally.batchCostCents + tally.fallbackCostCents)}`,
+  );
+  console.log(
+    `Fallback (on-demand) count: ${tally.fallbackCount} / ${tally.totalRequests} requests`,
+  );
+
+  const order: NoDataReason[] = ["no_website", "zero_windows", "all_dropped", "errored"];
+  const labels: Record<NoDataReason, string> = {
+    no_website: "no website on file",
+    zero_windows: "website, 0 windows extracted",
+    all_dropped: "recorded but all rows dropped (§13 / denylist)",
+    errored: "errored",
+  };
+  console.log(
+    `\n── Venues with NO happy-hour data (${tally.noData.length}) — improve extraction here ──`,
+  );
+  for (const reason of order) {
+    const list = tally.noData.filter((e) => e.reason === reason);
+    if (list.length === 0) continue;
+    console.log(`  ${labels[reason]} (${list.length}):`);
+    for (const e of list) {
+      const via = e.via ? `  [via ${e.via}]` : "";
+      const detail = e.detail ? `  (${e.detail})` : "";
+      console.log(`    - ${e.name}${detail}${via}`);
+    }
   }
 }
 
