@@ -54,6 +54,7 @@ import {
 } from "@/lib/places/placeDetails";
 import { saveVenuePhoto } from "@/lib/places/venuePhoto";
 import { isDenylistedChain, isLikelyNoHappyHourFormat } from "@/lib/places/chainDenylist";
+import { slugify, resolveVenueSlug } from "@/lib/places/venueSlug";
 
 // ---------------------------------------------------------------------------
 // Arg parsing
@@ -106,21 +107,20 @@ interface NoDataEntry {
 }
 
 // ---------------------------------------------------------------------------
-// Slugify helper (mirrors import-neighborhoods.ts)
-// ---------------------------------------------------------------------------
-
-function slugify(input: string): string {
-  return input
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-}
-
-// ---------------------------------------------------------------------------
 // Shared DB writers (used by on-demand, batch collect, and fallback paths)
 // ---------------------------------------------------------------------------
+
+/** Has this candidate already been collected (processed_at set)? Used to make the
+ *  batch collect loop idempotent so a resumed run never re-writes a venue's
+ *  offerings or re-records its ledger spend. */
+async function isCandidateProcessed(sql: Sql, candidateId: string): Promise<boolean> {
+  const [r] = await sql<{ one: number }[]>`
+    SELECT 1 AS one FROM seed_candidates
+    WHERE id = ${candidateId} AND processed_at IS NOT NULL
+    LIMIT 1
+  `;
+  return !!r;
+}
 
 /**
  * Write one enriched candidate to the DB: insert the venue (complete|stub), hero
@@ -140,7 +140,24 @@ async function persistExtraction(
   const hasHH = (extracted?.happyHours.length ?? 0) > 0;
   const outcome: SeedOutcome = hasHH ? "confirmed_hh" : "no_hh_found";
 
-  const slug = slugify(ctx.name);
+  // venues has TWO unique constraints: google_place_id AND (city_id, slug). Slug is
+  // derived from name, so same-name multi-location chains (PRD §13: dedup on place_id,
+  // never name) would collide on (city_id, slug). Disambiguate the slug by place_id so
+  // each location gets a unique, deterministic slug and the insert can't hit that
+  // constraint. (Curated candidates have no place_id → keep the base slug; the
+  // ON CONFLICT (city_id, slug) below absorbs any collision for those.)
+  const baseSlug = slugify(ctx.name);
+  const slug = ctx.googlePlaceId
+    ? await resolveVenueSlug(baseSlug, ctx.googlePlaceId, async (s) => {
+        const [hit] = await sql<{ one: number }[]>`
+          SELECT 1 AS one FROM venues
+          WHERE city_id = ${cityId} AND slug = ${s}
+            AND google_place_id IS DISTINCT FROM ${ctx.googlePlaceId}
+          LIMIT 1
+        `;
+        return !!hit;
+      })
+    : baseSlug;
   const completeness = hasHH ? "complete" : "stub";
   const lastVerified = hasHH ? new Date() : null;
   const inserted = await sql<{ id: string }[]>`
@@ -497,6 +514,7 @@ interface ReportTally {
   errored: number;
   fallbackCount: number;
   totalRequests: number;
+  alreadyDone: number;
   batchCostCents: number;
   fallbackCostCents: number;
   noData: NoDataEntry[];
@@ -517,6 +535,7 @@ async function runBatch(
     errored: 0,
     fallbackCount: 0,
     totalRequests: 0,
+    alreadyDone: 0,
     batchCostCents: 0,
     fallbackCostCents: 0,
     noData: [],
@@ -559,6 +578,13 @@ async function runBatch(
   for await (const res of streamResults(state.batchId)) {
     const ctx = state.contexts[res.custom_id];
     if (!ctx) continue; // unknown id — skip defensively
+
+    // Idempotent resume: if this candidate was already collected on a prior (crashed)
+    // run, skip it entirely — don't re-write its venue/offerings or re-record spend.
+    if (await isCandidateProcessed(sql, ctx.candidateId)) {
+      tally.alreadyDone++;
+      continue;
+    }
     tally.totalRequests++;
 
     if (res.result.type !== "succeeded") {
@@ -762,6 +788,9 @@ async function finalize(sql: Sql, city: CityRow, tally: ReportTally): Promise<vo
   console.log("\nNot processed via batch:");
   console.log(`  filtered:               ${tally.filtered}`);
   console.log(`  skipped (existing):     ${tally.skipped}`);
+  if (tally.alreadyDone > 0) {
+    console.log(`  already collected (resume): ${tally.alreadyDone}`);
+  }
   console.log(`  errored:                ${tally.errored}`);
   console.log(
     `\nCost:  batch ${usd(tally.batchCostCents)}  ·  on-demand fallback ${usd(tally.fallbackCostCents)}  ·  total ${usd(tally.batchCostCents + tally.fallbackCostCents)}`,
