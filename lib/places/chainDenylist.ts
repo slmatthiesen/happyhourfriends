@@ -167,7 +167,11 @@ const EXCLUDED_PRIMARY_TYPE = new Set<string>([
 ]);
 
 /** Excluded when present ANYWHERE in types[] (format never runs a happy hour). */
-const EXCLUDED_ANY_TYPE = new Set<string>(["buffet_restaurant", "acai_shop"]);
+const EXCLUDED_ANY_TYPE = new Set<string>([
+  "buffet_restaurant",
+  "acai_shop",
+  "juice_shop", // operator 2026-05-30: juice/smoothie spots don't run HH
+]);
 
 /**
  * True when a place should be dropped from discovery based on its Google place types.
@@ -193,4 +197,38 @@ export function isExcludedByPlaceType(
   if (primaryType === "chinese_restaurant" && t.includes("breakfast_restaurant")) return true;
 
   return false;
+}
+
+/**
+ * Business-status gate. Drop venues Google reports as closed — permanently OR
+ * temporarily (operator 2026-05-30). Unlike the type gate, this has NO alcohol
+ * override: a closed bar is still closed. OPERATIONAL / unknown → keep.
+ */
+export function isExcludedByBusinessStatus(
+  businessStatus: string | null | undefined,
+): boolean {
+  return (
+    businessStatus === "CLOSED_PERMANENTLY" ||
+    businessStatus === "CLOSED_TEMPORARILY"
+  );
+}
+
+/**
+ * Low-signal gate (operator 2026-05-30): exclude a candidate that has almost nothing
+ * to go on — fewer than 25 reviews AND no website AND no price tier. With no website
+ * the extractor has no menu to read (it would become a stub at best), and the lack of
+ * reviews + price means Google barely knows the place. NO alcohol override: this is a
+ * data-quality floor, and a featurable bar essentially always has a site or price tier.
+ * (Verified on the first Tucson run: zero alcohol-primary venues were caught by this.)
+ */
+const MIN_REVIEWS = 25;
+export function isLowSignalCandidate(
+  userRatingCount: number | null | undefined,
+  websiteUrl: string | null | undefined,
+  priceLevel: number | null | undefined,
+): boolean {
+  const reviews = userRatingCount ?? 0;
+  const hasUrl = !!websiteUrl && websiteUrl.trim().length > 0;
+  const hasPrice = priceLevel != null;
+  return reviews < MIN_REVIEWS && !hasUrl && !hasPrice;
 }

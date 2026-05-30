@@ -23,6 +23,8 @@ import {
   isDenylistedChain,
   isLikelyNoHappyHourFormat,
   isExcludedByPlaceType,
+  isExcludedByBusinessStatus,
+  isLowSignalCandidate,
 } from "@/lib/places/chainDenylist";
 
 // ---------------------------------------------------------------------------
@@ -352,6 +354,8 @@ async function main() {
     let chainsSkipped = 0;
     let formatsSkipped = 0;
     let typesSkipped = 0;
+    let closedSkipped = 0;
+    let lowSignalSkipped = 0;
     let placesSkipped = 0;
 
     const tiles = buildTiles(lat, lng, COVERAGE_METERS, CELL_METERS);
@@ -383,10 +387,10 @@ async function main() {
         const pLat = place.location?.latitude ?? null;
         const pLng = place.location?.longitude ?? null;
 
-        // Closed-permanently gate: drop dead venues before they ever cost an AI pass.
-        // (CLOSED_TEMPORARILY is kept — may reopen; only PERMANENTLY is terminal.)
-        if (place.businessStatus === "CLOSED_PERMANENTLY") {
-          placesSkipped++;
+        // Closed gate: drop venues Google reports closed (permanently OR temporarily)
+        // before they ever cost an AI pass. No alcohol override — closed is closed.
+        if (isExcludedByBusinessStatus(place.businessStatus)) {
+          closedSkipped++;
           continue;
         }
 
@@ -410,6 +414,18 @@ async function main() {
           continue;
         }
 
+        // Low-signal gate: <25 reviews AND no website AND no price tier — too little to
+        // go on (no site = nothing for the extractor to read). No alcohol override.
+        const priceLevelNum = place.priceLevel
+          ? (PRICE_LEVEL[place.priceLevel] ?? null)
+          : null;
+        if (
+          isLowSignalCandidate(place.userRatingCount, place.websiteUri, priceLevelNum)
+        ) {
+          lowSignalSkipped++;
+          continue;
+        }
+
         // Service-area gate: keep only the configured localities within the radius.
         // Out-of-area edge-tile spillover (Federal Way, Lakewood for Tacoma; Tempe,
         // Scottsdale for Phoenix-central) is dropped here, never stored.
@@ -426,9 +442,7 @@ async function main() {
         }
 
         try {
-          const priceLevel = place.priceLevel
-            ? (PRICE_LEVEL[place.priceLevel] ?? null)
-            : null;
+          const priceLevel = priceLevelNum; // computed above for the low-signal gate
           const types = place.types ?? null;
           await sql`
             INSERT INTO seed_candidates
@@ -468,7 +482,8 @@ async function main() {
     console.log(
       `Google Places: ${placesInserted} in-area upserts, ${outOfArea} out-of-area dropped, ` +
         `${chainsSkipped} chains dropped, ${formatsSkipped} buffet/AYCE dropped, ` +
-        `${typesSkipped} place-type dropped, ` +
+        `${typesSkipped} place-type dropped, ${closedSkipped} closed dropped, ` +
+        `${lowSignalSkipped} low-signal dropped, ` +
         `${placesSkipped} skipped.`,
     );
 

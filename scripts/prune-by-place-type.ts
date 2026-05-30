@@ -11,7 +11,11 @@
  */
 import "dotenv/config";
 import postgres from "postgres";
-import { isExcludedByPlaceType } from "@/lib/places/chainDenylist";
+import {
+  isExcludedByPlaceType,
+  isExcludedByBusinessStatus,
+  isLowSignalCandidate,
+} from "@/lib/places/chainDenylist";
 
 function parseArgs() {
   const argv = process.argv.slice(2);
@@ -37,21 +41,45 @@ async function main() {
     if (!city) throw new Error(`City '${args.city}' not found.`);
 
     const rows = await sql<
-      { id: string; name: string; primary_type: string | null; types: string[] | null }[]
+      {
+        id: string;
+        name: string;
+        primary_type: string | null;
+        types: string[] | null;
+        business_status: string | null;
+        user_rating_count: number | null;
+        website_url: string | null;
+        price_level: number | null;
+      }[]
     >`
-      SELECT id, name, primary_type, types
+      SELECT id, name, primary_type, types, business_status,
+             user_rating_count, website_url, price_level
       FROM seed_candidates
       WHERE city_id = ${city.id} AND processed_at IS NULL
       ORDER BY name
     `;
 
-    const matches = rows.filter((r) => isExcludedByPlaceType(r.primary_type, r.types));
+    // Apply the same gates discovery applies (place-type + closed + low-signal), so
+    // the DB ends up matching what a fresh discovery run would produce.
+    const matches = rows.filter(
+      (r) =>
+        isExcludedByPlaceType(r.primary_type, r.types) ||
+        isExcludedByBusinessStatus(r.business_status) ||
+        isLowSignalCandidate(r.user_rating_count, r.website_url, r.price_level),
+    );
 
     console.log(
-      `${args.city}: ${rows.length} unprocessed candidates, ${matches.length} match the place-type gate.\n`,
+      `${args.city}: ${rows.length} unprocessed candidates, ${matches.length} match the exclusion gates.\n`,
     );
     for (const m of matches) {
-      console.log(`  - ${m.name}  [primary=${m.primary_type ?? "—"}]`);
+      const reasons: string[] = [];
+      if (isExcludedByPlaceType(m.primary_type, m.types)) reasons.push("place-type");
+      if (isExcludedByBusinessStatus(m.business_status)) reasons.push("closed");
+      if (isLowSignalCandidate(m.user_rating_count, m.website_url, m.price_level))
+        reasons.push("low-signal");
+      console.log(
+        `  - ${m.name}  [primary=${m.primary_type ?? "—"}]  (${reasons.join(", ")})`,
+      );
     }
 
     if (matches.length === 0) {
