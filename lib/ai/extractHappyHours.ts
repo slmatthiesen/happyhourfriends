@@ -16,6 +16,8 @@
  */
 
 import type {
+  Message,
+  MessageCreateParamsNonStreaming,
   MessageParam,
   ToolChoiceTool,
   ToolUnion,
@@ -328,41 +330,112 @@ function normaliseHappyHour(raw: RawHappyHour): ExtractedHappyHour | null {
 }
 
 // ---------------------------------------------------------------------------
-// Main export
+// Reusable pieces (shared by the on-demand loop and the Batch API path)
 // ---------------------------------------------------------------------------
 
-export async function extractHappyHours(
-  input: ExtractInput,
-): Promise<ExtractResult> {
+/** The single one-shot request params, plus metadata callers need to price + attribute it. */
+export interface ExtractRequest {
+  params: MessageCreateParamsNonStreaming;
+  promptHash: string;
+  model: string;
+}
+
+/** Build the one-shot request used by both the on-demand loop and the Batch API. */
+export function buildExtractRequest(input: ExtractInput): ExtractRequest {
   const loaded = loadPrompt("seed-extract-hh.md");
   const { system: rawSystem, user: rawUser } = splitPrompt(loaded.content);
-
   const system = fillPlaceholders(rawSystem, input);
   const userText = fillPlaceholders(rawUser, input);
-
-  const messages: MessageParam[] = [{ role: "user", content: userText }];
-
-  const summedUsage: Usage = { inputTokens: 0, outputTokens: 0 };
-  const model = MODELS.extractor;
-  const forceRecord: ToolChoiceTool = { type: "tool", name: "record_happy_hours" };
-
-  let raw: RawExtract = { happyHours: [], confidence: 0, summary: "" };
-  let fallbackText = "";
-  let recorded = false;
-
-  for (let turn = 0; turn < MAX_TURNS; turn++) {
-    const lastTurn = turn === MAX_TURNS - 1;
-    const response = await anthropic().messages.create({
-      model,
+  return {
+    params: {
+      model: MODELS.extractor,
       // Generous: a full menu's structured record_happy_hours call can be large, and
       // running out mid-tool-call truncates the JSON to nothing (the 0-rows bug).
       max_tokens: 8192,
       system,
       tools: TOOLS,
+      messages: [{ role: "user", content: userText }],
+    },
+    promptHash: loaded.hash,
+    model: MODELS.extractor,
+  };
+}
+
+/** Normalised, §13-clean extraction plus how many raw windows the model proposed before filtering. */
+export interface NormalisedExtract {
+  happyHours: ExtractedHappyHour[];
+  confidence: number;
+  summary: string;
+  /** Count of windows the model proposed before §13/denylist filtering — lets callers tell "model found nothing" from "all dropped". */
+  rawWindowCount: number;
+}
+
+/** §13 normalisation shared by the loop and the batch path. */
+export function normaliseRawExtract(raw: RawExtract): NormalisedExtract {
+  const happyHours: ExtractedHappyHour[] = (raw.happyHours ?? [])
+    .map(normaliseHappyHour)
+    .filter((hh): hh is ExtractedHappyHour => hh !== null);
+  return {
+    happyHours,
+    confidence: Math.min(1, Math.max(0, raw.confidence ?? 0)),
+    summary: raw.summary ?? "",
+    rawWindowCount: (raw.happyHours ?? []).length,
+  };
+}
+
+/** Parse a single returned Message: pull the record_happy_hours tool call (or salvage JSON text). */
+export function parseRecordedExtract(
+  message: Message,
+): NormalisedExtract & { recorded: boolean } {
+  const recordCall = message.content.find(
+    (b): b is ToolUseBlock =>
+      b.type === "tool_use" && b.name === "record_happy_hours",
+  );
+  if (recordCall) {
+    return { ...normaliseRawExtract(recordCall.input as RawExtract), recorded: true };
+  }
+  // No clean tool call — try to salvage JSON the model left as text.
+  let fallbackText = "";
+  for (const block of message.content) {
+    if (block.type === "text") fallbackText = block.text;
+  }
+  if (fallbackText) {
+    try {
+      return {
+        ...normaliseRawExtract(parseJsonResponse<RawExtract>(fallbackText)),
+        recorded: false,
+      };
+    } catch {
+      /* fall through to empty */
+    }
+  }
+  return { happyHours: [], confidence: 0, summary: "", rawWindowCount: 0, recorded: false };
+}
+
+// ---------------------------------------------------------------------------
+// Main export — on-demand agentic loop (also the Batch API fallback path)
+// ---------------------------------------------------------------------------
+
+export async function extractHappyHours(
+  input: ExtractInput,
+): Promise<ExtractResult> {
+  const { params, promptHash, model } = buildExtractRequest(input);
+  const messages: MessageParam[] = [...params.messages];
+
+  const summedUsage: Usage = { inputTokens: 0, outputTokens: 0 };
+  const forceRecord: ToolChoiceTool = { type: "tool", name: "record_happy_hours" };
+
+  let lastMessage: Message | null = null;
+
+  for (let turn = 0; turn < MAX_TURNS; turn++) {
+    const lastTurn = turn === MAX_TURNS - 1;
+    const response = await anthropic().messages.create({
+      ...params,
       messages,
       // On the final turn, force the structured-output tool so we never end with prose.
       ...(lastTurn ? { tool_choice: forceRecord } : {}),
     });
+    lastMessage = response;
 
     summedUsage.inputTokens += response.usage.input_tokens;
     summedUsage.outputTokens += response.usage.output_tokens;
@@ -375,22 +448,10 @@ export async function extractHappyHours(
       );
     }
 
-    const recordCall = response.content.find(
-      (b): b is ToolUseBlock =>
-        b.type === "tool_use" && b.name === "record_happy_hours",
+    const recorded = response.content.some(
+      (b) => b.type === "tool_use" && b.name === "record_happy_hours",
     );
-    if (recordCall) {
-      raw = recordCall.input as RawExtract;
-      if (process.env.EXTRACT_DEBUG) {
-        console.error("[extract] raw tool input:", JSON.stringify(raw, null, 2));
-      }
-      recorded = true;
-      break;
-    }
-
-    for (const block of response.content) {
-      if (block.type === "text") fallbackText = block.text;
-    }
+    if (recorded) break;
 
     // web_fetch runs server-side → pause_turn; resume by echoing content back.
     if (response.stop_reason === "pause_turn") {
@@ -407,29 +468,17 @@ export async function extractHappyHours(
     });
   }
 
-  // Defensive fallback: if no tool call ever landed, salvage any JSON the model left.
-  if (!recorded && fallbackText) {
-    try {
-      raw = parseJsonResponse<RawExtract>(fallbackText);
-    } catch {
-      raw = { happyHours: [], confidence: 0, summary: fallbackText.slice(0, 500) };
-    }
-  }
-
-  // Normalise + enforce §13 defensively in code
-  const happyHours: ExtractedHappyHour[] = (raw.happyHours ?? [])
-    .map(normaliseHappyHour)
-    .filter((hh): hh is ExtractedHappyHour => hh !== null);
-
-  const confidence = Math.min(1, Math.max(0, raw.confidence ?? 0));
+  const parsed = lastMessage
+    ? parseRecordedExtract(lastMessage)
+    : { happyHours: [], confidence: 0, summary: "", rawWindowCount: 0, recorded: false };
 
   return {
-    happyHours,
-    confidence,
-    summary: raw.summary ?? "",
+    happyHours: parsed.happyHours,
+    confidence: parsed.confidence,
+    summary: parsed.summary,
     usage: summedUsage,
     costCents: calcCostCents(model, summedUsage),
-    promptHash: loaded.hash,
+    promptHash,
     model,
   };
 }
