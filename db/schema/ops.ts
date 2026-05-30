@@ -75,6 +75,16 @@ export const seedCandidates = pgTable("seed_candidates", {
   lat: numeric("lat", { precision: 10, scale: 7 }),
   lng: numeric("lng", { precision: 10, scale: 7 }),
   sourceUrl: text("source_url"),
+  // Google Places discovery metadata (captured by seed:discover, used for triage +
+  // pre-enrich filtering). All nullable — curated-page candidates have none of it.
+  primaryType: text("primary_type"),
+  types: text("types").array(),
+  websiteUrl: text("website_url"),
+  rating: numeric("rating", { precision: 2, scale: 1 }),
+  userRatingCount: integer("user_rating_count"),
+  priceLevel: integer("price_level"),
+  /** Google businessStatus: OPERATIONAL | CLOSED_TEMPORARILY | CLOSED_PERMANENTLY. */
+  businessStatus: text("business_status"),
   processedAt: timestamp("processed_at", { withTimezone: true }),
   outcome: seedOutcome("outcome"),
   resultingVenueId: uuid("resulting_venue_id").references(() => venues.id),

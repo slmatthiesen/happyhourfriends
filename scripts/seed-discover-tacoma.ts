@@ -66,7 +66,21 @@ interface PlaceResult {
   formattedAddress?: string;
   location?: { latitude?: number; longitude?: number };
   primaryType?: string;
+  types?: string[];
+  websiteUri?: string;
+  rating?: number;
+  userRatingCount?: number;
+  priceLevel?: string;       // enum string, e.g. "PRICE_LEVEL_MODERATE"
+  businessStatus?: string;   // OPERATIONAL | CLOSED_TEMPORARILY | CLOSED_PERMANENTLY
 }
+
+/** Google priceLevel enum → 1..4 (or null). Mirrors lib/places/placeDetails.ts. */
+const PRICE_LEVEL: Record<string, number> = {
+  PRICE_LEVEL_INEXPENSIVE: 1,
+  PRICE_LEVEL_MODERATE: 2,
+  PRICE_LEVEL_EXPENSIVE: 3,
+  PRICE_LEVEL_VERY_EXPENSIVE: 4,
+};
 
 interface NearbySearchResponse {
   places?: PlaceResult[];
@@ -190,8 +204,14 @@ async function fetchNearby(
     headers: {
       "Content-Type": "application/json",
       "X-Goog-Api-Key": apiKey,
+      // Enterprise-tier mask: websiteUri/rating/priceLevel/businessStatus cost more
+      // than the basic mask but are captured once per city at discovery time (no
+      // per-candidate Place Details call needed for the triage sheet), and
+      // businessStatus lets us drop permanently-closed venues before any AI spend.
       "X-Goog-FieldMask":
-        "places.id,places.displayName,places.formattedAddress,places.location,places.primaryType",
+        "places.id,places.displayName,places.formattedAddress,places.location," +
+        "places.primaryType,places.types,places.websiteUri,places.rating," +
+        "places.userRatingCount,places.priceLevel,places.businessStatus",
     },
     body: JSON.stringify(body),
   });
@@ -361,6 +381,13 @@ async function main() {
         const pLat = place.location?.latitude ?? null;
         const pLng = place.location?.longitude ?? null;
 
+        // Closed-permanently gate: drop dead venues before they ever cost an AI pass.
+        // (CLOSED_TEMPORARILY is kept — may reopen; only PERMANENTLY is terminal.)
+        if (place.businessStatus === "CLOSED_PERMANENTLY") {
+          placesSkipped++;
+          continue;
+        }
+
         // National-chain gate: skip Applebee's / Red Lobster / fast food etc. entirely
         // so they never cost a Place Details or AI pass (operator: ignore these).
         if (isDenylistedChain(name)) {
@@ -390,18 +417,34 @@ async function main() {
         }
 
         try {
+          const priceLevel = place.priceLevel
+            ? (PRICE_LEVEL[place.priceLevel] ?? null)
+            : null;
+          const types = place.types ?? null;
           await sql`
             INSERT INTO seed_candidates
-              (city_id, name, google_place_id, address, lat, lng, source_url)
+              (city_id, name, google_place_id, address, lat, lng, source_url,
+               primary_type, types, website_url, rating, user_rating_count,
+               price_level, business_status)
             VALUES
               (${city.id}, ${name}, ${place.id}, ${address},
                ${pLat != null ? String(pLat) : null},
-               ${pLng != null ? String(pLng) : null}, ${"google_places"})
+               ${pLng != null ? String(pLng) : null}, ${"google_places"},
+               ${place.primaryType ?? null}, ${types}, ${place.websiteUri ?? null},
+               ${place.rating ?? null}, ${place.userRatingCount ?? null},
+               ${priceLevel}, ${place.businessStatus ?? null})
             ON CONFLICT (google_place_id) DO UPDATE SET
-              name    = EXCLUDED.name,
-              address = EXCLUDED.address,
-              lat     = EXCLUDED.lat,
-              lng     = EXCLUDED.lng,
+              name             = EXCLUDED.name,
+              address          = EXCLUDED.address,
+              lat              = EXCLUDED.lat,
+              lng              = EXCLUDED.lng,
+              primary_type     = EXCLUDED.primary_type,
+              types            = EXCLUDED.types,
+              website_url      = EXCLUDED.website_url,
+              rating           = EXCLUDED.rating,
+              user_rating_count = EXCLUDED.user_rating_count,
+              price_level      = EXCLUDED.price_level,
+              business_status  = EXCLUDED.business_status,
               updated_at = now()
           `;
           placesInserted++;
