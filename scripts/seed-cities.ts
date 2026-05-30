@@ -68,6 +68,23 @@ const CITIES: CitySeed[] = [
       serviceLocalities: ["Phoenix"],
     },
   },
+  {
+    // Tucson, AZ — operator launch city after Tacoma. Centroid + ~12km radius
+    // covers Tucson proper; locality filter drops Oro Valley / Marana / South Tucson.
+    slug: "tucson",
+    name: "Tucson",
+    state: "AZ",
+    country: "US",
+    timezone: "America/Phoenix",
+    currency: "USD",
+    centerLat: 32.2226,
+    centerLng: -110.9747,
+    seedConfig: {
+      radiusKm: 12,
+      cellMeters: 3000,
+      serviceLocalities: ["Tucson"],
+    },
+  },
 ];
 
 async function main() {
