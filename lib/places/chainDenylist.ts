@@ -124,3 +124,73 @@ export function isLikelyNoHappyHourFormat(name: string): boolean {
       n.includes(" " + p + " "),
   );
 }
+
+/**
+ * Place-TYPE gate (Google primaryType + types[]) — a coarse pre-filter that drops
+ * breakfast/buffet/juice/grocery-style formats that don't run happy hours, BEFORE any
+ * Place Details or AI spend. Generic across cities. Operator-tuned 2026-05-30 from the
+ * first Tucson discovery run.
+ *
+ * IMPORTANT: Google does NOT guarantee the ordering of `types[]`; only `primaryType` is
+ * an authoritative signal. So:
+ *   - The alcohol-signal allowlist keys on primaryType only and OVERRIDES every
+ *     exclusion — a real bar/brewery/pub is never dropped, no matter what else Google
+ *     tags it (this is the robust answer to "is the first types[] slot reliable?": no,
+ *     so we never let a type-list quirk drop a venue whose primary type says it drinks).
+ *   - Presence-based exclusions (buffet, acai) match anywhere in types[] — these formats
+ *     never run a happy hour regardless of position.
+ *   - The "breakfast as first secondary" rule is deliberately position-sensitive (a
+ *     coarse operator heuristic); the alcohol override still protects real bars.
+ */
+const ALCOHOL_SIGNAL_PRIMARY = new Set<string>([
+  "bar",
+  "pub",
+  "brewery",
+  "brewpub",
+  "wine_bar",
+  "cocktail_bar",
+  "sports_bar",
+  "bar_and_grill",
+  "night_club",
+  "distillery",
+  "irish_pub",
+]);
+
+/** Excluded when it is the venue's PRIMARY type. */
+const EXCLUDED_PRIMARY_TYPE = new Set<string>([
+  "food_court",
+  "food_store",
+  "juice_shop",
+  "resort_hotel",
+  "buffet_restaurant",
+  "breakfast_restaurant",
+]);
+
+/** Excluded when present ANYWHERE in types[] (format never runs a happy hour). */
+const EXCLUDED_ANY_TYPE = new Set<string>(["buffet_restaurant", "acai_shop"]);
+
+/**
+ * True when a place should be dropped from discovery based on its Google place types.
+ * @param primaryType  Google's authoritative primaryType (e.g. "mexican_restaurant")
+ * @param types        Google's types[] (order NOT guaranteed)
+ */
+export function isExcludedByPlaceType(
+  primaryType: string | null | undefined,
+  types: string[] | null | undefined,
+): boolean {
+  const t = types ?? [];
+  // No type signal at all (e.g. curated-page candidates) → keep; can't judge.
+  if (!primaryType && t.length === 0) return false;
+
+  // Alcohol-signal override: a real bar/brewery/pub is never dropped.
+  if (primaryType && ALCOHOL_SIGNAL_PRIMARY.has(primaryType)) return false;
+
+  if (primaryType && EXCLUDED_PRIMARY_TYPE.has(primaryType)) return true;
+  if (t.some((x) => EXCLUDED_ANY_TYPE.has(x))) return true;
+  // breakfast_restaurant as the FIRST secondary type (coarse, position-sensitive).
+  if (t[0] === "breakfast_restaurant") return true;
+  // chinese primary that is also tagged breakfast — a breakfast-diner combo, not HH.
+  if (primaryType === "chinese_restaurant" && t.includes("breakfast_restaurant")) return true;
+
+  return false;
+}

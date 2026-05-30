@@ -22,6 +22,7 @@ import postgres from "postgres";
 import {
   isDenylistedChain,
   isLikelyNoHappyHourFormat,
+  isExcludedByPlaceType,
 } from "@/lib/places/chainDenylist";
 
 // ---------------------------------------------------------------------------
@@ -350,6 +351,7 @@ async function main() {
     let outOfArea = 0;
     let chainsSkipped = 0;
     let formatsSkipped = 0;
+    let typesSkipped = 0;
     let placesSkipped = 0;
 
     const tiles = buildTiles(lat, lng, COVERAGE_METERS, CELL_METERS);
@@ -395,9 +397,16 @@ async function main() {
           continue;
         }
 
-        // Format gate: buffets / AYCE / all-you-can-eat — these don't run happy hours.
+        // Format gate (name-based): buffets / AYCE — these don't run happy hours.
         if (isLikelyNoHappyHourFormat(name)) {
           formatsSkipped++;
+          continue;
+        }
+
+        // Place-type gate: drop breakfast/buffet/juice/grocery formats by Google type,
+        // with an alcohol-signal override so real bars/breweries are never dropped.
+        if (isExcludedByPlaceType(place.primaryType, place.types)) {
+          typesSkipped++;
           continue;
         }
 
@@ -459,6 +468,7 @@ async function main() {
     console.log(
       `Google Places: ${placesInserted} in-area upserts, ${outOfArea} out-of-area dropped, ` +
         `${chainsSkipped} chains dropped, ${formatsSkipped} buffet/AYCE dropped, ` +
+        `${typesSkipped} place-type dropped, ` +
         `${placesSkipped} skipped.`,
     );
 
