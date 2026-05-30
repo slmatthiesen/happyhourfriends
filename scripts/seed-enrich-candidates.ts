@@ -679,12 +679,19 @@ async function runBatch(
       } else {
         tally.stubs++;
         tally.noData.push({
-        name: ctx.name,
-        reason: parsed.rawWindowCount > 0 ? "all_dropped" : "zero_windows",
-        detail: `conf ${extracted.confidence.toFixed(2)}${ctx.siteUrl ? `, ${ctx.siteUrl}` : ""}`,
-        via: "batch",
-      });
-      console.log(`  ◦ ${ctx.name}: stub (no usable windows)`);
+          name: ctx.name,
+          reason: parsed.rawWindowCount > 0 ? "all_dropped" : "zero_windows",
+          detail: `conf ${extracted.confidence.toFixed(2)}${ctx.siteUrl ? `, ${ctx.siteUrl}` : ""}`,
+          via: "batch",
+        });
+        console.log(`  ◦ ${ctx.name}: stub (no usable windows)`);
+      }
+    } catch (err) {
+      // Per-item resilience: record the failure and keep going. We do NOT
+      // markProcessed, so the candidate stays unprocessed and a re-run retries it.
+      console.error(`  collect error for ${ctx.name}:`, err);
+      tally.errored++;
+      tally.noData.push({ name: ctx.name, reason: "errored", detail: String(err), via: "batch" });
     }
   }
 
