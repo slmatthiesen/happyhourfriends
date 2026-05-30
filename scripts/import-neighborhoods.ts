@@ -17,6 +17,7 @@
 import "dotenv/config";
 import { readFileSync } from "node:fs";
 import postgres from "postgres";
+import { assignNeighborhoods } from "@/lib/geo/assignNeighborhoods";
 
 interface Args {
   city: string;
@@ -25,6 +26,11 @@ interface Args {
   slugProp?: string;
   source?: string;
   sourceUrl?: string;
+}
+
+interface GeoJsonFeature {
+  properties?: Record<string, string>;
+  geometry: unknown;
 }
 
 function parseArgs(): Args {
@@ -75,7 +81,7 @@ async function main() {
     }
 
     const raw = JSON.parse(readFileSync(args.geojson, "utf8"));
-    const features: any[] =
+    const features: GeoJsonFeature[] =
       raw.type === "FeatureCollection" ? raw.features : [raw];
 
     let inserted = 0;
@@ -106,24 +112,14 @@ async function main() {
       inserted++;
     }
 
-    // §3.7 backfill: assign each venue to its most-specific containing neighborhood.
-    await sql`
-      UPDATE venues v SET neighborhood_id = (
-        SELECT n.id FROM neighborhoods n
-        WHERE n.city_id = v.city_id
-          AND v.lat IS NOT NULL AND v.lng IS NOT NULL
-          AND ST_Contains(
-            n.polygon,
-            ST_SetSRID(ST_MakePoint(v.lng::float8, v.lat::float8), 4326)
-          )
-        ORDER BY n.parent_id NULLS LAST
-        LIMIT 1
-      )
-      WHERE v.city_id = ${city.id}
-    `;
+    // §3.7 backfill: assign each venue to its most-specific neighborhood. Use the
+    // canonical assignNeighborhoods (ST_DWithin 100m snap + distance/most-specific
+    // ranking) — NOT a strict ST_Contains — so venues just outside a polygon edge
+    // still attach to the nearest one, consistent with `npm run backfill:neighborhoods`.
+    const reassigned = await assignNeighborhoods(sql, city.id);
 
     console.log(
-      `Imported/updated ${inserted} neighborhoods for '${args.city}' and reassigned its venues.`,
+      `Imported/updated ${inserted} neighborhoods for '${args.city}' and reassigned ${reassigned} venue(s).`,
     );
   } finally {
     await sql.end();
