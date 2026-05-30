@@ -37,7 +37,7 @@ export async function sendEmail(args: SendEmailArgs): Promise<boolean> {
     console.warn(`[email] no recipients for "${args.subject}" — skipping`);
     return false;
   }
-  const from = args.from ?? process.env.RESEND_FROM ?? "help@happyhourfriends.com";
+  const from = args.from ?? process.env.RESEND_FROM ?? "help@friend.happyhourfriends.com";
   try {
     const res = await fetch(RESEND_ENDPOINT, {
       method: "POST",

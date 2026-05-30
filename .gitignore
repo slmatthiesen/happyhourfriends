@@ -57,6 +57,7 @@ Desktop.ini
 
 # local Claude Code settings (per-user permissions; not shared)
 .claude/settings.local.json
+.claude/scheduled_tasks.lock
 
 # Project datasets we do NOT redistribute — curated/scraped venue data.
 # Kept out of the repo for anti-scrape + unresolved seed-data licensing
