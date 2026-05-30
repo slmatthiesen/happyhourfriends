@@ -372,14 +372,19 @@ export interface NormalisedExtract {
 
 /** §13 normalisation shared by the loop and the batch path. */
 export function normaliseRawExtract(raw: RawExtract): NormalisedExtract {
-  const happyHours: ExtractedHappyHour[] = (raw.happyHours ?? [])
+  // The model is forced to call record_happy_hours, but it does NOT always honor the
+  // array shape — it occasionally returns happyHours as an object/string/number. Guard
+  // with Array.isArray (a plain `?? []` only catches null/undefined, so a non-array
+  // value reaches .map and throws — which previously aborted the whole batch collect).
+  const rawWindows = Array.isArray(raw.happyHours) ? raw.happyHours : [];
+  const happyHours: ExtractedHappyHour[] = rawWindows
     .map(normaliseHappyHour)
     .filter((hh): hh is ExtractedHappyHour => hh !== null);
   return {
     happyHours,
     confidence: Math.min(1, Math.max(0, raw.confidence ?? 0)),
     summary: raw.summary ?? "",
-    rawWindowCount: (raw.happyHours ?? []).length,
+    rawWindowCount: rawWindows.length,
   };
 }
 

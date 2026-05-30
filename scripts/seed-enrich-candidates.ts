@@ -638,39 +638,47 @@ async function runBatch(
       fallback.push(ctx);
       continue;
     }
-    const message: Message = res.result.message;
-    const parsed = parseRecordedExtract(message);
-    if (!parsed.recorded) {
-      fallback.push(ctx);
-      continue;
-    }
 
-    const usage = {
-      inputTokens: message.usage.input_tokens,
-      outputTokens: message.usage.output_tokens,
-    };
-    const extracted: ExtractResult = {
-      happyHours: parsed.happyHours,
-      confidence: parsed.confidence,
-      summary: parsed.summary,
-      usage,
-      costCents: costCents(extractorModel, usage, { batch: true }),
-      promptHash,
-      model: extractorModel,
-    };
+    // Per-item resilience: a single malformed record (bad slug, non-array happyHours,
+    // a DB hiccup) must NOT abort the whole collect — it would force a resume that just
+    // surfaces the next bad item. Mirror the on-demand path: catch per item, record an
+    // error, and keep going. The batch results are still on Anthropic's side, so a
+    // genuinely transient failure can be retried by re-running (the candidate stays
+    // unprocessed because we only markProcessed on success).
+    try {
+      const message: Message = res.result.message;
+      const parsed = parseRecordedExtract(message);
+      if (!parsed.recorded) {
+        fallback.push(ctx);
+        continue;
+      }
 
-    await writeLedger(sql, city.id, month, extracted);
-    tally.batchCostCents += extracted.costCents;
+      const usage = {
+        inputTokens: message.usage.input_tokens,
+        outputTokens: message.usage.output_tokens,
+      };
+      const extracted: ExtractResult = {
+        happyHours: parsed.happyHours,
+        confidence: parsed.confidence,
+        summary: parsed.summary,
+        usage,
+        costCents: costCents(extractorModel, usage, { batch: true }),
+        promptHash,
+        model: extractorModel,
+      };
 
-    const persisted = await persistExtraction(sql, { cityId: city.id, placesKey, ctx, extracted });
-    await markProcessed(sql, ctx.candidateId, persisted.outcome, persisted.venueId);
+      await writeLedger(sql, city.id, month, extracted);
+      tally.batchCostCents += extracted.costCents;
 
-    if (persisted.hasHH) {
-      tally.full++;
-      console.log(`  ✓ ${ctx.name}: ${extracted.happyHours.length} window(s)`);
-    } else {
-      tally.stubs++;
-      tally.noData.push({
+      const persisted = await persistExtraction(sql, { cityId: city.id, placesKey, ctx, extracted });
+      await markProcessed(sql, ctx.candidateId, persisted.outcome, persisted.venueId);
+
+      if (persisted.hasHH) {
+        tally.full++;
+        console.log(`  ✓ ${ctx.name}: ${extracted.happyHours.length} window(s)`);
+      } else {
+        tally.stubs++;
+        tally.noData.push({
         name: ctx.name,
         reason: parsed.rawWindowCount > 0 ? "all_dropped" : "zero_windows",
         detail: `conf ${extracted.confidence.toFixed(2)}${ctx.siteUrl ? `, ${ctx.siteUrl}` : ""}`,
