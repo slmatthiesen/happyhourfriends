@@ -24,7 +24,7 @@ HARD RULES — violations produce unusable data and will be discarded:
   `happyHours: []`, `confidence: 0`, and a one-line `summary`.
 - Do NOT extrapolate from partial information. If the page says "Mon–Fri" but gives no
   times AND the deal isn't described as "all day", do NOT fabricate times — omit the
-  entry. If the page DOES say the deal is all day on certain weekdays (e.g. "Monday all
+  entry. If the page DOES say the deal is all day on one or two specific weekdays (e.g. "Monday all
   damn day"), use `allDay: true` per the Field rules.
 - A happy hour is a RECURRING, TIME-LIMITED discount (a window during off-peak hours, or
   an explicit all-day deal on a specific day). A discount available during ALL open hours
