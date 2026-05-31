@@ -10,6 +10,7 @@ import {
   VENUE_TYPES,
   VENUE_TYPE_LABELS,
 } from "@/lib/places/venueType";
+import { normaliseOp } from "@/lib/ai/interpreter";
 
 let passed = 0;
 function check(name: string, fn: () => void) {
@@ -88,5 +89,27 @@ check("hotel_bar label is 'Hotel'", () => assert.equal(VENUE_TYPE_LABELS.hotel_b
 check("other label is 'Venue'", () => assert.equal(VENUE_TYPE_LABELS.other, "Venue"));
 check("labelForVenueType(null) is ''", () => assert.equal(labelForVenueType(null), ""));
 check("labelForVenueType('pub') is 'Pub'", () => assert.equal(labelForVenueType("pub"), "Pub"));
+
+// --- interpreter: update_venue type validation -----------------------------
+check("update_venue keeps a valid type", () => {
+  const op = normaliseOp({
+    action: "update_venue",
+    after: { type: "pub" },
+    summary: "make it a pub",
+    confidence: 0.9,
+  });
+  assert.equal(op?.after.type, "pub");
+});
+check("update_venue strips an invalid type", () => {
+  const op = normaliseOp({
+    action: "update_venue",
+    after: { type: "gastro_pub", phone: "555" },
+    summary: "x",
+    confidence: 0.9,
+  });
+  assert.ok(op, "op should survive");
+  assert.equal("type" in op!.after, false, "invalid type stripped");
+  assert.equal((op!.after as Record<string, unknown>).phone, "555", "other fields kept");
+});
 
 console.log(`\n${passed} checks passed.`);

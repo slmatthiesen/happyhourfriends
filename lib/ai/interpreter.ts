@@ -33,6 +33,7 @@ import { MODELS } from "@/lib/ai/models";
 import { loadPrompt, splitPrompt } from "@/lib/ai/promptHash";
 import type { EvidenceMedia } from "@/lib/ai/verifier";
 import type { VenueDetail } from "@/lib/queries/venues";
+import { isVenueType, VENUE_TYPES } from "@/lib/places/venueType";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -123,7 +124,7 @@ const RECORD_TOOL: ToolUnion = {
               type: "string",
               enum: [...INTERPRET_ACTIONS],
               description:
-                "update_venue (name/address/phone/websiteUrl/otherUrl/status), " +
+                "update_venue (name/address/phone/websiteUrl/otherUrl/status/type), " +
                 "update_happy_hour (startTime/endTime/notes/active/daysOfWeek), " +
                 "update_offering (name/priceCents/discountCents/etc), " +
                 "new_offering (a new deal on an existing happy hour).",
@@ -144,6 +145,7 @@ const RECORD_TOOL: ToolUnion = {
               description:
                 "Only the columns that change, with their new values. Prices are integer " +
                 "cents (e.g. $3 → 300). venue status is one of active/closed/paused/no_happy_hour. " +
+                "venue type must be one of: " + VENUE_TYPES.join(", ") + ". " +
                 "times are 24h 'HH:MM' or null for 'until close'. For new_offering include at " +
                 "least kind (food/drink/other) and category (beer/wine/cocktail/spirit/appetizer/entree/dessert/other).",
             },
@@ -179,6 +181,7 @@ function venueStateJson(venue: VenueDetail): string {
     id: venue.id,
     name: venue.name,
     status: venue.status,
+    type: venue.type,
     address: venue.address,
     phone: venue.phone,
     websiteUrl: venue.websiteUrl,
@@ -212,18 +215,24 @@ function fillPlaceholders(template: string, input: InterpretInput): string {
     .replace("{{note}}", input.note);
 }
 
-function normaliseOp(raw: RawOp): InterpretedOp | null {
+export function normaliseOp(raw: RawOp): InterpretedOp | null {
   const action = (INTERPRET_ACTIONS as readonly string[]).includes(raw.action ?? "")
     ? (raw.action as InterpretAction)
     : null;
   if (!action) return null;
   if (!raw.after || typeof raw.after !== "object") return null;
 
+  const after = { ...(raw.after as Record<string, unknown>) };
+  // Drop an invalid venue type rather than emit a value Postgres' enum will reject.
+  if (action === "update_venue" && "type" in after && !isVenueType(after.type)) {
+    delete after.type;
+  }
+
   return {
     action,
     targetId: typeof raw.targetId === "string" ? raw.targetId : null,
     happyHourId: typeof raw.happyHourId === "string" ? raw.happyHourId : null,
-    after: raw.after,
+    after,
     summary: typeof raw.summary === "string" ? raw.summary : "",
     confidence: Math.min(1, Math.max(0, Number(raw.confidence) || 0)),
   };
