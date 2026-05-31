@@ -1,9 +1,16 @@
 /**
  * Backfill venues.type. Phase 1 (always): deterministic Google-type map + name-keyword
- * fallback via deriveVenueType. Phase 2 (default on, --no-ai to skip): a cheap Haiku
- * pass using NAME + Google types only (no web fetch) to upgrade obvious finer types.
+ * fallback via deriveVenueType. Phase 2 (OPT-IN via --ai-refine): a cheap Haiku pass
+ * using NAME + Google types only (no web fetch) to upgrade obvious finer types.
  *
- *   npm run backfill:venue-types -- [--city <slug>] [--no-ai] [--dry-run] [--limit N]
+ *   npm run backfill:venue-types -- [--city <slug>] [--ai-refine] [--dry-run] [--limit N]
+ *
+ * Phase 2 is OFF by default ON PURPOSE: with only the name + Google types (no website),
+ * its "finer type" picks are guesses and WILL misclassify some venues (e.g. it tagged
+ * "The Vig", a restaurant, as cocktail_lounge) — which violates the never-hallucinate
+ * rule. Prefer evidence-based finer types: the enrich pipeline (reads the website) and
+ * moderated user/operator edits. Only pass --ai-refine if you intend to hand-review the
+ * upgrades afterward.
  *
  * Idempotent. Phase 2 fails safe to the Phase-1 base (and skips entirely without
  * ANTHROPIC_API_KEY). Records Phase 2 spend to ai_usage_ledger (stage 'seed').
@@ -26,7 +33,7 @@ function parseArgs() {
   };
   return {
     city: get("--city") ?? null,
-    noAi: a.includes("--no-ai"),
+    aiRefine: a.includes("--ai-refine"),
     dryRun: a.includes("--dry-run"),
     limit: get("--limit") ? Number(get("--limit")) : null,
   };
@@ -182,7 +189,7 @@ async function main() {
     console.log("Before:", distribution(rows));
 
     const base = await phase1(sql, rows, args.dryRun);
-    if (!args.noAi) await phase2(sql, rows, base, args.dryRun);
+    if (args.aiRefine) await phase2(sql, rows, base, args.dryRun);
 
     if (args.dryRun) {
       // Nothing was written; show what Phase 1 WOULD set (Phase 2 makes no calls in dry-run).
