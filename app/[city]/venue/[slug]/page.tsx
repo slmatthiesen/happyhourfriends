@@ -7,6 +7,7 @@ import { AddHappyHour } from "@/components/submit/add-happy-hour";
 import { ReportChange } from "@/components/submit/report-change";
 import { formatDays, formatDaysLong, formatPrice, formatWindow } from "@/lib/format";
 import { getCityBySlug, getVenueBySlug } from "@/lib/queries/venues";
+import { labelForVenueType } from "@/lib/places/venueType";
 
 export async function generateMetadata({
   params,
@@ -37,6 +38,19 @@ export default async function VenuePage({
 
   const activeHours = venue.happyHours.filter((h) => h.active && !h.deletedAt);
   const currency = city.currencyCode ?? "USD";
+
+  // "Last updated" reflects any change to the displayed data, not just the venue row:
+  // the max of the venue's updatedAt and every happy-hour + offering updatedAt. Deal
+  // data lives in separate rows, so an offering-only edit still bumps the date.
+  const lastUpdated = [
+    venue.updatedAt,
+    ...venue.happyHours.flatMap((h) => [
+      h.updatedAt,
+      ...h.offerings.map((o) => o.updatedAt),
+    ]),
+  ]
+    .filter((d): d is Date => d != null)
+    .reduce<Date | null>((max, d) => (max == null || d > max ? d : max), null);
 
   // Most venues run the identical happy hour across several days (Mon–Fri is the
   // common case). Collapse days that share the same window + offerings into one
@@ -123,46 +137,68 @@ export default async function VenuePage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <SiteWordmark className="mb-6" />
-      <Link
-        href={`/${city.slug}`}
-        className="text-sm text-accent-cool hover:underline"
-      >
-        ← All {city.name}
-      </Link>
+      <nav className="mb-8 flex items-center justify-between gap-4">
+        <SiteWordmark />
+        <Link
+          href={`/${city.slug}`}
+          className="shrink-0 text-sm text-accent-cool hover:underline"
+        >
+          ← All {city.name}
+        </Link>
+      </nav>
 
       <header className="mt-3">
-        <h1
-          className="text-4xl font-semibold text-text-primary"
-          style={{ fontFamily: "var(--font-serif)" }}
-        >
-          {venue.name}
-        </h1>
+        <div className="flex items-start justify-between gap-4">
+          <h1
+            className="text-4xl font-semibold text-text-primary"
+            style={{ fontFamily: "var(--font-serif)" }}
+          >
+            {venue.name}
+          </h1>
+          {lastUpdated && (
+            <p className="mt-2 shrink-0 text-right text-xs text-text-muted">
+              Updated{" "}
+              {lastUpdated.toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "short",
+              })}
+            </p>
+          )}
+        </div>
+        {labelForVenueType(venue.type) && (
+          <span className="mt-3 inline-block rounded-full border border-border bg-bg-elevated px-2.5 py-0.5 text-xs font-medium uppercase tracking-wide text-text-muted">
+            {labelForVenueType(venue.type)}
+          </span>
+        )}
         <p className="mt-2 text-text-muted">
           {[venue.neighborhoodName, venue.address].filter(Boolean).join(" · ") ||
             "Address not yet confirmed"}
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
           {venue.address && <DirectionsButton address={venue.address} />}
-          {sourceUrl && (
-            <a
-              href={sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Where this listing's happy hour info was sourced from"
-              className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-sm text-text-muted hover:border-accent-cool hover:text-accent-cool"
-            >
-              Source ↗
-            </a>
-          )}
           {venue.websiteUrl && (
             <a
               href={venue.websiteUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-accent-cool hover:underline"
+              className="inline-flex items-center gap-1.5 text-sm text-accent-cool hover:underline"
             >
-              Website ↗
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path d="M2 12h20" />
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+              </svg>
+              Website
             </a>
           )}
           {venue.otherUrl && (
@@ -170,17 +206,71 @@ export default async function VenuePage({
               href={venue.otherUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-accent-cool hover:underline"
+              className="inline-flex items-center gap-1.5 text-sm text-accent-cool hover:underline"
             >
-              Social / menu ↗
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+              </svg>
+              Social / menu
             </a>
           )}
           {venue.phone && (
             <a
               href={`tel:${venue.phone}`}
-              className="text-sm text-accent-cool hover:underline"
+              className="inline-flex items-center gap-1.5 text-sm text-accent-cool hover:underline"
             >
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" />
+              </svg>
               {venue.phone}
+            </a>
+          )}
+          {sourceUrl && (
+            <a
+              href={sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Where this listing's happy hour info was sourced from"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-sm text-text-muted hover:border-accent-cool hover:text-accent-cool"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <path d="M14 2v6h6" />
+                <path d="M16 13H8" />
+                <path d="M16 17H8" />
+              </svg>
+              Source
             </a>
           )}
         </div>
@@ -214,7 +304,7 @@ export default async function VenuePage({
             {groupedHours.map(({ days, rep: h }) => (
               <li
                 key={h.id}
-                className="rounded-lg border border-border bg-bg-surface p-4"
+                className="rounded-lg border border-border bg-bg-surface p-4 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.45)]"
               >
                 <div className="flex items-baseline justify-between">
                   <span className="font-medium text-text-primary">
