@@ -25,6 +25,7 @@
     "reset:city-venues": "tsx scripts/reset-city-venues.ts",
     "ai:spend": "tsx scripts/ai-spend.ts",
     "export:candidates": "tsx scripts/export-candidates.ts",
+    "test:venue-type": "tsx scripts/test-venue-type.ts",
     "prune:empty-venues": "tsx scripts/prune-empty-venues.ts",
     "test:email": "tsx scripts/test-email.ts",
     "sync:to-prod": "bash scripts/sync-data-to-prod.sh"
