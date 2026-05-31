@@ -1,8 +1,8 @@
 ---
 prompt: seed-extract-hh
-version: 8
+version: 9
 model: claude-sonnet-4-6
-notes: Pinned via sha256 content hash recorded in ai_usage_ledger.prompt_hash. v7 — {{city}} placeholder in the web_search query (was hardcoded "Tacoma", which polluted recall for every non-Tacoma city); v6 — explicit allDay assertion for weekday-labeled all-day deals (Red Hot pattern); v5 — recall push (web_search + follow links/PDFs, don't give up early); v4 — consolidate deals; v3 — record_happy_hours tool + daysOfWeek arrays; v8 adds optional venueType extraction.
+notes: Pinned via sha256 content hash recorded in ai_usage_ledger.prompt_hash. v9 — define happy hour as a RECURRING, TIME-LIMITED discount; an all-open-hours-every-day deal is regular pricing (omit); one-off coupons/limited promos are not happy hours (omit); allDay restricted to ≤2 explicitly-sourced specific days (never most/all week). v7 — {{city}} placeholder in the web_search query (was hardcoded "Tacoma", which polluted recall for every non-Tacoma city); v6 — explicit allDay assertion for weekday-labeled all-day deals (Red Hot pattern); v5 — recall push (web_search + follow links/PDFs, don't give up early); v4 — consolidate deals; v3 — record_happy_hours tool + daysOfWeek arrays; v8 adds optional venueType extraction.
 ---
 
 # System
@@ -26,6 +26,12 @@ HARD RULES — violations produce unusable data and will be discarded:
   times AND the deal isn't described as "all day", do NOT fabricate times — omit the
   entry. If the page DOES say the deal is all day on certain weekdays (e.g. "Monday all
   damn day"), use `allDay: true` per the Field rules.
+- A happy hour is a RECURRING, TIME-LIMITED discount (a window during off-peak hours, or
+  an explicit all-day deal on a specific day). A discount available during ALL open hours
+  EVERY day is just the venue's regular pricing — it is NOT a happy hour. Do NOT record it.
+- A one-time coupon, a "today only" promo, or a limited-time event is NOT a recurring happy
+  hour. Do NOT record it. If the only thing you find is a printable coupon or a single-date
+  promo, record happyHours: [] with confidence 0.
 - CONSOLIDATE repetitive deals — do NOT enumerate every menu item. If many items share
   one discount (e.g. a dozen apps each "$3 off"), record ONE representative offering
   (e.g. name "Most appetizers", category "appetizer", discountCents 300, description
@@ -61,12 +67,13 @@ HARD RULES — violations produce unusable data and will be discarded:
 - `startTime` / `endTime` MUST be 24-hour "HH:MM" strings (e.g. "16:00", "19:30").
   `endTime` may be `null` if the page says "until close" or similar.
 - `allDay` is a **positive assertion** that the deal runs the full open hours of the
-  listed days. Set `allDay: true` ONLY when the page explicitly says so — phrases like
-  "all day", "all damn day", or a deal listed under a weekday header with no time
-  qualifier (e.g. "Monday: $2 burgers"). When `allDay: true`, set both `startTime` and
-  `endTime` to null. Do NOT use `allDay: true` as a fallback when you couldn't find a
-  time window. If you cannot determine whether a deal is windowed or all-day, omit
-  that entry from `happyHours` — don't guess.
+  listed days. Set `allDay: true` ONLY when the page explicitly says so for a SPECIFIC,
+  NARROW set of days — at most TWO days (e.g. "Monday all day", "Tue & Wed all damn day").
+  This is the industry-night pattern. When `allDay: true`, set both `startTime` and
+  `endTime` to null. NEVER set `allDay: true` across most or all days of the week — an
+  "all day, every day" deal is regular pricing, not a happy hour (omit it). Do NOT use
+  `allDay: true` as a fallback when you couldn't find a time window; if you can't tell
+  whether a deal is windowed or all-day, omit that entry.
 - `locationWithinVenue` MUST be one of: "bar", "patio", "dining", "all".
   Default to "all" if the page does not specify a location.
 - `priceCents`, `originalPriceCents`, `discountCents` are integer cents or `null`.
