@@ -3,6 +3,10 @@ import Link from "next/link";
 import { CityPicker } from "@/components/city-picker";
 import { listCities } from "@/lib/queries/venues";
 
+// Rendered per-request, not prerendered at build: the city list comes from the DB,
+// so building this page statically would couple `next build` to a reachable DB.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Happy Hour Friends — every happy hour, none of the fluff",
   description:
