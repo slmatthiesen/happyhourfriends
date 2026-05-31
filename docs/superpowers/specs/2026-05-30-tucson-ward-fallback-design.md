@@ -15,6 +15,37 @@ dormant; only Tucson's 6 ward rows + `data/tucson-wards.geojson` were removed.
 > may have a gap-free coarse layer with vernacular names (e.g. Phoenix's urban villages),
 > where it would be appropriate. See the "Granularity vs coverage" note below.
 
+## Resolution: ZNB vernacular fallback (2026-05-30, shipped)
+
+The fallback *mechanism* was reused with a vernacularly-named layer instead of wards.
+Sources evaluated:
+- **OpenStreetMap** (Overpass, Tucson `place=suburb|neighbourhood`): only ~30 features,
+  many junk (mobile-home parks, unnamed), and the good ones already exist as associations.
+  Too sparse + not gap-free. Rejected.
+- **Zillow Neighborhood Boundaries** (ZNB, AZ shapefile → pyshp → GeoJSON): 152 Tucson
+  neighborhoods, vernacular names. But 110/152 share names with the Pima County
+  associations — ZNB is a *parallel* layer, not a gap layer. Of the 74 unassigned venues,
+  ZNB would fill 22, and **21 of those 22 come from ZNB's 42 new-name polygons** (names not
+  already an association). So we import ONLY the new-name subset → captures ~all the benefit
+  with zero slug collisions / zero duplicate-named rows.
+
+**Shipped:** imported **39 new-name ZNB neighborhoods** (3 hyphenated name-variants of
+existing associations skipped as slug collisions) as `is_fallback=true`, `data/tucson-
+zillow-neighborhoods.geojson`. Result: Tucson **114 → 139 assigned (73.9%)**; 114
+associations preserved (89 contained + 25 snapped, zero regressions); 25 venues filled by
+ZNB (Casas Adobes 9, Drexel Heights 4, Starr Pass 4, Tucson Estates 3, …) — mostly
+**unincorporated Pima County** communities the City layers can't cover; 49 left blank
+(real name or nothing). ZNB CRS is NAD83 geographic, treated as 4326 (sub-meter delta in AZ,
+negligible for point-in-polygon).
+
+**License note (open item for OSS publishing):** ZNB is **CC BY-SA 3.0** — attribution is
+stored in `neighborhoods.source`/`source_url`. Share-alike is stickier than the Pima County
+public GIS; flag for the seed-data-licensing review before publishing the repo.
+
+**1000-city pattern:** ZNB (US, frozen ~2017, CC BY-SA) is a good vernacular baseline where
+it exists; import only the new-name subset on top of any official local layer. OSM is the
+more durable/global source but per-city coverage is uneven — verify before relying on it.
+
 ## Granularity vs coverage (the real 1000-city variable)
 
 Phoenix "looks good" not because it is more granular than Tucson — it is the opposite.
