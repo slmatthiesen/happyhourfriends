@@ -101,7 +101,7 @@ async function refineOne(
     `Base type (your default if unsure): ${base}\n` +
     `Answer with one allowed type token.`;
   const resp = await anthropic().messages.create({
-    model: MODELS.classifier,
+    model: MODELS.extractor,
     max_tokens: 16,
     system: REFINE_SYSTEM,
     messages: [{ role: "user", content: user }],
@@ -125,11 +125,16 @@ async function phase2(
   base: Map<string, string>,
   dryRun: boolean,
 ): Promise<void> {
+  if (dryRun) {
+    console.log("Phase 2: skipped (dry-run — no API calls).");
+    return;
+  }
   if (!process.env.ANTHROPIC_API_KEY) {
     console.log("Phase 2: skipped (no ANTHROPIC_API_KEY).");
     return;
   }
   let upgrades = 0;
+  let processed = 0;
   let inTok = 0;
   let outTok = 0;
   const cityIds = new Set<string>();
@@ -143,23 +148,23 @@ async function phase2(
       continue; // fail safe: keep base
     }
     if (!res) continue;
+    processed++;
     inTok += res.inTok;
     outTok += res.outTok;
     cityIds.add(r.city_id);
+    await new Promise((resolve) => setTimeout(resolve, 300));
     if (res.type !== b) {
       upgrades++;
       console.log(`  ${r.name}: ${b} -> ${res.type}`);
-      if (!dryRun) {
-        await sql`UPDATE venues SET type = ${res.type}::venue_type, updated_at = now() WHERE id = ${r.id}`;
-      }
+      await sql`UPDATE venues SET type = ${res.type}::venue_type, updated_at = now() WHERE id = ${r.id}`;
     }
   }
-  const cents = costCents(MODELS.classifier, { inputTokens: inTok, outputTokens: outTok });
-  console.log(`Phase 2: ${upgrades} upgrade(s), ~${cents}¢ (${inTok}in/${outTok}out tokens).`);
-  if (!dryRun && (inTok > 0 || outTok > 0)) {
+  const cents = costCents(MODELS.extractor, { inputTokens: inTok, outputTokens: outTok });
+  console.log(`Phase 2: ${processed} processed, ${upgrades} upgrade(s), ~${cents}¢ (${inTok}in/${outTok}out tokens).`);
+  if (inTok > 0 || outTok > 0) {
     await recordUsage({
       stage: "seed",
-      model: MODELS.classifier,
+      model: MODELS.extractor,
       usage: { inputTokens: inTok, outputTokens: outTok },
       costCents: cents,
       cityId: cityIds.size === 1 ? [...cityIds][0] : undefined,
@@ -179,8 +184,14 @@ async function main() {
     const base = await phase1(sql, rows, args.dryRun);
     if (!args.noAi) await phase2(sql, rows, base, args.dryRun);
 
-    const after = await loadRows(sql, args.city, args.limit);
-    console.log("After:", distribution(after));
+    if (args.dryRun) {
+      // Nothing was written; show what Phase 1 WOULD set (Phase 2 makes no calls in dry-run).
+      const computed = [...base.values()].map((type) => ({ type }));
+      console.log("After (computed, dry-run):", distribution(computed));
+    } else {
+      const after = await loadRows(sql, args.city, args.limit);
+      console.log("After:", distribution(after));
+    }
   } finally {
     await sql.end();
   }
