@@ -26,7 +26,7 @@ export default async function Home() {
         filter it, find your spot. And when something&apos;s off, fix it.
       </p>
       <p className="mt-3 text-lg font-medium text-text-primary">
-        We all help each other out here. Help a neighbor.
+        Come in, find a place to eat and drink.
       </p>
 
       {cities.length > 0 ? (
