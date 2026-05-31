@@ -61,13 +61,21 @@ export function parseRegularOpeningHours(
   const out: OpenPeriod[] = [];
   for (const p of periods) {
     if (!p.open || typeof p.open.day !== "number") continue;
+    // Skip periods with out-of-range Google day values (0..6 is the documented contract).
+    if (p.open.day < 0 || p.open.day > 6) continue;
     const openDay = googleDayToIso(p.open.day);
     const openMin = (p.open.hour ?? 0) * 60 + (p.open.minute ?? 0);
     let closeDay: number | null = null;
     let closeMin: number | null = null;
-    if (p.close && typeof p.close.day === "number") {
+    if (
+      p.close &&
+      typeof p.close.day === "number" &&
+      p.close.day >= 0 &&
+      p.close.day <= 6 &&
+      typeof p.close.hour === "number"
+    ) {
       closeDay = googleDayToIso(p.close.day);
-      closeMin = (p.close.hour ?? 0) * 60 + (p.close.minute ?? 0);
+      closeMin = p.close.hour * 60 + (p.close.minute ?? 0);
     }
     out.push({ openDay, openMin, closeDay, closeMin });
   }
