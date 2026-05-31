@@ -55,7 +55,7 @@ import {
 import { saveVenuePhoto } from "@/lib/places/venuePhoto";
 import { isDenylistedChain, isLikelyNoHappyHourFormat } from "@/lib/places/chainDenylist";
 import { slugify, placeIdSuffix } from "@/lib/places/venueSlug";
-import { deriveVenueType, isVenueType } from "@/lib/places/venueType";
+import { deriveVenueType, isVenueType, type VenueType } from "@/lib/places/venueType";
 
 // ---------------------------------------------------------------------------
 // Arg parsing
@@ -147,7 +147,7 @@ async function insertVenueRow(
     ctx: PrepContext;
     completeness: "complete" | "stub";
     lastVerified: Date | null;
-    venueType: string;
+    venueType: VenueType;
   },
 ): Promise<string | null> {
   const { cityId, ctx, completeness, lastVerified, venueType } = args;
@@ -245,8 +245,10 @@ async function persistExtraction(
     venueType: finalType,
   });
 
-  // insertVenueRow uses ON CONFLICT DO NOTHING, so a pre-existing venue keeps its row.
-  // Fill type only when it's still empty — never clobber a human/AI-refined value.
+  // Set type when the row doesn't have one yet. For a fresh INSERT this is a no-op
+  // (the INSERT already set it); for an ON CONFLICT DO NOTHING (pre-existing venue)
+  // it fills the gap. The `type IS NULL` guard ensures we never clobber a value a
+  // human edit / AI refine / earlier run already set.
   if (venueId) {
     await sql`UPDATE venues SET type = ${finalType}::venue_type, updated_at = now()
               WHERE id = ${venueId} AND type IS NULL`;

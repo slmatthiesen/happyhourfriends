@@ -1,8 +1,8 @@
 ---
 prompt: seed-extract-hh
-version: 7
+version: 8
 model: claude-sonnet-4-6
-notes: Pinned via sha256 content hash recorded in ai_usage_ledger.prompt_hash. v7 — {{city}} placeholder in the web_search query (was hardcoded "Tacoma", which polluted recall for every non-Tacoma city); v6 — explicit allDay assertion for weekday-labeled all-day deals (Red Hot pattern); v5 — recall push (web_search + follow links/PDFs, don't give up early); v4 — consolidate deals; v3 — record_happy_hours tool + daysOfWeek arrays.
+notes: Pinned via sha256 content hash recorded in ai_usage_ledger.prompt_hash. v7 — {{city}} placeholder in the web_search query (was hardcoded "Tacoma", which polluted recall for every non-Tacoma city); v6 — explicit allDay assertion for weekday-labeled all-day deals (Red Hot pattern); v5 — recall push (web_search + follow links/PDFs, don't give up early); v4 — consolidate deals; v3 — record_happy_hours tool + daysOfWeek arrays; v8 adds optional venueType extraction.
 ---
 
 # System
@@ -77,6 +77,9 @@ HARD RULES — violations produce unusable data and will be discarded:
   "entree", "dessert", "other".
 - `confidence` is your overall confidence that the returned schedule is current and
   accurate, from 0.0 (none) to 1.0 (very high). Be conservative.
+- **venueType** (optional): set it only if the site clearly states the kind of place
+  (e.g. "dive bar", "hotel bar", "taproom", "wine bar"). Otherwise leave it null.
+  Never guess the category from the cuisine alone.
 
 ## Recording your findings
 
@@ -84,10 +87,6 @@ Call the `record_happy_hours` tool once, with one `happyHours` entry per
 day-of-week × time-window, each carrying its `offerings[]`. Every entry and offering
 needs the `sourceUrl` you fetched it from. Set a conservative `confidence` and a short
 `summary`. Emit nothing else in your text reply.
-
-- **venueType** (optional): set it only if the site clearly states the kind of place
-  (e.g. "dive bar", "hotel bar", "taproom", "wine bar"). Otherwise leave it null.
-  Never guess the category from the cuisine alone.
 
 # User
 
