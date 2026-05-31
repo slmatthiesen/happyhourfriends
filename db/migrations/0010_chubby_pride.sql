@@ -1,0 +1,1 @@
+ALTER TABLE "neighborhoods" ADD COLUMN "in_scope" boolean DEFAULT true NOT NULL;
