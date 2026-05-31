@@ -33,6 +33,8 @@
     "test:extract": "tsx scripts/test-extract-allday.ts",
     "test:active": "tsx scripts/test-timezone-active.ts",
     "test:hours": "tsx scripts/test-opening-hours.ts",
+    "test:reverify": "tsx scripts/test-reverify-policy.ts",
+    "test:reverify-report": "tsx scripts/test-reverify-report.ts",
     "sync:to-prod": "bash scripts/sync-data-to-prod.sh"
   },
   "dependencies": {
