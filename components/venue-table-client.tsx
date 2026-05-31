@@ -76,6 +76,18 @@ function formatRemaining(mins: number): string {
 }
 
 /**
+ * Microcopy for the live badge naming WHAT is active. An all-day deal (e.g. a Taco
+ * Tuesday) runs the whole day, so it has no "ends in" — instead we label it with its
+ * note (or a plain "All day") so a venue doesn't read as "happy hour now" at 7pm just
+ * because a day-specific all-day special is on. Timed windows keep the "ends in" copy.
+ */
+function activeDealLabel(w: HappyHourRow): string {
+  const note = w.notes?.trim();
+  if (!note) return "All day";
+  return note.length > 28 ? `${note.slice(0, 27)}…` : note;
+}
+
+/**
  * Pulsing live indicator. Open = solid accent dot with a soft glow + a Tailwind
  * `animate-ping` ripple radiating outward (classic broadcast LIVE feel). Closed =
  * dim hollow ring so the column reads as a quiet status field that lights up.
@@ -692,10 +704,20 @@ export function VenueTableClient({
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <NowBadge open={live} />
-                          {live && endsIn != null && (
-                            <span className="text-xs text-text-muted">
-                              {formatRemaining(endsIn)}
+                          {live && activeW?.allDay ? (
+                            <span
+                              className="text-xs text-text-muted"
+                              title={activeW.notes?.trim() || "All-day deal"}
+                            >
+                              {activeDealLabel(activeW)}
                             </span>
+                          ) : (
+                            live &&
+                            endsIn != null && (
+                              <span className="text-xs text-text-muted">
+                                {formatRemaining(endsIn)}
+                              </span>
+                            )
                           )}
                         </div>
                       </td>
@@ -834,10 +856,20 @@ export function VenueTableClient({
                     <span className="text-accent-warm">
                       {formatWindow({ allDay: b.allDay, startTime: b.start, endTime: b.end })}
                     </span>
-                    {live && endsIn != null && (
-                      <span className="ml-2 text-xs text-text-muted">
-                        · {formatRemaining(endsIn)}
+                    {live && activeW?.allDay ? (
+                      <span
+                        className="ml-2 text-xs text-text-muted"
+                        title={activeW.notes?.trim() || "All-day deal"}
+                      >
+                        · {activeDealLabel(activeW)}
                       </span>
+                    ) : (
+                      live &&
+                      endsIn != null && (
+                        <span className="ml-2 text-xs text-text-muted">
+                          · {formatRemaining(endsIn)}
+                        </span>
+                      )
                     )}
                   </p>
                   {deals.text && (
