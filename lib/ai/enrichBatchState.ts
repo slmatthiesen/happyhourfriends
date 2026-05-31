@@ -22,6 +22,8 @@ export interface PrepContext {
   phone: string | null;
   priceLevel: number | null;
   photoName: string | null;
+  primaryType: string | null;
+  types: string[] | null;
 }
 
 export interface BatchState {

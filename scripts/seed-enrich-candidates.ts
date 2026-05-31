@@ -55,6 +55,7 @@ import {
 import { saveVenuePhoto } from "@/lib/places/venuePhoto";
 import { isDenylistedChain, isLikelyNoHappyHourFormat } from "@/lib/places/chainDenylist";
 import { slugify, placeIdSuffix } from "@/lib/places/venueSlug";
+import { deriveVenueType, isVenueType } from "@/lib/places/venueType";
 
 // ---------------------------------------------------------------------------
 // Arg parsing
@@ -86,6 +87,8 @@ interface SeedCandidate {
   lat: string | null;
   lng: string | null;
   source_url: string | null;
+  primary_type: string | null;
+  types: string[] | null;
 }
 
 interface CityRow {
@@ -144,21 +147,22 @@ async function insertVenueRow(
     ctx: PrepContext;
     completeness: "complete" | "stub";
     lastVerified: Date | null;
+    venueType: string;
   },
 ): Promise<string | null> {
-  const { cityId, ctx, completeness, lastVerified } = args;
+  const { cityId, ctx, completeness, lastVerified, venueType } = args;
   const baseSlug = slugify(ctx.name);
 
   const doInsert = async (slug: string) => {
     const inserted = await sql<{ id: string }[]>`
       INSERT INTO venues
         (city_id, name, slug, address, lat, lng, google_place_id,
-         website_url, phone, price_level, status, data_completeness, last_verified_at)
+         website_url, phone, price_level, type, status, data_completeness, last_verified_at)
       VALUES
         (${cityId}, ${ctx.name}, ${slug},
          ${ctx.address}, ${ctx.lat}, ${ctx.lng},
          ${ctx.googlePlaceId}, ${ctx.siteUrl}, ${ctx.phone},
-         ${ctx.priceLevel}, 'active'::venue_status,
+         ${ctx.priceLevel}, ${venueType}::venue_type, 'active'::venue_status,
          ${completeness}::data_completeness, ${lastVerified}::timestamptz)
       ON CONFLICT (${ctx.googlePlaceId ? sql`google_place_id` : sql`city_id, slug`})
         DO NOTHING
@@ -223,12 +227,30 @@ async function persistExtraction(
 
   const completeness = hasHH ? "complete" : "stub";
   const lastVerified = hasHH ? new Date() : null;
+
+  const base = deriveVenueType({
+    primaryType: ctx.primaryType,
+    types: ctx.types,
+    name: ctx.name,
+  });
+  // A confident extractor venueType (finer than the Google base) overrides it.
+  const finalType =
+    extracted?.venueType && isVenueType(extracted.venueType) ? extracted.venueType : base;
+
   const venueId = await insertVenueRow(sql, {
     cityId,
     ctx,
     completeness,
     lastVerified,
+    venueType: finalType,
   });
+
+  // insertVenueRow uses ON CONFLICT DO NOTHING, so a pre-existing venue keeps its row.
+  // Fill type only when it's still empty — never clobber a human/AI-refined value.
+  if (venueId) {
+    await sql`UPDATE venues SET type = ${finalType}::venue_type, updated_at = now()
+              WHERE id = ${venueId} AND type IS NULL`;
+  }
 
   if (venueId && placesKey && ctx.photoName) {
     const photo = await fetchPlacePhoto(placesKey, ctx.photoName);
@@ -363,7 +385,8 @@ async function main() {
 
     // ---- Load unprocessed candidates ---------------------------------------
     const candidates: SeedCandidate[] = await sql<SeedCandidate[]>`
-      SELECT id, name, google_place_id, address, lat, lng, source_url
+      SELECT id, name, google_place_id, address, lat, lng, source_url,
+             primary_type, types
       FROM seed_candidates
       WHERE city_id = ${city.id}
         AND processed_at IS NULL
@@ -480,6 +503,8 @@ async function main() {
           phone: details?.phone ?? null,
           priceLevel: details?.priceLevel ?? null,
           photoName: details?.photoName ?? null,
+          primaryType: candidate.primary_type ?? null,
+          types: candidate.types ?? null,
         };
         const persisted = await persistExtraction(sql, {
           cityId: city.id,
@@ -663,6 +688,7 @@ async function runBatch(
         happyHours: parsed.happyHours,
         confidence: parsed.confidence,
         summary: parsed.summary,
+        venueType: parsed.venueType,
         usage,
         costCents: costCents(extractorModel, usage, { batch: true }),
         promptHash,
@@ -746,7 +772,8 @@ async function prepAndSubmit(
   tally: ReportTally,
 ): Promise<BatchState | null> {
   const candidates = await sql<SeedCandidate[]>`
-    SELECT id, name, google_place_id, address, lat, lng, source_url
+    SELECT id, name, google_place_id, address, lat, lng, source_url,
+           primary_type, types
     FROM seed_candidates
     WHERE city_id = ${city.id} AND processed_at IS NULL
     ORDER BY created_at ASC
@@ -808,6 +835,8 @@ async function prepAndSubmit(
       phone: details?.phone ?? null,
       priceLevel: details?.priceLevel ?? null,
       photoName: details?.photoName ?? null,
+      primaryType: c.primary_type ?? null,
+      types: c.types ?? null,
     };
 
     // No website → no AI possible; write the stub now and mark processed.

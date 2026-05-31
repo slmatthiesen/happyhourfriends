@@ -76,6 +76,7 @@ export interface ExtractResult {
   /** Overall confidence 0..1 that the returned schedule is current and accurate. */
   confidence: number;
   summary: string;
+  venueType: string | null;
   /** Token counts summed across all model turns. */
   usage: Usage;
   costCents: number;
@@ -114,6 +115,7 @@ interface RawExtract {
   happyHours?: RawHappyHour[];
   confidence?: number;
   summary?: string;
+  venueType?: string | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -183,6 +185,15 @@ const RECORD_TOOL: ToolUnion = {
       },
       confidence: { type: "number", description: "0..1" },
       summary: { type: "string" },
+      venueType: {
+        type: ["string", "null"],
+        description:
+          "The venue category, ONLY if the site/menu makes it clear (e.g. an explicit " +
+          "'dive bar', 'hotel bar', 'brewery taproom', 'wine bar'). One of: restaurant, " +
+          "bar, sports_bar, pub, dive_bar, wine_bar, brewery, tasting_room, " +
+          "cocktail_lounge, gastropub, club, cafe, hotel_bar, pizzeria, other. " +
+          "Null when not clearly stated — do not guess.",
+      },
     },
     required: ["happyHours", "confidence", "summary"],
   },
@@ -369,6 +380,7 @@ export interface NormalisedExtract {
   happyHours: ExtractedHappyHour[];
   confidence: number;
   summary: string;
+  venueType: string | null;
   /** Count of windows the model proposed before §13/denylist filtering — lets callers tell "model found nothing" from "all dropped". */
   rawWindowCount: number;
 }
@@ -387,6 +399,7 @@ export function normaliseRawExtract(raw: RawExtract): NormalisedExtract {
     happyHours,
     confidence: Math.min(1, Math.max(0, raw.confidence ?? 0)),
     summary: raw.summary ?? "",
+    venueType: typeof raw.venueType === "string" ? raw.venueType : null,
     rawWindowCount: rawWindows.length,
   };
 }
@@ -417,7 +430,7 @@ export function parseRecordedExtract(
       /* fall through to empty */
     }
   }
-  return { happyHours: [], confidence: 0, summary: "", rawWindowCount: 0, recorded: false };
+  return { happyHours: [], confidence: 0, summary: "", venueType: null, rawWindowCount: 0, recorded: false };
 }
 
 // ---------------------------------------------------------------------------
@@ -478,12 +491,13 @@ export async function extractHappyHours(
 
   const parsed = lastMessage
     ? parseRecordedExtract(lastMessage)
-    : { happyHours: [], confidence: 0, summary: "", rawWindowCount: 0, recorded: false };
+    : { happyHours: [], confidence: 0, summary: "", venueType: null, rawWindowCount: 0, recorded: false };
 
   return {
     happyHours: parsed.happyHours,
     confidence: parsed.confidence,
     summary: parsed.summary,
+    venueType: parsed.venueType,
     usage: summedUsage,
     costCents: calcCostCents(model, summedUsage),
     promptHash,
