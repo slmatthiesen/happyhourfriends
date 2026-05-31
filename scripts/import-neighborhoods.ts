@@ -7,7 +7,9 @@
  *     --name-prop NAME \
  *     [--slug-prop NAME] \
  *     [--source "City of Tacoma GIS — Neighborhood Council Districts"] \
- *     [--source-url https://...]
+ *     [--source-url https://...] \
+ *     [--fallback]   # coarse gap-filler layer (e.g. council wards); ranked below
+ *                    # precise neighborhoods, used only where none is within snap range
  *
  * Works for any city + any GeoJSON (OSM/Overture/ArcGIS exports), so the same
  * command onboards city #2..N. The city row must already exist in `cities`.
@@ -26,6 +28,7 @@ interface Args {
   slugProp?: string;
   source?: string;
   sourceUrl?: string;
+  fallback: boolean;
 }
 
 interface GeoJsonFeature {
@@ -52,6 +55,7 @@ function parseArgs(): Args {
     slugProp: get("--slug-prop"),
     source: get("--source"),
     sourceUrl: get("--source-url"),
+    fallback: argv.includes("--fallback"),
   };
 }
 
@@ -96,17 +100,18 @@ async function main() {
       const geomJson = JSON.stringify(feature.geometry);
 
       await sql`
-        INSERT INTO neighborhoods (city_id, name, slug, polygon, source, source_url)
+        INSERT INTO neighborhoods (city_id, name, slug, polygon, source, source_url, is_fallback)
         VALUES (
           ${city.id}, ${name}, ${slug},
           ST_Multi(ST_SetSRID(ST_GeomFromGeoJSON(${geomJson}), 4326)),
-          ${args.source ?? null}, ${args.sourceUrl ?? null}
+          ${args.source ?? null}, ${args.sourceUrl ?? null}, ${args.fallback}
         )
         ON CONFLICT (city_id, slug) DO UPDATE SET
           name = EXCLUDED.name,
           polygon = EXCLUDED.polygon,
           source = EXCLUDED.source,
           source_url = EXCLUDED.source_url,
+          is_fallback = EXCLUDED.is_fallback,
           updated_at = now()
       `;
       inserted++;

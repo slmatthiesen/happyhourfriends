@@ -1,0 +1,1 @@
+ALTER TABLE "neighborhoods" ADD COLUMN "is_fallback" boolean DEFAULT false NOT NULL;
