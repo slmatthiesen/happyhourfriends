@@ -2,7 +2,7 @@
  * Unit checks for reverify report build + round-trip. Run: npx tsx scripts/test-reverify-report.ts
  */
 import assert from "node:assert/strict";
-import { buildReportEntries, toJson, parseJson, type ReportEntry } from "@/lib/reverify/report";
+import { buildReportEntries, toJson, parseJson, toMarkdown, type ReportEntry } from "@/lib/reverify/report";
 
 let passed = 0;
 function check(name: string, fn: () => void) { fn(); passed++; console.log(`  ✓ ${name}`); }
@@ -26,6 +26,24 @@ check("json round-trips", () => {
   const back = parseJson(json);
   assert.equal(back[0].action, "delete_venue");
   assert.equal(back[0].verdict.kind, "not_happy_hour");
+});
+
+check("buildReportEntries falls back to stub for a null verdict", () => {
+  const rows = [{ happyHourId: "hh-2", venueId: "v-2", venueName: "No Verdict Bar", city: "phoenix", currentDays: [1], sourceUrl: null }];
+  const out = buildReportEntries(rows, [null]);
+  assert.equal(out[0].verdict.kind, "unconfirmable");
+  assert.equal(out[0].action, "stub");
+});
+
+check("toMarkdown includes the venue name + recommended action", () => {
+  const md = toMarkdown([entry]);
+  assert.ok(md.includes("Test Bar"));
+  assert.ok(md.includes("delete_venue"));
+});
+
+check("parseJson rejects an invalid action (operator typo guard)", () => {
+  const bad = toJson([entry]).replace('"delete_venue"', '"delete"');
+  assert.throws(() => parseJson(bad), /invalid action/);
 });
 
 console.log(`\n${passed} checks passed.`);
