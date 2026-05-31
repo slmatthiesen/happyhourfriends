@@ -56,7 +56,6 @@ import { saveVenuePhoto } from "@/lib/places/venuePhoto";
 import { isDenylistedChain, isLikelyNoHappyHourFormat } from "@/lib/places/chainDenylist";
 import { slugify, placeIdSuffix } from "@/lib/places/venueSlug";
 import { deriveVenueType, isVenueType, type VenueType } from "@/lib/places/venueType";
-import type { OpenPeriod } from "@/lib/geo/timezone";
 
 // ---------------------------------------------------------------------------
 // Arg parsing
@@ -155,6 +154,8 @@ async function insertVenueRow(
   const baseSlug = slugify(ctx.name);
 
   const doInsert = async (slug: string) => {
+    // INSERT uses ON CONFLICT DO NOTHING — hours_json is only set on first insert;
+    // re-enrich does NOT refresh it. Use `npm run backfill:hours` (task C5) to update existing venues.
     const inserted = await sql<{ id: string }[]>`
       INSERT INTO venues
         (city_id, name, slug, address, lat, lng, google_place_id,
@@ -163,7 +164,7 @@ async function insertVenueRow(
         (${cityId}, ${ctx.name}, ${slug},
          ${ctx.address}, ${ctx.lat}, ${ctx.lng},
          ${ctx.googlePlaceId}, ${ctx.siteUrl}, ${ctx.phone},
-         ${ctx.priceLevel}, ${sql.json(ctx.hoursJson as unknown as Parameters<typeof sql.json>[0])}, ${venueType}::venue_type, 'active'::venue_status,
+         ${ctx.priceLevel}, ${sql.json((ctx.hoursJson ?? null) as never)}, ${venueType}::venue_type, 'active'::venue_status,
          ${completeness}::data_completeness, ${lastVerified}::timestamptz)
       ON CONFLICT (${ctx.googlePlaceId ? sql`google_place_id` : sql`city_id, slug`})
         DO NOTHING

@@ -49,4 +49,18 @@ check("24h venue (open, no close) → closeDay/closeMin null", () => {
   assert.deepEqual(out, [{ openDay: 7, openMin: 0, closeDay: null, closeMin: null }]);
 });
 
+check("out-of-range Google day is skipped", () => {
+  const out = parseRegularOpeningHours({
+    periods: [{ open: { day: 9, hour: 11, minute: 0 }, close: { day: 9, hour: 22, minute: 0 } }],
+  });
+  assert.equal(out, null);
+});
+
+check("partial close (day but no hour) → treated as no close", () => {
+  const out = parseRegularOpeningHours({
+    periods: [{ open: { day: 1, hour: 11, minute: 0 }, close: { day: 1 } }],
+  });
+  assert.deepEqual(out, [{ openDay: 1, openMin: 660, closeDay: null, closeMin: null }]);
+});
+
 console.log(`\n${passed} checks passed.`);
