@@ -19,6 +19,8 @@ export function recommendAction(v: Verdict): Action {
       return "correct";
     case "legit_all_day":
       // A genuine all-day deal is only credible on ≤2 specific days (industry-night).
+      // An empty day list is degenerate (no confirmable content) → stub, don't keep.
+      if (v.daysOfWeek.length === 0) return "stub";
       return v.daysOfWeek.length <= 2 ? "keep" : "stub";
     case "not_happy_hour":
       // Clear non-HH place (no alcohol / pure coupon) → recommend deletion; an otherwise

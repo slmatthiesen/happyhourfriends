@@ -33,4 +33,36 @@ check("returns null when no tool call present", () => {
   assert.equal(parseVerdict({ content: [{ type: "text", text: "hi" }] } as never), null);
 });
 
+check("downgrades legit_all_day with no quote to unconfirmable", () => {
+  const v = parseVerdict(msgWith({
+    kind: "legit_all_day", daysOfWeek: [1],
+    quote: "", sourceUrl: "https://x.com", servesAlcohol: true, reasoning: "r",
+  }));
+  assert.equal(v?.kind, "unconfirmable");
+});
+
+check("downgrades legit_all_day with no days to unconfirmable", () => {
+  const v = parseVerdict(msgWith({
+    kind: "legit_all_day", daysOfWeek: [],
+    quote: "Monday all day", sourceUrl: "https://x.com", servesAlcohol: true, reasoning: "r",
+  }));
+  assert.equal(v?.kind, "unconfirmable");
+});
+
+check("not_happy_hour passes through without a quote", () => {
+  const v = parseVerdict(msgWith({
+    kind: "not_happy_hour", quote: "", sourceUrl: "", servesAlcohol: false, reasoning: "just a coupon",
+  }));
+  assert.equal(v?.kind, "not_happy_hour");
+});
+
+check("non-array daysOfWeek does not throw (coerced to empty)", () => {
+  const v = parseVerdict(msgWith({
+    kind: "real_window", startTime: "16:00", endTime: "18:00", daysOfWeek: 1,
+    quote: "HH 4-6", sourceUrl: "https://x.com", servesAlcohol: true, reasoning: "r",
+  }));
+  assert.equal(v?.kind, "real_window");
+  assert.deepEqual(v?.kind === "real_window" && v.daysOfWeek, []);
+});
+
 console.log(`\n${passed} checks passed.`);
