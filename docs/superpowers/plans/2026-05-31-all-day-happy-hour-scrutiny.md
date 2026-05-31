@@ -215,17 +215,24 @@ git commit -m "feat(prompt): seed-extract v9 — define HH, constrain all-day to
 
 - [ ] **Step 1: Add the column to the schema**
 
-In `db/schema/core.ts`, in the `venues` table definition, directly after the `heroImageUrl` column (~L127), add:
+First add a type-only import at the top of `db/schema/core.ts` (after the existing imports; `OpenPeriod` is defined in Task C3 — **build C3 first**):
+
+```ts
+import type { OpenPeriod } from "@/lib/geo/timezone";
+```
+
+Then in the `venues` table definition, directly after the `heroImageUrl` column (~L127), add:
 
 ```ts
     // Venue operating hours (Google Place Details regularOpeningHours), normalized to
     // ISO weekdays. Drives close-time bounding for "happening now" on all-day / until-
-    // close windows. Shape: { periods: { openDay:1..7, openMin, closeDay:1..7|null,
-    // closeMin:number|null }[] }. Null when unknown → such windows can't be shown active.
-    hoursJson: jsonb("hours_json"),
+    // close windows. Null when unknown → such windows can't be shown active. Typed with
+    // .$type so VenueRow.hoursJson is OpenPeriod[]|null (not unknown) and flows cleanly
+    // through the venue queries into isWindowActive.
+    hoursJson: jsonb("hours_json").$type<OpenPeriod[]>(),
 ```
 
-(`jsonb` is already imported in `core.ts`.)
+(`jsonb` is already imported in `core.ts`. A type-only import of `OpenPeriod` does not create a runtime cycle — `lib/geo/timezone.ts` imports nothing from `db/schema` — and is erased before drizzle-kit reads the schema.)
 
 - [ ] **Step 2: Generate the migration**
 
@@ -661,37 +668,38 @@ In `scripts/seed-enrich-candidates.ts`, the venue is written from a `PlaceDetail
 
 In `lib/queries/venues.ts`:
 
-(a) Add to `VenueListItem` (after `timezone`):
+(a) Add `"hoursJson"` to the `Pick<VenueRow, …>` union that `VenueListItem extends` (the list ends with `| "heroImageUrl"`, ~L31). Because the column is `.$type<OpenPeriod[]>()` (Task C1), this gives `VenueListItem.hoursJson: OpenPeriod[] | null` with no extra field declaration and no separate import:
 
 ```ts
-  hoursJson: OpenPeriod[] | null;
+    | "heroImageUrl"
+    | "hoursJson"
 ```
 
-and import the type at the top:
-
-```ts
-import type { OpenPeriod } from "@/lib/geo/timezone";
-```
-
-(b) Add to the `.select({...})` in `listVenuesForCity` (after `timezone: venues.timezone,`):
+(b) Add to the `.select({...})` inside `listVenuesForCity` (after the `timezone:` line, ~L184):
 
 ```ts
       hoursJson: venues.hoursJson,
 ```
 
-(`hours_json` is a venue-level column already covered by `groupBy(venues.id)` — no groupBy change needed.) The final `rows.map((r) => ({ ...r, ... }))` already spreads `r`, so `hoursJson` flows through; confirm the spread isn't overridden.
+The final `return rows.map((r) => ({ ...r, … }))` (~L292-305) spreads `r`, so `hoursJson` flows through unchanged — no cast needed, and the spread keys it adds (`neighborhoodName`, `happyHours`, etc.) don't include `hoursJson`, so it isn't overridden.
 
-(c) If `getVenueDetailById` / the single-venue query also computes a live badge, add `hoursJson` there too. (The venue page uses `allDay` only for display grouping, not `isWindowActive`, so it likely needs no change — verify.)
+(c) The single-venue path (`assembleVenueDetail` → `VenueDetail extends VenueRow`) already inherits `hoursJson` from `VenueRow` via `...venue`. The venue page uses `allDay` only for display grouping, not `isWindowActive`, so it needs no change — confirm with a grep for `isWindowActive` in `app/[city]/venue/[slug]/page.tsx` (expected: no match).
 
 - [ ] **Step 3: Thread hours into the client active check**
 
-In `components/venue-table-client.tsx`, update the `isWindowActive` call inside `activeWindow` (~L209) and any `minutesUntilWindowEnd` calls (~L690, ~L826) to pass the venue's hours. Where the venue `v` is in scope:
+In `components/venue-table-client.tsx`, the `activeWindow` `useCallback` (~L208-217) is the only `isWindowActive` caller and has the venue `v` in scope. Change its final line from:
 
 ```ts
-      return (v) => v.happyHours.find((h) => isWindowActive(h, now, v.hoursJson)) ?? null;
+      return v.happyHours.find((h) => isWindowActive(h, now)) ?? null;
 ```
 
-`minutesUntilWindowEnd` does not need hours (it returns null for all-day / until-close already), so leave those calls as-is unless typecheck demands the arg.
+to:
+
+```ts
+      return v.happyHours.find((h) => isWindowActive(h, now, v.hoursJson)) ?? null;
+```
+
+`minutesUntilWindowEnd` does not need hours (it returns null for all-day / until-close already), so leave those calls (~L690, ~L826) as-is unless typecheck demands the arg.
 
 - [ ] **Step 4: Typecheck**
 
