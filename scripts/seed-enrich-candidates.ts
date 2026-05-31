@@ -91,6 +91,7 @@ interface SeedCandidate {
 interface CityRow {
   id: string;
   slug: string;
+  name: string;
 }
 
 type Sql = ReturnType<typeof postgres>;
@@ -346,7 +347,7 @@ async function main() {
   try {
     // ---- Resolve city row --------------------------------------------------
     const [city] = await sql<CityRow[]>`
-      SELECT id, slug FROM cities WHERE slug = ${args.city}
+      SELECT id, slug, name FROM cities WHERE slug = ${args.city}
     `;
     if (!city) {
       throw new Error(
@@ -454,6 +455,7 @@ async function main() {
               venueName: candidate.name,
               websiteUrl: siteUrl,
               otherUrl: null,
+              cityName: city.name,
             })
           : null;
 
@@ -703,7 +705,7 @@ async function runBatch(
       console.log(`  fallback: ${ctx.name}…`);
       try {
         const extracted = ctx.siteUrl
-          ? await extractHappyHours({ venueName: ctx.name, websiteUrl: ctx.siteUrl, otherUrl: null })
+          ? await extractHappyHours({ venueName: ctx.name, websiteUrl: ctx.siteUrl, otherUrl: null, cityName: city.name })
           : null;
         if (extracted) {
           await writeLedger(sql, city.id, month, extracted);
@@ -822,7 +824,7 @@ async function prepAndSubmit(
       continue;
     }
 
-    const built = buildExtractRequest({ venueName: ctx.name, websiteUrl: ctx.siteUrl, otherUrl: null });
+    const built = buildExtractRequest({ venueName: ctx.name, websiteUrl: ctx.siteUrl, otherUrl: null, cityName: city.name });
     requests.push({ custom_id: c.id, params: built.params });
     contexts[c.id] = ctx;
   }

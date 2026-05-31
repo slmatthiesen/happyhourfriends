@@ -38,6 +38,8 @@ export interface ExtractInput {
   venueName: string;
   websiteUrl?: string | null;
   otherUrl?: string | null;
+  /** City/locality name, used to scope the web_search fallback (e.g. "Phoenix"). */
+  cityName?: string | null;
 }
 
 export interface ExtractedOffering {
@@ -228,7 +230,8 @@ function fillPlaceholders(template: string, input: ExtractInput): string {
   return template
     .replace("{{venue_name}}", input.venueName)
     .replace("{{website_url}}", input.websiteUrl ?? "none")
-    .replace("{{other_url}}", input.otherUrl ?? "none");
+    .replace("{{other_url}}", input.otherUrl ?? "none")
+    .replaceAll("{{city}}", input.cityName?.trim() || "");
 }
 
 // Only block COMPETITOR happy-hour listing sites whose business is exactly what we do
