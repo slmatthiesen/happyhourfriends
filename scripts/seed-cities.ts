@@ -85,6 +85,25 @@ const CITIES: CitySeed[] = [
       serviceLocalities: ["Tucson"],
     },
   },
+  {
+    // Scottsdale, AZ — separate municipality from Phoenix, so it needs its own city +
+    // locality gate (Phoenix discovery dropped Scottsdale venues as "out-of-area").
+    // Anchored on Old Town / South Scottsdale; ~20km radius reaches up through North
+    // Scottsdale (Kierland / DC Ranch). Southern overage is gated by serviceLocalities.
+    slug: "scottsdale",
+    name: "Scottsdale",
+    state: "AZ",
+    country: "US",
+    timezone: "America/Phoenix",
+    currency: "USD",
+    centerLat: 33.4942,
+    centerLng: -111.9261,
+    seedConfig: {
+      radiusKm: 20,
+      cellMeters: 3000,
+      serviceLocalities: ["Scottsdale"],
+    },
+  },
 ];
 
 async function main() {
