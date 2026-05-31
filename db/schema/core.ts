@@ -80,6 +80,10 @@ export const neighborhoods = pgTable(
     source: text("source"),
     sourceUrl: text("source_url"),
     parentId: uuid("parent_id").references((): AnyPgColumn => neighborhoods.id),
+    // Coarse, gap-free fallback polygon (e.g. council wards) layered UNDER fine-grained
+    // neighborhoods. Assignment ranks non-fallback polygons above fallback ones within the
+    // snap radius, so a venue only attaches to a fallback when no precise polygon is in range.
+    isFallback: boolean("is_fallback").notNull().default(false),
     ...timestamps,
   },
   (t) => [

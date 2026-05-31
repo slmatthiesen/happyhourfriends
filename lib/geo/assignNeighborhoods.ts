@@ -14,9 +14,13 @@ const SNAP_METERS = 100;
  * Assign venues to a neighborhood by spatial match (PRD §3 — venues.neighborhood_id is
  * derived, not stored by hand). For each venue with coordinates we pick the best
  * neighborhood polygon within SNAP_METERS, ranked:
- *   1. Containing polygon wins (ST_Distance = 0).
- *   2. Tie-break: child (vernacular nested under district) over parent.
- *   3. Tie-break: smallest polygon by area.
+ *   1. Non-fallback polygon beats a fallback one (is_fallback ASC), ALWAYS — a precise
+ *      neighborhood within snap range wins over a coarse fallback (e.g. a council ward)
+ *      the venue sits inside. Fallback polygons (gap-fillers layered under fine-grained
+ *      neighborhoods) are only used when no precise polygon is within SNAP_METERS.
+ *   2. Containing polygon wins (ST_Distance = 0).
+ *   3. Tie-break: child (vernacular nested under district) over parent.
+ *   4. Tie-break: smallest polygon by area.
  * If no polygon contains the venue, the nearest one within SNAP_METERS is used as a
  * fallback (snap). Outside that radius, neighborhood_id stays NULL.
  *
@@ -50,6 +54,7 @@ export async function assignNeighborhoods(
         AND vv.deleted_at IS NULL
         ${cityId ? sql`AND vv.city_id = ${cityId}` : sql``}
       ORDER BY vv.id,
+               n.is_fallback ASC,
                ST_Distance(
                  n.polygon::geography,
                  ST_SetSRID(ST_MakePoint(vv.lng::float8, vv.lat::float8), 4326)::geography
