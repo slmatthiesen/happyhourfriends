@@ -151,7 +151,7 @@ const RECORD_TOOL: ToolUnion = {
             allDay: {
               type: "boolean",
               description:
-                "True when the deal explicitly applies all open hours on the listed days (e.g. 'Monday all damn day'). When true, startTime and endTime MUST be null. Do NOT use as a fallback when times are unknown.",
+                "True ONLY when the page explicitly states an all-open-hours deal on a SPECIFIC, NARROW set of days (at most 2, e.g. 'Monday all day'). Never for most/all days of the week (that's regular pricing, not a happy hour). When true, startTime and endTime MUST be null. Never a fallback when times are unknown.",
             },
             startTime: {
               type: ["string", "null"],
