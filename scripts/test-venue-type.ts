@@ -66,6 +66,8 @@ check("name 'Moctezuma's Tequila Bar' -> bar", () =>
   assert.equal(deriveVenueType({ primaryType: null, types: null, name: "Moctezuma's Tequila Bar" }), "bar"));
 check("name 'Sports Bar X' beats generic bar -> sports_bar", () =>
   assert.equal(deriveVenueType({ primaryType: null, types: null, name: "Joe's Sports Bar" }), "sports_bar"));
+check("name 'Engine House Brewpub' -> brewery (brewpub beats pub)", () =>
+  assert.equal(deriveVenueType({ primaryType: null, types: null, name: "Engine House Brewpub" }), "brewery"));
 
 // --- final default ---------------------------------------------------------
 check("no signal -> restaurant", () =>

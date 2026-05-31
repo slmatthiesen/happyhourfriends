@@ -16,7 +16,7 @@ export function isVenueType(x: unknown): x is VenueType {
 }
 
 /** Explicit Google primaryType / types[] -> our enum, for the NON-restaurant cases. */
-export const GOOGLE_TYPE_MAP: Record<string, VenueType> = {
+const GOOGLE_TYPE_MAP: Record<string, VenueType> = {
   bar: "bar",
   sports_bar: "sports_bar",
   cocktail_bar: "cocktail_lounge",
@@ -56,8 +56,11 @@ function isRestaurantType(t: string): boolean {
   return RESTAURANT_FALLBACK.has(t) || t.endsWith("_restaurant");
 }
 
+// NOTE: "brewpub" matches the brewery rule (so a brewpub -> brewery, not pub), and there
+// is intentionally no name rule for gastropub (too hard to infer from a name alone; it
+// only comes from Google's primaryType). Ordering is specific-before-generic.
 /** Ordered name-keyword rules, used ONLY when Google gives us no type. First match wins. */
-export const NAME_KEYWORD_RULES: Array<{ re: RegExp; type: VenueType }> = [
+const NAME_KEYWORD_RULES: Array<{ re: RegExp; type: VenueType }> = [
   { re: /\bsports\s?bar\b/i, type: "sports_bar" },
   { re: /\bwine\s?bar\b/i, type: "wine_bar" },
   { re: /\b(brew(ery|ing)|brewhouse|brewpub)\b/i, type: "brewery" },
