@@ -85,6 +85,10 @@ day-of-week × time-window, each carrying its `offerings[]`. Every entry and off
 needs the `sourceUrl` you fetched it from. Set a conservative `confidence` and a short
 `summary`. Emit nothing else in your text reply.
 
+- **venueType** (optional): set it only if the site clearly states the kind of place
+  (e.g. "dive bar", "hotel bar", "taproom", "wine bar"). Otherwise leave it null.
+  Never guess the category from the cuisine alone.
+
 # User
 
 Venue: {{venue_name}}
