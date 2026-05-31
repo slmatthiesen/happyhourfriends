@@ -56,6 +56,7 @@ import { saveVenuePhoto } from "@/lib/places/venuePhoto";
 import { isDenylistedChain, isLikelyNoHappyHourFormat } from "@/lib/places/chainDenylist";
 import { slugify, placeIdSuffix } from "@/lib/places/venueSlug";
 import { deriveVenueType, isVenueType, type VenueType } from "@/lib/places/venueType";
+import type { OpenPeriod } from "@/lib/geo/timezone";
 
 // ---------------------------------------------------------------------------
 // Arg parsing
@@ -157,12 +158,12 @@ async function insertVenueRow(
     const inserted = await sql<{ id: string }[]>`
       INSERT INTO venues
         (city_id, name, slug, address, lat, lng, google_place_id,
-         website_url, phone, price_level, type, status, data_completeness, last_verified_at)
+         website_url, phone, price_level, hours_json, type, status, data_completeness, last_verified_at)
       VALUES
         (${cityId}, ${ctx.name}, ${slug},
          ${ctx.address}, ${ctx.lat}, ${ctx.lng},
          ${ctx.googlePlaceId}, ${ctx.siteUrl}, ${ctx.phone},
-         ${ctx.priceLevel}, ${venueType}::venue_type, 'active'::venue_status,
+         ${ctx.priceLevel}, ${sql.json(ctx.hoursJson as unknown as Parameters<typeof sql.json>[0])}, ${venueType}::venue_type, 'active'::venue_status,
          ${completeness}::data_completeness, ${lastVerified}::timestamptz)
       ON CONFLICT (${ctx.googlePlaceId ? sql`google_place_id` : sql`city_id, slug`})
         DO NOTHING
@@ -504,6 +505,7 @@ async function main() {
           siteUrl,
           phone: details?.phone ?? null,
           priceLevel: details?.priceLevel ?? null,
+          hoursJson: details?.openingPeriods ?? null,
           photoName: details?.photoName ?? null,
           primaryType: candidate.primary_type ?? null,
           types: candidate.types ?? null,
@@ -836,6 +838,7 @@ async function prepAndSubmit(
       siteUrl: details?.websiteUri ?? null,
       phone: details?.phone ?? null,
       priceLevel: details?.priceLevel ?? null,
+      hoursJson: details?.openingPeriods ?? null,
       photoName: details?.photoName ?? null,
       primaryType: c.primary_type ?? null,
       types: c.types ?? null,

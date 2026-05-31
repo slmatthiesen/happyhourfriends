@@ -29,6 +29,7 @@ export interface VenueListItem
     | "type"
     | "priceLevel"
     | "heroImageUrl"
+    | "hoursJson"
   > {
   neighborhoodName: string | null;
   neighborhoodSlug: string | null;
@@ -185,6 +186,7 @@ export async function listVenuesForCity(
       type: venues.type,
       priceLevel: venues.priceLevel,
       heroImageUrl: venues.heroImageUrl,
+      hoursJson: venues.hoursJson,
       neighborhoodName: neighborhoods.name,
       neighborhoodSlug: neighborhoods.slug,
     })

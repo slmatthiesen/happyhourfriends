@@ -211,7 +211,7 @@ export function VenueTableClient({
       if (!tz) return null;
       const now = nowByTz.get(tz);
       if (!now) return null;
-      return v.happyHours.find((h) => isWindowActive(h, now)) ?? null;
+      return v.happyHours.find((h) => isWindowActive(h, now, v.hoursJson)) ?? null;
     },
     [nowByTz],
   );

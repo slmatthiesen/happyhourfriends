@@ -7,6 +7,7 @@
  */
 import { mkdirSync, readdirSync, readFileSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
+import type { OpenPeriod } from "@/lib/geo/timezone";
 
 const STATE_DIR = join(process.cwd(), ".enrich-batch");
 
@@ -24,6 +25,7 @@ export interface PrepContext {
   photoName: string | null;
   primaryType: string | null;
   types: string[] | null;
+  hoursJson: OpenPeriod[] | null;
 }
 
 export interface BatchState {
