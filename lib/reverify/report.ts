@@ -4,6 +4,10 @@
  */
 import { recommendAction, type Action, type Verdict } from "@/lib/reverify/policy";
 
+/** The actions --apply knows how to execute. A typo here would silently no-op a
+ *  destructive operation, so parseJson validates every entry against this set. */
+const VALID_ACTIONS = new Set<Action>(["correct", "keep", "stub", "delete_venue"]);
+
 export interface ReverifyRow {
   happyHourId: string;
   venueId: string;
@@ -33,6 +37,15 @@ export function toJson(entries: ReportEntry[]): string {
 export function parseJson(json: string): ReportEntry[] {
   const parsed = JSON.parse(json) as ReportEntry[];
   if (!Array.isArray(parsed)) throw new Error("report json must be an array");
+  // The operator edits `action` by hand before --apply; a typo (e.g. "stub ", "delete")
+  // must fail loudly here rather than silently no-op a destructive apply downstream.
+  parsed.forEach((e, i) => {
+    if (!VALID_ACTIONS.has(e.action)) {
+      throw new Error(
+        `entry[${i}] (${e.venueName ?? "?"}) has invalid action "${e.action}" — expected one of ${[...VALID_ACTIONS].join(", ")}`,
+      );
+    }
+  });
   return parsed;
 }
 

@@ -74,7 +74,11 @@ export function parseVerdict(message: Message): Verdict | null {
   const sourceUrl = (raw.sourceUrl ?? "").trim();
   const servesAlcohol = raw.servesAlcohol === true;
   const reasoning = raw.reasoning ?? "";
-  const days = [...new Set(raw.daysOfWeek ?? [])].filter((d) => Number.isInteger(d) && d >= 1 && d <= 7);
+  // Guard: a misbehaving model may emit daysOfWeek as a scalar/string instead of an
+  // array. new Set(non-iterable) would throw and drop the whole venue from the report,
+  // so coerce to [] unless it's genuinely an array (mirrors extractHappyHours.ts).
+  const rawDays = Array.isArray(raw.daysOfWeek) ? raw.daysOfWeek : [];
+  const days = [...new Set(rawDays)].filter((d) => Number.isInteger(d) && d >= 1 && d <= 7);
 
   // The quote-or-nothing rule: verdicts that assert a schedule must carry a verbatim quote.
   if (raw.kind === "real_window") {
@@ -82,7 +86,8 @@ export function parseVerdict(message: Message): Verdict | null {
     return { kind: "real_window", startTime: raw.startTime, endTime: raw.endTime ?? null, daysOfWeek: days, quote, sourceUrl, servesAlcohol, reasoning };
   }
   if (raw.kind === "legit_all_day") {
-    if (!quote || !sourceUrl) return { kind: "unconfirmable", quote, sourceUrl, servesAlcohol, reasoning };
+    // Needs a quote AND at least one valid day — an all-day claim with no days is unconfirmable.
+    if (!quote || !sourceUrl || days.length === 0) return { kind: "unconfirmable", quote, sourceUrl, servesAlcohol, reasoning };
     return { kind: "legit_all_day", daysOfWeek: days, quote, sourceUrl, servesAlcohol, reasoning };
   }
   if (raw.kind === "not_happy_hour") return { kind: "not_happy_hour", quote, sourceUrl, servesAlcohol, reasoning };

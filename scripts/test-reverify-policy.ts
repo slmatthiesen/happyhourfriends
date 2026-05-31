@@ -22,5 +22,7 @@ check("not_happy_hour but drinks venue → stub", () =>
   assert.equal(recommendAction({ ...base, servesAlcohol: true, kind: "not_happy_hour" } as Verdict), "stub"));
 check("unconfirmable → stub", () =>
   assert.equal(recommendAction({ ...base, kind: "unconfirmable" } as Verdict), "stub"));
+check("legit_all_day with 0 days → stub (degenerate, not keep)", () =>
+  assert.equal(recommendAction({ ...base, kind: "legit_all_day", daysOfWeek: [] } as Verdict), "stub"));
 
 console.log(`\n${passed} checks passed.`);
