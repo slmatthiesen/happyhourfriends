@@ -306,6 +306,15 @@ function normaliseHappyHour(raw: RawHappyHour): ExtractedHappyHour | null {
   if (daysOfWeek.length === 0) return null;
 
   const allDay = raw.allDay === true;
+
+  // Policy backstop (2026-05-31): a credible "all day" deal is a narrow,
+  // explicitly-sourced industry-night pattern on ≤2 specific days. An all-day claim
+  // spanning 3+ days is almost always regular pricing or a fallback the model reached
+  // for when it couldn't find a time window — not a happy hour. Drop it regardless of
+  // what the model emitted. Mirrors lib/places/chainDenylist: enforce policy in code,
+  // not just the prompt. See docs/superpowers/specs/2026-05-31-all-day-happy-hour-scrutiny-design.md.
+  if (allDay && daysOfWeek.length >= 3) return null;
+
   const rawStart = raw.startTime ?? null;
   const rawEnd = raw.endTime ?? null;
 
