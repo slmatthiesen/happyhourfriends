@@ -9,6 +9,7 @@ import {
   venueLocalNow,
 } from "@/lib/geo/timezone";
 import type { HappyHourRow, VenueListItem } from "@/lib/queries/venues";
+import { labelForVenueType } from "@/lib/places/venueType";
 
 // ISO day labels; index 1=Mon … 7=Sun
 const DAY_LABELS: Record<number, string> = {
@@ -333,7 +334,7 @@ export function VenueTableClient({
           return n !== 0 ? n : a.name.localeCompare(b.name);
         }
         case "type": {
-          const t = (a.type ?? "~").localeCompare(b.type ?? "~");
+          const t = labelForVenueType(a.type).localeCompare(labelForVenueType(b.type));
           return t !== 0 ? t : a.name.localeCompare(b.name);
         }
         case "price": {
@@ -576,7 +577,7 @@ export function VenueTableClient({
                     : "border-border bg-bg-elevated text-text-muted hover:border-accent-cool hover:text-text-primary"
                 }`}
               >
-                {t.replace(/_/g, " ")}
+                {labelForVenueType(t)}
               </button>
             ))}
           </div>
@@ -722,7 +723,7 @@ export function VenueTableClient({
                         </div>
                       </td>
                       <td className="px-4 py-3 text-text-muted">
-                        {v.type ? v.type.replace(/_/g, " ") : "—"}
+                        {labelForVenueType(v.type) || "—"}
                       </td>
                       {showNeighborhood && (
                         <td className="px-4 py-3 text-text-muted">
@@ -775,7 +776,7 @@ export function VenueTableClient({
                     </td>
                     <td className="px-4 py-3">—</td>
                     <td className="px-4 py-3">
-                      {v.type ? v.type.replace(/_/g, " ") : "—"}
+                      {labelForVenueType(v.type) || "—"}
                     </td>
                     {showNeighborhood && (
                       <td className="px-4 py-3">{v.neighborhoodName ?? "—"}</td>
@@ -847,7 +848,7 @@ export function VenueTableClient({
                     )}
                   </div>
                   <p className="mt-0.5 text-xs text-text-muted">
-                    {[v.type?.replace(/_/g, " "), showNeighborhood ? v.neighborhoodName : null]
+                    {[labelForVenueType(v.type) || null, showNeighborhood ? v.neighborhoodName : null]
                       .filter(Boolean)
                       .join(" · ")}
                   </p>
@@ -898,9 +899,9 @@ export function VenueTableClient({
                 >
                   {v.name}
                 </Link>
-                {(v.type || (showNeighborhood && v.neighborhoodName)) && (
+                {(labelForVenueType(v.type) || (showNeighborhood && v.neighborhoodName)) && (
                   <p className="mt-0.5 text-xs">
-                    {[v.type?.replace(/_/g, " "), showNeighborhood ? v.neighborhoodName : null]
+                    {[labelForVenueType(v.type) || null, showNeighborhood ? v.neighborhoodName : null]
                       .filter(Boolean)
                       .join(" · ")}
                   </p>
