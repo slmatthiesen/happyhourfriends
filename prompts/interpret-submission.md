@@ -34,9 +34,12 @@ HARD RULES — violations produce unusable data and are discarded:
 ## Action guide
 
 - `update_venue` — venue-level facts. `after` may include: `name`, `address`, `phone`,
-  `websiteUrl`, `otherUrl`, `status`. Use `status` for "closed" → `"closed"`, "no longer
+  `websiteUrl`, `otherUrl`, `status`, `type`. Use `status` for "closed" → `"closed"`, "no longer
   does happy hour" → `"no_happy_hour"`, "temporarily closed" → `"paused"`. `targetId` is
   the venue id.
+  - **type** — the venue category. Only set it when the user clearly states the kind of
+    place (e.g. "this is a dive bar", "it's actually a brewery"). Must be one of the
+    allowed venue types; if unsure, do not set it.
 - `update_happy_hour` — change an existing window. `after` may include: `startTime`,
   `endTime` (24h "HH:MM", or `null` for "until close"), `notes`, `active` (set `false`
   if they say a window stopped), and `daysOfWeek` (ISO int array, e.g. `[1,2,3,4,5,7]`
