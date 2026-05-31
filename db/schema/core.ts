@@ -18,6 +18,7 @@ import {
   uuid,
   type AnyPgColumn,
 } from "drizzle-orm/pg-core";
+import type { OpenPeriod } from "@/lib/geo/timezone";
 import { multiPolygon4326, polygon4326, softDelete, timestamps } from "./columns";
 import {
   cityStatus,
@@ -125,6 +126,12 @@ export const venues = pgTable(
     // Locally-stored hero image (downloaded from Google Place Photos so we don't re-hit
     // the API per render). Relative public path, e.g. /uploads/venues/<id>.jpg.
     heroImageUrl: text("hero_image_url"),
+    // Venue operating hours (Google Place Details regularOpeningHours), normalized to
+    // ISO weekdays. Drives close-time bounding for "happening now" on all-day / until-
+    // close windows. Null when unknown → such windows can't be shown active. Typed with
+    // .$type so VenueRow.hoursJson is OpenPeriod[]|null (not unknown) and flows cleanly
+    // through the venue queries into isWindowActive.
+    hoursJson: jsonb("hours_json").$type<OpenPeriod[]>(),
     status: venueStatus("status").notNull().default("active"),
     flaggedAt: timestamp("flagged_at", { withTimezone: true }),
     flagReason: text("flag_reason"),

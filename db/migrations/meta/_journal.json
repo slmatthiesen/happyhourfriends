@@ -78,6 +78,13 @@
       "when": 1780197190512,
       "tag": "0010_chubby_pride",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1780254420159,
+      "tag": "0011_mysterious_thunderbolts",
+      "breakpoints": true
     }
   ]
 }
