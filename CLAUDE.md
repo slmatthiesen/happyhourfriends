@@ -7,6 +7,23 @@ with an AI moderation pipeline that verifies user submissions before applying th
 Launch market: Tacoma, WA. **`PRD.md` is the source of truth — read it before building
 (don't skim §3 schema or §4 AI pipeline).** This file is the running state + lessons.
 
+## HH-likelihood pre-filter (2026-05-30, branch `cluster-schema-seed-pipeline`)
+
+Calibration session against Tucson (188 venues / 85 confirmed-HH / 103 stubs) to cut
+non-happy-hour noise. **Shipped (only this):** discovery PRIMARY-type excludes for
+`indian_restaurant`, `bakery`, `cafe`, `coffee_shop`, `cafeteria` — validated ZERO
+confirmed-HH hits. `indian_restaurant` → seed-discover Google-side `EXCLUDED_PRIMARY_TYPES`;
+all five → `EXCLUDED_PRIMARY_TYPE` backstop in `lib/places/chainDenylist.ts`. tsc/eslint
+clean, gate logic unit-checked. **2026-05-30 Phoenix calibration:** added `thai_restaurant`
+to the seed-discover excludes — 0 confirmed-HH across Tucson+Phoenix (n=8). **No stubs
+deleted** (operator: dial in the definition first). Deferred (approved concept, not built): closing-time gate + a **drinks-only**
+atmosphere composite (`servesCocktails/Wine/Beer` — operator excluded `reservable` and
+`servesDinner`), name-keyword include override, resort name-list, `analyze:hh-likelihood`
+report. Key facts: match PRIMARY type only (name "cafe" hits real HH spots); the bulk
+counter-serve noise can't be type-separated; Google `serves*` is unreliable; several
+"stubs" are extractor MISSES (Yard House locator URL, BOCA image/PDF menu). Full detail in
+memory `[[hh-likelihood-prefilter-calibration]]`.
+
 ## Status (as of last session)
 
 - **Phase 0 — COMPLETE.** Scaffold, full schema, migrations **applied to a live
