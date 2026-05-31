@@ -12,6 +12,20 @@ import type { Sql } from "postgres";
 const SNAP_METERS = 100;
 
 /**
+ * Wide "closeness" assignment (stage 2): a venue still unassigned after the tight snap is
+ * given its NEAREST neighborhood up to this radius — but ONLY when that nearest is an
+ * unambiguous winner (no conflict). If a second neighborhood is comparably close, we leave
+ * it NULL rather than guess wrong. This is self-protecting by density: in a sparse fringe a
+ * venue has one obvious nearby neighborhood (assign it); in a dense city it has several
+ * within a mile (ambiguous → stay blank, and it's usually contained anyway). 1 mile is the
+ * operator-stated ceiling for an unambiguous assignment.
+ */
+const WIDE_SNAP_METERS = 1609; // 1 mile
+// "No conflict": the nearest neighborhood is clearly closest — the 2nd-nearest is at least
+// 2x its distance OR at least this many meters farther. Otherwise it's a tie → no assignment.
+const AMBIGUITY_GAP_METERS = 500;
+
+/**
  * Assign venues to a neighborhood by spatial match (PRD §3 — venues.neighborhood_id is
  * derived, not stored by hand). For each venue with coordinates we pick the best
  * neighborhood polygon within SNAP_METERS, ranked:
@@ -64,5 +78,53 @@ export async function assignNeighborhoods(
       AND v.neighborhood_id IS DISTINCT FROM sub.nid
     RETURNING v.id
   `;
-  return rows.length;
+
+  // Stage 2 — unambiguous "closeness" fill for venues the tight snap left NULL. Assign the
+  // nearest neighborhood within WIDE_SNAP_METERS only when it's a clear winner (no second
+  // neighborhood at a comparable distance). Ambiguous venues stay NULL by design.
+  const wide = await sql<{ id: string }[]>`
+    UPDATE venues v
+    SET neighborhood_id = sub.nid,
+        updated_at = now()
+    FROM (
+      SELECT t.vid, t.nid
+      FROM (
+        SELECT vv.id AS vid,
+               (array_agg(d.nid ORDER BY d.dist))[1] AS nid,
+               (array_agg(d.dist ORDER BY d.dist))[1] AS d1,
+               (array_agg(d.dist ORDER BY d.dist))[2] AS d2
+        FROM venues vv
+        JOIN LATERAL (
+          SELECT n.id AS nid,
+                 ST_Distance(
+                   n.polygon::geography,
+                   ST_SetSRID(ST_MakePoint(vv.lng::float8, vv.lat::float8), 4326)::geography
+                 ) AS dist
+          FROM neighborhoods n
+          WHERE n.city_id = vv.city_id
+            AND n.polygon IS NOT NULL
+            AND ST_DWithin(
+                  n.polygon::geography,
+                  ST_SetSRID(ST_MakePoint(vv.lng::float8, vv.lat::float8), 4326)::geography,
+                  ${WIDE_SNAP_METERS}
+                )
+        ) d ON true
+        WHERE vv.lat IS NOT NULL
+          AND vv.lng IS NOT NULL
+          AND vv.deleted_at IS NULL
+          AND vv.neighborhood_id IS NULL
+          ${cityId ? sql`AND vv.city_id = ${cityId}` : sql``}
+        GROUP BY vv.id
+      ) t
+      -- unambiguous: only one neighborhood within range, or the nearest clearly beats the next
+      WHERE t.d2 IS NULL
+         OR t.d2 >= t.d1 * 2
+         OR t.d2 - t.d1 >= ${AMBIGUITY_GAP_METERS}
+    ) sub
+    WHERE v.id = sub.vid
+      AND v.neighborhood_id IS NULL
+    RETURNING v.id
+  `;
+
+  return rows.length + wide.length;
 }
