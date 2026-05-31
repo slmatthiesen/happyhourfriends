@@ -30,6 +30,7 @@
     "prune:empty-venues": "tsx scripts/prune-empty-venues.ts",
     "test:email": "tsx scripts/test-email.ts",
     "test:extract": "tsx scripts/test-extract-allday.ts",
+    "test:active": "tsx scripts/test-timezone-active.ts",
     "sync:to-prod": "bash scripts/sync-data-to-prod.sh"
   },
   "dependencies": {

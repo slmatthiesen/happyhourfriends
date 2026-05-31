@@ -48,6 +48,42 @@ function toMinutes(time: string): number {
   return h * 60 + (m ?? 0);
 }
 
+/**
+ * A single operating-hours period in ISO-weekday terms. openDay/closeDay are 1=Mon..7=Sun.
+ * closeDay/closeMin are null for a venue with no published close (treated as open all that
+ * day — Google's 24h representation).
+ */
+export interface OpenPeriod {
+  openDay: number;
+  openMin: number;
+  closeDay: number | null;
+  closeMin: number | null;
+}
+
+/** Is the venue open at `now` given its operating periods? */
+export function isVenueOpenAt(periods: OpenPeriod[], now: VenueLocalNow): boolean {
+  for (const p of periods) {
+    // No close published → treat as open the whole open day (24h / unknown close).
+    if (p.closeDay === null || p.closeMin === null) {
+      if (now.dayOfWeek === p.openDay) return true;
+      continue;
+    }
+    const sameDay = p.closeDay === p.openDay && p.closeMin > p.openMin;
+    if (sameDay) {
+      if (now.dayOfWeek === p.openDay && now.minutes >= p.openMin && now.minutes < p.closeMin) {
+        return true;
+      }
+      continue;
+    }
+    // Crosses midnight (closes on a later day, or close minutes ≤ open minutes):
+    // open late on the open day, or early on the close day.
+    const lateOnOpenDay = now.dayOfWeek === p.openDay && now.minutes >= p.openMin;
+    const earlyOnCloseDay = now.dayOfWeek === p.closeDay && now.minutes < p.closeMin;
+    if (lateOnOpenDay || earlyOnCloseDay) return true;
+  }
+  return false;
+}
+
 export interface HappyHourWindow {
   daysOfWeek: number[]; // ISO 1..7, the cluster of days this window runs
   allDay: boolean; // true → active any time on listed days (open to close)
@@ -60,27 +96,40 @@ export interface HappyHourWindow {
  * Whether a window is active at `now` (already in venue-local terms). A window runs on
  * every day in `daysOfWeek`. Windows that cross midnight (end < start) are active late
  * on each of their days and early the following day.
+ *
+ * Unbounded windows (allDay or endTime null) are suppressed when `hours` is absent or
+ * empty — we never guess a close time; showing "Now" while the venue is shut is the bug
+ * we avoid. Bounded windows (known start + end) are independent of operating hours.
  */
-export function isWindowActive(w: HappyHourWindow, now: VenueLocalNow): boolean {
-  if (w.allDay) {
-    return w.daysOfWeek.includes(now.dayOfWeek);
+export function isWindowActive(
+  w: HappyHourWindow,
+  now: VenueLocalNow,
+  hours?: OpenPeriod[] | null,
+): boolean {
+  // Unbounded windows — all-day, or "until close" (endTime null) — have no intrinsic end.
+  // We can only assert them active if we know the venue's hours; otherwise SUPPRESS
+  // (never guess a close time — showing "now" while the venue is shut is the bug we fix).
+  const unbounded = w.allDay || w.endTime == null;
+  if (unbounded) {
+    if (!hours || hours.length === 0) return false;
+    if (!isVenueOpenAt(hours, now)) return false;
+    if (w.allDay) return w.daysOfWeek.includes(now.dayOfWeek);
+    // until-close: startTime is non-null (DB CHECK). Active on a listed start day, from
+    // start onward, while the venue is open. (The rare post-midnight tail is intentionally
+    // not extended — under-reporting late-night is acceptable; over-reporting "open" is not.)
+    if (w.startTime === null) return false; // defensive
+    return w.daysOfWeek.includes(now.dayOfWeek) && now.minutes >= toMinutes(w.startTime);
   }
-  // Existing logic — only reached when !allDay, so startTime is guaranteed non-null
-  // by the DB CHECK and the normaliser.
-  if (w.startTime === null) return false; // defensive — should never happen
+
+  // Bounded window (both start and end known) — unchanged, independent of hours.
+  if (w.startTime === null) return false; // defensive
   const start = toMinutes(w.startTime);
-  const end = w.endTime == null ? 24 * 60 : toMinutes(w.endTime);
-  const crosses = w.crossesMidnight ?? (w.endTime != null && end < start);
+  const end = toMinutes(w.endTime as string);
+  const crosses = w.crossesMidnight ?? end < start;
 
   if (!crosses) {
-    return (
-      w.daysOfWeek.includes(now.dayOfWeek) &&
-      now.minutes >= start &&
-      now.minutes < end
-    );
+    return w.daysOfWeek.includes(now.dayOfWeek) && now.minutes >= start && now.minutes < end;
   }
-
-  // Cross-midnight: active late on a start day, or early on the day after a start day.
   const lateOnStartDay = w.daysOfWeek.includes(now.dayOfWeek) && now.minutes >= start;
   const prevDay = now.dayOfWeek === 1 ? 7 : now.dayOfWeek - 1;
   const earlyNextDay = w.daysOfWeek.includes(prevDay) && now.minutes < end;
