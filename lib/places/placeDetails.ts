@@ -9,6 +9,8 @@
  * 2026-05-27 Tacoma run where a 100/day default quota silently turned 80 venues into
  * empty stubs). Requires GOOGLE_PLACES_API_KEY.
  */
+import type { OpenPeriod } from "@/lib/geo/timezone";
+
 const ENDPOINT = "https://places.googleapis.com/v1/places/";
 
 /**
@@ -32,6 +34,46 @@ const PRICE_LEVEL: Record<string, number> = {
   PRICE_LEVEL_VERY_EXPENSIVE: 4,
 };
 
+/** Google regularOpeningHours weekday is 0=Sun..6=Sat; convert to ISO 1=Mon..7=Sun. */
+function googleDayToIso(day: number): number {
+  return day === 0 ? 7 : day;
+}
+
+interface RawOpenPoint {
+  day?: number;
+  hour?: number;
+  minute?: number;
+}
+interface RawRegularOpeningHours {
+  periods?: { open?: RawOpenPoint; close?: RawOpenPoint }[];
+}
+
+/**
+ * Convert Google `regularOpeningHours.periods` into our ISO-weekday OpenPeriod[].
+ * Returns null when there is nothing usable. A period with an `open` but no `close`
+ * (Google's 24h representation) yields closeDay/closeMin = null.
+ */
+export function parseRegularOpeningHours(
+  raw: RawRegularOpeningHours | undefined | null,
+): OpenPeriod[] | null {
+  const periods = raw?.periods;
+  if (!Array.isArray(periods) || periods.length === 0) return null;
+  const out: OpenPeriod[] = [];
+  for (const p of periods) {
+    if (!p.open || typeof p.open.day !== "number") continue;
+    const openDay = googleDayToIso(p.open.day);
+    const openMin = (p.open.hour ?? 0) * 60 + (p.open.minute ?? 0);
+    let closeDay: number | null = null;
+    let closeMin: number | null = null;
+    if (p.close && typeof p.close.day === "number") {
+      closeDay = googleDayToIso(p.close.day);
+      closeMin = (p.close.hour ?? 0) * 60 + (p.close.minute ?? 0);
+    }
+    out.push({ openDay, openMin, closeDay, closeMin });
+  }
+  return out.length > 0 ? out : null;
+}
+
 export interface PlaceDetails {
   websiteUri: string | null;
   phone: string | null;
@@ -42,6 +84,8 @@ export interface PlaceDetails {
   /** Photo resource name (e.g. "places/XXX/photos/YYY") for the Place Photo endpoint. */
   photoName: string | null;
   primaryType: string | null;
+  /** Venue operating hours as ISO-weekday OpenPeriod[], or null when unknown. */
+  openingPeriods: OpenPeriod[] | null;
 }
 
 export async function fetchPlaceDetails(
@@ -55,7 +99,7 @@ export async function fetchPlaceDetails(
         "X-Goog-Api-Key": apiKey,
         "X-Goog-FieldMask":
           "websiteUri,nationalPhoneNumber,priceLevel,primaryType," +
-          "servesBeer,servesWine,servesCocktails,photos",
+          "servesBeer,servesWine,servesCocktails,photos,regularOpeningHours",
       },
       signal: AbortSignal.timeout(10_000),
     });
@@ -100,6 +144,7 @@ export async function fetchPlaceDetails(
       servesWine?: boolean;
       servesCocktails?: boolean;
       photos?: { name?: string }[];
+      regularOpeningHours?: RawRegularOpeningHours;
     };
     return {
       websiteUri: data.websiteUri ?? null,
@@ -110,6 +155,7 @@ export async function fetchPlaceDetails(
       ),
       photoName: data.photos?.[0]?.name ?? null,
       primaryType: data.primaryType ?? null,
+      openingPeriods: parseRegularOpeningHours(data.regularOpeningHours),
     };
   } catch {
     return null;
