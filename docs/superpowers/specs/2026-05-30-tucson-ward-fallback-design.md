@@ -2,7 +2,28 @@
 
 **Date:** 2026-05-30
 **Branch:** `cluster-schema-seed-pipeline`
-**Status:** approved (approach A)
+**Status:** shipped, then **Tucson wards rolled back** (2026-05-30). The generic
+`is_fallback` mechanism (column + ranking + importer `--fallback`) remains in place and
+dormant; only Tucson's 6 ward rows + `data/tucson-wards.geojson` were removed.
+
+> **Rollback note.** The mechanism worked exactly as designed (114→153 assigned, zero
+> regressions). It was reverted for a **product** reason, not a technical one: Tucson's
+> only gap-free official layer is the 6 numbered **council wards**, and "Ward 3" is a
+> political district, not how Tucsonans name where a bar is. The operator's rule: do not
+> fill a venue's neighborhood with a ward — leave it blank unless a real (vernacular)
+> neighborhood is in range. The fallback mechanism is retained because a *different* city
+> may have a gap-free coarse layer with vernacular names (e.g. Phoenix's urban villages),
+> where it would be appropriate. See the "Granularity vs coverage" note below.
+
+## Granularity vs coverage (the real 1000-city variable)
+
+Phoenix "looks good" not because it is more granular than Tucson — it is the opposite.
+Measured: Phoenix = 15 polygons averaging ~86 km² each; Tucson associations = 154 polygons
+averaging ~2 km² each. Phoenix's layer is **coarse** but (1) gap-free and (2) carries
+vernacular names ("Camelback East", "Ahwatukee Foothills", "Maryvale", "Encanto"). Tucson's
+fine associations carry vernacular names but leave gaps; Tucson's gap-free layer (wards) has
+numbered names. So the per-city quality bar is: **a polygon layer that is gap-free AND
+vernacularly named.** Coverage and granularity are separate axes; naming is a third.
 
 ## Problem
 
