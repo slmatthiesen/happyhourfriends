@@ -16,6 +16,7 @@
     "import:neighborhoods": "tsx scripts/import-neighborhoods.ts",
     "import:osm-neighborhoods": "tsx scripts/import-osm-neighborhoods.ts",
     "analyze:neighborhood-coverage": "tsx scripts/analyze-neighborhood-coverage.ts",
+    "scope:venues": "tsx scripts/scope-venues.ts",
     "seed:discover": "tsx scripts/seed-discover-tacoma.ts",
     "seed:enrich": "tsx scripts/seed-enrich-candidates.ts",
     "backfill:neighborhoods": "tsx scripts/backfill-neighborhoods.ts",
