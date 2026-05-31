@@ -496,6 +496,27 @@ async function main() {
         `${placesSkipped} skipped.`,
     );
 
+    // ---- Metro-scope cleanup -----------------------------------------------
+    // Drop UNPROCESSED candidates that fall inside an out-of-scope neighborhood (operator
+    // marked in_scope=false — far residential areas that aren't HH destinations). Only
+    // unprocessed: never touch candidates already enriched into venues. Generic across
+    // cities; a no-op where no neighborhood is out-of-scope. The radius gate can't express
+    // "this metro but not that suburb", so we subtract scope here, after the spatial fetch.
+    const scoped = await sql`
+      DELETE FROM seed_candidates sc
+      USING neighborhoods n
+      WHERE sc.city_id = ${city.id}
+        AND n.city_id = sc.city_id
+        AND n.in_scope = false
+        AND n.polygon IS NOT NULL
+        AND sc.processed_at IS NULL
+        AND sc.lat IS NOT NULL AND sc.lng IS NOT NULL
+        AND ST_Contains(n.polygon, ST_SetSRID(ST_MakePoint(sc.lng::float8, sc.lat::float8), 4326))
+    `;
+    if (scoped.count > 0) {
+      console.log(`Metro-scope: dropped ${scoped.count} candidate(s) in out-of-scope neighborhoods.`);
+    }
+
     // ---- Curated sources (optional) ----------------------------------------
     if (args.curated) {
       console.log("\nFetching curated source pages…");

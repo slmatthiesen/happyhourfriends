@@ -84,6 +84,11 @@ export const neighborhoods = pgTable(
     // neighborhoods. Assignment ranks non-fallback polygons above fallback ones within the
     // snap radius, so a venue only attaches to a fallback when no precise polygon is in range.
     isFallback: boolean("is_fallback").notNull().default(false),
+    // Metro-scope gate. An operator can mark a neighborhood out-of-scope (e.g. far
+    // residential villages that aren't happy-hour destinations) — discovery skips
+    // candidates inside it and listings hide its venues. Default true; flip to false to
+    // drop an area WITHOUT deleting its polygon (reversible, collision-safe re-inclusion).
+    inScope: boolean("in_scope").notNull().default(true),
     ...timestamps,
   },
   (t) => [

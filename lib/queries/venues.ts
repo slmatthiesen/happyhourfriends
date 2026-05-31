@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull, or, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import {
   cities,
@@ -195,6 +195,9 @@ export async function listVenuesForCity(
       and(
         eq(venues.cityId, cityId),
         isNull(venues.deletedAt),
+        // Hide venues in out-of-scope neighborhoods (operator metro-scope gate). Keep
+        // unassigned venues (null neighborhood) and those in in_scope neighborhoods.
+        or(isNull(venues.neighborhoodId), eq(neighborhoods.inScope, true)),
         neighborhoodSlug ? eq(neighborhoods.slug, neighborhoodSlug) : undefined,
       ),
     )
