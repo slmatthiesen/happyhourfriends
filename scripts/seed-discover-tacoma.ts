@@ -147,6 +147,15 @@ const EXCLUDED_PRIMARY_TYPES = [
   "golf_course",
   "gym",
   "hamburger_restaurant",
+  // Operator 2026-05-30 (Tucson calibration): Indian restaurants essentially never run
+  // a happy hour. Validated zero false-positives against the confirmed-HH set. (cafeteria
+  // is also excluded, but only via isExcludedByPlaceType — it is not a valid Google
+  // excludedPrimaryType and would 400 the request.)
+  "indian_restaurant",
+  // Operator 2026-05-30 (Phoenix calibration): thai_restaurant had 0 confirmed-HH
+  // venues across Tucson + Phoenix combined (n=8). Validated zero false-positives
+  // against the confirmed-HH set in both cities before excluding.
+  "thai_restaurant",
 ] as const;
 
 function haversineKm(aLat: number, aLng: number, bLat: number, bLng: number): number {

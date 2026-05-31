@@ -156,7 +156,17 @@ const ALCOHOL_SIGNAL_PRIMARY = new Set<string>([
   "irish_pub",
 ]);
 
-/** Excluded when it is the venue's PRIMARY type. */
+/**
+ * Excluded when it is the venue's PRIMARY type.
+ *
+ * Operator 2026-05-30 (Tucson calibration) added indian_restaurant, bakery, cafe,
+ * coffee_shop, cafeteria. These were validated to hit ZERO of Tucson's 85 confirmed-HH
+ * venues — safe because the match is on PRIMARY type only (not types[] or name): a real
+ * restaurant named "...Cafe" (e.g. Cafe Santa Rosa, Baja Cafe — both confirmed-HH spots)
+ * is typed american_/restaurant, so it is untouched. cafe/coffee_shop/bakery are also
+ * filtered Google-side in seed-discover; they stay here as the authoritative backstop for
+ * curated-import candidates that never went through the Places query.
+ */
 const EXCLUDED_PRIMARY_TYPE = new Set<string>([
   "food_court",
   "food_store",
@@ -164,6 +174,11 @@ const EXCLUDED_PRIMARY_TYPE = new Set<string>([
   "resort_hotel",
   "buffet_restaurant",
   "breakfast_restaurant",
+  "indian_restaurant",
+  "bakery",
+  "cafe",
+  "coffee_shop",
+  "cafeteria",
 ]);
 
 /** Excluded when present ANYWHERE in types[] (format never runs a happy hour). */
