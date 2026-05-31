@@ -79,6 +79,24 @@ in exactly one place.
   4. `restaurant` (final default — safe majority class; never returns `null`)
 
   Pure, synchronous, no I/O. This is the deterministic "base" layer.
+- `VENUE_TYPE_LABELS: Record<VenueType, string>` — human-friendly **display** labels
+  (the stored enum keys are machine values; the UI never shows the raw key or a
+  `_`-replaced key). Final label set:
+
+  | enum key | label | | enum key | label |
+  |---|---|---|---|---|
+  | `restaurant` | Restaurant | | `gastropub` | Gastropub |
+  | `bar` | Bar | | `club` | Club |
+  | `sports_bar` | Sports Bar | | `cafe` | Café |
+  | `pub` | Pub | | `hotel_bar` | Hotel |
+  | `dive_bar` | Dive | | `pizzeria` | Pizzeria |
+  | `wine_bar` | Wine Bar | | `cocktail_lounge` | Cocktails |
+  | `brewery` | Brewery | | `other` | Venue |
+  | `tasting_room` | Taproom | | | |
+
+  `labelForVenueType(type: VenueType | null): string` — returns the label, or `""`
+  for null (so a still-NULL row renders blank, not "Venue"). The map is exhaustive
+  over the enum (a TS `Record<VenueType,…>` makes a missing key a compile error).
 
 ### 2. `scripts/backfill-venue-types.ts` — one-time + repeatable backfill
 
@@ -119,14 +137,47 @@ in exactly one place.
   - Pass the final type into `insertVenueRow`; add `type` to the venue `INSERT`
     column list and to the `ON CONFLICT … DO UPDATE` set so re-enrich keeps it fresh.
 
-### 4. Schema / display
+### 4. User-suggested type edits (moderated, like any other field)
+
+A user must be able to change a venue's type the same way they correct any other
+field — via the existing unified "report a change" flow
+(`components/submit/report-change.tsx`, `targetType:"intent"`), not a new UI. The
+free-text note ("this is actually a pub") is parsed by the interpreter into a concrete
+`update_venue` change, fans out a child `edit_submissions` row, runs the normal
+classify→verify path, and the operator applies it (children never auto-apply).
+
+The apply path already supports it — `type` is in the engine's `VENUE_FIELDS`
+allowlist (`lib/apply/engine.ts`) and Postgres' `venue_type` enum is the hard
+validation backstop (an invalid value is rejected at write). The gaps to close:
+
+- `lib/ai/interpreter.ts`:
+  - Add `type` to the `update_venue` field list in the `record_changes` tool
+    description (currently "name/address/phone/websiteUrl/otherUrl/status").
+  - Include the current `type` in `venueStateJson` so the model can target it and
+    avoid no-op proposals.
+  - Constrain the proposed value to the enum: enumerate the valid `venue_type` values
+    in the tool description / `prompts/interpret-submission.md`, and **validate the
+    `after.type` against the enum before creating the child submission** (drop /
+    coerce to `other` rather than emit an invalid value).
+- No engine change required (allowlist + DB enum already cover it).
+
+This means the *same* `deriveVenueType` seeds the base, the enrich AI refines it, and
+a human can override either through the moderated edit pipeline — one field, three
+consistent write paths.
+
+### 5. Schema / display
 
 - **No migration.** `venues.type` column and the `venue_type` enum already exist and
   already include the finer values (`dive_bar`, `tasting_room`, `hotel_bar`,
   `cocktail_lounge`, `gastropub`, etc.).
-- **No display change.** The grid and venue page already render
-  `v.type.replace(/_/g, " ")` and fall back to `—`/omit when null; once `type` is
-  non-null the dash disappears and the badge/filter/sort start working.
+- **Display now uses labels, not `_`-replacement.** Replace every
+  `v.type.replace(/_/g, " ")` site with `labelForVenueType(v.type)`:
+  - `components/venue-table-client.tsx` — the Type column cells (desktop + mobile
+    cards), the type **filter chips** (chip text = label, value = enum key), and the
+    type-sort comparator (sort by label for intuitive ordering).
+  - `app/[city]/venue/[slug]/page.tsx` — the header type badge.
+  Once `type` is non-null the badge/filter/sort start working; a still-NULL row
+  renders blank (no dash, no "Venue").
 
 ## Data flow
 
@@ -140,8 +191,11 @@ backfill:venue-types                    seed-enrich-candidates
   Phase 2: AI refine (opt-out) ─► upgrade     + confident extractor venueType
                                               ─► venues.type at INSERT
                           │
+              user "report a change" (free text)
+                          │  interpreter → update_venue {type}
+                          │  → child edit_submission → classify/verify → operator apply
                           ▼
-        grid + venue page render type (no dash)
+        grid + venue page render labelForVenueType(type)  (no dash)
 ```
 
 ## Error handling
@@ -157,6 +211,11 @@ backfill:venue-types                    seed-enrich-candidates
 - Table-driven unit test for `deriveVenueType` covering: every observed Google
   `primary_type` → expected enum; `types[]` fallback when `primaryType` is null;
   each name-keyword rule; and the `restaurant` default for no-signal input.
+- Unit assertion that `VENUE_TYPE_LABELS` is exhaustive over the enum and
+  `labelForVenueType(null) === ""`.
+- Interpreter test: a "make this a pub" note maps to an `update_venue` change with
+  `after.type === "pub"`; an unmappable/invalid type is dropped (not emitted as a
+  bad enum value).
 - `--dry-run` distribution check on the live DB before the real write.
 - Gates: `tsc --noEmit`, `eslint`, `next build` all clean.
 
@@ -164,7 +223,9 @@ backfill:venue-types                    seed-enrich-candidates
 
 - No enum changes (existing values suffice).
 - No re-discovery or web-fetch for the existing-venue refine pass (name + types only).
-- No display/markup changes.
+- No new UI for type edits — they ride the existing "report a change" flow.
+- Display change is limited to swapping `_`-replacement for the label map; no new
+  markup, layout, or components.
 - No backfill of `types[]` for the 69 zero-Google-type venues — name keywords + default
   cover them.
 
