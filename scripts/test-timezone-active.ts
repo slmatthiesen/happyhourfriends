@@ -4,6 +4,7 @@
  */
 import assert from "node:assert/strict";
 import {
+  isVenueOpenAt,
   isWindowActive,
   type HappyHourWindow,
   type OpenPeriod,
@@ -57,5 +58,13 @@ check("bounded window active inside, no hours needed", () =>
   assert.equal(isWindowActive(bounded, at(1, "17:00")), true));
 check("bounded window not active outside, no hours needed", () =>
   assert.equal(isWindowActive(bounded, at(1, "19:00")), false));
+
+const crossMidnight: OpenPeriod[] = [{ openDay: 5, openMin: 17 * 60, closeDay: 6, closeMin: 2 * 60 }];
+check("isVenueOpenAt: cross-midnight open late on open day", () =>
+  assert.equal(isVenueOpenAt(crossMidnight, at(5, "23:00")), true));
+check("isVenueOpenAt: cross-midnight open early on close day", () =>
+  assert.equal(isVenueOpenAt(crossMidnight, at(6, "01:00")), true));
+check("isVenueOpenAt: cross-midnight closed after close", () =>
+  assert.equal(isVenueOpenAt(crossMidnight, at(6, "03:00")), false));
 
 console.log(`\n${passed} checks passed.`);
