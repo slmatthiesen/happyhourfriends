@@ -1,8 +1,8 @@
 ---
 prompt: seed-extract-hh
-version: 6
+version: 7
 model: claude-sonnet-4-6
-notes: Pinned via sha256 content hash recorded in ai_usage_ledger.prompt_hash. v6 — explicit allDay assertion for weekday-labeled all-day deals (Red Hot pattern); v5 — recall push (web_search + follow links/PDFs, don't give up early); v4 — consolidate deals; v3 — record_happy_hours tool + daysOfWeek arrays.
+notes: Pinned via sha256 content hash recorded in ai_usage_ledger.prompt_hash. v7 — {{city}} placeholder in the web_search query (was hardcoded "Tacoma", which polluted recall for every non-Tacoma city); v6 — explicit allDay assertion for weekday-labeled all-day deals (Red Hot pattern); v5 — recall push (web_search + follow links/PDFs, don't give up early); v4 — consolidate deals; v3 — record_happy_hours tool + daysOfWeek arrays.
 ---
 
 # System
@@ -45,7 +45,7 @@ HARD RULES — violations produce unusable data and will be discarded:
    or "menu" link. FOLLOW those links — HH is rarely on the homepage itself.
 2. Try common paths on the same domain: `/happy-hour`, `/happyhour`, `/specials`,
    `/menu`, `/menus`, `/drinks`, `/food`. Open linked PDFs (web_fetch reads them).
-3. Run `web_search` for `"{{venue_name}}" Tacoma happy hour` and fetch the most
+3. Run `web_search` for `"{{venue_name}}" {{city}} happy hour` and fetch the most
    promising result — the venue's own page, its Facebook/Instagram, or a recent local
    write-up that quotes specific times. (A first-party or recent source is best.)
 4. If the venue has a `{{other_url}}`, fetch it (Facebook often posts HH times).
