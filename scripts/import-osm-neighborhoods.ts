@@ -24,6 +24,10 @@ import "dotenv/config";
 import { createRequire } from "node:module";
 import postgres from "postgres";
 import { assignNeighborhoods } from "@/lib/geo/assignNeighborhoods";
+import {
+  tierForPlace,
+  recognizabilityScore,
+} from "@/lib/geo/recognizability";
 
 const require = createRequire(import.meta.url);
 // osmtogeojson ships no types; require keeps it `any` and tsc-clean.
@@ -168,13 +172,20 @@ out geom;`;
         continue;
       }
       const geomJson = JSON.stringify(f.geometry);
+      const props = f.properties as Record<string, unknown>;
+      const tier = tierForPlace(props.place as string | undefined);
+      const recognizability = recognizabilityScore({
+        place: props.place as string | undefined,
+        wikidata: props.wikidata as string | undefined,
+        wikipedia: props.wikipedia as string | undefined,
+      });
       try {
         await sql`
-          INSERT INTO neighborhoods (city_id, name, slug, polygon, source, source_url, is_fallback)
+          INSERT INTO neighborhoods (city_id, name, slug, polygon, source, source_url, is_fallback, tier, recognizability)
           VALUES (
             ${city.id}, ${name}, ${slug},
             ST_Multi(ST_CollectionExtract(ST_MakeValid(ST_SetSRID(ST_GeomFromGeoJSON(${geomJson}), 4326)), 3)),
-            'OpenStreetMap (ODbL)', 'https://www.openstreetmap.org/', ${args.fallback}
+            'OpenStreetMap (ODbL)', 'https://www.openstreetmap.org/', ${args.fallback}, ${tier}, ${recognizability}
           )
           ON CONFLICT (city_id, slug) DO NOTHING
         `;
