@@ -29,6 +29,7 @@
     "test:venue-type": "tsx scripts/test-venue-type.ts",
     "backfill:venue-types": "tsx scripts/backfill-venue-types.ts",
     "prune:empty-venues": "tsx scripts/prune-empty-venues.ts",
+    "triage:stubs": "tsx scripts/triage-stub-sites.ts",
     "reverify:all-day": "tsx scripts/reverify-all-day.ts",
     "test:email": "tsx scripts/test-email.ts",
     "test:extract": "tsx scripts/test-extract-allday.ts",
