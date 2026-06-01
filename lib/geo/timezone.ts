@@ -140,6 +140,70 @@ export function isWindowActive(
   return lateOnStartDay || earlyNextDay;
 }
 
+/** Minutes-since-midnight → "HH:MM" (24h, wraps at 1440). */
+function minutesToHHMM(min: number): string {
+  const h = Math.floor(min / 60) % 24;
+  const m = min % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
+/**
+ * Resolve an open-ended window's bounds to real clock times on a given ISO weekday,
+ * using the venue's operating hours. The bounded side passes through unchanged; the
+ * open-ended side becomes the venue's earliest open (start) or latest close (end) that
+ * day. Split lunch/dinner hours collapse to earliest-open .. latest-close. A cross-
+ * midnight close returns its clock value (e.g. 02:00) but ranks later than any same-day
+ * close so it wins the "latest close" pick.
+ *
+ * Returns null — and the caller keeps the existing "close"/"Open to close" text — when:
+ *   - the window is fully bounded (nothing to resolve),
+ *   - hours are absent/empty,
+ *   - no operating period exists for `isoDay`, or
+ *   - the side we need (open or close) is unpublished (Google's 24h representation).
+ * We never invent a time we don't have.
+ */
+export function resolveBoundsForDay(
+  w: HappyHourWindow,
+  hours: OpenPeriod[] | null | undefined,
+  isoDay: number,
+): { startTime: string; endTime: string } | null {
+  const needsOpen = w.allDay || w.startTime == null;
+  const needsClose = w.allDay || w.endTime == null;
+  if (!needsOpen && !needsClose) return null; // bounded — nothing to resolve
+
+  if (!hours || hours.length === 0) return null;
+  const periods = hours.filter((p) => p.openDay === isoDay);
+  if (periods.length === 0) return null;
+
+  let openMin: number | null = null;
+  for (const p of periods) {
+    if (openMin == null || p.openMin < openMin) openMin = p.openMin;
+  }
+
+  // Latest close that day. A cross-midnight close (different close day, or close minute
+  // ≤ open minute) is later than any same-day close, so rank it +24h while keeping the
+  // real clock value to return.
+  let closeMin: number | null = null;
+  let bestRank = -1;
+  for (const p of periods) {
+    if (p.closeMin == null) continue;
+    const crosses = p.closeDay !== p.openDay || p.closeMin <= p.openMin;
+    const rank = crosses ? p.closeMin + 1440 : p.closeMin;
+    if (rank > bestRank) {
+      bestRank = rank;
+      closeMin = p.closeMin;
+    }
+  }
+
+  if (needsOpen && openMin == null) return null;
+  if (needsClose && closeMin == null) return null;
+
+  return {
+    startTime: needsOpen ? minutesToHHMM(openMin as number) : (w.startTime as string),
+    endTime: needsClose ? minutesToHHMM(closeMin as number) : (w.endTime as string),
+  };
+}
+
 /**
  * Minutes remaining until an active window closes, given a venue-local now. Returns
  * null when the window has no defined end (all-day or "until close"), so callers can
