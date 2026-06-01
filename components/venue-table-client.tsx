@@ -6,7 +6,9 @@ import { formatDays, formatPrice, formatWindow } from "@/lib/format";
 import {
   isWindowActive,
   minutesUntilWindowEnd,
+  resolveBoundsForDay,
   venueLocalNow,
+  type VenueLocalNow,
 } from "@/lib/geo/timezone";
 import type { HappyHourRow, VenueListItem } from "@/lib/queries/venues";
 import { labelForVenueType } from "@/lib/places/venueType";
@@ -41,6 +43,30 @@ function windowBounds(v: VenueListItem) {
     start: starts[0] ?? null,
     end: ends.length ? ends[ends.length - 1] : null,
   };
+}
+
+function displayBounds(
+  v: VenueListItem,
+  activeW: HappyHourRow | null,
+  tzNow: VenueLocalNow | null,
+): { allDay: boolean; startTime: string | null; endTime: string | null } {
+  // Feature the live window, else a window that runs today — and resolve its open-ended
+  // side to today's real clock times. A resolved concrete time therefore always means
+  // "today". With nothing today (or unknown hours) fall back to the merged summary.
+  const today = tzNow
+    ? v.happyHours.find((h) => h.daysOfWeek.includes(tzNow.dayOfWeek))
+    : undefined;
+  const w = activeW ?? today ?? null;
+  if (w && tzNow) {
+    const resolved = resolveBoundsForDay(w, v.hoursJson, tzNow.dayOfWeek);
+    if (resolved) {
+      return { allDay: false, startTime: resolved.startTime, endTime: resolved.endTime };
+    }
+    return { allDay: w.allDay, startTime: w.startTime, endTime: w.endTime };
+  }
+  if (w) return { allDay: w.allDay, startTime: w.startTime, endTime: w.endTime };
+  const b = windowBounds(v);
+  return { allDay: b.allDay, startTime: b.start, endTime: b.end };
 }
 
 /**
@@ -225,6 +251,19 @@ export function VenueTableClient({
     [activeWindow],
   );
 
+  // True when a venue has a happy-hour window on today's venue-local weekday — drives
+  // the relevance tier and row muting. Independent of whether it's live right now.
+  const runsToday = useCallback(
+    (v: VenueListItem): boolean => {
+      const tz = v.timezone;
+      if (!tz) return false;
+      const now = nowByTz.get(tz);
+      if (!now) return false;
+      return v.happyHours.some((h) => h.daysOfWeek.includes(now.dayOfWeek));
+    },
+    [nowByTz],
+  );
+
   // City-local clock string ("4:23 PM"). The hh:mm in venueLocalNow is 24-hour;
   // we reformat to a friendly 12-hour string + small tz abbreviation.
   const cityClock = useMemo(() => {
@@ -317,10 +356,13 @@ export function VenueTableClient({
 
       switch (sortKey) {
         case "now": {
-          // Happening-now venues float to the top; ties break on start time.
-          const an = isNowOpen(a) ? 0 : 1;
-          const bn = isNowOpen(b) ? 0 : 1;
-          if (an !== bn) return an - bn;
+          // Relevance tiers: live now → runs today → other days. Ties break on start
+          // time, then name. (Stubs render in their own section, so tier 3 is implicit.)
+          const tier = (x: VenueListItem) =>
+            isNowOpen(x) ? 0 : runsToday(x) ? 1 : 2;
+          const at = tier(a);
+          const bt = tier(b);
+          if (at !== bt) return at - bt;
           const s = (aB.start ?? "99:99").localeCompare(bB.start ?? "99:99");
           return s !== 0 ? s : a.name.localeCompare(b.name);
         }
@@ -368,6 +410,7 @@ export function VenueTableClient({
     selectedTags,
     happeningNow,
     isNowOpen,
+    runsToday,
     sortKey,
   ]);
 
@@ -682,6 +725,8 @@ export function VenueTableClient({
                   const deals = dealsPreview(v);
                   const tier = priceTier(v);
                   const live = isNowOpen(v);
+                  const today = runsToday(v);
+                  const muted = !live && !today;
                   // Promoted styling wins over live styling — they share the warm
                   // left border, and a venue is unlikely to be both anyway.
                   const rowStyle = promoted
@@ -699,13 +744,13 @@ export function VenueTableClient({
                       : undefined;
                   const activeW = live ? activeWindow(v) : null;
                   const tz = v.timezone;
-                  const tzNow = tz ? nowByTz.get(tz) : null;
+                  const tzNow = (tz ? nowByTz.get(tz) : null) ?? null;
                   const endsIn =
                     activeW && tzNow ? minutesUntilWindowEnd(activeW, tzNow) : null;
                   return (
                     <tr
                       key={v.id}
-                      className="border-t border-border hover:bg-row-hover"
+                      className={`border-t border-border hover:bg-row-hover${muted ? " opacity-60" : ""}`}
                       style={rowStyle}
                     >
                       <td className="px-4 py-3">
@@ -746,7 +791,7 @@ export function VenueTableClient({
                       )}
                       <td className="px-4 py-3">{b.days}</td>
                       <td className="px-4 py-3 text-accent-warm" colSpan={2}>
-                        {formatWindow({ allDay: b.allDay, startTime: b.start, endTime: b.end })}
+                        {formatWindow(displayBounds(v, activeW, tzNow))}
                       </td>
                       <td className="px-4 py-3 text-text-muted">
                         {deals.text ? (
@@ -787,6 +832,8 @@ export function VenueTableClient({
               const deals = dealsPreview(v);
               const tier = priceTier(v);
               const live = isNowOpen(v);
+              const today = runsToday(v);
+              const muted = !live && !today;
               const cardStyle = promoted
                 ? {
                     backgroundColor: "var(--row-promoted)",
@@ -802,13 +849,13 @@ export function VenueTableClient({
                   : undefined;
               const activeW = live ? activeWindow(v) : null;
               const tz = v.timezone;
-              const tzNow = tz ? nowByTz.get(tz) : null;
+              const tzNow = (tz ? nowByTz.get(tz) : null) ?? null;
               const endsIn =
                 activeW && tzNow ? minutesUntilWindowEnd(activeW, tzNow) : null;
               return (
                 <div
                   key={v.id}
-                  className="rounded-lg border border-border bg-bg-surface px-4 py-3"
+                  className={`rounded-lg border border-border bg-bg-surface px-4 py-3${muted ? " opacity-60" : ""}`}
                   style={cardStyle}
                 >
                   <div className="flex items-baseline justify-between gap-2">
@@ -836,7 +883,7 @@ export function VenueTableClient({
                   <p className="mt-1 text-sm text-text-primary">{b.days}</p>
                   <p className="mt-0.5 text-sm tabular-nums">
                     <span className="text-accent-warm">
-                      {formatWindow({ allDay: b.allDay, startTime: b.start, endTime: b.end })}
+                      {formatWindow(displayBounds(v, activeW, tzNow))}
                     </span>
                     {live && activeW?.allDay ? (
                       <span
