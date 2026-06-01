@@ -26,6 +26,8 @@ export interface PrepContext {
   primaryType: string | null;
   types: string[] | null;
   hoursJson: OpenPeriod[] | null;
+  /** Venue's own HH/menu pages found by site triage — fetched first by the extractor. */
+  priorityUrls?: string[];
 }
 
 export interface BatchState {

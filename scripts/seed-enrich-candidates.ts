@@ -653,6 +653,8 @@ interface ReportTally {
   alreadyDone: number;
   batchCostCents: number;
   fallbackCostCents: number;
+  killed: number;
+  killEntries: KillEntry[];
   noData: NoDataEntry[];
 }
 
@@ -674,6 +676,8 @@ async function runBatch(
     alreadyDone: 0,
     batchCostCents: 0,
     fallbackCostCents: 0,
+    killed: 0,
+    killEntries: [],
     noData: [],
   };
 
@@ -792,9 +796,16 @@ async function runBatch(
       tally.fallbackCount++;
       console.log(`  fallback: ${ctx.name}…`);
       try {
-        const extracted = ctx.siteUrl
-          ? await extractHappyHours({ venueName: ctx.name, websiteUrl: ctx.siteUrl, otherUrl: null, cityName: city.name })
-          : null;
+        // Everything in `contexts` was an "extract" action (kills/stubs never get here),
+        // so always run the extractor — a null siteUrl means a no-site go-for-it that
+        // relies on web_search. Pass the triage-found HH/menu links to fetch first.
+        const extracted = await extractHappyHours({
+          venueName: ctx.name,
+          websiteUrl: ctx.siteUrl,
+          otherUrl: null,
+          cityName: city.name,
+          priorityUrls: ctx.priorityUrls,
+        });
         if (extracted) {
           await writeLedger(sql, city.id, month, extracted);
           tally.fallbackCostCents += extracted.costCents;
@@ -886,6 +897,28 @@ async function prepAndSubmit(
       continue;
     }
 
+    // ---- Site triage (non-AI gate) — kill dead/parked/no-site before batching --
+    const verdict = await triageSite({
+      websiteUri: details?.websiteUri ?? null,
+      name: c.name,
+      cityName: city.name,
+    });
+    const likelihood = hhLikelihood({ primaryType: c.primary_type, types: c.types, name: c.name });
+    const decided = resolveEnrichAction(verdict, likelihood);
+
+    if (decided.action === "kill") {
+      await markProcessed(sql, c.id, "killed_no_site", null);
+      tally.killed++;
+      tally.killEntries.push({
+        name: c.name,
+        neighborhood: null,
+        reason: killReasonOf(verdict.reason),
+        urlTried: verdict.url,
+        likelihood,
+      });
+      continue;
+    }
+
     const ctx: PrepContext = {
       candidateId: c.id,
       name: c.name,
@@ -893,6 +926,7 @@ async function prepAndSubmit(
       lat: c.lat,
       lng: c.lng,
       googlePlaceId: c.google_place_id,
+      // Keep whatever URL Google had (incl. a Facebook link) on the stub venue.
       siteUrl: details?.websiteUri ?? null,
       phone: details?.phone ?? null,
       priceLevel: details?.priceLevel ?? null,
@@ -900,10 +934,13 @@ async function prepAndSubmit(
       photoName: details?.photoName ?? null,
       primaryType: c.primary_type ?? null,
       types: c.types ?? null,
+      priorityUrls: decided.priorityUrls,
     };
 
-    // No website → no AI possible; write the stub now and mark processed.
-    if (!ctx.siteUrl) {
+    // social_only → write a stub now, no AI (the FB/IG URL stays on the venue via
+    // ctx.siteUrl). A no-site go-for-it (action extract, ctx.siteUrl null) falls
+    // through to the batch so web_search can find the site.
+    if (decided.action === "stub") {
       const persisted = await persistExtraction(sql, {
         cityId: city.id,
         placesKey,
@@ -916,7 +953,13 @@ async function prepAndSubmit(
       continue;
     }
 
-    const built = buildExtractRequest({ venueName: ctx.name, websiteUrl: ctx.siteUrl, otherUrl: null, cityName: city.name });
+    const built = buildExtractRequest({
+      venueName: ctx.name,
+      websiteUrl: verdict.kind === "real" ? verdict.url : null,
+      otherUrl: null,
+      cityName: city.name,
+      priorityUrls: decided.priorityUrls,
+    });
     requests.push({ custom_id: c.id, params: built.params });
     contexts[c.id] = ctx;
   }
@@ -944,10 +987,17 @@ async function finalize(sql: Sql, city: CityRow, tally: ReportTally): Promise<vo
   console.log("\nNot processed via batch:");
   console.log(`  filtered:               ${tally.filtered}`);
   console.log(`  skipped (existing):     ${tally.skipped}`);
+  console.log(`  killed (no valid site): ${tally.killed}`);
   if (tally.alreadyDone > 0) {
     console.log(`  already collected (resume): ${tally.alreadyDone}`);
   }
   console.log(`  errored:                ${tally.errored}`);
+
+  if (tally.killEntries.length > 0) {
+    const path = `docs/${city.slug}-killed-venues.md`;
+    await writeFile(path, renderKillReport(city.name, tally.killEntries), "utf8");
+    console.log(`\nKilled venue audit → ${path}`);
+  }
   console.log(
     `\nCost:  batch ${usd(tally.batchCostCents)}  ·  on-demand fallback ${usd(tally.fallbackCostCents)}  ·  total ${usd(tally.batchCostCents + tally.fallbackCostCents)}`,
   );
