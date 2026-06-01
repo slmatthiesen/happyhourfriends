@@ -30,6 +30,9 @@
 # seed-enrichment batch state (resumable batch runs)
 /.enrich-batch
 
+# generated per-run site-triage kill audit (operator reviews locally; not source)
+/docs/*-killed-venues.md
+
 # debug
 npm-debug.log*
 yarn-debug.log*
@@ -67,4 +70,4 @@ Desktop.ini
 /data/**/*.json
 /data/*.csv
 
-STEVEN_GITHUB.md
+STEVEN_GITHUB.md1
