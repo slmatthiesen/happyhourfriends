@@ -148,12 +148,16 @@ export function VenueTableClient({
   const [sortKey, setSortKey] = useState<SortKey>("now");
   const [selectedTypes, setSelectedTypes] = useState<Set<string>>(new Set());
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
+  // Stubs are folded into an opt-in disclosure (collapsed by default).
+  const [showStubs, setShowStubs] = useState(false);
 
-  // Derived neighborhoods list
+  // Derived neighborhoods list. Only surface a neighborhood as a filter chip if at
+  // least one of its venues has actual happy-hour data — neighborhoods that are
+  // entirely stubs add noise without giving the filter anything useful to narrow to.
   const neighborhoods = useMemo(() => {
     const names = new Set<string>();
     for (const v of venues) {
-      if (v.neighborhoodName) names.add(v.neighborhoodName);
+      if (v.neighborhoodName && v.happyHours.length > 0) names.add(v.neighborhoodName);
     }
     return [...names].sort();
   }, [venues]);
@@ -250,10 +254,15 @@ export function VenueTableClient({
     [venues, isNowOpen],
   );
 
-  // Filter + sort
-  const { filtered, total } = useMemo(() => {
-    const total = venues.length;
+  // City-wide count of venues that have happy-hour data — the denominator for the
+  // filter-bar count, unaffected by the active filter.
+  const totalWithHours = useMemo(
+    () => venues.filter((v) => v.happyHours.length > 0).length,
+    [venues],
+  );
 
+  // Filter + sort
+  const { filtered } = useMemo(() => {
     let list = venues.filter((v) => {
       // Text search — match name OR a deal label.
       if (search) {
@@ -349,7 +358,7 @@ export function VenueTableClient({
       }
     });
 
-    return { filtered: list, total };
+    return { filtered: list };
   }, [
     venues,
     search,
@@ -421,11 +430,6 @@ export function VenueTableClient({
 
   const withHours = filtered.filter((v) => v.happyHours.length > 0);
   const stubs = filtered.filter((v) => v.happyHours.length === 0);
-
-  // Columns: Venue, Now, Type, [Neighborhood], Days, Start, End, Deals, Price.
-  const colCount = 8 + (showNeighborhood ? 1 : 0);
-  // Leading cells a stub row renders before its "help us add it" span: Venue, Now, Type, [Nb].
-  const stubLeadingCols = 3 + (showNeighborhood ? 1 : 0);
 
   if (venues.length === 0) {
     return (
@@ -608,12 +612,15 @@ export function VenueTableClient({
             two numbers always read consistently with the city/home headers. */}
         <div className="mt-2 flex items-center justify-between text-xs text-text-muted">
           <span>
-            Showing {filtered.length} of {total} venue{total !== 1 ? "s" : ""}
-            {filtered.length > 0 && (
+            {hasActiveFilters ? (
               <>
-                {" — "}
-                {withHours.length} with data
-                {stubs.length > 0 && <> · {stubs.length} stub{stubs.length === 1 ? "" : "s"}</>}
+                Showing {withHours.length} of {totalWithHours} happy hour{" "}
+                {totalWithHours === 1 ? "spot" : "spots"}
+              </>
+            ) : (
+              <>
+                {withHours.length} happy hour{" "}
+                {withHours.length === 1 ? "spot" : "spots"}
               </>
             )}
           </span>
@@ -629,16 +636,23 @@ export function VenueTableClient({
         </div>
       </div>
 
-      {filtered.length === 0 ? (
-        <div className="mt-8 rounded-lg border border-border bg-bg-surface p-10 text-center">
-          <p className="text-text-primary">No venues match your filters.</p>
-          <button
-            onClick={clearFilters}
-            className="mt-3 text-sm text-accent-cool hover:underline"
-          >
-            Clear filters
-          </button>
-        </div>
+      {withHours.length === 0 ? (
+        hasActiveFilters ? (
+          <div className="mt-8 rounded-lg border border-border bg-bg-surface p-10 text-center">
+            <p className="text-text-primary">No happy hours match your filters.</p>
+            <button
+              onClick={clearFilters}
+              className="mt-3 text-sm text-accent-cool hover:underline"
+            >
+              Clear filters
+            </button>
+          </div>
+        ) : (
+          <div className="mt-8 rounded-lg border border-border bg-bg-surface p-10 text-center">
+            <p className="text-text-primary">No happy hours confirmed here yet.</p>
+            <p className="mt-2 text-text-muted">Know one? Help us add the first.</p>
+          </div>
+        )
       ) : (
         <>
           {/* Desktop table */}
@@ -761,39 +775,6 @@ export function VenueTableClient({
                     </tr>
                   );
                 })}
-                {stubs.map((v) => (
-                  <tr
-                    key={v.id}
-                    className="border-t border-border text-text-muted hover:bg-row-hover"
-                  >
-                    <td className="px-4 py-3">
-                      <Link
-                        href={`/${citySlug}/venue/${v.slug}`}
-                        className="hover:text-accent-cool"
-                      >
-                        {v.name}
-                      </Link>
-                    </td>
-                    <td className="px-4 py-3">—</td>
-                    <td className="px-4 py-3">
-                      {labelForVenueType(v.type) || "—"}
-                    </td>
-                    {showNeighborhood && (
-                      <td className="px-4 py-3">{v.neighborhoodName ?? "—"}</td>
-                    )}
-                    <td
-                      className="px-4 py-3"
-                      colSpan={colCount - stubLeadingCols}
-                    >
-                      <Link
-                        href={`/${citySlug}/venue/${v.slug}#add-happy-hour`}
-                        className="text-accent-cool hover:underline"
-                      >
-                        Does this place have a happy hour? Help us add it →
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
               </tbody>
             </table>
           </div>
@@ -888,34 +869,67 @@ export function VenueTableClient({
                 </div>
               );
             })}
-            {stubs.map((v) => (
-              <div
-                key={v.id}
-                className="rounded-lg border border-border bg-bg-surface px-4 py-3 text-text-muted"
-              >
-                <Link
-                  href={`/${citySlug}/venue/${v.slug}`}
-                  className="font-medium hover:text-accent-cool"
-                >
-                  {v.name}
-                </Link>
-                {(labelForVenueType(v.type) || (showNeighborhood && v.neighborhoodName)) && (
-                  <p className="mt-0.5 text-xs">
-                    {[labelForVenueType(v.type) || null, showNeighborhood ? v.neighborhoodName : null]
-                      .filter(Boolean)
-                      .join(" · ")}
-                  </p>
-                )}
-                <Link
-                  href={`/${citySlug}/venue/${v.slug}#add-happy-hour`}
-                  className="mt-1 block text-sm text-accent-cool hover:underline"
-                >
-                  Does this place have a happy hour? Help us add it →
-                </Link>
-              </div>
-            ))}
           </div>
         </>
+      )}
+
+      {/* Stubs — folded into an opt-in disclosure so the default view is all signal.
+          Honest, not hidden: clearly labeled, one click away, reframed as crowdsourcing. */}
+      {stubs.length > 0 && (
+        <div className="mt-4">
+          <button
+            onClick={() => setShowStubs((s) => !s)}
+            aria-expanded={showStubs}
+            className="flex w-full items-center justify-between gap-2 rounded-lg border border-border bg-bg-surface px-4 py-3 text-left text-sm text-text-muted transition-colors hover:border-accent-cool hover:text-text-primary"
+          >
+            <span>
+              <span aria-hidden="true" className="mr-1.5 font-medium">
+                {showStubs ? "−" : "＋"}
+              </span>
+              {stubs.length} more {stubs.length === 1 ? "spot" : "spots"} we&apos;re
+              still confirming — know {stubs.length === 1 ? "it" : "one"}? Help us add it
+            </span>
+            <span aria-hidden="true" className="shrink-0 text-xs uppercase tracking-wide">
+              {showStubs ? "Hide" : "Show"}
+            </span>
+          </button>
+          {showStubs && (
+            <ul className="mt-2 divide-y divide-border overflow-hidden rounded-lg border border-border">
+              {stubs.map((v) => (
+                <li
+                  key={v.id}
+                  className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 px-4 py-3 text-sm"
+                >
+                  <span>
+                    <Link
+                      href={`/${citySlug}/venue/${v.slug}`}
+                      className="text-text-primary hover:text-accent-cool"
+                    >
+                      {v.name}
+                    </Link>
+                    {(labelForVenueType(v.type) ||
+                      (showNeighborhood && v.neighborhoodName)) && (
+                      <span className="ml-2 text-xs text-text-muted">
+                        {[
+                          labelForVenueType(v.type) || null,
+                          showNeighborhood ? v.neighborhoodName : null,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </span>
+                    )}
+                  </span>
+                  <Link
+                    href={`/${citySlug}/venue/${v.slug}#add-happy-hour`}
+                    className="shrink-0 text-accent-cool hover:underline"
+                  >
+                    Help us add it →
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       )}
     </div>
   );
