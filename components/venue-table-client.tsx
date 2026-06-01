@@ -609,15 +609,13 @@ export function VenueTableClient({
 
         {/* Row 2: day pills */}
         <div className="mt-2 flex flex-wrap items-center gap-1.5">
-          <span className="text-xs text-text-muted">Day:</span>
+          <span className="text-xs font-semibold" style={{ color: "var(--filter-day)" }}>
+            Day:
+          </span>
           <button
             onClick={toggleToday}
             aria-pressed={selectedDays.has(todayISO)}
-            className={`rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors ${
-              selectedDays.has(todayISO)
-                ? "border-accent-cool bg-accent-cool text-white"
-                : "border-border bg-bg-elevated text-text-muted hover:border-accent-cool hover:text-text-primary"
-            }`}
+            className="pill pill-day rounded-full border px-2.5 py-0.5 text-xs font-medium"
           >
             Today
           </button>
@@ -626,11 +624,7 @@ export function VenueTableClient({
               key={day}
               onClick={() => toggleDay(day)}
               aria-pressed={selectedDays.has(day)}
-              className={`rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors ${
-                selectedDays.has(day)
-                  ? "border-accent-cool bg-accent-cool text-white"
-                  : "border-border bg-bg-elevated text-text-muted hover:border-accent-cool hover:text-text-primary"
-              }`}
+              className="pill pill-day rounded-full border px-2.5 py-0.5 text-xs font-medium"
             >
               {DAY_LABELS[day]}
             </button>
@@ -638,16 +632,12 @@ export function VenueTableClient({
           <button
             onClick={() => setHappeningNow((v) => !v)}
             aria-pressed={happeningNow}
-            className={`ml-2 rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors ${
-              happeningNow
-                ? "border-accent-warm bg-accent-warm text-white"
-                : "border-border bg-bg-elevated text-text-muted hover:border-accent-warm hover:text-text-primary"
-            }`}
+            className="pill pill-live ml-2 rounded-full border px-2.5 py-0.5 text-xs font-medium"
           >
             Happening now
           </button>
           {geo.status === "granted" ? (
-            <span className="ml-2 inline-flex items-center gap-1 rounded-full border border-accent-cool bg-accent-cool px-2.5 py-0.5 text-xs font-medium text-white">
+            <span className="pill pill-live pill-on ml-2 inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium">
               <span aria-hidden="true">📍</span> Near you
               <button
                 onClick={clearLocation}
@@ -661,7 +651,7 @@ export function VenueTableClient({
             <button
               onClick={() => geo.request(() => setSortKey("distance"))}
               disabled={geo.status === "prompting"}
-              className="ml-2 rounded-full border border-border bg-bg-elevated px-2.5 py-0.5 text-xs font-medium text-text-muted transition-colors hover:border-accent-cool hover:text-text-primary disabled:opacity-60"
+              className="pill pill-live ml-2 rounded-full border px-2.5 py-0.5 text-xs font-medium disabled:opacity-60"
             >
               {geo.status === "prompting" ? "Locating…" : "📍 Use my location"}
             </button>
@@ -676,17 +666,15 @@ export function VenueTableClient({
         {/* Row 3: neighborhood chips (only if showNeighborhood and there are neighborhoods) */}
         {showNeighborhood && neighborhoods.length > 0 && (
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
-            <span className="text-xs text-text-muted">Area:</span>
+            <span className="text-xs font-semibold" style={{ color: "var(--filter-area)" }}>
+              Area:
+            </span>
             {neighborhoods.map((name) => (
               <button
                 key={name}
                 onClick={() => toggleNeighborhood(name)}
                 aria-pressed={selectedNeighborhoods.has(name)}
-                className={`rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors ${
-                  selectedNeighborhoods.has(name)
-                    ? "border-accent-cool bg-accent-cool text-white"
-                    : "border-border bg-bg-elevated text-text-muted hover:border-accent-cool hover:text-text-primary"
-                }`}
+                className="pill pill-area rounded-full border px-2.5 py-0.5 text-xs font-medium"
               >
                 {name}
               </button>
@@ -697,17 +685,15 @@ export function VenueTableClient({
         {/* Row 4: type chips */}
         {types.length > 0 && (
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
-            <span className="text-xs text-text-muted">Type:</span>
+            <span className="text-xs font-semibold" style={{ color: "var(--filter-type)" }}>
+              Type:
+            </span>
             {types.map((t) => (
               <button
                 key={t}
                 onClick={() => toggleIn(setSelectedTypes, t)}
                 aria-pressed={selectedTypes.has(t)}
-                className={`rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors ${
-                  selectedTypes.has(t)
-                    ? "border-accent-cool bg-accent-cool text-white"
-                    : "border-border bg-bg-elevated text-text-muted hover:border-accent-cool hover:text-text-primary"
-                }`}
+                className="pill pill-type rounded-full border px-2.5 py-0.5 text-xs font-medium"
               >
                 {labelForVenueType(t)}
               </button>
@@ -718,17 +704,15 @@ export function VenueTableClient({
         {/* Row 5: tag chips */}
         {tagList.length > 0 && (
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
-            <span className="text-xs text-text-muted">Tags:</span>
+            <span className="text-xs font-semibold" style={{ color: "var(--filter-tag)" }}>
+              Tags:
+            </span>
             {tagList.map((t) => (
               <button
                 key={t}
                 onClick={() => toggleIn(setSelectedTags, t)}
                 aria-pressed={selectedTags.has(t)}
-                className={`rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors ${
-                  selectedTags.has(t)
-                    ? "border-accent-cool bg-accent-cool text-white"
-                    : "border-border bg-bg-elevated text-text-muted hover:border-accent-cool hover:text-text-primary"
-                }`}
+                className="pill pill-tag rounded-full border px-2.5 py-0.5 text-xs font-medium"
               >
                 {t}
               </button>
