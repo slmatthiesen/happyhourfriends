@@ -60,7 +60,8 @@ export function formatTime(t: string | null): string {
 /**
  * Render an HH window for display. All-day windows always render as "Open to close" —
  * never as a time-prefixed string. Time-windowed rows reuse {@link formatTime} for
- * each side and join with an en-dash; a null endTime becomes "close".
+ * each side and join with an en-dash; a null endTime becomes "close". An "open until X"
+ * window (null start, known end — starts at the venue's open time) renders "Until <end>".
  */
 export function formatWindow(window: {
   allDay: boolean;
@@ -68,8 +69,10 @@ export function formatWindow(window: {
   endTime: string | null;
 }): string {
   if (window.allDay) return "Open to close";
-  // CHECK constraint guarantees startTime is non-null here; defensive fallback for type narrowing.
-  if (window.startTime === null) return "Open to close";
+  if (window.startTime === null) {
+    // "open until X": only the end is published; the start is the venue's open time.
+    return window.endTime ? `Until ${formatTime(window.endTime)}` : "Open to close";
+  }
   return `${formatTime(window.startTime)} – ${formatTime(window.endTime)}`;
 }
 
