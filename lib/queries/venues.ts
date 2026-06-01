@@ -1,4 +1,5 @@
 import { and, asc, eq, inArray, isNull, or, sql } from "drizzle-orm";
+import { unstable_cache } from "next/cache";
 import { db } from "@/db/client";
 import {
   cities,
@@ -60,8 +61,15 @@ export interface CityListItem {
  * All cities for the landing-page picker, with a live count of venues that have
  * happy hours so the list reflects which cities actually have data. Two small
  * round trips; the count is grouped in SQL.
+ *
+ * Wrapped in `unstable_cache` (see `listCities` below): the landing page is
+ * `force-dynamic` (it can't prerender at build without a reachable DB), so without
+ * this the grouped aggregate would run on *every* visit. These counts change only a
+ * handful of times a day (seed/enrich/admin apply), so we cache the result in Next's
+ * shared server-side data cache for a day and serve it to every visitor. Tagged
+ * `cities-summary` so it can be invalidated on demand via `revalidateTag` later.
  */
-export async function listCities(): Promise<CityListItem[]> {
+async function listCitiesUncached(): Promise<CityListItem[]> {
   const rows = await db
     .select({
       id: cities.id,
@@ -119,6 +127,17 @@ export async function listCities(): Promise<CityListItem[]> {
     };
   });
 }
+
+/**
+ * Cached entry point used by the landing page. The result is shared across all
+ * visitors and refreshed at most once a day (or on demand via
+ * `revalidateTag("cities-summary")`). `listCities` takes no arguments, so a static
+ * key part is enough.
+ */
+export const listCities = unstable_cache(listCitiesUncached, ["cities-summary"], {
+  tags: ["cities-summary"],
+  revalidate: 86_400, // 1 day
+});
 
 /**
  * A neighborhood is only surfaced once it has at least this many venues — a lone

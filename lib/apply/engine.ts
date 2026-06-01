@@ -5,9 +5,14 @@ import {
   cities,
   editSubmissions,
   happyHours,
+  neighborhoods,
   offerings,
   venues,
 } from "@/db/schema";
+import {
+  requestVenueRevalidation,
+  type VenueRevalidationTarget,
+} from "@/lib/cache/revalidate";
 import type { Actor, SubmissionDiff } from "./types";
 
 /**
@@ -174,6 +179,71 @@ function normaliseDaysOfWeek(after: Record<string, unknown>): Record<string, unk
 }
 
 /**
+ * Map a written row (any of the three audited tables) back to the venue whose public
+ * pages need their cache refreshed. Runs after the write transaction has committed.
+ */
+async function resolveVenueRevalidationTarget(
+  tableName: string,
+  rowId: string,
+): Promise<VenueRevalidationTarget | null> {
+  let venueId: string | null = null;
+  if (tableName === "venues") {
+    venueId = rowId;
+  } else if (tableName === "happy_hours") {
+    const [hh] = await db
+      .select({ venueId: happyHours.venueId })
+      .from(happyHours)
+      .where(eq(happyHours.id, rowId))
+      .limit(1);
+    venueId = hh?.venueId ?? null;
+  } else if (tableName === "offerings") {
+    const [row] = await db
+      .select({ venueId: happyHours.venueId })
+      .from(offerings)
+      .innerJoin(happyHours, eq(offerings.happyHourId, happyHours.id))
+      .where(eq(offerings.id, rowId))
+      .limit(1);
+    venueId = row?.venueId ?? null;
+  }
+  if (!venueId) return null;
+
+  // No deletedAt filter: a revert can soft-delete a venue, and we still want to refresh
+  // its (now-removed) page and the city listing.
+  const [v] = await db
+    .select({
+      venueSlug: venues.slug,
+      citySlug: cities.slug,
+      neighborhoodSlug: neighborhoods.slug,
+    })
+    .from(venues)
+    .innerJoin(cities, eq(venues.cityId, cities.id))
+    .leftJoin(neighborhoods, eq(venues.neighborhoodId, neighborhoods.id))
+    .where(eq(venues.id, venueId))
+    .limit(1);
+  if (!v) return null;
+
+  return {
+    citySlug: v.citySlug,
+    venueSlug: v.venueSlug,
+    neighborhoodSlug: v.neighborhoodSlug,
+    // Venue and happy-hour writes can flip a venue between "has hours" and "stub", which
+    // moves the landing-page counts; offering-only changes never do.
+    countsChanged: tableName === "venues" || tableName === "happy_hours",
+  };
+}
+
+/** Best-effort cache refresh for the public pages touched by a committed write. Never
+ *  throws — a revalidation hiccup must not fail or roll back the write that succeeded. */
+async function revalidateAfterWrite(tableName: string, rowId: string): Promise<void> {
+  try {
+    const target = await resolveVenueRevalidationTarget(tableName, rowId);
+    if (target) await requestVenueRevalidation(target);
+  } catch (err) {
+    console.warn("[engine] revalidate-after-write failed", err);
+  }
+}
+
+/**
  * Apply a pending submission. `overrideAfter` lets an admin edit-then-apply: the
  * supplied object replaces the submission's `after` (a record of the override is
  * kept in the audit reason).
@@ -183,7 +253,7 @@ export async function applySubmission(
   ctx: ApplyContext,
   overrideAfter?: Record<string, unknown>,
 ): Promise<ApplyResult> {
-  return db.transaction(async (tx) => {
+  const result = await db.transaction(async (tx) => {
     const [sub] = await tx
       .select()
       .from(editSubmissions)
@@ -378,6 +448,9 @@ export async function applySubmission(
 
     return { submissionId, status, tableName, rowId, auditId: audit.id };
   });
+
+  await revalidateAfterWrite(result.tableName, result.rowId);
+  return result;
 }
 
 /** Reject a pending submission without touching live data. */
@@ -417,7 +490,7 @@ export async function revertAudit(
   auditId: string,
   ctx: ApplyContext,
 ): Promise<RevertResult> {
-  return db.transaction(async (tx) => {
+  const { result, tableName, rowId } = await db.transaction(async (tx) => {
     const [entry] = await tx
       .select()
       .from(auditLog)
@@ -469,6 +542,13 @@ export async function revertAudit(
         ),
       );
 
-    return { auditId, revertAuditId: revertAudit.id, action };
+    return {
+      result: { auditId, revertAuditId: revertAudit.id, action },
+      tableName,
+      rowId,
+    };
   });
+
+  await revalidateAfterWrite(tableName, rowId);
+  return result;
 }
