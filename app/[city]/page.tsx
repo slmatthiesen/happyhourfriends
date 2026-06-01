@@ -3,11 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteWordmark } from "@/components/site-wordmark";
 import { VenueTableClient } from "@/components/venue-table-client";
-import {
-  getCityBySlug,
-  listNeighborhoods,
-  listVenuesForCity,
-} from "@/lib/queries/venues";
+import { getCityBySlug, listVenuesForCity } from "@/lib/queries/venues";
 
 export async function generateMetadata({
   params,
@@ -32,12 +28,8 @@ export default async function CityPage({
   const city = await getCityBySlug(citySlug);
   if (!city) notFound();
 
-  const [venues, hoods] = await Promise.all([
-    listVenuesForCity(city.id),
-    listNeighborhoods(city.id),
-  ]);
+  const venues = await listVenuesForCity(city.id);
   const withHours = venues.filter((v) => v.happyHours.length > 0).length;
-  const stubs = venues.length - withHours;
 
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-12">
@@ -50,37 +42,16 @@ export default async function CityPage({
           {city.name} happy hours
         </h1>
         <p className="mt-2 text-text-muted">
-          {withHours > 0 || stubs > 0 ? (
+          {withHours > 0 ? (
             <>
               <span className="text-text-primary">{withHours}</span>{" "}
-              {withHours === 1 ? "venue" : "venues"} with happy hours
-              {stubs > 0 && (
-                <>
-                  {" · "}
-                  <span className="text-text-primary">{stubs}</span>{" "}
-                  stub{stubs === 1 ? "" : "s"} needing help
-                </>
-              )}
+              happy hour {withHours === 1 ? "spot" : "spots"} in {city.name}
             </>
           ) : (
             "We're still gathering happy hours here — help us fill it in."
           )}
         </p>
       </header>
-
-      {hoods.length > 0 && (
-        <nav className="mt-6 flex flex-wrap gap-2" aria-label="Neighborhoods">
-          {hoods.map((n) => (
-            <Link
-              key={n.id}
-              href={`/${city.slug}/${n.slug}`}
-              className="rounded-full border border-border px-3 py-1 text-sm text-text-muted transition-colors hover:bg-row-hover hover:text-text-primary"
-            >
-              {n.name}
-            </Link>
-          ))}
-        </nav>
-      )}
 
       {/* How-it-works nudge: the photo loop is the social engine — the more people
           snap menus when they spot drift, the better the listings get for everyone. */}
