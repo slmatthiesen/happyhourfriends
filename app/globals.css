@@ -124,19 +124,38 @@
   --color-row-hover: var(--row-hover);
   --color-row-promoted: var(--row-promoted);
 
-  --font-serif: var(--font-fraunces); /* display / headings */
+  --font-body: var(--font-jakarta); /* body / UI — Jakarta is the default */
+  --font-serif: var(--font-jakarta); /* display / headings — default to Jakarta too */
   --font-sans: var(--font-sans); /* body / UI */ --font-heading: var(--font-sans); --color-sidebar-ring: var(--sidebar-ring); --color-sidebar-border: var(--sidebar-border); --color-sidebar-accent-foreground: var(--sidebar-accent-foreground); --color-sidebar-accent: var(--sidebar-accent); --color-sidebar-primary-foreground: var(--sidebar-primary-foreground); --color-sidebar-primary: var(--sidebar-primary); --color-sidebar-foreground: var(--sidebar-foreground); --color-sidebar: var(--sidebar); --color-chart-5: var(--chart-5); --color-chart-4: var(--chart-4); --color-chart-3: var(--chart-3); --color-chart-2: var(--chart-2); --color-chart-1: var(--chart-1); --color-ring: var(--ring); --color-input: var(--input); --color-destructive: var(--destructive); --color-accent-foreground: var(--accent-foreground); --color-accent: var(--accent); --color-muted-foreground: var(--muted-foreground); --color-muted: var(--muted); --color-secondary-foreground: var(--secondary-foreground); --color-secondary: var(--secondary); --color-primary-foreground: var(--primary-foreground); --color-primary: var(--primary); --color-popover-foreground: var(--popover-foreground); --color-popover: var(--popover); --color-card-foreground: var(--card-foreground); --color-card: var(--card); --color-foreground: var(--foreground); --color-background: var(--background); --radius-sm: calc(var(--radius) * 0.6); --radius-md: calc(var(--radius) * 0.8); --radius-lg: var(--radius); --radius-xl: calc(var(--radius) * 1.4); --radius-2xl: calc(var(--radius) * 1.8); --radius-3xl: calc(var(--radius) * 2.2); --radius-4xl: calc(var(--radius) * 2.6);
 }
 
 body {
   background-color: var(--bg-deep);
+  /* Soft accent glows for depth (theme-aware via color-mix). Pinned to the
+     viewport so the page scrolls over a stable backdrop. */
+  background-image:
+    radial-gradient(
+      1200px circle at 12% -8%,
+      color-mix(in oklab, var(--accent-warm) 9%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      1000px circle at 108% 4%,
+      color-mix(in oklab, var(--accent-cool) 8%, transparent),
+      transparent 55%
+    );
+  background-attachment: fixed;
+  background-repeat: no-repeat;
   color: var(--text-primary);
-  font-family: var(--font-body, var(--font-inter)), system-ui, sans-serif;
+  font-family: var(--font-body, var(--font-jakarta)), system-ui, sans-serif;
 }
 
 /* When the operator picks a sans font, drive BOTH body AND headings (--font-serif)
-   with it — the picked font replaces Fraunces everywhere. Default (no data-font) keeps
-   Inter body + Fraunces headings. */
+   with it. Default (no data-font) is Jakarta; the explicit options below override it. */
+[data-font="inter"] {
+  --font-body: var(--font-inter);
+  --font-serif: var(--font-inter);
+}
 [data-font="bricolage"] {
   --font-body: var(--font-bricolage);
   --font-serif: var(--font-bricolage);

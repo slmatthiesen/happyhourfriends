@@ -15,7 +15,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 
 // Applies the saved palette + font before first paint (no flash).
-const APPEARANCE_INIT = `try{var t=localStorage.getItem('hhf_theme');if(t&&t!=='warm')document.documentElement.setAttribute('data-theme',t);var f=localStorage.getItem('hhf_font');if(f&&f!=='inter')document.documentElement.setAttribute('data-font',f);}catch(e){}`;
+const APPEARANCE_INIT = `try{var t=localStorage.getItem('hhf_theme');if(t&&t!=='warm')document.documentElement.setAttribute('data-theme',t);var f=localStorage.getItem('hhf_font');if(f&&f!=='jakarta')document.documentElement.setAttribute('data-font',f);}catch(e){}`;
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
