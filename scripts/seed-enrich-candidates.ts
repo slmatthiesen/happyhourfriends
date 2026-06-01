@@ -33,6 +33,7 @@ import type { Message } from "@anthropic-ai/sdk/resources/messages";
 import {
   extractHappyHours,
   buildExtractRequest,
+  extractorMetadata,
   parseRecordedExtract,
   type ExtractResult,
 } from "@/lib/ai/extractHappyHours";
@@ -112,7 +113,7 @@ type SeedOutcome =
   | "error";
 
 /** Why a venue ended up with no happy-hour data — for the end-of-run report. */
-type NoDataReason = "no_website" | "zero_windows" | "all_dropped" | "errored";
+type NoDataReason = "no_website" | "site_unreachable" | "zero_windows" | "all_dropped" | "errored";
 interface NoDataEntry {
   name: string;
   reason: NoDataReason;
@@ -757,11 +758,7 @@ async function runBatch(
   // ---- Collect + write -----------------------------------------------------
   // model + promptHash are input-independent (prompt template + configured model),
   // so resolve once for ledger attribution rather than per result.
-  const { model: extractorModel, promptHash } = buildExtractRequest({
-    venueName: "",
-    websiteUrl: null,
-    otherUrl: null,
-  });
+  const { model: extractorModel, promptHash } = extractorMetadata();
 
   const fallback: PrepContext[] = [];
   for await (const res of streamResults(state.batchId)) {
@@ -1015,13 +1012,27 @@ async function prepAndSubmit(
       continue;
     }
 
-    const built = buildExtractRequest({
+    const built = await buildExtractRequest({
       venueName: ctx.name,
       websiteUrl: verdict.kind === "real" ? verdict.url : null,
       otherUrl: null,
       cityName: city.name,
       priorityUrls: decided.priorityUrls,
     });
+    // We fetch the pages ourselves now; if none were reachable there's nothing to
+    // extract — stub it without spending a (batch) token rather than sending empty content.
+    if (built.fetchedUrls.length === 0) {
+      const persisted = await persistExtraction(sql, {
+        cityId: city.id,
+        placesKey,
+        ctx,
+        extracted: null,
+      });
+      await markProcessed(sql, c.id, persisted.outcome, persisted.venueId);
+      tally.stubs++;
+      tally.noData.push({ name: c.name, reason: "site_unreachable" });
+      continue;
+    }
     requests.push({ custom_id: c.id, params: built.params });
     contexts[c.id] = ctx;
   }
@@ -1068,9 +1079,10 @@ async function finalize(sql: Sql, city: CityRow, tally: ReportTally): Promise<vo
     `Fallback (on-demand) count: ${tally.fallbackCount} / ${tally.totalRequests} requests`,
   );
 
-  const order: NoDataReason[] = ["no_website", "zero_windows", "all_dropped", "errored"];
+  const order: NoDataReason[] = ["no_website", "site_unreachable", "zero_windows", "all_dropped", "errored"];
   const labels: Record<NoDataReason, string> = {
     no_website: "no website on file",
+    site_unreachable: "website on file, but no page fetched (down / blocked)",
     zero_windows: "website, 0 windows extracted",
     all_dropped: "recorded but all rows dropped (§13 / denylist)",
     errored: "errored",

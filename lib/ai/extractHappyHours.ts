@@ -2,10 +2,13 @@
  * extractHappyHours — Phase 6 seed enrichment: turns a venue's web content into
  * structured happy_hours + offerings rows (PRD §4.3, §13).
  *
- * Uses Claude's SERVER-SIDE web_fetch + web_search tools. Unlike a raw HTTP fetch,
- * web_fetch renders the page and reads PDFs natively, so JS-collapsed menus and PDF
- * menus (the common case) are actually visible to the model. The tools run
- * server-side; we just loop on `pause_turn` until the model returns its final JSON.
+ * FETCH POLICY (2026-06-01): we fetch the venue's known pages OURSELVES via the free,
+ * robots-respecting `fetchUrl` (plain HTTP, no Anthropic billing) and hand the model the
+ * page text + any PDFs as content blocks. The model is given NO web tools — it cannot
+ * search or fetch, so it can never autonomously run up Anthropic web_search/web_fetch
+ * charges (the failure mode that drained ~$30 with no return). This makes every request a
+ * single-shot, deterministic call: ideal for the Batch API (50% cheaper) and free of the
+ * server-tool surcharge. The only tool is the structured-output `record_happy_hours`.
  *
  * Returns typed data only — no DB writes. The caller persists the rows.
  *
@@ -16,9 +19,9 @@
  */
 
 import type {
+  ContentBlockParam,
   Message,
   MessageCreateParamsNonStreaming,
-  MessageParam,
   ToolChoiceTool,
   ToolUnion,
   ToolUseBlock,
@@ -30,6 +33,7 @@ import type { Usage } from "@/lib/ai/anthropic";
 import { costCents as calcCostCents } from "@/lib/ai/pricing";
 import { MODELS } from "@/lib/ai/models";
 import { loadPrompt, splitPrompt } from "@/lib/ai/promptHash";
+import { fetchUrl } from "@/lib/verification/fetchUrl";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -210,30 +214,73 @@ const RECORD_TOOL: ToolUnion = {
   },
 };
 
-// Cost-tuned 2026-05-28: was max_uses 6 / 12k tokens which cost ~10¢/venue. Dropped
-// to 4 / 6k — input tokens (web_fetch payload) dominate cost, so halving the per-fetch
-// payload roughly halves spend without hurting recall (most HH pages fit in 6k tokens).
-// (allowed_callers: direct — Haiku doesn't do programmatic tool calling.)
-const TOOLS: ToolUnion[] = [
-  {
-    type: "web_search_20260209",
-    name: "web_search",
-    max_uses: 2,
-    allowed_callers: ["direct"],
-  },
-  {
-    type: "web_fetch_20260209",
-    name: "web_fetch",
-    max_uses: 4,
-    max_content_tokens: 6_000,
-    allowed_callers: ["direct"],
-  },
-  RECORD_TOOL,
-];
+// The model gets ONLY the structured-output tool. No web_search / web_fetch — content is
+// fetched by us (see fetchSiteContent) and passed inline, so the model cannot fetch or
+// search and cannot incur Anthropic web-tool charges. tool_choice forces this one call.
+const TOOLS: ToolUnion[] = [RECORD_TOOL];
 
-// Max times we resume after a `pause_turn` (server tools running). Higher now that the
-// model may search + fetch several pages before recording.
-const MAX_TURNS = 8;
+// How many of the venue's known URLs we fetch and feed the model. priorityUrls (the HH/menu
+// pages site triage already found) come first, then the website + other URL. Bounded so a
+// link-heavy site can't balloon the input-token bill. fetchUrl caps each page at ~8k chars.
+const MAX_FETCH = 5;
+
+/** A page we fetched ourselves, ready to drop into the model's content blocks. */
+interface FetchedPage {
+  url: string;
+  /** Stripped page text (HTML) — present for non-PDF pages that fetched OK. */
+  text?: string;
+  /** Base64 PDF bytes — present for PDF menus, handed over as a document block. */
+  pdfBase64?: string;
+}
+
+/** Fetch the venue's known pages over plain HTTP (free, robots-respecting). */
+async function fetchSiteContent(input: ExtractInput): Promise<FetchedPage[]> {
+  const urls = [
+    ...(input.priorityUrls ?? []),
+    input.websiteUrl ?? undefined,
+    input.otherUrl ?? undefined,
+  ].filter((u): u is string => typeof u === "string" && u.trim().length > 0);
+  const unique = [...new Set(urls)].slice(0, MAX_FETCH);
+
+  const results = await Promise.all(unique.map((u) => fetchUrl(u)));
+  const pages: FetchedPage[] = [];
+  for (const r of results) {
+    if (!r.ok) continue;
+    if (r.isPdf && r.pdfBase64) pages.push({ url: r.url, pdfBase64: r.pdfBase64 });
+    else if (r.contentText) pages.push({ url: r.url, text: r.contentText });
+  }
+  return pages;
+}
+
+/** Render fetched pages as content blocks: a labeled text block per page, document block per PDF. */
+function pagesToContentBlocks(userText: string, pages: FetchedPage[]): ContentBlockParam[] {
+  const blocks: ContentBlockParam[] = [{ type: "text", text: userText }];
+  if (pages.length === 0) {
+    blocks.push({
+      type: "text",
+      text: "No page content could be fetched for this venue. Call record_happy_hours with happyHours: [] and confidence 0.",
+    });
+    return blocks;
+  }
+  blocks.push({
+    type: "text",
+    text:
+      "The following content was fetched from this venue's own pages. Extract ONLY from it. " +
+      "Use the exact 'Source: <url>' shown above each page as the sourceUrl for anything you record.",
+  });
+  for (const p of pages) {
+    if (p.pdfBase64) {
+      blocks.push({ type: "text", text: `Source: ${p.url} (PDF)` });
+      blocks.push({
+        type: "document",
+        source: { type: "base64", media_type: "application/pdf", data: p.pdfBase64 },
+      });
+    } else if (p.text) {
+      blocks.push({ type: "text", text: `Source: ${p.url}\n\n${p.text}` });
+    }
+  }
+  return blocks;
+}
 
 const VALID_LOCATION = new Set(["bar", "patio", "dining", "all"]);
 const VALID_KIND = new Set(["food", "drink", "other"]);
@@ -360,14 +407,31 @@ export interface ExtractRequest {
   params: MessageCreateParamsNonStreaming;
   promptHash: string;
   model: string;
+  /** URLs we successfully fetched and fed the model. Empty → nothing to extract from. */
+  fetchedUrls: string[];
 }
 
-/** Build the one-shot request used by both the on-demand loop and the Batch API. */
-export function buildExtractRequest(input: ExtractInput): ExtractRequest {
+const FORCE_RECORD: ToolChoiceTool = { type: "tool", name: "record_happy_hours" };
+
+/** Model + prompt hash for ledger attribution — input-independent, no fetch. */
+export function extractorMetadata(): { model: string; promptHash: string } {
+  return { model: MODELS.extractor, promptHash: loadPrompt("seed-extract-hh.md").hash };
+}
+
+/**
+ * Build the one-shot request used by both the on-demand path and the Batch API. Fetches
+ * the venue's pages ourselves (free) and inlines them; the model gets no web tools and is
+ * forced to call record_happy_hours, so it returns its findings in exactly one turn.
+ */
+export async function buildExtractRequest(input: ExtractInput): Promise<ExtractRequest> {
   const loaded = loadPrompt("seed-extract-hh.md");
   const { system: rawSystem, user: rawUser } = splitPrompt(loaded.content);
   const system = fillPlaceholders(rawSystem, input);
   const userText = fillPlaceholders(rawUser, input);
+
+  const pages = await fetchSiteContent(input);
+  const content = pagesToContentBlocks(userText, pages);
+
   return {
     params: {
       model: MODELS.extractor,
@@ -376,10 +440,12 @@ export function buildExtractRequest(input: ExtractInput): ExtractRequest {
       max_tokens: 8192,
       system,
       tools: TOOLS,
-      messages: [{ role: "user", content: userText }],
+      tool_choice: FORCE_RECORD,
+      messages: [{ role: "user", content }],
     },
     promptHash: loaded.hash,
     model: MODELS.extractor,
+    fetchedUrls: pages.map((p) => p.url),
   };
 }
 
@@ -442,64 +508,49 @@ export function parseRecordedExtract(
 }
 
 // ---------------------------------------------------------------------------
-// Main export — on-demand agentic loop (also the Batch API fallback path)
+// Main export — single-shot extraction over pre-fetched content (no web tools)
 // ---------------------------------------------------------------------------
+
+const EMPTY_PARSE = {
+  happyHours: [] as ExtractedHappyHour[],
+  confidence: 0,
+  summary: "",
+  venueType: null as string | null,
+  rawWindowCount: 0,
+};
 
 export async function extractHappyHours(
   input: ExtractInput,
 ): Promise<ExtractResult> {
-  const { params, promptHash, model } = buildExtractRequest(input);
-  const messages: MessageParam[] = [...params.messages];
+  const { params, promptHash, model, fetchedUrls } = await buildExtractRequest(input);
 
-  const summedUsage: Usage = { inputTokens: 0, outputTokens: 0 };
-  const forceRecord: ToolChoiceTool = { type: "tool", name: "record_happy_hours" };
-
-  let lastMessage: Message | null = null;
-
-  for (let turn = 0; turn < MAX_TURNS; turn++) {
-    const lastTurn = turn === MAX_TURNS - 1;
-    const response = await anthropic().messages.create({
-      ...params,
-      messages,
-      // On the final turn, force the structured-output tool so we never end with prose.
-      ...(lastTurn ? { tool_choice: forceRecord } : {}),
-    });
-    lastMessage = response;
-
-    summedUsage.inputTokens += response.usage.input_tokens;
-    summedUsage.outputTokens += response.usage.output_tokens;
-
-    if (process.env.EXTRACT_DEBUG) {
-      console.error(
-        `[extract] turn ${turn} stop=${response.stop_reason} blocks=[${response.content
-          .map((b) => (b.type === "tool_use" ? `tool_use:${b.name}` : b.type))
-          .join(", ")}]`,
-      );
-    }
-
-    const recorded = response.content.some(
-      (b) => b.type === "tool_use" && b.name === "record_happy_hours",
-    );
-    if (recorded) break;
-
-    // web_fetch runs server-side → pause_turn; resume by echoing content back.
-    if (response.stop_reason === "pause_turn") {
-      messages.push({ role: "assistant", content: response.content });
-      continue;
-    }
-
-    // Model ended without recording — nudge it to call the tool on the next turn.
-    messages.push({ role: "assistant", content: response.content });
-    messages.push({
-      role: "user",
-      content:
-        "Call record_happy_hours now with everything you found (happyHours: [] and confidence 0 if none).",
-    });
+  // Nothing fetched (no reachable site / all fetches failed) → no point spending a token.
+  if (fetchedUrls.length === 0) {
+    return {
+      ...EMPTY_PARSE,
+      summary: "No venue page content could be fetched.",
+      usage: { inputTokens: 0, outputTokens: 0 },
+      costCents: 0,
+      promptHash,
+      model,
+    };
   }
 
-  const parsed = lastMessage
-    ? parseRecordedExtract(lastMessage)
-    : { happyHours: [], confidence: 0, summary: "", venueType: null, rawWindowCount: 0, recorded: false };
+  const response: Message = await anthropic().messages.create(params);
+  const summedUsage: Usage = {
+    inputTokens: response.usage.input_tokens,
+    outputTokens: response.usage.output_tokens,
+  };
+
+  if (process.env.EXTRACT_DEBUG) {
+    console.error(
+      `[extract] stop=${response.stop_reason} fetched=${fetchedUrls.length} blocks=[${response.content
+        .map((b) => (b.type === "tool_use" ? `tool_use:${b.name}` : b.type))
+        .join(", ")}]`,
+    );
+  }
+
+  const parsed = parseRecordedExtract(response);
 
   return {
     happyHours: parsed.happyHours,
