@@ -71,3 +71,5 @@ Desktop.ini
 /data/*.csv
 
 STEVEN_GITHUB.md1
+# git worktrees (isolated workspaces)
+.worktrees/
