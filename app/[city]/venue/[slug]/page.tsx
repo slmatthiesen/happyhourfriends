@@ -5,7 +5,7 @@ import { DirectionsButton } from "@/components/directions-button";
 import { SiteWordmark } from "@/components/site-wordmark";
 import { AddHappyHour } from "@/components/submit/add-happy-hour";
 import { ReportChange } from "@/components/submit/report-change";
-import { formatDays, formatDaysLong, formatPrice, formatWindow } from "@/lib/format";
+import { formatDays, formatDaysLong, formatPrice, formatWindowByDay } from "@/lib/format";
 import { getCityBySlug, getVenueBySlug } from "@/lib/queries/venues";
 import { labelForVenueType } from "@/lib/places/venueType";
 
@@ -106,7 +106,9 @@ export default async function VenuePage({
       ...(h.allDay
         ? {}
         : {
-            startTime: h.startTime!.slice(0, 5),
+            // "open until X" windows have a null start (begins at open) — emit only
+            // the bounds we actually know; never .slice() a null.
+            ...(h.startTime ? { startTime: h.startTime.slice(0, 5) } : {}),
             ...(h.endTime ? { endTime: h.endTime.slice(0, 5) } : {}),
           }),
     },
@@ -301,18 +303,25 @@ export default async function VenuePage({
           </div>
         ) : (
           <ul className="mt-4 space-y-4">
-            {groupedHours.map(({ days, rep: h }) => (
+            {groupedHours.map(({ days, rep: h }) => {
+              const lines = formatWindowByDay(
+                { allDay: h.allDay, startTime: h.startTime, endTime: h.endTime, daysOfWeek: days },
+                venue.hoursJson,
+              );
+              return (
               <li
                 key={h.id}
                 className="rounded-lg border border-border bg-bg-surface p-4 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.45)]"
               >
-                <div className="flex items-baseline justify-between">
-                  <span className="font-medium text-text-primary">
-                    {formatDaysLong(days)}
-                  </span>
-                  <span className="tabular-nums text-accent-warm">
-                    {formatWindow(h)}
-                  </span>
+                <div className="space-y-1">
+                  {lines.map((ln) => (
+                    <div key={ln.days.join(",")} className="flex items-baseline justify-between">
+                      <span className="font-medium text-text-primary">
+                        {formatDaysLong(ln.days)}
+                      </span>
+                      <span className="tabular-nums text-accent-warm">{ln.bounds}</span>
+                    </div>
+                  ))}
                 </div>
                 {h.notes && (
                   <p className="mt-1 text-sm text-text-muted">{h.notes}</p>
@@ -344,7 +353,8 @@ export default async function VenuePage({
                   </ul>
                 )}
               </li>
-            ))}
+              );
+            })}
           </ul>
         )}
       </section>
