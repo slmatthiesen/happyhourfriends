@@ -2,54 +2,54 @@
 
 _Generated 2026-05-31 from the live DB (venues with no active `happy_hours`) cross-referenced with the free harvest (`docs/hh-harvest.jsonl`). Regenerate with `scripts/harvest-hh.ts` then this query._
 
+> **Recent changes (2026-05-31):** Round 1 recovered 14 venues; round 2 recovered 4 more
+> (Blanco Tacos & Tequilas, Las 15 Salsas, Mariscos Los Arbolitos, The Porch Arcadia). 15
+> no-usable-website stubs in Phoenix/Scottsdale/Tacoma were dropped (soft-delete, audited as
+> `cleanup-no-website` — reversible). **Policy:** when a site states a HH time but not the
+> days, assume **Mon–Fri** (noted on each such row). **Tucson "duplicates" (Prep & Pastry,
+> Miss Saigon, Indian Twist) are NOT duplicates** — each pair has distinct addresses + Google
+> place_ids (e.g. Indian Twist vs Indian Twist *Airport*); kept per the dedup-on-place_id rule.
+
 ## Summary
 
 | Area | Still missing | On-site signal (review) | No plain-fetch signal | No usable website |
 |---|--:|--:|--:|--:|
-| Phoenix (Central) | 121 | 5 | 111 | 5 |
-| Scottsdale | 59 | 4 | 52 | 3 |
-| Tacoma | 28 | 0 | 21 | 7 |
+| Phoenix (Central) | 112 | 1 | 111 | 0 |
+| Scottsdale | 56 | 4 | 52 | 0 |
+| Tacoma | 21 | 0 | 21 | 0 |
 | Tucson | 101 | 1 | 84 | 16 |
-| **Total** | **309** | **10** | **268** | **31** |
+| **Total** | **290** | **6** | **268** | **16** |
 
 ## How to attack each bucket
 
-The buckets below are ordered by leverage. Work top-down.
+Ordered by leverage; work top-down.
 
 ### A. On-site signal found — needs review/extraction (highest value)
-The harvester already found a happy-hour mention with a day or time on the venue's own
-site, but it wasn't a clean enough "win" to auto-apply (missing days, wrong location,
-multi-location blob, etc.). **Open the listed URL, read it, and add the window to
-`docs/hh-recovered.json`** — then `npx tsx scripts/apply-harvest.ts` (dry-run) / `--apply`.
-Each entry notes exactly what blocked it. Several are "time known, days unknown" — ideal
-**crowdsource** prompts (pre-fill the time, ask the community for days).
+The harvester found a HH mention with a day or time on the venue's own site, but it wasn't a
+clean auto-apply (missing days, wrong location, multi-location blob, etc.). **Open the URL,
+read it, add the window to a `docs/hh-recovered*.json` file**, then `npx tsx
+scripts/apply-harvest.ts --file <f>` (dry-run) / `--apply`. Each row notes what blocked it.
 
 ### B. No plain-fetch signal — needs better tooling
-Plain HTML fetch found nothing. Before calling these "no HH," rule out the two common
-causes (both fixable for $0):
-1. **JS-rendered menu** (Toast / Square / BentoBox / spotapps / Wix data blobs) — render
-   with Playwright, then re-run the same JSON-LD + snippet extraction.
-2. **PDF / image menu** — detect linked `.pdf`, parse locally (`pdf-parse`); images → OCR.
-The honest split between "genuinely unpublished" and "tooling miss" here is unknown until
-the harvester is instrumented to tag the failure mode (see `docs/hh-recovery-plan.md`).
+Plain HTML fetch found nothing. Rule out the two common causes (both $0) before calling these
+"no HH": **JS-rendered menus** (Toast/Square/BentoBox/spotapps/Wix blobs → Playwright render),
+and **PDF/image menus** (parse `.pdf` locally; OCR images). The split between genuinely-
+unpublished and tooling-miss is unknown until the harvester tags the failure mode. Operator
+spot-checked several here (Abacus Inn, Ace of Wingz, Angel Thai, Anzio's, Bacanora, Barro's)
+and confirmed no HH — so a large share of this bucket really is unpublished.
 
 ### C. No usable website (social/delivery only, or none)
-Facebook/Instagram/DoorDash-only or no site at all. No automated path — these are
-**crowdsource / manual** targets, or a Google Business Profile / Places "popular times"
-check. Lowest automated leverage.
+No automated path → crowdsource / manual. (The phx/scottsdale/tacoma C-bucket was dropped on
+operator instruction; what remains here is Tucson.)
 
 
-## Phoenix (Central) — 121 missing
+## Phoenix (Central) — 112 missing
 
-### A. On-site signal — review & extract (5)
+### A. On-site signal — review & extract (1)
 
-| Venue | Source URL(s) | What blocked it |
+| Venue | Source URL | What blocked it |
 |---|---|---|
-| Blanco Tacos and Tequilas | http://blancotacostequila.com/ | 'weeknight happy hour' — no days/times stated |
-| Kobalt | http://kobaltbarphoenix.com/ | 'Happy Hour ALL DAY' — ambiguous which days |
-| Las 15 Salsas Restaurant Oaxaqueño | http://las15salsas.com/ | '12pm–6pm' — time clear, NO days stated (crowdsource: which days?) |
-| Mariscos Los Arbolitos De Cajeme - Peoria | http://losarbolitosusa.com/events | banner '$5 margarita/$5 draft 3–7pm' — NO days stated (crowdsource: which days?) |
-| The Porch | http://www.porchrestaurants.com/happy-hour | marketing prose, no times; copy is about the Tempe location |
+| Kobalt | http://kobaltbarphoenix.com/ | 'Happy Hour ALL DAY' — ambiguous which days (operator couldn't confirm) |
 
 ### B. No plain-fetch signal — headless render / PDF / manual (111)
 
@@ -87,8 +87,8 @@ check. Lowest automated leverage.
 | El Super Taco | https://elsupertacoaz.com/ |
 | El Zaguan Bistro | https://www.elzaguanbistro.com/ |
 | Fatso's Pizza | http://www.fatsospizza.com/ |
-| Flower Child | https://www.iamaflowerchild.com/locations/phoenix-az-arcadia/?utm_source=Google&utm_medium=Organic&utm_campaign=Maps |
 | Flower Child | https://www.iamaflowerchild.com/locations/flower-child-paradise-valley/ |
+| Flower Child | https://www.iamaflowerchild.com/locations/phoenix-az-arcadia/?utm_source=Google&utm_medium=Organic&utm_campaign=Maps |
 | Fly Bye | https://flybyetogo.com/locations/phoenix-az-arcadia/?utm_source=Google&utm_medium=Organic&utm_campaign=Maps |
 | Glai Baan | https://www.glaibaanaz.com/ |
 | Green New American Vegetarian | http://greenvegetarian.com/ |
@@ -167,22 +167,12 @@ check. Lowest automated leverage.
 | Ziggys Magic Pizza Shop | http://www.ziggyspizzaphx.com/ |
 | Zipps Sports Grill | https://www.zippssportsgrills.com/locations/shea/ |
 
-### C. No usable website — crowdsource / manual (5)
 
-| Venue | Link / address |
-|---|---|
-| Cuban Foods Bakery & Restaurant | http://www.facebook.com/CubanFoods |
-| Dora's Kitchen | 2355 S 16th St, Phoenix, AZ 85034, USA |
-| Olive & Ivy | 3400 Sky Hbr Blvd, Phoenix, AZ 85034, USA |
-| Sivlik Grill | 5692 W North Loop Rd, Phoenix, AZ 85048, USA |
-| Taco Boy's | 9016 N Black Cyn Hwy, Phoenix, AZ 85051, USA |
-
-
-## Scottsdale — 59 missing
+## Scottsdale — 56 missing
 
 ### A. On-site signal — review & extract (4)
 
-| Venue | Source URL(s) | What blocked it |
+| Venue | Source URL | What blocked it |
 |---|---|---|
 | Ajo Al's Mexican Cafe | https://ajoals.com/?y_source=1_MTAwMTM3MDE1Mi03MTUtbG9jYXRpb24ud2Vic2l0ZQ%3D%3D | 'daily happy hour & weekday specials' — no times |
 | Chompie's Restaurant, Deli, and Bakery | https://www.chompies.com/happy-hour | JSON-LD says 'Happy Hour! GLENDALE Location Only' — not this venue |
@@ -246,16 +236,8 @@ check. Lowest automated leverage.
 | Zinc Bistro | https://zincbistro.com/ |
 | Zipps Sports Grill | https://www.zippssportsgrills.com/locations/frank-lloyd-wright/ |
 
-### C. No usable website — crowdsource / manual (3)
 
-| Venue | Link / address |
-|---|---|
-| Akita Sushi | 9011 E Vía Linda, Scottsdale, AZ 85258, USA |
-| CM2 Pizzeria & Bakeshop | https://www.instagram.com/cm2pbs/?hl=en |
-| Hiro Sushi | 9393 N 90th St, Scottsdale, AZ 85258, USA |
-
-
-## Tacoma — 28 missing
+## Tacoma — 21 missing
 
 ### B. No plain-fetch signal — headless render / PDF / manual (21)
 
@@ -283,24 +265,12 @@ check. Lowest automated leverage.
 | Zen ramen & sushi burrito | https://www.cdsmnm.com/ordering/restaurant/menu?restaurant_uid=27a9f737-11ad-4d71-b75a-f8b97abc496d&client_is_mobile=true&return_url=https%3A%2F%2Fwww.zenramenbrothers.com%2F |
 | Zen Ramen & Sushi Burrito - Downtown Tacoma | http://zenramenbrothers.com/ |
 
-### C. No usable website — crowdsource / manual (7)
-
-| Venue | Link / address |
-|---|---|
-| Indochine On Pearl | 4612 N Pearl St, Tacoma, WA 98407, USA |
-| Parkway Tavern | 313 N I St #1, Tacoma, WA 98403, USA |
-| Restaurante Los Amigos | 6402 S Tacoma Way, Tacoma, WA 98409, USA |
-| Rock The Dock Pub & Grill | 535 Dock St #118, Tacoma, WA 98402, USA |
-| The Church Cantina | https://m.facebook.com/The-Church-Cantina-1500987603340103/ |
-| The SandBar & Grill | 1941 Marine View Dr, Tacoma, WA 98422, USA |
-| The Tipsy Tomato Bar & Kitchen | 3878 Center St, Tacoma, WA 98409, USA |
-
 
 ## Tucson — 101 missing
 
 ### A. On-site signal — review & extract (1)
 
-| Venue | Source URL(s) | What blocked it |
+| Venue | Source URL | What blocked it |
 |---|---|---|
 | Wild Garlic Grill | https://tucsonfoodie.com/guides/upscale-restaurants/ | only source was tucsonfoodie.com (third-party aggregator) — needs first-party page |
 
@@ -308,8 +278,8 @@ check. Lowest automated leverage.
 
 | Venue | Website |
 |---|---|
-| Angry Crab Shack | https://www.angrycrabshack.com/broadway-blvd-tucson |
 | Angry Crab Shack | https://www.angrycrabshack.com/grant-rd-tucson-az |
+| Angry Crab Shack | https://www.angrycrabshack.com/broadway-blvd-tucson |
 | Azian | https://www.aziansushitucson.com/ |
 | Bar Crisol/Exo | http://www.barcrisol.com/ |
 | Barro's Pizza | https://barrospizza.com/ |
@@ -355,18 +325,18 @@ check. Lowest automated leverage.
 | Le Rendez-vous | http://www.rendezvoustucson.com/ |
 | Little Mexico Restaurant | http://www.littlemexico-tucson.com/ |
 | Locale Neighborhood Italian Restaurant | https://www.localetucson.com/ |
-| LongHorn Steakhouse | https://www.longhornsteakhouse.com/locations/az/tucson/tucson/5554?cmpid=br:lh_ag:ie_ch:loc_ca:LHGMB_sn:gmb_gt:tucson-az-5554_pl:locurl_rd:1479 |
 | LongHorn Steakhouse | https://www.longhornsteakhouse.com/locations/az/tucson/tucson-broadway/5529?cmpid=br:lh_ag:ie_ch:loc_ca:LHGMB_sn:gmb_gt:tucson-az-5529_pl:locurl_rd:1462 |
+| LongHorn Steakhouse | https://www.longhornsteakhouse.com/locations/az/tucson/tucson/5554?cmpid=br:lh_ag:ie_ch:loc_ca:LHGMB_sn:gmb_gt:tucson-az-5554_pl:locurl_rd:1479 |
 | Maria Bonita Mexican Kitchen | https://mariabonitamexicankitchenaz.com/ |
 | Mariscos Chihuahua on Grande | http://www.mariscoschihuahua.com/ |
 | Maru Japanese Noodle Shop | https://www.marunoodle.com/ |
 | Mi Nidito Restaurant | http://www.miniditorestaurant.com/ |
-| Miss Saigon | http://www.misssaigontucson.com/ |
 | Miss Saigon | https://www.misssaigontucson.com/ |
+| Miss Saigon | http://www.misssaigontucson.com/ |
 | New Asia Chinese Restaurant | http://www.newasiatucson.com/ |
 | Opa's Best Greek American Cuisine | https://www.opasbest.com/ |
-| Prep & Pastry | http://prepandpastry.com/ |
 | Prep & Pastry | http://www.prepandpastry.com/ |
+| Prep & Pastry | http://prepandpastry.com/ |
 | Raijin Ramen | http://www.raijinramen.com/ |
 | Rollies Mexican Patio | https://rolliestucson.com/patio?utm_source=google |
 | Rudy's "Country Store" and Bar-B-Q | http://www.rudys.com/ |
