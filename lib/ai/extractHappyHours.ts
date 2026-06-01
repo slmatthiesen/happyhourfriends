@@ -25,6 +25,7 @@ import type {
 } from "@anthropic-ai/sdk/resources/messages";
 
 import { anthropic, parseJsonResponse } from "@/lib/ai/anthropic";
+import { isDenylistedSource } from "@/lib/ai/sourceDenylist";
 import type { Usage } from "@/lib/ai/anthropic";
 import { costCents as calcCostCents } from "@/lib/ai/pricing";
 import { MODELS } from "@/lib/ai/models";
@@ -163,7 +164,9 @@ const RECORD_TOOL: ToolUnion = {
             },
             startTime: {
               type: ["string", "null"],
-              description: '24h "HH:MM", or null when allDay is true',
+              description:
+                '24h "HH:MM"; null when allDay is true, when the deal runs from open until ' +
+                'a stated end ("open until 6 PM"), or when no time is published. Never fabricate.',
             },
             endTime: { type: ["string", "null"], description: '24h "HH:MM" or null for "until close"' },
             locationWithinVenue: { type: "string", enum: ["bar", "patio", "dining", "all"] },
@@ -258,31 +261,9 @@ function fillPlaceholders(template: string, input: ExtractInput): string {
     .replaceAll("{{city}}", input.cityName?.trim() || "");
 }
 
-// Only block COMPETITOR happy-hour listing sites whose business is exactly what we do
-// (operator directive 2026-05-27). General listings like Yelp / OpenTable / TripAdvisor
-// are fine as sources — the AI often parses better-structured HH offering data from
-// them than from the venue's PDF menu, and dropping them silently costs us real data
-// (2026-05-28 Blue Hound incident: 9 offerings dropped because Yelp was blocked).
-const SOURCE_DENYLIST = [
-  "ultimatehappyhours",
-  "seattletravel",
-  "happyhourdealfinder",
-  "happyhour.com",
-  "happyhours.com",
-  "restaurantji",
-  "sirved",
-  "singleplatform",
-];
-
-function isDenylistedSource(url: string): boolean {
-  let host = url.toLowerCase();
-  try {
-    host = new URL(url).hostname.toLowerCase();
-  } catch {
-    /* not a parseable URL — fall back to substring check below */
-  }
-  return SOURCE_DENYLIST.some((d) => host.includes(d));
-}
+// Competitor happy-hour listing sites we refuse to source from (§13 first-party
+// guard) — definition + rationale in lib/ai/sourceDenylist (isDenylistedSource,
+// imported at top), the single source of truth shared with operator tooling.
 
 /** §13: drop offerings with no non-empty sourceUrl, or a competitor-aggregator source. */
 function normaliseOffering(raw: RawOffering): ExtractedOffering | null {
