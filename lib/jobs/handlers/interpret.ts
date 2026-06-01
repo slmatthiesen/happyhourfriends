@@ -11,6 +11,8 @@ import { isFirstPartyUrl } from "@/lib/contribution/firstParty";
 import { extractHappyHours } from "@/lib/ai/extractHappyHours";
 import { applySubmission } from "@/lib/apply/engine";
 import { routeContribution, isAutoApplyEnabled } from "@/lib/contribution/route";
+import { sendEmail, adminRecipients } from "@/lib/email/client";
+import { extractedHappyHoursEmail } from "@/lib/email/templates";
 
 interface SubmittedFileRef {
   submittedFile?: { url?: string; mime?: string };
@@ -176,7 +178,24 @@ export async function handleInterpret(submissionId: string): Promise<void> {
       submissionId,
       cityId: venue.cityId,
     });
-    await fanOutExtracted(parent, venue, extracted, parentSourceUrl);
+    const lines = await fanOutExtracted(parent, venue, extracted, parentSourceUrl);
+    if (lines.length > 0) {
+      try {
+        const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+        const adminUrl = `${base}/admin`;
+        const { subject, html } = extractedHappyHoursEmail({
+          venueName: venue.name,
+          windowCount: lines.length,
+          windowLines: lines,
+          confidence: extracted.confidence,
+          sourceUrl: parentSourceUrl,
+          adminUrl,
+        });
+        await sendEmail({ to: adminRecipients(), subject, html });
+      } catch (e) {
+        console.error("Failed to send extracted-happy-hours email", e);
+      }
+    }
     await setStatus(submissionId, {
       status: "interpreted",
       aiClassifierReasoning: `Extracted ${extracted.happyHours.length} window(s) from first-party source.`,
@@ -277,8 +296,9 @@ async function fanOutExtracted(
   venue: VenueDetail,
   extracted: Awaited<ReturnType<typeof extractHappyHours>>,
   sourceUrl: string,
-): Promise<void> {
+): Promise<string[]> {
   const autoApplyEnabled = isAutoApplyEnabled();
+  const queuedLines: string[] = [];
   for (const hh of extracted.happyHours) {
     if (!hh.daysOfWeek?.length || !hh.startTime) continue; // engine minimum
     const [child] = await db
@@ -323,5 +343,8 @@ async function fanOutExtracted(
       }
     }
     await setStatus(child.id, { status: "queued_admin" });
+    const line = `${hh.daysOfWeek.join(",")} from ${hh.startTime}${hh.endTime ? `–${hh.endTime}` : ""}`;
+    queuedLines.push(line);
   }
+  return queuedLines;
 }
