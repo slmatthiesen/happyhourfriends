@@ -1,8 +1,8 @@
 ---
 prompt: seed-extract-hh
-version: 9
+version: 10
 model: claude-sonnet-4-6
-notes: Pinned via sha256 content hash recorded in ai_usage_ledger.prompt_hash. v9 — define happy hour as a RECURRING, TIME-LIMITED discount; an all-open-hours-every-day deal is regular pricing (omit); one-off coupons/limited promos are not happy hours (omit); allDay restricted to ≤2 explicitly-sourced specific days (never most/all week). v7 — {{city}} placeholder in the web_search query (was hardcoded "Tacoma", which polluted recall for every non-Tacoma city); v6 — explicit allDay assertion for weekday-labeled all-day deals (Red Hot pattern); v5 — recall push (web_search + follow links/PDFs, don't give up early); v4 — consolidate deals; v3 — record_happy_hours tool + daysOfWeek arrays; v8 adds optional venueType extraction.
+notes: Pinned via sha256 content hash recorded in ai_usage_ledger.prompt_hash. v10 — {{priority_urls}}: site triage hands the model the venue's own HH/menu links to fetch FIRST (stops homepage whiffs). v9 — define happy hour as a RECURRING, TIME-LIMITED discount; an all-open-hours-every-day deal is regular pricing (omit); one-off coupons/limited promos are not happy hours (omit); allDay restricted to ≤2 explicitly-sourced specific days (never most/all week). v7 — {{city}} placeholder in the web_search query (was hardcoded "Tacoma", which polluted recall for every non-Tacoma city); v6 — explicit allDay assertion for weekday-labeled all-day deals (Red Hot pattern); v5 — recall push (web_search + follow links/PDFs, don't give up early); v4 — consolidate deals; v3 — record_happy_hours tool + daysOfWeek arrays; v8 adds optional venueType extraction.
 ---
 
 # System
@@ -100,3 +100,6 @@ needs the `sourceUrl` you fetched it from. Set a conservative `confidence` and a
 Venue: {{venue_name}}
 Venue website: {{website_url}}
 Venue other URL: {{other_url}}
+
+Known happy-hour / menu pages for this venue (fetch these FIRST, before the homepage):
+{{priority_urls}}

@@ -40,6 +40,8 @@ export interface ExtractInput {
   otherUrl?: string | null;
   /** City/locality name, used to scope the web_search fallback (e.g. "Phoenix"). */
   cityName?: string | null;
+  /** Venue's own HH/menu pages found by site triage — fetch these FIRST. */
+  priorityUrls?: string[];
 }
 
 export interface ExtractedOffering {
@@ -238,10 +240,15 @@ const VALID_CATEGORY = new Set([
 ]);
 
 function fillPlaceholders(template: string, input: ExtractInput): string {
+  const priority =
+    input.priorityUrls && input.priorityUrls.length > 0
+      ? input.priorityUrls.map((u) => `- ${u}`).join("\n")
+      : "none";
   return template
     .replace("{{venue_name}}", input.venueName)
     .replace("{{website_url}}", input.websiteUrl ?? "none")
     .replace("{{other_url}}", input.otherUrl ?? "none")
+    .replace("{{priority_urls}}", priority)
     .replaceAll("{{city}}", input.cityName?.trim() || "");
 }
 
