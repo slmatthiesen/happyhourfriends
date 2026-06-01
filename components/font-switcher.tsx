@@ -25,19 +25,19 @@ function subscribe(cb: () => void): () => void {
 
 function getSnapshot(): FontKey {
   try {
-    return (localStorage.getItem(FONT_STORAGE_KEY) as FontKey) || "inter";
+    return (localStorage.getItem(FONT_STORAGE_KEY) as FontKey) || "jakarta";
   } catch {
-    return "inter";
+    return "jakarta";
   }
 }
 
 function getServerSnapshot(): FontKey {
-  return "inter";
+  return "jakarta";
 }
 
 function applyFont(key: FontKey) {
   const el = document.documentElement;
-  if (key === "inter") el.removeAttribute("data-font");
+  if (key === "jakarta") el.removeAttribute("data-font");
   else el.setAttribute("data-font", key);
 }
 
