@@ -12,6 +12,9 @@ import {
 } from "@/lib/geo/timezone";
 import type { HappyHourRow, VenueListItem } from "@/lib/queries/venues";
 import { labelForVenueType } from "@/lib/places/venueType";
+import { haversineMiles, formatDistance } from "@/lib/geo/distance";
+import { directionsUrl, isApplePlatform } from "@/lib/geo/mapsLink";
+import { useGeolocation } from "@/lib/geo/useGeolocation";
 
 // ISO day labels; index 1=Mon … 7=Sun
 const DAY_LABELS: Record<number, string> = {
@@ -25,7 +28,7 @@ const DAY_LABELS: Record<number, string> = {
 };
 const ISO_DAYS = [1, 2, 3, 4, 5, 6, 7] as const;
 
-type SortKey = "now" | "startTime" | "endTime" | "name" | "neighborhood" | "type" | "price";
+type SortKey = "now" | "distance" | "startTime" | "endTime" | "name" | "neighborhood" | "type" | "price";
 
 function windowBounds(v: VenueListItem) {
   const allDay = v.happyHours.some((h) => h.allDay);
@@ -153,6 +156,34 @@ function NowBadge({
   );
 }
 
+/**
+ * Clickable distance label. Renders nothing if the venue has no coordinates.
+ * The label opens turn-by-turn directions from the visitor (origin) to the venue
+ * via the shared maps deep-link helper.
+ */
+function DistanceLink({
+  origin,
+  venue,
+}: {
+  origin: { lat: number; lng: number };
+  venue: VenueListItem;
+}): React.JSX.Element | null {
+  if (venue.lat == null || venue.lng == null) return null;
+  const dest = { lat: venue.lat, lng: venue.lng };
+  const mi = haversineMiles(origin, dest);
+  return (
+    <a
+      href={directionsUrl(dest, origin, isApplePlatform())}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-accent-cool hover:underline"
+      title={`Directions to ${venue.name}`}
+    >
+      {formatDistance(mi)}
+    </a>
+  );
+}
+
 export function VenueTableClient({
   citySlug,
   cityName,
@@ -176,6 +207,8 @@ export function VenueTableClient({
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
   // Stubs are folded into an opt-in disclosure (collapsed by default).
   const [showStubs, setShowStubs] = useState(false);
+
+  const geo = useGeolocation();
 
   // Derived neighborhoods list. Only surface a neighborhood as a filter chip if at
   // least one of its venues has actual happy-hour data — neighborhoods that are
@@ -216,6 +249,14 @@ export function VenueTableClient({
       clearInterval(id);
     };
   }, []);
+
+  // When the visitor first shares location, default the sort to "Closest to me".
+  // Fires only on the transition into "granted" (deps unchanged afterward), so a
+  // later manual sort change is not overridden.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (geo.status === "granted") setSortKey("distance");
+  }, [geo.status]);
 
   // Cache venueLocalNow per timezone — computed every tick so the live "Now" badge
   // and ends-in microcopy stay live. Includes the city tz so the header clock
@@ -302,6 +343,7 @@ export function VenueTableClient({
 
   // Filter + sort
   const { filtered } = useMemo(() => {
+    const coords = geo.coords;
     let list = venues.filter((v) => {
       // Text search — match name OR a deal label.
       if (search) {
@@ -366,6 +408,15 @@ export function VenueTableClient({
           const s = (aB.start ?? "99:99").localeCompare(bB.start ?? "99:99");
           return s !== 0 ? s : a.name.localeCompare(b.name);
         }
+        case "distance": {
+          const d = (v: VenueListItem) =>
+            coords && v.lat != null && v.lng != null
+              ? haversineMiles(coords, { lat: v.lat, lng: v.lng })
+              : Infinity;
+          const ad = d(a);
+          const bd = d(b);
+          return ad !== bd ? ad - bd : a.name.localeCompare(b.name);
+        }
         case "startTime": {
           const s = (aB.start ?? "99:99").localeCompare(bB.start ?? "99:99");
           return s !== 0 ? s : a.name.localeCompare(b.name);
@@ -412,6 +463,7 @@ export function VenueTableClient({
     isNowOpen,
     runsToday,
     sortKey,
+    geo.coords,
   ]);
 
   // Helpers
@@ -460,6 +512,11 @@ export function VenueTableClient({
     setHappeningNow(false);
     setSearch("");
     setSortKey("now");
+  }
+
+  function clearLocation() {
+    geo.clear();
+    setSortKey((k) => (k === "distance" ? "now" : k));
   }
 
   const hasActiveFilters =
@@ -537,6 +594,9 @@ export function VenueTableClient({
               aria-label="Sort venues"
             >
               <option value="now">Happening now</option>
+              {geo.status === "granted" && (
+                <option value="distance">Closest to me</option>
+              )}
               <option value="startTime">Start time</option>
               <option value="endTime">End time</option>
               <option value="name">Name</option>
@@ -586,6 +646,32 @@ export function VenueTableClient({
           >
             Happening now
           </button>
+          {geo.status === "granted" ? (
+            <span className="ml-2 inline-flex items-center gap-1 rounded-full border border-accent-cool bg-accent-cool px-2.5 py-0.5 text-xs font-medium text-white">
+              <span aria-hidden="true">📍</span> Near you
+              <button
+                onClick={clearLocation}
+                aria-label="Clear location"
+                className="ml-0.5 leading-none hover:opacity-80"
+              >
+                ✕
+              </button>
+            </span>
+          ) : (
+            <button
+              onClick={geo.request}
+              disabled={geo.status === "prompting"}
+              aria-pressed={false}
+              className="ml-2 rounded-full border border-border bg-bg-elevated px-2.5 py-0.5 text-xs font-medium text-text-muted transition-colors hover:border-accent-cool hover:text-text-primary disabled:opacity-60"
+            >
+              {geo.status === "prompting" ? "Locating…" : "📍 Use my location"}
+            </button>
+          )}
+          {(geo.status === "denied" || geo.status === "unavailable") && (
+            <span className="ml-1 text-xs text-text-muted">
+              Location unavailable — check browser permissions
+            </span>
+          )}
         </div>
 
         {/* Row 3: neighborhood chips (only if showNeighborhood and there are neighborhoods) */}
@@ -760,6 +846,11 @@ export function VenueTableClient({
                         >
                           {v.name}
                         </Link>
+                        {geo.coords && (
+                          <div className="mt-0.5 text-xs">
+                            <DistanceLink origin={geo.coords} venue={v} />
+                          </div>
+                        )}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
@@ -880,6 +971,11 @@ export function VenueTableClient({
                       .filter(Boolean)
                       .join(" · ")}
                   </p>
+                  {geo.coords && (
+                    <p className="mt-0.5 text-xs">
+                      <DistanceLink origin={geo.coords} venue={v} />
+                    </p>
+                  )}
                   <p className="mt-1 text-sm text-text-primary">{b.days}</p>
                   <p className="mt-0.5 text-sm tabular-nums">
                     <span className="text-accent-warm">
@@ -963,6 +1059,11 @@ export function VenueTableClient({
                         ]
                           .filter(Boolean)
                           .join(" · ")}
+                      </span>
+                    )}
+                    {geo.coords && (
+                      <span className="ml-2 text-xs">
+                        <DistanceLink origin={geo.coords} venue={v} />
                       </span>
                     )}
                   </span>
