@@ -80,7 +80,7 @@ Wraps `navigator.geolocation.getCurrentPosition`. Exposes:
 
 ### 4. Maps deep-link — `lib/geo/mapsLink.ts` (new, pure helper + refactor)
 
-- `directionsUrl(origin: LatLng | null, dest: { lat, lng } | { address })`:
+- `directionsUrl(dest: { lat, lng } | { address }, origin: LatLng | null, isApple: boolean)`:
   Apple Maps on Apple devices, Google Maps elsewhere (same UA test as the
   current `DirectionsButton`). With an `origin`, builds a directions URL
   (`saddr/daddr` for Apple, `origin/destination` for Google); without one, falls
