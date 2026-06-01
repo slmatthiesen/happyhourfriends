@@ -63,4 +63,16 @@ check("bounded window is unchanged across its days", () =>
     [{ days: [1, 2], bounds: "4 PM – 6 PM" }],
   ));
 
+check("day absent from hours falls back to text while siblings resolve", () =>
+  assert.deepEqual(
+    formatWindowByDay(
+      { allDay: false, startTime: "15:00", endTime: null, daysOfWeek: [1, 7] },
+      hours,
+    ),
+    [
+      { days: [1], bounds: "3 PM – 10 PM" },
+      { days: [7], bounds: "3 PM – close" },
+    ],
+  ));
+
 console.log(`\n${passed} checks passed.`);
