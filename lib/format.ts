@@ -1,3 +1,5 @@
+import { resolveBoundsForDay, type OpenPeriod } from "@/lib/geo/timezone";
+
 // ISO 8601 weekday index: 1=Mon … 7=Sun.
 const DAY_ABBR = ["", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const DAY_FULL = [
@@ -82,4 +84,46 @@ export function formatPrice(cents: number | null, currency = "USD"): string | nu
     style: "currency",
     currency,
   }).format(cents / 100);
+}
+
+/**
+ * Render a window per day, grouping days that share identical resolved bounds. Each
+ * day's open-ended side is resolved against `hours` (via resolveBoundsForDay); days
+ * that can't resolve fall back to {@link formatWindow}'s text. Days are grouped by the
+ * resulting bounds string so e.g. Mon–Thu (close 10 PM) and Fri (close 12 AM) become
+ * two lines. Returns raw day arrays so callers choose the day formatter.
+ */
+export function formatWindowByDay(
+  window: {
+    allDay: boolean;
+    startTime: string | null;
+    endTime: string | null;
+    daysOfWeek: number[];
+  },
+  hours: OpenPeriod[] | null | undefined,
+): { days: number[]; bounds: string }[] {
+  const days = [...new Set(window.daysOfWeek)].sort((a, b) => a - b);
+  const byBounds = new Map<string, number[]>();
+  const order: string[] = [];
+  for (const d of days) {
+    const resolved = resolveBoundsForDay(
+      {
+        daysOfWeek: window.daysOfWeek,
+        allDay: window.allDay,
+        startTime: window.startTime,
+        endTime: window.endTime,
+      },
+      hours,
+      d,
+    );
+    const bounds = resolved
+      ? formatWindow({ allDay: false, startTime: resolved.startTime, endTime: resolved.endTime })
+      : formatWindow(window);
+    if (!byBounds.has(bounds)) {
+      byBounds.set(bounds, []);
+      order.push(bounds);
+    }
+    byBounds.get(bounds)!.push(d);
+  }
+  return order.map((bounds) => ({ days: byBounds.get(bounds)!, bounds }));
 }

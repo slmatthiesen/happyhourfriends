@@ -41,6 +41,7 @@
     "test:active": "tsx scripts/test-timezone-active.ts",
     "test:hours": "tsx scripts/test-opening-hours.ts",
     "test:resolve": "tsx scripts/test-resolve-bounds.ts",
+    "test:format-by-day": "tsx scripts/test-format-by-day.ts",
     "test:reverify": "tsx scripts/test-reverify-policy.ts",
     "test:reverify-parse": "tsx scripts/test-reverify-parse.ts",
     "test:reverify-report": "tsx scripts/test-reverify-report.ts",
