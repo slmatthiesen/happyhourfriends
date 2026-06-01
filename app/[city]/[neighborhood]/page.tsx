@@ -9,6 +9,17 @@ import {
   listVenuesForCity,
 } from "@/lib/queries/venues";
 
+// Full-route ISR, shared across all visitors — same model as the city page. The "Now"
+// badge is client-side, so caching the render is safe. The apply engine calls
+// revalidatePath on this neighborhood's path when a venue in it changes (see
+// lib/cache/revalidate.ts); the 1-hour window is the backstop. generateStaticParams=[]
+// keeps the DB out of `next build` while enabling the route cache.
+export const revalidate = 3600; // 1 hour
+
+export function generateStaticParams() {
+  return [];
+}
+
 export async function generateMetadata({
   params,
 }: {

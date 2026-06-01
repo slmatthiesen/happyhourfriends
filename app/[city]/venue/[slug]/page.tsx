@@ -9,6 +9,19 @@ import { formatDays, formatDaysLong, formatPrice, formatWindowByDay } from "@/li
 import { getCityBySlug, getVenueBySlug } from "@/lib/queries/venues";
 import { labelForVenueType } from "@/lib/places/venueType";
 
+// Full-route ISR, shared across all visitors. Safe to cache the render: the venue page
+// has no server-side time logic (the live "Now" state lives in the client grid), so a
+// cached page never goes stale on the clock. On-demand `revalidatePath` from the apply
+// engine refreshes a venue immediately when the AI or an admin edits it (see
+// lib/cache/revalidate.ts), so the 1-hour window is just the backstop for anything that
+// bypasses the engine. generateStaticParams=[] keeps the DB out of `next build` while
+// opting the route into the cache (bare `revalidate` alone leaves it fully dynamic).
+export const revalidate = 3600; // 1 hour
+
+export function generateStaticParams() {
+  return [];
+}
+
 export async function generateMetadata({
   params,
 }: {
