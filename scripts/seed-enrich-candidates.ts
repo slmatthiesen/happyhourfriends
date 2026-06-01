@@ -56,6 +56,10 @@ import { saveVenuePhoto } from "@/lib/places/venuePhoto";
 import { isDenylistedChain, isLikelyNoHappyHourFormat } from "@/lib/places/chainDenylist";
 import { slugify, placeIdSuffix } from "@/lib/places/venueSlug";
 import { deriveVenueType, isVenueType, type VenueType } from "@/lib/places/venueType";
+import { triageSite, resolveEnrichAction } from "@/lib/places/siteTriage";
+import { hhLikelihood } from "@/lib/places/hhLikelihood";
+import { renderKillReport, type KillEntry, type KillReason } from "@/lib/places/killReport";
+import { writeFile } from "node:fs/promises";
 
 // ---------------------------------------------------------------------------
 // Arg parsing
@@ -99,7 +103,12 @@ interface CityRow {
 
 type Sql = ReturnType<typeof postgres>;
 
-type SeedOutcome = "confirmed_hh" | "no_hh_explicit" | "no_hh_found" | "error";
+type SeedOutcome =
+  | "confirmed_hh"
+  | "no_hh_explicit"
+  | "no_hh_found"
+  | "killed_no_site"
+  | "error";
 
 /** Why a venue ended up with no happy-hour data — for the end-of-run report. */
 type NoDataReason = "no_website" | "zero_windows" | "all_dropped" | "errored";
@@ -108,6 +117,13 @@ interface NoDataEntry {
   reason: NoDataReason;
   detail?: string;
   via?: "batch" | "fallback" | "on-demand";
+}
+
+/** Map a triage kill-reason string to the report's KillReason bucket. */
+function killReasonOf(reason: string): KillReason {
+  if (reason.startsWith("dead")) return "dead";
+  if (reason.startsWith("parked")) return "parked";
+  return "no_site";
 }
 
 // ---------------------------------------------------------------------------
@@ -415,6 +431,8 @@ async function main() {
     let nError = 0;
     let nSkipped = 0;
     let nFiltered = 0;
+    let nKilled = 0;
+    const killEntries: KillEntry[] = [];
     const month = firstOfCurrentMonth();
 
     for (let i = 0; i < candidates.length; i++) {
@@ -476,15 +494,46 @@ async function main() {
 
         const siteUrl = details?.websiteUri ?? null;
 
-        // ---- Single AI pass: extract HH straight from the venue's site -------
-        const extracted = siteUrl
-          ? await extractHappyHours({
-              venueName: candidate.name,
-              websiteUrl: siteUrl,
-              otherUrl: null,
-              cityName: city.name,
-            })
-          : null;
+        // ---- Site triage: kill dead/parked/no-site; point extractor at HH links --
+        const verdict = await triageSite({
+          websiteUri: siteUrl,
+          name: candidate.name,
+          cityName: city.name,
+        });
+        const likelihood = hhLikelihood({
+          primaryType: candidate.primary_type,
+          types: candidate.types,
+          name: candidate.name,
+        });
+        const decided = resolveEnrichAction(verdict, likelihood);
+
+        if (decided.action === "kill") {
+          console.log(`  ✗ kill — ${decided.reason}`);
+          killEntries.push({
+            name: candidate.name,
+            neighborhood: null,
+            reason: killReasonOf(verdict.reason),
+            urlTried: verdict.url,
+            likelihood,
+          });
+          await markProcessed(sql, candidate.id, "killed_no_site", null);
+          nKilled++;
+          continue;
+        }
+
+        // extract: real reachable site (use HH links) OR no-site go-for-it (web_search).
+        // action === "stub" (social_only) → no AI, write a stub directly.
+        const extractUrl = verdict.kind === "real" ? verdict.url : null;
+        const extracted =
+          decided.action === "extract"
+            ? await extractHappyHours({
+                venueName: candidate.name,
+                websiteUrl: extractUrl,
+                otherUrl: null,
+                cityName: city.name,
+                priorityUrls: decided.priorityUrls,
+              })
+            : null;
 
         if (extracted) {
           await writeLedger(sql, city.id, month, extracted);
@@ -493,7 +542,7 @@ async function main() {
               `${extracted.happyHours.length} window(s)`,
           );
         } else {
-          console.log("  → no website on file");
+          console.log("  → stub (social/ordering link only)");
         }
 
         const ctx: PrepContext = {
@@ -562,11 +611,19 @@ async function main() {
     // ---- Assign neighborhoods by point-in-polygon --------------------------
     const assigned = await assignNeighborhoods(sql, city.id);
 
+    // ---- Kill audit report (no-site/dead/parked venues never created) ------
+    if (killEntries.length > 0) {
+      const path = `docs/${city.slug}-killed-venues.md`;
+      await writeFile(path, renderKillReport(city.name, killEntries), "utf8");
+      console.log(`\n  ✗ killed ${killEntries.length} no-site/dead/parked venue(s) → ${path}`);
+    }
+
     // ---- Summary ------------------------------------------------------------
     console.log("\n── Enrichment complete ──────────────────────────────────");
     console.log(`  confirmed_hh:    ${nConfirmed}`);
     console.log(`  neighborhoods assigned: ${assigned}`);
     console.log(`  no_hh_found:     ${nNoHhFound}`);
+    console.log(`  killed (no valid site): ${nKilled}`);
     console.log(`  error:           ${nError}`);
     console.log(`  skipped (existing): ${nSkipped}`);
     console.log(`  filtered (no alcohol): ${nFiltered}`);
