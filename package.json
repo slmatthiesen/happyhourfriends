@@ -51,7 +51,8 @@
     "sync:to-prod": "bash scripts/sync-data-to-prod.sh",
     "push:data": "bash scripts/push-data-to-prod.sh",
     "pull:data": "bash scripts/pull-data-from-prod.sh",
-    "test:route-contribution": "tsx scripts/test-route-contribution.ts"
+    "test:route-contribution": "tsx scripts/test-route-contribution.ts",
+    "test:interpreter-newhh": "tsx scripts/test-interpreter-newhh.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.99.0",
