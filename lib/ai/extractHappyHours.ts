@@ -33,7 +33,7 @@ import type { Usage } from "@/lib/ai/anthropic";
 import { costCents as calcCostCents } from "@/lib/ai/pricing";
 import { MODELS } from "@/lib/ai/models";
 import { loadPrompt, splitPrompt } from "@/lib/ai/promptHash";
-import { fetchUrl } from "@/lib/verification/fetchUrl";
+import { fetchPages, renderPagesAsBlocks } from "@/lib/ai/siteContent";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -215,7 +215,7 @@ const RECORD_TOOL: ToolUnion = {
 };
 
 // The model gets ONLY the structured-output tool. No web_search / web_fetch — content is
-// fetched by us (see fetchSiteContent) and passed inline, so the model cannot fetch or
+// fetched by us (lib/ai/siteContent) and passed inline, so the model cannot fetch or
 // search and cannot incur Anthropic web-tool charges. tool_choice forces this one call.
 const TOOLS: ToolUnion[] = [RECORD_TOOL];
 
@@ -223,64 +223,6 @@ const TOOLS: ToolUnion[] = [RECORD_TOOL];
 // pages site triage already found) come first, then the website + other URL. Bounded so a
 // link-heavy site can't balloon the input-token bill. fetchUrl caps each page at ~8k chars.
 const MAX_FETCH = 5;
-
-/** A page we fetched ourselves, ready to drop into the model's content blocks. */
-interface FetchedPage {
-  url: string;
-  /** Stripped page text (HTML) — present for non-PDF pages that fetched OK. */
-  text?: string;
-  /** Base64 PDF bytes — present for PDF menus, handed over as a document block. */
-  pdfBase64?: string;
-}
-
-/** Fetch the venue's known pages over plain HTTP (free, robots-respecting). */
-async function fetchSiteContent(input: ExtractInput): Promise<FetchedPage[]> {
-  const urls = [
-    ...(input.priorityUrls ?? []),
-    input.websiteUrl ?? undefined,
-    input.otherUrl ?? undefined,
-  ].filter((u): u is string => typeof u === "string" && u.trim().length > 0);
-  const unique = [...new Set(urls)].slice(0, MAX_FETCH);
-
-  const results = await Promise.all(unique.map((u) => fetchUrl(u)));
-  const pages: FetchedPage[] = [];
-  for (const r of results) {
-    if (!r.ok) continue;
-    if (r.isPdf && r.pdfBase64) pages.push({ url: r.url, pdfBase64: r.pdfBase64 });
-    else if (r.contentText) pages.push({ url: r.url, text: r.contentText });
-  }
-  return pages;
-}
-
-/** Render fetched pages as content blocks: a labeled text block per page, document block per PDF. */
-function pagesToContentBlocks(userText: string, pages: FetchedPage[]): ContentBlockParam[] {
-  const blocks: ContentBlockParam[] = [{ type: "text", text: userText }];
-  if (pages.length === 0) {
-    blocks.push({
-      type: "text",
-      text: "No page content could be fetched for this venue. Call record_happy_hours with happyHours: [] and confidence 0.",
-    });
-    return blocks;
-  }
-  blocks.push({
-    type: "text",
-    text:
-      "The following content was fetched from this venue's own pages. Extract ONLY from it. " +
-      "Use the exact 'Source: <url>' shown above each page as the sourceUrl for anything you record.",
-  });
-  for (const p of pages) {
-    if (p.pdfBase64) {
-      blocks.push({ type: "text", text: `Source: ${p.url} (PDF)` });
-      blocks.push({
-        type: "document",
-        source: { type: "base64", media_type: "application/pdf", data: p.pdfBase64 },
-      });
-    } else if (p.text) {
-      blocks.push({ type: "text", text: `Source: ${p.url}\n\n${p.text}` });
-    }
-  }
-  return blocks;
-}
 
 const VALID_LOCATION = new Set(["bar", "patio", "dining", "all"]);
 const VALID_KIND = new Set(["food", "drink", "other"]);
@@ -429,8 +371,22 @@ export async function buildExtractRequest(input: ExtractInput): Promise<ExtractR
   const system = fillPlaceholders(rawSystem, input);
   const userText = fillPlaceholders(rawUser, input);
 
-  const pages = await fetchSiteContent(input);
-  const content = pagesToContentBlocks(userText, pages);
+  const pages = await fetchPages(
+    [...(input.priorityUrls ?? []), input.websiteUrl, input.otherUrl],
+    MAX_FETCH,
+  );
+  const content: ContentBlockParam[] = [
+    { type: "text", text: userText },
+    {
+      type: "text",
+      text:
+        pages.length === 0
+          ? "No page content could be fetched for this venue. Call record_happy_hours with happyHours: [] and confidence 0."
+          : "The following content was fetched from this venue's own pages. Extract ONLY from it. " +
+            "Use the exact 'Source: <url>' shown above each page as the sourceUrl for anything you record.",
+    },
+    ...renderPagesAsBlocks(pages),
+  ];
 
   return {
     params: {
