@@ -45,6 +45,7 @@
     "test:reverify": "tsx scripts/test-reverify-policy.ts",
     "test:reverify-parse": "tsx scripts/test-reverify-parse.ts",
     "test:reverify-report": "tsx scripts/test-reverify-report.ts",
+    "test:distance": "tsx scripts/test-distance.ts",
     "sync:to-prod": "bash scripts/sync-data-to-prod.sh",
     "push:data": "bash scripts/push-data-to-prod.sh",
     "pull:data": "bash scripts/pull-data-from-prod.sh"
