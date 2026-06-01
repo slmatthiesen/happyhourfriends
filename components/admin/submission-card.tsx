@@ -111,10 +111,22 @@ export function SubmissionCard({ item }: { item: QueueItem }) {
         <p className="mt-2 text-sm text-text-muted">{item.diff.summary}</p>
       )}
 
-      {item.aiReasoning && (
-        <p className="mt-2 rounded-md border border-border/60 bg-bg-elevated px-3 py-2 text-xs text-text-muted">
-          <span className="text-text-primary">AI:</span> {item.aiReasoning}
+      {item.diff.sourceUrl && (
+        <p className="mt-2 text-sm">
+          {/\/(uploads|quarantine)\//.test(item.diff.sourceUrl) ? (
+            <a className="text-accent-cool hover:underline" href={item.diff.sourceUrl} target="_blank" rel="noopener noreferrer">
+              View submitted photo ↗
+            </a>
+          ) : (
+            <a className="text-accent-cool hover:underline" href={item.diff.sourceUrl} target="_blank" rel="noopener noreferrer">
+              Source: {item.diff.sourceUrl} ↗
+            </a>
+          )}
         </p>
+      )}
+
+      {item.aiReasoning && (
+        <p className="mt-1 text-sm text-text-muted">AI: {item.aiReasoning}</p>
       )}
 
       <table className="mt-3 w-full text-left text-sm">
@@ -151,16 +163,7 @@ export function SubmissionCard({ item }: { item: QueueItem }) {
       </table>
 
       <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-text-muted">
-        {item.diff.sourceUrl ? (
-          <a
-            href={item.diff.sourceUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-accent-cool hover:underline"
-          >
-            Source ↗
-          </a>
-        ) : (
+        {!item.diff.sourceUrl && (
           <span className="text-accent-hot">no source provided</span>
         )}
         {item.submitterEmail && <span>· {item.submitterEmail}</span>}
