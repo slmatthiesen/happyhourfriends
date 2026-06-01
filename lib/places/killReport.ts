@@ -16,6 +16,11 @@ function pct(v: number | null): string {
   return v == null ? "?" : `${Math.round(v * 100)}%`;
 }
 
+/** Escape a markdown table cell: pipes break columns, newlines break rows. */
+function cell(s: string | null): string {
+  return (s ?? "").replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
+}
+
 function table(rows: KillEntry[], includeUrl: boolean): string {
   const head = includeUrl
     ? "| Venue | Neighborhood | Reason | URL tried | Likelihood |\n| --- | --- | --- | --- | --- |"
@@ -23,8 +28,8 @@ function table(rows: KillEntry[], includeUrl: boolean): string {
   const body = rows
     .map((r) =>
       includeUrl
-        ? `| ${r.name} | ${r.neighborhood ?? ""} | ${r.reason} | ${r.urlTried ?? ""} | ${pct(r.likelihood)} |`
-        : `| ${r.name} | ${r.neighborhood ?? ""} | ${pct(r.likelihood)} |`,
+        ? `| ${cell(r.name)} | ${cell(r.neighborhood)} | ${r.reason} | ${cell(r.urlTried)} | ${pct(r.likelihood)} |`
+        : `| ${cell(r.name)} | ${cell(r.neighborhood)} | ${pct(r.likelihood)} |`,
     )
     .join("\n");
   return rows.length ? `${head}\n${body}` : "_none_";

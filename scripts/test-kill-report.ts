@@ -29,5 +29,15 @@ check("empty list still renders headings with (0)", () => {
   const md = renderKillReport("Phoenix", []);
   assert.ok(md.includes("(0)"));
 });
+check("escapes pipes in venue name so the table row stays intact", () => {
+  const md = renderKillReport("Phoenix", [
+    { name: "Bar | Grill", neighborhood: "X|Y", reason: "dead", urlTried: "http://a.com?x=1|2", likelihood: 0.5 },
+  ]);
+  assert.ok(md.includes("Bar \\| Grill"));
+  assert.ok(md.includes("X\\|Y"));
+  // The data row has exactly 5 columns → 6 pipes (leading, 4 separators, trailing).
+  const dataRow = md.split("\n").find((l) => l.includes("Bar \\| Grill"))!;
+  assert.equal((dataRow.match(/(?<!\\)\|/g) ?? []).length, 6);
+});
 
 console.log(`\n${passed} checks passed.`);
