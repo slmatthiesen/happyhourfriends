@@ -164,16 +164,18 @@ function NowBadge({
 function DistanceLink({
   origin,
   venue,
+  isApple,
 }: {
   origin: { lat: number; lng: number };
   venue: VenueListItem;
+  isApple: boolean;
 }): React.JSX.Element | null {
   if (venue.lat == null || venue.lng == null) return null;
   const dest = { lat: venue.lat, lng: venue.lng };
   const mi = haversineMiles(origin, dest);
   return (
     <a
-      href={directionsUrl(dest, origin, isApplePlatform())}
+      href={directionsUrl(dest, origin, isApple)}
       target="_blank"
       rel="noopener noreferrer"
       className="text-accent-cool hover:underline"
@@ -209,6 +211,9 @@ export function VenueTableClient({
   const [showStubs, setShowStubs] = useState(false);
 
   const geo = useGeolocation();
+  // Platform check reads navigator, so it's stable for the page's lifetime —
+  // compute once rather than per distance link per render.
+  const isApple = useMemo(() => isApplePlatform(), []);
 
   // Derived neighborhoods list. Only surface a neighborhood as a filter chip if at
   // least one of its venues has actual happy-hour data — neighborhoods that are
@@ -504,7 +509,9 @@ export function VenueTableClient({
     setHappeningNow(false);
     setSearch("");
     setSortKey("now");
-    geo.clear();
+    // Location is independent of the filters — clearing filters leaves a shared
+    // location (and its distance labels) intact. The "Near you" chip's own ✕
+    // (clearLocation) is the only thing that drops location.
   }
 
   function clearLocation() {
@@ -840,7 +847,7 @@ export function VenueTableClient({
                         </Link>
                         {geo.coords && (
                           <div className="mt-0.5 text-xs">
-                            <DistanceLink origin={geo.coords} venue={v} />
+                            <DistanceLink origin={geo.coords} venue={v} isApple={isApple} />
                           </div>
                         )}
                       </td>
@@ -965,7 +972,7 @@ export function VenueTableClient({
                   </p>
                   {geo.coords && (
                     <p className="mt-0.5 text-xs">
-                      <DistanceLink origin={geo.coords} venue={v} />
+                      <DistanceLink origin={geo.coords} venue={v} isApple={isApple} />
                     </p>
                   )}
                   <p className="mt-1 text-sm text-text-primary">{b.days}</p>
@@ -1055,7 +1062,7 @@ export function VenueTableClient({
                     )}
                     {geo.coords && (
                       <span className="ml-2 text-xs">
-                        <DistanceLink origin={geo.coords} venue={v} />
+                        <DistanceLink origin={geo.coords} venue={v} isApple={isApple} />
                       </span>
                     )}
                   </span>
