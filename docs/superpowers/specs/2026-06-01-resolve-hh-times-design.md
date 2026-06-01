@@ -93,17 +93,17 @@ grid **always implies today**.
 Within a tier, keep the existing tiebreak (start time, then name). Promoted-row pinning at
 the very top is unchanged (PRD §6.3).
 
-**Per-row day chip + muting.** A small chip per row:
+**Relevance via sort + muting — no chips.** Relevance is signalled by position and
+emphasis, not a per-row label:
 
-- `Now` — live now
-- `Today` — runs today, not yet live
-- next upcoming day abbreviation (e.g. `Fri`) — computed as the soonest ISO day in the
-  venue's happy-hour days at or after tomorrow, wrapping the week
-- none — stubs (no happy-hour rows)
+- **Live now** — the existing happening-now pulse (`NowBadge`) already marks these; no
+  extra chip.
+- **Today** (tiers 0–1) — rendered at full emphasis and sorted toward the top, so "today"
+  is obvious without a label.
+- **Not today** (tiers 2–3) — subtle muting (reduced emphasis), **not red** ("not today"
+  is not an error).
 
-Non-today rows (tiers 2–3) get subtle muting (reduced emphasis), **not red** — "not today"
-is not an error, and color-alone fails accessibility, so the textual chip carries the
-signal.
+No `Now` / `Today` / next-day chip is added.
 
 `happeningNow` and `toggleToday` filters are unchanged and remain one-tap.
 
@@ -145,8 +145,8 @@ Framework confirmed during planning. Coverage:
   open / latest close); cross-midnight close; bounded window (passes through untouched).
 - **`formatWindowByDay`**: uniform days collapse to one line; varying close splits into
   groups; unresolved days fall back to text; mixed resolved + unresolved.
-- **Grid tier sort**: ordering across the four tiers with tiebreaks; chip selection
-  (Now / Today / next-day / none).
+- **Grid tier sort**: ordering across the four tiers (live → today → other days → stubs)
+  with start-time/name tiebreaks.
 
 ## Out of scope
 
