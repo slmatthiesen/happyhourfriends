@@ -34,9 +34,9 @@ check("real domain → real", () => {
 
 // isParkedHtml
 check("for-sale page is parked", () =>
-  assert.equal(isParkedHtml('<title>brix.com is for sale</title><body>Buy this domain</body>', "http://x.com"), true));
+  assert.equal(isParkedHtml('<title>brix.com is for sale</title><body>Buy this domain</body>'), true));
 check("real menu page is not parked", () =>
-  assert.equal(isParkedHtml("<body><nav><a href='/happy-hour'>Happy Hour</a></nav> lots of real content here ".repeat(20) + "</body>", "http://x.com"), false));
+  assert.equal(isParkedHtml("<body><nav><a href='/happy-hour'>Happy Hour</a></nav> lots of real content here ".repeat(20) + "</body>"), false));
 
 // extractHhSignalLinks
 check("finds /happy-hour link, resolved absolute", () => {
