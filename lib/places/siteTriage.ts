@@ -76,10 +76,11 @@ export function classifyUrl(raw: string | null | undefined): { kind: SiteKind; u
   return { kind: "real", url: trimmed };
 }
 
-export function isParkedHtml(html: string, _finalUrl: string): boolean {
+export function isParkedHtml(html: string): boolean {
   const lower = html.toLowerCase();
   if (PARKED_MARKERS.some((m) => lower.includes(m))) return true;
-  // Near-empty body (strip tags) → placeholder shell.
+  // Near-empty body (strip tags) → placeholder shell. The 80-char floor is a heuristic:
+  // a real venue homepage always has more visible text than a parking stub.
   const text = lower.replace(/<script[\s\S]*?<\/script>/g, "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
   return text.length < 80;
 }
@@ -151,7 +152,7 @@ export async function triageSite(input: {
   if (!resp || resp.status >= 500 || (resp.status >= 404 && resp.status <= 410)) {
     return { kind: "real", url: cls.url, reachability: "dead", hhSignalUrls: [], decision: "kill", reason: `dead site (${resp ? resp.status : "unreachable"})` };
   }
-  if (resp.status === 200 && isParkedHtml(resp.html, resp.finalUrl)) {
+  if (resp.status === 200 && isParkedHtml(resp.html)) {
     return { kind: "real", url: cls.url, reachability: "parked", hhSignalUrls: [], decision: "kill", reason: "parked domain" };
   }
   // Reachable (incl. 403 bot-block) → extract; collect HH-signal links from the HTML we have.
