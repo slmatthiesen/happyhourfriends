@@ -174,4 +174,5 @@ export const seedOutcome = pgEnum("seed_outcome", [
   "no_hh_found",
   "no_hh_explicit",
   "error",
+  "killed_no_site",
 ]);
