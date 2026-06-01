@@ -1,14 +1,13 @@
 "use client";
 
+import { directionsUrl, isApplePlatform } from "@/lib/geo/mapsLink";
+
 // Apple Maps on Apple devices, Google Maps elsewhere (PRD §6.3). We deep-link
 // rather than embed a map (a v1 non-goal). Styled as a plain accent link with a
 // map-pin icon to match the sibling row actions — not a filled yellow CTA.
 export function DirectionsButton({ address }: { address: string }) {
   function open() {
-    const isApple = /iPhone|iPad|iPod|Mac/.test(navigator.userAgent);
-    const url = isApple
-      ? `https://maps.apple.com/?q=${encodeURIComponent(address)}`
-      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+    const url = directionsUrl({ address }, null, isApplePlatform());
     window.open(url, "_blank", "noopener,noreferrer");
   }
   return (
