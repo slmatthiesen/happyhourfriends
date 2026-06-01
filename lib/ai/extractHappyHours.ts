@@ -62,10 +62,16 @@ export interface ExtractedHappyHour {
   daysOfWeek: number[];
   /** True when the deal applies all open hours on the listed days (no time window). */
   allDay: boolean;
-  /** 24-hour "HH:MM"; null when allDay is true */
+  /** 24-hour "HH:MM"; null when allDay is true, or null start of an "open until X" window */
   startTime: string | null;
-  /** 24-hour "HH:MM" or null ("until close") */
+  /** 24-hour "HH:MM" or null ("until close" / when allDay) */
   endTime: string | null;
+  /**
+   * Did we capture a usable time bound — a start, an end, or an explicit all-day claim?
+   * False ONLY for a deal we kept with no time info at all (coerced to all-day so it can
+   * be stored). Feeds the realness gate and the live "happening now" logic.
+   */
+  timeKnown: boolean;
   locationWithinVenue: string;
   notes: string | null;
   /** URL actually fetched this run that contains this schedule. Required by §13. */
@@ -312,33 +318,37 @@ function normaliseHappyHour(raw: RawHappyHour): ExtractedHappyHour | null {
   );
   if (daysOfWeek.length === 0) return null;
 
-  const allDay = raw.allDay === true;
-
-  // Policy backstop (2026-05-31): a credible "all day" deal is a narrow,
-  // explicitly-sourced industry-night pattern on ≤2 specific days. An all-day claim
-  // spanning 3+ days is almost always regular pricing or a fallback the model reached
-  // for when it couldn't find a time window — not a happy hour. Drop it regardless of
-  // what the model emitted. Mirrors lib/places/chainDenylist: enforce policy in code,
-  // not just the prompt. See docs/superpowers/specs/2026-05-31-all-day-happy-hour-scrutiny-design.md.
-  if (allDay && daysOfWeek.length >= 3) return null;
-
   const rawStart = raw.startTime ?? null;
   const rawEnd = raw.endTime ?? null;
 
-  // Enforce the same shape as the DB CHECK so the engine never sees an illegal row:
-  //   - allDay=true  → startTime AND endTime must be null
-  //   - allDay=false → startTime is required (endTime may be null = "until close")
-  // Reject everything else — these are malformed model outputs, not data we can save.
+  // CAPTURE policy (2026-05-31): never throw away a structurally-valid window for
+  // realness reasons — that decision belongs to lib/places/realnessGate downstream.
+  // Here we only coerce the row into a DB-legal shape (happy_hours_all_day_shape:
+  // all_day=true → both times null; all_day=false → at least one of start/end set):
+  //   - explicit all-day claim          → all_day=true, times nulled, timeKnown
+  //   - any known start and/or end       → bounded window kept as-is, timeKnown
+  //     (incl. "open until X" = start null + end set, and "until close" = start + end null)
+  //   - no time info at all, no all-day  → coerce to all_day so it stores; timeKnown=false
+  //     so the gate hides it for review (we kept the deal rather than dropping it).
+  let allDay: boolean;
   let startTime: string | null;
   let endTime: string | null;
-  if (allDay) {
-    if (rawStart !== null || rawEnd !== null) return null;
+  let timeKnown: boolean;
+  if (raw.allDay === true) {
+    allDay = true;
     startTime = null;
     endTime = null;
-  } else {
-    if (rawStart === null) return null;
+    timeKnown = true;
+  } else if (rawStart !== null || rawEnd !== null) {
+    allDay = false;
     startTime = rawStart;
     endTime = rawEnd;
+    timeKnown = true;
+  } else {
+    allDay = true;
+    startTime = null;
+    endTime = null;
+    timeKnown = false;
   }
 
   const offerings: ExtractedOffering[] = (raw.offerings ?? [])
@@ -347,6 +357,7 @@ function normaliseHappyHour(raw: RawHappyHour): ExtractedHappyHour | null {
 
   return {
     allDay,
+    timeKnown,
     daysOfWeek,
     startTime,
     endTime,

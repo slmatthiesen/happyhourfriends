@@ -106,19 +106,23 @@ export function isWindowActive(
   now: VenueLocalNow,
   hours?: OpenPeriod[] | null,
 ): boolean {
-  // Unbounded windows — all-day, or "until close" (endTime null) — have no intrinsic end.
-  // We can only assert them active if we know the venue's hours; otherwise SUPPRESS
-  // (never guess a close time — showing "now" while the venue is shut is the bug we fix).
-  const unbounded = w.allDay || w.endTime == null;
+  // Unbounded windows have an open-ended side and no intrinsic clock bound there:
+  //   - all-day        (both null)
+  //   - "until close"  (start set, end null)
+  //   - "open until X" (start null, end set) — starts at the venue's open time
+  // We can only assert these active if we know the venue's hours; otherwise SUPPRESS
+  // (never guess an open/close time — showing "now" while the venue is shut is the bug
+  // we fix). The bounded post-midnight tail is intentionally not extended.
+  const unbounded = w.allDay || w.startTime == null || w.endTime == null;
   if (unbounded) {
     if (!hours || hours.length === 0) return false;
     if (!isVenueOpenAt(hours, now)) return false;
-    if (w.allDay) return w.daysOfWeek.includes(now.dayOfWeek);
-    // until-close: startTime is non-null (DB CHECK). Active on a listed start day, from
-    // start onward, while the venue is open. (The rare post-midnight tail is intentionally
-    // not extended — under-reporting late-night is acceptable; over-reporting "open" is not.)
-    if (w.startTime === null) return false; // defensive
-    return w.daysOfWeek.includes(now.dayOfWeek) && now.minutes >= toMinutes(w.startTime);
+    const onDay = w.daysOfWeek.includes(now.dayOfWeek);
+    if (w.allDay) return onDay;
+    // "open until X": active from open until the end time on a listed day.
+    if (w.startTime == null) return onDay && now.minutes < toMinutes(w.endTime as string);
+    // "until close": active from start onward on a listed day.
+    return onDay && now.minutes >= toMinutes(w.startTime);
   }
 
   // Bounded window (both start and end known) — unchanged, independent of hours.
