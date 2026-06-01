@@ -57,6 +57,19 @@ export function SubmissionCard({ item }: { item: QueueItem }) {
   const [done, setDone] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Derive whether this submission looks bad / unapplyable.
+  const after = item.diff.after ?? {};
+  const afterIsEmpty =
+    Object.keys(after).length === 0 ||
+    Object.values(after).every((v) => v === null || v === undefined || v === "");
+  const onlyNote = Object.keys(after).length === 1 && "note" in after;
+  const reasoning = (item.aiReasoning ?? "").toLowerCase();
+  const looksBad =
+    item.aiVerdict === "reject" ||
+    afterIsEmpty ||
+    onlyNote ||
+    /contradict|reject|could not map|no .* change|too large/.test(reasoning);
+
   function run(fn: () => Promise<{ ok: boolean; error?: string }>) {
     setError(null);
     start(async () => {
@@ -73,6 +86,18 @@ export function SubmissionCard({ item }: { item: QueueItem }) {
       for (const k of keys) override[k] = coerce(item.diff.after[k], edits[k] ?? "");
     }
     run(() => applyAction(item.id, override));
+  }
+
+  function onApplyGuarded() {
+    if (
+      looksBad &&
+      !window.confirm(
+        "This change looks bad or empty — applying may push bad data live. Apply anyway?",
+      )
+    ) {
+      return;
+    }
+    onApply();
   }
 
   if (done) {
@@ -169,11 +194,17 @@ export function SubmissionCard({ item }: { item: QueueItem }) {
         {item.submitterEmail && <span>· {item.submitterEmail}</span>}
       </div>
 
+      {looksBad && (
+        <p className="mt-3 rounded-md border border-accent-hot/40 bg-accent-hot/10 px-3 py-2 text-sm text-accent-hot">
+          ⚠ This submission looks bad or empty — the AI doesn&apos;t recommend applying it. Reject is usually correct.
+        </p>
+      )}
+
       <div className="mt-4 flex flex-wrap gap-2">
         <button
           type="button"
           disabled={pending}
-          onClick={onApply}
+          onClick={onApplyGuarded}
           className="rounded-md bg-accent-warm px-3 py-1.5 text-sm font-medium text-bg-deep hover:opacity-90 disabled:opacity-50"
         >
           {editing ? "Apply with edits" : "Apply"}
