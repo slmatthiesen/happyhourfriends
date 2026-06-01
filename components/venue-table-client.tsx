@@ -250,14 +250,6 @@ export function VenueTableClient({
     };
   }, []);
 
-  // When the visitor first shares location, default the sort to "Closest to me".
-  // Fires only on the transition into "granted" (deps unchanged afterward), so a
-  // later manual sort change is not overridden.
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (geo.status === "granted") setSortKey("distance");
-  }, [geo.status]);
-
   // Cache venueLocalNow per timezone — computed every tick so the live "Now" badge
   // and ends-in microcopy stay live. Includes the city tz so the header clock
   // shows even on a city with zero venues.
@@ -512,6 +504,7 @@ export function VenueTableClient({
     setHappeningNow(false);
     setSearch("");
     setSortKey("now");
+    geo.clear();
   }
 
   function clearLocation() {
@@ -659,9 +652,8 @@ export function VenueTableClient({
             </span>
           ) : (
             <button
-              onClick={geo.request}
+              onClick={() => geo.request(() => setSortKey("distance"))}
               disabled={geo.status === "prompting"}
-              aria-pressed={false}
               className="ml-2 rounded-full border border-border bg-bg-elevated px-2.5 py-0.5 text-xs font-medium text-text-muted transition-colors hover:border-accent-cool hover:text-text-primary disabled:opacity-60"
             >
               {geo.status === "prompting" ? "Locating…" : "📍 Use my location"}

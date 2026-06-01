@@ -13,7 +13,7 @@ export type GeoStatus =
 export interface UseGeolocation {
   coords: LatLng | null;
   status: GeoStatus;
-  request: () => void;
+  request: (onLocated?: (coords: LatLng) => void) => void;
   clear: () => void;
 }
 
@@ -26,7 +26,7 @@ export function useGeolocation(): UseGeolocation {
   const [coords, setCoords] = useState<LatLng | null>(null);
   const [status, setStatus] = useState<GeoStatus>("idle");
 
-  const request = useCallback(() => {
+  const request = useCallback((onLocated?: (coords: LatLng) => void) => {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
       setStatus("unavailable");
       return;
@@ -34,8 +34,10 @@ export function useGeolocation(): UseGeolocation {
     setStatus("prompting");
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        const next = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setCoords(next);
         setStatus("granted");
+        onLocated?.(next);
       },
       () => setStatus("denied"),
       { enableHighAccuracy: false, timeout: 10_000, maximumAge: 60_000 },
