@@ -1,0 +1,1 @@
+ALTER TYPE "public"."seed_outcome" ADD VALUE 'killed_no_site';
