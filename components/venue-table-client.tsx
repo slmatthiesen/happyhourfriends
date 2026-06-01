@@ -726,7 +726,7 @@ export function VenueTableClient({
                   const tier = priceTier(v);
                   const live = isNowOpen(v);
                   const today = runsToday(v);
-                  const muted = !live && !today;
+                  const muted = !promoted && !live && !today;
                   // Promoted styling wins over live styling — they share the warm
                   // left border, and a venue is unlikely to be both anyway.
                   const rowStyle = promoted
@@ -833,7 +833,7 @@ export function VenueTableClient({
               const tier = priceTier(v);
               const live = isNowOpen(v);
               const today = runsToday(v);
-              const muted = !live && !today;
+              const muted = !promoted && !live && !today;
               const cardStyle = promoted
                 ? {
                     backgroundColor: "var(--row-promoted)",
