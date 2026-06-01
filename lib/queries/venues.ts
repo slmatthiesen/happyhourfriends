@@ -40,6 +40,9 @@ export interface VenueListItem
   offerings: { label: string; priceCents: number | null }[];
   /** Cheapest priced offering across this venue's hours (fallback price signal). */
   minPriceCents: number | null;
+  /** Venue coordinates (WGS84). Drives the client-side "Closest to me" sort. */
+  lat: number | null;
+  lng: number | null;
 }
 
 export interface CityListItem {
@@ -206,6 +209,8 @@ export async function listVenuesForCity(
       priceLevel: venues.priceLevel,
       heroImageUrl: venues.heroImageUrl,
       hoursJson: venues.hoursJson,
+      lat: venues.lat,
+      lng: venues.lng,
       neighborhoodName: neighborhoods.name,
       neighborhoodSlug: neighborhoods.slug,
     })
@@ -322,6 +327,8 @@ export async function listVenuesForCity(
       tags: tagsByVenue.get(r.id) ?? [],
       offerings: offersByVenue.get(r.id) ?? [],
       minPriceCents: minPriceByVenue.get(r.id) ?? null,
+      lat: r.lat != null ? Number(r.lat) : null,
+      lng: r.lng != null ? Number(r.lng) : null,
     };
   });
 }
