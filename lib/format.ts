@@ -106,16 +106,7 @@ export function formatWindowByDay(
   const byBounds = new Map<string, number[]>();
   const order: string[] = [];
   for (const d of days) {
-    const resolved = resolveBoundsForDay(
-      {
-        daysOfWeek: window.daysOfWeek,
-        allDay: window.allDay,
-        startTime: window.startTime,
-        endTime: window.endTime,
-      },
-      hours,
-      d,
-    );
+    const resolved = resolveBoundsForDay(window, hours, d);
     const bounds = resolved
       ? formatWindow({ allDay: false, startTime: resolved.startTime, endTime: resolved.endTime })
       : formatWindow(window);
