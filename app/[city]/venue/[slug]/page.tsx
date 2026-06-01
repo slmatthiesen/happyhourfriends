@@ -3,8 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DirectionsButton } from "@/components/directions-button";
 import { SiteWordmark } from "@/components/site-wordmark";
-import { AddHappyHour } from "@/components/submit/add-happy-hour";
-import { ReportChange } from "@/components/submit/report-change";
+import { Contribute } from "@/components/submit/contribute";
 import { formatDays, formatDaysLong, formatPrice, formatWindowByDay } from "@/lib/format";
 import { getCityBySlug, getVenueBySlug } from "@/lib/queries/venues";
 import { labelForVenueType } from "@/lib/places/venueType";
@@ -300,18 +299,12 @@ export default async function VenuePage({
         </h2>
 
         {activeHours.length === 0 ? (
-          <div
-            id="add-happy-hour"
-            className="mt-4 rounded-lg border border-border bg-bg-surface p-6"
-          >
+          <div id="add-happy-hour" className="mt-4 rounded-lg border border-border bg-bg-surface p-6">
             <p className="text-text-muted">
-              We don&apos;t have confirmed happy hour info for {venue.name} yet. Know
-              it? Help us add it — paste a link or upload a photo of the menu, and
-              fill in whatever details you have. An operator reviews everything
-              before it goes live.
+              We don&apos;t have confirmed happy hour info for {venue.name} yet.
             </p>
             <div className="mt-4">
-              <AddHappyHour venueId={venue.id} venueName={venue.name} />
+              <Contribute venueId={venue.id} venueName={venue.name} hasHappyHour={false} />
             </div>
           </div>
         ) : (
@@ -372,20 +365,18 @@ export default async function VenuePage({
         )}
       </section>
 
-      <section className="mt-12 border-t border-border pt-8">
-        <h2
-          className="text-xl text-text-primary"
-          style={{ fontFamily: "var(--font-serif)" }}
-        >
-          Keep this listing accurate
-        </h2>
-        <p className="mt-1 mb-3 text-sm text-text-muted">
-          Prices changed? New deal? Closed? Just tell us in plain words — our AI sorts
-          out the details and a human approves it before anything goes live.
-        </p>
-
-        <ReportChange venueId={venue.id} venueName={venue.name} />
-      </section>
+      {activeHours.length > 0 && (
+        <section className="mt-12 border-t border-border pt-8">
+          <h2 className="text-xl text-text-primary" style={{ fontFamily: "var(--font-serif)" }}>
+            Keep this listing accurate
+          </h2>
+          <p className="mt-1 mb-3 text-sm text-text-muted">
+            Prices changed? New deal? Closed? Just tell us in plain words — our AI sorts out
+            the details and a human approves it before anything goes live.
+          </p>
+          <Contribute venueId={venue.id} venueName={venue.name} hasHappyHour={true} />
+        </section>
+      )}
     </main>
   );
 }
