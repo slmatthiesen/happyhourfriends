@@ -1,8 +1,8 @@
 ---
 prompt: reverify-all-day
-version: 1
+version: 2
 model: claude-sonnet-4-6
-notes: Disconfirmation-biased re-check of an existing all-day HH claim. Forces a structured verdict via record_verdict. Independent of seed-extract-hh (do NOT reuse its logic) — the point is an adversarial second opinion.
+notes: v2 (2026-06-01) — NO web tools: the venue's source + website pages are FETCHED FOR US and provided inline below under `Source: <url>` lines; the model no longer browses or searches (eliminates model-driven web_fetch/web_search charges). v1 — Disconfirmation-biased re-check of an existing all-day HH claim. Forces a structured verdict via record_verdict. Independent of seed-extract-hh (do NOT reuse its logic) — the point is an adversarial second opinion.
 ---
 
 # System
@@ -18,9 +18,9 @@ A happy hour is a RECURRING, TIME-LIMITED discount. A discount available during 
 open hours every day is regular pricing, NOT a happy hour. A printable coupon or a
 single-date promo is NOT a happy hour.
 
-You have two tools: web_fetch (renders pages + PDFs) and web_search. Fetch the venue's
-own site and its happy-hour / specials / menu pages; follow links and open PDFs. You may
-web_search for the venue's happy hour to find the first-party page.
+The venue's recorded source page and its website have been FETCHED FOR YOU and are
+provided inline below, each preceded by a `Source: <url>` line (PDFs included). You do
+NOT browse or search — judge the claim only from the provided content.
 
 Then call `record_verdict` EXACTLY ONCE. You must choose one verdict:
 
