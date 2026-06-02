@@ -34,8 +34,13 @@ const AMBIGUITY_GAP_METERS = 500;
  *      recognizability >= RECOGNIZABLE_BAR), OR any coarse district. A fine neighborhood
  *      below the recognizability bar is ineligible (shadowed) and only wins when no
  *      eligible polygon is in range.
- *   2. Among eligible: recognizable fine over coarse district.
- *   3. Containing polygon (ST_Distance = 0) beats merely-near.
+ *   2. Containing polygon (ST_Distance = 0) beats merely-near. SNAP_METERS is a
+ *      polygon-precision tolerance, not a "near enough to count" radius — a coarse
+ *      district that fully contains a venue must beat a recognizable fine the venue is
+ *      only within snap range of but NOT inside.
+ *   3. Among polygons at the same distance: recognizable fine beats coarse. (A
+ *      containing fine still wins over a containing coarse because they tie at
+ *      distance 0 and key 3 breaks toward fine.)
  *   4. Higher recognizability wins.
  *   5. Tie-break: smallest polygon by area.
  * Outside SNAP_METERS, neighborhood_id stays NULL.
@@ -75,13 +80,18 @@ export async function assignNeighborhoods(
                --    ineligible (shadowed) and only used as a last resort.
                (CASE WHEN n.tier = 'fine' AND n.recognizability < ${RECOGNIZABLE_BAR}
                      THEN 1 ELSE 0 END) ASC,
-               -- 2. Among eligible: prefer a recognizable FINE name over a COARSE rollup.
-               (CASE WHEN n.tier = 'fine' THEN 0 ELSE 1 END) ASC,
-               -- 3. Containing polygon (distance 0) beats merely-near.
+               -- 2. Containing polygon (distance 0) beats merely-near. The snap radius is a
+               --    precision tolerance, not a "near enough to count" radius — a coarse
+               --    district that fully contains a venue beats a recognizable fine that
+               --    the venue is only within 100m of but NOT inside.
                ST_Distance(
                  n.polygon::geography,
                  ST_SetSRID(ST_MakePoint(vv.lng::float8, vv.lat::float8), 4326)::geography
                ) ASC,
+               -- 3. Among polygons at the same distance: prefer a recognizable FINE name
+               --    over a COARSE rollup. A containing fine (distance 0) still wins over
+               --    a containing coarse because they tie at key 2 and this key breaks it.
+               (CASE WHEN n.tier = 'fine' THEN 0 ELSE 1 END) ASC,
                -- 4. Higher recognizability wins.
                n.recognizability DESC,
                -- 5. Tie-break: smaller (more specific) polygon.

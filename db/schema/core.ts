@@ -81,9 +81,9 @@ export const neighborhoods = pgTable(
     source: text("source"),
     sourceUrl: text("source_url"),
     parentId: uuid("parent_id").references((): AnyPgColumn => neighborhoods.id),
-    // Coarse, gap-free fallback polygon (e.g. council wards) layered UNDER fine-grained
-    // neighborhoods. Assignment ranks non-fallback polygons above fallback ones within the
-    // snap radius, so a venue only attaches to a fallback when no precise polygon is in range.
+    // Provenance flag: true when this polygon was imported as a coarse gap-filler layer
+    // (e.g. council wards). Retained for metadata/audit purposes only — assignment ranking
+    // is driven by `tier` + `recognizability`, not by this flag.
     isFallback: boolean("is_fallback").notNull().default(false),
     // Two-tier model for friendly listings. `tier` distinguishes a fine named
     // neighborhood (Arcadia, Sam Hughes) from a coarse rollup district (urban village,

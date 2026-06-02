@@ -99,12 +99,16 @@ async function main() {
       const slug = slugify(args.slugProp ? props[args.slugProp] : name);
       const geomJson = JSON.stringify(feature.geometry);
 
+      // This importer is used exclusively for coarse admin layers (council districts,
+      // ward boundaries, etc.). Always set tier='coarse', recognizability=1 so these
+      // polygons rank correctly relative to fine named neighborhoods in assignNeighborhoods.
       await sql`
-        INSERT INTO neighborhoods (city_id, name, slug, polygon, source, source_url, is_fallback)
+        INSERT INTO neighborhoods (city_id, name, slug, polygon, source, source_url, is_fallback, tier, recognizability)
         VALUES (
           ${city.id}, ${name}, ${slug},
           ST_Multi(ST_SetSRID(ST_GeomFromGeoJSON(${geomJson}), 4326)),
-          ${args.source ?? null}, ${args.sourceUrl ?? null}, ${args.fallback}
+          ${args.source ?? null}, ${args.sourceUrl ?? null}, ${args.fallback},
+          'coarse', 1
         )
         ON CONFLICT (city_id, slug) DO UPDATE SET
           name = EXCLUDED.name,
@@ -112,6 +116,8 @@ async function main() {
           source = EXCLUDED.source,
           source_url = EXCLUDED.source_url,
           is_fallback = EXCLUDED.is_fallback,
+          tier = EXCLUDED.tier,
+          recognizability = EXCLUDED.recognizability,
           updated_at = now()
       `;
       inserted++;
