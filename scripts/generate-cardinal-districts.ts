@@ -127,6 +127,9 @@ async function main() {
     const [anchorLat, anchorLng] = dtArg
       ? dtArg.split(",").map(Number)
       : [b.clat, b.clng];
+    if (dtArg && (Number.isNaN(anchorLat) || Number.isNaN(anchorLng))) {
+      throw new Error(`Bad --downtown "${dtArg}" — expected "lat,lng".`);
+    }
 
     // The boundary as a reusable SQL expression from its WKT.
     const boundarySql = sql`ST_SetSRID(ST_GeomFromText(${b.boundaryWkt}), 4326)`;
@@ -147,10 +150,16 @@ async function main() {
         WHERE NOT EXISTS (
           SELECT 1 FROM neighborhoods WHERE city_id = ${c.id} AND slug = ${slug}
         )
+          AND NOT ST_IsEmpty(
+            ST_CollectionExtract(
+              ST_Intersection(${boundarySql}, ST_SetSRID(ST_GeomFromGeoJSON(${geomJson}), 4326)), 3))
         RETURNING id
       `;
       if (res.length) inserted++;
-      else skipped++;
+      else {
+        skipped++;
+        console.warn(`  ${r.name}: skipped (already present or empty after clip)`);
+      }
     }
 
     // Downtown = anchor buffer clipped to boundary.
@@ -167,10 +176,19 @@ async function main() {
       WHERE NOT EXISTS (
         SELECT 1 FROM neighborhoods WHERE city_id = ${c.id} AND slug = ${dtSlug}
       )
+        AND NOT ST_IsEmpty(
+          ST_CollectionExtract(
+            ST_Intersection(
+              ${boundarySql},
+              ST_Buffer(ST_SetSRID(ST_MakePoint(${anchorLng}, ${anchorLat}), 4326)::geography, ${DOWNTOWN_RADIUS_M})::geometry
+            ), 3))
       RETURNING id
     `;
     if (dtRes.length) inserted++;
-    else skipped++;
+    else {
+      skipped++;
+      console.warn(`  Downtown: skipped (already present or empty after clip)`);
+    }
 
     const reassigned = await assignNeighborhoods(sql, c.id);
     console.log(
