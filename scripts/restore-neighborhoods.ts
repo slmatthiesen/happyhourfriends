@@ -46,6 +46,16 @@ async function main() {
             IS DISTINCT FROM (s.tier, s.recognizability, s.is_fallback, s.name, s.slug)
       RETURNING n.id`;
 
+    // Clear any venue assignment that points at a neighborhood inserted AFTER the snapshot
+    // (e.g. a venue seeded/assigned during the window we're reverting). Step 1 only restores
+    // venues present in the snapshot; this guards the FK so the DELETE below can't violate it.
+    // Such venues are left unassigned — re-run assignment afterwards if needed.
+    const orphaned = await sql`
+      UPDATE venues SET neighborhood_id = NULL, updated_at = now()
+      WHERE neighborhood_id IS NOT NULL
+        AND neighborhood_id NOT IN (SELECT id FROM nb_snapshot)
+      RETURNING id`;
+
     const deleted = await sql`
       DELETE FROM neighborhoods
       WHERE id NOT IN (SELECT id FROM nb_snapshot)
@@ -53,7 +63,8 @@ async function main() {
 
     console.log(
       `Restored: ${assignments.length} venue assignments reverted, ` +
-        `${restored.length} neighborhood rows reverted, ${deleted.length} inserted rows deleted.`,
+        `${restored.length} neighborhood rows reverted, ${orphaned.length} post-snapshot ` +
+        `assignments cleared, ${deleted.length} inserted rows deleted.`,
     );
   } finally {
     await sql.end();

@@ -12,10 +12,12 @@
  *
  * Queries the Overpass API for `place=neighbourhood|suburb|quarter` areas within the
  * city's bbox (read from cities.bbox, or pass --bbox "south,west,north,east"), converts
- * to GeoJSON with osmtogeojson (handles multipolygon relations), and INSERTS each named
- * polygon that doesn't already exist for the city (slug not taken — never clobbers an
- * existing neighborhood from another source). Then re-runs the §3.7 venue→neighborhood
- * assignment. Idempotent: re-runs skip slugs already present.
+ * to GeoJSON with osmtogeojson (handles multipolygon relations), and UPSERTS each named
+ * polygon. On slug conflict it does NOT clobber the existing geometry/name/source — it
+ * PROMOTES the existing row's recognizability (GREATEST of old/new) and, if the OSM score
+ * is higher, its tier and is_fallback. This is how a demoted Neighborhood-Association row
+ * that OSM also maps becomes recognizable. Then re-runs the §3.7 venue→neighborhood
+ * assignment. Idempotent: GREATEST() means recognizability never decreases on re-runs.
  *
  * Default is_fallback = false (primary). Pass --fallback to layer OSM under an existing
  * primary set instead.

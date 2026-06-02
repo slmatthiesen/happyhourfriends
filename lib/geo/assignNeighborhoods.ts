@@ -105,6 +105,10 @@ export async function assignNeighborhoods(
   // Stage 2 — unambiguous "closeness" fill for venues the tight snap left NULL. Assign the
   // nearest neighborhood within WIDE_SNAP_METERS only when it's a clear winner (no second
   // neighborhood at a comparable distance). Ambiguous venues stay NULL by design.
+  // NOTE: stage 2 does NOT apply the stage-1 recognizability eligibility filter — a lone
+  // obscure fine (recognizability 0) within 1mi can win here. Acceptable: stage 2 only fires
+  // for venues contained by NOTHING within 100m (a polygonless fringe), where the sole nearby
+  // polygon is the best available label regardless of recognizability.
   const wide = await sql<{ id: string }[]>`
     UPDATE venues v
     SET neighborhood_id = sub.nid,

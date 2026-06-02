@@ -11,6 +11,7 @@
  */
 import "dotenv/config";
 import postgres from "postgres";
+import { RECOGNIZABLE_BAR } from "@/lib/geo/recognizability";
 
 const GATE = 0.95;
 
@@ -42,9 +43,9 @@ async function main() {
              count(v.id)::int AS venues,
              count(v.neighborhood_id)::int AS assigned,
              COALESCE(count(v.neighborhood_id)::float / NULLIF(count(v.id), 0), 0) AS rate,
-             count(v.id) FILTER (WHERE n.tier = 'fine' AND n.recognizability >= 1)::int AS on_fine,
+             count(v.id) FILTER (WHERE n.tier = 'fine' AND n.recognizability >= ${RECOGNIZABLE_BAR})::int AS on_fine,
              COALESCE(
-               count(v.id) FILTER (WHERE n.tier = 'fine' AND n.recognizability >= 1)::float
+               count(v.id) FILTER (WHERE n.tier = 'fine' AND n.recognizability >= ${RECOGNIZABLE_BAR})::float
                / NULLIF(count(v.neighborhood_id), 0), 0) AS recognizable_rate
       FROM cities c
       LEFT JOIN venues v ON v.city_id = c.id AND v.deleted_at IS NULL

@@ -17,8 +17,13 @@ async function main() {
   if (!url) throw new Error("DATABASE_URL is not set");
   const sql = postgres(url, { max: 1 });
   try {
+    // OSM-presence is the recognizability signal, so a pre-existing OSM row clears the bar
+    // at score 1. We deliberately do NOT set 2 here: score 2 means "has a wikidata/wikipedia
+    // tag", which we can't know without the Overpass tags. Re-running `import:osm-neighbourhoods`
+    // bumps the genuinely wiki-tagged rows to 2 via GREATEST(); this backfill just guarantees
+    // every existing OSM row is recognizable.
     const osm = await sql`
-      UPDATE neighborhoods SET tier='fine', recognizability=2
+      UPDATE neighborhoods SET tier='fine', recognizability=GREATEST(recognizability, 1)
       WHERE source LIKE 'OpenStreetMap%'
       RETURNING id`;
     const villages = await sql`
