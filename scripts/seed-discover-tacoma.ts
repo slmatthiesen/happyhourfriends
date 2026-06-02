@@ -38,6 +38,17 @@ function parseArgs(): { city: string; curated: boolean; fresh: boolean } {
     const i = argv.indexOf(f);
     return i >= 0 ? argv[i + 1] : undefined;
   };
+  // Reject stray args. `seed:discover tucson` (no --city) silently ran Tacoma before — a
+  // costly footgun (wrong city / wasted Places quota). The city MUST be a --city flag.
+  for (let i = 0; i < argv.length; i++) {
+    const tok = argv[i];
+    if (tok === "--city") { i++; continue; } // --city consumes its value
+    if (tok === "--curated" || tok === "--fresh") continue;
+    throw new Error(
+      `Unexpected argument "${tok}". Pass the city as a flag:\n` +
+        `  npm run seed:discover -- --city <slug>   (e.g. --city tucson)`,
+    );
+  }
   return {
     city: getFlag("--city") ?? "tacoma",
     curated: argv.includes("--curated"),
