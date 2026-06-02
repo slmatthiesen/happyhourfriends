@@ -156,6 +156,45 @@ export function extractPageRoutes(html: string, baseUrl: string): string[] {
   return [...out];
 }
 
+/**
+ * PDF/image menu links in the page — the >50% case where the HH menu is a document,
+ * not HTML. A restaurant PDF is almost always a menu (kept regardless of name); images
+ * are kept only when the filename/alt looks menu-ish (avoids decorative photos).
+ */
+const MEDIA_SIGNAL = /menu|happy|hour|\bbar\b|drink|cocktail|special|food|dinner|lunch|brunch/i;
+
+export function extractMediaLinks(html: string, baseUrl: string): string[] {
+  const out = new Set<string>();
+  const abs = (u: string) => { try { return new URL(u, baseUrl).toString(); } catch { return null; } };
+
+  // <a href="…pdf"> (any PDF) and <a href="…jpg/png/webp"> with a menu signal.
+  const aRe = /<a\b[^>]*href\s*=\s*["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = aRe.exec(html)) !== null) {
+    const href = m[1];
+    const text = m[2].replace(/<[^>]+>/g, " ");
+    const isPdf = /\.pdf(\?|#|$)/i.test(href);
+    const isImg = /\.(jpe?g|png|webp)(\?|#|$)/i.test(href);
+    if (isPdf || (isImg && (MEDIA_SIGNAL.test(href) || MEDIA_SIGNAL.test(text)))) {
+      const u = abs(href);
+      if (u) out.add(u);
+    }
+  }
+  // <img src="…"> whose filename or alt suggests a menu.
+  const imgRe = /<img\b[^>]*>/gi;
+  while ((m = imgRe.exec(html)) !== null) {
+    const tag = m[0];
+    const src = tag.match(/\bsrc\s*=\s*["']([^"']+)["']/i)?.[1];
+    const alt = tag.match(/\balt\s*=\s*["']([^"']*)["']/i)?.[1] ?? "";
+    if (!src || !/\.(jpe?g|png|webp)(\?|#|$)/i.test(src)) continue;
+    if (MEDIA_SIGNAL.test(src) || MEDIA_SIGNAL.test(alt)) {
+      const u = abs(src);
+      if (u) out.add(u);
+    }
+  }
+  return [...out].slice(0, 4);
+}
+
 /** Common HH/menu paths to PROBE even when nothing links them (most→least specific). */
 export const GUESS_MENU_PATHS = [
   "/happy-hour", "/happyhour", "/happy-hour-menu", "/menu/happy-hour",
@@ -251,11 +290,12 @@ export function siteVerdictFromFetch(url: string, outcome: FetchOutcome): SiteVe
   // high-scoring guess (/happy-hour) can't crowd out a real route (/menu).
   let hhSignalUrls: string[];
   if (status === 200) {
+    const media = extractMediaLinks(html, finalUrl); // PDF/image menus — highest value
     const links = extractHhSignalLinks(html, finalUrl);
     const routes = extractPageRoutes(html, finalUrl).filter((u) => scoreHhUrl(u) > 0);
     const confirmed = rankCandidates([...links, ...routes], 8);
     const guesses = rankCandidates(guessMenuUrls(finalUrl), 12);
-    hhSignalUrls = [...new Set([...confirmed, ...guesses])].slice(0, 10);
+    hhSignalUrls = [...new Set([...media, ...confirmed, ...guesses])].slice(0, 12);
   } else {
     hhSignalUrls = guessMenuUrls(url); // bot-blocked: still probe the obvious paths
   }

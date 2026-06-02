@@ -6,7 +6,7 @@
  * Run: tsx scripts/test-discovery.ts
  */
 import assert from "node:assert";
-import { extractPageRoutes, guessMenuUrls, rankCandidates, GUESS_MENU_PATHS } from "@/lib/places/siteTriage";
+import { extractPageRoutes, guessMenuUrls, rankCandidates, GUESS_MENU_PATHS, extractMediaLinks } from "@/lib/places/siteTriage";
 
 let passed = 0;
 function check(name: string, fn: () => void) { fn(); passed++; console.log(`  ✓ ${name}`); }
@@ -47,6 +47,22 @@ check("confirmed-before-guesses keeps /menu when guesses outscore it (the Botteg
   const final = [...new Set([...confirmed, ...guesses])].slice(0, 10);
   assert.ok(final.includes("https://x.com/menu"), "/menu (real route) survives ranking");
   assert.ok(final.indexOf("https://x.com/menu") < 8, "/menu is in the fetched window");
+});
+
+check("extractMediaLinks: PDFs (any) + menu-signal images, skips decorative photos", () => {
+  const html = `
+    <a href="/files/dinner-menu.pdf">Dinner</a>
+    <a href="/happy-hour.pdf">HH</a>
+    <a href="/images/happy-hour-menu.jpg">bar menu</a>
+    <img src="/img/menu-board.png" alt="our menu">
+    <img src="/img/patio-sunset.jpg" alt="the patio at dusk">
+  `;
+  const media = extractMediaLinks(html, "https://x.com/");
+  assert.ok(media.includes("https://x.com/files/dinner-menu.pdf"), "pdf kept");
+  assert.ok(media.includes("https://x.com/happy-hour.pdf"), "hh pdf kept");
+  assert.ok(media.includes("https://x.com/images/happy-hour-menu.jpg"), "menu image link kept");
+  assert.ok(media.includes("https://x.com/img/menu-board.png"), "menu <img> kept");
+  assert.ok(!media.some((u) => u.includes("patio-sunset")), "decorative photo skipped");
 });
 
 console.log(`\n${passed} checks passed.`);

@@ -20,6 +20,21 @@ const USER_AGENT =
 const TIMEOUT_MS = 10_000;
 const MAX_CONTENT = 8_000; // default (verifier tool loop); extractor overrides higher.
 const MAX_PDF_BYTES = 10 * 1024 * 1024; // Claude accepts up to 32MB; keep it sane.
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // vision images — keep request size sane.
+
+export type ImageMediaType = "image/jpeg" | "image/png" | "image/gif" | "image/webp";
+
+/** Map a content-type / extension to a Claude-vision-supported image media type. */
+function imageMediaType(contentType: string, pathname: string): ImageMediaType | null {
+  const ct = contentType.split(";")[0].trim();
+  if (ct === "image/jpeg" || ct === "image/png" || ct === "image/gif" || ct === "image/webp") return ct;
+  const ext = pathname.toLowerCase().match(/\.(jpe?g|png|gif|webp)(?:$|\?)/)?.[1];
+  if (ext === "jpg" || ext === "jpeg") return "image/jpeg";
+  if (ext === "png") return "image/png";
+  if (ext === "gif") return "image/gif";
+  if (ext === "webp") return "image/webp";
+  return null;
+}
 
 export interface FetchOpts {
   /** Max chars of reduced HTML text to return. Default MAX_CONTENT. */
@@ -42,6 +57,10 @@ export interface FetchResult {
   /** Set when the resource is a PDF — base64 bytes for a document content block. */
   isPdf?: boolean;
   pdfBase64?: string;
+  /** Set when the resource is an image — base64 bytes for a vision image block. */
+  isImage?: boolean;
+  imageBase64?: string;
+  imageMediaType?: ImageMediaType;
   contentType?: string;
   blockedByRobots?: boolean;
   error?: string;
@@ -207,6 +226,24 @@ export async function fetchUrl(url: string, opts: FetchOpts = {}): Promise<Fetch
         contentType: "application/pdf",
         isPdf: true,
         pdfBase64: bytes.toString("base64"),
+      };
+    }
+
+    // Image menus (>50% of HH menus are image/PDF) → return bytes for a vision block.
+    const imgType = imageMediaType(contentType, parsed.pathname);
+    if (imgType) {
+      const bytes = Buffer.from(await res.arrayBuffer());
+      if (bytes.byteLength > MAX_IMAGE_BYTES) {
+        return { url, ok: false, status: res.status, contentType, error: "image too large" };
+      }
+      return {
+        url,
+        ok: true,
+        status: res.status,
+        contentType: imgType,
+        isImage: true,
+        imageBase64: bytes.toString("base64"),
+        imageMediaType: imgType,
       };
     }
 

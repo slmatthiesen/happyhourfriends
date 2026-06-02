@@ -6,7 +6,7 @@
  * extractor (extractHappyHours) and the adversarial reverifier (reverify/adversarial).
  */
 import type { ContentBlockParam } from "@anthropic-ai/sdk/resources/messages";
-import { fetchUrl } from "@/lib/verification/fetchUrl";
+import { fetchUrl, type ImageMediaType } from "@/lib/verification/fetchUrl";
 
 /** A page we fetched ourselves, ready to drop into the model's content blocks. */
 export interface FetchedPage {
@@ -15,6 +15,9 @@ export interface FetchedPage {
   text?: string;
   /** Base64 PDF bytes — present for PDF menus, handed over as a document block. */
   pdfBase64?: string;
+  /** Base64 image bytes — present for image menus, handed over as a vision block. */
+  imageBase64?: string;
+  imageMediaType?: ImageMediaType;
 }
 
 /**
@@ -36,6 +39,8 @@ export async function fetchPages(
   for (const r of results) {
     if (!r.ok) continue;
     if (r.isPdf && r.pdfBase64) pages.push({ url: r.url, pdfBase64: r.pdfBase64 });
+    else if (r.isImage && r.imageBase64 && r.imageMediaType)
+      pages.push({ url: r.url, imageBase64: r.imageBase64, imageMediaType: r.imageMediaType });
     else if (r.contentText) pages.push({ url: r.url, text: r.contentText });
   }
   return pages;
@@ -53,6 +58,12 @@ export function renderPagesAsBlocks(pages: FetchedPage[]): ContentBlockParam[] {
       blocks.push({
         type: "document",
         source: { type: "base64", media_type: "application/pdf", data: p.pdfBase64 },
+      });
+    } else if (p.imageBase64 && p.imageMediaType) {
+      blocks.push({ type: "text", text: `Source: ${p.url} (image menu)` });
+      blocks.push({
+        type: "image",
+        source: { type: "base64", media_type: p.imageMediaType, data: p.imageBase64 },
       });
     } else if (p.text) {
       blocks.push({ type: "text", text: `Source: ${p.url}\n\n${p.text}` });
