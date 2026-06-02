@@ -75,6 +75,7 @@ function parseArgs() {
     limit: get("--limit") ? parseInt(get("--limit")!, 10) : null,
     dryRun: a.includes("--dry-run"),
     quick: a.includes("--quick"), // synchronous path; default is the Batch API
+    collect: get("--collect"), // resume: persist an already-ended batch by id
   };
 }
 
@@ -254,6 +255,49 @@ async function runBatch(
   }
 }
 
+/**
+ * Resume: persist an already-ended batch by id (custom_id === venue id). Recovers
+ * results when the original poll was killed before the batch finished — no re-spend,
+ * the results live on Anthropic for 24h. Idempotent (attachWindows ON CONFLICT DO NOTHING).
+ */
+async function runCollect(sql: Sql, batchId: string, month: string, c: Counters) {
+  const { model, promptHash } = extractorMetadata();
+  let seen = 0;
+  for await (const res of streamResults(batchId)) {
+    seen++;
+    const rows = await sql<(StubVenue & { city_id: string })[]>`
+      SELECT v.id, v.name, v.website_url, v.type::text AS type, sc.primary_type, v.city_id
+      FROM venues v
+      LEFT JOIN seed_candidates sc ON sc.resulting_venue_id = v.id
+      WHERE v.id = ${res.custom_id}
+    `;
+    const v = rows[0];
+    if (!v) {
+      console.log(`  ? ${res.custom_id}: no matching venue (skipped)`);
+      continue;
+    }
+    if (res.result.type !== "succeeded") {
+      console.log(`  ✗ ${v.name}: ${res.result.type}`);
+      continue;
+    }
+    const message: Message = res.result.message;
+    const parsed = parseRecordedExtract(message);
+    const usage = { inputTokens: message.usage.input_tokens, outputTokens: message.usage.output_tokens };
+    const extracted: ExtractResult = {
+      happyHours: parsed.happyHours,
+      confidence: parsed.confidence,
+      summary: parsed.summary,
+      venueType: parsed.venueType,
+      usage,
+      costCents: costCents(model, usage, { batch: true }),
+      promptHash,
+      model,
+    };
+    await persistResult(sql, v.city_id, month, v, extracted, c);
+  }
+  console.log(`\n  collected ${seen} result(s) from ${batchId}`);
+}
+
 async function main() {
   const args = parseArgs();
   const sql = postgres(process.env.DATABASE_URL!, { max: 1 });
@@ -264,6 +308,19 @@ async function main() {
   }
 
   try {
+    // Resume mode: persist an already-submitted batch by id (no re-spend).
+    if (args.collect) {
+      const c: Counters = { venuesRecovered: 0, windowsLive: 0, windowsHidden: 0, stillEmpty: 0, spentCents: 0 };
+      console.log(`[COLLECT] pulling results from ${args.collect}…`);
+      await runCollect(sql, args.collect, firstOfCurrentMonth(), c);
+      console.log("\n── Collect complete ──────────────────────────────────────");
+      console.log(`  venues recovered → live: ${c.venuesRecovered}`);
+      console.log(`  windows added (live):    ${c.windowsLive}`);
+      console.log(`  windows hidden:          ${c.windowsHidden}`);
+      console.log(`  ledgered spend (batch):  $${(c.spentCents / 100).toFixed(2)}`);
+      return;
+    }
+
     const [city] = await sql<{ id: string; name: string }[]>`
       SELECT id, name FROM cities WHERE slug = ${args.city}
     `;
