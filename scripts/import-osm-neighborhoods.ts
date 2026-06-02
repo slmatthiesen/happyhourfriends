@@ -12,10 +12,12 @@
  *
  * Queries the Overpass API for `place=neighbourhood|suburb|quarter` areas within the
  * city's bbox (read from cities.bbox, or pass --bbox "south,west,north,east"), converts
- * to GeoJSON with osmtogeojson (handles multipolygon relations), and INSERTS each named
- * polygon that doesn't already exist for the city (slug not taken — never clobbers an
- * existing neighborhood from another source). Then re-runs the §3.7 venue→neighborhood
- * assignment. Idempotent: re-runs skip slugs already present.
+ * to GeoJSON with osmtogeojson (handles multipolygon relations), and UPSERTS each named
+ * polygon. On slug conflict it does NOT clobber the existing geometry/name/source — it
+ * PROMOTES the existing row's recognizability (GREATEST of old/new) and, if the OSM score
+ * is higher, its tier and is_fallback. This is how a demoted Neighborhood-Association row
+ * that OSM also maps becomes recognizable. Then re-runs the §3.7 venue→neighborhood
+ * assignment. Idempotent: GREATEST() means recognizability never decreases on re-runs.
  *
  * Default is_fallback = false (primary). Pass --fallback to layer OSM under an existing
  * primary set instead.
@@ -159,7 +161,7 @@ out geom;`;
     );
 
     let inserted = 0;
-    let skippedExisting = 0;
+    let promoted = 0;
     let failed = 0;
     const seen = new Set<string>();
     for (const f of polys) {
@@ -167,10 +169,12 @@ out geom;`;
       const slug = slugify(name);
       if (!slug || seen.has(slug)) continue;
       seen.add(slug);
-      if (taken.has(slug)) {
-        skippedExisting++;
-        continue;
-      }
+      // A slug already present for this city is an existing row from another source (e.g.
+      // a demoted Neighborhood-Association polygon). We DON'T skip it — we let it flow into
+      // the INSERT ... ON CONFLICT DO UPDATE below, which PROMOTES that row's recognizability
+      // (keeping its geometry/name/source). OSM-presence is the recognizability signal: a name
+      // OSM maps gets promoted; one it doesn't (e.g. Limberlost) stays shadowed.
+      const isExisting = taken.has(slug);
       const geomJson = JSON.stringify(f.geometry);
       const props = f.properties as Record<string, unknown>;
       const tier = tierForPlace(props.place as string | undefined);
@@ -194,7 +198,8 @@ out geom;`;
               is_fallback = CASE WHEN EXCLUDED.recognizability > neighborhoods.recognizability
                                  THEN false ELSE neighborhoods.is_fallback END
         `;
-        inserted++;
+        if (isExisting) promoted++;
+        else inserted++;
       } catch (err) {
         failed++;
         console.warn(`  skip "${name}": ${(err as Error).message}`);
@@ -204,7 +209,7 @@ out geom;`;
     const reassigned = await assignNeighborhoods(sql, city.id);
     console.log(
       `OSM neighborhoods for '${args.city}': ${polys.length} polygons found, ` +
-        `${inserted} inserted, ${skippedExisting} already present, ${failed} failed. ` +
+        `${inserted} inserted, ${promoted} promoted (recognizability bumped), ${failed} failed. ` +
         `Reassigned ${reassigned} venue(s).`,
     );
   } finally {

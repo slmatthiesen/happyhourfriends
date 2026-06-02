@@ -59,7 +59,8 @@
     "test:safesearch": "tsx scripts/test-safesearch.ts",
     "test:cardinal-districts": "tsx scripts/test-cardinal-districts.ts",
     "generate:cardinal-districts": "tsx scripts/generate-cardinal-districts.ts",
-    "test:assignment": "tsx scripts/test-neighborhood-assignment.ts"
+    "test:assignment": "tsx scripts/test-neighborhood-assignment.ts",
+    "restore:neighborhoods": "tsx scripts/restore-neighborhoods.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.99.0",
