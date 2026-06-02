@@ -53,7 +53,8 @@
     "pull:data": "bash scripts/pull-data-from-prod.sh",
     "test:route-contribution": "tsx scripts/test-route-contribution.ts",
     "test:interpreter-newhh": "tsx scripts/test-interpreter-newhh.ts",
-    "test:contribution-pipeline": "tsx --conditions react-server scripts/test-contribution-pipeline.ts"
+    "test:contribution-pipeline": "tsx --conditions react-server scripts/test-contribution-pipeline.ts",
+    "test:safesearch": "tsx scripts/test-safesearch.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.99.0",
