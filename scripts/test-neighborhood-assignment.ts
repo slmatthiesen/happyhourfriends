@@ -72,6 +72,20 @@ async function main() {
       passed++;
       console.log("  ✓ obscure fine is shadowed → coarse rollup");
 
+      // Venue C: inside Big District (coarse, contains it) but only ~47m from Famous Hood
+      // (within the 100m snap, NOT inside it). Containing coarse must beat merely-near fine.
+      // Verified: ST_Distance(Famous Hood, lng=-110.8995 lat=32.85) ≈ 46.8m (0 < d < 100).
+      const [vC] = await tx<{ id: string }[]>`
+        INSERT INTO venues (city_id, name, slug, lat, lng)
+        VALUES (${city.id}, 'Venue C', 'venue-c', 32.85, -110.8995) RETURNING id`;
+
+      await assignNeighborhoods(tx as unknown as typeof sql, city.id);
+
+      assert.equal(await got(vC.id), "Big District",
+        "containing coarse district beats a recognizable fine the venue is only near");
+      passed++;
+      console.log("  ✓ containing coarse beats merely-near fine");
+
       // Roll back: throw a sentinel so sql.begin aborts the txn.
       throw new Error("ROLLBACK_SENTINEL");
     });
@@ -81,7 +95,7 @@ async function main() {
     await sql.end();
   }
   console.log(`\n${passed} checks passed (fixtures rolled back).`);
-  if (passed !== 2) process.exit(1);
+  if (passed !== 3) process.exit(1);
 }
 
 main().catch((err) => {
