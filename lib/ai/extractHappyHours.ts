@@ -178,6 +178,11 @@ const RECORD_TOOL: ToolUnion = {
             sourceUrl: { type: "string", description: "Exact URL fetched that shows this schedule" },
             offerings: {
               type: "array",
+              description:
+                "Supporting discounted items/prices for this window, if any are published. " +
+                "MAY BE EMPTY: a happy hour is the recurring day+time WINDOW itself — record the " +
+                "window even when the page lists no individual prices or items (offerings: []). " +
+                "Never drop a clearly-stated window for lack of itemized prices.",
               items: {
                 type: "object",
                 properties: {
@@ -195,7 +200,7 @@ const RECORD_TOOL: ToolUnion = {
               },
             },
           },
-          required: ["daysOfWeek", "sourceUrl", "offerings"],
+          required: ["daysOfWeek", "sourceUrl"],
         },
       },
       confidence: { type: "number", description: "0..1" },

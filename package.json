@@ -32,6 +32,8 @@
     "backfill:neighborhood-tiers": "tsx scripts/backfill-neighborhood-tiers.ts",
     "prune:empty-venues": "tsx scripts/prune-empty-venues.ts",
     "review:suspect": "tsx scripts/review-suspect-hh.ts",
+    "reextract:stubs": "tsx scripts/reextract-stubs.ts",
+    "diagnose:no-hh": "tsx scripts/diagnose-no-hh.ts",
     "triage:stubs": "tsx scripts/triage-stub-sites.ts",
     "rank:stubs": "tsx scripts/rank-stub-candidates.ts",
     "test:stub-rank": "tsx scripts/test-stub-rank.ts",
