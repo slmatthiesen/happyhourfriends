@@ -14,6 +14,8 @@
  * can hand them to Claude as a native document block. Never throws.
  */
 
+import { extractMediaLinks } from "@/lib/places/siteTriage";
+
 const USER_AGENT =
   "HappyHourFriendsBot/1.0 (+https://happyhourfriends.com)";
 
@@ -61,6 +63,9 @@ export interface FetchResult {
   isImage?: boolean;
   imageBase64?: string;
   imageMediaType?: ImageMediaType;
+  /** PDF/image menu links found in this HTML page's raw markup — the caller follows
+   *  them one hop (the menu doc usually lives on a sub-page like /menus). */
+  mediaLinks?: string[];
   contentType?: string;
   blockedByRobots?: boolean;
   error?: string;
@@ -249,7 +254,8 @@ export async function fetchUrl(url: string, opts: FetchOpts = {}): Promise<Fetch
 
     const raw = await res.text();
     const contentText = stripHtml(raw, maxContent);
-    return { url, ok: true, status: res.status, contentType, contentText };
+    const mediaLinks = extractMediaLinks(raw, res.url || url);
+    return { url, ok: true, status: res.status, contentType, contentText, mediaLinks };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return { url, ok: false, error: message };
