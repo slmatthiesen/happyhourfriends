@@ -10,6 +10,7 @@ import {
 import { saveEvidenceFile } from "@/lib/submit/evidenceStore";
 import { checkSubmissionRateLimit } from "@/lib/trust/rateLimits";
 import { ensureSubmitter, hashIp } from "@/lib/trust/submitter";
+import { moderateImage } from "@/lib/moderation/safeSearch";
 
 // Writes uploaded evidence photos to disk (lib/submit/evidenceStore) → needs Node.
 export const runtime = "nodejs";
@@ -76,13 +77,16 @@ export async function POST(req: Request) {
     );
   }
 
-  // A free-text "report a change" must carry a usable note (the AI interprets it).
-  // Everything else is handled by the field-diff forms.
+  // A free-text "report a change" must carry at least one real signal so an empty
+  // contribution can't be queued: a meaningful note (≥10 chars), a source URL, or
+  // an attached photo/PDF. A note alone was previously required; now any one suffices.
   if (body.targetType === "intent") {
-    const note = typeof after.note === "string" ? after.note.trim() : "";
-    if (note.length < 10) {
+    const note = String((after as Record<string, unknown>)?.note ?? "").trim();
+    const hasUrl = !!body.diff?.sourceUrl?.trim();
+    const hasPhoto = !!body.evidenceImage;
+    if (note.length < 10 && !hasUrl && !hasPhoto) {
       return NextResponse.json(
-        { error: "Tell us what changed — a sentence or two is plenty." },
+        { error: "Add a sentence about what's changed, or include a link or photo." },
         { status: 400 },
       );
     }
@@ -116,6 +120,23 @@ export async function POST(req: Request) {
   });
   if (!limit.allowed) {
     return NextResponse.json({ error: limit.reason }, { status: 429 });
+  }
+
+  // Reject inappropriate images at upload — before storing anything.
+  if (body.evidenceImage && body.evidenceImage.startsWith("data:image/")) {
+    const comma = body.evidenceImage.indexOf(",");
+    const base64 = comma >= 0 ? body.evidenceImage.slice(comma + 1) : "";
+    const mimeMatch = /^data:(image\/[a-z+.-]+);base64,/i.exec(body.evidenceImage);
+    const mime = mimeMatch?.[1] ?? "image/jpeg";
+    if (base64) {
+      const verdict = await moderateImage(base64, mime);
+      if (!verdict.allowed) {
+        return NextResponse.json(
+          { error: verdict.reason ?? "That image can't be accepted." },
+          { status: 400 },
+        );
+      }
+    }
   }
 
   // Persist an uploaded menu photo or PDF, if any. The stored file's URL doubles as
