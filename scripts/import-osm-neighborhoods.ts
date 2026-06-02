@@ -159,7 +159,7 @@ out geom;`;
     );
 
     let inserted = 0;
-    let skippedExisting = 0;
+    let promoted = 0;
     let failed = 0;
     const seen = new Set<string>();
     for (const f of polys) {
@@ -167,10 +167,12 @@ out geom;`;
       const slug = slugify(name);
       if (!slug || seen.has(slug)) continue;
       seen.add(slug);
-      if (taken.has(slug)) {
-        skippedExisting++;
-        continue;
-      }
+      // A slug already present for this city is an existing row from another source (e.g.
+      // a demoted Neighborhood-Association polygon). We DON'T skip it — we let it flow into
+      // the INSERT ... ON CONFLICT DO UPDATE below, which PROMOTES that row's recognizability
+      // (keeping its geometry/name/source). OSM-presence is the recognizability signal: a name
+      // OSM maps gets promoted; one it doesn't (e.g. Limberlost) stays shadowed.
+      const isExisting = taken.has(slug);
       const geomJson = JSON.stringify(f.geometry);
       const props = f.properties as Record<string, unknown>;
       const tier = tierForPlace(props.place as string | undefined);
@@ -194,7 +196,8 @@ out geom;`;
               is_fallback = CASE WHEN EXCLUDED.recognizability > neighborhoods.recognizability
                                  THEN false ELSE neighborhoods.is_fallback END
         `;
-        inserted++;
+        if (isExisting) promoted++;
+        else inserted++;
       } catch (err) {
         failed++;
         console.warn(`  skip "${name}": ${(err as Error).message}`);
@@ -204,7 +207,7 @@ out geom;`;
     const reassigned = await assignNeighborhoods(sql, city.id);
     console.log(
       `OSM neighborhoods for '${args.city}': ${polys.length} polygons found, ` +
-        `${inserted} inserted, ${skippedExisting} already present, ${failed} failed. ` +
+        `${inserted} inserted, ${promoted} promoted (recognizability bumped), ${failed} failed. ` +
         `Reassigned ${reassigned} venue(s).`,
     );
   } finally {
