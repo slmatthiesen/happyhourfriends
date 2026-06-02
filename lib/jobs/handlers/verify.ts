@@ -19,6 +19,8 @@ import {
   interpretedChangeEmail,
   type InterpretedVerdict,
 } from "@/lib/email/templates";
+import { routeContribution, isAutoApplyEnabled } from "@/lib/contribution/route";
+import { isFirstPartyUrl } from "@/lib/contribution/firstParty";
 
 interface SubmittedFileRef {
   submittedFile?: { url?: string; mime?: string };
@@ -274,13 +276,37 @@ export async function handleVerify(submissionId: string): Promise<void> {
     });
   }
 
-  // Interpreted children (fanned out from a free-text report) NEVER auto-apply or
-  // auto-reject — the operator decides (operator decision 2026-05). We attach the AI's
-  // approve/don't-approve opinion, route to the admin queue, and email the operator.
+  // Interpreted children (fanned out from a free-text report): route via the trust-matrix
+  // decision. With CONTRIBUTION_AUTOAPPLY flag OFF (default), routeContribution always
+  // returns "queue" — behavior is identical to the original hard gate. When the flag is
+  // enabled, a first-party + high-confidence + non-critical child may auto-apply.
   // We do NOT touch submitter trust here: a child is server-created, so scoring it would
   // asymmetrically penalise the reporter (children never reach the "accurate" path).
   if (sub.parentSubmissionId != null) {
     const verdict = verdictFor(result.confirmed);
+    const supportingUrl = result.evidence.find((e) => e.supportsChange)?.url;
+    const firstParty = isFirstPartyUrl(diff.sourceUrl, ctx.websiteUrl);
+    const afterStatus = (diff.after as Record<string, unknown> | undefined)?.status;
+    const critical =
+      sub.targetType === "venue" &&
+      typeof afterStatus === "string" &&
+      (afterStatus === "closed" || afterStatus === "no_happy_hour");
+    const decision = routeContribution({
+      firstParty,
+      confidence: result.confidence,
+      submitterBanned: false,
+      submitterTrustScore: 0,
+      critical,
+      autoApplyEnabled: isAutoApplyEnabled(),
+    });
+    if (decision === "auto_apply" && result.confirmed !== false) {
+      try {
+        await autoApply(sub, diff, supportingUrl, result.summary);
+        return;
+      } catch {
+        /* fall through to queue + notify */
+      }
+    }
     await setStatus(submissionId, {
       status: "queued_admin",
       aiClassifierReasoning: `AI ${verdict} (confidence ${result.confidence.toFixed(2)}): ${result.summary}`,

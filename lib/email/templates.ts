@@ -84,3 +84,36 @@ export function interpretedChangeEmail(args: InterpretedChangeEmailArgs): {
   </div>`;
   return { subject, html };
 }
+
+export interface ExtractedHappyHoursEmailArgs {
+  venueName: string;
+  windowCount: number;
+  windowLines: string[]; // e.g. "1,2,3,4,5 from 15:00–18:00"
+  confidence: number; // 0..1
+  sourceUrl: string;
+  adminUrl: string;
+}
+
+export function extractedHappyHoursEmail(
+  args: ExtractedHappyHoursEmailArgs,
+): { subject: string; html: string } {
+  const pct = Math.round(args.confidence * 100);
+  const subject = `[HHF] ${args.venueName}: ${args.windowCount} happy hour(s) to review`;
+  const html = `
+  <div style="font-family:system-ui,sans-serif;max-width:560px">
+    <h2 style="margin:0 0 4px">${esc(args.venueName)}</h2>
+    <p style="margin:0 0 16px;color:#444">Extracted from a first-party source — confidence ${pct}%</p>
+
+    <ul style="margin:0 0 16px;padding-left:20px">
+      ${args.windowLines.map((line) => `<li>${esc(line)}</li>`).join("\n      ")}
+    </ul>
+
+    <p style="margin:0 0 16px"><a href="${esc(args.sourceUrl)}">Source ↗</a></p>
+
+    <p style="margin:24px 0 0">
+      <a href="${esc(args.adminUrl)}" style="background:#b4541f;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none">Review in admin queue →</a>
+    </p>
+    <p style="margin:12px 0 0;color:#999;font-size:12px">Nothing is live yet — waiting for your approval.</p>
+  </div>`;
+  return { subject, html };
+}

@@ -44,6 +44,7 @@ export const INTERPRET_ACTIONS = [
   "update_happy_hour",
   "update_offering",
   "new_offering",
+  "new_happy_hour",
 ] as const;
 export type InterpretAction = (typeof INTERPRET_ACTIONS)[number];
 
@@ -116,7 +117,7 @@ const RECORD_TOOL: ToolUnion = {
     properties: {
       changes: {
         type: "array",
-        description: `At most ${MAX_OPS} changes. Only modify EXISTING data or add an offering to an EXISTING happy hour.`,
+        description: `At most ${MAX_OPS} changes. Modify existing data, add an offering to an existing happy hour, or add a NEW happy-hour window (new_happy_hour) when the venue has none for the days/time reported.`,
         items: {
           type: "object",
           properties: {
@@ -127,7 +128,8 @@ const RECORD_TOOL: ToolUnion = {
                 "update_venue (name/address/phone/websiteUrl/otherUrl/status/type), " +
                 "update_happy_hour (startTime/endTime/notes/active/daysOfWeek), " +
                 "update_offering (name/priceCents/discountCents/etc), " +
-                "new_offering (a new deal on an existing happy hour).",
+                "new_offering (a new deal on an existing happy hour), " +
+                "new_happy_hour (a brand-new window: after MUST include daysOfWeek (ISO ints) and startTime 'HH:MM'; may include endTime/notes/offerings[]).",
             },
             targetId: {
               type: ["string", "null"],
@@ -147,7 +149,8 @@ const RECORD_TOOL: ToolUnion = {
                 "cents (e.g. $3 → 300). venue status is one of active/closed/paused/no_happy_hour. " +
                 "venue type must be one of: " + VENUE_TYPES.join(", ") + ". " +
                 "times are 24h 'HH:MM' or null for 'until close'. For new_offering include at " +
-                "least kind (food/drink/other) and category (beer/wine/cocktail/spirit/appetizer/entree/dessert/other).",
+                "least kind (food/drink/other) and category (beer/wine/cocktail/spirit/appetizer/entree/dessert/other). " +
+                "For new_happy_hour include daysOfWeek (ISO int array) and a startTime 'HH:MM', plus offerings[] when known.",
             },
             summary: {
               type: "string",

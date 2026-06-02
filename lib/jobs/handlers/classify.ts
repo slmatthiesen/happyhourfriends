@@ -115,11 +115,11 @@ export async function handleClassify(submissionId: string): Promise<void> {
     aiClassifierReasoning: result.reasoning,
   });
 
-  // Interpreted children (fanned out from a free-text `intent` report) NEVER auto-apply
-  // and NEVER auto-reject — the operator makes the final call (operator decision 2026-05).
-  // We always run Stage 2 so the operator gets the AI's approve/don't-approve opinion AND
-  // an email (including for closures, which benefit most from verification). Only a banned
-  // submitter short-circuits to the queue with no AI spend.
+  // Auto-apply decision is deferred to the verify stage (see routeContribution there).
+  // Interpreted children (fanned out from a free-text `intent` report) always run Stage 2
+  // so the operator gets the AI's approve/don't-approve opinion AND an email (including
+  // for closures, which benefit most from verification). Only a banned submitter
+  // short-circuits to the queue with no AI spend.
   if (sub.parentSubmissionId != null) {
     if (banned) {
       await setStatus(submissionId, { status: "queued_admin" });
