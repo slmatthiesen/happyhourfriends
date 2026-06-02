@@ -14,6 +14,8 @@
 import "dotenv/config";
 import postgres from "postgres";
 import { appendFileSync, writeFileSync } from "node:fs";
+import { HH_RE, matchesHappyHour, scoreHhUrl } from "@/lib/places/hhText";
+import { discoverSitemapUrls } from "@/lib/places/sitemap";
 
 const UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36";
 const OUT = "docs/hh-harvest.jsonl";
@@ -46,7 +48,7 @@ function hhLinks(html: string, base: string): string[] {
   let m: RegExpExecArray | null;
   while ((m = re.exec(html)) !== null) {
     const href = m[1]; const text = m[2].replace(/<[^>]+>/g, " ").toLowerCase();
-    if (/happy|special|drink|menu|food/i.test(href) || /happy hour|specials|drink menu|food menu/.test(text)) {
+    if (/happy|special|drink|menu|food/i.test(href) || HH_RE.test(text) || /specials|drink menu|food menu/.test(text)) {
       const u = abs(href, base); if (u && /^https?:/i.test(u)) out.add(u.split("#")[0]);
     }
     if (out.size >= 6) break;
@@ -68,8 +70,8 @@ function jsonLdHits(html: string): { name?: string; description?: string }[] {
       if (Array.isArray(node)) { stack.push(...node); continue; }
       if (node && typeof node === "object") {
         const o = node as Record<string, unknown>;
-        const blob = `${o.name ?? ""} ${o.description ?? ""}`.toLowerCase();
-        if (blob.includes("happy hour")) {
+        const blob = `${o.name ?? ""} ${o.description ?? ""}`;
+        if (matchesHappyHour(blob)) {
           hits.push({ name: typeof o.name === "string" ? o.name : undefined, description: typeof o.description === "string" ? o.description : undefined });
         }
         for (const v of Object.values(o)) if (v && typeof v === "object") stack.push(v);
@@ -95,7 +97,8 @@ function textSnippets(html: string): string[] {
     .replace(/\s+/g, " ").trim();
   const out = new Set<string>();
   for (const hay of [visible, html]) {
-    const re = /.{0,40}happy hour.{0,180}/gi;
+    // Canonical HH pattern (happy / happy-hour / happyhour) with surrounding context.
+    const re = new RegExp(`.{0,40}${HH_RE.source}.{0,180}`, "gi");
     let m: RegExpExecArray | null;
     while ((m = re.exec(hay)) !== null) {
       const s = decode(m[0]);
@@ -109,31 +112,44 @@ function textSnippets(html: string): string[] {
 type Sql = ReturnType<typeof postgres>;
 interface Stub { id: string; name: string; website_url: string; city: string; }
 
-// Common HH/menu paths to GUESS even when the homepage doesn't link them.
-const GUESS_PATHS = ["/happy-hour", "/happyhour", "/happy-hour-menu", "/specials", "/menu/happy-hour", "/menus", "/menu", "/drinks", "/drink-menu"];
+// Last-resort path GUESSES (most→least specific) for sites with no usable sitemap
+// and no homepage HH/menu links. Primary discovery is the sitemap (real URLs).
+const GUESS_PATHS = ["/happy-hour", "/happyhour", "/happy-hour-menu", "/menu/happy-hour", "/specials", "/drink-menu", "/drinks", "/menu", "/menus"];
 
 async function harvest(v: Stub): Promise<{ venueId: string; name: string; city: string; website: string; signal: boolean; sources: { url: string; jsonld: { name?: string; description?: string }[]; snippets: string[] }[] }> {
   const home = await fetchText(v.website_url);
   const pages = new Map<string, string>();
   if (home) pages.set(v.website_url, home);
-  if (home) {
-    for (const link of hhLinks(home, v.website_url).slice(0, 3)) {
-      if (pages.has(link)) continue;
-      const h = await fetchText(link);
-      if (h) pages.set(link, h);
-    }
-  }
-  // Guess common paths on the origin (capped) — catches HH pages not linked from home.
+
   let origin: string | null = null;
   try { origin = new URL(v.website_url).origin; } catch { /* skip */ }
+
+  // Build an ordered candidate list (most→least likely), dedup, then fetch up to the
+  // cap. Order: (1) homepage HH/menu anchor links, (2) sitemap-declared URLs that look
+  // like HH/menu pages — the site's REAL urls, beats guessing — (3) last-resort guesses.
+  const PAGE_CAP = 6;
+  const candidates: string[] = [];
+  const pushCand = (u: string | null) => {
+    if (u && /^https?:/i.test(u) && !candidates.includes(u)) candidates.push(u);
+  };
+
+  if (home) for (const link of hhLinks(home, v.website_url)) pushCand(link);
   if (origin) {
-    for (const p of GUESS_PATHS) {
-      if (pages.size >= 6) break;
-      const u = origin + p;
-      if ([...pages.keys()].some((k) => k.replace(/\/$/, "") === u)) continue;
-      const h = await fetchText(u);
-      if (h) pages.set(u, h);
-    }
+    const declared = await discoverSitemapUrls(origin, fetchText).catch(() => []);
+    declared
+      .map((u) => ({ u, s: scoreHhUrl(u) }))
+      .filter((x) => x.s > 0)
+      .sort((a, b) => b.s - a.s)
+      .forEach((x) => pushCand(x.u));
+  }
+  if (origin) for (const p of GUESS_PATHS) pushCand(origin + p);
+
+  const norm = (k: string) => k.replace(/\/$/, "");
+  for (const u of candidates) {
+    if (pages.size >= PAGE_CAP) break;
+    if ([...pages.keys()].some((k) => norm(k) === norm(u))) continue;
+    const h = await fetchText(u);
+    if (h) pages.set(u, h);
   }
   const sources: { url: string; jsonld: { name?: string; description?: string }[]; snippets: string[] }[] = [];
   for (const [url, html] of pages) {
