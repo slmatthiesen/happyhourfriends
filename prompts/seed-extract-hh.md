@@ -1,8 +1,8 @@
 ---
 prompt: seed-extract-hh
-version: 12
+version: 13
 model: claude-sonnet-4-6
-notes: Pinned via sha256 content hash recorded in ai_usage_ledger.prompt_hash. v12 — NO web tools (2026-06-01): the venue's page text + PDF menus are FETCHED FOR YOU and provided inline below, each under a `Source: <url>` line; you no longer browse or search. Extract only from the provided pages and cite the exact `Source:` URL as sourceUrl. (We fetch ourselves over plain HTTP to eliminate model-driven web_fetch/web_search charges; single-shot, Batch-API friendly.) v11 — CAPTURE-everything (2026-05-31): "open until X" / "happy hour till 7" with an unstated start is a VALID window (startTime null, endTime set — never fabricate a start); a recurring deal advertised on specific days with no published time is recorded with both times null + a note (do NOT omit it — a downstream code filter reviews timeless/suspect entries). Realness is judged downstream, not in the prompt. v9 — define happy hour as a RECURRING, TIME-LIMITED discount; an all-open-hours-every-day deal is regular pricing (omit); one-off coupons/limited promos are not happy hours (omit); allDay restricted to ≤2 explicitly-sourced specific days (never most/all week). v6 — explicit allDay assertion for weekday-labeled all-day deals (Red Hot pattern); v4 — consolidate deals; v3 — record_happy_hours tool + daysOfWeek arrays; v8 adds optional venueType extraction.
+notes: Pinned via sha256 content hash recorded in ai_usage_ledger.prompt_hash. v13 — WINDOW-IS-ENOUGH (2026-06-01): a stated day+time happy-hour window is recordable on its own; record it with offerings:[] even when no itemized prices are published, with normal confidence (≥0.5) — never return happyHours:[] just because prices weren't listed. (`offerings` also dropped from the record_happy_hours required fields.) Fixes a ~10%+ recall miss where clearly-stated windows like North Italia "Happy Hour Mon–Fri 3pm–6pm" were dropped (model rationalized "no discounted prices were published"). v12 — NO web tools (2026-06-01): the venue's page text + PDF menus are FETCHED FOR YOU and provided inline below, each under a `Source: <url>` line; you no longer browse or search. Extract only from the provided pages and cite the exact `Source:` URL as sourceUrl. (We fetch ourselves over plain HTTP to eliminate model-driven web_fetch/web_search charges; single-shot, Batch-API friendly.) v11 — CAPTURE-everything (2026-05-31): "open until X" / "happy hour till 7" with an unstated start is a VALID window (startTime null, endTime set — never fabricate a start); a recurring deal advertised on specific days with no published time is recorded with both times null + a note (do NOT omit it — a downstream code filter reviews timeless/suspect entries). Realness is judged downstream, not in the prompt. v9 — define happy hour as a RECURRING, TIME-LIMITED discount; an all-open-hours-every-day deal is regular pricing (omit); one-off coupons/limited promos are not happy hours (omit); allDay restricted to ≤2 explicitly-sourced specific days (never most/all week). v6 — explicit allDay assertion for weekday-labeled all-day deals (Red Hot pattern); v4 — consolidate deals; v3 — record_happy_hours tool + daysOfWeek arrays; v8 adds optional venueType extraction.
 ---
 
 # System
@@ -22,7 +22,9 @@ HARD RULES — violations produce unusable data and will be discarded:
   above the page content that mentions that specific item and price. It may be the same
   as the parent entry's `sourceUrl`.
 - If you cannot find a confirmed happy-hour schedule, call `record_happy_hours` with
-  `happyHours: []`, `confidence: 0`, and a one-line `summary`.
+  `happyHours: []`, `confidence: 0`, and a one-line `summary`. (NOTE: a stated day+time
+  window with no published prices DOES count as a confirmed schedule — record it, do not
+  return empty. See the WINDOW rule below.)
 - Do NOT extrapolate or fabricate times. But do NOT throw away a real recurring deal just
   because its times are incomplete — CAPTURE what you read and leave the rest null:
   - "open until 6 PM" / "happy hour till 7" (no stated start) → record `startTime: null`,
@@ -34,6 +36,14 @@ HARD RULES — violations produce unusable data and will be discarded:
     capture, not to judge.)
   - the page DOES say the deal is all day on one or two specific weekdays (e.g. "Monday all
     damn day") → use `allDay: true` per the Field rules.
+- A day+time WINDOW is itself the happy hour — RECORD IT EVEN WHEN NO PRICES ARE PUBLISHED.
+  If the page states a recurring happy-hour window (e.g. "Happy Hour Mon–Fri 3pm–6pm",
+  "Happy Hour at the bar 4–6") but lists no individual discounted items or prices on the
+  pages provided, STILL record that window with its `daysOfWeek` + times and `offerings: []`.
+  Offerings are SUPPORTING detail, never a requirement. Do NOT drop a clearly-stated happy
+  hour, and do NOT return `happyHours: []`, just because itemized prices weren't published —
+  a stated window read directly from the venue's own page is a confirmed schedule; give it a
+  normal confidence (≥0.5), not 0.
 - A happy hour is a RECURRING, TIME-LIMITED discount (a window during off-peak hours, or
   an explicit all-day deal on a specific day). A discount available during ALL open hours
   EVERY day is just the venue's regular pricing — it is NOT a happy hour. Do NOT record it.
