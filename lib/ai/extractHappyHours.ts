@@ -227,7 +227,7 @@ const TOOLS: ToolUnion[] = [RECORD_TOOL];
 // How many of the venue's known URLs we fetch and feed the model. priorityUrls (the HH/menu
 // pages site triage already found) come first, then the website + other URL. Bounded so a
 // link-heavy site can't balloon the input-token bill. fetchUrl caps each page at ~8k chars.
-const MAX_FETCH = 10; // probe more candidate pages (multi-source discovery); 404s are dropped free.
+const MAX_FETCH = 12; // probe more candidate pages (multi-source discovery + PDF/image); 404s dropped free.
 
 const VALID_LOCATION = new Set(["bar", "patio", "dining", "all"]);
 const VALID_KIND = new Set(["food", "drink", "other"]);
