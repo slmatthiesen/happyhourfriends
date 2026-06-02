@@ -64,7 +64,8 @@
     "test:assignment": "tsx scripts/test-neighborhood-assignment.ts",
     "restore:neighborhoods": "tsx scripts/restore-neighborhoods.ts",
     "test:hh-text": "tsx scripts/test-hh-text.ts",
-    "test:sitemap": "tsx scripts/test-sitemap.ts"
+    "test:sitemap": "tsx scripts/test-sitemap.ts",
+    "test:routes": "tsx scripts/test-routes.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.99.0",
