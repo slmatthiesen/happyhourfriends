@@ -24,6 +24,10 @@ import "dotenv/config";
 import { createRequire } from "node:module";
 import postgres from "postgres";
 import { assignNeighborhoods } from "@/lib/geo/assignNeighborhoods";
+import {
+  tierForPlace,
+  recognizabilityScore,
+} from "@/lib/geo/recognizability";
 
 const require = createRequire(import.meta.url);
 // osmtogeojson ships no types; require keeps it `any` and tsc-clean.
@@ -132,18 +136,18 @@ out geom;`;
 
     // OSM `place=neighbourhood` is polluted with apartment complexes / condos /
     // subdivisions ("Wispering Firs Condomiums"). Keep only REAL neighborhoods:
-    //   • place=suburb is reliable (a genuine district), OR
-    //   • place=neighbourhood|quarter WITH an OSM notability tag (wikidata/wikipedia) —
-    //     real neighborhoods (Arcadia) carry it; apartment complexes don't.
-    // …and never names matching the junk blocklist.
+    // OSM-presence IS the recognizability signal — any non-junk named polygon whose
+    // `place` is suburb/neighbourhood/quarter qualifies. Wikidata/wikipedia raise the
+    // recognizability score to 2 but are NOT required; real barrios (Sam Hughes,
+    // Armory Park) map in OSM without wikidata.
+    // Global junk-name regex catches apartment complexes / mobile estates / subdivisions.
     const JUNK =
-      /\b(apartments?|apts?|condos?|condominiums?|townhom\w*|mobile\s*home|rv\s*park|trailer|villas?|subdivision)\b/i;
+      /\b(apartments?|apts?|condo\w*|condomin\w*|townhom\w*|mobile|rv\s*park|trailer|villas?|subdivision|estates?)\b/i;
     const isReal = (p: Record<string, unknown>): boolean => {
       const place = String(p.place ?? "");
       const name = String(p.name ?? "");
       if (JUNK.test(name)) return false;
-      if (place === "suburb") return true;
-      return Boolean(p.wikidata || p.wikipedia);
+      return place === "suburb" || place === "neighbourhood" || place === "quarter";
     };
     const polys = fc.features.filter(
       (f) =>
@@ -168,15 +172,27 @@ out geom;`;
         continue;
       }
       const geomJson = JSON.stringify(f.geometry);
+      const props = f.properties as Record<string, unknown>;
+      const tier = tierForPlace(props.place as string | undefined);
+      const recognizability = recognizabilityScore({
+        place: props.place as string | undefined,
+        wikidata: props.wikidata as string | undefined,
+        wikipedia: props.wikipedia as string | undefined,
+      });
       try {
         await sql`
-          INSERT INTO neighborhoods (city_id, name, slug, polygon, source, source_url, is_fallback)
+          INSERT INTO neighborhoods (city_id, name, slug, polygon, source, source_url, is_fallback, tier, recognizability)
           VALUES (
             ${city.id}, ${name}, ${slug},
             ST_Multi(ST_CollectionExtract(ST_MakeValid(ST_SetSRID(ST_GeomFromGeoJSON(${geomJson}), 4326)), 3)),
-            'OpenStreetMap (ODbL)', 'https://www.openstreetmap.org/', ${args.fallback}
+            'OpenStreetMap (ODbL)', 'https://www.openstreetmap.org/', ${args.fallback}, ${tier}, ${recognizability}
           )
-          ON CONFLICT (city_id, slug) DO NOTHING
+          ON CONFLICT (city_id, slug) DO UPDATE
+          SET recognizability = GREATEST(neighborhoods.recognizability, EXCLUDED.recognizability),
+              tier = CASE WHEN EXCLUDED.recognizability > neighborhoods.recognizability
+                          THEN EXCLUDED.tier ELSE neighborhoods.tier END,
+              is_fallback = CASE WHEN EXCLUDED.recognizability > neighborhoods.recognizability
+                                 THEN false ELSE neighborhoods.is_fallback END
         `;
         inserted++;
       } catch (err) {
