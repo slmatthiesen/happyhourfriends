@@ -11,6 +11,8 @@
  * times stays a stub — that is the extractor-recall-gap safety net.
  */
 
+import { scoreHhUrl } from "@/lib/places/hhText";
+
 export type SiteKind = "real" | "social_only" | "none";
 export type Reachability = "ok" | "dead" | "parked" | "timeout";
 
@@ -133,6 +135,52 @@ export function extractHhSignalLinks(html: string, baseUrl: string): string[] {
   return [...out];
 }
 
+/**
+ * Page routes a JS site declares in its embedded model (Wix `pageUriSEO`, etc.).
+ * Catches real pages (e.g. /menu) that are never linked as plain <a href> in the
+ * server-rendered HTML — exactly how Bottega's happy-hour page hid from us.
+ */
+export function extractPageRoutes(html: string, baseUrl: string): string[] {
+  const out = new Set<string>();
+  const re = /"pageUriSEO":"([^"#?]+)"/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null) {
+    const slug = m[1].replace(/^\/+/, "");
+    if (!slug || slug === "home") continue;
+    try {
+      out.add(new URL("/" + slug, baseUrl).toString());
+    } catch {
+      /* skip */
+    }
+  }
+  return [...out];
+}
+
+/** Common HH/menu paths to PROBE even when nothing links them (most→least specific). */
+export const GUESS_MENU_PATHS = [
+  "/happy-hour", "/happyhour", "/happy-hour-menu", "/menu/happy-hour",
+  "/specials", "/bar-menu", "/drink-menu", "/drinks", "/cocktails",
+  "/menu", "/menus", "/food-menu",
+];
+
+export function guessMenuUrls(baseUrl: string): string[] {
+  try {
+    const origin = new URL(baseUrl).origin;
+    return GUESS_MENU_PATHS.map((p) => origin + p);
+  } catch {
+    return [];
+  }
+}
+
+/** Dedupe + rank candidate URLs most-likely-HH first (see hhText.scoreHhUrl). */
+export function rankCandidates(urls: string[], limit = 8): string[] {
+  return [...new Set(urls)]
+    .map((u) => ({ u, s: scoreHhUrl(u) }))
+    .sort((a, b) => b.s - a.s)
+    .map((x) => x.u)
+    .slice(0, limit);
+}
+
 /** Combine a triage verdict with the venue's HH-likelihood into a final action. */
 export function resolveEnrichAction(
   verdict: SiteVerdict,
@@ -193,8 +241,24 @@ export function siteVerdictFromFetch(url: string, outcome: FetchOutcome): SiteVe
   if (status === 200 && isParkedHtml(html)) {
     return { kind: "real", url, reachability: "parked", hhSignalUrls: [], decision: "kill", reason: "parked domain" };
   }
-  // Reachable (incl. 403 bot-block) → extract; collect HH-signal links from the HTML we have.
-  const hhSignalUrls = status === 200 ? extractHhSignalLinks(html, finalUrl) : [];
+  // Reachable (incl. 403 bot-block) → extract. Cast a WIDE net for candidate pages
+  // from three sources, ranked most-likely-HH first: (1) anchor links in the HTML,
+  // (2) the site's declared routes (Wix pageUriSEO — finds /menu that isn't linked),
+  // (3) common path guesses (/happy-hour, /menu, /bar-menu, …). fetchPages probes them
+  // and silently drops 404s, so over-guessing is cheap and only real pages reach the model.
+  // CONFIRMED pages (anchor links + the site's declared menu/HH routes) come FIRST —
+  // they're known to exist. Speculative path guesses only FILL remaining slots, so a
+  // high-scoring guess (/happy-hour) can't crowd out a real route (/menu).
+  let hhSignalUrls: string[];
+  if (status === 200) {
+    const links = extractHhSignalLinks(html, finalUrl);
+    const routes = extractPageRoutes(html, finalUrl).filter((u) => scoreHhUrl(u) > 0);
+    const confirmed = rankCandidates([...links, ...routes], 8);
+    const guesses = rankCandidates(guessMenuUrls(finalUrl), 12);
+    hhSignalUrls = [...new Set([...confirmed, ...guesses])].slice(0, 10);
+  } else {
+    hhSignalUrls = guessMenuUrls(url); // bot-blocked: still probe the obvious paths
+  }
   return { kind: "real", url, reachability: "ok", hhSignalUrls, decision: "extract", reason: "reachable" };
 }
 
