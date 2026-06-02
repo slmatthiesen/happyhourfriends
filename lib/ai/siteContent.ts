@@ -25,12 +25,13 @@ export interface FetchedPage {
 export async function fetchPages(
   urls: (string | null | undefined)[],
   max = 5,
+  opts: { maxContent?: number } = {},
 ): Promise<FetchedPage[]> {
   const clean = urls.filter(
     (u): u is string => typeof u === "string" && u.trim().length > 0,
   );
   const unique = [...new Set(clean)].slice(0, max);
-  const results = await Promise.all(unique.map((u) => fetchUrl(u)));
+  const results = await Promise.all(unique.map((u) => fetchUrl(u, { maxContent: opts.maxContent })));
   const pages: FetchedPage[] = [];
   for (const r of results) {
     if (!r.ok) continue;

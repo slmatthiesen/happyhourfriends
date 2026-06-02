@@ -140,7 +140,11 @@ check("200 reachable → extract + collects HH-signal links", () => {
     finalUrl: "https://brix.com/",
   });
   assert.equal(v.decision, "extract");
-  assert.deepEqual(v.hhSignalUrls, ["https://brix.com/happy-hour"]);
+  // Multi-source discovery: the CONFIRMED anchor link ranks first, then path guesses
+  // fill remaining slots (so we probe /menu, /bar-menu, etc. even when unlinked).
+  assert.equal(v.hhSignalUrls[0], "https://brix.com/happy-hour", "confirmed link first");
+  assert.ok(v.hhSignalUrls.includes("https://brix.com/menu"), "guesses included");
+  assert.ok(v.hhSignalUrls.length > 1, "casts a wide net");
 });
 check("500 server error → kill (dead)", () => {
   const v = siteVerdictFromFetch("https://x.com/", { kind: "response", status: 503, html: "", finalUrl: "https://x.com/" });
