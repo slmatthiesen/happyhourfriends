@@ -192,7 +192,7 @@ export function extractMediaLinks(html: string, baseUrl: string): string[] {
       if (u) out.add(u);
     }
   }
-  return [...out].slice(0, 4);
+  return [...out].slice(0, 6);
 }
 
 /** Common HH/menu paths to PROBE even when nothing links them (most→least specific). */
