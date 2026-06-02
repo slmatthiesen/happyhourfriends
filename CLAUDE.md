@@ -24,6 +24,54 @@ counter-serve noise can't be type-separated; Google `serves*` is unreliable; sev
 "stubs" are extractor MISSES (Yard House locator URL, BOCA image/PDF menu). Full detail in
 memory `[[hh-likelihood-prefilter-calibration]]`.
 
+## Friendly neighborhoods — recognizability-ranked two-tier rollup (2026-06-01, branch `feature/friendly-neighborhoods`)
+
+Tucson listings showed administrative Neighborhood-Association names locals don't use
+(*Limberlost, Poets Square, Sewell*). Root cause: the polygon layer mixed granularities/
+sources with no signal for "is this a name people say", and assignment picked smallest-
+polygon. Fix (spec `docs/superpowers/specs/2026-06-01-friendly-neighborhood-recognizability-design.md`,
+plan `docs/superpowers/plans/2026-06-01-friendly-neighborhood-recognizability.md`):
+
+- **Two-tier model on `neighborhoods`:** `tier` (`fine` named neighborhood | `coarse`
+  rollup district) + `recognizability` smallint 0..2 (migration 0014). `lib/geo/recognizability.ts`
+  (pure, tested): `tierForPlace`, `recognizabilityScore`, `isRecognizableFine`,
+  `RECOGNIZABLE_BAR`=1.
+- **Signal = OSM-presence, NOT wikidata.** Original design used OSM `wikidata`/`wikipedia`
+  as the recognizability signal — but integration proved it's too sparse: **0 of 28
+  Tucson barrios carry wikidata** (works for Phoenix's Arcadia, fails for Tucson). So the
+  signal is: any non-junk OSM `neighbourhood`/`quarter`/`suburb` polygon is recognizable
+  (score 1; wiki bonus = 2). `import:osm-neighbourhoods` relaxed accordingly + a
+  **strengthened GLOBAL junk-name regex** (condo misspellings, mobile estates,
+  subdivisions) — global, scales to all cities, never per-city pruning (operator: per-city
+  curation won't scale to 1000 cities).
+- **OSM import now PROMOTES on slug conflict** (`ON CONFLICT DO UPDATE`, and the
+  pre-skip guard was removed): a demoted NA row that OSM also maps gets its recognizability
+  bumped (keeps NA geometry/name); a name OSM does NOT map (*Limberlost*) stays shadowed.
+  That intersection IS the recognizability filter.
+- **Coarse rollup layer (gap-free):** OSM coarse tier + city GIS (Census CDP = recognizable
+  broad areas; urban villages/council districts) + **`generate:cardinal-districts`** (clips
+  Downtown + N/E/S/W/Central from `data/<city>-boundary.geojson`, optional per-city alias
+  map `data/<city>-cardinal-aliases.json` — the "fix a marquee city later" lever, generic
+  by default). `scripts/backfill-neighborhood-tiers.ts` set tiers on existing rows + demoted
+  Tucson's 154 NA polygons to `is_fallback`.
+- **Assignment rewrite** (`lib/geo/assignNeighborhoods.ts`): recognizable-fine → coarse →
+  snap. ORDER BY = eligibility (obscure fine shadowed) → distance (containment) →
+  fine-over-coarse → recognizability → area. `is_fallback` dropped from ranking (tier+
+  recognizability subsume it). Integration-tested in a rolled-back txn
+  (`scripts/test-neighborhood-assignment.ts`).
+- **Coverage report** (`analyze:neighborhood-coverage`) now also prints "% on a recognizable
+  named neighborhood" beside the ≥95% gate.
+
+**Result (Tucson, 185 assigned):** obscure NA names GONE; filter dropdown 154→~29. 20 venues
+(11%) on recognizable barrios, 49 (26%) on recognizable broad areas, **113 (60%) on generic
+cardinal** — the latter is a genuine DATA-AVAILABILITY gap (north/central Tucson commercial
+strips aren't mapped vernacularly in OSM/Census/Zillow), not a code bug. **Cross-city
+re-import** (Phoenix/Tacoma/Scottsdale) added ~153 polygons but moved recognizable share
+little (Phoenix 7%→9%, Tacoma 0%, Scottsdale 5%) — same limitation: bars sit on commercial
+corridors outside residential neighborhood polygons. Added polygons are venue-less → invisible
+in the UI. **Revert lever:** `npm run restore:neighborhoods` restores from the `nb_snapshot`/
+`venue_nb_snapshot` tables (taken after Tucson's import, before the cross-city import).
+
 ## Status (as of last session)
 
 - **Phase 0 — COMPLETE.** Scaffold, full schema, migrations **applied to a live
