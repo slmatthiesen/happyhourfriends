@@ -29,14 +29,26 @@ async function main() {
 
   try {
     const rows = await sql<
-      { slug: string; venues: number; assigned: number; rate: number }[]
+      {
+        slug: string;
+        venues: number;
+        assigned: number;
+        rate: number;
+        on_fine: number;
+        recognizable_rate: number;
+      }[]
     >`
       SELECT c.slug,
              count(v.id)::int AS venues,
              count(v.neighborhood_id)::int AS assigned,
-             COALESCE(count(v.neighborhood_id)::float / NULLIF(count(v.id), 0), 0) AS rate
+             COALESCE(count(v.neighborhood_id)::float / NULLIF(count(v.id), 0), 0) AS rate,
+             count(v.id) FILTER (WHERE n.tier = 'fine' AND n.recognizability >= 1)::int AS on_fine,
+             COALESCE(
+               count(v.id) FILTER (WHERE n.tier = 'fine' AND n.recognizability >= 1)::float
+               / NULLIF(count(v.neighborhood_id), 0), 0) AS recognizable_rate
       FROM cities c
       LEFT JOIN venues v ON v.city_id = c.id AND v.deleted_at IS NULL
+      LEFT JOIN neighborhoods n ON n.id = v.neighborhood_id
       ${citySlug ? sql`WHERE c.slug = ${citySlug}` : sql``}
       GROUP BY c.slug
       HAVING count(v.id) > 0
@@ -50,9 +62,11 @@ async function main() {
       const pct = (r.rate * 100).toFixed(1);
       const pass = r.rate >= GATE;
       if (!pass) anyFail = true;
+      const recPct = (r.recognizable_rate * 100).toFixed(0);
       console.log(
         `  ${pass ? "PASS" : "FAIL"}  ${r.slug.padEnd(18)} ` +
-          `${pct.padStart(5)}%  (${r.assigned}/${r.venues}, ${r.venues - r.assigned} blank)`,
+          `${pct.padStart(5)}%  (${r.assigned}/${r.venues}, ${r.venues - r.assigned} blank)` +
+          `  — ${recPct.padStart(3)}% recognizable (${r.on_fine}/${r.assigned})`,
       );
     }
     console.log("─".repeat(54));

@@ -81,10 +81,21 @@ export const neighborhoods = pgTable(
     source: text("source"),
     sourceUrl: text("source_url"),
     parentId: uuid("parent_id").references((): AnyPgColumn => neighborhoods.id),
-    // Coarse, gap-free fallback polygon (e.g. council wards) layered UNDER fine-grained
-    // neighborhoods. Assignment ranks non-fallback polygons above fallback ones within the
-    // snap radius, so a venue only attaches to a fallback when no precise polygon is in range.
+    // Provenance flag: true when this polygon was imported as a coarse gap-filler layer
+    // (e.g. council wards). Retained for metadata/audit purposes only — assignment ranking
+    // is driven by `tier` + `recognizability`, not by this flag.
     isFallback: boolean("is_fallback").notNull().default(false),
+    // Two-tier model for friendly listings. `tier` distinguishes a fine named
+    // neighborhood (Arcadia, Sam Hughes) from a coarse rollup district (urban village,
+    // Census place, or generated cardinal zone). `recognizability` is a non-hallucinated
+    // 0–2 score derived at import from OSM signals (wikidata/wikipedia presence, place
+    // tier) — high means "a name locals actually say". Assignment prefers a recognizable
+    // fine neighborhood, else rolls a venue up to its coarse district. See
+    // lib/geo/recognizability.ts and docs/superpowers/specs/2026-06-01-friendly-neighborhood-recognizability-design.md.
+    tier: text("tier", { enum: ["fine", "coarse"] })
+      .notNull()
+      .default("fine"),
+    recognizability: smallint("recognizability").notNull().default(0),
     // Metro-scope gate. An operator can mark a neighborhood out-of-scope (e.g. far
     // residential villages that aren't happy-hour destinations) — discovery skips
     // candidates inside it and listings hide its venues. Default true; flip to false to
