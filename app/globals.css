@@ -18,6 +18,21 @@
   --border: #2f333b;
   --row-hover: #23262c;
   --row-promoted: rgba(232, 160, 75, 0.08);
+
+  /* Filter-group identity colors. Deliberately theme-INDEPENDENT (they do not
+     shift with [data-theme]) so each group is consistently scannable: amber Day,
+     blue Area, green Type, violet Tags, red "live"/location action pills.
+     Each pairs a hue with the foreground color to use when the pill is filled. */
+  --filter-day: #eab308;
+  --filter-day-fg: #2a1d00;
+  --filter-area: #4b8fe8;
+  --filter-area-fg: #ffffff;
+  --filter-type: #2bb673;
+  --filter-type-fg: #04240f;
+  --filter-tag: #9b7be8;
+  --filter-tag-fg: #ffffff;
+  --filter-live: #e5546e;
+  --filter-live-fg: #ffffff;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -233,4 +248,58 @@ body::before {
   html {
     @apply font-sans;
   }
+}
+
+/* ── Filter pills ───────────────────────────────────────────────────────────
+   Color-coded, group-identifying filter chips. At rest each pill carries a faint
+   tint + colored border + colored label so the Day / Area / Type / Tag groups
+   read as distinct clusters. Hover brightens the border; the selected state
+   (aria-pressed="true") fills the pill solid. Drive color via the --pill-* vars
+   set per group below, so the shared rules stay DRY.
+   Layout (radius, padding, size) stays in the Tailwind classes on each button. */
+.pill {
+  --pill: var(--filter-area);
+  --pill-fg: var(--filter-area-fg);
+  border-style: solid;
+  background-color: color-mix(in oklab, var(--pill) 14%, var(--bg-elevated));
+  border-color: color-mix(in oklab, var(--pill) 38%, transparent);
+  color: color-mix(in oklab, var(--pill) 60%, var(--text-primary));
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+}
+.pill:hover {
+  border-color: color-mix(in oklab, var(--pill) 75%, transparent);
+  color: var(--text-primary);
+}
+.pill[aria-pressed="true"],
+.pill-on {
+  background-color: var(--pill);
+  border-color: var(--pill);
+  color: var(--pill-fg);
+}
+.pill[aria-pressed="true"]:hover {
+  border-color: var(--pill);
+}
+
+.pill-day {
+  --pill: var(--filter-day);
+  --pill-fg: var(--filter-day-fg);
+}
+.pill-area {
+  --pill: var(--filter-area);
+  --pill-fg: var(--filter-area-fg);
+}
+.pill-type {
+  --pill: var(--filter-type);
+  --pill-fg: var(--filter-type-fg);
+}
+.pill-tag {
+  --pill: var(--filter-tag);
+  --pill-fg: var(--filter-tag-fg);
+}
+.pill-live {
+  --pill: var(--filter-live);
+  --pill-fg: var(--filter-live-fg);
 }

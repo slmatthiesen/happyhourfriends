@@ -7,6 +7,12 @@ import { getVenueDetailById, type VenueDetail } from "@/lib/queries/venues";
 import { readEvidenceForModel } from "@/lib/submit/evidenceStore";
 import { enqueueClassify } from "@/lib/jobs/queue";
 import type { EditTargetType, SubmissionDiff } from "@/lib/apply/types";
+import { isFirstPartyUrl } from "@/lib/contribution/firstParty";
+import { extractHappyHours } from "@/lib/ai/extractHappyHours";
+import { applySubmission } from "@/lib/apply/engine";
+import { routeContribution, isAutoApplyEnabled } from "@/lib/contribution/route";
+import { sendEmail, adminRecipients } from "@/lib/email/client";
+import { extractedHappyHoursEmail } from "@/lib/email/templates";
 
 interface SubmittedFileRef {
   submittedFile?: { url?: string; mime?: string };
@@ -82,6 +88,20 @@ function resolveOp(
     };
   }
 
+  if (op.action === "new_happy_hour") {
+    const after = op.after as Record<string, unknown>;
+    const days = after.daysOfWeek;
+    if (!Array.isArray(days) || days.length === 0 || typeof after.startTime !== "string") {
+      return null; // engine needs venueId + days + startTime
+    }
+    return {
+      targetType: "new_happy_hour" as EditTargetType,
+      targetId: venue.id,
+      before: null,
+      after: { ...after, venueId: venue.id },
+    };
+  }
+
   // new_offering — must attach to an existing happy hour of this venue.
   const hh = venue.happyHours.find((h) => h.id === op.happyHourId);
   if (!hh) return null;
@@ -132,6 +152,57 @@ export async function handleInterpret(submissionId: string): Promise<void> {
   const diff = parent.diffJsonb as SubmissionDiff;
   const note = String(diff.after?.note ?? "").trim();
   const parentSourceUrl = diff.sourceUrl ?? null;
+
+  const firstParty = isFirstPartyUrl(parentSourceUrl, venue.websiteUrl);
+  if (firstParty && parentSourceUrl) {
+    let extracted;
+    try {
+      extracted = await extractHappyHours({
+        venueName: venue.name,
+        websiteUrl: venue.websiteUrl,
+        priorityUrls: [parentSourceUrl],
+      });
+    } catch (e) {
+      await setStatus(submissionId, {
+        status: "queued_admin",
+        aiClassifierReasoning: `First-party extract failed: ${errMsg(e)}`,
+      });
+      return;
+    }
+    await recordUsage({
+      stage: "interpret",
+      model: extracted.model,
+      usage: extracted.usage,
+      costCents: extracted.costCents,
+      promptHash: extracted.promptHash,
+      submissionId,
+      cityId: venue.cityId,
+    });
+    const lines = await fanOutExtracted(parent, venue, extracted, parentSourceUrl);
+    if (lines.length > 0) {
+      try {
+        const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+        const adminUrl = `${base}/admin`;
+        const { subject, html } = extractedHappyHoursEmail({
+          venueName: venue.name,
+          windowCount: lines.length,
+          windowLines: lines,
+          confidence: extracted.confidence,
+          sourceUrl: parentSourceUrl,
+          adminUrl,
+        });
+        await sendEmail({ to: adminRecipients(), subject, html });
+      } catch (e) {
+        console.error("Failed to send extracted-happy-hours email", e);
+      }
+    }
+    await setStatus(submissionId, {
+      status: "interpreted",
+      aiClassifierReasoning: `Extracted ${extracted.happyHours.length} window(s) from first-party source.`,
+      decidedAt: new Date(),
+    });
+    return;
+  }
 
   // Re-read the attached photo/PDF (if any) so the model can ground the change.
   const fileRef = (parent.aiEvidenceJsonb as SubmittedFileRef | null)?.submittedFile;
@@ -218,4 +289,62 @@ export async function handleInterpret(submissionId: string): Promise<void> {
     aiClassifierReasoning: `Interpreted into ${created} change(s): ${result.summary}`,
     decidedAt: new Date(),
   });
+}
+
+async function fanOutExtracted(
+  parent: typeof editSubmissions.$inferSelect,
+  venue: VenueDetail,
+  extracted: Awaited<ReturnType<typeof extractHappyHours>>,
+  sourceUrl: string,
+): Promise<string[]> {
+  const autoApplyEnabled = isAutoApplyEnabled();
+  const queuedLines: string[] = [];
+  for (const hh of extracted.happyHours) {
+    if (!hh.daysOfWeek?.length || !hh.startTime) continue; // engine minimum
+    const [child] = await db
+      .insert(editSubmissions)
+      .values({
+        targetType: "new_happy_hour",
+        targetId: venue.id,
+        parentSubmissionId: parent.id,
+        diffJsonb: {
+          before: null,
+          after: {
+            venueId: venue.id,
+            daysOfWeek: hh.daysOfWeek,
+            startTime: hh.startTime,
+            endTime: hh.endTime,
+            notes: hh.notes,
+            offerings: hh.offerings,
+          },
+          sourceUrl,
+          summary: `Add happy hour (${hh.daysOfWeek.join(",")} from ${hh.startTime})`,
+        },
+        submitterFingerprint: parent.submitterFingerprint,
+        submitterIp: parent.submitterIp,
+        submitterEmail: parent.submitterEmail,
+        status: "pending",
+      })
+      .returning({ id: editSubmissions.id });
+    const decision = routeContribution({
+      firstParty: true,
+      confidence: extracted.confidence,
+      submitterBanned: false,
+      submitterTrustScore: 0,
+      critical: false,
+      autoApplyEnabled,
+    });
+    if (decision === "auto_apply") {
+      try {
+        await applySubmission(child.id, { actor: "ai", reason: "First-party extract, high confidence." });
+        continue;
+      } catch {
+        /* fall through to queue */
+      }
+    }
+    await setStatus(child.id, { status: "queued_admin" });
+    const line = `${hh.daysOfWeek.join(",")} from ${hh.startTime}${hh.endTime ? `–${hh.endTime}` : ""}`;
+    queuedLines.push(line);
+  }
+  return queuedLines;
 }
