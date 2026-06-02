@@ -37,8 +37,10 @@ check("wikipedia present → 2", () =>
   assert.equal(recognizabilityScore({ wikipedia: "en:Sam Hughes", place: "quarter" }), 2));
 check("bare suburb (no wiki) → 1", () =>
   assert.equal(recognizabilityScore({ place: "suburb" }), 1));
-check("plain neighbourhood, no wiki → 0", () =>
-  assert.equal(recognizabilityScore({ place: "neighbourhood" }), 0));
+check("plain neighbourhood, no wiki → 1 (OSM-presence signal)", () =>
+  assert.equal(recognizabilityScore({ place: "neighbourhood" }), 1));
+check("quarter, no wiki → 1", () =>
+  assert.equal(recognizabilityScore({ place: "quarter" }), 1));
 check("empty tags → 0", () => assert.equal(recognizabilityScore({}), 0));
 
 // isRecognizableFine: fine + score ≥ bar.

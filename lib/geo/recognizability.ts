@@ -30,13 +30,14 @@ export interface RecognizabilityTags {
 
 /**
  * 0..2 recognizability:
- *   2 — has a wikidata or wikipedia tag (a documented, named place; the fame proxy)
- *   1 — a bare `place=suburb` (a genuine district even without a wiki link)
- *   0 — anything else (plain neighbourhood/quarter with no notability signal)
+ *   2 — has a wikidata or wikipedia tag (wiki-documented; the strongest notability signal)
+ *   1 — a mapped OSM neighbourhood, quarter, or suburb (present-in-OSM is the signal;
+ *       wikidata is too sparse to be the primary gate — e.g. Tucson's barrios carry none)
+ *   0 — anything else (no OSM neighbourhood mapping, no wiki link)
  */
 export function recognizabilityScore(tags: RecognizabilityTags): number {
   if (tags.wikidata || tags.wikipedia) return 2;
-  if (tags.place === "suburb") return 1;
+  if (tags.place === "suburb" || tags.place === "neighbourhood" || tags.place === "quarter") return 1;
   return 0;
 }
 
