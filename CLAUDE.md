@@ -7,6 +7,37 @@ with an AI moderation pipeline that verifies user submissions before applying th
 Launch market: Tacoma, WA. **`PRD.md` is the source of truth — read it before building
 (don't skim §3 schema or §4 AI pipeline).** This file is the running state + lessons.
 
+## Branch & PR workflow (NON-NEGOTIABLE — read before any git work)
+
+Born from a 2026-06-01 incident: parallel sessions left 3 divergent feature branches,
+6 unpushed local-main commits, AND GitHub PRs being merged at the same time. A local
+"merge all branches" then collided with the PR merges → local `main` and `origin/main`
+diverged, a `package.json` line got dropped during conflict resolution (real code loss,
+recoverable only via `origin/main`), and a stale `.next` cache made it *look* like UI
+code had vanished. Two hours to untangle. The rules that prevent it:
+
+1. **One unit of work = one branch off the latest `origin/main` = one PR.** Start every
+   task with `git fetch origin && git switch -c <branch> origin/main`. Never commit
+   directly to `main`. Never start a branch from another in-flight feature branch.
+2. **Integrate ONLY through GitHub PRs.** Do NOT do local octopus/sequential
+   `git merge <branch>` into `main` — especially never while PRs for the same work are
+   open. ONE integration path. To land work: open a PR (`gh pr create`), then
+   `gh pr merge --merge`. Let GitHub own `main`.
+3. **Before integrating anything, sync:** `git fetch origin` and confirm
+   `git rev-list --count main..origin/main` is what you expect. Fast-forward local main
+   with `git merge --ff-only origin/main` — if it refuses, you've diverged; STOP and
+   reconcile before merging more.
+4. **Never resolve a conflict by deleting a side's additions.** When both sides ADD
+   lines (scripts, imports, CSS rules), keep BOTH. A clean auto-merge can still be wrong —
+   re-read the merged hunk.
+5. **After any branch switch or merge, `rm -rf .next` before restarting `npm run dev`.**
+   Turbopack serves stale compiled CSS/RSC across big working-tree changes; a browser
+   hard-refresh does NOT fix it. Also note dev auto-bumps to **:3001** when :3000 is taken
+   by another app — check the actual port before concluding a change "didn't work".
+6. **Before declaring code lost:** check `git stash list`, `git reflog`, `git fsck
+   --lost-found`, `git log --all`, and every `git worktree list` dir. Confirm against
+   `origin/main` (it may be a superset of local). See `[[feedback_check_stash_before_declaring_work_lost]]`.
+
 ## HH-likelihood pre-filter (2026-05-30, branch `cluster-schema-seed-pipeline`)
 
 Calibration session against Tucson (188 venues / 85 confirmed-HH / 103 stubs) to cut
