@@ -156,6 +156,41 @@ const ALCOHOL_SIGNAL_PRIMARY = new Set<string>([
   "irish_pub",
 ]);
 
+// Name signals that, by themselves, mean the venue serves alcohol. Used to OVERRIDE the
+// enrich alcohol gate when Google's servesBeer/Wine/Cocktails come back false/null — those
+// fields are unreliable and were dropping obvious cases (a "Biergarten" reported as serving
+// no alcohol). Matched WORD-aware (not bare substring) so "pub" doesn't fire on "Republic".
+// Whole words: must equal a name token. Prefixes: a token must start with it ("brew" →
+// brewery/brewing/brewpub/brewhouse). Phrases: a substring of the full normalized name.
+const ALCOHOL_NAME_WORDS = new Set<string>([
+  "beer", "biergarten", "pub", "tavern", "taproom", "saloon", "winery", "distillery",
+  "cocktail", "cocktails", "alehouse", "meadery", "cidery", "speakeasy", "mezcaleria",
+  "cantina",
+]);
+const ALCOHOL_NAME_PREFIXES = ["brew"]; // brewery, brewing, brewpub, brewhouse, brews
+const ALCOHOL_NAME_PHRASES = ["beer garden", "bier garten", "wine bar", "ale house", "tap room"];
+
+/**
+ * True when name OR Google place type signals the venue serves alcohol — the override the
+ * enrich alcohol gate uses so a brewery/beer-garden/pub isn't dropped just because Google's
+ * serves* fields are blank. Worst case a false positive costs one cheap extractor pass that
+ * finds nothing; the cost of a false NEGATIVE is silently dropping a real bar.
+ */
+export function hasAlcoholSignal(
+  name: string | null | undefined,
+  primaryType: string | null | undefined,
+  types?: string[] | null,
+): boolean {
+  if (primaryType && ALCOHOL_SIGNAL_PRIMARY.has(primaryType)) return true;
+  if (types?.some((t) => ALCOHOL_SIGNAL_PRIMARY.has(t))) return true;
+  const n = normalize(name ?? "");
+  if (!n) return false;
+  if (ALCOHOL_NAME_PHRASES.some((p) => n.includes(p))) return true;
+  const words = n.split(" ");
+  if (words.some((w) => ALCOHOL_NAME_WORDS.has(w))) return true;
+  return words.some((w) => ALCOHOL_NAME_PREFIXES.some((pre) => w.startsWith(pre)));
+}
+
 /**
  * Excluded when it is the venue's PRIMARY type.
  *
