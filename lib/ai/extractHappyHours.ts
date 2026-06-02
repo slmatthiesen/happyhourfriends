@@ -227,7 +227,7 @@ const TOOLS: ToolUnion[] = [RECORD_TOOL];
 // How many of the venue's known URLs we fetch and feed the model. priorityUrls (the HH/menu
 // pages site triage already found) come first, then the website + other URL. Bounded so a
 // link-heavy site can't balloon the input-token bill. fetchUrl caps each page at ~8k chars.
-const MAX_FETCH = 5;
+const MAX_FETCH = 10; // probe more candidate pages (multi-source discovery); 404s are dropped free.
 
 const VALID_LOCATION = new Set(["bar", "patio", "dining", "all"]);
 const VALID_KIND = new Set(["food", "drink", "other"]);
@@ -379,6 +379,10 @@ export async function buildExtractRequest(input: ExtractInput): Promise<ExtractR
   const pages = await fetchPages(
     [...(input.priorityUrls ?? []), input.websiteUrl, input.otherUrl],
     MAX_FETCH,
+    // Tier-2: menus bury HH deep in big SSR pages — give the extractor a larger,
+    // menu-dense budget than the verifier's default 8k (siteContent keeps the
+    // highest-signal windows, so this is selected content, not just "more bytes").
+    { maxContent: 28_000 },
   );
   const content: ContentBlockParam[] = [
     { type: "text", text: userText },
