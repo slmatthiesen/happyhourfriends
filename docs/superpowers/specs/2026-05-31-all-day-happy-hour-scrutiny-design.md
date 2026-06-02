@@ -129,6 +129,15 @@ A new script `scripts/reverify-all-day.ts` (npm `reverify:all-day`), two phases.
 
 ## Part B — Pipeline hardening
 
+> **⚠️ SUPERSEDED (2026-05-31, later same day) by
+> `2026-05-31-capture-everything-realness-filter-design.md`.** The `allDay && days>=3 →
+> return null` code drop below was destroying real data (a $30 enrich run stored 0 rows;
+> Aunt Chiladas's "Mon–Fri open until 6 PM" was deleted by an unrelated start-null drop).
+> Do NOT re-add the drop. The extractor now CAPTURES everything structurally valid; the ≤2
+> rule became a *suspect* signal in `lib/places/realnessGate.ts` that HIDES (active=false),
+> never deletes. The prompt change (still valid) shipped as v11, not v9.
+
+
 1. **Prompt** `prompts/seed-extract-hh.md` → v9:
    - Add the happy-hour *definition* (recurring + time-limited). State explicitly that a
      discount available all open hours every day is regular pricing → **omit it**, and a

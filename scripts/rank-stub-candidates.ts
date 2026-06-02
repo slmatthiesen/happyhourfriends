@@ -120,13 +120,16 @@ function harvestIsThirdParty(row: StubRow, rec: HarvestRec | undefined): boolean
 }
 
 function whereToCheck(row: StubRow, rec: HarvestRec | undefined): string {
+  // Prefer the exact URL the free harvest already confirmed carries HH text.
   const src = harvestSourceUrl(rec);
   if (src) return src;
   if (row.website_url) {
-    // HH pages live at the site root, not under a location query path. Use the
-    // origin so a tracking-querystring homepage doesn't yield a garbage guess.
+    // No confirmed HH page — send the operator to the venue's real homepage to
+    // navigate from. (We used to guess `${origin}/happy-hour`, but that path
+    // 404s on most sites, which corrupts manual triage: a real-HH venue gets
+    // marked "no" because the GUESS was dead. The homepage is always real.)
     try {
-      return `${new URL(row.website_url).origin}/happy-hour`;
+      return new URL(row.website_url).origin;
     } catch {
       return row.website_url;
     }
@@ -154,13 +157,14 @@ function renderCity(city: string, ranked: Ranked[], limit: number | null): strin
   const lines: string[] = [];
   lines.push(`## ${city} — ${live.length} ranked stub(s)`);
   lines.push("");
-  lines.push("| # | venue | type | score | why | where to check |");
-  lines.push("|---|-------|------|------:|-----|----------------|");
+  // Triage-first column order: venue, website, your mark, then type/score/why.
+  lines.push("| # | venue | website | mark | type | score | why |");
+  lines.push("|---|-------|---------|------|------|------:|-----|");
 
   let dividerShown = false;
   shown.forEach((r, i) => {
     if (!dividerShown && r.s.score < LOW_YIELD_PRIOR) {
-      lines.push(`| | _— low-yield below (score < ${LOW_YIELD_PRIOR}) —_ | | | | |`);
+      lines.push(`| | _— low-yield below (score < ${LOW_YIELD_PRIOR}) —_ | | | | | |`);
       dividerShown = true;
     }
     const type = r.row.primary_type ?? r.row.type ?? "—";
@@ -168,7 +172,7 @@ function renderCity(city: string, ranked: Ranked[], limit: number | null): strin
       .filter(Boolean)
       .join(" — ");
     lines.push(
-      `| ${i + 1} | ${mdEscape(r.row.name)} | ${mdEscape(type)} | ${r.s.score.toFixed(2)} | ${mdEscape(why)} | ${mdEscape(r.where)} |`,
+      `| ${i + 1} | ${mdEscape(r.row.name)} | ${mdEscape(r.where)} |  | ${mdEscape(type)} | ${r.s.score.toFixed(2)} | ${mdEscape(why)} |`,
     );
   });
 
@@ -263,6 +267,13 @@ async function main() {
     `${totalLive} stub venues ranked by P(findable happy hour), local signals only ` +
       `(type prior + harvest on-site signal + popularity). ${harvestBoosted} carry a ` +
       `live harvest HH snippet — work those first. No API, no DB writes.`,
+  );
+  md.push("");
+  md.push(
+    "Triage: open the **website** URL, then fill the **mark** column — " +
+      "`y` = has a real HH, `n` = no HH / not relevant, `?` = unsure. For each `y`, " +
+      "note in **why** *where* you found it (homepage / `/happy-hour` page / PDF menu / " +
+      "Facebook / Instagram / Google) — that's what tells us where the extractor missed.",
   );
   md.push("");
   for (const city of cities) {
