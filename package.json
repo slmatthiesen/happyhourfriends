@@ -57,7 +57,8 @@
     "test:interpreter-newhh": "tsx scripts/test-interpreter-newhh.ts",
     "test:contribution-pipeline": "tsx --conditions react-server scripts/test-contribution-pipeline.ts",
     "test:cardinal-districts": "tsx scripts/test-cardinal-districts.ts",
-    "generate:cardinal-districts": "tsx scripts/generate-cardinal-districts.ts"
+    "generate:cardinal-districts": "tsx scripts/generate-cardinal-districts.ts",
+    "test:assignment": "tsx scripts/test-neighborhood-assignment.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.99.0",

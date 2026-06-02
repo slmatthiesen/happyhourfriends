@@ -1,4 +1,5 @@
 import type { Sql } from "postgres";
+import { RECOGNIZABLE_BAR } from "@/lib/geo/recognizability";
 
 /**
  * Snap distance (meters): a venue not contained by any polygon is still assigned to the
@@ -29,11 +30,14 @@ const AMBIGUITY_GAP_METERS = 500;
  * Assign venues to a neighborhood by spatial match (PRD §3 — venues.neighborhood_id is
  * derived, not stored by hand). For each venue with coordinates we pick the best
  * neighborhood polygon within SNAP_METERS, ranked:
- *   1. Non-fallback polygon beats a fallback one (is_fallback ASC) — a primary neighborhood
- *      within snap range wins over an overlapping fallback/gap-fill (e.g. Zillow) polygon.
- *   2. Containing polygon wins (ST_Distance = 0), else nearest within SNAP_METERS.
- *   3. Tie-break: child (vernacular nested under district) over parent.
- *   4. Tie-break: smallest polygon by area.
+ *   1. Eligible candidates first: a recognizable fine neighborhood (tier='fine' AND
+ *      recognizability >= RECOGNIZABLE_BAR), OR any coarse district. A fine neighborhood
+ *      below the recognizability bar is ineligible (shadowed) and only wins when no
+ *      eligible polygon is in range.
+ *   2. Among eligible: recognizable fine over coarse district.
+ *   3. Containing polygon (ST_Distance = 0) beats merely-near.
+ *   4. Higher recognizability wins.
+ *   5. Tie-break: smallest polygon by area.
  * Outside SNAP_METERS, neighborhood_id stays NULL.
  *
  * Idempotent and safe to re-run: only venues whose computed neighborhood differs from
@@ -66,12 +70,21 @@ export async function assignNeighborhoods(
         AND vv.deleted_at IS NULL
         ${cityId ? sql`AND vv.city_id = ${cityId}` : sql``}
       ORDER BY vv.id,
-               n.is_fallback ASC,
+               -- 1. Eligible candidates first: a recognizable fine neighborhood, OR any
+               --    coarse district. A fine neighborhood below the recognizability bar is
+               --    ineligible (shadowed) and only used as a last resort.
+               (CASE WHEN n.tier = 'fine' AND n.recognizability < ${RECOGNIZABLE_BAR}
+                     THEN 1 ELSE 0 END) ASC,
+               -- 2. Among eligible: prefer a recognizable FINE name over a COARSE rollup.
+               (CASE WHEN n.tier = 'fine' THEN 0 ELSE 1 END) ASC,
+               -- 3. Containing polygon (distance 0) beats merely-near.
                ST_Distance(
                  n.polygon::geography,
                  ST_SetSRID(ST_MakePoint(vv.lng::float8, vv.lat::float8), 4326)::geography
                ) ASC,
-               (n.parent_id IS NOT NULL) DESC,
+               -- 4. Higher recognizability wins.
+               n.recognizability DESC,
+               -- 5. Tie-break: smaller (more specific) polygon.
                ST_Area(n.polygon::geography) ASC
     ) sub
     WHERE v.id = sub.vid
