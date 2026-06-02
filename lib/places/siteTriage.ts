@@ -12,7 +12,35 @@
  */
 
 export type SiteKind = "real" | "social_only" | "none";
-export type Reachability = "ok" | "dead" | "parked";
+export type Reachability = "ok" | "dead" | "parked" | "timeout";
+
+/**
+ * The outcome of trying to fetch a site. Only `unreachable` (the domain doesn't
+ * resolve or refuses all connections) means the site is actually DEAD. `timeout`
+ * (slow/heavy real site) and `blocked` (a server answers but Node can't read it —
+ * TLS cert-chain error, connection reset, bot wall) both mean a site EXISTS, so
+ * SACRED — we never kill on those, only keep as a stub.
+ */
+export type FetchOutcome =
+  | { kind: "response"; status: number; html: string; finalUrl: string }
+  | { kind: "timeout" }
+  | { kind: "unreachable" }
+  | { kind: "blocked" };
+
+/**
+ * Map a thrown fetch error onto an outcome. Only a non-resolving (ENOTFOUND /
+ * EAI_AGAIN) or actively-refused (ECONNREFUSED) domain is treated as dead. TLS
+ * errors, resets, protocol errors, etc. mean a server is present but unreadable
+ * by Node (browsers/curl succeed — e.g. hillstone.com's UNABLE_TO_VERIFY_LEAF_
+ * SIGNATURE) → `blocked`, never killed. Pure + exported for unit testing.
+ */
+export function classifyFetchError(err: unknown): "timeout" | "unreachable" | "blocked" {
+  const e = err as { name?: string; cause?: { code?: string } };
+  if (e?.name === "AbortError") return "timeout";
+  const code = e?.cause?.code;
+  if (code === "ENOTFOUND" || code === "EAI_AGAIN" || code === "ECONNREFUSED") return "unreachable";
+  return "blocked";
+}
 
 export interface SiteVerdict {
   kind: SiteKind;
@@ -78,11 +106,12 @@ export function classifyUrl(raw: string | null | undefined): { kind: SiteKind; u
 
 export function isParkedHtml(html: string): boolean {
   const lower = html.toLowerCase();
-  if (PARKED_MARKERS.some((m) => lower.includes(m))) return true;
-  // Near-empty body (strip tags) → placeholder shell. The 80-char floor is a heuristic:
-  // a real venue homepage always has more visible text than a parking stub.
-  const text = lower.replace(/<script[\s\S]*?<\/script>/g, "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-  return text.length < 80;
+  // Markers ONLY. A prior <80-char visible-text floor over-fired on JS/SPA shells
+  // (Brix served 84 bytes, LongHorn an SSR shell) — both real sites, wrongly killed
+  // as "parked". A genuinely parked domain carries one of these registrar markers;
+  // anything else is reachable and (worst case) yields nothing → stays a stub, never
+  // killed. SACRED: never kill a reachable site.
+  return PARKED_MARKERS.some((m) => lower.includes(m));
 }
 
 export function extractHhSignalLinks(html: string, baseUrl: string): string[] {
@@ -117,7 +146,10 @@ export function resolveEnrichAction(
   return { action: verdict.decision, reason: verdict.reason, priorityUrls: verdict.hhSignalUrls };
 }
 
-async function fetchHtml(url: string, ms = 5000): Promise<{ status: number; html: string; finalUrl: string } | null> {
+// Real first-party sites can be heavy (a 200 KB homepage took ~12s in the field),
+// and the full body read counts against this budget. 5s killed real venues
+// (e.g. Peaks & Pints) as "dead"; 15s captures slow-but-real sites.
+async function fetchHtml(url: string, ms = 15000): Promise<FetchOutcome> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), ms);
   try {
@@ -127,12 +159,43 @@ async function fetchHtml(url: string, ms = 5000): Promise<{ status: number; html
       headers: { "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36" },
     });
     const html = await res.text();
-    return { status: res.status, html, finalUrl: res.url || url };
-  } catch {
-    return null; // DNS fail / refused / timeout / abort
+    return { kind: "response", status: res.status, html, finalUrl: res.url || url };
+  } catch (err) {
+    // A timeout/blocked is NOT a dead site — only a non-resolving/refused domain is.
+    if (ctrl.signal.aborted) return { kind: "timeout" };
+    return { kind: classifyFetchError(err) };
   } finally {
     clearTimeout(timer);
   }
+}
+
+/**
+ * Map a fetch outcome onto a reachability verdict (the "real site" branch).
+ * Pure + exported so the kill/keep decision is unit-testable without the network.
+ *
+ * SACRED: a `timeout` is kept as a stub, never killed — a reachable-but-slow site
+ * must survive. Only `network` failure, 5xx, or 4xx-gone (404–410) may kill.
+ */
+export function siteVerdictFromFetch(url: string, outcome: FetchOutcome): SiteVerdict {
+  if (outcome.kind === "timeout") {
+    return { kind: "real", url, reachability: "timeout", hhSignalUrls: [], decision: "stub", reason: "slow site (timeout) — kept as stub" };
+  }
+  if (outcome.kind === "blocked") {
+    return { kind: "real", url, reachability: "timeout", hhSignalUrls: [], decision: "stub", reason: "server present but unreadable (TLS/reset) — kept as stub" };
+  }
+  if (outcome.kind === "unreachable") {
+    return { kind: "real", url, reachability: "dead", hhSignalUrls: [], decision: "kill", reason: "dead site (unreachable)" };
+  }
+  const { status, html, finalUrl } = outcome;
+  if (status >= 500 || (status >= 404 && status <= 410)) {
+    return { kind: "real", url, reachability: "dead", hhSignalUrls: [], decision: "kill", reason: `dead site (${status})` };
+  }
+  if (status === 200 && isParkedHtml(html)) {
+    return { kind: "real", url, reachability: "parked", hhSignalUrls: [], decision: "kill", reason: "parked domain" };
+  }
+  // Reachable (incl. 403 bot-block) → extract; collect HH-signal links from the HTML we have.
+  const hhSignalUrls = status === 200 ? extractHhSignalLinks(html, finalUrl) : [];
+  return { kind: "real", url, reachability: "ok", hhSignalUrls, decision: "extract", reason: "reachable" };
 }
 
 export async function triageSite(input: {
@@ -148,14 +211,6 @@ export async function triageSite(input: {
     return { kind: "social_only", url: cls.url, reachability: null, hhSignalUrls: [], decision: "stub", reason: "social/ordering link only" };
   }
 
-  const resp = await fetchHtml(cls.url!);
-  if (!resp || resp.status >= 500 || (resp.status >= 404 && resp.status <= 410)) {
-    return { kind: "real", url: cls.url, reachability: "dead", hhSignalUrls: [], decision: "kill", reason: `dead site (${resp ? resp.status : "unreachable"})` };
-  }
-  if (resp.status === 200 && isParkedHtml(resp.html)) {
-    return { kind: "real", url: cls.url, reachability: "parked", hhSignalUrls: [], decision: "kill", reason: "parked domain" };
-  }
-  // Reachable (incl. 403 bot-block) → extract; collect HH-signal links from the HTML we have.
-  const hhSignalUrls = resp.status === 200 ? extractHhSignalLinks(resp.html, resp.finalUrl) : [];
-  return { kind: "real", url: cls.url, reachability: "ok", hhSignalUrls, decision: "extract", reason: "reachable" };
+  const outcome = await fetchHtml(cls.url!);
+  return siteVerdictFromFetch(cls.url!, outcome);
 }

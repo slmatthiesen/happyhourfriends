@@ -18,6 +18,7 @@
  *   GOOGLE_PLACES_API_KEY  Google Cloud Places API (New) key
  */
 import "dotenv/config";
+import { existsSync, readFileSync } from "node:fs";
 import postgres from "postgres";
 import {
   isDenylistedChain,
@@ -37,6 +38,17 @@ function parseArgs(): { city: string; curated: boolean; fresh: boolean } {
     const i = argv.indexOf(f);
     return i >= 0 ? argv[i + 1] : undefined;
   };
+  // Reject stray args. `seed:discover tucson` (no --city) silently ran Tacoma before — a
+  // costly footgun (wrong city / wasted Places quota). The city MUST be a --city flag.
+  for (let i = 0; i < argv.length; i++) {
+    const tok = argv[i];
+    if (tok === "--city") { i++; continue; } // --city consumes its value
+    if (tok === "--curated" || tok === "--fresh") continue;
+    throw new Error(
+      `Unexpected argument "${tok}". Pass the city as a flag:\n` +
+        `  npm run seed:discover -- --city <slug>   (e.g. --city tucson)`,
+    );
+  }
   return {
     city: getFlag("--city") ?? "tacoma",
     curated: argv.includes("--curated"),
@@ -109,16 +121,35 @@ const TACOMA_FALLBACK = {
 
 // Per-city discovery config stored in cities.seed_config (JSONB). Falls back to the
 // historical Tacoma defaults if absent so older city rows keep working.
+//
+// COVERAGE MODES (2026-06-01):
+//   - BOUNDARY mode (preferred, scales to every city): if data/<city>-boundary.geojson
+//     exists, discovery tiles over the boundary's bbox and gates each result with
+//     ST_DWithin(boundary, point, serviceBufferMeters). One source of truth shared with
+//     `scope:venues` (same file + same buffer), so coverage and pruning can't disagree.
+//     This replaces the radius circle that silently dropped real far-but-in-city venues
+//     (e.g. Bottega Michelangelo, 14.4km from Tucson's center → outside the 12km gate).
+//   - RADIUS mode (legacy fallback): no boundary file → tile a radiusKm disk around the
+//     city center and gate by mailing-locality regex + haversine radius (unreliable at
+//     borders; kept only so cities without a boundary file still work).
 interface SeedConfig {
   radiusKm: number;
   cellMeters: number;
   serviceLocalities: string[];
+  // BOUNDARY mode: metres of buffer around the municipal boundary that still counts as
+  // in-scope (captures contiguous suburbs the city line doesn't annex — e.g. Casas Adobes
+  // for Tucson). MUST match scope:venues' buffer for the same city. Tune per city.
+  serviceBufferMeters?: number;
 }
 const DEFAULT_SEED_CONFIG: SeedConfig = {
   radiusKm: 7,
   cellMeters: 3000,
   serviceLocalities: ["Tacoma", "Ruston"],
 };
+// Default boundary buffer when seed_config omits it. Small — geocode slop + immediately
+// adjacent storefronts — NOT a metro radius. Cities with large unincorporated suburbs
+// (Tucson → Casas Adobes) override this upward in seed_config.serviceBufferMeters.
+const DEFAULT_SERVICE_BUFFER_METERS = 1500;
 
 // We search broad (anything that could host a happy hour) but exclude junk PRIMARY
 // types at the Google query level — so 7-Elevens (convenience_store), Chick-fil-A /
@@ -188,6 +219,26 @@ function buildTiles(
         lat: centerLat + i * cellMeters * latPerM,
         lng: centerLng + j * cellMeters * lngPerM,
       });
+    }
+  }
+  return tiles;
+}
+
+/** Grid of search-circle centers covering a lat/lng bounding box (BOUNDARY mode). */
+function buildTilesBbox(
+  minLat: number,
+  minLng: number,
+  maxLat: number,
+  maxLng: number,
+  cellMeters: number,
+): { lat: number; lng: number }[] {
+  const midLat = (minLat + maxLat) / 2;
+  const latStep = cellMeters / 111_320;
+  const lngStep = cellMeters / (111_320 * Math.cos((midLat * Math.PI) / 180));
+  const tiles: { lat: number; lng: number }[] = [];
+  for (let lat = minLat; lat <= maxLat + latStep; lat += latStep) {
+    for (let lng = minLng; lng <= maxLng + lngStep; lng += lngStep) {
+      tiles.push({ lat, lng });
     }
   }
   return tiles;
@@ -343,6 +394,32 @@ async function main() {
     // Locality regex needs the state code (e.g. ", Tacoma, WA" / ", Phoenix, AZ").
     const stateCode = city.state ?? "WA";
 
+    // ---- Coverage mode: BOUNDARY (preferred) vs RADIUS (legacy) -------------
+    // If a municipal boundary GeoJSON exists for this city, tile over its bbox and gate
+    // every result spatially with ST_DWithin(boundary, point, buffer) — the same file +
+    // buffer scope:venues uses. Otherwise fall back to the radius circle.
+    const boundaryFile = `data/${args.city}-boundary.geojson`;
+    const useBoundary = existsSync(boundaryFile);
+    const SERVICE_BUFFER_METERS =
+      cfg.serviceBufferMeters ?? DEFAULT_SERVICE_BUFFER_METERS;
+    if (useBoundary) {
+      // Load the boundary into a temp table ONCE; the bbox + per-candidate gate query
+      // against it. Accepts a Feature, FeatureCollection (first feature), or bare geometry.
+      const raw = JSON.parse(readFileSync(boundaryFile, "utf8"));
+      const geom =
+        raw.type === "FeatureCollection"
+          ? raw.features[0].geometry
+          : raw.type === "Feature"
+            ? raw.geometry
+            : raw;
+      // Session-scoped temp table (postgres.js max:1 = one connection for the run).
+      await sql`CREATE TEMP TABLE _seed_boundary (g geometry)`;
+      await sql`
+        INSERT INTO _seed_boundary (g)
+        VALUES (ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(geom)}), 4326))
+      `;
+    }
+
     // --fresh: wipe prior candidates (except those already linked to a venue) so the
     // re-discovery reflects the current type/area filters cleanly.
     if (args.fresh) {
@@ -367,11 +444,45 @@ async function main() {
     let lowSignalSkipped = 0;
     let placesSkipped = 0;
 
-    const tiles = buildTiles(lat, lng, COVERAGE_METERS, CELL_METERS);
-    console.log(
-      `  ${tiles.length} tiles (≤20 results each); excluding ${EXCLUDED_PRIMARY_TYPES.length} ` +
-        `junk primary types; service area = ${SERVICE_LOCALITIES.join("/")} ≤${SERVICE_RADIUS_KM}km…`,
-    );
+    let tiles: { lat: number; lng: number }[];
+    if (useBoundary) {
+      // Tile the boundary's buffered bbox, then drop tiles whose center is far from the
+      // boundary (open desert / mountains / Saguaro NP) so we don't spend Places calls
+      // where no venue can be in-scope. Keep tiles within (buffer + one cell) of the
+      // boundary so edge cells still cover the buffer ring.
+      const [bb] = await sql<
+        { xmin: number; ymin: number; xmax: number; ymax: number }[]
+      >`
+        SELECT ST_XMin(e) xmin, ST_YMin(e) ymin, ST_XMax(e) xmax, ST_YMax(e) ymax
+        FROM (
+          SELECT ST_Envelope(ST_Buffer(g::geography, ${SERVICE_BUFFER_METERS})::geometry) e
+          FROM _seed_boundary
+        ) s
+      `;
+      const all = buildTilesBbox(bb.ymin, bb.xmin, bb.ymax, bb.xmax, CELL_METERS);
+      const vals = all.map((t, i) => `(${i}, ${t.lng}, ${t.lat})`).join(",");
+      const near = await sql.unsafe<{ i: number }[]>(`
+        SELECT v.i FROM (VALUES ${vals}) v(i, lng, lat), _seed_boundary b
+        WHERE ST_DWithin(
+          b.g::geography,
+          ST_SetSRID(ST_MakePoint(v.lng, v.lat), 4326)::geography,
+          ${SERVICE_BUFFER_METERS + CELL_METERS}
+        )
+      `);
+      const keep = new Set(near.map((r) => Number(r.i)));
+      tiles = all.filter((_, i) => keep.has(i));
+      console.log(
+        `  BOUNDARY mode: ${tiles.length} tiles (of ${all.length} bbox, desert pruned); ` +
+          `gate = within ${SERVICE_BUFFER_METERS}m of ${boundaryFile}; ` +
+          `excluding ${EXCLUDED_PRIMARY_TYPES.length} junk primary types…`,
+      );
+    } else {
+      tiles = buildTiles(lat, lng, COVERAGE_METERS, CELL_METERS);
+      console.log(
+        `  RADIUS mode: ${tiles.length} tiles (≤20 results each); excluding ${EXCLUDED_PRIMARY_TYPES.length} ` +
+          `junk primary types; service area = ${SERVICE_LOCALITIES.join("/")} ≤${SERVICE_RADIUS_KM}km…`,
+      );
+    }
 
     for (const tile of tiles) {
       let places: PlaceResult[];
@@ -435,17 +546,36 @@ async function main() {
           continue;
         }
 
-        // Service-area gate: keep only the configured localities within the radius.
-        // Out-of-area edge-tile spillover (Federal Way, Lakewood for Tacoma; Tempe,
-        // Scottsdale for Phoenix-central) is dropped here, never stored.
-        const inLocality = SERVICE_LOCALITIES.some((loc) =>
-          new RegExp(`,\\s*${loc},\\s*${stateCode}`).test(address ?? ""),
-        );
-        const inRadius =
-          pLat != null && pLng != null
-            ? haversineKm(lat, lng, pLat, pLng) <= SERVICE_RADIUS_KM
-            : false;
-        if (!inLocality || !inRadius) {
+        // Service-area gate. BOUNDARY mode: keep if the point is within the buffer of the
+        // municipal boundary (spatial, mailing-address-independent — this is what recovers
+        // contiguous suburbs like Casas Adobes that the city line doesn't annex). RADIUS
+        // mode (legacy): mailing-locality regex AND haversine radius.
+        let inArea: boolean;
+        if (useBoundary) {
+          if (pLat == null || pLng == null) {
+            inArea = false;
+          } else {
+            const [{ within }] = await sql<{ within: boolean }[]>`
+              SELECT ST_DWithin(
+                g::geography,
+                ST_SetSRID(ST_MakePoint(${pLng}, ${pLat}), 4326)::geography,
+                ${SERVICE_BUFFER_METERS}
+              ) AS within
+              FROM _seed_boundary
+            `;
+            inArea = within;
+          }
+        } else {
+          const inLocality = SERVICE_LOCALITIES.some((loc) =>
+            new RegExp(`,\\s*${loc},\\s*${stateCode}`).test(address ?? ""),
+          );
+          const inRadius =
+            pLat != null && pLng != null
+              ? haversineKm(lat, lng, pLat, pLng) <= SERVICE_RADIUS_KM
+              : false;
+          inArea = inLocality && inRadius;
+        }
+        if (!inArea) {
           outOfArea++;
           continue;
         }

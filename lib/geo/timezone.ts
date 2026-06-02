@@ -106,19 +106,23 @@ export function isWindowActive(
   now: VenueLocalNow,
   hours?: OpenPeriod[] | null,
 ): boolean {
-  // Unbounded windows — all-day, or "until close" (endTime null) — have no intrinsic end.
-  // We can only assert them active if we know the venue's hours; otherwise SUPPRESS
-  // (never guess a close time — showing "now" while the venue is shut is the bug we fix).
-  const unbounded = w.allDay || w.endTime == null;
+  // Unbounded windows have an open-ended side and no intrinsic clock bound there:
+  //   - all-day        (both null)
+  //   - "until close"  (start set, end null)
+  //   - "open until X" (start null, end set) — starts at the venue's open time
+  // We can only assert these active if we know the venue's hours; otherwise SUPPRESS
+  // (never guess an open/close time — showing "now" while the venue is shut is the bug
+  // we fix). The bounded post-midnight tail is intentionally not extended.
+  const unbounded = w.allDay || w.startTime == null || w.endTime == null;
   if (unbounded) {
     if (!hours || hours.length === 0) return false;
     if (!isVenueOpenAt(hours, now)) return false;
-    if (w.allDay) return w.daysOfWeek.includes(now.dayOfWeek);
-    // until-close: startTime is non-null (DB CHECK). Active on a listed start day, from
-    // start onward, while the venue is open. (The rare post-midnight tail is intentionally
-    // not extended — under-reporting late-night is acceptable; over-reporting "open" is not.)
-    if (w.startTime === null) return false; // defensive
-    return w.daysOfWeek.includes(now.dayOfWeek) && now.minutes >= toMinutes(w.startTime);
+    const onDay = w.daysOfWeek.includes(now.dayOfWeek);
+    if (w.allDay) return onDay;
+    // "open until X": active from open until the end time on a listed day.
+    if (w.startTime == null) return onDay && now.minutes < toMinutes(w.endTime as string);
+    // "until close": active from start onward on a listed day.
+    return onDay && now.minutes >= toMinutes(w.startTime);
   }
 
   // Bounded window (both start and end known) — unchanged, independent of hours.
@@ -134,6 +138,70 @@ export function isWindowActive(
   const prevDay = now.dayOfWeek === 1 ? 7 : now.dayOfWeek - 1;
   const earlyNextDay = w.daysOfWeek.includes(prevDay) && now.minutes < end;
   return lateOnStartDay || earlyNextDay;
+}
+
+/** Minutes-since-midnight → "HH:MM" (24h, wraps at 1440). */
+function minutesToHHMM(min: number): string {
+  const h = Math.floor(min / 60) % 24;
+  const m = min % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
+/**
+ * Resolve an open-ended window's bounds to real clock times on a given ISO weekday,
+ * using the venue's operating hours. The bounded side passes through unchanged; the
+ * open-ended side becomes the venue's earliest open (start) or latest close (end) that
+ * day. Split lunch/dinner hours collapse to earliest-open .. latest-close. A cross-
+ * midnight close returns its clock value (e.g. 02:00) but ranks later than any same-day
+ * close so it wins the "latest close" pick.
+ *
+ * Returns null — and the caller keeps the existing "close"/"Open to close" text — when:
+ *   - the window is fully bounded (nothing to resolve),
+ *   - hours are absent/empty,
+ *   - no operating period exists for `isoDay`, or
+ *   - the side we need (open or close) is unpublished (Google's 24h representation).
+ * We never invent a time we don't have.
+ */
+export function resolveBoundsForDay(
+  w: HappyHourWindow,
+  hours: OpenPeriod[] | null | undefined,
+  isoDay: number,
+): { startTime: string; endTime: string } | null {
+  const needsOpen = w.allDay || w.startTime == null;
+  const needsClose = w.allDay || w.endTime == null;
+  if (!needsOpen && !needsClose) return null; // bounded — nothing to resolve
+
+  if (!hours || hours.length === 0) return null;
+  const periods = hours.filter((p) => p.openDay === isoDay);
+  if (periods.length === 0) return null;
+
+  let openMin: number | null = null;
+  for (const p of periods) {
+    if (openMin == null || p.openMin < openMin) openMin = p.openMin;
+  }
+
+  // Latest close that day. A cross-midnight close (different close day, or close minute
+  // ≤ open minute) is later than any same-day close, so rank it +24h while keeping the
+  // real clock value to return.
+  let closeMin: number | null = null;
+  let bestRank = -1;
+  for (const p of periods) {
+    if (p.closeMin == null) continue;
+    const crosses = p.closeDay !== p.openDay || p.closeMin <= p.openMin;
+    const rank = crosses ? p.closeMin + 1440 : p.closeMin;
+    if (rank > bestRank) {
+      bestRank = rank;
+      closeMin = p.closeMin;
+    }
+  }
+
+  if (needsOpen && openMin == null) return null;
+  if (needsClose && closeMin == null) return null;
+
+  return {
+    startTime: needsOpen ? minutesToHHMM(openMin as number) : (w.startTime as string),
+    endTime: needsClose ? minutesToHHMM(closeMin as number) : (w.endTime as string),
+  };
 }
 
 /**

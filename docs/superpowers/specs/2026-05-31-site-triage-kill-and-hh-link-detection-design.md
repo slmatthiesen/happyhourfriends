@@ -31,7 +31,7 @@ where the extractor finds no times stays a **stub** — that is the recall-gap s
 documented in `[[project_extractor_misses_all_day_specials]]` and
 `[[stub-discovery-exclusion-wrong-lever]]`. The extractor has known recall gaps
 (all-day weekday specials, etc.), so "extractor found nothing" ≠ "venue has no happy
-hour." This design must not regress that.
+hour." This design must not regress that. 
 
 ## Decisions (from brainstorming)
 
@@ -60,21 +60,21 @@ A committed venue-type → P(happy hour) lookup, reconstructed from the priors t
 `docs/phoenix-stub-hh-review.md` (the original generator was ad-hoc and never committed).
 Approximate anchors from that doc:
 
-| Venue type (examples) | Prior |
-|---|---|
-| sports_bar / sports cantina / sports grill | ~0.62 |
-| bar / tavern / pub / brewery / gastropub | ~0.56–0.61 |
-| american / new-american / eclectic restaurant | ~0.57 |
-| italian / pizzeria (full-service) | ~0.56 |
-| cocktail_lounge / wine_bar | ~0.29–0.41 |
-| mexican / latin | ~0.33 |
-| pizza (counter) | ~0.32 |
-| sushi / japanese | ~0.17–0.19 |
-| bbq | ~0.14 |
-| chinese | ~0.08 |
-| seafood / mariscos | ~0.07 |
-| thai / vegan / cafe / specialty | ~0.0 |
-| unknown / no type signal | `null` (treated as below threshold for the no-site gate) |
+| Venue type (examples)                         | Prior                                                      |
+| --------------------------------------------- | ---------------------------------------------------------- |
+| sports_bar / sports cantina / sports grill    | ~0.62                                                      |
+| bar / tavern / pub / brewery / gastropub      | ~0.56–0.61                                                |
+| american / new-american / eclectic restaurant | ~0.57                                                      |
+| italian / pizzeria (full-service)             | ~0.56                                                      |
+| cocktail_lounge / wine_bar                    | ~0.29–0.41                                                |
+| mexican / latin                               | ~0.33                                                      |
+| pizza (counter)                               | ~0.32                                                      |
+| sushi / japanese                              | ~0.17–0.19                                                |
+| bbq                                           | ~0.14                                                      |
+| chinese                                       | ~0.08                                                      |
+| seafood / mariscos                            | ~0.07                                                      |
+| thai / vegan / cafe / specialty               | ~0.0                                                       |
+| unknown / no type signal                      | `null` (treated as below threshold for the no-site gate) |
 
 API:
 
@@ -132,8 +132,7 @@ Logic:
    - else → `reachability:"ok"`.
    - Note: a 403 is treated as `ok` (bot-blocking ≠ dead); the AI extractor renders it.
 3. **Link-scan** (real + ok only) the fetched HTML for HH-signal hrefs and anchor text:
-   `happy-hour`, `happyhour`, `happy_hour`, `/specials`, `(beer|drink|cocktail|wine|food)
-   .*menu`, `/menus`. Resolve to absolute URLs, dedupe, cap (e.g. first 5).
+   `happy-hour`, `happyhour`, `happy_hour`, `/specials`, `(beer|drink|cocktail|wine|food) .*menu`, `/menus`. Resolve to absolute URLs, dedupe, cap (e.g. first 5).
 4. **Decision:**
    - `none` → `kill` (reason `no site on file`) — *the caller may override to `extract`
      when likelihood > 0.5; see §4*.
@@ -160,13 +159,13 @@ change. This is the direct fix for "extractor whiffs on the homepage."
 In `seed-enrich-candidates.ts`, replace the unconditional `persistExtraction` with a
 triage-driven flow, applied in **both** the on-demand loop and the `--batch` prep path:
 
-| Triage decision | Likelihood gate | Action |
-|---|---|---|
-| `extract` (real+ok) | — | run extractor with `priorityUrls`; HH→`complete`, none→`stub` |
-| `social_only` | — | write `stub` (no AI) |
-| `kill` reason `dead`/`parked` | — | **kill**: mark candidate `killed_no_site`, no venue, log to report |
-| `kill` reason `no site` | likelihood ≤ 0.5 **or** null | **kill**: as above, logged under "no site — recognize any?" |
-| `kill` reason `no site` | likelihood > 0.5 | **go for it**: run extractor with name+city (its `web_search` finds the site); HH→`complete`, none→`stub` |
+| Triage decision                     | Likelihood gate                    | Action                                                                                                                  |
+| ----------------------------------- | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `extract` (real+ok)               | —                                 | run extractor with `priorityUrls`; HH→`complete`, none→`stub`                                                   |
+| `social_only`                     | —                                 | write `stub` (no AI)                                                                                                  |
+| `kill` reason `dead`/`parked` | —                                 | **kill**: mark candidate `killed_no_site`, no venue, log to report                                              |
+| `kill` reason `no site`         | likelihood ≤ 0.5**or** null | **kill**: as above, logged under "no site — recognize any?"                                                      |
+| `kill` reason `no site`         | likelihood > 0.5                   | **go for it**: run extractor with name+city (its `web_search` finds the site); HH→`complete`, none→`stub` |
 
 "Valid site, extractor found 0 windows" remains a **stub** in every case — only the three
 kill rows above delete/skip. Stubs whose triage surfaced `hhSignalUrls` are flagged
@@ -226,7 +225,8 @@ Always emits `docs/<city>-killed-venues.md`.
 ## Out of scope (YAGNI)
 
 - Automated web-search-to-find-site for the **low-likelihood** no-site tail (only the
-  >50% gate runs it; the rest go to the manual rescue report).
+  > 50% gate runs it; the rest go to the manual rescue report).
+  >
 - Any change to discovery-stage gates (`chainDenylist.ts`) — triage is an enrich-stage
   concern. Discovery excludes stay as-is.
 - Re-scoring/ranking the live site UI. The likelihood model is used only for the no-site

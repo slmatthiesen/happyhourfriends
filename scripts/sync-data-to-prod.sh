@@ -1,15 +1,19 @@
 #!/usr/bin/env bash
-# Copy local venue/HH data into the prod managed DB.
+# DEPRECATED — use `npm run push:data` (scripts/push-data-to-prod.sh) instead.
 #
-# PRE-LAUNCH ONLY. Wipes the listed data tables on prod first, then restores from local.
-# Once real submissions are landing on prod (post-launch), STOP using this — submissions
-# and admin actions are the data path; bulk-syncing would clobber live writes.
-#
-# Usage:
-#   LOCAL_DATABASE_URL=postgresql://hhf:hhf@localhost:5432/happyhourfriends \
-#   PROD_DATABASE_URL=postgresql://...do-managed-pg... \
-#     npm run sync:to-prod
+# This restores over a tunnel as the `hhf` role, which does NOT work against the
+# real self-hosted droplet: `hhf` is not a superuser (so `--disable-triggers`
+# fails) and the app's pool exhausts the non-superuser connection slots. It also
+# never migrates prod's schema first. See docs/data-sync-runbook.md for the full
+# story. Kept only for a hypothetical DO-Managed-PG setup where `hhf` is superuser.
 set -euo pipefail
+
+if [[ "${ALLOW_LEGACY_SYNC:-0}" != "1" ]]; then
+  echo "✗ sync:to-prod is deprecated and does not work against the droplet."
+  echo "  Use:  PROD_IP=<ip> npm run push:data"
+  echo "  (Override with ALLOW_LEGACY_SYNC=1 only for a DO-Managed-PG / superuser setup.)"
+  exit 1
+fi
 
 : "${LOCAL_DATABASE_URL:?Set LOCAL_DATABASE_URL}"
 : "${PROD_DATABASE_URL:?Set PROD_DATABASE_URL}"

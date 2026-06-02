@@ -33,6 +33,7 @@ import type { Message } from "@anthropic-ai/sdk/resources/messages";
 import {
   extractHappyHours,
   buildExtractRequest,
+  extractorMetadata,
   parseRecordedExtract,
   type ExtractResult,
 } from "@/lib/ai/extractHappyHours";
@@ -58,6 +59,7 @@ import { slugify, placeIdSuffix } from "@/lib/places/venueSlug";
 import { deriveVenueType, isVenueType, type VenueType } from "@/lib/places/venueType";
 import { triageSite, resolveEnrichAction } from "@/lib/places/siteTriage";
 import { hhLikelihood } from "@/lib/places/hhLikelihood";
+import { assessRealness, type RealnessReason } from "@/lib/places/realnessGate";
 import { renderKillReport, type KillEntry, type KillReason } from "@/lib/places/killReport";
 import { writeFile } from "node:fs/promises";
 
@@ -111,7 +113,7 @@ type SeedOutcome =
   | "error";
 
 /** Why a venue ended up with no happy-hour data — for the end-of-run report. */
-type NoDataReason = "no_website" | "zero_windows" | "all_dropped" | "errored";
+type NoDataReason = "no_website" | "site_unreachable" | "zero_windows" | "all_dropped" | "errored";
 interface NoDataEntry {
   name: string;
   reason: NoDataReason;
@@ -238,13 +240,41 @@ async function persistExtraction(
     ctx: PrepContext;
     extracted: ExtractResult | null;
   },
-): Promise<{ venueId: string | null; outcome: SeedOutcome; hasHH: boolean }> {
+): Promise<{
+  venueId: string | null;
+  outcome: SeedOutcome;
+  hasHH: boolean;
+  activeCount: number;
+  hiddenCount: number;
+  hiddenReasons: RealnessReason[];
+}> {
   const { cityId, placesKey, ctx, extracted } = args;
-  const hasHH = (extracted?.happyHours.length ?? 0) > 0;
+
+  // Run the pure realness gate per window (no AI). It NEVER drops data — it only
+  // decides active (shown) vs. hidden-for-review (active=false). The expensive
+  // extraction has already been captured; this is the cheap downstream filter.
+  const windows = (extracted?.happyHours ?? []).map((hh) => {
+    const days = [...new Set(hh.daysOfWeek)].sort((a, b) => a - b);
+    const verdict = assessRealness({
+      allDay: hh.allDay,
+      dayCount: days.length,
+      timeKnown: hh.timeKnown,
+      confidence: extracted!.confidence,
+    });
+    return { hh, days, verdict };
+  });
+
+  const hasHH = windows.length > 0;
+  const activeCount = windows.filter((w) => !w.verdict.suspect).length;
+  const hiddenCount = windows.length - activeCount;
+  const hiddenReasons = [...new Set(windows.flatMap((w) => w.verdict.reasons))];
   const outcome: SeedOutcome = hasHH ? "confirmed_hh" : "no_hh_found";
 
-  const completeness = hasHH ? "complete" : "stub";
-  const lastVerified = hasHH ? new Date() : null;
+  // Completeness reflects what's PUBLICLY visible: 'complete' only if ≥1 active window.
+  // A venue whose windows are all hidden stays a help-wanted stub until reviewed.
+  const hasActive = activeCount > 0;
+  const completeness = hasActive ? "complete" : "stub";
+  const lastVerified = hasActive ? new Date() : null;
 
   const base = deriveVenueType({
     primaryType: ctx.primaryType,
@@ -282,18 +312,17 @@ async function persistExtraction(
     }
   }
 
-  if (venueId && extracted && hasHH) {
-    for (const hh of extracted.happyHours) {
-      const days = [...new Set(hh.daysOfWeek)].sort((a, b) => a - b);
+  if (venueId && hasHH) {
+    for (const { hh, days, verdict } of windows) {
       const hhRows = await sql<{ id: string }[]>`
         INSERT INTO happy_hours
           (venue_id, days_of_week, all_day, start_time, end_time,
-           location_within_venue, notes, active, source_url)
+           location_within_venue, notes, active, extract_confidence, time_known, source_url)
         VALUES
           (${venueId}, ${days}, ${hh.allDay},
            ${hh.startTime}, ${hh.endTime},
            ${hh.locationWithinVenue}::location_within_venue,
-           ${hh.notes}, true, ${hh.sourceUrl})
+           ${hh.notes}, ${!verdict.suspect}, ${extracted!.confidence}, ${hh.timeKnown}, ${hh.sourceUrl})
         ON CONFLICT DO NOTHING
         RETURNING id
       `;
@@ -315,7 +344,7 @@ async function persistExtraction(
       }
     }
   }
-  return { venueId, outcome, hasHH };
+  return { venueId, outcome, hasHH, activeCount, hiddenCount, hiddenReasons };
 }
 
 async function writeLedger(
@@ -427,6 +456,8 @@ async function main() {
     );
 
     let nConfirmed = 0;
+    let nHiddenOnly = 0;
+    let nHiddenWindows = 0;
     let nNoHhFound = 0;
     let nError = 0;
     let nSkipped = 0;
@@ -476,6 +507,9 @@ async function main() {
 
       let outcome: SeedOutcome = "error";
       let resultingVenueId: string | null = null;
+      let activeThis = 0;
+      let hiddenThis = 0;
+      let hiddenReasonsThis: RealnessReason[] = [];
 
       try {
         // ---- Place Details: alcohol gate + website + price tier + photo ------
@@ -568,11 +602,19 @@ async function main() {
         });
         outcome = persisted.outcome;
         resultingVenueId = persisted.venueId;
-        console.log(
-          persisted.hasHH
-            ? `  ✓ ${extracted!.happyHours.length} HH window(s) saved`
-            : "  ◦ likely-HH stub kept (no times found — crowdsource)",
-        );
+        activeThis = persisted.activeCount;
+        hiddenThis = persisted.hiddenCount;
+        hiddenReasonsThis = persisted.hiddenReasons;
+        const hiddenNote = hiddenThis
+          ? ` · ${hiddenThis} hidden for review (${hiddenReasonsThis.join(", ")})`
+          : "";
+        if (activeThis > 0) {
+          console.log(`  ✓ ${activeThis} HH window(s) live${hiddenNote}`);
+        } else if (hiddenThis > 0) {
+          console.log(`  ⊘ ${hiddenThis} window(s) captured but hidden for review (${hiddenReasonsThis.join(", ")})`);
+        } else {
+          console.log("  ◦ likely-HH stub kept (no data found — crowdsource)");
+        }
       } catch (err) {
         // Quota exhausted → ABORT; the candidate is NOT marked processed so it retries.
         if (err instanceof PlaceDetailsQuotaError) {
@@ -597,10 +639,12 @@ async function main() {
         );
       }
 
-      // Tally
-      if (outcome === "confirmed_hh") nConfirmed++;
-      else if (outcome === "no_hh_found") nNoHhFound++;
-      else nError++;
+      // Tally — split by what's PUBLICLY visible: live windows vs. captured-but-hidden.
+      nHiddenWindows += hiddenThis;
+      if (outcome === "error") nError++;
+      else if (activeThis > 0) nConfirmed++;
+      else if (hiddenThis > 0) nHiddenOnly++;
+      else nNoHhFound++;
 
       // Conservative pace between candidates to avoid rate limits.
       if (i < candidates.length - 1) {
@@ -620,18 +664,20 @@ async function main() {
 
     // ---- Summary ------------------------------------------------------------
     console.log("\n── Enrichment complete ──────────────────────────────────");
-    console.log(`  confirmed_hh:    ${nConfirmed}`);
-    console.log(`  neighborhoods assigned: ${assigned}`);
-    console.log(`  no_hh_found:     ${nNoHhFound}`);
-    console.log(`  killed (no valid site): ${nKilled}`);
-    console.log(`  error:           ${nError}`);
-    console.log(`  skipped (existing): ${nSkipped}`);
-    console.log(`  filtered (no alcohol): ${nFiltered}`);
-    console.log(`  total:           ${candidates.length}`);
+    console.log(`  confirmed_hh (live):     ${nConfirmed}`);
+    console.log(`  captured-but-hidden:     ${nHiddenOnly} venue(s), ${nHiddenWindows} window(s) for review`);
+    console.log(`  neighborhoods assigned:  ${assigned}`);
+    console.log(`  no_hh_found:             ${nNoHhFound}`);
+    console.log(`  killed (no valid site):  ${nKilled}`);
+    console.log(`  error:                   ${nError}`);
+    console.log(`  skipped (existing):      ${nSkipped}`);
+    console.log(`  filtered (no alcohol):   ${nFiltered}`);
+    console.log(`  total:                   ${candidates.length}`);
     console.log(
-      "\nNOTE: confirmed_hh venues run a structured-extraction pass; those with sourced" +
-        "\nhappy_hours rows are upgraded to dataCompleteness='complete'. Operator should" +
-        "\nspot-check the first ~50 (PRD §7.3 Stage C).",
+      "\nNOTE: 'captured-but-hidden' windows ARE stored (active=false) — the expensive pull" +
+        "\nnever discards data. Review/promote them with: npm run review:suspect -- --city " +
+        `${city.slug}` +
+        "\n(see lib/places/realnessGate). Spot-check live venues per PRD §7.3 Stage C.",
     );
   } finally {
     await sql.end();
@@ -644,6 +690,8 @@ async function main() {
 
 interface ReportTally {
   full: number;
+  hiddenVenues: number;
+  hiddenWindows: number;
   stubs: number;
   filtered: number;
   skipped: number;
@@ -667,6 +715,8 @@ async function runBatch(
   const month = firstOfCurrentMonth();
   const tally: ReportTally = {
     full: 0,
+    hiddenVenues: 0,
+    hiddenWindows: 0,
     stubs: 0,
     filtered: 0,
     skipped: 0,
@@ -708,11 +758,7 @@ async function runBatch(
   // ---- Collect + write -----------------------------------------------------
   // model + promptHash are input-independent (prompt template + configured model),
   // so resolve once for ledger attribution rather than per result.
-  const { model: extractorModel, promptHash } = buildExtractRequest({
-    venueName: "",
-    websiteUrl: null,
-    otherUrl: null,
-  });
+  const { model: extractorModel, promptHash } = extractorMetadata();
 
   const fallback: PrepContext[] = [];
   for await (const res of streamResults(state.batchId)) {
@@ -767,9 +813,16 @@ async function runBatch(
       const persisted = await persistExtraction(sql, { cityId: city.id, placesKey, ctx, extracted });
       await markProcessed(sql, ctx.candidateId, persisted.outcome, persisted.venueId);
 
-      if (persisted.hasHH) {
+      if (persisted.activeCount > 0) {
         tally.full++;
-        console.log(`  ✓ ${ctx.name}: ${extracted.happyHours.length} window(s)`);
+        const hiddenNote = persisted.hiddenCount ? ` (+${persisted.hiddenCount} hidden)` : "";
+        console.log(`  ✓ ${ctx.name}: ${persisted.activeCount} live window(s)${hiddenNote}`);
+      } else if (persisted.hiddenCount > 0) {
+        tally.hiddenVenues++;
+        tally.hiddenWindows += persisted.hiddenCount;
+        console.log(
+          `  ⊘ ${ctx.name}: ${persisted.hiddenCount} window(s) hidden for review (${persisted.hiddenReasons.join(", ")})`,
+        );
       } else {
         tally.stubs++;
         tally.noData.push({
@@ -812,8 +865,14 @@ async function runBatch(
         }
         const persisted = await persistExtraction(sql, { cityId: city.id, placesKey, ctx, extracted });
         await markProcessed(sql, ctx.candidateId, persisted.outcome, persisted.venueId);
-        if (persisted.hasHH) {
+        if (persisted.activeCount > 0) {
           tally.full++;
+        } else if (persisted.hiddenCount > 0) {
+          tally.hiddenVenues++;
+          tally.hiddenWindows += persisted.hiddenCount;
+          console.log(
+            `  ⊘ ${ctx.name}: ${persisted.hiddenCount} window(s) hidden for review (${persisted.hiddenReasons.join(", ")})`,
+          );
         } else {
           tally.stubs++;
           tally.noData.push({
@@ -953,13 +1012,27 @@ async function prepAndSubmit(
       continue;
     }
 
-    const built = buildExtractRequest({
+    const built = await buildExtractRequest({
       venueName: ctx.name,
       websiteUrl: verdict.kind === "real" ? verdict.url : null,
       otherUrl: null,
       cityName: city.name,
       priorityUrls: decided.priorityUrls,
     });
+    // We fetch the pages ourselves now; if none were reachable there's nothing to
+    // extract — stub it without spending a (batch) token rather than sending empty content.
+    if (built.fetchedUrls.length === 0) {
+      const persisted = await persistExtraction(sql, {
+        cityId: city.id,
+        placesKey,
+        ctx,
+        extracted: null,
+      });
+      await markProcessed(sql, c.id, persisted.outcome, persisted.venueId);
+      tally.stubs++;
+      tally.noData.push({ name: c.name, reason: "site_unreachable" });
+      continue;
+    }
     requests.push({ custom_id: c.id, params: built.params });
     contexts[c.id] = ctx;
   }
@@ -980,8 +1053,9 @@ async function finalize(sql: Sql, city: CityRow, tally: ReportTally): Promise<vo
   const usd = (c: number) => `$${(c / 100).toFixed(2)}`;
 
   console.log("\n── Enrichment complete (batch) ───────────────────────────");
-  console.log(`Venues collected:        ${collected}`);
-  console.log(`  ├─ full data:          ${tally.full}`);
+  console.log(`Venues collected:        ${collected + tally.hiddenVenues}`);
+  console.log(`  ├─ live data:          ${tally.full}`);
+  console.log(`  ├─ captured, hidden:   ${tally.hiddenVenues} venue(s), ${tally.hiddenWindows} window(s) for review`);
   console.log(`  └─ stubs (no data):    ${tally.stubs}`);
   console.log(`neighborhoods assigned:  ${assigned}`);
   console.log("\nNot processed via batch:");
@@ -1005,9 +1079,10 @@ async function finalize(sql: Sql, city: CityRow, tally: ReportTally): Promise<vo
     `Fallback (on-demand) count: ${tally.fallbackCount} / ${tally.totalRequests} requests`,
   );
 
-  const order: NoDataReason[] = ["no_website", "zero_windows", "all_dropped", "errored"];
+  const order: NoDataReason[] = ["no_website", "site_unreachable", "zero_windows", "all_dropped", "errored"];
   const labels: Record<NoDataReason, string> = {
     no_website: "no website on file",
+    site_unreachable: "website on file, but no page fetched (down / blocked)",
     zero_windows: "website, 0 windows extracted",
     all_dropped: "recorded but all rows dropped (§13 / denylist)",
     errored: "errored",

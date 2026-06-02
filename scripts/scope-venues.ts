@@ -39,7 +39,10 @@ function parseArgs() {
   return {
     city,
     boundary: get("--boundary") ?? `data/${city}-boundary.geojson`,
-    buffer: Number(get("--buffer") ?? 500),
+    // Undefined → fall back to the city's seed_config.serviceBufferMeters (then 500m), so
+    // scope:venues uses the SAME buffer seed:discover used — otherwise --prune would delete
+    // venues discovery deliberately included in the metro buffer ring.
+    bufferArg: get("--buffer"),
     list: argv.includes("--list"),
     prune: argv.includes("--prune"),
   };
@@ -47,16 +50,29 @@ function parseArgs() {
 
 async function main() {
   const args = parseArgs();
-  if (!Number.isFinite(args.buffer) || args.buffer < 0) {
-    throw new Error(`Bad --buffer "${args.buffer}"`);
-  }
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL is not set");
   const sql = postgres(url, { max: 1 });
 
   try {
-    const [city] = await sql<{ id: string }[]>`SELECT id FROM cities WHERE slug = ${args.city}`;
+    const [city] = await sql<{ id: string; seed_config: unknown }[]>`
+      SELECT id, seed_config FROM cities WHERE slug = ${args.city}
+    `;
     if (!city) throw new Error(`City '${args.city}' not found.`);
+
+    // Effective buffer: explicit --buffer wins; else the city's configured discovery
+    // buffer; else 500m. Keeps discovery coverage and scope pruning on one number.
+    const cfg =
+      typeof city.seed_config === "string"
+        ? (JSON.parse(city.seed_config) as { serviceBufferMeters?: number })
+        : ((city.seed_config as { serviceBufferMeters?: number } | null) ?? {});
+    const buffer =
+      args.bufferArg != null
+        ? Number(args.bufferArg)
+        : (cfg.serviceBufferMeters ?? 500);
+    if (!Number.isFinite(buffer) || buffer < 0) {
+      throw new Error(`Bad buffer "${args.bufferArg ?? buffer}"`);
+    }
 
     const raw = JSON.parse(readFileSync(args.boundary, "utf8"));
     const features: { geometry: unknown }[] =
@@ -82,7 +98,7 @@ async function main() {
       WHERE v.city_id = ${city.id}
         AND v.deleted_at IS NULL
         AND v.lat IS NOT NULL AND v.lng IS NOT NULL
-        AND NOT ST_DWithin(b.geom, ${point}, ${args.buffer})
+        AND NOT ST_DWithin(b.geom, ${point}, ${buffer})
       ORDER BY m DESC
     `;
 
@@ -94,7 +110,7 @@ async function main() {
     console.log(
       `\n${args.city}: ${active} active geocoded venues — ` +
         `${active - rows.length} in scope, ${rows.length} OUT of scope ` +
-        `(boundary + ${args.buffer}m buffer).`,
+        `(boundary + ${buffer}m buffer).`,
     );
 
     if (args.list || (rows.length && !args.prune)) {
