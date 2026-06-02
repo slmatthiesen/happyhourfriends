@@ -54,7 +54,7 @@ import {
   PlaceDetailsQuotaError,
 } from "@/lib/places/placeDetails";
 import { saveVenuePhoto } from "@/lib/places/venuePhoto";
-import { isDenylistedChain, isLikelyNoHappyHourFormat } from "@/lib/places/chainDenylist";
+import { isDenylistedChain, isLikelyNoHappyHourFormat, hasAlcoholSignal } from "@/lib/places/chainDenylist";
 import { slugify, placeIdSuffix } from "@/lib/places/venueSlug";
 import { deriveVenueType, isVenueType, type VenueType } from "@/lib/places/venueType";
 import { triageSite, resolveEnrichAction } from "@/lib/places/siteTriage";
@@ -518,8 +518,14 @@ async function main() {
             ? await fetchPlaceDetails(placesKey, candidate.google_place_id)
             : null;
 
-        // Alcohol gate — only when details actually came back.
-        if (details && !details.servesAlcohol) {
+        // Alcohol gate — only when details actually came back. Google's serves* fields are
+        // unreliable, so a name/type alcohol signal (brewery, beer garden, pub, bar type…)
+        // OVERRIDES a false negative rather than dropping an obvious alcohol venue.
+        if (
+          details &&
+          !details.servesAlcohol &&
+          !hasAlcoholSignal(candidate.name, candidate.primary_type ?? details.primaryType, candidate.types)
+        ) {
           console.log("  ↷ filtered — Google reports no alcohol served");
           await markProcessed(sql, candidate.id, "no_hh_found", null, { skipOutcome: true });
           nFiltered++;
@@ -950,7 +956,11 @@ async function prepAndSubmit(
       if (err instanceof PlaceDetailsQuotaError) throw err;
       console.error(`  prep error for ${c.name}:`, err);
     }
-    if (details && !details.servesAlcohol) {
+    if (
+      details &&
+      !details.servesAlcohol &&
+      !hasAlcoholSignal(c.name, c.primary_type ?? details.primaryType, c.types)
+    ) {
       await markProcessed(sql, c.id, "no_hh_found", null, { skipOutcome: true });
       tally.filtered++;
       continue;
