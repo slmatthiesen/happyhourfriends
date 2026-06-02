@@ -70,12 +70,19 @@ function parseArgs() {
     const i = a.indexOf(f);
     return i >= 0 ? a[i + 1] : undefined;
   };
+  const getAll = (f: string) => {
+    const out: string[] = [];
+    for (let i = 0; i < a.length; i++) if (a[i] === f && a[i + 1]) out.push(a[i + 1]);
+    return out;
+  };
   return {
     city: get("--city") ?? "tucson",
     limit: get("--limit") ? parseInt(get("--limit")!, 10) : null,
     dryRun: a.includes("--dry-run"),
     quick: a.includes("--quick"), // synchronous path; default is the Batch API
     collect: get("--collect"), // resume: persist an already-ended batch by id
+    venue: get("--venue"), // operator-targeted: extract ONE venue (id or name) from given --url(s)
+    urls: getAll("--url"), // explicit menu/PDF URL(s) the operator found
   };
 }
 
@@ -298,6 +305,42 @@ async function runCollect(sql: Sql, batchId: string, month: string, c: Counters)
   console.log(`\n  collected ${seen} result(s) from ${batchId}`);
 }
 
+/**
+ * Operator-targeted recovery: extract ONE venue from URL(s) the operator located
+ * (a PDF menu, a JS-walled page's real file, etc.) and attach. The high-value path
+ * for sites our auto-discovery can't reach (e.g. Wix-hosted PDF menus).
+ */
+async function runVenue(
+  sql: Sql, citySlug: string, venueQuery: string, urls: string[], month: string, c: Counters,
+) {
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(venueQuery);
+  const rows = await sql<(StubVenue & { city_id: string })[]>`
+    SELECT v.id, v.name, v.website_url, v.type::text AS type, sc.primary_type, v.city_id
+    FROM venues v
+    JOIN cities c ON c.id = v.city_id
+    LEFT JOIN seed_candidates sc ON sc.resulting_venue_id = v.id
+    WHERE v.deleted_at IS NULL
+      AND ${isUuid ? sql`v.id = ${venueQuery}` : sql`c.slug = ${citySlug} AND v.name ILIKE ${"%" + venueQuery + "%"}`}
+    LIMIT 5
+  `;
+  if (rows.length === 0) throw new Error(`no venue matching '${venueQuery}'${isUuid ? "" : ` in ${citySlug}`}`);
+  if (rows.length > 1) {
+    console.log("Multiple matches — narrow it down (or pass the id):");
+    for (const r of rows) console.log(`  ${r.id}  ${r.name}`);
+    return;
+  }
+  const v = rows[0];
+  console.log(`Extracting ${v.name} from ${urls.length} operator URL(s)…`);
+  const extracted = await extractHappyHours({
+    venueName: v.name,
+    websiteUrl: v.website_url,
+    otherUrl: null,
+    cityName: citySlug,
+    priorityUrls: urls,
+  });
+  await persistResult(sql, v.city_id, month, v, extracted, c);
+}
+
 async function main() {
   const args = parseArgs();
   const sql = postgres(process.env.DATABASE_URL!, { max: 1 });
@@ -318,6 +361,15 @@ async function main() {
       console.log(`  windows added (live):    ${c.windowsLive}`);
       console.log(`  windows hidden:          ${c.windowsHidden}`);
       console.log(`  ledgered spend (batch):  $${(c.spentCents / 100).toFixed(2)}`);
+      return;
+    }
+
+    // Operator-targeted mode: extract one venue from explicit URL(s).
+    if (args.venue) {
+      if (args.urls.length === 0) throw new Error("--venue requires at least one --url <menu/PDF url>");
+      const c: Counters = { venuesRecovered: 0, windowsLive: 0, windowsHidden: 0, stillEmpty: 0, spentCents: 0 };
+      await runVenue(sql, args.city, args.venue, args.urls, firstOfCurrentMonth(), c);
+      console.log(`\n  spend: $${(c.spentCents / 100).toFixed(2)}`);
       return;
     }
 
