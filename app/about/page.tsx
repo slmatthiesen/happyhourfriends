@@ -33,6 +33,12 @@ export default function AboutPage() {
           against the venue&apos;s own website and social channels, applies low-risk
           verified changes automatically, and routes anything risky to a human.
         </p>
+        <p>
+          We do our best to source this data — but the freshest, most up-to-date info
+          often lives in the bar itself, on the menu or a placard by the door. If you
+          spot something current that we&apos;re missing, we&apos;d love to hear it. A
+          quick heads-up helps you and your neighbors.
+        </p>
       </div>
     </main>
   );

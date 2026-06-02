@@ -8,8 +8,16 @@ import {
   isParkedHtml,
   extractHhSignalLinks,
   resolveEnrichAction,
+  siteVerdictFromFetch,
+  classifyFetchError,
   type SiteVerdict,
 } from "@/lib/places/siteTriage";
+
+function fetchErr(code: string): Error {
+  const e = new Error("fetch failed") as Error & { cause?: { code: string } };
+  e.cause = { code };
+  return e;
+}
 
 let passed = 0;
 function check(name: string, fn: () => void) {
@@ -82,5 +90,80 @@ check("no-site, likelihood null → kill", () =>
   assert.equal(resolveEnrichAction(
     { kind: "none", url: null, reachability: null, hhSignalUrls: [], decision: "kill", reason: "no site on file" }, null
   ).action, "kill"));
+
+// siteVerdictFromFetch — reachability from a fetch outcome.
+// SACRED: a timeout/abort is NOT a dead site — a slow-but-real site (e.g. a heavy
+// homepage that takes >5s) must NEVER be killed. Only true network failure (DNS /
+// refused) or a server/4xx-gone status may kill.
+check("timeout outcome → keep as stub (never kill)", () => {
+  const v = siteVerdictFromFetch("http://slowsite.com/", { kind: "timeout" });
+  assert.equal(v.decision, "stub");
+  assert.notEqual(v.reachability, "dead");
+});
+check("unreachable (DNS/refused) → kill", () => {
+  const v = siteVerdictFromFetch("http://gone.example/", { kind: "unreachable" });
+  assert.equal(v.reachability, "dead");
+  assert.equal(v.decision, "kill");
+});
+// SACRED: a TLS cert error / connection reset means a SERVER EXISTS but Node can't
+// read it (browsers/curl can) — e.g. Hillstone's UNABLE_TO_VERIFY_LEAF_SIGNATURE.
+// That is NOT a dead site; it must be kept as a stub, never killed.
+check("blocked (TLS/reset) → keep as stub (never kill)", () => {
+  const v = siteVerdictFromFetch("https://hillstone.com/", { kind: "blocked" });
+  assert.equal(v.decision, "stub");
+  assert.notEqual(v.reachability, "dead");
+});
+// classifyFetchError: only a non-resolving / refused domain is truly dead.
+check("classifyFetchError: AbortError → timeout", () => {
+  const e = new Error("aborted"); e.name = "AbortError";
+  assert.equal(classifyFetchError(e), "timeout");
+});
+check("classifyFetchError: ENOTFOUND → unreachable", () =>
+  assert.equal(classifyFetchError(fetchErr("ENOTFOUND")), "unreachable"));
+check("classifyFetchError: ECONNREFUSED → unreachable", () =>
+  assert.equal(classifyFetchError(fetchErr("ECONNREFUSED")), "unreachable"));
+check("classifyFetchError: TLS cert error → blocked (not unreachable)", () =>
+  assert.equal(classifyFetchError(fetchErr("UNABLE_TO_VERIFY_LEAF_SIGNATURE")), "blocked"));
+check("classifyFetchError: ECONNRESET → blocked", () =>
+  assert.equal(classifyFetchError(fetchErr("ECONNRESET")), "blocked"));
+// isParkedHtml must NOT flag a JS/SPA shell (minimal server HTML, hydrates client-side)
+// as parked — Brix (84 bytes) and LongHorn served 200 but were wrongly killed.
+check("JS/SPA shell (no parking marker) is NOT parked", () =>
+  assert.equal(isParkedHtml("<html><head><script>var x=1;</script></head><body><div id='root'></div></body></html>"), false));
+check("tiny 200 body without marker is NOT parked", () =>
+  assert.equal(isParkedHtml("<!doctype html><title>Brix</title><div id=app></div>"), false));
+check("200 reachable → extract + collects HH-signal links", () => {
+  const v = siteVerdictFromFetch("https://brix.com/", {
+    kind: "response",
+    status: 200,
+    html: "<a href='/happy-hour'>Happy Hour</a> lots of real content ".repeat(20),
+    finalUrl: "https://brix.com/",
+  });
+  assert.equal(v.decision, "extract");
+  assert.deepEqual(v.hhSignalUrls, ["https://brix.com/happy-hour"]);
+});
+check("500 server error → kill (dead)", () => {
+  const v = siteVerdictFromFetch("https://x.com/", { kind: "response", status: 503, html: "", finalUrl: "https://x.com/" });
+  assert.equal(v.decision, "kill");
+  assert.equal(v.reachability, "dead");
+});
+check("404 gone → kill (dead)", () => {
+  const v = siteVerdictFromFetch("https://x.com/", { kind: "response", status: 404, html: "", finalUrl: "https://x.com/" });
+  assert.equal(v.decision, "kill");
+});
+check("200 parked domain → kill (parked)", () => {
+  const v = siteVerdictFromFetch("https://x.com/", {
+    kind: "response",
+    status: 200,
+    html: "<title>x.com is for sale</title><body>Buy this domain</body>",
+    finalUrl: "https://x.com/",
+  });
+  assert.equal(v.decision, "kill");
+  assert.equal(v.reachability, "parked");
+});
+check("403 bot-block → extract (reachable, not killed)", () => {
+  const v = siteVerdictFromFetch("https://x.com/", { kind: "response", status: 403, html: "", finalUrl: "https://x.com/" });
+  assert.equal(v.decision, "extract");
+});
 
 console.log(`\n${passed} checks passed.`);

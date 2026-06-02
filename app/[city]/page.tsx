@@ -5,6 +5,22 @@ import { SiteWordmark } from "@/components/site-wordmark";
 import { VenueTableClient } from "@/components/venue-table-client";
 import { getCityBySlug, listVenuesForCity } from "@/lib/queries/venues";
 
+// Cache the rendered page (HTML + RSC payload) in Next's shared server-side cache and
+// regenerate at most once an hour — every visitor gets the same cached page, so the
+// venue/hours queries don't run per request. Safe to cache the render because the live
+// "Now" badge is computed client-side (see venue-table-client.tsx), so a cached page
+// never freezes "happening now". This is a dynamic route with no generateStaticParams,
+// so nothing is prerendered at build — the DB is never touched during `next build`.
+export const revalidate = 3600; // 1 hour
+
+// Returning [] prerenders no city at build (keeps the DB out of `next build`) while
+// still opting the route into the full-route cache: with dynamicParams=true (default),
+// each city is rendered on first request and then cached/served statically until the
+// `revalidate` window lapses. `revalidate` alone left the route fully dynamic.
+export function generateStaticParams() {
+  return [];
+}
+
 export async function generateMetadata({
   params,
 }: {

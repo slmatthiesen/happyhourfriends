@@ -1,12 +1,14 @@
 /**
- * Adversarial re-check of an existing all-day happy-hour claim. Uses server-side
- * web_fetch + web_search and forces a structured `record_verdict` tool call. Independent
- * of the seed extractor on purpose (a skeptical second opinion). Returns a typed Verdict
- * plus usage for the ledger. No DB writes.
+ * Adversarial re-check of an existing all-day happy-hour claim. We fetch the claim's
+ * source + the venue website OURSELVES (free, via lib/ai/siteContent) and feed them inline;
+ * the model gets NO web tools and is forced to call `record_verdict` in one shot — so it
+ * can't autonomously incur Anthropic web_search/web_fetch charges. Independent of the seed
+ * extractor on purpose (a skeptical second opinion). Returns a typed Verdict plus usage for
+ * the ledger. No DB writes.
  */
 import type {
+  ContentBlockParam,
   Message,
-  MessageParam,
   ToolChoiceTool,
   ToolUnion,
   ToolUseBlock,
@@ -16,6 +18,7 @@ import type { Usage } from "@/lib/ai/anthropic";
 import { costCents as calcCostCents } from "@/lib/ai/pricing";
 import { MODELS } from "@/lib/ai/models";
 import { loadPrompt, splitPrompt } from "@/lib/ai/promptHash";
+import { fetchPages, renderPagesAsBlocks } from "@/lib/ai/siteContent";
 import type { Verdict } from "@/lib/reverify/policy";
 
 export interface ReverifyInput {
@@ -45,12 +48,8 @@ const RECORD_VERDICT: ToolUnion = {
   },
 };
 
-const TOOLS: ToolUnion[] = [
-  { type: "web_search_20260209", name: "web_search", max_uses: 3, allowed_callers: ["direct"] },
-  { type: "web_fetch_20260209", name: "web_fetch", max_uses: 5, max_content_tokens: 8_000, allowed_callers: ["direct"] },
-  RECORD_VERDICT,
-];
-const MAX_TURNS = 8;
+// Only the structured-output tool — no web_search / web_fetch (content is fetched by us).
+const TOOLS: ToolUnion[] = [RECORD_VERDICT];
 
 interface RawVerdict {
   kind?: string;
@@ -115,35 +114,50 @@ export async function reverifyAllDay(input: ReverifyInput): Promise<ReverifyResu
   const loaded = loadPrompt("reverify-all-day.md");
   const { system: rawSys, user: rawUser } = splitPrompt(loaded.content);
   const model = MODELS.verifier;
-  const base = {
+  const force: ToolChoiceTool = { type: "tool", name: "record_verdict" };
+
+  // Fetch the claim's original source + the venue website ourselves (free, robots-aware).
+  // The model gets no web tools and re-judges the claim against the provided content only.
+  const pages = await fetchPages([input.sourceUrl, input.websiteUrl]);
+  if (pages.length === 0) {
+    // Nothing to re-check against → unconfirmable, without spending a token.
+    return {
+      verdict: null,
+      usage: { inputTokens: 0, outputTokens: 0 },
+      costCents: 0,
+      promptHash: loaded.hash,
+      model,
+    };
+  }
+
+  const content: ContentBlockParam[] = [
+    { type: "text", text: fill(rawUser, input) },
+    {
+      type: "text",
+      text:
+        "The following content was fetched from this venue's pages. Judge the claim ONLY " +
+        "from it; cite the exact 'Source: <url>' as sourceUrl and quote verbatim.",
+    },
+    ...renderPagesAsBlocks(pages),
+  ];
+
+  const res: Message = await anthropic().messages.create({
     model,
     max_tokens: 2048,
     system: fill(rawSys, input),
     tools: TOOLS,
+    tool_choice: force,
+    messages: [{ role: "user", content }],
+  });
+
+  const usage: Usage = {
+    inputTokens: res.usage.input_tokens,
+    outputTokens: res.usage.output_tokens,
   };
-  const messages: MessageParam[] = [{ role: "user", content: fill(rawUser, input) }];
-  const summed: Usage = { inputTokens: 0, outputTokens: 0 };
-  const force: ToolChoiceTool = { type: "tool", name: "record_verdict" };
-  let last: Message | null = null;
-
-  for (let turn = 0; turn < MAX_TURNS; turn++) {
-    const lastTurn = turn === MAX_TURNS - 1;
-    const res = await anthropic().messages.create({
-      ...base, messages, ...(lastTurn ? { tool_choice: force } : {}),
-    });
-    last = res;
-    summed.inputTokens += res.usage.input_tokens;
-    summed.outputTokens += res.usage.output_tokens;
-    if (res.content.some((b) => b.type === "tool_use" && b.name === "record_verdict")) break;
-    if (res.stop_reason === "pause_turn") { messages.push({ role: "assistant", content: res.content }); continue; }
-    messages.push({ role: "assistant", content: res.content });
-    messages.push({ role: "user", content: "Call record_verdict now with your single verdict." });
-  }
-
   return {
-    verdict: last ? parseVerdict(last) : null,
-    usage: summed,
-    costCents: calcCostCents(model, summed),
+    verdict: parseVerdict(res),
+    usage,
+    costCents: calcCostCents(model, usage),
     promptHash: loaded.hash,
     model,
   };

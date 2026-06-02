@@ -59,6 +59,22 @@ check("bounded window active inside, no hours needed", () =>
 check("bounded window not active outside, no hours needed", () =>
   assert.equal(isWindowActive(bounded, at(1, "19:00")), false));
 
+// "open until X" — start null, end set (e.g. Aunt Chiladas: Mon–Fri until 6pm). Active
+// from open to end on a listed day; needs hours (we never guess the open time).
+const openUntilSix: HappyHourWindow = {
+  daysOfWeek: [1, 2, 3, 4, 5], allDay: false, startTime: null, endTime: "18:00",
+};
+check("open-until-X active during open hours before end", () =>
+  assert.equal(isWindowActive(openUntilSix, at(1, "15:00"), monOpen), true));
+check("open-until-X NOT active after the end time", () =>
+  assert.equal(isWindowActive(openUntilSix, at(1, "19:00"), monOpen), false));
+check("open-until-X NOT active before open (venue shut)", () =>
+  assert.equal(isWindowActive(openUntilSix, at(1, "09:00"), monOpen), false));
+check("open-until-X NOT active when hours unknown (never guess open)", () =>
+  assert.equal(isWindowActive(openUntilSix, at(1, "15:00"), undefined), false));
+check("open-until-X NOT active on a non-listed day", () =>
+  assert.equal(isWindowActive(openUntilSix, at(7, "15:00"), monOpen), false));
+
 const crossMidnight: OpenPeriod[] = [{ openDay: 5, openMin: 17 * 60, closeDay: 6, closeMin: 2 * 60 }];
 check("isVenueOpenAt: cross-midnight open late on open day", () =>
   assert.equal(isVenueOpenAt(crossMidnight, at(5, "23:00")), true));

@@ -181,7 +181,13 @@ export const happyHours = pgTable(
     validFrom: date("valid_from"),
     validUntil: date("valid_until"),
     notes: text("notes"),
+    // active=false → captured but HIDDEN pending review (the realness gate's lever).
     active: boolean("active").notNull().default(true),
+    // Inputs the pure realness gate (lib/places/realnessGate) re-runs over stored rows.
+    extractConfidence: numeric("extract_confidence"),
+    // timeKnown=false → the deal was captured with NO usable time bound (coerced to
+    // all-day so it could store); the gate hides these until reviewed.
+    timeKnown: boolean("time_known").notNull().default(true),
     sourceUrl: text("source_url"),
     ...timestamps,
     ...softDelete,
@@ -198,11 +204,14 @@ export const happyHours = pgTable(
       sql`array_length(days_of_week, 1) >= 1 AND 1 <= ALL(days_of_week) AND 7 >= ALL(days_of_week)`,
     ),
     check(
+      // A non-all-day window needs at LEAST one time bound. This deliberately admits
+      // "open until X" (start NULL, end set) — a common, legitimate window shape whose
+      // start is the venue's open time. See the capture-everything design (2026-05-31).
       "happy_hours_all_day_shape",
       sql`
         (all_day = true  AND start_time IS NULL AND end_time IS NULL)
         OR
-        (all_day = false AND start_time IS NOT NULL)
+        (all_day = false AND (start_time IS NOT NULL OR end_time IS NOT NULL))
       `,
     ),
   ],

@@ -2,10 +2,13 @@
  * extractHappyHours — Phase 6 seed enrichment: turns a venue's web content into
  * structured happy_hours + offerings rows (PRD §4.3, §13).
  *
- * Uses Claude's SERVER-SIDE web_fetch + web_search tools. Unlike a raw HTTP fetch,
- * web_fetch renders the page and reads PDFs natively, so JS-collapsed menus and PDF
- * menus (the common case) are actually visible to the model. The tools run
- * server-side; we just loop on `pause_turn` until the model returns its final JSON.
+ * FETCH POLICY (2026-06-01): we fetch the venue's known pages OURSELVES via the free,
+ * robots-respecting `fetchUrl` (plain HTTP, no Anthropic billing) and hand the model the
+ * page text + any PDFs as content blocks. The model is given NO web tools — it cannot
+ * search or fetch, so it can never autonomously run up Anthropic web_search/web_fetch
+ * charges (the failure mode that drained ~$30 with no return). This makes every request a
+ * single-shot, deterministic call: ideal for the Batch API (50% cheaper) and free of the
+ * server-tool surcharge. The only tool is the structured-output `record_happy_hours`.
  *
  * Returns typed data only — no DB writes. The caller persists the rows.
  *
@@ -16,19 +19,21 @@
  */
 
 import type {
+  ContentBlockParam,
   Message,
   MessageCreateParamsNonStreaming,
-  MessageParam,
   ToolChoiceTool,
   ToolUnion,
   ToolUseBlock,
 } from "@anthropic-ai/sdk/resources/messages";
 
 import { anthropic, parseJsonResponse } from "@/lib/ai/anthropic";
+import { isDenylistedSource } from "@/lib/ai/sourceDenylist";
 import type { Usage } from "@/lib/ai/anthropic";
 import { costCents as calcCostCents } from "@/lib/ai/pricing";
 import { MODELS } from "@/lib/ai/models";
 import { loadPrompt, splitPrompt } from "@/lib/ai/promptHash";
+import { fetchPages, renderPagesAsBlocks } from "@/lib/ai/siteContent";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -62,10 +67,16 @@ export interface ExtractedHappyHour {
   daysOfWeek: number[];
   /** True when the deal applies all open hours on the listed days (no time window). */
   allDay: boolean;
-  /** 24-hour "HH:MM"; null when allDay is true */
+  /** 24-hour "HH:MM"; null when allDay is true, or null start of an "open until X" window */
   startTime: string | null;
-  /** 24-hour "HH:MM" or null ("until close") */
+  /** 24-hour "HH:MM" or null ("until close" / when allDay) */
   endTime: string | null;
+  /**
+   * Did we capture a usable time bound — a start, an end, or an explicit all-day claim?
+   * False ONLY for a deal we kept with no time info at all (coerced to all-day so it can
+   * be stored). Feeds the realness gate and the live "happening now" logic.
+   */
+  timeKnown: boolean;
   locationWithinVenue: string;
   notes: string | null;
   /** URL actually fetched this run that contains this schedule. Required by §13. */
@@ -157,7 +168,9 @@ const RECORD_TOOL: ToolUnion = {
             },
             startTime: {
               type: ["string", "null"],
-              description: '24h "HH:MM", or null when allDay is true',
+              description:
+                '24h "HH:MM"; null when allDay is true, when the deal runs from open until ' +
+                'a stated end ("open until 6 PM"), or when no time is published. Never fabricate.',
             },
             endTime: { type: ["string", "null"], description: '24h "HH:MM" or null for "until close"' },
             locationWithinVenue: { type: "string", enum: ["bar", "patio", "dining", "all"] },
@@ -201,30 +214,15 @@ const RECORD_TOOL: ToolUnion = {
   },
 };
 
-// Cost-tuned 2026-05-28: was max_uses 6 / 12k tokens which cost ~10¢/venue. Dropped
-// to 4 / 6k — input tokens (web_fetch payload) dominate cost, so halving the per-fetch
-// payload roughly halves spend without hurting recall (most HH pages fit in 6k tokens).
-// (allowed_callers: direct — Haiku doesn't do programmatic tool calling.)
-const TOOLS: ToolUnion[] = [
-  {
-    type: "web_search_20260209",
-    name: "web_search",
-    max_uses: 2,
-    allowed_callers: ["direct"],
-  },
-  {
-    type: "web_fetch_20260209",
-    name: "web_fetch",
-    max_uses: 4,
-    max_content_tokens: 6_000,
-    allowed_callers: ["direct"],
-  },
-  RECORD_TOOL,
-];
+// The model gets ONLY the structured-output tool. No web_search / web_fetch — content is
+// fetched by us (lib/ai/siteContent) and passed inline, so the model cannot fetch or
+// search and cannot incur Anthropic web-tool charges. tool_choice forces this one call.
+const TOOLS: ToolUnion[] = [RECORD_TOOL];
 
-// Max times we resume after a `pause_turn` (server tools running). Higher now that the
-// model may search + fetch several pages before recording.
-const MAX_TURNS = 8;
+// How many of the venue's known URLs we fetch and feed the model. priorityUrls (the HH/menu
+// pages site triage already found) come first, then the website + other URL. Bounded so a
+// link-heavy site can't balloon the input-token bill. fetchUrl caps each page at ~8k chars.
+const MAX_FETCH = 5;
 
 const VALID_LOCATION = new Set(["bar", "patio", "dining", "all"]);
 const VALID_KIND = new Set(["food", "drink", "other"]);
@@ -252,31 +250,9 @@ function fillPlaceholders(template: string, input: ExtractInput): string {
     .replaceAll("{{city}}", input.cityName?.trim() || "");
 }
 
-// Only block COMPETITOR happy-hour listing sites whose business is exactly what we do
-// (operator directive 2026-05-27). General listings like Yelp / OpenTable / TripAdvisor
-// are fine as sources — the AI often parses better-structured HH offering data from
-// them than from the venue's PDF menu, and dropping them silently costs us real data
-// (2026-05-28 Blue Hound incident: 9 offerings dropped because Yelp was blocked).
-const SOURCE_DENYLIST = [
-  "ultimatehappyhours",
-  "seattletravel",
-  "happyhourdealfinder",
-  "happyhour.com",
-  "happyhours.com",
-  "restaurantji",
-  "sirved",
-  "singleplatform",
-];
-
-function isDenylistedSource(url: string): boolean {
-  let host = url.toLowerCase();
-  try {
-    host = new URL(url).hostname.toLowerCase();
-  } catch {
-    /* not a parseable URL — fall back to substring check below */
-  }
-  return SOURCE_DENYLIST.some((d) => host.includes(d));
-}
+// Competitor happy-hour listing sites we refuse to source from (§13 first-party
+// guard) — definition + rationale in lib/ai/sourceDenylist (isDenylistedSource,
+// imported at top), the single source of truth shared with operator tooling.
 
 /** §13: drop offerings with no non-empty sourceUrl, or a competitor-aggregator source. */
 function normaliseOffering(raw: RawOffering): ExtractedOffering | null {
@@ -312,33 +288,37 @@ function normaliseHappyHour(raw: RawHappyHour): ExtractedHappyHour | null {
   );
   if (daysOfWeek.length === 0) return null;
 
-  const allDay = raw.allDay === true;
-
-  // Policy backstop (2026-05-31): a credible "all day" deal is a narrow,
-  // explicitly-sourced industry-night pattern on ≤2 specific days. An all-day claim
-  // spanning 3+ days is almost always regular pricing or a fallback the model reached
-  // for when it couldn't find a time window — not a happy hour. Drop it regardless of
-  // what the model emitted. Mirrors lib/places/chainDenylist: enforce policy in code,
-  // not just the prompt. See docs/superpowers/specs/2026-05-31-all-day-happy-hour-scrutiny-design.md.
-  if (allDay && daysOfWeek.length >= 3) return null;
-
   const rawStart = raw.startTime ?? null;
   const rawEnd = raw.endTime ?? null;
 
-  // Enforce the same shape as the DB CHECK so the engine never sees an illegal row:
-  //   - allDay=true  → startTime AND endTime must be null
-  //   - allDay=false → startTime is required (endTime may be null = "until close")
-  // Reject everything else — these are malformed model outputs, not data we can save.
+  // CAPTURE policy (2026-05-31): never throw away a structurally-valid window for
+  // realness reasons — that decision belongs to lib/places/realnessGate downstream.
+  // Here we only coerce the row into a DB-legal shape (happy_hours_all_day_shape:
+  // all_day=true → both times null; all_day=false → at least one of start/end set):
+  //   - explicit all-day claim          → all_day=true, times nulled, timeKnown
+  //   - any known start and/or end       → bounded window kept as-is, timeKnown
+  //     (incl. "open until X" = start null + end set, and "until close" = start + end null)
+  //   - no time info at all, no all-day  → coerce to all_day so it stores; timeKnown=false
+  //     so the gate hides it for review (we kept the deal rather than dropping it).
+  let allDay: boolean;
   let startTime: string | null;
   let endTime: string | null;
-  if (allDay) {
-    if (rawStart !== null || rawEnd !== null) return null;
+  let timeKnown: boolean;
+  if (raw.allDay === true) {
+    allDay = true;
     startTime = null;
     endTime = null;
-  } else {
-    if (rawStart === null) return null;
+    timeKnown = true;
+  } else if (rawStart !== null || rawEnd !== null) {
+    allDay = false;
     startTime = rawStart;
     endTime = rawEnd;
+    timeKnown = true;
+  } else {
+    allDay = true;
+    startTime = null;
+    endTime = null;
+    timeKnown = false;
   }
 
   const offerings: ExtractedOffering[] = (raw.offerings ?? [])
@@ -347,6 +327,7 @@ function normaliseHappyHour(raw: RawHappyHour): ExtractedHappyHour | null {
 
   return {
     allDay,
+    timeKnown,
     daysOfWeek,
     startTime,
     endTime,
@@ -368,14 +349,45 @@ export interface ExtractRequest {
   params: MessageCreateParamsNonStreaming;
   promptHash: string;
   model: string;
+  /** URLs we successfully fetched and fed the model. Empty → nothing to extract from. */
+  fetchedUrls: string[];
 }
 
-/** Build the one-shot request used by both the on-demand loop and the Batch API. */
-export function buildExtractRequest(input: ExtractInput): ExtractRequest {
+const FORCE_RECORD: ToolChoiceTool = { type: "tool", name: "record_happy_hours" };
+
+/** Model + prompt hash for ledger attribution — input-independent, no fetch. */
+export function extractorMetadata(): { model: string; promptHash: string } {
+  return { model: MODELS.extractor, promptHash: loadPrompt("seed-extract-hh.md").hash };
+}
+
+/**
+ * Build the one-shot request used by both the on-demand path and the Batch API. Fetches
+ * the venue's pages ourselves (free) and inlines them; the model gets no web tools and is
+ * forced to call record_happy_hours, so it returns its findings in exactly one turn.
+ */
+export async function buildExtractRequest(input: ExtractInput): Promise<ExtractRequest> {
   const loaded = loadPrompt("seed-extract-hh.md");
   const { system: rawSystem, user: rawUser } = splitPrompt(loaded.content);
   const system = fillPlaceholders(rawSystem, input);
   const userText = fillPlaceholders(rawUser, input);
+
+  const pages = await fetchPages(
+    [...(input.priorityUrls ?? []), input.websiteUrl, input.otherUrl],
+    MAX_FETCH,
+  );
+  const content: ContentBlockParam[] = [
+    { type: "text", text: userText },
+    {
+      type: "text",
+      text:
+        pages.length === 0
+          ? "No page content could be fetched for this venue. Call record_happy_hours with happyHours: [] and confidence 0."
+          : "The following content was fetched from this venue's own pages. Extract ONLY from it. " +
+            "Use the exact 'Source: <url>' shown above each page as the sourceUrl for anything you record.",
+    },
+    ...renderPagesAsBlocks(pages),
+  ];
+
   return {
     params: {
       model: MODELS.extractor,
@@ -384,10 +396,12 @@ export function buildExtractRequest(input: ExtractInput): ExtractRequest {
       max_tokens: 8192,
       system,
       tools: TOOLS,
-      messages: [{ role: "user", content: userText }],
+      tool_choice: FORCE_RECORD,
+      messages: [{ role: "user", content }],
     },
     promptHash: loaded.hash,
     model: MODELS.extractor,
+    fetchedUrls: pages.map((p) => p.url),
   };
 }
 
@@ -450,64 +464,49 @@ export function parseRecordedExtract(
 }
 
 // ---------------------------------------------------------------------------
-// Main export — on-demand agentic loop (also the Batch API fallback path)
+// Main export — single-shot extraction over pre-fetched content (no web tools)
 // ---------------------------------------------------------------------------
+
+const EMPTY_PARSE = {
+  happyHours: [] as ExtractedHappyHour[],
+  confidence: 0,
+  summary: "",
+  venueType: null as string | null,
+  rawWindowCount: 0,
+};
 
 export async function extractHappyHours(
   input: ExtractInput,
 ): Promise<ExtractResult> {
-  const { params, promptHash, model } = buildExtractRequest(input);
-  const messages: MessageParam[] = [...params.messages];
+  const { params, promptHash, model, fetchedUrls } = await buildExtractRequest(input);
 
-  const summedUsage: Usage = { inputTokens: 0, outputTokens: 0 };
-  const forceRecord: ToolChoiceTool = { type: "tool", name: "record_happy_hours" };
-
-  let lastMessage: Message | null = null;
-
-  for (let turn = 0; turn < MAX_TURNS; turn++) {
-    const lastTurn = turn === MAX_TURNS - 1;
-    const response = await anthropic().messages.create({
-      ...params,
-      messages,
-      // On the final turn, force the structured-output tool so we never end with prose.
-      ...(lastTurn ? { tool_choice: forceRecord } : {}),
-    });
-    lastMessage = response;
-
-    summedUsage.inputTokens += response.usage.input_tokens;
-    summedUsage.outputTokens += response.usage.output_tokens;
-
-    if (process.env.EXTRACT_DEBUG) {
-      console.error(
-        `[extract] turn ${turn} stop=${response.stop_reason} blocks=[${response.content
-          .map((b) => (b.type === "tool_use" ? `tool_use:${b.name}` : b.type))
-          .join(", ")}]`,
-      );
-    }
-
-    const recorded = response.content.some(
-      (b) => b.type === "tool_use" && b.name === "record_happy_hours",
-    );
-    if (recorded) break;
-
-    // web_fetch runs server-side → pause_turn; resume by echoing content back.
-    if (response.stop_reason === "pause_turn") {
-      messages.push({ role: "assistant", content: response.content });
-      continue;
-    }
-
-    // Model ended without recording — nudge it to call the tool on the next turn.
-    messages.push({ role: "assistant", content: response.content });
-    messages.push({
-      role: "user",
-      content:
-        "Call record_happy_hours now with everything you found (happyHours: [] and confidence 0 if none).",
-    });
+  // Nothing fetched (no reachable site / all fetches failed) → no point spending a token.
+  if (fetchedUrls.length === 0) {
+    return {
+      ...EMPTY_PARSE,
+      summary: "No venue page content could be fetched.",
+      usage: { inputTokens: 0, outputTokens: 0 },
+      costCents: 0,
+      promptHash,
+      model,
+    };
   }
 
-  const parsed = lastMessage
-    ? parseRecordedExtract(lastMessage)
-    : { happyHours: [], confidence: 0, summary: "", venueType: null, rawWindowCount: 0, recorded: false };
+  const response: Message = await anthropic().messages.create(params);
+  const summedUsage: Usage = {
+    inputTokens: response.usage.input_tokens,
+    outputTokens: response.usage.output_tokens,
+  };
+
+  if (process.env.EXTRACT_DEBUG) {
+    console.error(
+      `[extract] stop=${response.stop_reason} fetched=${fetchedUrls.length} blocks=[${response.content
+        .map((b) => (b.type === "tool_use" ? `tool_use:${b.name}` : b.type))
+        .join(", ")}]`,
+    );
+  }
+
+  const parsed = parseRecordedExtract(response);
 
   return {
     happyHours: parsed.happyHours,
