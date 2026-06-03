@@ -59,7 +59,7 @@ supersedes it for Daly City with the decisions below.
 
 ### 2. Boundary & discovery config
 
-- **`data/daly-city-ca-boundary.geojson`** — a **combined Daly City + Colma polygon**
+- **`data/daly-city-boundary.geojson`** — a **combined Daly City + Colma polygon**
   (union of the two municipal boundaries), sourced from OSM / Census the same way as
   existing cities. Discovery runs in boundary mode against this file, so Colma's enclave
   and the Serramonte / I-280 strip fall inside the `ST_DWithin` gate.
@@ -92,7 +92,7 @@ Daly City runs as the pilot. Steps marked **PAID** spend real money and (per the
 environment constraints) the web-fetch steps run from the main thread, not subagents.
 
 1. **City row + boundary** *(code/data, free)* — add Daly City to `scripts/seed-cities.ts`
-   `CITIES`; add `data/daly-city-ca-boundary.geojson`; run `seed:cities`.
+   `CITIES`; add `data/daly-city-boundary.geojson`; run `seed:cities`.
 2. **Discover** *(PAID — Google Places)* — `seed:discover -- --city daly-city`.
 3. **Enrich** *(PAID — Anthropic web_fetch; the metered step)* —
    `seed:enrich -- --city daly-city --limit N`. Monitor `ai:spend`; set a Console cap.
