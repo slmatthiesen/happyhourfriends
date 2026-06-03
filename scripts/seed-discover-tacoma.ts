@@ -18,7 +18,7 @@
  *   GOOGLE_PLACES_API_KEY  Google Cloud Places API (New) key
  */
 import "dotenv/config";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import postgres from "postgres";
 import {
   isDenylistedChain,
@@ -41,7 +41,7 @@ import { haversineMeters } from "@/lib/geo/distance";
 // Arg parsing
 // ---------------------------------------------------------------------------
 
-function parseArgs(): { city: string; curated: boolean; fresh: boolean } {
+function parseArgs(): { city: string; curated: boolean; fresh: boolean; debugDrops: boolean } {
   const argv = process.argv.slice(2);
   const getFlag = (f: string) => {
     const i = argv.indexOf(f);
@@ -52,7 +52,7 @@ function parseArgs(): { city: string; curated: boolean; fresh: boolean } {
   for (let i = 0; i < argv.length; i++) {
     const tok = argv[i];
     if (tok === "--city") { i++; continue; } // --city consumes its value
-    if (tok === "--curated" || tok === "--fresh") continue;
+    if (tok === "--curated" || tok === "--fresh" || tok === "--debug-drops") continue;
     throw new Error(
       `Unexpected argument "${tok}". Pass the city as a flag:\n` +
         `  npm run seed:discover -- --city <slug>   (e.g. --city tucson)`,
@@ -65,6 +65,7 @@ function parseArgs(): { city: string; curated: boolean; fresh: boolean } {
     // e.g. after changing the type/area filters). Candidates already linked to a venue
     // are kept so we don't lose enrich results.
     fresh: argv.includes("--fresh"),
+    debugDrops: argv.includes("--debug-drops"),
   };
 }
 
@@ -508,6 +509,22 @@ async function main() {
     let lowSignalSkipped = 0;
     let placesSkipped = 0;
 
+    // --debug-drops: every dropped candidate + reason, written to docs/<city>-discovery-drops.json.
+    interface DropRecord { name: string; reason: string; address: string | null; primaryType: string | null; website: string | null; lat: number | null; lng: number | null; }
+    const drops: DropRecord[] = [];
+    const recordDrop = (reason: string, place: PlaceResult) => {
+      if (!args.debugDrops) return;
+      drops.push({
+        name: place.displayName?.text ?? "(no name)",
+        reason,
+        address: place.formattedAddress ?? null,
+        primaryType: place.primaryType ?? null,
+        website: place.websiteUri ?? null,
+        lat: place.location?.latitude ?? null,
+        lng: place.location?.longitude ?? null,
+      });
+    };
+
     let tiles: { lat: number; lng: number }[];
     if (useBoundary) {
       // Tile the boundary's buffered bbox, then drop tiles whose center is far from the
@@ -603,24 +620,29 @@ async function main() {
 
       if (isExcludedByBusinessStatus(place.businessStatus)) {
         closedSkipped++;
+        recordDrop("closed", place);
         continue;
       }
       if (isDenylistedChain(name)) {
         chainsSkipped++;
+        recordDrop("chain", place);
         continue;
       }
       if (isLikelyNoHappyHourFormat(name)) {
         formatsSkipped++;
+        recordDrop("format", place);
         continue;
       }
       if (isExcludedByPlaceType(place.primaryType, place.types)) {
         typesSkipped++;
+        recordDrop("place-type", place);
         continue;
       }
 
       // Airport-terminal gate: drop candidates within 1500m of a known airport point.
       if (pLat != null && pLng != null && isWithinAirportBuffer(pLat, pLng, airports)) {
         airportSkipped++;
+        recordDrop("airport", place);
         continue;
       }
 
@@ -629,6 +651,7 @@ async function main() {
         : null;
       if (isLowSignalCandidate(place.userRatingCount, place.websiteUri, priceLevelNum)) {
         lowSignalSkipped++;
+        recordDrop("low-signal", place);
         continue;
       }
 
@@ -660,6 +683,7 @@ async function main() {
       }
       if (!inArea) {
         outOfArea++;
+        recordDrop("out-of-area", place);
         continue;
       }
 
@@ -706,6 +730,14 @@ async function main() {
         `${airportSkipped} airport dropped, ${lowSignalSkipped} low-signal dropped, ` +
         `${placesSkipped} skipped.`,
     );
+
+    if (args.debugDrops) {
+      const path = `docs/${args.city}-discovery-drops.json`;
+      const byReason: Record<string, number> = {};
+      for (const d of drops) byReason[d.reason] = (byReason[d.reason] ?? 0) + 1;
+      writeFileSync(path, JSON.stringify({ city: args.city, total: drops.length, byReason, drops }, null, 2));
+      console.log(`  --debug-drops: wrote ${drops.length} dropped candidates to ${path}`);
+    }
 
     // ---- Metro-scope cleanup -----------------------------------------------
     // Drop UNPROCESSED candidates that fall inside an out-of-scope neighborhood (operator
