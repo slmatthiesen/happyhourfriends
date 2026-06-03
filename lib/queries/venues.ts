@@ -49,7 +49,7 @@ export interface CityListItem {
   id: string;
   slug: string;
   name: string;
-  state: string | null;
+  state: string;
   /** City centroid, used to find the nearest city from a visitor's location. */
   centerLat: number | null;
   centerLng: number | null;
