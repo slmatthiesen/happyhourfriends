@@ -168,6 +168,7 @@ async function main() {
       assert.equal(isLikelyNoHappyHourFormat("Showgirls"), true);
       assert.equal(isLikelyNoHappyHourFormat("Club Nude"), true);
       assert.equal(isLikelyNoHappyHourFormat("Pink Pony Cabaret"), true); // existing pattern still works
+      assert.equal(isLikelyNoHappyHourFormat("Nude Nightclub"), true); // start-of-name match
     });
     check("'nude' does not match the substring inside 'denude' / legit names", () => {
       assert.equal(isLikelyNoHappyHourFormat("Denude Spa"), false);
@@ -181,6 +182,7 @@ async function main() {
       // type rule runs first so the operator's "never include casinos" rule wins.
       assert.equal(isExcludedByPlaceType("bar", ["bar", "casino"]), true);
       assert.equal(isExcludedByPlaceType("casino", ["casino"]), true);
+      assert.equal(isExcludedByPlaceType(null, ["casino"]), true);
     });
     check("a normal bar is still kept", () => {
       assert.equal(isExcludedByPlaceType("bar", ["bar", "restaurant"]), false);
