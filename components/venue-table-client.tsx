@@ -15,6 +15,7 @@ import { labelForVenueType } from "@/lib/places/venueType";
 import { haversineMiles, formatDistance } from "@/lib/geo/distance";
 import { directionsUrl, isApplePlatform } from "@/lib/geo/mapsLink";
 import { useGeolocation } from "@/lib/geo/useGeolocation";
+import { venuePath } from "@/lib/routes";
 
 // ISO day labels; index 1=Mon … 7=Sun
 const DAY_LABELS: Record<number, string> = {
@@ -187,12 +188,14 @@ function DistanceLink({
 }
 
 export function VenueTableClient({
+  stateSlug,
   citySlug,
   cityName,
   cityTimezone,
   venues,
   showNeighborhood = true,
 }: {
+  stateSlug: string;
   citySlug: string;
   cityName: string;
   cityTimezone: string;
@@ -824,7 +827,7 @@ export function VenueTableClient({
                     >
                       <td className="px-4 py-3">
                         <Link
-                          href={`/${citySlug}/venue/${v.slug}`}
+                          href={venuePath(stateSlug, citySlug, v.slug)}
                           className="hover:text-accent-cool"
                         >
                           {v.name}
@@ -870,7 +873,7 @@ export function VenueTableClient({
                       <td className="px-4 py-3 text-text-muted">
                         {deals.text ? (
                           <Link
-                            href={`/${citySlug}/venue/${v.slug}`}
+                            href={venuePath(stateSlug, citySlug, v.slug)}
                             className="hover:text-accent-cool"
                             title={`See all deals at ${v.name}`}
                           >
@@ -934,7 +937,7 @@ export function VenueTableClient({
                 >
                   <div className="flex items-baseline justify-between gap-2">
                     <Link
-                      href={`/${citySlug}/venue/${v.slug}`}
+                      href={venuePath(stateSlug, citySlug, v.slug)}
                       className="font-medium text-text-primary hover:text-accent-cool"
                     >
                       {v.name}
@@ -982,7 +985,7 @@ export function VenueTableClient({
                   </p>
                   {deals.text && (
                     <Link
-                      href={`/${citySlug}/venue/${v.slug}`}
+                      href={venuePath(stateSlug, citySlug, v.slug)}
                       className="mt-1 block text-xs text-text-muted hover:text-accent-cool"
                       title={`See all deals at ${v.name}`}
                     >
@@ -1028,7 +1031,7 @@ export function VenueTableClient({
                 >
                   <span>
                     <Link
-                      href={`/${citySlug}/venue/${v.slug}`}
+                      href={venuePath(stateSlug, citySlug, v.slug)}
                       className="text-text-primary hover:text-accent-cool"
                     >
                       {v.name}
@@ -1051,7 +1054,7 @@ export function VenueTableClient({
                     )}
                   </span>
                   <Link
-                    href={`/${citySlug}/venue/${v.slug}#add-happy-hour`}
+                    href={`${venuePath(stateSlug, citySlug, v.slug)}#add-happy-hour`}
                     className="shrink-0 text-accent-cool hover:underline"
                   >
                     Help us add it →

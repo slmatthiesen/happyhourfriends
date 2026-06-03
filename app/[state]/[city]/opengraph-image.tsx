@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { getCityBySlug } from "@/lib/queries/venues";
+import { getCityByPath } from "@/lib/queries/venues";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -8,10 +8,10 @@ export const alt = "Happy Hour Friends";
 export default async function Image({
   params,
 }: {
-  params: Promise<{ city: string }>;
+  params: Promise<{ state: string; city: string }>;
 }) {
-  const { city: citySlug } = await params;
-  const city = await getCityBySlug(citySlug).catch(() => null);
+  const { state, city: citySlug } = await params;
+  const city = await getCityByPath(state, citySlug).catch(() => null);
   const cityName = city?.name ?? citySlug.charAt(0).toUpperCase() + citySlug.slice(1);
 
   return new ImageResponse(

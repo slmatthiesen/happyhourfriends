@@ -120,7 +120,7 @@ async function main() {
           (${c.slug}, ${c.name}, ${c.state}, ${c.country}, ${c.timezone},
            ${c.currency}, ${c.centerLat}, ${c.centerLng},
            ${JSON.stringify(c.seedConfig)}::jsonb, 'discovery')
-        ON CONFLICT (slug) DO UPDATE SET
+        ON CONFLICT (state, slug) DO UPDATE SET
           name = EXCLUDED.name,
           state = EXCLUDED.state,
           country = EXCLUDED.country,

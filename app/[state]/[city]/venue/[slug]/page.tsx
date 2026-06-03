@@ -5,7 +5,8 @@ import { DirectionsButton } from "@/components/directions-button";
 import { SiteWordmark } from "@/components/site-wordmark";
 import { Contribute } from "@/components/submit/contribute";
 import { formatDays, formatDaysLong, formatPrice, formatWindowByDay } from "@/lib/format";
-import { getCityBySlug, getVenueBySlug } from "@/lib/queries/venues";
+import { getCityByPath, getVenueBySlug } from "@/lib/queries/venues";
+import { cityPath } from "@/lib/routes";
 import { labelForVenueType } from "@/lib/places/venueType";
 
 // Full-route ISR, shared across all visitors. Safe to cache the render: the venue page
@@ -24,11 +25,11 @@ export function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ city: string; slug: string }>;
+  params: Promise<{ state: string; city: string; slug: string }>;
 }): Promise<Metadata> {
-  const { city, slug } = await params;
-  const c = await getCityBySlug(city);
-  if (!c) return { title: "Not found · Happy Hour Friends" };
+  const { state, city, slug } = await params;
+  const c = await getCityByPath(state, city);
+  if (!c || c.status !== "live") return { title: "Not found · Happy Hour Friends" };
   const v = await getVenueBySlug(c.id, slug);
   if (!v) return { title: "Not found · Happy Hour Friends" };
   return {
@@ -40,11 +41,11 @@ export async function generateMetadata({
 export default async function VenuePage({
   params,
 }: {
-  params: Promise<{ city: string; slug: string }>;
+  params: Promise<{ state: string; city: string; slug: string }>;
 }) {
-  const { city: citySlug, slug } = await params;
-  const city = await getCityBySlug(citySlug);
-  if (!city) notFound();
+  const { state, city: citySlug, slug } = await params;
+  const city = await getCityByPath(state, citySlug);
+  if (!city || city.status !== "live") notFound();
   const venue = await getVenueBySlug(city.id, slug);
   if (!venue) notFound();
 
@@ -154,7 +155,7 @@ export default async function VenuePage({
       <nav className="mb-8 flex items-center justify-between gap-4">
         <SiteWordmark />
         <Link
-          href={`/${city.slug}`}
+          href={cityPath(city.state, city.slug)}
           className="shrink-0 text-sm text-accent-cool hover:underline"
         >
           ← All {city.name}
