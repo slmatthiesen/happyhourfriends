@@ -21,6 +21,9 @@ interface SeedConfig {
   cellMeters: number;
   /** Place must list one of these as its locality. Filters out neighboring towns. */
   serviceLocalities: string[];
+  /** Boundary-mode only: metres of buffer around the municipal boundary that still
+   *  counts as in-area (geocode slop). Discover falls back to its own default if omitted. */
+  serviceBufferMeters?: number;
 }
 
 interface CitySeed {
@@ -102,6 +105,28 @@ const CITIES: CitySeed[] = [
       radiusKm: 20,
       cellMeters: 3000,
       serviceLocalities: ["Scottsdale"],
+    },
+  },
+  {
+    // Daly City, CA — pilot for nested-routing-era onboarding. Combined Daly City + Colma
+    // market (Colma is a tiny enclave; its restaurant/280 strip reads as "Daly City" to
+    // locals). Boundary mode via data/daly-city-boundary.geojson drives discovery; the
+    // locality gate drops SF / South SF / Brisbane / Pacifica. South SF is a separate
+    // future city, NOT folded in here. See spec 2026-06-02-daly-city-onboarding-design.md.
+    slug: "daly-city",
+    name: "Daly City",
+    state: "CA",
+    country: "US",
+    timezone: "America/Los_Angeles",
+    currency: "USD",
+    // CENTROID PLACEHOLDER — finalized in Task 4 from the sourced boundary's ST_Centroid.
+    centerLat: 37.6879,
+    centerLng: -122.4702,
+    seedConfig: {
+      radiusKm: 6, // fallback only; data/daly-city-boundary.geojson drives real tiling/gate
+      cellMeters: 3000,
+      serviceLocalities: ["Daly City", "Colma"],
+      serviceBufferMeters: 500,
     },
   },
 ];
