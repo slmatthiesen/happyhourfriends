@@ -36,8 +36,8 @@ import { createBatch, pollBatch, streamResults, type BatchRequest } from "@/lib/
 import { costCents } from "@/lib/ai/pricing";
 import { triageSite, resolveEnrichAction } from "@/lib/places/siteTriage";
 import { hhLikelihood } from "@/lib/places/hhLikelihood";
-import { assessRealness } from "@/lib/places/realnessGate";
 import { firstOfCurrentMonth } from "@/lib/ai/budget";
+import { persistExtractedWindows } from "@/lib/recover/resolveVenue";
 
 type Sql = ReturnType<typeof postgres>;
 
@@ -86,93 +86,38 @@ function parseArgs() {
   };
 }
 
-/** Attach extracted windows to an EXISTING venue. Mirrors persistExtraction's inserts. */
-async function attachWindows(
-  sql: Sql,
-  venueId: string,
-  extracted: ExtractResult,
-): Promise<{ active: number; hidden: number }> {
-  let active = 0;
-  let hidden = 0;
-  for (const hh of extracted.happyHours) {
-    const days = [...new Set(hh.daysOfWeek)].sort((a, b) => a - b);
-    const verdict = assessRealness({
-      allDay: hh.allDay,
-      dayCount: days.length,
-      timeKnown: hh.timeKnown,
-      confidence: extracted.confidence,
-    });
-    const rows = await sql<{ id: string }[]>`
-      INSERT INTO happy_hours
-        (venue_id, days_of_week, all_day, start_time, end_time,
-         location_within_venue, notes, active, extract_confidence, time_known, source_url)
-      VALUES
-        (${venueId}, ${days}, ${hh.allDay}, ${hh.startTime}, ${hh.endTime},
-         ${hh.locationWithinVenue}::location_within_venue, ${hh.notes},
-         ${!verdict.suspect}, ${extracted.confidence}, ${hh.timeKnown}, ${hh.sourceUrl})
-      ON CONFLICT DO NOTHING
-      RETURNING id
-    `;
-    if (rows.length === 0) continue; // duplicate window — already present
-    if (verdict.suspect) hidden++;
-    else active++;
-    for (const off of hh.offerings) {
-      await sql`
-        INSERT INTO offerings
-          (happy_hour_id, kind, category, name, price_cents, original_price_cents,
-           discount_cents, description, conditions, active, source_url)
-        VALUES
-          (${rows[0].id}, ${off.kind}::offering_kind, ${off.category}::offering_category,
-           ${off.name}, ${off.priceCents}, ${off.originalPriceCents}, ${off.discountCents},
-           ${off.description}, ${off.conditions}, true, ${off.sourceUrl})
-      `;
-    }
-  }
-  return { active, hidden };
-}
-
-/** Ledger + attach + promote for one extracted result. Shared by both paths. */
+/**
+ * Persist one extracted result via the SHARED path (lib/recover/resolveVenue —
+ * persistExtractedWindows): ledger + realness-gated insert + promote. Same code the
+ * admin Stub Resolver uses, so the script and the page can never drift. (_sql/_month
+ * stay in the signature so the call sites are untouched; the shared fn owns the DB.)
+ */
 async function persistResult(
-  sql: Sql,
+  _sql: Sql,
   cityId: string,
-  month: string,
+  _month: string,
   v: StubVenue,
   extracted: ExtractResult,
   c: Counters,
 ): Promise<void> {
   c.spentCents += extracted.costCents;
-  await sql`
-    INSERT INTO ai_usage_ledger
-      (month, model, input_tokens, output_tokens, cost_cents, stage, city_id, prompt_hash)
-    VALUES
-      (${month}, ${extracted.model}, ${extracted.usage.inputTokens}, ${extracted.usage.outputTokens},
-       ${extracted.costCents}, 'seed'::ai_stage, ${cityId}, ${extracted.promptHash})
-  `;
+  const { windowsLive, windowsHidden, recovered } = await persistExtractedWindows({
+    venueId: v.id,
+    cityId,
+    extracted,
+    actor: "reextract",
+  });
+  c.windowsLive += windowsLive;
+  c.windowsHidden += windowsHidden;
 
-  if (extracted.happyHours.length === 0) {
-    c.stillEmpty++;
-    console.log(`  ◦ ${v.name}: still no window (conf ${extracted.confidence.toFixed(2)})`);
-    return;
-  }
-
-  const { active, hidden } = await attachWindows(sql, v.id, extracted);
-  c.windowsLive += active;
-  c.windowsHidden += hidden;
-
-  if (active > 0) {
-    await sql`
-      UPDATE venues
-      SET data_completeness = 'complete'::data_completeness,
-          last_verified_at = now(), updated_at = now()
-      WHERE id = ${v.id}
-    `;
+  if (recovered) {
     c.venuesRecovered++;
-    console.log(`  ✓ ${v.name}: +${active} live window(s)${hidden ? ` (+${hidden} hidden)` : ""}`);
-  } else if (hidden > 0) {
-    console.log(`  ⊘ ${v.name}: +${hidden} window(s) hidden for review`);
+    console.log(`  ✓ ${v.name}: +${windowsLive} live window(s)${windowsHidden ? ` (+${windowsHidden} hidden)` : ""}`);
+  } else if (windowsHidden > 0) {
+    console.log(`  ⊘ ${v.name}: +${windowsHidden} window(s) hidden for review`);
   } else {
     c.stillEmpty++;
-    console.log(`  ◦ ${v.name}: windows already present (no change)`);
+    console.log(`  ◦ ${v.name}: no window (conf ${extracted.confidence.toFixed(2)})`);
   }
 }
 
