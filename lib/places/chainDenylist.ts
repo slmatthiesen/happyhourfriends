@@ -106,10 +106,18 @@ const NO_HH_FORMAT_PATTERNS = [
   "museum",
   "theatre",
   "theater",
-  // Adult entertainment — even when they have HH, operator doesn't want them featured
+  // Adult entertainment — even when they have HH, operator doesn't want them featured.
   "cabaret",
   "gentlemens club",
   "topless",
+  "strip club",
+  "showgirls",
+  "nude",
+  "go go",
+  "burlesque",
+  // Casinos — operator rule: never feature casinos (name signal; the place-type gate
+  // in isExcludedByPlaceType is the stronger backstop).
+  "casino",
 ];
 
 export function isLikelyNoHappyHourFormat(name: string): boolean {
@@ -235,6 +243,11 @@ export function isExcludedByPlaceType(
   const t = types ?? [];
   // No type signal at all (e.g. curated-page candidates) → keep; can't judge.
   if (!primaryType && t.length === 0) return false;
+
+  // Casino rule (operator: never feature casinos) — runs BEFORE the alcohol override so a
+  // casino's in-house bar is still dropped. Best-effort: a casino restaurant that Google
+  // does NOT tag with the casino type can still slip through (documented limitation).
+  if (primaryType === "casino" || t.includes("casino")) return true;
 
   // Alcohol-signal override: a real bar/brewery/pub is never dropped.
   if (primaryType && ALCOHOL_SIGNAL_PRIMARY.has(primaryType)) return false;
