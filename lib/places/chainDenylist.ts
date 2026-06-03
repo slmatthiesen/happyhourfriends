@@ -123,7 +123,9 @@ const NO_HH_FORMAT_PATTERNS = [
   // Niche food formats
   "acai", // acai bowl shops
   "donut", // operator 2026-06-03: donut shops don't run HH
+  "donuts",
   "doughnut",
+  "doughnuts",
   // Non-restaurant venues that Google occasionally types as "restaurant"
   "bookstore",
   "museum",
