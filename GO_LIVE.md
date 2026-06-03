@@ -3,6 +3,66 @@
 Things built but not yet run against production. Each step needs `DATABASE_URL` pointed
 at the prod DB (and the noted API key).
 
+## Search rankings — SEO + AI/GEO (code built 2026-06-03, branch `feat/seo-itemlist-canonical` / PR #19)
+
+The strategic wedge: rank #1–3 for **"happy hour &lt;city&gt;"** in *lesser-known* markets
+(Spokane, Tacoma, smaller Idaho cities), where the big aggregators (Yelp, Tripadvisor,
+Thrillist) don't compete hard. The lever is **completeness + freshness + a little local
+authority** — completeness/freshness is the same work as data curation; authority is the
+hard part. Don't launch 50 thin cities; take a handful to genuine completeness.
+
+### What shipped (code — DONE, in PR #19)
+
+- **`metadataBase`** (root layout) → all canonical + OG-image URLs resolve absolute.
+- **`alternates.canonical`** on city, neighborhood, and venue pages.
+- **`ItemList` JSON-LD** on city + neighborhood pages (lists only venues that actually
+  have a happy hour; omitted when none). Venue pages already had `Restaurant` + `Event`.
+- **Data-freshness signal:** "Updated &lt;date&gt;" beneath the city clock (from
+  `max(updated_at)` over in-scope venues) + **`<lastmod>` in `sitemap.xml`** per venue,
+  city, and neighborhood. Decisive in a category where staleness is the norm.
+
+### CRITICAL config before any of the above helps in prod
+
+- **`NEXT_PUBLIC_SITE_URL` MUST be the production domain** (`https://happyhourfriends.com`).
+  It's baked in at **build time** (it's `NEXT_PUBLIC_`), so it has to be set in the
+  deploy/build environment — not just runtime. Without it, every canonical, OG image, and
+  sitemap URL falls back to `localhost` and the SEO work is inert. **Verify after deploy:**
+  `curl -s https://happyhourfriends.com/wa/tacoma | grep canonical` → must be the prod host.
+
+### Operator go-live steps (not code — do these at/after launch)
+
+1. **Google Search Console** — verify the domain, submit `https://happyhourfriends.com/sitemap.xml`,
+   then watch Coverage (are city/venue pages indexed?) and Performance (which queries you
+   surface for). You can't improve what you can't see; this is step zero.
+2. **Bing Webmaster Tools** — same submit. Matters more than its market share: Bing's index
+   feeds **ChatGPT search + Copilot**, so this is also an AI-SEO step.
+3. **Confirm crawl posture** — `robots.ts` already allows all bots (`*`) except `/admin` and
+   advertises the sitemap. This already permits **AI crawlers** (GPTBot, PerplexityBot,
+   Google-Extended). Decision to confirm: keep them allowed (recommended — we want
+   *attribution/referral* traffic from AI answers, the trade-off is training-data use).
+4. **Local authority / backlinks** — the decisive lever for small cities and the hardest:
+   a few quality local links (Chamber of Commerce, local subreddit, local press), consistent
+   name/address, and an `/about` that states who's behind it + the verification methodology
+   (a real E-E-A-T trust story). A handful of links goes a long way in a low-competition SERP.
+
+### AI SEO (GEO — getting cited by ChatGPT / Perplexity / Google AI Overviews / Claude)
+
+- Foundation is the **same** clean structured data + extractable factual prose (LLMs and
+  their retrieval layers parse our JSON-LD + plain text well).
+- **Be answer-shaped:** "Happy hour at X is Mon–Fri 3–6pm" extracts better than a table alone.
+- **Get retrieved/cited:** Perplexity + AI Overviews pull *live* and favor fresh,
+  directly-answering pages (our `<lastmod>` + Updated date feed this); being referenced on
+  Reddit / local news / Wikipedia raises the odds of being surfaced.
+
+### Deferred code follow-ups (cheap, not yet built — next SEO PR)
+
+- **`BreadcrumbList` JSON-LD** (state › city › neighborhood › venue) — Google renders
+  breadcrumb trails in results; lifts click-through.
+- **`FAQPage` JSON-LD** on `/faq` — rich-result win if content stays Q&A-shaped.
+- **Per-city intro paragraph** — a few sentences of unique copy per city page to
+  differentiate from scrapers (deferred 2026-06-03; needs operator voice/tone).
+- **`/llms.txt`** — emerging convention listing key pages for LLM crawlers; cheap, modest upside.
+
 ## All-day happy-hour cleanup (built 2026-05-31, merged to `main`)
 
 The code only *sets up* these reviews — running them is a manual step. To hand it to an
