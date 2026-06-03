@@ -242,6 +242,17 @@ const EXCLUDED_PRIMARY_TYPE = new Set<string>([
   "cafe",
   "coffee_shop",
   "cafeteria",
+  // Operator 2026-06-03 (Daly City review): non-HH formats + non-food places Google
+  // mis-tags with a buried "restaurant" type (cleaning service, clothing store, etc.).
+  "dessert_restaurant",
+  "dessert_shop",
+  "deli",
+  "salad_shop",
+  "shopping_mall",
+  "clothing_store",
+  "service",
+  "catering_service",
+  "laundry",
 ]);
 
 /** Excluded when present ANYWHERE in types[] (format never runs a happy hour). */
@@ -297,21 +308,15 @@ export function isExcludedByBusinessStatus(
 }
 
 /**
- * Low-signal gate (operator 2026-05-30): exclude a candidate that has almost nothing
- * to go on — fewer than 25 reviews AND no website AND no price tier. With no website
- * the extractor has no menu to read (it would become a stub at best), and the lack of
- * reviews + price means Google barely knows the place. NO alcohol override: this is a
- * data-quality floor, and a featurable bar essentially always has a site or price tier.
- * (Verified on the first Tucson run: zero alcohol-primary venues were caught by this.)
+ * Minimum Google review count to be a candidate. Operator 2026-06-03: a place with very few
+ * reviews is too low-signal to feature, EVEN if it has a website/price — Google barely knows
+ * it. NOTE: this is a hard cutoff applied to every city; it will also drop a brand-new venue
+ * that hasn't accumulated reviews yet. Tunable here.
  */
 const MIN_REVIEWS = 25;
+/** True when a candidate has fewer than MIN_REVIEWS Google reviews (null count treated as 0). */
 export function isLowSignalCandidate(
   userRatingCount: number | null | undefined,
-  websiteUrl: string | null | undefined,
-  priceLevel: number | null | undefined,
 ): boolean {
-  const reviews = userRatingCount ?? 0;
-  const hasUrl = !!websiteUrl && websiteUrl.trim().length > 0;
-  const hasPrice = priceLevel != null;
-  return reviews < MIN_REVIEWS && !hasUrl && !hasPrice;
+  return (userRatingCount ?? 0) < MIN_REVIEWS;
 }
