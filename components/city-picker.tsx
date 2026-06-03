@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import type { CityListItem } from "@/lib/queries/venues";
 import { haversineMiles } from "@/lib/geo/distance";
+import { cityPath } from "@/lib/routes";
 
 function nearestCity(
   lat: number,
@@ -48,7 +49,7 @@ export function CityPicker({ cities }: { cities: CityListItem[] }) {
           cities,
         );
         if (nearest) {
-          router.push(`/${nearest.slug}`);
+          router.push(cityPath(nearest.state ?? "", nearest.slug));
         } else {
           setLocating(false);
           setError("Couldn't match you to a city yet — pick one below.");
@@ -90,7 +91,7 @@ export function CityPicker({ cities }: { cities: CityListItem[] }) {
           {cities.map((c) => (
             <li key={c.id}>
               <Link
-                href={`/${c.slug}`}
+                href={cityPath(c.state ?? "", c.slug)}
                 className="flex items-baseline gap-2 rounded-lg border border-border bg-bg-surface px-4 py-2 transition-colors hover:bg-row-hover"
               >
                 <span className="font-medium text-text-primary">
