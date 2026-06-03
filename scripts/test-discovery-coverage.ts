@@ -187,6 +187,28 @@ async function main() {
     });
   }
 
+  // --- Daly City review: junk-type excludes + hard review gate --------------------
+  {
+    const { isExcludedByPlaceType, isLowSignalCandidate } = await import("@/lib/places/chainDenylist");
+    check("non-food / dessert / deli / salad types are dropped", () => {
+      for (const t of ["dessert_restaurant","dessert_shop","deli","salad_shop","shopping_mall","clothing_store","service","catering_service","laundry"]) {
+        assert.equal(isExcludedByPlaceType(t, [t, "restaurant"]), true, t + " should be excluded");
+      }
+    });
+    check("a real bar/restaurant primary type is still kept", () => {
+      assert.equal(isExcludedByPlaceType("bar", ["bar"]), false);
+      assert.equal(isExcludedByPlaceType("mexican_restaurant", ["mexican_restaurant","restaurant"]), false);
+    });
+    check("isLowSignalCandidate is a hard <25-review cutoff", () => {
+      assert.equal(isLowSignalCandidate(10), true, "10 reviews dropped");
+      assert.equal(isLowSignalCandidate(24), true, "24 dropped");
+      assert.equal(isLowSignalCandidate(25), false, "25 kept");
+      assert.equal(isLowSignalCandidate(500), false, "500 kept");
+      assert.equal(isLowSignalCandidate(null), true, "null treated as 0 -> dropped");
+      assert.equal(isLowSignalCandidate(undefined), true, "undefined -> dropped");
+    });
+  }
+
   console.log(`\n${passed} checks passed.`);
 }
 

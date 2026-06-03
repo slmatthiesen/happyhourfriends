@@ -665,7 +665,7 @@ async function main() {
       const priceLevelNum = place.priceLevel
         ? (PRICE_LEVEL[place.priceLevel] ?? null)
         : null;
-      if (isLowSignalCandidate(place.userRatingCount, place.websiteUri, priceLevelNum)) {
+      if (isLowSignalCandidate(place.userRatingCount)) {
         lowSignalSkipped++;
         recordDrop("low-signal", place);
         continue;
