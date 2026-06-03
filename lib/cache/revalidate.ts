@@ -1,4 +1,5 @@
 import "server-only";
+import { cityPath, neighborhoodPath, venuePath } from "@/lib/routes";
 
 /**
  * On-demand cache invalidation for the public read pages.
@@ -20,6 +21,7 @@ import "server-only";
  */
 
 export interface VenueRevalidationTarget {
+  stateSlug: string;
   citySlug: string;
   venueSlug?: string | null;
   neighborhoodSlug?: string | null;
@@ -33,9 +35,10 @@ export function venueRevalidationItems(t: VenueRevalidationTarget): {
   paths: string[];
   tags: string[];
 } {
-  const paths = [`/${t.citySlug}`];
-  if (t.venueSlug) paths.push(`/${t.citySlug}/venue/${t.venueSlug}`);
-  if (t.neighborhoodSlug) paths.push(`/${t.citySlug}/${t.neighborhoodSlug}`);
+  const paths = [cityPath(t.stateSlug, t.citySlug)];
+  if (t.venueSlug) paths.push(venuePath(t.stateSlug, t.citySlug, t.venueSlug));
+  if (t.neighborhoodSlug)
+    paths.push(neighborhoodPath(t.stateSlug, t.citySlug, t.neighborhoodSlug));
   const tags = t.countsChanged ? ["cities-summary"] : [];
   return { paths, tags };
 }

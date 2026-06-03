@@ -49,7 +49,7 @@ export interface CityListItem {
   id: string;
   slug: string;
   name: string;
-  state: string | null;
+  state: string;
   /** City centroid, used to find the nearest city from a visitor's location. */
   centerLat: number | null;
   centerLng: number | null;
@@ -84,6 +84,7 @@ async function listCitiesUncached(): Promise<CityListItem[]> {
       status: cities.status,
     })
     .from(cities)
+    .where(eq(cities.status, "live"))
     .orderBy(asc(cities.name));
 
   if (rows.length === 0) return [];
@@ -176,12 +177,34 @@ export async function getNeighborhoodBySlug(cityId: string, slug: string) {
   return n ?? null;
 }
 
-export async function getCityBySlug(slug: string): Promise<CityRow | null> {
+/**
+ * Resolve a city by its URL path parts. State is matched case-insensitively because
+ * the URL slug is lowercased ("wa") while the column stores the canonical code ("WA").
+ * Does NOT filter on status — callers gate visibility explicitly (public pages require
+ * status === "live"; internal callers may want non-live rows).
+ */
+export async function getCityByPath(
+  stateSlug: string,
+  citySlug: string,
+): Promise<CityRow | null> {
   const [city] = await db
     .select()
     .from(cities)
-    .where(eq(cities.slug, slug))
+    .where(
+      and(
+        sql`lower(${cities.state}) = ${stateSlug.toLowerCase()}`,
+        eq(cities.slug, citySlug),
+      ),
+    )
     .limit(1);
+  return city ?? null;
+}
+
+/** Resolve a city by bare slug alone (no state). Used by the submit flow where only a
+ *  ?city= slug is in scope. Ambiguous across states in theory, but the submit link only
+ *  needs a display name + back-path. */
+export async function getCityBySlugAny(slug: string): Promise<CityRow | null> {
+  const [city] = await db.select().from(cities).where(eq(cities.slug, slug)).limit(1);
   return city ?? null;
 }
 

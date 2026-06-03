@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteWordmark } from "@/components/site-wordmark";
 import { VenueTableClient } from "@/components/venue-table-client";
-import { getCityBySlug, listVenuesForCity } from "@/lib/queries/venues";
+import { getCityByPath, listVenuesForCity } from "@/lib/queries/venues";
 
 // Cache the rendered page (HTML + RSC payload) in Next's shared server-side cache and
 // regenerate at most once an hour — every visitor gets the same cached page, so the
@@ -24,11 +24,11 @@ export function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ city: string }>;
+  params: Promise<{ state: string; city: string }>;
 }): Promise<Metadata> {
-  const { city } = await params;
-  const c = await getCityBySlug(city);
-  if (!c) return { title: "Not found · Happy Hour Friends" };
+  const { state, city } = await params;
+  const c = await getCityByPath(state, city);
+  if (!c || c.status !== "live") return { title: "Not found · Happy Hour Friends" };
   return {
     title: `${c.name} Happy Hours · Happy Hour Friends`,
     description: `Every happy hour in ${c.name}${c.state ? `, ${c.state}` : ""}, in one sortable table. Every detail traces to a source.`,
@@ -38,11 +38,11 @@ export async function generateMetadata({
 export default async function CityPage({
   params,
 }: {
-  params: Promise<{ city: string }>;
+  params: Promise<{ state: string; city: string }>;
 }) {
-  const { city: citySlug } = await params;
-  const city = await getCityBySlug(citySlug);
-  if (!city) notFound();
+  const { state, city: citySlug } = await params;
+  const city = await getCityByPath(state, citySlug);
+  if (!city || city.status !== "live") notFound();
 
   const venues = await listVenuesForCity(city.id);
   const withHours = venues.filter((v) => v.happyHours.length > 0).length;
@@ -85,6 +85,7 @@ export default async function CityPage({
       </aside>
 
       <VenueTableClient
+        stateSlug={city.state}
         citySlug={city.slug}
         cityName={city.name}
         cityTimezone={city.defaultTimezone}

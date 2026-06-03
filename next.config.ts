@@ -1,6 +1,15 @@
 import type { NextConfig } from "next";
+import { legacyCityRedirects } from "@/lib/routes";
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return legacyCityRedirects([
+      { bareSlug: "tacoma", stateSlug: "wa" },
+      { bareSlug: "tucson", stateSlug: "az" },
+      { bareSlug: "phoenix-central", stateSlug: "az" },
+      { bareSlug: "scottsdale", stateSlug: "az" },
+    ]);
+  },
   async headers() {
     return [
       {

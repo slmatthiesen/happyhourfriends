@@ -3,7 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SubmissionForm, type FieldSpec } from "@/components/submit/submission-form";
 import { venueType } from "@/db/schema";
-import { getCityBySlug } from "@/lib/queries/venues";
+import { getCityBySlugAny } from "@/lib/queries/venues";
+import { cityPath } from "@/lib/routes";
 
 export const metadata: Metadata = {
   title: "Add a venue · Happy Hour Friends",
@@ -21,7 +22,7 @@ export default async function NewVenuePage({
   searchParams: Promise<{ city?: string }>;
 }) {
   const { city: citySlug = "tacoma" } = await searchParams;
-  const city = await getCityBySlug(citySlug);
+  const city = await getCityBySlugAny(citySlug);
   if (!city) notFound();
 
   const fields: FieldSpec[] = [
@@ -40,7 +41,7 @@ export default async function NewVenuePage({
 
   return (
     <main className="mx-auto w-full max-w-xl px-6 py-12">
-      <Link href={`/${city.slug}`} className="text-sm text-accent-cool hover:underline">
+      <Link href={cityPath(city.state, city.slug)} className="text-sm text-accent-cool hover:underline">
         ← All {city.name}
       </Link>
       <h1
