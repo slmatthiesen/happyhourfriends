@@ -27,6 +27,15 @@ import {
   isExcludedByBusinessStatus,
   isLowSignalCandidate,
 } from "@/lib/places/chainDenylist";
+import {
+  collectAdaptive,
+  type Tile,
+} from "@/lib/places/discoveryTiling";
+import {
+  isWithinAirportBuffer,
+  type GeoPoint,
+} from "@/lib/places/airportGate";
+import { haversineMeters } from "@/lib/geo/distance";
 
 // ---------------------------------------------------------------------------
 // Arg parsing
@@ -189,18 +198,6 @@ const EXCLUDED_PRIMARY_TYPES = [
   "thai_restaurant",
 ] as const;
 
-function haversineKm(aLat: number, aLng: number, bLat: number, bLng: number): number {
-  const R = 6371;
-  const dLat = ((bLat - aLat) * Math.PI) / 180;
-  const dLng = ((bLng - aLng) * Math.PI) / 180;
-  const s =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos((aLat * Math.PI) / 180) *
-      Math.cos((bLat * Math.PI) / 180) *
-      Math.sin(dLng / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
-}
-
 /** Grid of search-circle centers covering ~coverage around the city center. */
 function buildTiles(
   centerLat: number,
@@ -254,6 +251,11 @@ async function fetchNearby(
     includedTypes: INCLUDED_TYPES,
     excludedPrimaryTypes: EXCLUDED_PRIMARY_TYPES,
     maxResultCount: 20,
+    // DISTANCE (not the default POPULARITY): return the NEAREST 20 to the tile center,
+    // not the 20 most prominent. Combined with adaptive subdivision of saturated tiles,
+    // this is what makes coverage complete (lower-profile bars stop losing the 20 slots
+    // to popular restaurants). DISTANCE requires a circular locationRestriction (we have one).
+    rankPreference: "DISTANCE",
     locationRestriction: {
       circle: {
         center: { latitude: lat, longitude: lng },
@@ -286,6 +288,54 @@ async function fetchNearby(
 
   const data: NearbySearchResponse = (await res.json()) as NearbySearchResponse;
   return data.places ?? [];
+}
+
+/**
+ * Find airport points near the city so the discovery gate can drop in-terminal venues.
+ * One Places call for includedTypes:["airport"] over a circle around the city center.
+ * Generic + zero-curation: no per-city airport list. Radius is capped at Google's 50km
+ * Nearby max; a metro's primary airport is essentially always within 50km of center.
+ * Returns [] on any error (the gate then becomes a no-op).
+ */
+async function findAirports(
+  apiKey: string,
+  centerLat: number,
+  centerLng: number,
+  radiusMeters: number,
+): Promise<GeoPoint[]> {
+  const body = {
+    includedTypes: ["airport"],
+    maxResultCount: 20,
+    locationRestriction: {
+      circle: {
+        center: { latitude: centerLat, longitude: centerLng },
+        radius: Math.min(radiusMeters, 50_000),
+      },
+    },
+  };
+  try {
+    const res = await fetch(PLACES_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": apiKey,
+        "X-Goog-FieldMask": "places.location",
+      },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      console.warn(`  [airport] lookup HTTP ${res.status} — airport gate disabled this run`);
+      return [];
+    }
+    const data = (await res.json()) as { places?: { location?: { latitude?: number; longitude?: number } }[] };
+    return (data.places ?? [])
+      .map((p) => p.location)
+      .filter((l): l is { latitude: number; longitude: number } => l?.latitude != null && l?.longitude != null)
+      .map((l) => ({ lat: l.latitude, lng: l.longitude }));
+  } catch (err) {
+    console.warn(`  [airport] lookup failed — airport gate disabled this run:`, err);
+    return [];
+  }
 }
 
 // Simple heuristic: extract lines from a page that look like venue names.
@@ -441,6 +491,7 @@ async function main() {
     let formatsSkipped = 0;
     let typesSkipped = 0;
     let closedSkipped = 0;
+    let airportSkipped = 0;
     let lowSignalSkipped = 0;
     let placesSkipped = 0;
 
@@ -484,145 +535,161 @@ async function main() {
       );
     }
 
-    for (const tile of tiles) {
-      let places: PlaceResult[];
-      try {
-        places = await fetchNearby(placesKey, tile.lat, tile.lng, CELL_METERS);
-      } catch (err) {
-        console.error(
-          `  ERROR @ ${tile.lat.toFixed(3)},${tile.lng.toFixed(3)}:`,
-          err,
-        );
+    // Airport points (for the in-terminal exclusion gate). One Places call; [] on error.
+    const airports = await findAirports(placesKey, lat, lng, COVERAGE_METERS);
+    console.log(
+      airports.length > 0
+        ? `  Airport gate: ${airports.length} airport point(s) found; dropping candidates within 1500m.`
+        : `  Airport gate: no airports found near center — gate is a no-op this run.`,
+    );
+
+    // Adaptive collection: each seed tile is queried by NEAREST-20; a tile that returns a
+    // saturated 20 subdivides into 4 smaller tiles and re-queries, down to the floor.
+    const seedTiles: Tile[] = tiles.map((t) => ({
+      lat: t.lat,
+      lng: t.lng,
+      radiusMeters: CELL_METERS,
+      depth: 0,
+    }));
+    let floorSaturated = 0;
+    let tilesFetched = 0;
+    const collected = await collectAdaptive<PlaceResult>({
+      seedTiles,
+      fetchTile: async (tile) => {
+        let places: PlaceResult[];
+        try {
+          places = await fetchNearby(placesKey, tile.lat, tile.lng, tile.radiusMeters);
+        } catch (err) {
+          console.error(`  ERROR @ ${tile.lat.toFixed(3)},${tile.lng.toFixed(3)}:`, err);
+          return [];
+        }
+        tilesFetched++;
+        await new Promise((r) => setTimeout(r, 40)); // gentle throttle (unchanged cadence)
+        return places;
+      },
+      onFloorSaturated: () => { floorSaturated++; },
+    });
+    console.log(
+      `  Adaptive tiling: ${tilesFetched} tile fetches → ${collected.size} unique places` +
+        (floorSaturated > 0 ? `; ${floorSaturated} floor tile(s) still saturated (dense hotspot)` : ``),
+    );
+
+    // Gate + upsert every unique place. (Same gate ladder as before, now run once per
+    // deduped place instead of once per tile-result.)
+    for (const place of collected.values()) {
+      if (!place.id || !place.displayName?.text) {
+        placesSkipped++;
         continue;
       }
 
-      for (const place of places) {
-        if (!place.id || !place.displayName?.text) {
-          placesSkipped++;
-          continue;
-        }
+      const name = place.displayName.text;
+      const address = place.formattedAddress ?? null;
+      const pLat = place.location?.latitude ?? null;
+      const pLng = place.location?.longitude ?? null;
 
-        const name = place.displayName.text;
-        const address = place.formattedAddress ?? null;
-        const pLat = place.location?.latitude ?? null;
-        const pLng = place.location?.longitude ?? null;
-
-        // Closed gate: drop venues Google reports closed (permanently OR temporarily)
-        // before they ever cost an AI pass. No alcohol override — closed is closed.
-        if (isExcludedByBusinessStatus(place.businessStatus)) {
-          closedSkipped++;
-          continue;
-        }
-
-        // National-chain gate: skip Applebee's / Red Lobster / fast food etc. entirely
-        // so they never cost a Place Details or AI pass (operator: ignore these).
-        if (isDenylistedChain(name)) {
-          chainsSkipped++;
-          continue;
-        }
-
-        // Format gate (name-based): buffets / AYCE — these don't run happy hours.
-        if (isLikelyNoHappyHourFormat(name)) {
-          formatsSkipped++;
-          continue;
-        }
-
-        // Place-type gate: drop breakfast/buffet/juice/grocery formats by Google type,
-        // with an alcohol-signal override so real bars/breweries are never dropped.
-        if (isExcludedByPlaceType(place.primaryType, place.types)) {
-          typesSkipped++;
-          continue;
-        }
-
-        // Low-signal gate: <25 reviews AND no website AND no price tier — too little to
-        // go on (no site = nothing for the extractor to read). No alcohol override.
-        const priceLevelNum = place.priceLevel
-          ? (PRICE_LEVEL[place.priceLevel] ?? null)
-          : null;
-        if (
-          isLowSignalCandidate(place.userRatingCount, place.websiteUri, priceLevelNum)
-        ) {
-          lowSignalSkipped++;
-          continue;
-        }
-
-        // Service-area gate. BOUNDARY mode: keep if the point is within the buffer of the
-        // municipal boundary (spatial, mailing-address-independent — this is what recovers
-        // contiguous suburbs like Casas Adobes that the city line doesn't annex). RADIUS
-        // mode (legacy): mailing-locality regex AND haversine radius.
-        let inArea: boolean;
-        if (useBoundary) {
-          if (pLat == null || pLng == null) {
-            inArea = false;
-          } else {
-            const [{ within }] = await sql<{ within: boolean }[]>`
-              SELECT ST_DWithin(
-                g::geography,
-                ST_SetSRID(ST_MakePoint(${pLng}, ${pLat}), 4326)::geography,
-                ${SERVICE_BUFFER_METERS}
-              ) AS within
-              FROM _seed_boundary
-            `;
-            inArea = within;
-          }
-        } else {
-          const inLocality = SERVICE_LOCALITIES.some((loc) =>
-            new RegExp(`,\\s*${loc},\\s*${stateCode}`).test(address ?? ""),
-          );
-          const inRadius =
-            pLat != null && pLng != null
-              ? haversineKm(lat, lng, pLat, pLng) <= SERVICE_RADIUS_KM
-              : false;
-          inArea = inLocality && inRadius;
-        }
-        if (!inArea) {
-          outOfArea++;
-          continue;
-        }
-
-        try {
-          const priceLevel = priceLevelNum; // computed above for the low-signal gate
-          const types = place.types ?? null;
-          await sql`
-            INSERT INTO seed_candidates
-              (city_id, name, google_place_id, address, lat, lng, source_url,
-               primary_type, types, website_url, rating, user_rating_count,
-               price_level, business_status)
-            VALUES
-              (${city.id}, ${name}, ${place.id}, ${address},
-               ${pLat != null ? String(pLat) : null},
-               ${pLng != null ? String(pLng) : null}, ${"google_places"},
-               ${place.primaryType ?? null}, ${types}, ${place.websiteUri ?? null},
-               ${place.rating ?? null}, ${place.userRatingCount ?? null},
-               ${priceLevel}, ${place.businessStatus ?? null})
-            ON CONFLICT (google_place_id) DO UPDATE SET
-              name             = EXCLUDED.name,
-              address          = EXCLUDED.address,
-              lat              = EXCLUDED.lat,
-              lng              = EXCLUDED.lng,
-              primary_type     = EXCLUDED.primary_type,
-              types            = EXCLUDED.types,
-              website_url      = EXCLUDED.website_url,
-              rating           = EXCLUDED.rating,
-              user_rating_count = EXCLUDED.user_rating_count,
-              price_level      = EXCLUDED.price_level,
-              business_status  = EXCLUDED.business_status,
-              updated_at = now()
-          `;
-          placesInserted++;
-        } catch (err) {
-          console.warn(`  WARN upsert failed for ${name}:`, err);
-          placesSkipped++;
-        }
+      if (isExcludedByBusinessStatus(place.businessStatus)) {
+        closedSkipped++;
+        continue;
       }
-      await new Promise((r) => setTimeout(r, 40));
+      if (isDenylistedChain(name)) {
+        chainsSkipped++;
+        continue;
+      }
+      if (isLikelyNoHappyHourFormat(name)) {
+        formatsSkipped++;
+        continue;
+      }
+      if (isExcludedByPlaceType(place.primaryType, place.types)) {
+        typesSkipped++;
+        continue;
+      }
+
+      // Airport-terminal gate: drop candidates within 1500m of a known airport point.
+      if (pLat != null && pLng != null && isWithinAirportBuffer(pLat, pLng, airports)) {
+        airportSkipped++;
+        continue;
+      }
+
+      const priceLevelNum = place.priceLevel
+        ? (PRICE_LEVEL[place.priceLevel] ?? null)
+        : null;
+      if (isLowSignalCandidate(place.userRatingCount, place.websiteUri, priceLevelNum)) {
+        lowSignalSkipped++;
+        continue;
+      }
+
+      // Service-area gate (unchanged: BOUNDARY = ST_DWithin buffer; RADIUS = locality+haversine).
+      let inArea: boolean;
+      if (useBoundary) {
+        if (pLat == null || pLng == null) {
+          inArea = false;
+        } else {
+          const [{ within }] = await sql<{ within: boolean }[]>`
+            SELECT ST_DWithin(
+              g::geography,
+              ST_SetSRID(ST_MakePoint(${pLng}, ${pLat}), 4326)::geography,
+              ${SERVICE_BUFFER_METERS}
+            ) AS within
+            FROM _seed_boundary
+          `;
+          inArea = within;
+        }
+      } else {
+        const inLocality = SERVICE_LOCALITIES.some((loc) =>
+          new RegExp(`,\\s*${loc},\\s*${stateCode}`).test(address ?? ""),
+        );
+        const inRadius =
+          pLat != null && pLng != null
+            ? haversineMeters({ lat, lng }, { lat: pLat, lng: pLng }) <= SERVICE_RADIUS_KM * 1000
+            : false;
+        inArea = inLocality && inRadius;
+      }
+      if (!inArea) {
+        outOfArea++;
+        continue;
+      }
+
+      try {
+        const priceLevel = priceLevelNum;
+        const types = place.types ?? null;
+        await sql`
+          INSERT INTO seed_candidates
+            (city_id, name, google_place_id, address, lat, lng, source_url,
+             primary_type, types, website_url, rating, user_rating_count,
+             price_level, business_status)
+          VALUES
+            (${city.id}, ${name}, ${place.id}, ${address},
+             ${pLat != null ? String(pLat) : null},
+             ${pLng != null ? String(pLng) : null}, ${"google_places"},
+             ${place.primaryType ?? null}, ${types}, ${place.websiteUri ?? null},
+             ${place.rating ?? null}, ${place.userRatingCount ?? null},
+             ${priceLevel}, ${place.businessStatus ?? null})
+          ON CONFLICT (google_place_id) DO UPDATE SET
+            name             = EXCLUDED.name,
+            address          = EXCLUDED.address,
+            lat              = EXCLUDED.lat,
+            lng              = EXCLUDED.lng,
+            primary_type     = EXCLUDED.primary_type,
+            types            = EXCLUDED.types,
+            website_url      = EXCLUDED.website_url,
+            rating           = EXCLUDED.rating,
+            user_rating_count = EXCLUDED.user_rating_count,
+            price_level      = EXCLUDED.price_level,
+            business_status  = EXCLUDED.business_status,
+            updated_at = now()
+        `;
+        placesInserted++;
+      } catch (err) {
+        console.warn(`  WARN upsert failed for ${name}:`, err);
+        placesSkipped++;
+      }
     }
 
     console.log(
       `Google Places: ${placesInserted} in-area upserts, ${outOfArea} out-of-area dropped, ` +
         `${chainsSkipped} chains dropped, ${formatsSkipped} buffet/AYCE dropped, ` +
         `${typesSkipped} place-type dropped, ${closedSkipped} closed dropped, ` +
-        `${lowSignalSkipped} low-signal dropped, ` +
+        `${airportSkipped} airport dropped, ${lowSignalSkipped} low-signal dropped, ` +
         `${placesSkipped} skipped.`,
     );
 
