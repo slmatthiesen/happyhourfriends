@@ -59,8 +59,28 @@ function normalize(name: string): string {
     .trim();
 }
 
+// Sit-down / entertainment chains that DO run well-published, standardized happy hours —
+// these are high-value (easy, reliable HH capture), NOT the fast-food noise the denylist
+// targets. They override the denylist so discovery keeps them. Verified: Dave & Buster's
+// extracts Mon–Fri 4–7 PM + late-night with $5 drink offerings. Match style mirrors CHAINS.
+const HH_CHAINS = [
+  "applebees", "chilis", "tgi fridays", "fridays", "outback steakhouse",
+  "bjs restaurant", "bjs brewhouse", "buffalo wild wings", "hooters", "red robin",
+  "black angus", "ruby tuesday", "claim jumper", "macaroni grill", "texas de brazil",
+  "dave busters", "dave and busters", "round 1", "round1", "bowlero", "main event",
+  "topgolf", "gameworks",
+];
+
+/** True when a name matches one of the HH-having chains we deliberately KEEP. */
+export function isHappyHourChain(name: string): boolean {
+  const n = normalize(name);
+  return HH_CHAINS.some((c) => n === c || n.startsWith(c + " ") || n.includes(" " + c + " "));
+}
+
 export function isDenylistedChain(name: string): boolean {
   const n = normalize(name);
+  // Keep chains with real happy hours even though they're also broad chains.
+  if (isHappyHourChain(name)) return false;
   return CHAINS.some((c) => n === c || n.startsWith(c + " ") || n.includes(" " + c + " "));
 }
 
