@@ -41,12 +41,36 @@ export interface ResolveOptions {
   actor?: string;
 }
 
-async function persistWindows(
-  venueId: string,
-  cityId: string,
-  extracted: ExtractResult,
-  actor: string,
-): Promise<{ live: number; hidden: number }> {
+export interface PersistOptions {
+  venueId: string;
+  cityId: string;
+  extracted: ExtractResult;
+  actor: string;
+}
+
+/**
+ * The ONE persist path — shared by resolveVenue (admin) and scripts/reextract-stubs.ts.
+ * Ledger the model call, insert realness-gated windows + offerings + audit, and promote
+ * the venue to 'complete' when at least one ACTIVE window lands. Idempotent
+ * (ON CONFLICT DO NOTHING). Call once per extracted result, even when it has 0 windows
+ * (the ledger still records the call).
+ */
+export async function persistExtractedWindows(
+  opts: PersistOptions,
+): Promise<{ windowsLive: number; windowsHidden: number; recovered: boolean }> {
+  const { venueId, cityId, extracted, actor } = opts;
+
+  await db.insert(aiUsageLedger).values({
+    month: firstOfCurrentMonth(),
+    model: extracted.model,
+    inputTokens: extracted.usage.inputTokens,
+    outputTokens: extracted.usage.outputTokens,
+    costCents: extracted.costCents,
+    stage: "seed",
+    cityId,
+    promptHash: extracted.promptHash,
+  });
+
   let live = 0;
   let hidden = 0;
   for (const hh of extracted.happyHours) {
@@ -98,10 +122,18 @@ async function persistWindows(
       beforeJsonb: null,
       afterJsonb: { venueId, daysOfWeek: days, startTime: hh.startTime, endTime: hh.endTime, active: !verdict.suspect },
       actor,
-      reason: "admin stub resolve",
+      reason: "stub resolve",
     });
   }
-  return { live, hidden };
+
+  const recovered = live > 0;
+  if (recovered) {
+    await db
+      .update(venues)
+      .set({ dataCompleteness: "complete", lastVerifiedAt: new Date(), updatedAt: new Date() })
+      .where(eq(venues.id, venueId));
+  }
+  return { windowsLive: live, windowsHidden: hidden, recovered };
 }
 
 export async function resolveVenue(opts: ResolveOptions): Promise<ResolveResult> {
@@ -140,34 +172,17 @@ export async function resolveVenue(opts: ResolveOptions): Promise<ResolveResult>
     priorityUrls,
   });
 
-  // Ledger the model call (stage 'seed', same as enrich/reextract).
-  await db.insert(aiUsageLedger).values({
-    month: firstOfCurrentMonth(),
-    model: extracted.model,
-    inputTokens: extracted.usage.inputTokens,
-    outputTokens: extracted.usage.outputTokens,
-    costCents: extracted.costCents,
-    stage: "seed",
+  const { windowsLive, windowsHidden, recovered } = await persistExtractedWindows({
+    venueId: venue.id,
     cityId: venue.cityId,
-    promptHash: extracted.promptHash,
+    extracted,
+    actor,
   });
-
-  if (extracted.happyHours.length === 0) {
-    return { ...empty, ok: true, costCents: extracted.costCents, summary: extracted.summary, fetchedUrls: priorityUrls };
-  }
-
-  const { live, hidden } = await persistWindows(venue.id, venue.cityId, extracted, actor);
-  if (live > 0) {
-    await db
-      .update(venues)
-      .set({ dataCompleteness: "complete", lastVerifiedAt: new Date(), updatedAt: new Date() })
-      .where(eq(venues.id, venue.id));
-  }
   return {
     ok: true,
-    recovered: live > 0,
-    windowsLive: live,
-    windowsHidden: hidden,
+    recovered,
+    windowsLive,
+    windowsHidden,
     costCents: extracted.costCents,
     summary: extracted.summary,
     fetchedUrls: priorityUrls,
