@@ -21,14 +21,12 @@ function check(name: string, fn: () => void) { fn(); passed++; console.log(`  �
 async function checkAsync(name: string, fn: () => Promise<void>) { await fn(); passed++; console.log(`  ✓ ${name}`); }
 
 async function main() {
-  check("splitTile returns 4 children at r/√2 radius, depth+1, offset from center", () => {
+  check("splitTile returns 4 children at r/2 radius, depth+1, offset from center", () => {
     const parent: Tile = { lat: 47.25, lng: -122.44, radiusMeters: 3000, depth: 0 };
     const kids = splitTile(parent);
     assert.equal(kids.length, 4, "four children");
     for (const k of kids) {
-      // Child radius = r/√2 (NOT r/2) so the four child circles fully cover the parent
-      // circle (the cardinal extremes sit exactly r/√2 from the nearest child center).
-      assert.ok(Math.abs(k.radiusMeters - 3000 * Math.SQRT1_2) < 1, "radius shrunk by 1/√2");
+      assert.equal(k.radiusMeters, 1500, "half radius (r/2)");
       assert.equal(k.depth, 1, "depth + 1");
       assert.notEqual(k.lat, parent.lat, "lat offset from parent");
       assert.notEqual(k.lng, parent.lng, "lng offset from parent");
@@ -39,9 +37,9 @@ async function main() {
 
   check("tiling constants are the agreed completeness-leaning defaults", () => {
     assert.equal(MAX_RESULTS, 20, "Google Places per-call cap");
-    assert.equal(MIN_RADIUS_METERS, 400, "subdivision floor radius");
-    assert.equal(MAX_DEPTH, 4, "max recursion depth");
-    assert.equal(DEFAULT_MAX_TILES, 2000, "runaway-tile safety cap default");
+    assert.equal(MIN_RADIUS_METERS, 700, "subdivision floor radius");
+    assert.equal(MAX_DEPTH, 1, "max recursion depth (one subdivision level)");
+    assert.equal(DEFAULT_MAX_TILES, 300, "runaway-tile safety cap default");
   });
 
   // --- collectAdaptive ------------------------------------------------------------
@@ -113,7 +111,7 @@ async function main() {
     let floorHits = 0;
     let fetches = 0;
     await collectAdaptive<MockVenue>({
-      // depth is BELOW the cap, but a 400m tile's children (~283m) are below the radius floor.
+      // depth is BELOW the cap, but a 700m tile's children (350m) are below the radius floor.
       seedTiles: [{ lat: 47.25, lng: -122.44, radiusMeters: MIN_RADIUS_METERS, depth: MAX_DEPTH - 1 }],
       fetchTile: async () => {
         fetches++;

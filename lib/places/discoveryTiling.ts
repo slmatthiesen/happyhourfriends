@@ -29,20 +29,25 @@ export interface TilePlace {
 /** Google Places per-call result cap. A tile returning this many = saturated. */
 export const MAX_RESULTS = 20;
 /** Subdivision floor: never query a circle smaller than this radius. */
-export const MIN_RADIUS_METERS = 400;
-/** Subdivision floor: never recurse deeper than this. */
-export const MAX_DEPTH = 4;
-/** Safety cap on total tiles processed per run (runaway-spend backstop). */
-export const DEFAULT_MAX_TILES = 2000;
+export const MIN_RADIUS_METERS = 700;
+/** Subdivision floor: never recurse deeper than this. ONE level of subdivision — the densest
+ *  cells stay at the seed-grid resolution's child size and are logged as floor-saturated rather
+ *  than chased deeper (deliberate cost cap; bump this to trade money for density). */
+export const MAX_DEPTH = 1;
+/** Safety cap on total tiles processed per run (runaway-spend backstop). At MAX_DEPTH=1 a run
+ *  is bounded well under this; if it ever trips, a parameter is wrong. */
+export const DEFAULT_MAX_TILES = 300;
 
 /**
- * Radius of a child tile = parent radius / √2. This is the SMALLEST factor that lets 4
- * children (centered at ±radius/2 offsets) fully cover the parent CIRCLE: the parent's
- * cardinal extremes (0,±r)/(±r,0) and its center all sit exactly r/√2 from the nearest
- * child center. A naive r/2 would leave ~0.21·r uncovered arcs along the cardinal edges.
+ * Radius of a child tile = parent radius / 2. Children are centered at ±radius/2 offsets.
+ * NOTE: 4 circles of radius r/2 do not perfectly cover the parent circle — small arcs along
+ * the parent's N/S/E/W edges are uncovered — but the seed grid overlaps heavily (seed spacing
+ * = seed radius) so neighboring tiles cover those arcs in practice. We use r/2 (not r/√2,
+ * which fully covers but shrinks so slowly it quadruples cost for ~4 subdivision levels) as a
+ * deliberate cost/coverage trade: r/2 reaches the floor in far fewer levels.
  */
 function subdividedRadius(tile: Tile): number {
-  return tile.radiusMeters * Math.SQRT1_2;
+  return tile.radiusMeters / 2;
 }
 
 /**
