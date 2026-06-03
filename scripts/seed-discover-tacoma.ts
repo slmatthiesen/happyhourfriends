@@ -292,16 +292,17 @@ async function fetchNearby(
 
 /**
  * Find airport points near the city so the discovery gate can drop in-terminal venues.
- * One Places call for includedTypes:["airport"] over a circle around the city center.
- * Generic + zero-curation: no per-city airport list. Radius is capped at Google's 50km
- * Nearby max; a metro's primary airport is essentially always within 50km of center.
- * Returns [] on any error (the gate then becomes a no-op).
+ * One Places call for includedTypes:["airport"]. Always searches at Google's 50km Nearby
+ * maximum (centered on the city center), independent of the city's discovery radius — the
+ * intent is "find this metro's airport(s)", and any metro airport is within 50km of center.
+ * Generic + zero-curation: no per-city airport list. At most 20 airports are returned
+ * (maxResultCount cap — never a real limitation for a metro). Returns [] on any error
+ * (the gate then becomes a no-op).
  */
 async function findAirports(
   apiKey: string,
   centerLat: number,
   centerLng: number,
-  radiusMeters: number,
 ): Promise<GeoPoint[]> {
   const body = {
     includedTypes: ["airport"],
@@ -309,7 +310,7 @@ async function findAirports(
     locationRestriction: {
       circle: {
         center: { latitude: centerLat, longitude: centerLng },
-        radius: Math.min(radiusMeters, 50_000),
+        radius: 50_000, // Google Places Nearby maximum radius
       },
     },
   };
@@ -536,7 +537,7 @@ async function main() {
     }
 
     // Airport points (for the in-terminal exclusion gate). One Places call; [] on error.
-    const airports = await findAirports(placesKey, lat, lng, COVERAGE_METERS);
+    const airports = await findAirports(placesKey, lat, lng);
     console.log(
       airports.length > 0
         ? `  Airport gate: ${airports.length} airport point(s) found; dropping candidates within 1500m.`
@@ -551,6 +552,7 @@ async function main() {
       radiusMeters: CELL_METERS,
       depth: 0,
     }));
+    // Mutated inside the fetchTile / onFloorSaturated closures below; read after the await.
     let floorSaturated = 0;
     let tilesFetched = 0;
     const collected = await collectAdaptive<PlaceResult>({
