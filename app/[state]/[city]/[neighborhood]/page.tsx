@@ -4,10 +4,11 @@ import { notFound } from "next/navigation";
 import { SiteWordmark } from "@/components/site-wordmark";
 import { VenueTableClient } from "@/components/venue-table-client";
 import {
-  getCityBySlug,
+  getCityByPath,
   getNeighborhoodBySlug,
   listVenuesForCity,
 } from "@/lib/queries/venues";
+import { cityPath } from "@/lib/routes";
 
 // Full-route ISR, shared across all visitors — same model as the city page. The "Now"
 // badge is client-side, so caching the render is safe. The apply engine calls
@@ -23,11 +24,11 @@ export function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ city: string; neighborhood: string }>;
+  params: Promise<{ state: string; city: string; neighborhood: string }>;
 }): Promise<Metadata> {
-  const { city, neighborhood } = await params;
-  const c = await getCityBySlug(city);
-  if (!c) return { title: "Not found · Happy Hour Friends" };
+  const { state, city, neighborhood } = await params;
+  const c = await getCityByPath(state, city);
+  if (!c || c.status !== "live") return { title: "Not found · Happy Hour Friends" };
   const n = await getNeighborhoodBySlug(c.id, neighborhood);
   if (!n) return { title: "Not found · Happy Hour Friends" };
   return {
@@ -39,11 +40,11 @@ export async function generateMetadata({
 export default async function NeighborhoodPage({
   params,
 }: {
-  params: Promise<{ city: string; neighborhood: string }>;
+  params: Promise<{ state: string; city: string; neighborhood: string }>;
 }) {
-  const { city: citySlug, neighborhood: hoodSlug } = await params;
-  const city = await getCityBySlug(citySlug);
-  if (!city) notFound();
+  const { state, city: citySlug, neighborhood: hoodSlug } = await params;
+  const city = await getCityByPath(state, citySlug);
+  if (!city || city.status !== "live") notFound();
   const hood = await getNeighborhoodBySlug(city.id, hoodSlug);
   if (!hood) notFound();
 
@@ -52,7 +53,7 @@ export default async function NeighborhoodPage({
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-12">
       <SiteWordmark className="mb-6" />
-      <Link href={`/${city.slug}`} className="text-sm text-accent-cool hover:underline">
+      <Link href={cityPath(city.state, city.slug)} className="text-sm text-accent-cool hover:underline">
         ← All {city.name}
       </Link>
       <h1
@@ -66,6 +67,7 @@ export default async function NeighborhoodPage({
       </p>
 
       <VenueTableClient
+        stateSlug={city.state}
         citySlug={city.slug}
         cityName={`${hood.name}, ${city.name}`}
         cityTimezone={city.defaultTimezone}
