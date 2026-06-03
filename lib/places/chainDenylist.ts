@@ -113,10 +113,10 @@ const NO_HH_FORMAT_PATTERNS = [
   "strip club",
   "showgirls",
   "nude",
-  "go go",
-  "burlesque",
-  // Casinos — operator rule: never feature casinos (name signal; the place-type gate
-  // in isExcludedByPlaceType is the stronger backstop).
+  "burlesque", // operator: rare themed bars carrying this name are acceptable collateral
+  // Casinos — operator rule: never feature casinos. This name pattern catches
+  // casino-adjacent venues Google may type as a plain restaurant; the place-type gate
+  // in isExcludedByPlaceType handles venues Google correctly tags with the casino type.
   "casino",
 ];
 
