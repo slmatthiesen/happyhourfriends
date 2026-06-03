@@ -7,6 +7,39 @@ with an AI moderation pipeline that verifies user submissions before applying th
 Launch market: Tacoma, WA. **`PRD.md` is the source of truth — read it before building
 (don't skim §3 schema or §4 AI pipeline).** This file is the running state + lessons.
 
+## Current state — READ FIRST (2026-06-02)
+
+`origin/main` is the source of truth. Recent sessions shipped a lot that the dated
+**"Status" section further down PREDATES** — trust this block over that one.
+
+**Shipped to main (PRs #8–#15): venue-data recovery pipeline (tiered, scalable).**
+- **Tiered extractor:** discovery (anchor links + Wix `pageUriSEO` routes + PDF/image links +
+  path guesses, ranked confirmed-first — `lib/places/siteTriage.ts`) → menu-dense content
+  (`lib/verification/fetchUrl.ts` `stripHtml`, no longer truncates the first 8k) → PDF/image
+  as document/vision blocks **+ follow media links one hop** under a payload budget
+  (`lib/ai/siteContent.ts`, MAX_DOC_PAGES=5 / MAX_DOC_BYTES=3MB).
+- Canonical HH matcher `lib/places/hhText.ts` (`HH_RE=/happy[-_ ]?hour/i`); sitemap reader
+  `lib/places/sitemap.ts`.
+- **`reextract:stubs`** modes: batch (default, ~50% cheaper) | `--quick` | `--collect <batchId>`
+  (resume a stranded batch, no re-spend) | `--venue <id|name> --url` (operator-targeted).
+- **Admin `/admin/stubs`** Stub Resolver (Auto-retry / Resolve-with-URL, inline/sync).
+- **ONE persist path:** `lib/recover/resolveVenue.ts` → `persistExtractedWindows()` (ledger →
+  realness gate → insert → promote), shared by the admin page AND `scripts/reextract-stubs.ts`.
+- **Proof:** Bottega Michelangelo auto-recovers (Tue–Sun 4–7PM) — its menu PDF is anchored in
+  `/menus` raw HTML; discovery + follow-one-hop reach it. No headless needed. >50% of menus are
+  PDF/image (now handled). See memory `[[js-walled-sites-and-pdf-menus]]`.
+- Flow doc: `docs/pipeline-flow.md` (Mermaid + ASCII). To-do list: `docs/NEXT-STEPS-2026-06-02.md`.
+
+**Earlier 2026-06-01:** friendly-neighborhood recognizability (PR #1), FREE HH harvest, and the
+Branch & PR workflow rules (below).
+
+**NOT done / next:** (1) run the Tucson re-extract to MEASURE the lift; (2) go-live backfills
+(`backfill:timezones` → `backfill:hours` → `reverify:all-day`) + deploy. `reextract`/`seed:enrich`
+are PAID (`[[feedback_verify_cost_before_claiming_free]]`).
+
+**Multi-agent:** use **one git worktree per agent** (see Branch & PR workflow) — the proven fix
+for the shared-checkout collisions hit repeatedly this session.
+
 ## Branch & PR workflow (NON-NEGOTIABLE — read before any git work)
 
 Born from a 2026-06-01 incident: parallel sessions left 3 divergent feature branches,
@@ -103,7 +136,7 @@ corridors outside residential neighborhood polygons. Added polygons are venue-le
 in the UI. **Revert lever:** `npm run restore:neighborhoods` restores from the `nb_snapshot`/
 `venue_nb_snapshot` tables (taken after Tucson's import, before the cross-city import).
 
-## Status (as of last session)
+## Status (HISTORICAL — pre-2026-06-02; superseded by "Current state — READ FIRST" above)
 
 - **Phase 0 — COMPLETE.** Scaffold, full schema, migrations **applied to a live
   Postgres+PostGIS DB**, design system, AI/budget/trust libs, versioned prompts,
