@@ -20,7 +20,7 @@ function check(name: string, fn: () => void) { fn(); passed++; console.log(`  �
 async function checkAsync(name: string, fn: () => Promise<void>) { await fn(); passed++; console.log(`  ✓ ${name}`); }
 
 async function main() {
-  check("splitTile returns 4 children at half radius, depth+1, offset from center", () => {
+  check("splitTile returns 4 children at r/√2 radius, depth+1, offset from center", () => {
     const parent: Tile = { lat: 47.25, lng: -122.44, radiusMeters: 3000, depth: 0 };
     const kids = splitTile(parent);
     assert.equal(kids.length, 4, "four children");
@@ -118,6 +118,28 @@ async function main() {
       "aborts before runaway Places spend",
     );
   });
+
+  // --- airport gate ---------------------------------------------------------------
+  {
+    const { isWithinAirportBuffer, AIRPORT_BUFFER_METERS } = await import("@/lib/places/airportGate");
+    // SEA-TAC airport point.
+    const seatac = [{ lat: 47.4480, lng: -122.3088 }];
+
+    check("isWithinAirportBuffer drops a point inside the buffer", () => {
+      // ~200m north of the airport point — clearly inside 1500m.
+      assert.equal(isWithinAirportBuffer(47.4498, -122.3088, seatac), true);
+    });
+    check("isWithinAirportBuffer keeps a point outside the buffer (Airport Tavern case)", () => {
+      // Tacoma's Airport Tavern is ~10km from SEA-TAC — well outside 1500m.
+      assert.equal(isWithinAirportBuffer(47.2100, -122.4600, seatac), false);
+    });
+    check("isWithinAirportBuffer is a no-op when no airports are known", () => {
+      assert.equal(isWithinAirportBuffer(47.4498, -122.3088, []), false);
+    });
+    check("AIRPORT_BUFFER_METERS is the agreed 1500m", () => {
+      assert.equal(AIRPORT_BUFFER_METERS, 1500);
+    });
+  }
 
   console.log(`\n${passed} checks passed.`);
 }
