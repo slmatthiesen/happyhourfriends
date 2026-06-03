@@ -5,6 +5,7 @@ import { SiteWordmark } from "@/components/site-wordmark";
 import { VenueTableClient } from "@/components/venue-table-client";
 import {
   getCityByPath,
+  getCityLastUpdatedAt,
   getNeighborhoodBySlug,
   listVenuesForCity,
 } from "@/lib/queries/venues";
@@ -51,7 +52,10 @@ export default async function NeighborhoodPage({
   const hood = await getNeighborhoodBySlug(city.id, hoodSlug);
   if (!hood) notFound();
 
-  const venues = await listVenuesForCity(city.id, hood.slug);
+  const [venues, lastUpdated] = await Promise.all([
+    listVenuesForCity(city.id, hood.slug),
+    getCityLastUpdatedAt(city.id, hood.id),
+  ]);
   const venuesWithHours = venues.filter((v) => v.happyHours.length > 0);
 
   // ItemList for the neighborhood's happy-hour listings (see city page for rationale).
@@ -100,6 +104,7 @@ export default async function NeighborhoodPage({
         cityTimezone={city.defaultTimezone}
         venues={venues}
         showNeighborhood={false}
+        lastUpdated={lastUpdated ? lastUpdated.toISOString() : null}
       />
     </main>
   );

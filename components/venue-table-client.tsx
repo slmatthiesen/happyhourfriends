@@ -194,6 +194,7 @@ export function VenueTableClient({
   cityTimezone,
   venues,
   showNeighborhood = true,
+  lastUpdated = null,
 }: {
   stateSlug: string;
   citySlug: string;
@@ -201,6 +202,8 @@ export function VenueTableClient({
   cityTimezone: string;
   venues: VenueListItem[];
   showNeighborhood?: boolean;
+  /** ISO timestamp of the most recently updated venue in scope; null when none. */
+  lastUpdated?: string | null;
 }): React.JSX.Element {
   // Filter state
   const [selectedNeighborhoods, setSelectedNeighborhoods] = useState<Set<string>>(new Set());
@@ -326,6 +329,25 @@ export function VenueTableClient({
       tz: tzAbbr ?? "",
     };
   }, [nowByTz, cityTimezone]);
+
+  // Data-freshness label ("Updated Jun 3") — the most recent venue edit in scope,
+  // shown beneath the clock. Adds a year only when the update wasn't this calendar
+  // year, so the common case stays terse. Formatted in the city's timezone for
+  // consistency with the clock above it.
+  const updatedLabel = useMemo(() => {
+    if (!lastUpdated) return null;
+    const d = new Date(lastUpdated);
+    if (Number.isNaN(d.getTime())) return null;
+    const sameYear =
+      new Intl.DateTimeFormat("en-US", { timeZone: cityTimezone, year: "numeric" }).format(d) ===
+      new Intl.DateTimeFormat("en-US", { timeZone: cityTimezone, year: "numeric" }).format(new Date());
+    return new Intl.DateTimeFormat("en-US", {
+      timeZone: cityTimezone,
+      month: "short",
+      day: "numeric",
+      ...(sameYear ? {} : { year: "numeric" }),
+    }).format(d);
+  }, [lastUpdated, cityTimezone]);
 
   // Count of venues with a happy hour live right now (across the unfiltered set,
   // so this number reflects the city, not the current filter).
@@ -563,16 +585,28 @@ export function VenueTableClient({
             )}
           </span>
         </div>
-        {cityClock && (
-          <span
-            className="tabular-nums text-sm text-text-muted"
-            aria-label={`Local time in ${cityName}`}
-          >
-            {cityClock.time}
-            {cityClock.tz && (
-              <span className="ml-1 text-xs uppercase">{cityClock.tz}</span>
+        {(cityClock || updatedLabel) && (
+          <div className="flex flex-col items-end leading-tight">
+            {cityClock && (
+              <span
+                className="tabular-nums text-sm text-text-muted"
+                aria-label={`Local time in ${cityName}`}
+              >
+                {cityClock.time}
+                {cityClock.tz && (
+                  <span className="ml-1 text-xs uppercase">{cityClock.tz}</span>
+                )}
+              </span>
             )}
-          </span>
+            {updatedLabel && (
+              <span
+                className="text-xs text-text-muted/80"
+                title="Most recent update to a listing in this view"
+              >
+                Updated {updatedLabel}
+              </span>
+            )}
+          </div>
         )}
       </div>
 
