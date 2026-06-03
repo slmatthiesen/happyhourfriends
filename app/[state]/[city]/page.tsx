@@ -3,7 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteWordmark } from "@/components/site-wordmark";
 import { VenueTableClient } from "@/components/venue-table-client";
-import { getCityByPath, listVenuesForCity } from "@/lib/queries/venues";
+import {
+  getCityByPath,
+  getCityLastUpdatedAt,
+  listVenuesForCity,
+} from "@/lib/queries/venues";
 import { cityPath, venuePath } from "@/lib/routes";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -49,7 +53,10 @@ export default async function CityPage({
   const city = await getCityByPath(state, citySlug);
   if (!city || city.status !== "live") notFound();
 
-  const venues = await listVenuesForCity(city.id);
+  const [venues, lastUpdated] = await Promise.all([
+    listVenuesForCity(city.id),
+    getCityLastUpdatedAt(city.id),
+  ]);
   const venuesWithHours = venues.filter((v) => v.happyHours.length > 0);
   const withHours = venuesWithHours.length;
 
@@ -122,6 +129,7 @@ export default async function CityPage({
         cityName={city.name}
         cityTimezone={city.defaultTimezone}
         venues={venues}
+        lastUpdated={lastUpdated ? lastUpdated.toISOString() : null}
       />
 
       <p className="mt-6 text-sm text-text-muted">
