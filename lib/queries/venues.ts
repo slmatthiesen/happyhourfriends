@@ -200,6 +200,14 @@ export async function getCityByPath(
   return city ?? null;
 }
 
+/** Resolve a city by bare slug alone (no state). Used by the submit flow where only a
+ *  ?city= slug is in scope. Ambiguous across states in theory, but the submit link only
+ *  needs a display name + back-path. */
+export async function getCityBySlugAny(slug: string): Promise<CityRow | null> {
+  const [city] = await db.select().from(cities).where(eq(cities.slug, slug)).limit(1);
+  return city ?? null;
+}
+
 /**
  * Venues for a city with their neighborhood name and active happy-hour windows.
  * Two round trips (venues, then their hours) — fine at city scale, avoids N+1.
