@@ -41,7 +41,7 @@ export default async function NewVenuePage({
 
   return (
     <main className="mx-auto w-full max-w-xl px-6 py-12">
-      <Link href={cityPath(city.state ?? "", city.slug)} className="text-sm text-accent-cool hover:underline">
+      <Link href={cityPath(city.state, city.slug)} className="text-sm text-accent-cool hover:underline">
         ← All {city.name}
       </Link>
       <h1
