@@ -106,6 +106,7 @@ const NO_HH_FORMAT_PATTERNS = [
   "all you can eat",
   // Mobile / non-sit-down formats
   "food truck",
+  "truck", // catches "Hibachi Truck" etc. that "food truck" misses ("Truckee" won't match — token-aware)
   "trailer", // food trailer
   // Latin specialty formats (Phoenix-discovery pattern — these are takeout-focused)
   "carniceria",
@@ -121,6 +122,8 @@ const NO_HH_FORMAT_PATTERNS = [
   "waffle", // Waffle Stop, etc.
   // Niche food formats
   "acai", // acai bowl shops
+  "donut", // operator 2026-06-03: donut shops don't run HH
+  "doughnut",
   // Non-restaurant venues that Google occasionally types as "restaurant"
   "bookstore",
   "museum",

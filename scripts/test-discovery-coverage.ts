@@ -175,6 +175,12 @@ async function main() {
     check("casino name pattern is dropped", () => {
       assert.equal(isLikelyNoHappyHourFormat("Emerald Queen Casino"), true);
     });
+    check("donut / truck name patterns are dropped (but not 'Truckee')", () => {
+      assert.equal(isLikelyNoHappyHourFormat("Hibachi Truck"), true);
+      assert.equal(isLikelyNoHappyHourFormat("Krispy Kreme Donuts"), true);
+      assert.equal(isLikelyNoHappyHourFormat("Bob's Doughnuts"), true);
+      assert.equal(isLikelyNoHappyHourFormat("Truckee Tavern"), false); // token-aware, not a substring
+    });
     check("casino place type is dropped even with an alcohol-signal primary type", () => {
       // A casino's bar would otherwise be KEPT by the alcohol-signal override; the casino
       // type rule runs first so the operator's "never include casinos" rule wins.
