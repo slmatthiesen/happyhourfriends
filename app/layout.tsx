@@ -55,7 +55,14 @@ const manrope = Manrope({
   display: "swap",
 });
 
+// Absolute base for every canonical/OG URL. Without it, `alternates.canonical` and the
+// route-level opengraph-image URLs resolve against the request host, which is brittle
+// behind the proxy and yields inconsistent canonicals. Falls back to localhost so
+// `next build` (which evaluates metadata) never throws on a missing env.
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Happy Hour Friends",
   description:
     "Every happy hour in your city, in one sortable table. No guesses — every detail traces to a source.",

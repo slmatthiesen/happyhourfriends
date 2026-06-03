@@ -8,7 +8,9 @@ import {
   getNeighborhoodBySlug,
   listVenuesForCity,
 } from "@/lib/queries/venues";
-import { cityPath } from "@/lib/routes";
+import { cityPath, neighborhoodPath, venuePath } from "@/lib/routes";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 // Full-route ISR, shared across all visitors — same model as the city page. The "Now"
 // badge is client-side, so caching the render is safe. The apply engine calls
@@ -34,6 +36,7 @@ export async function generateMetadata({
   return {
     title: `${n.name} Happy Hours · ${c.name} · Happy Hour Friends`,
     description: `Happy hours in the ${n.name} neighborhood of ${c.name}${c.state ? `, ${c.state}` : ""}.`,
+    alternates: { canonical: neighborhoodPath(c.state, c.slug, n.slug) },
   };
 }
 
@@ -49,9 +52,33 @@ export default async function NeighborhoodPage({
   if (!hood) notFound();
 
   const venues = await listVenuesForCity(city.id, hood.slug);
+  const venuesWithHours = venues.filter((v) => v.happyHours.length > 0);
+
+  // ItemList for the neighborhood's happy-hour listings (see city page for rationale).
+  const itemListLd =
+    venuesWithHours.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          name: `${hood.name} Happy Hours`,
+          numberOfItems: venuesWithHours.length,
+          itemListElement: venuesWithHours.map((v, i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            url: `${SITE_URL}${venuePath(city.state, city.slug, v.slug)}`,
+            name: v.name,
+          })),
+        }
+      : null;
 
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-12">
+      {itemListLd ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
+        />
+      ) : null}
       <SiteWordmark className="mb-6" />
       <Link href={cityPath(city.state, city.slug)} className="text-sm text-accent-cool hover:underline">
         ← All {city.name}
