@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { SiteWordmark } from "@/components/site-wordmark";
 import { VenueTableClient } from "@/components/venue-table-client";
 import { getCityByPath, listVenuesForCity } from "@/lib/queries/venues";
-import { cityPath } from "@/lib/routes";
 
 // Cache the rendered page (HTML + RSC payload) in Next's shared server-side cache and
 // regenerate at most once an hour — every visitor gets the same cached page, so the
