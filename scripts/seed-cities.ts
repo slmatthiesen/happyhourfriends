@@ -119,9 +119,9 @@ const CITIES: CitySeed[] = [
     country: "US",
     timezone: "America/Los_Angeles",
     currency: "USD",
-    // CENTROID PLACEHOLDER — finalized in Task 4 from the sourced boundary's ST_Centroid.
-    centerLat: 37.6879,
-    centerLng: -122.4702,
+    // centroid: ST_Centroid of data/daly-city-boundary.geojson (Daly City + Colma union)
+    centerLat: 37.6842979,
+    centerLng: -122.4654597,
     seedConfig: {
       radiusKm: 6, // fallback only; data/daly-city-boundary.geojson drives real tiling/gate
       cellMeters: 3000,
