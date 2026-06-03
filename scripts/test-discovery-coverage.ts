@@ -159,6 +159,34 @@ async function main() {
     });
   }
 
+  // --- broadened denylists --------------------------------------------------------
+  {
+    const { isLikelyNoHappyHourFormat, isExcludedByPlaceType } = await import("@/lib/places/chainDenylist");
+
+    check("adult-club name patterns are dropped", () => {
+      assert.equal(isLikelyNoHappyHourFormat("Dreamgirls Strip Club"), true);
+      assert.equal(isLikelyNoHappyHourFormat("Showgirls"), true);
+      assert.equal(isLikelyNoHappyHourFormat("Club Nude"), true);
+      assert.equal(isLikelyNoHappyHourFormat("Pink Pony Cabaret"), true); // existing pattern still works
+    });
+    check("'nude' does not match the substring inside 'denude' / legit names", () => {
+      assert.equal(isLikelyNoHappyHourFormat("Denude Spa"), false);
+      assert.equal(isLikelyNoHappyHourFormat("The Tavern Lounge"), false); // lounge intentionally allowed
+    });
+    check("casino name pattern is dropped", () => {
+      assert.equal(isLikelyNoHappyHourFormat("Emerald Queen Casino"), true);
+    });
+    check("casino place type is dropped even with an alcohol-signal primary type", () => {
+      // A casino's bar would otherwise be KEPT by the alcohol-signal override; the casino
+      // type rule runs first so the operator's "never include casinos" rule wins.
+      assert.equal(isExcludedByPlaceType("bar", ["bar", "casino"]), true);
+      assert.equal(isExcludedByPlaceType("casino", ["casino"]), true);
+    });
+    check("a normal bar is still kept", () => {
+      assert.equal(isExcludedByPlaceType("bar", ["bar", "restaurant"]), false);
+    });
+  }
+
   console.log(`\n${passed} checks passed.`);
 }
 
