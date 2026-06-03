@@ -38,22 +38,28 @@ import {
  * Tacoma is simply city #1. Carries currency + timezone + discovery bbox so a new
  * city is "insert one row, run the pipeline".
  */
-export const cities = pgTable("cities", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  slug: text("slug").notNull().unique(),
-  name: text("name").notNull(),
-  state: text("state"), // nullable for international cities
-  country: char("country", { length: 2 }).notNull(), // ISO 3166-1 alpha-2
-  defaultTimezone: text("default_timezone").notNull(), // IANA
-  currencyCode: char("currency_code", { length: 3 }).notNull(), // ISO 4217
-  centerLat: numeric("center_lat", { precision: 10, scale: 7 }),
-  centerLng: numeric("center_lng", { precision: 10, scale: 7 }),
-  bbox: polygon4326("bbox"), // discovery extent for Places search
-  status: cityStatus("status").notNull().default("discovery"),
-  seedConfig: jsonb("seed_config"), // per-city knobs: curated URLs, places params
-  launchedAt: timestamp("launched_at", { withTimezone: true }),
-  ...timestamps,
-});
+export const cities = pgTable(
+  "cities",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    slug: text("slug").notNull(),
+    name: text("name").notNull(),
+    state: text("state").notNull(),
+    country: char("country", { length: 2 }).notNull(), // ISO 3166-1 alpha-2
+    defaultTimezone: text("default_timezone").notNull(), // IANA
+    currencyCode: char("currency_code", { length: 3 }).notNull(), // ISO 4217
+    centerLat: numeric("center_lat", { precision: 10, scale: 7 }),
+    centerLng: numeric("center_lng", { precision: 10, scale: 7 }),
+    bbox: polygon4326("bbox"), // discovery extent for Places search
+    status: cityStatus("status").notNull().default("discovery"),
+    seedConfig: jsonb("seed_config"), // per-city knobs: curated URLs, places params
+    launchedAt: timestamp("launched_at", { withTimezone: true }),
+    ...timestamps,
+  },
+  (table) => [
+    uniqueIndex("cities_state_slug_unique").on(table.state, table.slug),
+  ],
+);
 
 export const chains = pgTable("chains", {
   id: uuid("id").primaryKey().defaultRandom(),
