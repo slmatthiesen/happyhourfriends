@@ -290,14 +290,23 @@ async function fetchNearby(
   return data.places ?? [];
 }
 
+// Genuine airport primary types. The `airport` INCLUDED type also returns places merely
+// TAGGED airport — hospital/heliport helipads, the airport's parking-garage POI, even
+// terminal "clubs". A hospital heliport sits in dense urban cores (e.g. Saint Joseph
+// Hospital Heliport, 1km from Tacoma's center), so without this filter the 1500m buffer
+// wipes out a whole restaurant district. We keep only points whose PRIMARY type is an
+// actual airport — the in-terminal-dining case we care about — and drop the rest.
+const AIRPORT_PRIMARY_TYPES = new Set<string>(["airport", "international_airport"]);
+
 /**
  * Find airport points near the city so the discovery gate can drop in-terminal venues.
- * One Places call for includedTypes:["airport"]. Always searches at Google's 50km Nearby
- * maximum (centered on the city center), independent of the city's discovery radius — the
- * intent is "find this metro's airport(s)", and any metro airport is within 50km of center.
- * Generic + zero-curation: no per-city airport list. At most 20 airports are returned
- * (maxResultCount cap — never a real limitation for a metro). Returns [] on any error
- * (the gate then becomes a no-op).
+ * One Places call for includedTypes:["airport"], filtered to AIRPORT_PRIMARY_TYPES (Google
+ * tags helipads/garages "airport" too — see the note above). Always searches at Google's
+ * 50km Nearby maximum (centered on the city center), independent of the city's discovery
+ * radius — the intent is "find this metro's airport(s)", and any metro airport is within
+ * 50km of center. Generic + zero-curation: no per-city airport list. At most 20 results are
+ * returned (maxResultCount cap — never a real limitation). Returns [] on any error (the gate
+ * then becomes a no-op).
  */
 async function findAirports(
   apiKey: string,
@@ -320,7 +329,7 @@ async function findAirports(
       headers: {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": apiKey,
-        "X-Goog-FieldMask": "places.location",
+        "X-Goog-FieldMask": "places.location,places.primaryType",
       },
       body: JSON.stringify(body),
     });
@@ -328,8 +337,11 @@ async function findAirports(
       console.warn(`  [airport] lookup HTTP ${res.status} — airport gate disabled this run`);
       return [];
     }
-    const data = (await res.json()) as { places?: { location?: { latitude?: number; longitude?: number } }[] };
+    const data = (await res.json()) as {
+      places?: { location?: { latitude?: number; longitude?: number }; primaryType?: string }[];
+    };
     return (data.places ?? [])
+      .filter((p) => p.primaryType != null && AIRPORT_PRIMARY_TYPES.has(p.primaryType))
       .map((p) => p.location)
       .filter((l): l is { latitude: number; longitude: number } => l?.latitude != null && l?.longitude != null)
       .map((l) => ({ lat: l.latitude, lng: l.longitude }));
