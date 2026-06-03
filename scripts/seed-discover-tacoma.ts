@@ -584,9 +584,24 @@ async function main() {
     // Mutated inside the fetchTile / onFloorSaturated closures below; read after the await.
     let floorSaturated = 0;
     let tilesFetched = 0;
+    let tilesPruned = 0;
     const collected = await collectAdaptive<PlaceResult>({
       seedTiles,
       fetchTile: async (tile) => {
+        // Subdivision pruning (BOUNDARY mode): skip a CHILD tile whose circle can't reach the
+        // in-scope area — don't PAY to subdivide into a dense neighbor city (e.g. San Francisco
+        // for Daly City). Seed tiles (depth 0) are already pruned to the boundary bbox above.
+        if (useBoundary && tile.depth > 0) {
+          const [{ within }] = await sql<{ within: boolean }[]>`
+            SELECT ST_DWithin(
+              g::geography,
+              ST_SetSRID(ST_MakePoint(${tile.lng}, ${tile.lat}), 4326)::geography,
+              ${SERVICE_BUFFER_METERS + tile.radiusMeters}
+            ) AS within
+            FROM _seed_boundary
+          `;
+          if (!within) { tilesPruned++; return []; }
+        }
         let places: PlaceResult[];
         try {
           places = await fetchNearby(placesKey, tile.lat, tile.lng, tile.radiusMeters);
@@ -602,6 +617,7 @@ async function main() {
     });
     console.log(
       `  Adaptive tiling: ${tilesFetched} tile fetches → ${collected.size} unique places` +
+        (tilesPruned > 0 ? `; ${tilesPruned} out-of-boundary child tile(s) pruned (no call)` : ``) +
         (floorSaturated > 0 ? `; ${floorSaturated} floor tile(s) still saturated (dense hotspot)` : ``),
     );
 
