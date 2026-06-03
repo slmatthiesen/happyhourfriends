@@ -68,7 +68,8 @@
     "restore:neighborhoods": "tsx scripts/restore-neighborhoods.ts",
     "test:hh-text": "tsx scripts/test-hh-text.ts",
     "test:sitemap": "tsx scripts/test-sitemap.ts",
-    "test:routes": "tsx scripts/test-routes.ts"
+    "test:routes": "tsx scripts/test-routes.ts",
+    "test:daly-boundary": "tsx scripts/test-daly-boundary.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.99.0",
