@@ -11,9 +11,10 @@ import {
   MAX_RESULTS,
   MIN_RADIUS_METERS,
   MAX_DEPTH,
+  DEFAULT_MAX_TILES,
   type Tile,
 } from "@/lib/places/discoveryTiling";
-import { haversineMeters } from "@/lib/places/airportGate";
+import { haversineMeters } from "@/lib/geo/distance";
 
 let passed = 0;
 function check(name: string, fn: () => void) { fn(); passed++; console.log(`  ✓ ${name}`); }
@@ -40,6 +41,7 @@ async function main() {
     assert.equal(MAX_RESULTS, 20, "Google Places per-call cap");
     assert.equal(MIN_RADIUS_METERS, 400, "subdivision floor radius");
     assert.equal(MAX_DEPTH, 4, "max recursion depth");
+    assert.equal(DEFAULT_MAX_TILES, 2000, "runaway-tile safety cap default");
   });
 
   // --- collectAdaptive ------------------------------------------------------------
@@ -67,7 +69,7 @@ async function main() {
   function mockFetch(venues: MockVenue[]) {
     return async (tile: Tile): Promise<MockVenue[]> =>
       venues
-        .map((v) => ({ v, d: haversineMeters(tile.lat, tile.lng, v.lat, v.lng) }))
+        .map((v) => ({ v, d: haversineMeters({ lat: tile.lat, lng: tile.lng }, { lat: v.lat, lng: v.lng }) }))
         .filter((x) => x.d <= tile.radiusMeters)
         .sort((a, b) => a.d - b.d)
         .slice(0, MAX_RESULTS)
@@ -105,6 +107,22 @@ async function main() {
     assert.equal(fetches, 1, "floor tile is queried once and NOT subdivided");
     assert.equal(floorHits, 1, "floor saturation reported");
     assert.equal(collected.size, MAX_RESULTS, "its results are still collected");
+  });
+
+  await checkAsync("radius floor (not depth) also stops subdivision", async () => {
+    let floorHits = 0;
+    let fetches = 0;
+    await collectAdaptive<MockVenue>({
+      // depth is BELOW the cap, but a 400m tile's children (~283m) are below the radius floor.
+      seedTiles: [{ lat: 47.25, lng: -122.44, radiusMeters: MIN_RADIUS_METERS, depth: MAX_DEPTH - 1 }],
+      fetchTile: async () => {
+        fetches++;
+        return Array.from({ length: MAX_RESULTS }, (_, i) => ({ id: `r${i}`, lat: 0, lng: 0 }));
+      },
+      onFloorSaturated: () => { floorHits++; },
+    });
+    assert.equal(fetches, 1, "radius-floor tile queried once and NOT subdivided");
+    assert.equal(floorHits, 1, "radius-floor saturation reported");
   });
 
   await checkAsync("maxTiles guard throws on runaway subdivision", async () => {
