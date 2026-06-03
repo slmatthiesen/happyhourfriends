@@ -23,7 +23,9 @@ check("splitTile returns 4 children at half radius, depth+1, offset from center"
   const kids = splitTile(parent);
   assert.equal(kids.length, 4, "four children");
   for (const k of kids) {
-    assert.equal(k.radiusMeters, 1500, "half radius");
+    // Child radius = r/√2 (NOT r/2) so the four child circles fully cover the parent
+    // circle (the cardinal extremes sit exactly r/√2 from the nearest child center).
+    assert.ok(Math.abs(k.radiusMeters - 3000 * Math.SQRT1_2) < 1, "radius shrunk by 1/√2");
     assert.equal(k.depth, 1, "depth + 1");
     assert.notEqual(k.lat, parent.lat, "lat offset from parent");
     assert.notEqual(k.lng, parent.lng, "lng offset from parent");
