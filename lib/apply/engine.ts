@@ -213,6 +213,7 @@ async function resolveVenueRevalidationTarget(
     .select({
       venueSlug: venues.slug,
       citySlug: cities.slug,
+      stateSlug: cities.state,
       neighborhoodSlug: neighborhoods.slug,
     })
     .from(venues)
@@ -223,6 +224,7 @@ async function resolveVenueRevalidationTarget(
   if (!v) return null;
 
   return {
+    stateSlug: v.stateSlug,
     citySlug: v.citySlug,
     venueSlug: v.venueSlug,
     neighborhoodSlug: v.neighborhoodSlug,
