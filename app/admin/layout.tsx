@@ -55,6 +55,12 @@ export default async function AdminLayout({
           >
             Promotions
           </Link>
+          <Link
+            href="/admin/stubs"
+            className="text-text-primary hover:text-accent-cool"
+          >
+            Stubs
+          </Link>
         </nav>
         <div className="flex items-center gap-3 text-sm text-text-muted">
           <span>{admin.email}</span>
