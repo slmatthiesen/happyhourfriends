@@ -85,6 +85,7 @@
     "next": "16.2.6",
     "osmtogeojson": "^3.0.0-beta.5",
     "pg-boss": "^12.18.2",
+    "playwright": "^1.60.0",
     "postgres": "^3.4.9",
     "posthog-js": "^1.376.2",
     "posthog-node": "^5.35.4",
