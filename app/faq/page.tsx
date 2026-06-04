@@ -29,9 +29,25 @@ const faqs = [
   },
 ];
 
+// FAQPage structured data, built from the SAME `faqs` array rendered below so the
+// markup always matches the visible content (Google's requirement for FAQ rich results).
+const faqLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: f.a },
+  })),
+};
+
 export default function FaqPage() {
   return (
     <main className="mx-auto w-full max-w-2xl px-6 py-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+      />
       <h1
         className="text-4xl font-semibold text-text-primary"
         style={{ fontFamily: "var(--font-serif)" }}

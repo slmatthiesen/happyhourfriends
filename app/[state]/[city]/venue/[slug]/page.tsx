@@ -7,6 +7,7 @@ import { Contribute } from "@/components/submit/contribute";
 import { formatDays, formatDaysLong, formatPrice, formatWindowByDay } from "@/lib/format";
 import { getCityByPath, getVenueBySlug } from "@/lib/queries/venues";
 import { cityPath, venuePath } from "@/lib/routes";
+import { breadcrumbListLd } from "@/lib/seo/structuredData";
 import { labelForVenueType } from "@/lib/places/venueType";
 
 // Full-route ISR, shared across all visitors. Safe to cache the render: the venue page
@@ -146,11 +147,21 @@ export default async function VenuePage({
     ...(events.length ? { event: events } : {}),
   };
 
+  const breadcrumbLd = breadcrumbListLd([
+    { name: "Happy Hour Friends", path: "/" },
+    { name: city.name, path: cityPath(city.state, city.slug) },
+    { name: venue.name, path: venuePath(city.state, city.slug, venue.slug) },
+  ]);
+
   return (
     <main className="mx-auto w-full max-w-3xl px-6 py-12">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
 
       <nav className="mb-8 flex items-center justify-between gap-4">
