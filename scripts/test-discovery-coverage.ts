@@ -213,6 +213,14 @@ async function main() {
       assert.equal(isLowSignalCandidate(null), true, "null treated as 0 -> dropped");
       assert.equal(isLowSignalCandidate(undefined), true, "undefined -> dropped");
     });
+    check("isLowSignalCandidate keeps low-review venues that have an alcohol signal", () => {
+      assert.equal(isLowSignalCandidate(3, "Cheers Bar & Grill", "sports_bar", null), false, "sports bar kept");
+      assert.equal(isLowSignalCandidate(1, "BAR960", "cocktail_bar", null), false, "cocktail bar kept");
+      assert.equal(isLowSignalCandidate(2, "43rd Street Pub", "bar", null), false, "pub kept");
+      assert.equal(isLowSignalCandidate(0, "Evergreen State Brewing Taproom", "bar", null), false, "brewery/taproom kept by name");
+      assert.equal(isLowSignalCandidate(5, "Joe's Diner", "diner", null), true, "low-review non-bar still dropped");
+      assert.equal(isLowSignalCandidate(40, "Joe's Diner", "diner", null), false, ">=25 kept");
+    });
   }
 
   console.log(`\n${passed} checks passed.`);

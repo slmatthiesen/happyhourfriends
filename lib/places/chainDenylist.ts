@@ -319,9 +319,16 @@ export function isExcludedByBusinessStatus(
  * that hasn't accumulated reviews yet. Tunable here.
  */
 const MIN_REVIEWS = 25;
-/** True when a candidate has fewer than MIN_REVIEWS Google reviews (null count treated as 0). */
+/** True when a candidate has fewer than MIN_REVIEWS Google reviews — UNLESS it has an alcohol
+ *  signal (bar/pub/brewery/cocktail/sports/wine bar, or an alcohol name token), in which case
+ *  it is an obvious happy-hour venue and is kept regardless of review count. Operator 2026-06-03:
+ *  Cheers Bar & Grill etc. were wrongly dropped on <25 reviews. null count treated as 0. */
 export function isLowSignalCandidate(
   userRatingCount: number | null | undefined,
+  name?: string | null,
+  primaryType?: string | null,
+  types?: string[] | null,
 ): boolean {
+  if (hasAlcoholSignal(name, primaryType, types)) return false;
   return (userRatingCount ?? 0) < MIN_REVIEWS;
 }
