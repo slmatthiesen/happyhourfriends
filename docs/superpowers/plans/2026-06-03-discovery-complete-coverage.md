@@ -56,7 +56,9 @@ check("splitTile returns 4 children at half radius, depth+1, offset from center"
   const kids = splitTile(parent);
   assert.equal(kids.length, 4, "four children");
   for (const k of kids) {
-    assert.equal(k.radiusMeters, 1500, "half radius");
+    // Child radius = r/√2 (NOT r/2) so the four child circles fully cover the parent
+    // circle (the cardinal extremes sit exactly r/√2 from the nearest child center).
+    assert.ok(Math.abs(k.radiusMeters - 3000 * Math.SQRT1_2) < 1, "radius shrunk by 1/√2");
     assert.equal(k.depth, 1, "depth + 1");
     assert.notEqual(k.lat, parent.lat, "lat offset from parent");
     assert.notEqual(k.lng, parent.lng, "lng offset from parent");
@@ -121,12 +123,23 @@ export const MAX_DEPTH = 4;
 export const DEFAULT_MAX_TILES = 2000;
 
 /**
- * Split a saturated tile into 4 quadrant children at half the radius. Child centers
- * are offset by radius/2 in each lat/lng direction so the four half-radius circles
- * cover the parent's area (with overlap — harmless, de-duped on place id).
+ * Radius of a child tile = parent radius / √2. This is the SMALLEST factor that lets 4
+ * children (centered at ±radius/2 offsets) fully cover the parent CIRCLE: the parent's
+ * cardinal extremes (0,±r)/(±r,0) and its center all sit exactly r/√2 from the nearest
+ * child center. A naive r/2 would leave ~0.21·r uncovered arcs along the cardinal edges.
+ */
+function subdividedRadius(tile: Tile): number {
+  return tile.radiusMeters * Math.SQRT1_2;
+}
+
+/**
+ * Split a saturated tile into 4 quadrant children. Centers are offset by radius/2 in each
+ * lat/lng direction; child radius = radius/√2 (see subdividedRadius) so the four child
+ * circles fully cover the parent circle (overlap at the seams is harmless — de-duped on
+ * place id).
  */
 export function splitTile(tile: Tile): Tile[] {
-  const childRadius = tile.radiusMeters / 2;
+  const childRadius = subdividedRadius(tile);
   const offsetM = tile.radiusMeters / 2;
   const latPerM = 1 / 111_320;
   const lngPerM = 1 / (111_320 * Math.cos((tile.lat * Math.PI) / 180));
@@ -143,7 +156,7 @@ export function splitTile(tile: Tile): Tile[] {
 
 /** True when a saturated tile is still allowed to subdivide (above the floor). */
 function canSubdivide(tile: Tile): boolean {
-  return tile.depth < MAX_DEPTH && tile.radiusMeters / 2 >= MIN_RADIUS_METERS;
+  return tile.depth < MAX_DEPTH && subdividedRadius(tile) >= MIN_RADIUS_METERS;
 }
 
 export interface CollectAdaptiveOptions<T extends TilePlace> {
