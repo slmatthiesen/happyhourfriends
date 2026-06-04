@@ -48,13 +48,16 @@ export async function fetchPages(
   const docs: FetchResult[] = []; // PDF/image results, added later under a budget
   for (const r of results) {
     if (!r.ok) continue;
-    if (r.isPdf || r.isImage) docs.push(r);
-    else if (r.contentText) {
-      pages.push({ url: r.url, text: r.contentText });
-      // Queue PDF/image menu links found inside this HTML page.
-      for (const m of r.mediaLinks ?? []) {
-        if (!seen.has(norm(m))) { seen.add(norm(m)); follow.push(m); }
-      }
+    if (r.isPdf || r.isImage) { docs.push(r); continue; }
+    // Include the page text only when there is some — JS-shell homepages (Squarespace/Wix)
+    // strip to empty.
+    if (r.contentText) pages.push({ url: r.url, text: r.contentText });
+    // Queue PDF/image menu links found in the RAW HTML even when the page stripped to
+    // empty text. Those sites render no readable text but DO link their menu/HH PDFs in
+    // the served HTML; gating this on contentText is why such venues became stubs despite
+    // a reachable HH PDF (fetchUrl populates mediaLinks from raw HTML regardless of text).
+    for (const m of r.mediaLinks ?? []) {
+      if (!seen.has(norm(m))) { seen.add(norm(m)); follow.push(m); }
     }
   }
 
