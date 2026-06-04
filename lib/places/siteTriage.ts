@@ -83,12 +83,24 @@ const PARKED_MARKERS = [
   "godaddy.com/domainsearch",
 ];
 
-// href substrings / anchor-text patterns that signal a happy-hour or menu page.
+// URL-shaped substrings that signal a happy-hour or menu page (matched against the HREF).
 const HH_LINK_PATTERNS = [
   /happy[-_ ]?hour/i,
   /specials?/i,
   /(beer|drink|cocktail|wine|food)[-_ ]?menu/i,
   /\/menus?\b/i,
+];
+
+// Visible ANCHOR-TEXT a human clicks for a menu/HH page — the strongest signal, because
+// the href is so often opaque (a qrco.de/bit.ly shortlink, a PDF hash, a Squarespace /s/
+// asset id). Keying menu discovery off the URL alone was the bug that dropped venues whose
+// homepage had a plain "View Menu" button (e.g. Wooly's → qrco.de → a CDN PDF with the HH).
+// We follow whatever these point at; fetchUrl chases redirects and detects the final PDF.
+const HH_TEXT_PATTERNS = [
+  /happy[-\s]?hour/i,
+  /\bspecials?\b/i,
+  /\bmenus?\b/i, // "View Menu", "Our Menu", "Food Menu", "Menu"
+  /\b(drinks?|cocktails?)\b/i,
 ];
 
 export function classifyUrl(raw: string | null | undefined): { kind: SiteKind; url: string | null } {
@@ -122,15 +134,18 @@ export function extractHhSignalLinks(html: string, baseUrl: string): string[] {
   let m: RegExpExecArray | null;
   while ((m = anchorRe.exec(html)) !== null) {
     const href = m[1];
-    const text = m[2].replace(/<[^>]+>/g, " ");
-    const hit = HH_LINK_PATTERNS.some((re) => re.test(href) || re.test(text));
+    const text = m[2].replace(/<[^>]+>/g, " ").trim();
+    // A link qualifies if its HREF looks menu-ish OR its visible TEXT says menu/HH/specials.
+    const hit =
+      HH_LINK_PATTERNS.some((re) => re.test(href)) ||
+      HH_TEXT_PATTERNS.some((re) => re.test(text));
     if (!hit) continue;
     try {
       out.add(new URL(href, baseUrl).toString());
     } catch {
       /* skip unresolvable href */
     }
-    if (out.size >= 5) break;
+    if (out.size >= 8) break;
   }
   return [...out];
 }
@@ -291,11 +306,19 @@ export function siteVerdictFromFetch(url: string, outcome: FetchOutcome): SiteVe
   let hhSignalUrls: string[];
   if (status === 200) {
     const media = extractMediaLinks(html, finalUrl); // PDF/image menus — highest value
+    // Menu docs (PDF/image), RANKED by happy-hour relevance (scoreHhUrl): happy-hour >
+    // specials > drink/cocktail menu > food menu > generic menu > breakfast/lunch/dinner/
+    // catering (0). fetchPages' doc budget (5 docs / 3MB) is small, so order matters — we
+    // must spend it on the docs most likely to carry HH. The Vix Creek failure: 2 large
+    // breakfast PDFs (score 0) sat first in page order and ate the whole budget, so the HH
+    // menu (plainly linked) never reached the model. Stable sort keeps page order within a
+    // score tier. (sort copies — never mutate extractMediaLinks' result in place.)
+    const rankedMedia = [...media].sort((a, b) => scoreHhUrl(b) - scoreHhUrl(a));
     const links = extractHhSignalLinks(html, finalUrl);
     const routes = extractPageRoutes(html, finalUrl).filter((u) => scoreHhUrl(u) > 0);
     const confirmed = rankCandidates([...links, ...routes], 8);
     const guesses = rankCandidates(guessMenuUrls(finalUrl), 12);
-    hhSignalUrls = [...new Set([...media, ...confirmed, ...guesses])].slice(0, 12);
+    hhSignalUrls = [...new Set([...rankedMedia, ...confirmed, ...guesses])].slice(0, 12);
   } else {
     hhSignalUrls = guessMenuUrls(url); // bot-blocked: still probe the obvious paths
   }
