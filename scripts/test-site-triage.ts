@@ -7,6 +7,8 @@ import {
   classifyUrl,
   isParkedHtml,
   extractHhSignalLinks,
+  extractMediaLinks,
+  fullResImageUrl,
   resolveEnrichAction,
   siteVerdictFromFetch,
   classifyFetchError,
@@ -165,6 +167,17 @@ check("menu PDFs ranked by HH relevance — HH menu beats breakfast/lunch (Vix C
       pdfs.indexOf("https://vix.com/s/BREAKFAST-MENU.pdf"),
     "HH PDF ahead of breakfast PDF",
   );
+});
+check("Wix image de-thumbnailed to full-res; signal matched on original name (Shell Beach bug)", () => {
+  const thumb =
+    "https://static.wixstatic.com/media/f6f818_abc~mv2.jpg/v1/fill/w_147,h_190,blur_2,enc_avif/SBB%20Happy%20Hour.jpg";
+  assert.equal(fullResImageUrl(thumb), "https://static.wixstatic.com/media/f6f818_abc~mv2.jpg");
+  // end-to-end through extractMediaLinks: the HH flyer is kept (name carries the signal) AND
+  // stored as the full-res original (no /v1/ transform), not the blurred thumbnail.
+  const links = extractMediaLinks(`<img src="${thumb}" alt="">`, "https://x.com/");
+  assert.deepEqual(links, ["https://static.wixstatic.com/media/f6f818_abc~mv2.jpg"]);
+  // a non-Wix url is untouched
+  assert.equal(fullResImageUrl("https://x.com/menu.jpg"), "https://x.com/menu.jpg");
 });
 check("500 server error → kill (dead)", () => {
   const v = siteVerdictFromFetch("https://x.com/", { kind: "response", status: 503, html: "", finalUrl: "https://x.com/" });
