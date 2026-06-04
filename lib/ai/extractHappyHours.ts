@@ -376,13 +376,24 @@ export async function buildExtractRequest(input: ExtractInput): Promise<ExtractR
   const system = fillPlaceholders(rawSystem, input);
   const userText = fillPlaceholders(rawUser, input);
 
+  // Headless render fallback for JS-SPA homepages / robots-blocked menu shortlinks. Lazy +
+  // optional: the dynamic import keeps playwright out of the app bundle, and a load failure
+  // (e.g. Chromium not installed) degrades to plain-fetch-only rather than breaking enrich.
+  let render: typeof import("@/lib/verification/renderUrl").renderUrl | undefined;
+  if (process.env.DISABLE_HEADLESS_RENDER !== "1") {
+    try {
+      render = (await import("@/lib/verification/renderUrl")).renderUrl;
+    } catch {
+      render = undefined;
+    }
+  }
   const pages = await fetchPages(
     [...(input.priorityUrls ?? []), input.websiteUrl, input.otherUrl],
     MAX_FETCH,
     // Tier-2: menus bury HH deep in big SSR pages — give the extractor a larger,
     // menu-dense budget than the verifier's default 8k (siteContent keeps the
     // highest-signal windows, so this is selected content, not just "more bytes").
-    { maxContent: 28_000 },
+    { maxContent: 28_000, render },
   );
   const content: ContentBlockParam[] = [
     { type: "text", text: userText },
