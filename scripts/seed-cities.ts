@@ -129,6 +129,35 @@ const CITIES: CitySeed[] = [
       serviceBufferMeters: 500,
     },
   },
+  {
+    // Five Cities (Central Coast), CA — the contiguous SLO-County "Five Cities" market as
+    // ONE combined city, with the towns surfaced as neighborhood filters. Boundary mode via
+    // data/five-cities-boundary.geojson (union of OSM Pismo Beach + Grover Beach + Arroyo
+    // Grande + Oceano polygons) drives discovery; Shell Beach is a district WITHIN Pismo
+    // Beach so it has no separate polygon (the Pismo polygon covers it). San Luis Obispo is
+    // a SEPARATE future city, NOT folded in here. See the Daly City onboarding runbook.
+    slug: "five-cities",
+    name: "Five Cities (Central Coast)",
+    state: "CA",
+    country: "US",
+    timezone: "America/Los_Angeles",
+    currency: "USD",
+    // bbox center of data/five-cities-boundary.geojson (fallback only; boundary drives tiling)
+    centerLat: 35.128,
+    centerLng: -120.641,
+    seedConfig: {
+      radiusKm: 10, // fallback only; data/five-cities-boundary.geojson drives real tiling/gate
+      cellMeters: 3000,
+      serviceLocalities: [
+        "Pismo Beach",
+        "Grover Beach",
+        "Arroyo Grande",
+        "Oceano",
+        "Shell Beach",
+      ],
+      serviceBufferMeters: 500,
+    },
+  },
 ];
 
 async function main() {
