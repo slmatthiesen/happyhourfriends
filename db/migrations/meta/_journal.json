@@ -113,6 +113,13 @@
       "when": 1780444814342,
       "tag": "0015_heavy_nextwave",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1780536923205,
+      "tag": "0016_awesome_anthem",
+      "breakpoints": true
     }
   ]
 }
