@@ -21,6 +21,13 @@ export function haversineMiles(a: LatLng, b: LatLng): number {
   return 2 * EARTH_RADIUS_MILES * Math.asin(Math.min(1, Math.sqrt(h)));
 }
 
+const METERS_PER_MILE = 1609.344;
+
+/** Great-circle (haversine) distance between two points, in metres. */
+export function haversineMeters(a: LatLng, b: LatLng): number {
+  return haversineMiles(a, b) * METERS_PER_MILE;
+}
+
 /** "< 0.1 mi" under a tenth of a mile, otherwise one decimal e.g. "0.4 mi". */
 export function formatDistance(mi: number): string {
   if (mi < 0.1) return "< 0.1 mi";

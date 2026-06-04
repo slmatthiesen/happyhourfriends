@@ -65,7 +65,7 @@ async function main() {
       (r) =>
         isExcludedByPlaceType(r.primary_type, r.types) ||
         isExcludedByBusinessStatus(r.business_status) ||
-        isLowSignalCandidate(r.user_rating_count, r.website_url, r.price_level),
+        isLowSignalCandidate(r.user_rating_count),
     );
 
     console.log(
@@ -75,7 +75,7 @@ async function main() {
       const reasons: string[] = [];
       if (isExcludedByPlaceType(m.primary_type, m.types)) reasons.push("place-type");
       if (isExcludedByBusinessStatus(m.business_status)) reasons.push("closed");
-      if (isLowSignalCandidate(m.user_rating_count, m.website_url, m.price_level))
+      if (isLowSignalCandidate(m.user_rating_count))
         reasons.push("low-signal");
       console.log(
         `  - ${m.name}  [primary=${m.primary_type ?? "—"}]  (${reasons.join(", ")})`,

@@ -18,7 +18,7 @@
  *   GOOGLE_PLACES_API_KEY  Google Cloud Places API (New) key
  */
 import "dotenv/config";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import postgres from "postgres";
 import {
   isDenylistedChain,
@@ -27,12 +27,22 @@ import {
   isExcludedByBusinessStatus,
   isLowSignalCandidate,
 } from "@/lib/places/chainDenylist";
+import {
+  collectAdaptive,
+  MAX_DEPTH,
+  type Tile,
+} from "@/lib/places/discoveryTiling";
+import {
+  isWithinAirportBuffer,
+  type GeoPoint,
+} from "@/lib/places/airportGate";
+import { haversineMeters } from "@/lib/geo/distance";
 
 // ---------------------------------------------------------------------------
 // Arg parsing
 // ---------------------------------------------------------------------------
 
-function parseArgs(): { city: string; curated: boolean; fresh: boolean } {
+function parseArgs(): { city: string; curated: boolean; fresh: boolean; debugDrops: boolean } {
   const argv = process.argv.slice(2);
   const getFlag = (f: string) => {
     const i = argv.indexOf(f);
@@ -43,7 +53,7 @@ function parseArgs(): { city: string; curated: boolean; fresh: boolean } {
   for (let i = 0; i < argv.length; i++) {
     const tok = argv[i];
     if (tok === "--city") { i++; continue; } // --city consumes its value
-    if (tok === "--curated" || tok === "--fresh") continue;
+    if (tok === "--curated" || tok === "--fresh" || tok === "--debug-drops") continue;
     throw new Error(
       `Unexpected argument "${tok}". Pass the city as a flag:\n` +
         `  npm run seed:discover -- --city <slug>   (e.g. --city tucson)`,
@@ -56,6 +66,7 @@ function parseArgs(): { city: string; curated: boolean; fresh: boolean } {
     // e.g. after changing the type/area filters). Candidates already linked to a venue
     // are kept so we don't lose enrich results.
     fresh: argv.includes("--fresh"),
+    debugDrops: argv.includes("--debug-drops"),
   };
 }
 
@@ -189,18 +200,6 @@ const EXCLUDED_PRIMARY_TYPES = [
   "thai_restaurant",
 ] as const;
 
-function haversineKm(aLat: number, aLng: number, bLat: number, bLng: number): number {
-  const R = 6371;
-  const dLat = ((bLat - aLat) * Math.PI) / 180;
-  const dLng = ((bLng - aLng) * Math.PI) / 180;
-  const s =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos((aLat * Math.PI) / 180) *
-      Math.cos((bLat * Math.PI) / 180) *
-      Math.sin(dLng / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
-}
-
 /** Grid of search-circle centers covering ~coverage around the city center. */
 function buildTiles(
   centerLat: number,
@@ -254,6 +253,11 @@ async function fetchNearby(
     includedTypes: INCLUDED_TYPES,
     excludedPrimaryTypes: EXCLUDED_PRIMARY_TYPES,
     maxResultCount: 20,
+    // DISTANCE (not the default POPULARITY): return the NEAREST 20 to the tile center,
+    // not the 20 most prominent. Combined with adaptive subdivision of saturated tiles,
+    // this is what makes coverage complete (lower-profile bars stop losing the 20 slots
+    // to popular restaurants). DISTANCE requires a circular locationRestriction (we have one).
+    rankPreference: "DISTANCE",
     locationRestriction: {
       circle: {
         center: { latitude: lat, longitude: lng },
@@ -286,6 +290,67 @@ async function fetchNearby(
 
   const data: NearbySearchResponse = (await res.json()) as NearbySearchResponse;
   return data.places ?? [];
+}
+
+// Genuine airport primary types. The `airport` INCLUDED type also returns places merely
+// TAGGED airport — hospital/heliport helipads, the airport's parking-garage POI, even
+// terminal "clubs". A hospital heliport sits in dense urban cores (e.g. Saint Joseph
+// Hospital Heliport, 1km from Tacoma's center), so without this filter the 1500m buffer
+// wipes out a whole restaurant district. We keep only points whose PRIMARY type is an
+// actual airport — the in-terminal-dining case we care about — and drop the rest.
+const AIRPORT_PRIMARY_TYPES = new Set<string>(["airport", "international_airport"]);
+
+/**
+ * Find airport points near the city so the discovery gate can drop in-terminal venues.
+ * One Places call for includedTypes:["airport"], filtered to AIRPORT_PRIMARY_TYPES (Google
+ * tags helipads/garages "airport" too — see the note above). Always searches at Google's
+ * 50km Nearby maximum (centered on the city center), independent of the city's discovery
+ * radius — the intent is "find this metro's airport(s)", and any metro airport is within
+ * 50km of center. Generic + zero-curation: no per-city airport list. At most 20 results are
+ * returned (maxResultCount cap — never a real limitation). Returns [] on any error (the gate
+ * then becomes a no-op).
+ */
+async function findAirports(
+  apiKey: string,
+  centerLat: number,
+  centerLng: number,
+): Promise<GeoPoint[]> {
+  const body = {
+    includedTypes: ["airport"],
+    maxResultCount: 20,
+    locationRestriction: {
+      circle: {
+        center: { latitude: centerLat, longitude: centerLng },
+        radius: 50_000, // Google Places Nearby maximum radius
+      },
+    },
+  };
+  try {
+    const res = await fetch(PLACES_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": apiKey,
+        "X-Goog-FieldMask": "places.location,places.primaryType",
+      },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      console.warn(`  [airport] lookup HTTP ${res.status} — airport gate disabled this run`);
+      return [];
+    }
+    const data = (await res.json()) as {
+      places?: { location?: { latitude?: number; longitude?: number }; primaryType?: string }[];
+    };
+    return (data.places ?? [])
+      .filter((p) => p.primaryType != null && AIRPORT_PRIMARY_TYPES.has(p.primaryType))
+      .map((p) => p.location)
+      .filter((l): l is { latitude: number; longitude: number } => l?.latitude != null && l?.longitude != null)
+      .map((l) => ({ lat: l.latitude, lng: l.longitude }));
+  } catch (err) {
+    console.warn(`  [airport] lookup failed — airport gate disabled this run:`, err);
+    return [];
+  }
 }
 
 // Simple heuristic: extract lines from a page that look like venue names.
@@ -441,8 +506,26 @@ async function main() {
     let formatsSkipped = 0;
     let typesSkipped = 0;
     let closedSkipped = 0;
+    let airportSkipped = 0;
     let lowSignalSkipped = 0;
     let placesSkipped = 0;
+
+    // --debug-drops: every dropped candidate + reason, written to docs/<city>-discovery-drops.json.
+    interface DropRecord { name: string; reason: string; address: string | null; primaryType: string | null; website: string | null; lat: number | null; lng: number | null; reviews: number | null; }
+    const drops: DropRecord[] = [];
+    const recordDrop = (reason: string, place: PlaceResult) => {
+      if (!args.debugDrops) return;
+      drops.push({
+        name: place.displayName?.text ?? "(no name)",
+        reason,
+        address: place.formattedAddress ?? null,
+        primaryType: place.primaryType ?? null,
+        website: place.websiteUri ?? null,
+        lat: place.location?.latitude ?? null,
+        lng: place.location?.longitude ?? null,
+        reviews: place.userRatingCount ?? null,
+      });
+    };
 
     let tiles: { lat: number; lng: number }[];
     if (useBoundary) {
@@ -484,147 +567,203 @@ async function main() {
       );
     }
 
-    for (const tile of tiles) {
-      let places: PlaceResult[];
-      try {
-        places = await fetchNearby(placesKey, tile.lat, tile.lng, CELL_METERS);
-      } catch (err) {
-        console.error(
-          `  ERROR @ ${tile.lat.toFixed(3)},${tile.lng.toFixed(3)}:`,
-          err,
-        );
+    // Airport points (for the in-terminal exclusion gate). One Places call; [] on error.
+    const airports = await findAirports(placesKey, lat, lng);
+    console.log(
+      airports.length > 0
+        ? `  Airport gate: ${airports.length} airport point(s) found; dropping candidates within 1500m.`
+        : `  Airport gate: no airports found near center — gate is a no-op this run.`,
+    );
+
+    // Adaptive collection: each seed tile is queried by NEAREST-20; a tile that returns a
+    // saturated 20 subdivides into 4 smaller tiles and re-queries, down to the floor.
+    const seedTiles: Tile[] = tiles.map((t) => ({
+      lat: t.lat,
+      lng: t.lng,
+      radiusMeters: CELL_METERS,
+      depth: 0,
+    }));
+    // Mutated inside the fetchTile / onFloorSaturated closures below; read after the await.
+    let floorSaturated = 0;
+    let tilesFetched = 0;
+    let tilesPruned = 0;
+    // Runaway cap scaled to CITY SIZE, not a fixed number. A depth-MAX_DEPTH run can at most
+    // expand each seed tile into a full 4-ary tree (sum_{d=0}^{D} 4^d). Bounding the cap to
+    // that theoretical max (+ margin) scales to any city — a small city stays tightly capped,
+    // a large one (Tucson) gets the room it legitimately needs — while still tripping on a
+    // genuine runaway (e.g. an accidental deeper recursion would exceed the per-seed tree max).
+    const perSeedTreeMax = (Math.pow(4, MAX_DEPTH + 1) - 1) / 3;
+    const maxTiles = Math.ceil(seedTiles.length * perSeedTreeMax) + 10;
+    const collected = await collectAdaptive<PlaceResult>({
+      seedTiles,
+      maxTiles,
+      fetchTile: async (tile) => {
+        // Subdivision pruning (BOUNDARY mode): skip a CHILD tile whose circle can't reach the
+        // in-scope area — don't PAY to subdivide into a dense neighbor city (e.g. San Francisco
+        // for Daly City). Seed tiles (depth 0) are already pruned to the boundary bbox above.
+        if (useBoundary && tile.depth > 0) {
+          const [{ within }] = await sql<{ within: boolean }[]>`
+            SELECT ST_DWithin(
+              g::geography,
+              ST_SetSRID(ST_MakePoint(${tile.lng}, ${tile.lat}), 4326)::geography,
+              ${SERVICE_BUFFER_METERS + tile.radiusMeters}
+            ) AS within
+            FROM _seed_boundary
+          `;
+          if (!within) { tilesPruned++; return []; }
+        }
+        let places: PlaceResult[];
+        try {
+          places = await fetchNearby(placesKey, tile.lat, tile.lng, tile.radiusMeters);
+        } catch (err) {
+          console.error(`  ERROR @ ${tile.lat.toFixed(3)},${tile.lng.toFixed(3)}:`, err);
+          return [];
+        }
+        tilesFetched++;
+        await new Promise((r) => setTimeout(r, 40)); // gentle throttle (unchanged cadence)
+        return places;
+      },
+      onFloorSaturated: () => { floorSaturated++; },
+    });
+    console.log(
+      `  Adaptive tiling: ${tilesFetched} tile fetches → ${collected.size} unique places` +
+        (tilesPruned > 0 ? `; ${tilesPruned} out-of-boundary child tile(s) pruned (no call)` : ``) +
+        (floorSaturated > 0 ? `; ${floorSaturated} floor tile(s) still saturated (dense hotspot)` : ``),
+    );
+
+    // Gate + upsert every unique place. (Same gate ladder as before, now run once per
+    // deduped place instead of once per tile-result.)
+    for (const place of collected.values()) {
+      if (!place.id || !place.displayName?.text) {
+        placesSkipped++;
         continue;
       }
 
-      for (const place of places) {
-        if (!place.id || !place.displayName?.text) {
-          placesSkipped++;
-          continue;
-        }
+      const name = place.displayName.text;
+      const address = place.formattedAddress ?? null;
+      const pLat = place.location?.latitude ?? null;
+      const pLng = place.location?.longitude ?? null;
 
-        const name = place.displayName.text;
-        const address = place.formattedAddress ?? null;
-        const pLat = place.location?.latitude ?? null;
-        const pLng = place.location?.longitude ?? null;
-
-        // Closed gate: drop venues Google reports closed (permanently OR temporarily)
-        // before they ever cost an AI pass. No alcohol override — closed is closed.
-        if (isExcludedByBusinessStatus(place.businessStatus)) {
-          closedSkipped++;
-          continue;
-        }
-
-        // National-chain gate: skip Applebee's / Red Lobster / fast food etc. entirely
-        // so they never cost a Place Details or AI pass (operator: ignore these).
-        if (isDenylistedChain(name)) {
-          chainsSkipped++;
-          continue;
-        }
-
-        // Format gate (name-based): buffets / AYCE — these don't run happy hours.
-        if (isLikelyNoHappyHourFormat(name)) {
-          formatsSkipped++;
-          continue;
-        }
-
-        // Place-type gate: drop breakfast/buffet/juice/grocery formats by Google type,
-        // with an alcohol-signal override so real bars/breweries are never dropped.
-        if (isExcludedByPlaceType(place.primaryType, place.types)) {
-          typesSkipped++;
-          continue;
-        }
-
-        // Low-signal gate: <25 reviews AND no website AND no price tier — too little to
-        // go on (no site = nothing for the extractor to read). No alcohol override.
-        const priceLevelNum = place.priceLevel
-          ? (PRICE_LEVEL[place.priceLevel] ?? null)
-          : null;
-        if (
-          isLowSignalCandidate(place.userRatingCount, place.websiteUri, priceLevelNum)
-        ) {
-          lowSignalSkipped++;
-          continue;
-        }
-
-        // Service-area gate. BOUNDARY mode: keep if the point is within the buffer of the
-        // municipal boundary (spatial, mailing-address-independent — this is what recovers
-        // contiguous suburbs like Casas Adobes that the city line doesn't annex). RADIUS
-        // mode (legacy): mailing-locality regex AND haversine radius.
-        let inArea: boolean;
-        if (useBoundary) {
-          if (pLat == null || pLng == null) {
-            inArea = false;
-          } else {
-            const [{ within }] = await sql<{ within: boolean }[]>`
-              SELECT ST_DWithin(
-                g::geography,
-                ST_SetSRID(ST_MakePoint(${pLng}, ${pLat}), 4326)::geography,
-                ${SERVICE_BUFFER_METERS}
-              ) AS within
-              FROM _seed_boundary
-            `;
-            inArea = within;
-          }
-        } else {
-          const inLocality = SERVICE_LOCALITIES.some((loc) =>
-            new RegExp(`,\\s*${loc},\\s*${stateCode}`).test(address ?? ""),
-          );
-          const inRadius =
-            pLat != null && pLng != null
-              ? haversineKm(lat, lng, pLat, pLng) <= SERVICE_RADIUS_KM
-              : false;
-          inArea = inLocality && inRadius;
-        }
-        if (!inArea) {
-          outOfArea++;
-          continue;
-        }
-
-        try {
-          const priceLevel = priceLevelNum; // computed above for the low-signal gate
-          const types = place.types ?? null;
-          await sql`
-            INSERT INTO seed_candidates
-              (city_id, name, google_place_id, address, lat, lng, source_url,
-               primary_type, types, website_url, rating, user_rating_count,
-               price_level, business_status)
-            VALUES
-              (${city.id}, ${name}, ${place.id}, ${address},
-               ${pLat != null ? String(pLat) : null},
-               ${pLng != null ? String(pLng) : null}, ${"google_places"},
-               ${place.primaryType ?? null}, ${types}, ${place.websiteUri ?? null},
-               ${place.rating ?? null}, ${place.userRatingCount ?? null},
-               ${priceLevel}, ${place.businessStatus ?? null})
-            ON CONFLICT (google_place_id) DO UPDATE SET
-              name             = EXCLUDED.name,
-              address          = EXCLUDED.address,
-              lat              = EXCLUDED.lat,
-              lng              = EXCLUDED.lng,
-              primary_type     = EXCLUDED.primary_type,
-              types            = EXCLUDED.types,
-              website_url      = EXCLUDED.website_url,
-              rating           = EXCLUDED.rating,
-              user_rating_count = EXCLUDED.user_rating_count,
-              price_level      = EXCLUDED.price_level,
-              business_status  = EXCLUDED.business_status,
-              updated_at = now()
-          `;
-          placesInserted++;
-        } catch (err) {
-          console.warn(`  WARN upsert failed for ${name}:`, err);
-          placesSkipped++;
-        }
+      if (isExcludedByBusinessStatus(place.businessStatus)) {
+        closedSkipped++;
+        recordDrop("closed", place);
+        continue;
       }
-      await new Promise((r) => setTimeout(r, 40));
+      if (isDenylistedChain(name)) {
+        chainsSkipped++;
+        recordDrop("chain", place);
+        continue;
+      }
+      if (isLikelyNoHappyHourFormat(name)) {
+        formatsSkipped++;
+        recordDrop("format", place);
+        continue;
+      }
+      if (isExcludedByPlaceType(place.primaryType, place.types)) {
+        typesSkipped++;
+        recordDrop("place-type", place);
+        continue;
+      }
+
+      // Airport-terminal gate: drop candidates within 1500m of a known airport point.
+      if (pLat != null && pLng != null && isWithinAirportBuffer(pLat, pLng, airports)) {
+        airportSkipped++;
+        recordDrop("airport", place);
+        continue;
+      }
+
+      const priceLevelNum = place.priceLevel
+        ? (PRICE_LEVEL[place.priceLevel] ?? null)
+        : null;
+      if (isLowSignalCandidate(place.userRatingCount, name, place.primaryType, place.types)) {
+        lowSignalSkipped++;
+        recordDrop("low-signal", place);
+        continue;
+      }
+
+      // Service-area gate (unchanged: BOUNDARY = ST_DWithin buffer; RADIUS = locality+haversine).
+      let inArea: boolean;
+      if (useBoundary) {
+        if (pLat == null || pLng == null) {
+          inArea = false;
+        } else {
+          const [{ within }] = await sql<{ within: boolean }[]>`
+            SELECT ST_DWithin(
+              g::geography,
+              ST_SetSRID(ST_MakePoint(${pLng}, ${pLat}), 4326)::geography,
+              ${SERVICE_BUFFER_METERS}
+            ) AS within
+            FROM _seed_boundary
+          `;
+          inArea = within;
+        }
+      } else {
+        const inLocality = SERVICE_LOCALITIES.some((loc) =>
+          new RegExp(`,\\s*${loc},\\s*${stateCode}`).test(address ?? ""),
+        );
+        const inRadius =
+          pLat != null && pLng != null
+            ? haversineMeters({ lat, lng }, { lat: pLat, lng: pLng }) <= SERVICE_RADIUS_KM * 1000
+            : false;
+        inArea = inLocality && inRadius;
+      }
+      if (!inArea) {
+        outOfArea++;
+        recordDrop("out-of-area", place);
+        continue;
+      }
+
+      try {
+        const priceLevel = priceLevelNum;
+        const types = place.types ?? null;
+        await sql`
+          INSERT INTO seed_candidates
+            (city_id, name, google_place_id, address, lat, lng, source_url,
+             primary_type, types, website_url, rating, user_rating_count,
+             price_level, business_status)
+          VALUES
+            (${city.id}, ${name}, ${place.id}, ${address},
+             ${pLat != null ? String(pLat) : null},
+             ${pLng != null ? String(pLng) : null}, ${"google_places"},
+             ${place.primaryType ?? null}, ${types}, ${place.websiteUri ?? null},
+             ${place.rating ?? null}, ${place.userRatingCount ?? null},
+             ${priceLevel}, ${place.businessStatus ?? null})
+          ON CONFLICT (google_place_id) DO UPDATE SET
+            name             = EXCLUDED.name,
+            address          = EXCLUDED.address,
+            lat              = EXCLUDED.lat,
+            lng              = EXCLUDED.lng,
+            primary_type     = EXCLUDED.primary_type,
+            types            = EXCLUDED.types,
+            website_url      = EXCLUDED.website_url,
+            rating           = EXCLUDED.rating,
+            user_rating_count = EXCLUDED.user_rating_count,
+            price_level      = EXCLUDED.price_level,
+            business_status  = EXCLUDED.business_status,
+            updated_at = now()
+        `;
+        placesInserted++;
+      } catch (err) {
+        console.warn(`  WARN upsert failed for ${name}:`, err);
+        placesSkipped++;
+      }
     }
 
     console.log(
       `Google Places: ${placesInserted} in-area upserts, ${outOfArea} out-of-area dropped, ` +
         `${chainsSkipped} chains dropped, ${formatsSkipped} buffet/AYCE dropped, ` +
         `${typesSkipped} place-type dropped, ${closedSkipped} closed dropped, ` +
-        `${lowSignalSkipped} low-signal dropped, ` +
+        `${airportSkipped} airport dropped, ${lowSignalSkipped} low-signal dropped, ` +
         `${placesSkipped} skipped.`,
     );
+
+    if (args.debugDrops) {
+      const path = `docs/${args.city}-discovery-drops.json`;
+      const byReason: Record<string, number> = {};
+      for (const d of drops) byReason[d.reason] = (byReason[d.reason] ?? 0) + 1;
+      writeFileSync(path, JSON.stringify({ city: args.city, total: drops.length, byReason, drops }, null, 2));
+      console.log(`  --debug-drops: wrote ${drops.length} dropped candidates to ${path}`);
+    }
 
     // ---- Metro-scope cleanup -----------------------------------------------
     // Drop UNPROCESSED candidates that fall inside an out-of-scope neighborhood (operator
