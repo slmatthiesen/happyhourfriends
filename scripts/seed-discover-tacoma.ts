@@ -29,6 +29,7 @@ import {
 } from "@/lib/places/chainDenylist";
 import {
   collectAdaptive,
+  MAX_DEPTH,
   type Tile,
 } from "@/lib/places/discoveryTiling";
 import {
@@ -586,8 +587,16 @@ async function main() {
     let floorSaturated = 0;
     let tilesFetched = 0;
     let tilesPruned = 0;
+    // Runaway cap scaled to CITY SIZE, not a fixed number. A depth-MAX_DEPTH run can at most
+    // expand each seed tile into a full 4-ary tree (sum_{d=0}^{D} 4^d). Bounding the cap to
+    // that theoretical max (+ margin) scales to any city — a small city stays tightly capped,
+    // a large one (Tucson) gets the room it legitimately needs — while still tripping on a
+    // genuine runaway (e.g. an accidental deeper recursion would exceed the per-seed tree max).
+    const perSeedTreeMax = (Math.pow(4, MAX_DEPTH + 1) - 1) / 3;
+    const maxTiles = Math.ceil(seedTiles.length * perSeedTreeMax) + 10;
     const collected = await collectAdaptive<PlaceResult>({
       seedTiles,
+      maxTiles,
       fetchTile: async (tile) => {
         // Subdivision pruning (BOUNDARY mode): skip a CHILD tile whose circle can't reach the
         // in-scope area — don't PAY to subdivide into a dense neighbor city (e.g. San Francisco
