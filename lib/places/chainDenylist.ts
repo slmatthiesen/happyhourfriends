@@ -59,8 +59,28 @@ function normalize(name: string): string {
     .trim();
 }
 
+// Sit-down / entertainment chains that DO run well-published, standardized happy hours —
+// these are high-value (easy, reliable HH capture), NOT the fast-food noise the denylist
+// targets. They override the denylist so discovery keeps them. Verified: Dave & Buster's
+// extracts Mon–Fri 4–7 PM + late-night with $5 drink offerings. Match style mirrors CHAINS.
+const HH_CHAINS = [
+  "applebees", "chilis", "tgi fridays", "fridays", "outback steakhouse",
+  "bjs restaurant", "bjs brewhouse", "buffalo wild wings", "hooters", "red robin",
+  "black angus", "ruby tuesday", "claim jumper", "macaroni grill", "texas de brazil",
+  "dave busters", "dave and busters", "round 1", "round1", "bowlero", "main event",
+  "topgolf", "gameworks",
+];
+
+/** True when a name matches one of the HH-having chains we deliberately KEEP. */
+export function isHappyHourChain(name: string): boolean {
+  const n = normalize(name);
+  return HH_CHAINS.some((c) => n === c || n.startsWith(c + " ") || n.includes(" " + c + " "));
+}
+
 export function isDenylistedChain(name: string): boolean {
   const n = normalize(name);
+  // Keep chains with real happy hours even though they're also broad chains.
+  if (isHappyHourChain(name)) return false;
   return CHAINS.some((c) => n === c || n.startsWith(c + " ") || n.includes(" " + c + " "));
 }
 
@@ -86,6 +106,7 @@ const NO_HH_FORMAT_PATTERNS = [
   "all you can eat",
   // Mobile / non-sit-down formats
   "food truck",
+  "truck", // catches "Hibachi Truck" etc. that "food truck" misses ("Truckee" won't match — token-aware)
   "trailer", // food trailer
   // Latin specialty formats (Phoenix-discovery pattern — these are takeout-focused)
   "carniceria",
@@ -101,15 +122,27 @@ const NO_HH_FORMAT_PATTERNS = [
   "waffle", // Waffle Stop, etc.
   // Niche food formats
   "acai", // acai bowl shops
+  "donut", // operator 2026-06-03: donut shops don't run HH
+  "donuts",
+  "doughnut",
+  "doughnuts",
   // Non-restaurant venues that Google occasionally types as "restaurant"
   "bookstore",
   "museum",
   "theatre",
   "theater",
-  // Adult entertainment — even when they have HH, operator doesn't want them featured
+  // Adult entertainment — even when they have HH, operator doesn't want them featured.
   "cabaret",
   "gentlemens club",
   "topless",
+  "strip club",
+  "showgirls",
+  "nude",
+  "burlesque", // operator: rare themed bars carrying this name are acceptable collateral
+  // Casinos — operator rule: never feature casinos. This name pattern catches
+  // casino-adjacent venues Google may type as a plain restaurant; the place-type gate
+  // in isExcludedByPlaceType handles venues Google correctly tags with the casino type.
+  "casino",
 ];
 
 export function isLikelyNoHappyHourFormat(name: string): boolean {
@@ -214,6 +247,17 @@ const EXCLUDED_PRIMARY_TYPE = new Set<string>([
   "cafe",
   "coffee_shop",
   "cafeteria",
+  // Operator 2026-06-03 (Daly City review): non-HH formats + non-food places Google
+  // mis-tags with a buried "restaurant" type (cleaning service, clothing store, etc.).
+  "dessert_restaurant",
+  "dessert_shop",
+  "deli",
+  "salad_shop",
+  "shopping_mall",
+  "clothing_store",
+  "service",
+  "catering_service",
+  "laundry",
 ]);
 
 /** Excluded when present ANYWHERE in types[] (format never runs a happy hour). */
@@ -235,6 +279,11 @@ export function isExcludedByPlaceType(
   const t = types ?? [];
   // No type signal at all (e.g. curated-page candidates) → keep; can't judge.
   if (!primaryType && t.length === 0) return false;
+
+  // Casino rule (operator: never feature casinos) — runs BEFORE the alcohol override so a
+  // casino's in-house bar is still dropped. Best-effort: a casino restaurant that Google
+  // does NOT tag with the casino type can still slip through (documented limitation).
+  if (primaryType === "casino" || t.includes("casino")) return true;
 
   // Alcohol-signal override: a real bar/brewery/pub is never dropped.
   if (primaryType && ALCOHOL_SIGNAL_PRIMARY.has(primaryType)) return false;
@@ -264,21 +313,22 @@ export function isExcludedByBusinessStatus(
 }
 
 /**
- * Low-signal gate (operator 2026-05-30): exclude a candidate that has almost nothing
- * to go on — fewer than 25 reviews AND no website AND no price tier. With no website
- * the extractor has no menu to read (it would become a stub at best), and the lack of
- * reviews + price means Google barely knows the place. NO alcohol override: this is a
- * data-quality floor, and a featurable bar essentially always has a site or price tier.
- * (Verified on the first Tucson run: zero alcohol-primary venues were caught by this.)
+ * Minimum Google review count to be a candidate. Operator 2026-06-03: a place with very few
+ * reviews is too low-signal to feature, EVEN if it has a website/price — Google barely knows
+ * it. NOTE: this is a hard cutoff applied to every city; it will also drop a brand-new venue
+ * that hasn't accumulated reviews yet. Tunable here.
  */
 const MIN_REVIEWS = 25;
+/** True when a candidate has fewer than MIN_REVIEWS Google reviews — UNLESS it has an alcohol
+ *  signal (bar/pub/brewery/cocktail/sports/wine bar, or an alcohol name token), in which case
+ *  it is an obvious happy-hour venue and is kept regardless of review count. Operator 2026-06-03:
+ *  Cheers Bar & Grill etc. were wrongly dropped on <25 reviews. null count treated as 0. */
 export function isLowSignalCandidate(
   userRatingCount: number | null | undefined,
-  websiteUrl: string | null | undefined,
-  priceLevel: number | null | undefined,
+  name?: string | null,
+  primaryType?: string | null,
+  types?: string[] | null,
 ): boolean {
-  const reviews = userRatingCount ?? 0;
-  const hasUrl = !!websiteUrl && websiteUrl.trim().length > 0;
-  const hasPrice = priceLevel != null;
-  return reviews < MIN_REVIEWS && !hasUrl && !hasPrice;
+  if (hasAlcoholSignal(name, primaryType, types)) return false;
+  return (userRatingCount ?? 0) < MIN_REVIEWS;
 }
