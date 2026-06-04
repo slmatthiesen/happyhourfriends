@@ -510,7 +510,7 @@ async function main() {
     let placesSkipped = 0;
 
     // --debug-drops: every dropped candidate + reason, written to docs/<city>-discovery-drops.json.
-    interface DropRecord { name: string; reason: string; address: string | null; primaryType: string | null; website: string | null; lat: number | null; lng: number | null; }
+    interface DropRecord { name: string; reason: string; address: string | null; primaryType: string | null; website: string | null; lat: number | null; lng: number | null; reviews: number | null; }
     const drops: DropRecord[] = [];
     const recordDrop = (reason: string, place: PlaceResult) => {
       if (!args.debugDrops) return;
@@ -522,6 +522,7 @@ async function main() {
         website: place.websiteUri ?? null,
         lat: place.location?.latitude ?? null,
         lng: place.location?.longitude ?? null,
+        reviews: place.userRatingCount ?? null,
       });
     };
 
@@ -665,7 +666,7 @@ async function main() {
       const priceLevelNum = place.priceLevel
         ? (PRICE_LEVEL[place.priceLevel] ?? null)
         : null;
-      if (isLowSignalCandidate(place.userRatingCount)) {
+      if (isLowSignalCandidate(place.userRatingCount, name, place.primaryType, place.types)) {
         lowSignalSkipped++;
         recordDrop("low-signal", place);
         continue;
