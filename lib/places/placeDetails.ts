@@ -1,11 +1,8 @@
 /**
- * Google Places API (New) Place Details fetch. As of migration 0016 the enrich pipeline
- * no longer calls this per-candidate — discovery (seed-discover-tacoma.ts, Atmosphere
- * mask) captures the serves-alcohol flag, website, price, hours and phone onto
- * seed_candidates instead, since searchNearby bills per TILE but Place Details per
- * CANDIDATE. This is now used by the
- * one-off `backfill:hours` job (and tests). `parseRegularOpeningHours` is shared with
- * discovery. Field-masked to what we use.
+ * Google Places API (New) Place Details fetch. Used by the enrich pipeline to (1) get
+ * a venue's canonical website so the AI extractor starts from the right page, (2) gate
+ * out non-alcohol-serving venues before any AI spend, and (3) grab a price tier + hero
+ * photo for the listing. Field-masked to what we use.
  *
  * Returns null on a genuine "no data" outcome. THROWS on 429/quota — the seeder must
  * abort, not poison every remaining candidate as "no website found" (lesson from the

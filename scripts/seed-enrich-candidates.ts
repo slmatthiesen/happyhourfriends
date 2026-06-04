@@ -48,8 +48,11 @@ import {
 } from "@/lib/ai/enrichBatchState";
 import { firstOfCurrentMonth } from "@/lib/ai/budget";
 import { assignNeighborhoods } from "@/lib/geo/assignNeighborhoods";
-import { fetchPlacePhoto } from "@/lib/places/placeDetails";
-import type { OpenPeriod } from "@/lib/geo/timezone";
+import {
+  fetchPlaceDetails,
+  fetchPlacePhoto,
+  PlaceDetailsQuotaError,
+} from "@/lib/places/placeDetails";
 import { saveVenuePhoto } from "@/lib/places/venuePhoto";
 import { isDenylistedChain, isLikelyNoHappyHourFormat, hasAlcoholSignal } from "@/lib/places/chainDenylist";
 import { slugify, placeIdSuffix } from "@/lib/places/venueSlug";
@@ -92,12 +95,6 @@ interface SeedCandidate {
   source_url: string | null;
   primary_type: string | null;
   types: string[] | null;
-  // Captured at discovery (Atmosphere mask) — replaces the per-candidate Place Details call.
-  website_url: string | null;
-  price_level: number | null;
-  serves_alcohol: boolean | null;
-  hours_json: OpenPeriod[] | null;
-  phone: string | null;
 }
 
 interface CityRow {
@@ -438,8 +435,7 @@ async function main() {
     // ---- Load unprocessed candidates ---------------------------------------
     const candidates: SeedCandidate[] = await sql<SeedCandidate[]>`
       SELECT id, name, google_place_id, address, lat, lng, source_url,
-             primary_type, types, website_url, price_level,
-             serves_alcohol, hours_json, phone
+             primary_type, types
       FROM seed_candidates
       WHERE city_id = ${city.id}
         AND processed_at IS NULL
@@ -516,15 +512,19 @@ async function main() {
       let hiddenReasonsThis: RealnessReason[] = [];
 
       try {
-        // ---- Stored discovery data: alcohol gate + website + price tier + hours ------
-        // No per-candidate Place Details call — discovery (Atmosphere mask) captured
-        // serves_alcohol / website_url / price_level / hours_json / phone already.
-        // Alcohol gate fires ONLY when Google explicitly reported no alcohol (false);
-        // null (unknown / pre-Atmosphere candidate) passes. A name/type alcohol signal
-        // (brewery, beer garden, pub, bar type…) OVERRIDES a false negative.
+        // ---- Place Details: alcohol gate + website + price tier + photo ------
+        const details =
+          placesKey && candidate.google_place_id
+            ? await fetchPlaceDetails(placesKey, candidate.google_place_id)
+            : null;
+
+        // Alcohol gate — only when details actually came back. Google's serves* fields are
+        // unreliable, so a name/type alcohol signal (brewery, beer garden, pub, bar type…)
+        // OVERRIDES a false negative rather than dropping an obvious alcohol venue.
         if (
-          candidate.serves_alcohol === false &&
-          !hasAlcoholSignal(candidate.name, candidate.primary_type, candidate.types)
+          details &&
+          !details.servesAlcohol &&
+          !hasAlcoholSignal(candidate.name, candidate.primary_type ?? details.primaryType, candidate.types)
         ) {
           console.log("  ↷ filtered — Google reports no alcohol served");
           await markProcessed(sql, candidate.id, "no_hh_found", null, { skipOutcome: true });
@@ -532,7 +532,7 @@ async function main() {
           continue;
         }
 
-        const siteUrl = candidate.website_url ?? null;
+        const siteUrl = details?.websiteUri ?? null;
 
         // ---- Site triage: kill dead/parked/no-site; point extractor at HH links --
         const verdict = await triageSite({
@@ -593,10 +593,10 @@ async function main() {
           lng: candidate.lng,
           googlePlaceId: candidate.google_place_id,
           siteUrl,
-          phone: candidate.phone ?? null,
-          priceLevel: candidate.price_level ?? null,
-          hoursJson: candidate.hours_json ?? null,
-          photoName: null, // hero photos not captured at discovery (Google returns none)
+          phone: details?.phone ?? null,
+          priceLevel: details?.priceLevel ?? null,
+          hoursJson: details?.openingPeriods ?? null,
+          photoName: details?.photoName ?? null,
           primaryType: candidate.primary_type ?? null,
           types: candidate.types ?? null,
         };
@@ -622,6 +622,15 @@ async function main() {
           console.log("  ◦ likely-HH stub kept (no data found — crowdsource)");
         }
       } catch (err) {
+        // Quota exhausted → ABORT; the candidate is NOT marked processed so it retries.
+        if (err instanceof PlaceDetailsQuotaError) {
+          console.error(`\n${err.message}\n`);
+          console.error(
+            `Aborting run at candidate ${i + 1}/${candidates.length}. ` +
+              `${i} candidate(s) processed so far; the rest stay unprocessed for retry.`,
+          );
+          throw err;
+        }
         console.error(`  ERROR processing candidate ${candidate.id}:`, err);
         outcome = "error";
       }
@@ -902,8 +911,7 @@ async function prepAndSubmit(
 ): Promise<BatchState | null> {
   const candidates = await sql<SeedCandidate[]>`
     SELECT id, name, google_place_id, address, lat, lng, source_url,
-           primary_type, types, website_url, price_level,
-           serves_alcohol, hours_json, phone
+           primary_type, types
     FROM seed_candidates
     WHERE city_id = ${city.id} AND processed_at IS NULL
     ORDER BY created_at ASC
@@ -938,11 +946,20 @@ async function prepAndSubmit(
       }
     }
 
-    // Stored discovery data (Atmosphere mask) — no per-candidate Place Details call.
-    // Alcohol gate fires only on an explicit Google "no alcohol" (false); null passes.
+    let details = null;
+    try {
+      details =
+        placesKey && c.google_place_id
+          ? await fetchPlaceDetails(placesKey, c.google_place_id)
+          : null;
+    } catch (err) {
+      if (err instanceof PlaceDetailsQuotaError) throw err;
+      console.error(`  prep error for ${c.name}:`, err);
+    }
     if (
-      c.serves_alcohol === false &&
-      !hasAlcoholSignal(c.name, c.primary_type, c.types)
+      details &&
+      !details.servesAlcohol &&
+      !hasAlcoholSignal(c.name, c.primary_type ?? details.primaryType, c.types)
     ) {
       await markProcessed(sql, c.id, "no_hh_found", null, { skipOutcome: true });
       tally.filtered++;
@@ -951,7 +968,7 @@ async function prepAndSubmit(
 
     // ---- Site triage (non-AI gate) — kill dead/parked/no-site before batching --
     const verdict = await triageSite({
-      websiteUri: c.website_url ?? null,
+      websiteUri: details?.websiteUri ?? null,
       name: c.name,
       cityName: city.name,
     });
@@ -979,11 +996,11 @@ async function prepAndSubmit(
       lng: c.lng,
       googlePlaceId: c.google_place_id,
       // Keep whatever URL Google had (incl. a Facebook link) on the stub venue.
-      siteUrl: c.website_url ?? null,
-      phone: c.phone ?? null,
-      priceLevel: c.price_level ?? null,
-      hoursJson: c.hours_json ?? null,
-      photoName: null, // hero photos not captured at discovery (Google returns none)
+      siteUrl: details?.websiteUri ?? null,
+      phone: details?.phone ?? null,
+      priceLevel: details?.priceLevel ?? null,
+      hoursJson: details?.openingPeriods ?? null,
+      photoName: details?.photoName ?? null,
       primaryType: c.primary_type ?? null,
       types: c.types ?? null,
       priorityUrls: decided.priorityUrls,
