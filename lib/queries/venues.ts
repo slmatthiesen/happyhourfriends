@@ -200,6 +200,30 @@ export async function getCityByPath(
   return city ?? null;
 }
 
+/**
+ * Most recent `updated_at` across a city's non-deleted venues — the "data freshness"
+ * signal shown beside the city clock and emitted as the city's sitemap `lastmod`.
+ * Optionally scoped to a single neighborhood. Returns null when the city has no venues.
+ */
+export async function getCityLastUpdatedAt(
+  cityId: string,
+  neighborhoodId?: string,
+): Promise<Date | null> {
+  const [row] = await db
+    // postgres.js doesn't apply the column's timestamp parser to a raw aggregate, so
+    // `max()` arrives as a string — type it honestly and coerce to a Date below.
+    .select({ max: sql<string | null>`max(${venues.updatedAt})` })
+    .from(venues)
+    .where(
+      and(
+        eq(venues.cityId, cityId),
+        isNull(venues.deletedAt),
+        ...(neighborhoodId ? [eq(venues.neighborhoodId, neighborhoodId)] : []),
+      ),
+    );
+  return row?.max ? new Date(row.max) : null;
+}
+
 /** Resolve a city by bare slug alone (no state). Used by the submit flow where only a
  *  ?city= slug is in scope. Ambiguous across states in theory, but the submit link only
  *  needs a display name + back-path. */
