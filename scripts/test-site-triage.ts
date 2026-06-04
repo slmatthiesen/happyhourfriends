@@ -146,6 +146,26 @@ check("200 reachable → extract + collects HH-signal links", () => {
   assert.ok(v.hhSignalUrls.includes("https://brix.com/menu"), "guesses included");
   assert.ok(v.hhSignalUrls.length > 1, "casts a wide net");
 });
+check("menu PDFs ranked by HH relevance — HH menu beats breakfast/lunch (Vix Creek bug)", () => {
+  // Page links breakfast/lunch/dinner PDFs BEFORE the happy-hour PDF (real page order).
+  // The bounded doc budget downstream means order decides what reaches the model, so the
+  // HH menu must rank ahead of the generic menus despite appearing later in the HTML.
+  const html =
+    "<a href='/s/BREAKFAST-MENU.pdf'>Breakfast</a>" +
+    "<a href='/s/LUNCH-MENU.pdf'>Lunch</a>" +
+    "<a href='/s/DINNER-MENU.pdf'>Dinner</a>" +
+    "<a href='/s/Happy-Hour-Menu.pdf'>Happy Hour</a> real content ".repeat(20);
+  const v = siteVerdictFromFetch("https://vix.com/", {
+    kind: "response", status: 200, html, finalUrl: "https://vix.com/",
+  });
+  const pdfs = v.hhSignalUrls.filter((u) => u.endsWith(".pdf"));
+  assert.equal(pdfs[0], "https://vix.com/s/Happy-Hour-Menu.pdf", "HH PDF ranks first among docs");
+  assert.ok(
+    pdfs.indexOf("https://vix.com/s/Happy-Hour-Menu.pdf") <
+      pdfs.indexOf("https://vix.com/s/BREAKFAST-MENU.pdf"),
+    "HH PDF ahead of breakfast PDF",
+  );
+});
 check("500 server error → kill (dead)", () => {
   const v = siteVerdictFromFetch("https://x.com/", { kind: "response", status: 503, html: "", finalUrl: "https://x.com/" });
   assert.equal(v.decision, "kill");
