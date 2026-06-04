@@ -24,6 +24,11 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Test (hermetic unit suites)
+        # No DATABASE_URL / API keys on purpose — these suites are pure-logic and must
+        # pass without a DB or secrets (see scripts/ci-tests.sh for what's included).
+        run: npm test
+
       - name: Build
         run: npm run build
         env:
