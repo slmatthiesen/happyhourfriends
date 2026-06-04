@@ -1,8 +1,9 @@
 /**
  * Google Places API (New) Place Details fetch. As of migration 0016 the enrich pipeline
  * no longer calls this per-candidate — discovery (seed-discover-tacoma.ts, Atmosphere
- * mask) captures serves*/website/price/hours/phone onto seed_candidates instead, since
- * searchNearby bills per TILE but Place Details per CANDIDATE. This is now used by the
+ * mask) captures the serves-alcohol flag, website, price, hours and phone onto
+ * seed_candidates instead, since searchNearby bills per TILE but Place Details per
+ * CANDIDATE. This is now used by the
  * one-off `backfill:hours` job (and tests). `parseRegularOpeningHours` is shared with
  * discovery. Field-masked to what we use.
  *
