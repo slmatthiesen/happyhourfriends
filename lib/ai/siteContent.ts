@@ -34,14 +34,38 @@ export interface FetchedPage {
 export async function fetchPages(
   urls: (string | null | undefined)[],
   max = 5,
-  opts: { maxContent?: number } = {},
+  opts: {
+    maxContent?: number;
+    /** Headless-render fallback (lib/verification/renderUrl). INJECTED, not imported, so
+     *  siteContent stays playwright-free for the app bundle. Used only when the plain,
+     *  robots-respecting fetch yields nothing usable (a JS-SPA shell or a robots-blocked
+     *  shortlink) — so normal venues never pay the browser cost. */
+    render?: (url: string) => Promise<FetchResult>;
+  } = {},
 ): Promise<FetchedPage[]> {
   const clean = urls.filter(
     (u): u is string => typeof u === "string" && u.trim().length > 0,
   );
   const norm = (u: string) => u.replace(/\/$/, "");
   const unique = [...new Set(clean)].slice(0, max);
-  const results = await Promise.all(unique.map((u) => fetchUrl(u, { maxContent: opts.maxContent })));
+  // Plain fetch first; fall back to the headless render tier ONLY when it came back empty
+  // (robots-blocked, or a JS shell with no text / no docs / no media links).
+  const fetchOne = async (u: string): Promise<FetchResult> => {
+    const r = await fetchUrl(u, { maxContent: opts.maxContent });
+    // Only fall back to the (slow) browser when it can actually help: a robots-blocked
+    // shortlink the browser would just follow, or a reachable JS-shell that rendered no
+    // text / docs / links. NEVER for a genuine 404/410/dead URL (e.g. a speculative path
+    // guess) — rendering those would launch a browser per miss and stall prep.
+    const worthRendering =
+      r.blockedByRobots === true ||
+      (r.ok && !r.contentText && !r.isPdf && !r.isImage && !(r.mediaLinks && r.mediaLinks.length));
+    if (worthRendering && opts.render) {
+      const rendered = await opts.render(u);
+      if (rendered.ok) return rendered;
+    }
+    return r;
+  };
+  const results = await Promise.all(unique.map(fetchOne));
   const pages: FetchedPage[] = [];
   const seen = new Set(unique.map(norm));
   const follow: string[] = [];
@@ -65,7 +89,7 @@ export async function fetchPages(
   // we'd otherwise only read as text. Bottega's happy-hour PDF is here.
   const toFollow = follow.slice(0, 6);
   if (toFollow.length > 0) {
-    const more = await Promise.all(toFollow.map((u) => fetchUrl(u, { maxContent: opts.maxContent })));
+    const more = await Promise.all(toFollow.map(fetchOne));
     for (const r of more) if (r.ok && (r.isPdf || r.isImage)) docs.push(r);
   }
 

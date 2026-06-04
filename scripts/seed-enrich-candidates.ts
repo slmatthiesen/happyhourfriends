@@ -687,6 +687,8 @@ async function main() {
     );
   } finally {
     await sql.end();
+    // Close the shared headless browser if the extractor's render fallback launched one.
+    await (await import("@/lib/verification/renderUrl")).closeRenderBrowser().catch(() => {});
   }
 }
 
