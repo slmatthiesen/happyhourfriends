@@ -6,7 +6,7 @@ import { SiteWordmark } from "@/components/site-wordmark";
 import { Contribute } from "@/components/submit/contribute";
 import { formatDays, formatDaysLong, formatPrice, formatWindowByDay } from "@/lib/format";
 import { getCityByPath, getVenueBySlug } from "@/lib/queries/venues";
-import { cityPath } from "@/lib/routes";
+import { cityPath, venuePath } from "@/lib/routes";
 import { labelForVenueType } from "@/lib/places/venueType";
 
 // Full-route ISR, shared across all visitors. Safe to cache the render: the venue page
@@ -35,6 +35,7 @@ export async function generateMetadata({
   return {
     title: `${v.name} Happy Hour · ${c.name} · Happy Hour Friends`,
     description: `Happy hour times and deals for ${v.name}${v.address ? ` — ${v.address}` : ""}.`,
+    alternates: { canonical: venuePath(c.state, c.slug, v.slug) },
   };
 }
 

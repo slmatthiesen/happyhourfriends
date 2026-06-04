@@ -3,7 +3,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteWordmark } from "@/components/site-wordmark";
 import { VenueTableClient } from "@/components/venue-table-client";
-import { getCityByPath, listVenuesForCity } from "@/lib/queries/venues";
+import {
+  getCityByPath,
+  getCityLastUpdatedAt,
+  listVenuesForCity,
+} from "@/lib/queries/venues";
+import { cityPath, venuePath } from "@/lib/routes";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 // Cache the rendered page (HTML + RSC payload) in Next's shared server-side cache and
 // regenerate at most once an hour — every visitor gets the same cached page, so the
@@ -32,6 +39,8 @@ export async function generateMetadata({
   return {
     title: `${c.name} Happy Hours · Happy Hour Friends`,
     description: `Every happy hour in ${c.name}${c.state ? `, ${c.state}` : ""}, in one sortable table. Every detail traces to a source.`,
+    // Relative path resolves against metadataBase (root layout) → absolute canonical.
+    alternates: { canonical: cityPath(c.state, c.slug) },
   };
 }
 
@@ -44,11 +53,41 @@ export default async function CityPage({
   const city = await getCityByPath(state, citySlug);
   if (!city || city.status !== "live") notFound();
 
-  const venues = await listVenuesForCity(city.id);
-  const withHours = venues.filter((v) => v.happyHours.length > 0).length;
+  const [venues, lastUpdated] = await Promise.all([
+    listVenuesForCity(city.id),
+    getCityLastUpdatedAt(city.id),
+  ]);
+  const venuesWithHours = venues.filter((v) => v.happyHours.length > 0);
+  const withHours = venuesWithHours.length;
+
+  // ItemList structured data for the "happy hours in <city>" listing — the strongest
+  // signal Google has that this page is a curated list of venues, not prose. Only the
+  // venues that actually have a happy hour are listed (matches the on-page count and
+  // keeps the list honest — empty stubs aren't listings). Omitted entirely when empty.
+  const itemListLd =
+    withHours > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          name: `${city.name} Happy Hours`,
+          numberOfItems: withHours,
+          itemListElement: venuesWithHours.map((v, i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            url: `${SITE_URL}${venuePath(city.state, city.slug, v.slug)}`,
+            name: v.name,
+          })),
+        }
+      : null;
 
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-12">
+      {itemListLd ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
+        />
+      ) : null}
       <SiteWordmark className="mb-6" />
       <header>
         <h1
@@ -90,6 +129,7 @@ export default async function CityPage({
         cityName={city.name}
         cityTimezone={city.defaultTimezone}
         venues={venues}
+        lastUpdated={lastUpdated ? lastUpdated.toISOString() : null}
       />
 
       <p className="mt-6 text-sm text-text-muted">
