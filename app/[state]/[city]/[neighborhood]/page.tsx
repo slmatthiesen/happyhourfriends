@@ -10,8 +10,7 @@ import {
   listVenuesForCity,
 } from "@/lib/queries/venues";
 import { cityPath, neighborhoodPath, venuePath } from "@/lib/routes";
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+import { SITE_URL, breadcrumbListLd } from "@/lib/seo/structuredData";
 
 // Full-route ISR, shared across all visitors — same model as the city page. The "Now"
 // badge is client-side, so caching the render is safe. The apply engine calls
@@ -75,8 +74,18 @@ export default async function NeighborhoodPage({
         }
       : null;
 
+  const breadcrumbLd = breadcrumbListLd([
+    { name: "Happy Hour Friends", path: "/" },
+    { name: city.name, path: cityPath(city.state, city.slug) },
+    { name: hood.name, path: neighborhoodPath(city.state, city.slug, hood.slug) },
+  ]);
+
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
       {itemListLd ? (
         <script
           type="application/ld+json"

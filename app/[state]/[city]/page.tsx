@@ -9,8 +9,7 @@ import {
   listVenuesForCity,
 } from "@/lib/queries/venues";
 import { cityPath, venuePath } from "@/lib/routes";
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+import { SITE_URL, breadcrumbListLd } from "@/lib/seo/structuredData";
 
 // Cache the rendered page (HTML + RSC payload) in Next's shared server-side cache and
 // regenerate at most once an hour — every visitor gets the same cached page, so the
@@ -80,8 +79,17 @@ export default async function CityPage({
         }
       : null;
 
+  const breadcrumbLd = breadcrumbListLd([
+    { name: "Happy Hour Friends", path: "/" },
+    { name: city.name, path: cityPath(city.state, city.slug) },
+  ]);
+
   return (
     <main className="mx-auto w-full max-w-6xl px-6 py-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
       {itemListLd ? (
         <script
           type="application/ld+json"

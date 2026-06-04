@@ -20,6 +20,10 @@ hard part. Don't launch 50 thin cities; take a handful to genuine completeness.
 - **Data-freshness signal:** "Updated &lt;date&gt;" beneath the city clock (from
   `max(updated_at)` over in-scope venues) + **`<lastmod>` in `sitemap.xml`** per venue,
   city, and neighborhood. Decisive in a category where staleness is the norm.
+- **`BreadcrumbList` JSON-LD** on city, neighborhood, and venue pages (built via
+  `lib/seo/structuredData.ts`) — Google renders the trail in results.
+- **`FAQPage` JSON-LD** on `/faq` (mirrors the visible Q&A, so the markup always matches).
+- **`/llms.txt`** (llmstxt.org convention) listing the live cities + key pages for LLM crawlers.
 
 ### CRITICAL config before any of the above helps in prod
 
@@ -54,14 +58,11 @@ hard part. Don't launch 50 thin cities; take a handful to genuine completeness.
   directly-answering pages (our `<lastmod>` + Updated date feed this); being referenced on
   Reddit / local news / Wikipedia raises the odds of being surfaced.
 
-### Deferred code follow-ups (cheap, not yet built — next SEO PR)
+### Deferred code follow-ups
 
-- **`BreadcrumbList` JSON-LD** (state › city › neighborhood › venue) — Google renders
-  breadcrumb trails in results; lifts click-through.
-- **`FAQPage` JSON-LD** on `/faq` — rich-result win if content stays Q&A-shaped.
 - **Per-city intro paragraph** — a few sentences of unique copy per city page to
-  differentiate from scrapers (deferred 2026-06-03; needs operator voice/tone).
-- **`/llms.txt`** — emerging convention listing key pages for LLM crawlers; cheap, modest upside.
+  differentiate from scrapers (deferred 2026-06-03; needs operator voice/tone). This is the
+  one remaining cheap SEO item; BreadcrumbList / FAQPage / llms.txt all shipped (see above).
 
 ## All-day happy-hour cleanup (built 2026-05-31, merged to `main`)
 
