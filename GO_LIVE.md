@@ -39,16 +39,17 @@ PROD_IP=<droplet-ip> npm run pull:data   # stop local `npm run dev` first (--cle
 ```
 Brings prod down to local incl. submissions/flags/audit. **Overwrites local data.**
 
-### Backups + the one open blocker
+### Backups
 
 - **Nightly backups run on the droplet** (`scripts/backup/hhf-pg-backup.sh` via root cron,
   `/var/backups/happyhourfriends/`, 14-day retention) — install once per the runbook. This
   is the real safety net for user data; also enable DO snapshots for off-box copies.
-- ⚠️ **Known go-live blocker:** the app **leaks DB connections** (~80/100 held by
-  `postgres.js`), which will exhaust the pool under real traffic and take the site down
-  ("remaining connection slots reserved for SUPERUSER"). Fix `db/client.ts` to use one
-  singleton client with a sane `max` + `idle_timeout` **before** real traffic. See memory
-  `project_production_deploy`.
+- ✅ **DB connection leak — FIXED** (commit `e428583`, on `main`). `db/client.ts` now caches
+  one `postgres.js` client + drizzle instance on `globalThis` in **all** environments
+  (`max: 10`, `idle_timeout: 30s`, `max_lifetime: 30min`). The old code only cached outside
+  production, so prod spun up a new 10-connection pool per query path and leaked ~80 idle
+  connections until non-superuser slots ran out. No longer a go-live blocker; just deploy
+  current `main`.
 
 ## Search rankings — SEO + AI/GEO (code built 2026-06-03, branch `feat/seo-itemlist-canonical` / PR #19)
 
