@@ -178,6 +178,19 @@ export function extractPageRoutes(html: string, baseUrl: string): string[] {
  */
 const MEDIA_SIGNAL = /menu|happy|hour|\bbar\b|drink|cocktail|special|food|dinner|lunch|brunch/i;
 
+/**
+ * Wix (and similar) embed a tiny BLURRED thumbnail in the served HTML —
+ * `…/media/<id>~mv2.jpg/v1/fill/w_147,h_190,…,blur_2,…/Happy-Hour.jpg` — which the vision
+ * model can't read (Shell Beach Brewhouse's HH flyer came through as a 147px blur). Strip the
+ * `/v1/…` transform to the full-res original (`…~mv2.jpg`). NOTE: the human-readable filename
+ * (which carries the "happy hour" signal) lives in the TRANSFORM suffix, so callers must test
+ * MEDIA_SIGNAL on the ORIGINAL url and de-thumbnail only when storing the link to fetch.
+ */
+export function fullResImageUrl(url: string): string {
+  const wix = url.match(/^(https?:\/\/static\.wixstatic\.com\/media\/[^/]+\.(?:jpe?g|png|webp|gif|avif))\/v1\//i);
+  return wix ? wix[1] : url;
+}
+
 export function extractMediaLinks(html: string, baseUrl: string): string[] {
   const out = new Set<string>();
   const abs = (u: string) => { try { return new URL(u, baseUrl).toString(); } catch { return null; } };
@@ -191,7 +204,7 @@ export function extractMediaLinks(html: string, baseUrl: string): string[] {
     const isPdf = /\.pdf(\?|#|$)/i.test(href);
     const isImg = /\.(jpe?g|png|webp)(\?|#|$)/i.test(href);
     if (isPdf || (isImg && (MEDIA_SIGNAL.test(href) || MEDIA_SIGNAL.test(text)))) {
-      const u = abs(href);
+      const u = abs(isPdf ? href : fullResImageUrl(href)); // signal matched on original; fetch full-res
       if (u) out.add(u);
     }
   }
@@ -203,7 +216,7 @@ export function extractMediaLinks(html: string, baseUrl: string): string[] {
     const alt = tag.match(/\balt\s*=\s*["']([^"']*)["']/i)?.[1] ?? "";
     if (!src || !/\.(jpe?g|png|webp)(\?|#|$)/i.test(src)) continue;
     if (MEDIA_SIGNAL.test(src) || MEDIA_SIGNAL.test(alt)) {
-      const u = abs(src);
+      const u = abs(fullResImageUrl(src)); // signal matched on original src; fetch full-res
       if (u) out.add(u);
     }
   }
