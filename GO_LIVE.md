@@ -3,6 +3,31 @@
 Things built but not yet run against production. Each step needs `DATABASE_URL` pointed
 at the prod DB (and the noted API key).
 
+## ✅ Remaining before launch (at-a-glance)
+
+The fast way to resume: tell an agent **"Read GO_LIVE.md and tell me what's left to go
+live, then let's do the highest-leverage item."** Each item links to its section below.
+
+**Done (shipped to `main`, just needs deploying):**
+- [x] SEO: canonical + `metadataBase`, ItemList/BreadcrumbList/FAQPage JSON-LD, "Updated"
+      freshness line, sitemap `<lastmod>`, `/llms.txt` (PRs #19/#20).
+- [x] CI: typecheck → lint → 24-suite test → build, + fork-safe gitleaks scan (PR #21).
+- [x] DB connection-pool leak fixed (commit `e428583`).
+
+**Still to do (operator):**
+- [ ] **Deploy current `main` to prod** (CODE channel: git pull → `npm ci` → `db:migrate`
+      → build → restart). Ships everything in the "Done" list above.
+- [ ] **Prod env vars set at BUILD time:** `NEXT_PUBLIC_SITE_URL=https://happyhourfriends.com`
+      (build-time inlined) and `HCAPTCHA_SECRET_KEY` (submissions fail closed without it).
+      Verify: `curl -s https://happyhourfriends.com/wa/tacoma | grep canonical`.
+- [ ] **Data loaded + safe:** initial `npm run push:data` if prod isn't seeded yet
+      (see "Data sync" below) + install the **nightly backup cron** on the droplet.
+- [ ] **All-day / hours backfills:** `backfill:timezones` → `backfill:hours` →
+      `reverify:all-day` (see "All-day happy-hour cleanup" below).
+- [ ] **After live with data:** submit `sitemap.xml` to Google Search Console + Bing
+      Webmaster (see "Search rankings" below).
+- [ ] *(optional)* per-city intro paragraph — the one remaining cheap SEO item.
+
 ## Data sync — local ⇄ prod (canonical runbook: `docs/data-sync-runbook.md`)
 
 **Yes, go-live includes keeping data in sync and pushing local updates to prod.** The
