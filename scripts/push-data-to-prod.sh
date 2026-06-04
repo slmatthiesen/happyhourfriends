@@ -17,17 +17,18 @@
 #
 # Usage:  PROD_IP=203.0.113.10 npm run push:data
 # Env:    PROD_IP (required); SSH_USER=root, APP_DIR=/home/happyhourfriends,
-#         BRANCH=cluster-schema-seed-pipeline, DB=happyhourfriends, SVC=happyhourfriends,
+#         BRANCH=main, DB=happyhourfriends, SVC=happyhourfriends,
 #         FORCE=1 (override the post-launch guard — DANGEROUS).
 set -euo pipefail
 
 PROD_IP="${PROD_IP:?Set PROD_IP (droplet IP)}"
 SSH_USER="${SSH_USER:-root}"
 APP_DIR="${APP_DIR:-/home/happyhourfriends}"
-BRANCH="${BRANCH:-cluster-schema-seed-pipeline}"
+BRANCH="${BRANCH:-main}"
 DB="${DB:-happyhourfriends}"
 SVC="${SVC:-happyhourfriends}"
-SSH="ssh ${SSH_USER}@${PROD_IP}"
+# -n: never read stdin, so remote commands can't swallow the `read` prompt's input.
+SSH="ssh -n ${SSH_USER}@${PROD_IP}"
 
 # Local DB URL comes from .env (same value db:migrate / the app use locally).
 set -a; source ./.env; set +a
