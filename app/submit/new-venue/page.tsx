@@ -26,16 +26,26 @@ export default async function NewVenuePage({
   if (!city) notFound();
 
   const fields: FieldSpec[] = [
-    { key: "name", label: "Venue name", placeholder: "e.g. The Office Bar & Grill" },
-    { key: "address", label: "Address", placeholder: "Street, city, state" },
-    { key: "websiteUrl", label: "Website", type: "url", placeholder: "https://" },
     {
-      key: "otherUrl",
-      label: "Other link (Facebook, Instagram…)",
+      key: "name",
+      label: "Venue name",
+      placeholder: "e.g. The Office Bar & Grill",
+      required: true,
+    },
+    {
+      key: "address",
+      label: "Street address",
+      placeholder: "e.g. 1102 A St",
+      help: `City & state are added automatically (${city.name}, ${city.state}).`,
+      required: true,
+    },
+    {
+      key: "websiteUrl",
+      label: "Website",
       type: "url",
       placeholder: "https://",
+      required: true,
     },
-    { key: "phone", label: "Phone", placeholder: "(253) 555-0100" },
     { key: "type", label: "Type", type: "select", options: TYPE_OPTIONS },
   ];
 
@@ -51,9 +61,9 @@ export default async function NewVenuePage({
         Add a {city.name} venue
       </h1>
       <p className="mt-2 text-text-muted">
-        Tell us about a spot we&apos;re missing. We never publish happy-hour details
-        without a source, so add a link if you have one — otherwise we&apos;ll verify
-        it ourselves.
+        Tell us about a spot we&apos;re missing — just the name, street address, and
+        website. We&apos;ll pull the happy-hour details from there and verify them
+        before anything goes live.
       </p>
 
       <div className="mt-8">
@@ -62,6 +72,7 @@ export default async function NewVenuePage({
           newRecord
           fixedAfter={{ cityId: city.id, status: "active" }}
           fields={fields}
+          addressSuffix={`${city.name}, ${city.state}`}
           summary="New venue submission"
           submitLabel="Submit venue"
         />
