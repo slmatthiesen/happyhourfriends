@@ -13,6 +13,8 @@ export interface FieldSpec {
   options?: { value: string; label: string }[];
   placeholder?: string;
   help?: string;
+  /** Block submit until this field is filled (shows a "*" on the label). */
+  required?: boolean;
 }
 
 /** A stable anonymous id kept in localStorage (PRD §1.1 — no accounts). A real
@@ -65,6 +67,7 @@ export function SubmissionForm({
   critical = false,
   newRecord = false,
   reportMode = false,
+  addressSuffix,
   submitLabel = "Submit for review",
 }: {
   targetType: SubmissionTargetType;
@@ -74,6 +77,11 @@ export function SubmissionForm({
   summary?: string;
   requireSource?: boolean;
   critical?: boolean;
+  /**
+   * Appended to a non-empty `address` field before submit, e.g. "Tacoma, WA". Lets the
+   * new-venue form ask only for the street while still storing a full, geocodable address.
+   */
+  addressSuffix?: string;
   /** new_venue: send every non-empty field, before=null. */
   newRecord?: boolean;
   /**
@@ -106,6 +114,15 @@ export function SubmissionForm({
     e.preventDefault();
     setError(null);
 
+    // Required fields (e.g. new-venue forces name / address / website).
+    const missing = fields.find(
+      (f) => f.required && (values[f.key] ?? "").trim() === "",
+    );
+    if (missing) {
+      setError(`${missing.label} is required.`);
+      return;
+    }
+
     const after: Record<string, unknown> = { ...fixedAfter };
     const before: Record<string, unknown> = {};
     for (const f of fields) {
@@ -116,6 +133,16 @@ export function SubmissionForm({
         after[f.key] = parseField(f, raw);
         if (!newRecord) before[f.key] = f.current ?? null;
       }
+    }
+
+    // Store a full, geocodable address while asking the user only for the street:
+    // "1102 A St" + "Tacoma, WA" → "1102 A St, Tacoma, WA".
+    if (
+      addressSuffix &&
+      typeof after.address === "string" &&
+      after.address.trim() !== ""
+    ) {
+      after.address = `${after.address.trim()}, ${addressSuffix}`;
     }
 
     if (reportMode && reason.trim()) {
@@ -229,7 +256,10 @@ export function SubmissionForm({
       {fields.map((f) => (
         <div key={f.key}>
           <label className="mb-1 flex items-baseline justify-between text-text-muted">
-            <span>{f.label}</span>
+            <span>
+              {f.label}
+              {f.required && <span className="text-accent-hot"> *</span>}
+            </span>
             {!newRecord && f.current != null && f.current !== "" && (
               <span className="text-xs">now: {toInputValue(f) || "—"}</span>
             )}
