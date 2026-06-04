@@ -1,4 +1,5 @@
 import {
+  boolean,
   date,
   index,
   integer,
@@ -85,6 +86,15 @@ export const seedCandidates = pgTable("seed_candidates", {
   priceLevel: integer("price_level"),
   /** Google businessStatus: OPERATIONAL | CLOSED_TEMPORARILY | CLOSED_PERMANENTLY. */
   businessStatus: text("business_status"),
+  // Captured at discovery (Atmosphere mask) so enrich never needs a per-candidate
+  // Place Details call — Google bills searchNearby per TILE but Place Details per
+  // CANDIDATE, so moving these here is the big cost lever (see seed-discover mask).
+  /** Boolean(servesBeer || servesWine || servesCocktails) — the pre-enrich alcohol gate. */
+  servesAlcohol: boolean("serves_alcohol"),
+  /** Venue operating hours as ISO-weekday OpenPeriod[] (parseRegularOpeningHours), or null. */
+  hoursJson: jsonb("hours_json"),
+  /** Google nationalPhoneNumber. */
+  phone: text("phone"),
   processedAt: timestamp("processed_at", { withTimezone: true }),
   outcome: seedOutcome("outcome"),
   resultingVenueId: uuid("resulting_venue_id").references(() => venues.id),
