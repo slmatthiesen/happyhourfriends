@@ -29,7 +29,9 @@ export async function scrapeWithFirecrawl(url: string): Promise<FetchResult | nu
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         url,
-        formats: [{ type: "markdown" }, { type: "html" }, { type: "links" }],
+        // markdown = the HH text the model reads; html = source for extractMediaLinks
+        // (we derive media links ourselves, so we don't request Firecrawl's `links` format).
+        formats: [{ type: "markdown" }, { type: "html" }],
         waitFor: WAIT_FOR_MS,
       }),
       signal: controller.signal,
@@ -40,7 +42,6 @@ export async function scrapeWithFirecrawl(url: string): Promise<FetchResult | nu
       data?: {
         markdown?: string;
         html?: string;
-        links?: string[];
         metadata?: { url?: string; sourceURL?: string; statusCode?: number; contentType?: string };
       };
     };

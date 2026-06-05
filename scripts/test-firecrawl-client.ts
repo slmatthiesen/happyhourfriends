@@ -52,6 +52,7 @@ async function main() {
     const r = await scrapeWithFirecrawl("https://venue.example/menu");
     assert.ok(r && r.ok, "ok result");
     assert.equal(r!.url, "https://venue.example/menu");
+    assert.equal(r!.status, 200, "maps statusCode");
     assert.match(r!.contentText ?? "", /Happy Hour Mon-Fri/);
     assert.ok((r!.mediaLinks ?? []).some((m) => /hh\.pdf$/.test(m)), "surfaces the PDF link");
   });
