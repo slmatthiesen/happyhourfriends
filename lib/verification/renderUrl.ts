@@ -15,6 +15,7 @@
 import type { Browser, BrowserContext } from "playwright";
 import type { FetchResult } from "@/lib/verification/fetchUrl";
 import { extractMediaLinks } from "@/lib/places/siteTriage";
+import { scrapeWithFirecrawl } from "@/lib/places/firecrawl";
 
 const UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 " +
@@ -58,6 +59,12 @@ export async function renderUrl(
   const maxBytes = opts.maxBytes ?? 8_000_000;
   let ctx: BrowserContext | null = null;
   try {
+    // Render backend: prefer a configured self-hosted Firecrawl over launching Chromium.
+    // Returns null when unconfigured, on error, or for PDFs/images (which the byte path
+    // below handles so Claude reads the document directly). See lib/places/firecrawl.ts.
+    const fc = await scrapeWithFirecrawl(url);
+    if (fc) return fc;
+
     const browser = await getBrowser();
     ctx = await browser.newContext({ userAgent: UA, ignoreHTTPSErrors: true });
 
