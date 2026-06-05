@@ -69,7 +69,10 @@
     "test:hh-text": "tsx scripts/test-hh-text.ts",
     "test:sitemap": "tsx scripts/test-sitemap.ts",
     "test:routes": "tsx scripts/test-routes.ts",
-    "test:daly-boundary": "tsx scripts/test-daly-boundary.ts"
+    "test:daly-boundary": "tsx scripts/test-daly-boundary.ts",
+    "test:firecrawl-client": "tsx scripts/test-firecrawl-client.ts",
+    "test:render-firecrawl": "tsx scripts/test-render-firecrawl.ts",
+    "bench:firecrawl": "tsx scripts/bench-firecrawl.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.99.0",

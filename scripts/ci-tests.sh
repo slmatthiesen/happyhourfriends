@@ -40,6 +40,8 @@ TESTS=(
   test:hh-text
   test:sitemap
   test:routes
+  test:firecrawl-client
+  test:render-firecrawl
 )
 
 failed=()
