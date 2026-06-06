@@ -70,7 +70,8 @@ async function main() {
       `[${APPLY ? "APPLY" : "DRY RUN"}] ${stubs.length} stub(s) with a website in ${city.name}. $0 — no API.\n`,
     );
 
-    let filled = 0;
+    let filledLive = 0;
+    let hiddenOnly = 0;
     let escalated = 0;
     let noSignal = 0;
     let social = 0;
@@ -100,23 +101,49 @@ async function main() {
       });
 
       if (free) {
+        const liveCount = free.happyHours.filter((h) => !h.suspect).length;
+        const hiddenCount = free.happyHours.filter((h) => h.suspect).length;
         const days = free.happyHours
-          .map((h) => `${h.daysOfWeek.length}d ${h.startTime ?? "open"}-${h.endTime ?? "close"}`)
+          .map((h) => `${h.daysOfWeek.length}d ${h.startTime ?? "open"}-${h.endTime ?? "close"}${h.suspect ? "?" : ""}`)
           .join(", ");
-        if (APPLY) {
-          const { windowsLive, windowsHidden } = await persistExtractedWindows({
-            venueId: v.id,
-            cityId: city.id,
-            extracted: free,
-            actor: "reextract-free",
-          });
-          console.log(
-            `  ✓ ${v.name}: +${windowsLive} live${windowsHidden ? ` (+${windowsHidden} hidden)` : ""} [${days}]`,
-          );
+
+        if (liveCount > 0) {
+          // Real fill — venue will promote out of stub.
+          if (APPLY) {
+            const { windowsLive, windowsHidden } = await persistExtractedWindows({
+              venueId: v.id,
+              cityId: city.id,
+              extracted: free,
+              actor: "reextract-free",
+            });
+            console.log(
+              `  ✓ ${v.name}: +${windowsLive} live${windowsHidden ? ` (+${windowsHidden} hidden)` : ""} [${days}]`,
+            );
+          } else {
+            console.log(
+              `  ✓ ${v.name}: WOULD write ${liveCount} live${hiddenCount ? ` (+${hiddenCount} hidden for review)` : ""} [${days}]`,
+            );
+          }
+          filledLive++;
         } else {
-          console.log(`  ✓ ${v.name}: WOULD write [${days}]`);
+          // Hidden-only — every window is suspect; venue stays a stub.
+          if (APPLY) {
+            const { windowsHidden } = await persistExtractedWindows({
+              venueId: v.id,
+              cityId: city.id,
+              extracted: free,
+              actor: "reextract-free",
+            });
+            console.log(
+              `  ◦ ${v.name}: ${windowsHidden} window(s) captured hidden for review (stays stub) [${days}]`,
+            );
+          } else {
+            console.log(
+              `  ◦ ${v.name}: WOULD capture ${hiddenCount} hidden for review (stays stub) [${days}]`,
+            );
+          }
+          hiddenOnly++;
         }
-        filled++;
         continue;
       }
 
@@ -157,10 +184,13 @@ async function main() {
     }
 
     console.log(`\n── Free fill complete ──`);
-    console.log(`  filled (clean, $0):   ${filled}${APPLY ? "" : "  (dry-run — re-run with --apply to write)"}`);
-    console.log(`  escalated (→ paid):   ${escalated}`);
-    console.log(`  no signal (stub):     ${noSignal}`);
-    console.log(`  social/non-extract:   ${social}`);
+    console.log(
+      `  filled → live ($0):       ${filledLive}${!APPLY && filledLive > 0 ? "  (dry-run — re-run with --apply to write)" : ""}`,
+    );
+    console.log(`  captured hidden (stub):   ${hiddenOnly}`);
+    console.log(`  escalated (→ paid):       ${escalated}`);
+    console.log(`  no signal (stub):         ${noSignal}`);
+    console.log(`  social/non-extract:       ${social}`);
   } finally {
     // Close the headless browser if buildExtractRequest launched one (it won't here since
     // noRender:true, but we mirror reextract-stubs.ts's finally block for safety).
