@@ -17,6 +17,24 @@ export function matchesHappyHour(text: string): boolean {
 }
 
 /**
+ * A broader "any inkling of a deal" signal: specials / daily / industry night /
+ * drink deals / "happy hr" / a time-range like 3-6pm (the second time must carry am/pm so
+ * plain dates and "Mon-Fri" don't false-match). Deliberately permissive — it gates the
+ * PAID extractor and the operator's rule is "skip only pages with ZERO indication".
+ */
+export const DEAL_RE =
+  /\bspecials?\b|drink\s*deals?|\bdaily\b|industry\s*night|happy\s*hr\b|\b\d{1,2}\s*(?:[ap]\.?m\.?)?\s*[-–—]+\s*\d{1,2}\s*[ap]\.?m\.?/i;
+
+/**
+ * True when page text shows ANY happy-hour or deal signal. This is the free local gate
+ * in front of the paid Claude extractor: no signal → don't spend a token (the page has no
+ * happy hour to find). The inverse of the realness gate in [[capture-everything-realness-filter]].
+ */
+export function hasHhOrDealSignal(text: string): boolean {
+  return HH_RE.test(text) || DEAL_RE.test(text);
+}
+
+/**
  * Likelihood that a URL points at HH info, for ordering candidate pages
  * most→least likely. Higher = check first. 0 = no signal.
  *

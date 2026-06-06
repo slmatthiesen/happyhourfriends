@@ -7,6 +7,7 @@
  */
 import type { ContentBlockParam } from "@anthropic-ai/sdk/resources/messages";
 import { fetchUrl, type FetchResult, type ImageMediaType } from "@/lib/verification/fetchUrl";
+import { hasHhOrDealSignal } from "@/lib/places/hhText";
 
 // Bound the document (PDF/image) payload fed to the model. A venue with many menu
 // PDFs (Bottega has 6) overwhelms the extractor — 6/4.5MB returned nothing, while
@@ -24,6 +25,21 @@ export interface FetchedPage {
   /** Base64 image bytes — present for image menus, handed over as a vision block. */
   imageBase64?: string;
   imageMediaType?: ImageMediaType;
+}
+
+/**
+ * Free pre-extraction gate: should these fetched pages be sent to the (paid) Claude
+ * extractor at all? Escalate when ANY page carries a PDF/image menu we can't read for
+ * free, OR any page's text shows a happy-hour/deal signal. Pages with none of that have
+ * no happy hour to find — skip them at $0 instead of paying Claude to read "nothing here".
+ */
+export function pagesHaveExtractableSignal(pages: FetchedPage[]): boolean {
+  return pages.some(
+    (p) =>
+      Boolean(p.pdfBase64) ||
+      Boolean(p.imageBase64) ||
+      (typeof p.text === "string" && hasHhOrDealSignal(p.text)),
+  );
 }
 
 /**
