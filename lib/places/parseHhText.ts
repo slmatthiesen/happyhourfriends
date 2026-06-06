@@ -84,15 +84,28 @@ export function parseDays(s: string): number[] | null {
   return found.size > 0 ? [...found].sort((x, y) => x - y) : null;
 }
 
-/** "HH:MM" from hour (1-12 or 0-23), minutes, optional meridiem. */
-function clock(h: number, min: number, mer: "am" | "pm" | null): string {
+/**
+ * "HH:MM" from hour (1-12 or 0-23), minutes, optional meridiem — or `null` when the
+ * resolved time is not a valid wall-clock value. INVALID when, after resolving the
+ * meridiem to 24h: hour < 0, hour > 23, or minute > 59. Also: when a meridiem was
+ * explicitly written, the RAW hour must be 1–12 ("38pm" is nonsense). This is what
+ * rejects price/quantity ranges that leaked into the time regex (38:00, 80:00, 99:00…).
+ */
+function clock(h: number, min: number, mer: "am" | "pm" | null): string | null {
+  if (min > 59) return null;
+  // A written meridiem constrains the raw hour to 1..12.
+  if (mer !== null && (h < 1 || h > 12)) return null;
   let hr = h;
   if (mer === "pm" && hr < 12) hr += 12;
   if (mer === "am" && hr === 12) hr = 0;
+  if (hr < 0 || hr > 23) return null;
   return `${String(hr).padStart(2, "0")}:${String(min).padStart(2, "0")}`;
 }
 
-const TIME = "(\\d{1,2})(?::(\\d{2}))?\\s*(a\\.?m\\.?|p\\.?m\\.?)?";
+// `(?<![$\d.])` so a digit preceded by `$` (a price, incl. "$ 5" → see normalize step),
+// a decimal (`3.5`), or another digit (mid-number) is NOT read as an hour.
+// `(?!\d)` so `\d{1,2}` never grabs only part of a longer run (years, phones, "$14"→"14").
+const TIME = "(?<![$\\d.])(\\d{1,2})(?!\\d)(?::(\\d{2}))?\\s*(a\\.?m\\.?|p\\.?m\\.?)?";
 const SEP = "\\s*(?:-|–|—|to|til|till|until|through|thru)\\s*";
 const CLOSE = "(close|closing|midnight|late|end)";
 
@@ -117,6 +130,7 @@ export function parseTimeRange(s: string, hhContext: boolean): TimeRange | null 
   if (openTo) {
     const stated = mer(openTo[3]);
     const e = clock(+openTo[1], openTo[2] ? +openTo[2] : 0, stated ?? (hhContext ? "pm" : null));
+    if (e === null) return null;
     return { startTime: null, endTime: e, meridiemInferred: !stated };
   }
   // "9pm - close"
@@ -125,7 +139,9 @@ export function parseTimeRange(s: string, hhContext: boolean): TimeRange | null 
     const stated = mer(toClose[3]);
     let sm = stated;
     if (!sm && hhContext && +toClose[1] >= 1 && +toClose[1] <= 11) sm = "pm";
-    return { startTime: clock(+toClose[1], toClose[2] ? +toClose[2] : 0, sm), endTime: null, meridiemInferred: !stated };
+    const s = clock(+toClose[1], toClose[2] ? +toClose[2] : 0, sm);
+    if (s === null) return null;
+    return { startTime: s, endTime: null, meridiemInferred: !stated };
   }
   // "3pm - 7pm" / "3 - 7pm" / "3-7"
   const range = new RegExp(`${TIME}${SEP}${TIME}`, "i").exec(t);
@@ -138,6 +154,9 @@ export function parseTimeRange(s: string, hhContext: boolean): TimeRange | null 
     if (!sMer && !eMer && hhContext) { sMer = "pm"; eMer = "pm"; } // "3-7" under HH
     const start = clock(+range[1], range[2] ? +range[2] : 0, sMer);
     const end = clock(+range[4], range[5] ? +range[5] : 0, eMer);
+    // Either endpoint invalid (price/quantity/year leak, minute overflow, pm-inference
+    // overflow like "21"→33) → reject the whole range, emit no window.
+    if (start === null || end === null) return null;
     return { startTime: start, endTime: end, meridiemInferred: inferred };
   }
   return null;
@@ -279,7 +298,9 @@ export function parseHappyHours(text: string, sourceUrl: string): ParsedWindow[]
   const norm = text
     .replace(/\b([ap])\.\s?m\.?/gi, "$1m")
     .replace(/ /g, " ")
-    .replace(/[ \t]+/g, " ");
+    .replace(/[ \t]+/g, " ")
+    // Collapse "$ 5" → "$5" so the price lookbehind on the time digit fires.
+    .replace(/\$\s+(?=\d)/g, "$");
   const out: ParsedWindow[] = [];
   const seen = new Set<string>();
 

@@ -145,4 +145,27 @@ check("explicit happy hour + stated days + normal window is plausible", () => {
   assert.equal(win(parseHappyHours("Happy hour Mon-Fri 4pm-6pm", URL)).plausible, true);
 });
 
+// --- price / quantity / year ranges must NOT be parsed as times (CRITICAL real-data bug) ---
+check("price range '$14-$38' is not a time window", () => {
+  assert.equal(clean(parseHappyHours("Happy hour wings $14-$38", URL)).length, 0);
+});
+check("ascending price range '$5-$8' is not a time window", () => {
+  assert.equal(clean(parseHappyHours("Happy hour draft beers $5-$8", URL)).length, 0);
+});
+check("quantity/cents range '80-99' is not a time", () => {
+  assert.equal(clean(parseHappyHours("Happy hour oysters 80-99 each", URL)).length, 0);
+});
+check("year range '2019-2024' is not a time", () => {
+  assert.equal(clean(parseHappyHours("Voted best happy hour 2019-2024", URL)).length, 0);
+});
+check("invalid hour '14-38' rejected", () => {
+  assert.equal(clean(parseHappyHours("Happy hour 14-38", URL)).length, 0);
+});
+check("minute overflow '3:75-6:90' rejected", () => {
+  assert.equal(clean(parseHappyHours("Happy hour 3:75pm-6:90pm", URL)).length, 0);
+});
+check("decimal '$3.5 wells' not parsed as 3:5 time", () => {
+  assert.equal(clean(parseHappyHours("Happy hour $3.5 wells and $6 wine", URL)).length, 0);
+});
+
 console.log(`\n${passed} checks passed.`);
