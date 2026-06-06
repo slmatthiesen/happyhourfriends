@@ -72,6 +72,8 @@
     "test:extract-time": "tsx scripts/test-extract-time.ts",
     "test:sitemap": "tsx scripts/test-sitemap.ts",
     "test:routes": "tsx scripts/test-routes.ts",
+    "test:parse-hh-text": "tsx scripts/test-parse-hh-text.ts",
+    "test:free-extract": "tsx scripts/test-free-extract.ts",
     "test:daly-boundary": "tsx scripts/test-daly-boundary.ts"
   },
   "dependencies": {

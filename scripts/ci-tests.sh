@@ -42,6 +42,8 @@ TESTS=(
   test:extract-time
   test:sitemap
   test:routes
+  test:parse-hh-text
+  test:free-extract
 )
 
 failed=()
