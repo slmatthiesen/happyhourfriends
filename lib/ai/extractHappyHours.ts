@@ -33,7 +33,7 @@ import type { Usage } from "@/lib/ai/anthropic";
 import { costCents as calcCostCents } from "@/lib/ai/pricing";
 import { MODELS } from "@/lib/ai/models";
 import { loadPrompt, splitPrompt } from "@/lib/ai/promptHash";
-import { fetchPages, renderPagesAsBlocks } from "@/lib/ai/siteContent";
+import { fetchPages, renderPagesAsBlocks, pagesHaveExtractableSignal } from "@/lib/ai/siteContent";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -356,6 +356,9 @@ export interface ExtractRequest {
   model: string;
   /** URLs we successfully fetched and fed the model. Empty → nothing to extract from. */
   fetchedUrls: string[];
+  /** Free pre-check: do the fetched pages show ANY happy-hour/deal signal (or a PDF/image)?
+   *  When false, the page has no happy hour to find — callers skip the paid call ($0). */
+  hasSignal: boolean;
 }
 
 const FORCE_RECORD: ToolChoiceTool = { type: "tool", name: "record_happy_hours" };
@@ -422,6 +425,7 @@ export async function buildExtractRequest(input: ExtractInput): Promise<ExtractR
     promptHash: loaded.hash,
     model: MODELS.extractor,
     fetchedUrls: pages.map((p) => p.url),
+    hasSignal: pagesHaveExtractableSignal(pages),
   };
 }
 
@@ -498,13 +502,27 @@ const EMPTY_PARSE = {
 export async function extractHappyHours(
   input: ExtractInput,
 ): Promise<ExtractResult> {
-  const { params, promptHash, model, fetchedUrls } = await buildExtractRequest(input);
+  const { params, promptHash, model, fetchedUrls, hasSignal } = await buildExtractRequest(input);
 
   // Nothing fetched (no reachable site / all fetches failed) → no point spending a token.
   if (fetchedUrls.length === 0) {
     return {
       ...EMPTY_PARSE,
       summary: "No venue page content could be fetched.",
+      usage: { inputTokens: 0, outputTokens: 0 },
+      costCents: 0,
+      promptHash,
+      model,
+    };
+  }
+
+  // Free pre-gate: the pages we fetched show NO happy-hour/deal wording and carry no
+  // PDF/image menu → there's no happy hour to extract. Skip the paid call (Claude would
+  // just return conf 0 after reading "nothing here"). See lib/places/hhText.hasHhOrDealSignal.
+  if (!hasSignal) {
+    return {
+      ...EMPTY_PARSE,
+      summary: "No happy-hour or deal signal on the fetched pages — skipped (no model call).",
       usage: { inputTokens: 0, outputTokens: 0 },
       costCents: 0,
       promptHash,
