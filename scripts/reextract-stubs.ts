@@ -397,6 +397,10 @@ async function main() {
       );
     }
   } finally {
+    // Close the shared headless browser the extractor may have launched (buildExtractRequest
+    // lazy-imports renderUrl). Without this the open Chromium keeps the process alive and the
+    // script hangs on exit — which previously blocked a multi-city loop after the first city.
+    await (await import("@/lib/verification/renderUrl")).closeRenderBrowser().catch(() => {});
     await sql.end();
   }
 }
