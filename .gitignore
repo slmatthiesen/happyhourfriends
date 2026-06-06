@@ -73,3 +73,6 @@ Desktop.ini
 STEVEN_GITHUB.md1
 # git worktrees (isolated workspaces)
 .worktrees/
+
+# Per-run escalation shortlists emitted by reextract:stubs:free (regenerated output, not source)
+/docs/hh-escalation-*.json
