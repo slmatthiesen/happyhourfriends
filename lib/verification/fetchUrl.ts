@@ -51,6 +51,65 @@ function menuScore(s: string): number {
   return (s.match(MENU_SIGNAL) ?? []).length;
 }
 
+// Non-global twin of MENU_SIGNAL for deciding whether ONE harvested string is worth
+// keeping (a global regex is stateful across .test() calls — don't reuse MENU_SIGNAL here).
+const HARVEST_SIGNAL =
+  /\$\s?\d|happy[ -]?hour|\b(mon|tue|wed|thu|fri|sat|sun|daily|weekday|weekend)\b|\b\d{1,2}(:\d{2})?\s?(a\.?m\.?|p\.?m\.?|am|pm)\b|\b(menu|special|appetizer|cocktail|martini|draft|draught|wine|beer|spirit|well drink|pint|glass|bottle)\b/i;
+
+/** Decode the escapes a JSON string literal carries (\uXXXX, \n, \", \/, \\). */
+function decodeJsonString(s: string): string {
+  return s
+    .replace(/\\u([0-9a-fA-F]{4})/g, (_, h) => String.fromCharCode(parseInt(h, 16)))
+    .replace(/\\[nrt]/g, " ")
+    .replace(/\\(["'/\\])/g, "$1");
+}
+
+/**
+ * Harvest human-readable text from the JSON inside inline <script> blocks. SSR site
+ * builders stash the page's real content there and render it client-side: Wix
+ * `wix-warmup-data`, Heroku/dashtrack `bootstrapApp({...})`, Square/Weebly configs.
+ * stripHtml drops <script> wholesale, so without this those pages reduce to nothing —
+ * e.g. Philly's Sports Grill, whose only happy-hour text ("Happy Hour: 3pm-7pm daily")
+ * lives in a dashtrack config blob, stripped to 0 chars. We pull the quoted string
+ * values (decode escapes + entities, strip inner HTML tags) and keep the menu/HH-signal
+ * ones, bounded by `cap`. Exported for unit tests.
+ */
+export function harvestScriptText(html: string, cap = 8000): string {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  let used = 0;
+  const scriptRe = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
+  let sm: RegExpExecArray | null;
+  while ((sm = scriptRe.exec(html)) !== null) {
+    if (/\bsrc\s*=/i.test(sm[1])) continue; // external bundle — no inline text to mine
+    const body = sm[2];
+    const strRe = /"((?:\\.|[^"\\]){3,500})"/g;
+    let m: RegExpExecArray | null;
+    while ((m = strRe.exec(body)) !== null) {
+      let v = decodeJsonString(m[1]);
+      if (v.includes("<")) v = v.replace(/<[^>]+>/g, " "); // notes:"<p>Happy Hour…</p>"
+      v = v
+        .replace(/&amp;/gi, "&")
+        .replace(/&lt;/gi, "<")
+        .replace(/&gt;/gi, ">")
+        .replace(/&quot;/gi, '"')
+        .replace(/&#39;/gi, "'")
+        .replace(/&nbsp;/gi, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      if (v.length < 4) continue;
+      if (/^[\w.\-]+$/.test(v)) continue; // bare token — a JSON key / id / slug, not prose
+      if (!HARVEST_SIGNAL.test(v)) continue;
+      if (seen.has(v)) continue;
+      seen.add(v);
+      out.push(v);
+      used += v.length + 3;
+      if (used >= cap) return out.join(" · ");
+    }
+  }
+  return out.join(" · ");
+}
+
 export interface FetchResult {
   url: string;
   ok: boolean;
@@ -128,6 +187,13 @@ function stripHtml(html: string, maxContent: number = MAX_CONTENT): string {
     .replace(/&nbsp;/gi, " ");
   // 4. Collapse whitespace
   text = text.replace(/\s+/g, " ").trim();
+
+  // 4b. Recover content SSR builders hide in <script> JSON (stripped at step 1). On a
+  //     client-hydrated page the visible text is empty but the happy-hour info is in the
+  //     config blob — append it so it reaches the model (Philly's Sports Grill).
+  const scriptText = harvestScriptText(html);
+  if (scriptText) text = text ? `${text} ${scriptText}` : scriptText;
+
   if (text.length <= maxContent) return text;
 
   // 5. Over budget: keep the intro (venue context) + the densest menu/HH windows, in

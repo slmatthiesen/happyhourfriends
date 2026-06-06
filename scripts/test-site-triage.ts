@@ -11,6 +11,7 @@ import {
   fullResImageUrl,
   resolveEnrichAction,
   siteVerdictFromFetch,
+  pickDeclaredPages,
   classifyFetchError,
   type SiteVerdict,
 } from "@/lib/places/siteTriage";
@@ -201,6 +202,42 @@ check("200 parked domain → kill (parked)", () => {
 check("403 bot-block → extract (reachable, not killed)", () => {
   const v = siteVerdictFromFetch("https://x.com/", { kind: "response", status: 403, html: "", finalUrl: "https://x.com/" });
   assert.equal(v.decision, "extract");
+});
+
+// --- pickDeclaredPages (Bug C/D: declared pages + opaque content slugs) ---
+check("pickDeclaredPages keeps keyword pages AND opaque content slugs (Wix /about-3-1)", () => {
+  const sitemap = [
+    "https://sp.com/about-3-4",
+    "https://sp.com/about-3-1", // the events/HH page — scoreHhUrl 0, must survive
+    "https://sp.com/cocktails", // drinks → scoreHhUrl 60
+    "https://sp.com/cart", // noise → dropped
+    "https://sp.com/privacy", // noise → dropped
+    "https://other.com/menu", // cross-origin → dropped
+  ];
+  const picked = pickDeclaredPages(sitemap, "https://sp.com/", 6);
+  assert.equal(picked[0], "https://sp.com/cocktails", "keyword page ranks first");
+  assert.ok(picked.includes("https://sp.com/about-3-1"), "opaque about-3-1 kept");
+  assert.ok(!picked.some((u) => /cart|privacy/.test(u)), "cart/privacy dropped");
+  assert.ok(!picked.some((u) => u.startsWith("https://other")), "cross-origin dropped");
+});
+check("pickDeclaredPages respects the limit", () => {
+  const many = Array.from({ length: 20 }, (_, i) => `https://sp.com/about-${i}`);
+  assert.equal(pickDeclaredPages(many, "https://sp.com/", 6).length, 6);
+});
+
+// --- siteVerdictFromFetch with sitemap URLs (declared pages reach the candidate list) ---
+check("declared sitemap page (no anchor in raw HTML) becomes a candidate, ahead of guesses", () => {
+  // A Wix-style page: raw HTML has no <a href="/about-3-1"> (JS nav), but the sitemap does.
+  const v = siteVerdictFromFetch(
+    "https://sp.com/",
+    { kind: "response", status: 200, html: "<html><body>JS shell</body></html>", finalUrl: "https://sp.com/" },
+    ["https://sp.com/about-3-1", "https://sp.com/cocktails"],
+  );
+  assert.equal(v.decision, "extract");
+  const idxAbout = v.hhSignalUrls.indexOf("https://sp.com/about-3-1");
+  const idxGuess = v.hhSignalUrls.indexOf("https://sp.com/happy-hour"); // a pure guess
+  assert.ok(idxAbout >= 0, "declared /about-3-1 present in candidates");
+  assert.ok(idxGuess === -1 || idxAbout < idxGuess, "declared page ranks ahead of guessed /happy-hour");
 });
 
 console.log(`\n${passed} checks passed.`);
