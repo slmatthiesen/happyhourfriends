@@ -57,5 +57,8 @@ export async function startWorkers(): Promise<void> {
 
   await boss.createQueue(CRON.reverify);
   await boss.work(CRON.reverify, async () => handleReverify());
-  await boss.schedule(CRON.reverify, "0 7 * * *"); // daily 07:00 UTC
+  // Daily auto-reverify DISABLED (operator opted out — recurring cost outweighed value).
+  // The queue + handler remain so it can still be triggered manually if needed; we just
+  // never auto-schedule it. unschedule() clears any schedule pg-boss already persisted.
+  await boss.unschedule(CRON.reverify).catch(() => {});
 }
