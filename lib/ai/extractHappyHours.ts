@@ -283,6 +283,42 @@ function normaliseOffering(raw: RawOffering): ExtractedOffering | null {
   };
 }
 
+/**
+ * Coerce a model-supplied time into a DB-legal 24-hour "HH:MM" string, or null.
+ * The model is asked for "HH:MM" strings but doesn't always comply — it sometimes
+ * returns a bare hour NUMBER (e.g. "Fish Fry 11AM-9PM" → 11 / 21), which would crash
+ * the postgres `time` bind and abort a whole batch persist. Handles: numeric hours,
+ * "HH:MM"/"HH:MM:SS", bare "11", and 12-hour "9pm"/"11:30am". Anything else → null.
+ */
+export function normaliseTime(v: unknown): string | null {
+  if (v === null || v === undefined) return null;
+  const hhmm = (h: number, m: number) =>
+    h >= 0 && h <= 23 && m >= 0 && m <= 59
+      ? `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`
+      : null;
+
+  if (typeof v === "number") return Number.isInteger(v) ? hhmm(v, 0) : null;
+  if (typeof v !== "string") return null;
+  const s = v.trim().toLowerCase();
+  if (!s) return null;
+
+  // 12-hour: "9pm", "11:30 am", "12am"
+  let m = s.match(/^(\d{1,2})(?::(\d{2}))?\s*([ap])\.?m\.?$/);
+  if (m) {
+    let h = Number(m[1]) % 12;
+    if (m[3] === "p") h += 12;
+    return hhmm(h, m[2] ? Number(m[2]) : 0);
+  }
+  // 24-hour "HH:MM" / "HH:MM:SS"
+  m = s.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+  if (m) return hhmm(Number(m[1]), Number(m[2]));
+  // bare hour "11"
+  m = s.match(/^(\d{1,2})$/);
+  if (m) return hhmm(Number(m[1]), 0);
+
+  return null;
+}
+
 /** §13: drop HH entries with no/denylisted sourceUrl, invalid dayOfWeek, or malformed time shape. */
 function normaliseHappyHour(raw: RawHappyHour): ExtractedHappyHour | null {
   const sourceUrl = raw.sourceUrl?.trim() ?? "";
@@ -293,8 +329,8 @@ function normaliseHappyHour(raw: RawHappyHour): ExtractedHappyHour | null {
   );
   if (daysOfWeek.length === 0) return null;
 
-  const rawStart = raw.startTime ?? null;
-  const rawEnd = raw.endTime ?? null;
+  const rawStart = normaliseTime(raw.startTime);
+  const rawEnd = normaliseTime(raw.endTime);
 
   // CAPTURE policy (2026-05-31): never throw away a structurally-valid window for
   // realness reasons — that decision belongs to lib/places/realnessGate downstream.
