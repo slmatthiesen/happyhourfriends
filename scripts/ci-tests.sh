@@ -45,6 +45,7 @@ TESTS=(
   test:parse-hh-text
   test:free-extract
   test:hh-outcomes
+  test:hh-golden
 )
 
 failed=()
