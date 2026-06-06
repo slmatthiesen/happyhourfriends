@@ -168,4 +168,18 @@ check("decimal '$3.5 wells' not parsed as 3:5 time", () => {
   assert.equal(clean(parseHappyHours("Happy hour $3.5 wells and $6 wine", URL)).length, 0);
 });
 
+// --- new signal: bare-number range w/o meridiem or 'happy hour' is implausible ---
+check("bare-number range, deal word only, no meridiem → implausible (likely operating hours)", () => {
+  const w = win(parseHappyHours("Daily specials 13-17", URL));
+  assert.equal(w.confidence, "clean"); // still parses
+  assert.equal(w.plausible, false);    // but low-confidence → hidden for review
+});
+check("explicit 'happy hour' with bare numbers stays plausible", () => {
+  assert.equal(win(parseHappyHours("Happy hour 3-7", URL)).plausible, true);
+});
+check("explicit meridiem stays plausible even without 'happy hour' literal", () => {
+  // deal word + explicit pm → confident enough
+  assert.equal(win(parseHappyHours("Specials daily 4pm-6pm", URL)).plausible, true);
+});
+
 console.log(`\n${passed} checks passed.`);

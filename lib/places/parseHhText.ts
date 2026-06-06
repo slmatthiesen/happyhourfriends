@@ -114,6 +114,11 @@ interface TimeRange {
   endTime: string | null;
   /** True when NEITHER end stated am/pm and the meridiem was inferred for both. */
   meridiemInferred: boolean;
+  /**
+   * True when at least one endpoint wrote an explicit am/pm (or was unambiguously
+   * 24-hour, i.e. hour ≥ 13). False means the whole range used bare numbers only.
+   */
+  hadExplicitMeridiem: boolean;
 }
 
 /**
@@ -131,17 +136,21 @@ export function parseTimeRange(s: string, hhContext: boolean): TimeRange | null 
     const stated = mer(openTo[3]);
     const e = clock(+openTo[1], openTo[2] ? +openTo[2] : 0, stated ?? (hhContext ? "pm" : null));
     if (e === null) return null;
-    return { startTime: null, endTime: e, meridiemInferred: !stated };
+    return { startTime: null, endTime: e, meridiemInferred: !stated, hadExplicitMeridiem: !!stated };
   }
   // "9pm - close"
   const toClose = new RegExp(`${TIME}${SEP}${CLOSE}`, "i").exec(t);
   if (toClose) {
     const stated = mer(toClose[3]);
+    const rawH = +toClose[1];
+    // Unambiguously 24h (≥13) → don't force pm; use raw hour as-is (no meridiem).
+    const is24h = !stated && rawH >= 13;
     let sm = stated;
-    if (!sm && hhContext && +toClose[1] >= 1 && +toClose[1] <= 11) sm = "pm";
-    const s = clock(+toClose[1], toClose[2] ? +toClose[2] : 0, sm);
+    if (!sm && !is24h && hhContext && rawH >= 1 && rawH <= 11) sm = "pm";
+    const s = clock(rawH, toClose[2] ? +toClose[2] : 0, sm);
     if (s === null) return null;
-    return { startTime: s, endTime: null, meridiemInferred: !stated };
+    // hadExplicitMeridiem tracks ONLY written am/pm tokens, not 24h inference.
+    return { startTime: s, endTime: null, meridiemInferred: !stated && !is24h, hadExplicitMeridiem: !!stated };
   }
   // "3pm - 7pm" / "3 - 7pm" / "3-7"
   const range = new RegExp(`${TIME}${SEP}${TIME}`, "i").exec(t);
@@ -149,15 +158,25 @@ export function parseTimeRange(s: string, hhContext: boolean): TimeRange | null 
     let sMer = mer(range[3]);
     let eMer = mer(range[6]);
     const inferred = !sMer && !eMer; // neither end carried a meridiem
-    if (!sMer && eMer) sMer = eMer;            // "3-7pm" → both pm
-    if (sMer && !eMer) eMer = sMer;
-    if (!sMer && !eMer && hhContext) { sMer = "pm"; eMer = "pm"; } // "3-7" under HH
-    const start = clock(+range[1], range[2] ? +range[2] : 0, sMer);
-    const end = clock(+range[4], range[5] ? +range[5] : 0, eMer);
+    const sRawH = +range[1];
+    const eRawH = +range[4];
+    // Either endpoint ≥13 → unambiguously 24h; leave both meridiems null so clock()
+    // treats the value as a raw 24h hour. Don't apply pm-inference in this case.
+    const is24h = !sMer && !eMer && (sRawH >= 13 || eRawH >= 13);
+    if (!is24h) {
+      if (!sMer && eMer) sMer = eMer;           // "3-7pm" → both pm
+      if (sMer && !eMer) eMer = sMer;
+      if (!sMer && !eMer && hhContext) { sMer = "pm"; eMer = "pm"; } // "3-7" under HH
+    }
+    const start = clock(sRawH, range[2] ? +range[2] : 0, sMer);
+    const end = clock(eRawH, range[5] ? +range[5] : 0, eMer);
     // Either endpoint invalid (price/quantity/year leak, minute overflow, pm-inference
     // overflow like "21"→33) → reject the whole range, emit no window.
     if (start === null || end === null) return null;
-    return { startTime: start, endTime: end, meridiemInferred: inferred };
+    // hadExplicitMeridiem: true only when the user wrote an am/pm token; 24h bare
+    // numbers do NOT count as explicit meridiem for the plausibility signal.
+    const hadExplicitMeridiem = !!(mer(range[3]) || mer(range[6]));
+    return { startTime: start, endTime: end, meridiemInferred: inferred, hadExplicitMeridiem };
   }
   return null;
 }
@@ -199,6 +218,8 @@ function durationMinutes(startTime: string, endTime: string): number {
  * `isClean` is false → plausible is always false (fuzzy windows are never auto-written).
  * `hhMatched` — whether HH_RE matched the segment (vs only a deal word).
  * `daysAssumed` — whether days were assumed (no days stated in the segment).
+ * `hadExplicitMeridiem` — true if at least one endpoint wrote am/pm or was unambiguously
+ *   24h (h ≥ 13). False means both ends used bare numbers only.
  */
 function computePlausible(
   isClean: boolean,
@@ -206,6 +227,7 @@ function computePlausible(
   endTime: string | null,
   hhMatched: boolean,
   daysAssumed: boolean,
+  hadExplicitMeridiem: boolean,
 ): boolean {
   if (!isClean) return false;
 
@@ -218,6 +240,10 @@ function computePlausible(
 
   // Signal 3: only a deal word matched (not HH_RE) AND days were assumed.
   if (!hhMatched && daysAssumed) return false;
+
+  // Signal 4: bare-number range with no explicit meridiem and no 'happy hour' literal.
+  // Most likely operating/menu hours leaked through — hide for operator review.
+  if (!hadExplicitMeridiem && !hhMatched) return false;
 
   return true;
 }
@@ -342,7 +368,7 @@ export function parseHappyHours(text: string, sourceUrl: string): ParsedWindow[]
       if (seen.has(key)) continue;
       seen.add(key);
 
-      const plausible = computePlausible(isClean, range.startTime, range.endTime, hhMatched, daysAssumed);
+      const plausible = computePlausible(isClean, range.startTime, range.endTime, hhMatched, daysAssumed, range.hadExplicitMeridiem);
 
       out.push({
         daysOfWeek: days ?? [],
