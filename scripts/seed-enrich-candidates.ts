@@ -37,6 +37,7 @@ import {
   parseRecordedExtract,
   type ExtractResult,
 } from "@/lib/ai/extractHappyHours";
+import { freeExtractFromPages } from "@/lib/ai/freeExtract";
 import { costCents } from "@/lib/ai/pricing";
 import { createBatch, pollBatch, streamResults, type BatchRequest } from "@/lib/ai/batch";
 import {
@@ -1058,6 +1059,28 @@ async function prepAndSubmit(
       await markProcessed(sql, c.id, persisted.outcome, persisted.venueId);
       tally.stubs++;
       tally.noData.push({ name: c.name, reason: "no_hh_signal" });
+      continue;
+    }
+    // Free deterministic parse: if the HTML yields >=1 clean window, persist it for $0
+    // and DON'T add this candidate to the paid batch. (Implausible windows are written
+    // hidden by the persist layer — venue stays a stub for review.)
+    const free = freeExtractFromPages(built.pages, { model: "deterministic-html-v1", promptHash: built.promptHash });
+    if (free) {
+      const persisted = await persistExtraction(sql, { cityId: city.id, placesKey, ctx, extracted: free });
+      await markProcessed(sql, c.id, persisted.outcome, persisted.venueId);
+      if (persisted.activeCount > 0) {
+        tally.full++;
+        const hiddenNote = persisted.hiddenCount ? ` (+${persisted.hiddenCount} hidden)` : "";
+        console.log(`  ✓ ${c.name}: free parse → ${free.happyHours.length} window(s) ($0)${hiddenNote}`);
+      } else if (persisted.hiddenCount > 0) {
+        tally.hiddenVenues++;
+        tally.hiddenWindows += persisted.hiddenCount;
+        console.log(`  ⊘ ${c.name}: free parse → ${persisted.hiddenCount} window(s) hidden for review ($0)`);
+      } else {
+        tally.stubs++;
+        tally.noData.push({ name: c.name, reason: "all_dropped" });
+        console.log(`  ◦ ${c.name}: free parse → no usable windows ($0)`);
+      }
       continue;
     }
     requests.push({ custom_id: c.id, params: built.params });
