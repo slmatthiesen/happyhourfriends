@@ -167,7 +167,7 @@ function isBlockedByRobots(
 // HTML stripping
 // ---------------------------------------------------------------------------
 
-function stripHtml(html: string, maxContent: number = MAX_CONTENT): string {
+export function stripHtml(html: string, maxContent: number = MAX_CONTENT): string {
   // 1. Drop heavy noise FIRST: comments, scripts/styles/svg/etc., inline style attrs,
   //    and base64 data URIs. On SSR builders this is the bulk of the bytes.
   let text = html

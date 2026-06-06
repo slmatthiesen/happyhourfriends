@@ -35,6 +35,7 @@
     "prune:empty-venues": "tsx scripts/prune-empty-venues.ts",
     "review:suspect": "tsx scripts/review-suspect-hh.ts",
     "reextract:stubs": "tsx scripts/reextract-stubs.ts",
+    "reextract:stubs:free": "tsx scripts/reextract-stubs-free.ts",
     "diagnose:no-hh": "tsx scripts/diagnose-no-hh.ts",
     "triage:stubs": "tsx scripts/triage-stub-sites.ts",
     "rank:stubs": "tsx scripts/rank-stub-candidates.ts",
@@ -71,6 +72,10 @@
     "test:extract-time": "tsx scripts/test-extract-time.ts",
     "test:sitemap": "tsx scripts/test-sitemap.ts",
     "test:routes": "tsx scripts/test-routes.ts",
+    "test:parse-hh-text": "tsx scripts/test-parse-hh-text.ts",
+    "test:free-extract": "tsx scripts/test-free-extract.ts",
+    "test:hh-outcomes": "tsx scripts/test-hh-outcomes.ts",
+    "test:hh-golden": "tsx scripts/test-hh-golden.ts",
     "test:daly-boundary": "tsx scripts/test-daly-boundary.ts"
   },
   "dependencies": {

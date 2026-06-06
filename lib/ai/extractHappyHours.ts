@@ -34,6 +34,8 @@ import { costCents as calcCostCents } from "@/lib/ai/pricing";
 import { MODELS } from "@/lib/ai/models";
 import { loadPrompt, splitPrompt } from "@/lib/ai/promptHash";
 import { fetchPages, renderPagesAsBlocks, pagesHaveExtractableSignal } from "@/lib/ai/siteContent";
+import type { FetchedPage } from "@/lib/ai/siteContent";
+import { freeExtractFromPages } from "@/lib/ai/freeExtract";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -47,6 +49,8 @@ export interface ExtractInput {
   cityName?: string | null;
   /** Venue's own HH/menu pages found by site triage — fetch these FIRST. */
   priorityUrls?: string[];
+  /** Skip the headless-render fallback (the free batch sweep wants pure HTTP, no browser). */
+  noRender?: boolean;
 }
 
 export interface ExtractedOffering {
@@ -82,6 +86,9 @@ export interface ExtractedHappyHour {
   /** URL actually fetched this run that contains this schedule. Required by §13. */
   sourceUrl: string;
   offerings: ExtractedOffering[];
+  /** Free deterministic parse only: force this window HIDDEN (active=false) for review
+   *  even when the realness gate would pass it. Unset by the AI extractor. */
+  suspect?: boolean;
 }
 
 export interface ExtractResult {
@@ -395,6 +402,9 @@ export interface ExtractRequest {
   /** Free pre-check: do the fetched pages show ANY happy-hour/deal signal (or a PDF/image)?
    *  When false, the page has no happy hour to find — callers skip the paid call ($0). */
   hasSignal: boolean;
+  /** The pages we fetched (text/PDF/image). Lets callers run the free deterministic
+   *  parser without re-fetching. */
+  pages: FetchedPage[];
 }
 
 const FORCE_RECORD: ToolChoiceTool = { type: "tool", name: "record_happy_hours" };
@@ -419,7 +429,7 @@ export async function buildExtractRequest(input: ExtractInput): Promise<ExtractR
   // optional: the dynamic import keeps playwright out of the app bundle, and a load failure
   // (e.g. Chromium not installed) degrades to plain-fetch-only rather than breaking enrich.
   let render: typeof import("@/lib/verification/renderUrl").renderUrl | undefined;
-  if (process.env.DISABLE_HEADLESS_RENDER !== "1") {
+  if (!input.noRender && process.env.DISABLE_HEADLESS_RENDER !== "1") {
     try {
       render = (await import("@/lib/verification/renderUrl")).renderUrl;
     } catch {
@@ -465,6 +475,7 @@ export async function buildExtractRequest(input: ExtractInput): Promise<ExtractR
     model: MODELS.extractor,
     fetchedUrls: pages.map((p) => p.url),
     hasSignal: pagesHaveExtractableSignal(pages),
+    pages,
   };
 }
 
@@ -541,7 +552,7 @@ const EMPTY_PARSE = {
 export async function extractHappyHours(
   input: ExtractInput,
 ): Promise<ExtractResult> {
-  const { params, promptHash, model, fetchedUrls, hasSignal } = await buildExtractRequest(input);
+  const { params, promptHash, model, fetchedUrls, hasSignal, pages } = await buildExtractRequest(input);
 
   // Nothing fetched (no reachable site / all fetches failed) → no point spending a token.
   if (fetchedUrls.length === 0) {
@@ -567,6 +578,14 @@ export async function extractHappyHours(
       promptHash,
       model,
     };
+  }
+
+  // Free deterministic parse: if the fetched HTML yields >=1 CLEAN happy-hour window,
+  // take it for $0 and skip the paid model call entirely.
+  const free = freeExtractFromPages(pages, { model: "deterministic-html-v1", promptHash });
+  if (free) {
+    if (process.env.EXTRACT_DEBUG) console.error(`[extract] free parse hit: ${free.happyHours.length} window(s), $0`);
+    return free;
   }
 
   const response: Message = await anthropic().messages.create(params);
