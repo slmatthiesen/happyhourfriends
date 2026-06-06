@@ -113,7 +113,7 @@ type SeedOutcome =
   | "error";
 
 /** Why a venue ended up with no happy-hour data — for the end-of-run report. */
-type NoDataReason = "no_website" | "site_unreachable" | "zero_windows" | "all_dropped" | "errored";
+type NoDataReason = "no_website" | "site_unreachable" | "no_hh_signal" | "zero_windows" | "all_dropped" | "errored";
 interface NoDataEntry {
   name: string;
   reason: NoDataReason;
@@ -1045,6 +1045,21 @@ async function prepAndSubmit(
       tally.noData.push({ name: c.name, reason: "site_unreachable" });
       continue;
     }
+    // Free pre-gate: pages fetched but show NO happy-hour/deal signal and carry no
+    // PDF/image menu → nothing to extract. Stub it for $0 instead of paying Claude to
+    // read "nothing here" (see lib/places/hhText.hasHhOrDealSignal).
+    if (!built.hasSignal) {
+      const persisted = await persistExtraction(sql, {
+        cityId: city.id,
+        placesKey,
+        ctx,
+        extracted: null,
+      });
+      await markProcessed(sql, c.id, persisted.outcome, persisted.venueId);
+      tally.stubs++;
+      tally.noData.push({ name: c.name, reason: "no_hh_signal" });
+      continue;
+    }
     requests.push({ custom_id: c.id, params: built.params });
     contexts[c.id] = ctx;
   }
@@ -1091,10 +1106,11 @@ async function finalize(sql: Sql, city: CityRow, tally: ReportTally): Promise<vo
     `Fallback (on-demand) count: ${tally.fallbackCount} / ${tally.totalRequests} requests`,
   );
 
-  const order: NoDataReason[] = ["no_website", "site_unreachable", "zero_windows", "all_dropped", "errored"];
+  const order: NoDataReason[] = ["no_website", "site_unreachable", "no_hh_signal", "zero_windows", "all_dropped", "errored"];
   const labels: Record<NoDataReason, string> = {
     no_website: "no website on file",
     site_unreachable: "website on file, but no page fetched (down / blocked)",
+    no_hh_signal: "pages fetched, but no happy-hour/deal wording (skipped — $0, never sent to Claude)",
     zero_windows: "website, 0 windows extracted",
     all_dropped: "recorded but all rows dropped (§13 / denylist)",
     errored: "errored",
