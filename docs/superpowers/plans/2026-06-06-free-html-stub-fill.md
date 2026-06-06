@@ -341,11 +341,57 @@ git commit -m "feat(parse): deterministic happy-hour text parser ($0, clean/fuzz
 
 ---
 
+## Task 1c: window plausibility flag (added 2026-06-06 per operator)
+
+**Goal:** even a cleanly-PARSED window can be an implausible HH (a misparse of business hours, or thin evidence). Add a structural `plausible` flag so the adapter can write implausible windows HIDDEN (`active=false`, venue stays a stub) for operator review, instead of showing them. NO time-of-day special-casing (late-night HH like 9pm–close / 11pm–2am must stay plausible — cover this in tests).
+
+**Files:** Modify `lib/places/parseHhText.ts`; Test `scripts/test-parse-hh-text.ts`.
+
+`ParsedWindow` gains `plausible: boolean`. A clean window is **implausible** when ANY structural signal fires:
+- **Too long:** both start & end known and duration > 6h (cross-midnight aware: if end<start add 24h). Catches business-hours misparses (11am–10pm). 9pm–close (end null) and 11pm–2am (3h) are NOT penalized.
+- **Degenerate:** both known and duration ≤ 0 (start == end).
+- **Weak evidence:** the window's context was a generic deal word only (no literal "happy hour") AND its days were assumed (none stated).
+
+Otherwise `plausible: true`. `fuzzy` windows get `plausible: false` too (irrelevant — never written). The parser must expose enough to compute "weak evidence": track whether HH_RE (not just a deal word) matched the segment, and whether days were assumed.
+
+Tests to add (keep all 20 passing):
+
+```ts
+check("normal afternoon HH is plausible", () => {
+  assert.equal(win(parseHappyHours("Happy Hour: 3pm-7pm daily", URL)).plausible, true);
+});
+check("late-night HH to close stays plausible (no time-of-day penalty)", () => {
+  assert.equal(win(parseHappyHours("Happy hour 9pm-close daily", URL)).plausible, true);
+});
+check("cross-midnight 11pm-2am stays plausible", () => {
+  assert.equal(win(parseHappyHours("Happy Hour 11pm-2am Sunday through Thursday", URL)).plausible, true);
+});
+check("business-hours-shaped window (>6h) is implausible", () => {
+  const ws = clean(parseHappyHours("Happy hour 11am-10pm daily", URL));
+  assert.equal(ws.length, 1);
+  assert.equal(ws[0].plausible, false);
+});
+check("weak evidence (deal word only + assumed days) is implausible", () => {
+  assert.equal(win(parseHappyHours("Specials 4-6pm", URL)).plausible, false);
+});
+check("explicit happy hour + stated days + normal window is plausible", () => {
+  assert.equal(win(parseHappyHours("Happy hour Mon-Fri 4pm-6pm", URL)).plausible, true);
+});
+```
+
+Commit: `feat(parse): structural plausibility flag (hide implausible windows for review)`.
+
+---
+
 ## Task 2: Adapter `lib/ai/freeExtract.ts`
 
 **Files:**
 - Create: `lib/ai/freeExtract.ts`
+- Modify: `lib/ai/extractHappyHours.ts` (add optional `suspect?: boolean` to `ExtractedHappyHour`)
+- Modify: `lib/recover/resolveVenue.ts` (`persistExtractedWindows`: `active: !verdict.suspect && !hh.suspect`)
 - Test: `scripts/test-free-extract.ts`
+
+**Plausibility plumbing (Task 1c):** the adapter includes every `clean` window but sets `suspect: !w.plausible` on the `ExtractedHappyHour`. `persistExtractedWindows` writes `suspect` windows `active=false` (hidden, venue stays a stub for review) — the AI path never sets `suspect`, so it's unchanged. `freeExtractFromPages` returns null only when there are ZERO clean windows (an all-implausible page still returns a result so those windows are captured hidden). The Step-3 code below must add `suspect: !w.plausible` to each pushed `ExtractedHappyHour` and drop the plausibility filter (keep the `confidence === "clean"` filter).
 
 - [ ] **Step 1: Write the failing test** — create `scripts/test-free-extract.ts`:
 
