@@ -61,6 +61,7 @@ interface Counters {
   windowsLive: number;
   windowsHidden: number;
   stillEmpty: number;
+  skippedNoSignal: number;
   spentCents: number;
 }
 
@@ -158,6 +159,11 @@ async function runBatch(
     if (built.fetchedUrls.length === 0) {
       c.stillEmpty++;
       console.log(`  ◦ ${q.venue.name}: no fetchable content (skipped)`);
+      continue;
+    }
+    if (!built.hasSignal) {
+      c.skippedNoSignal++;
+      console.log(`  ⊘ ${q.venue.name}: no happy-hour/deal signal on page (skipped, $0)`);
       continue;
     }
     requests.push({ custom_id: q.venue.id, params: built.params });
@@ -298,7 +304,7 @@ async function main() {
   try {
     // Resume mode: persist an already-submitted batch by id (no re-spend).
     if (args.collect) {
-      const c: Counters = { venuesRecovered: 0, windowsLive: 0, windowsHidden: 0, stillEmpty: 0, spentCents: 0 };
+      const c: Counters = { venuesRecovered: 0, windowsLive: 0, windowsHidden: 0, stillEmpty: 0, skippedNoSignal: 0, spentCents: 0 };
       console.log(`[COLLECT] pulling results from ${args.collect}…`);
       await runCollect(sql, args.collect, firstOfCurrentMonth(), c);
       console.log("\n── Collect complete ──────────────────────────────────────");
@@ -312,7 +318,7 @@ async function main() {
     // Operator-targeted mode: extract one venue from explicit URL(s).
     if (args.venue) {
       if (args.urls.length === 0) throw new Error("--venue requires at least one --url <menu/PDF url>");
-      const c: Counters = { venuesRecovered: 0, windowsLive: 0, windowsHidden: 0, stillEmpty: 0, spentCents: 0 };
+      const c: Counters = { venuesRecovered: 0, windowsLive: 0, windowsHidden: 0, stillEmpty: 0, skippedNoSignal: 0, spentCents: 0 };
       await runVenue(sql, args.city, args.venue, args.urls, firstOfCurrentMonth(), c);
       console.log(`\n  spend: $${(c.spentCents / 100).toFixed(2)}`);
       return;
@@ -366,7 +372,7 @@ async function main() {
     }
 
     const month = firstOfCurrentMonth();
-    const c: Counters = { venuesRecovered: 0, windowsLive: 0, windowsHidden: 0, stillEmpty: 0, spentCents: 0 };
+    const c: Counters = { venuesRecovered: 0, windowsLive: 0, windowsHidden: 0, stillEmpty: 0, skippedNoSignal: 0, spentCents: 0 };
 
     if (!args.dryRun) {
       if (args.quick) await runQuick(sql, city.id, city.name, month, qualified, c);
@@ -381,6 +387,7 @@ async function main() {
       console.log(`  venues recovered → live: ${c.venuesRecovered}`);
       console.log(`  windows added (live):    ${c.windowsLive}`);
       console.log(`  windows hidden:          ${c.windowsHidden}`);
+      console.log(`  skipped (no HH signal):  ${c.skippedNoSignal}  ($0 — never sent to Claude)`);
       console.log(`  still no window:         ${c.stillEmpty}`);
       console.log(`  spend:                   $${(c.spentCents / 100).toFixed(2)}`);
     } else {
