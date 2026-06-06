@@ -221,7 +221,13 @@ const SEGMENT_SPLIT = /(?:\.(?=\s)|[;·!\n\r])+/;
  */
 export function parseHappyHours(text: string, sourceUrl: string): ParsedWindow[] {
   if (!text || !text.trim()) return [];
-  const norm = text.replace(/ /g, " ").replace(/[ \t]+/g, " ");
+  // Normalize "a.m."/"p.m." (with or without internal space) to "am"/"pm" BEFORE
+  // segment-splitting — otherwise the period in "3 p.m. - 6 p.m." triggers SEGMENT_SPLIT
+  // and severs the time range across segments, causing the window to be dropped.
+  const norm = text
+    .replace(/\b([ap])\.\s?m\.?/gi, "$1m")
+    .replace(/ /g, " ")
+    .replace(/[ \t]+/g, " ");
   const out: ParsedWindow[] = [];
   const seen = new Set<string>();
 

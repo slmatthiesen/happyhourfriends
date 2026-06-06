@@ -109,4 +109,18 @@ check("separate Mon and Fri happy hours stay distinct", () => {
   assert.deepEqual(dayss, [[1], [5]]);
 });
 
+// --- meridiem abbreviations with periods (p.m. / a.m.) ---
+check("spaced meridiem abbreviations 'p.m.' parse (not split apart)", () => {
+  const w = win(parseHappyHours("Happy hour 3 p.m. - 6 p.m. Mon-Fri", URL));
+  assert.deepEqual(w.daysOfWeek, [1, 2, 3, 4, 5]);
+  assert.equal(w.startTime, "15:00");
+  assert.equal(w.endTime, "18:00");
+});
+check("'11 a.m. - 2 p.m. daily' parses to clean window", () => {
+  const w = win(parseHappyHours("Happy hour 11 a.m. - 2 p.m. daily", URL));
+  assert.deepEqual(w.daysOfWeek, [1, 2, 3, 4, 5, 6, 7]);
+  assert.equal(w.startTime, "11:00");
+  assert.equal(w.endTime, "14:00");
+});
+
 console.log(`\n${passed} checks passed.`);
