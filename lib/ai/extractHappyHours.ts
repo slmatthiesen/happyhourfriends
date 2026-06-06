@@ -427,7 +427,10 @@ export async function buildExtractRequest(input: ExtractInput): Promise<ExtractR
     }
   }
   const pages = await fetchPages(
-    [...(input.priorityUrls ?? []), input.websiteUrl, input.otherUrl],
+    // The venue's OWN page goes FIRST: prepending the (up to 12) discovered priorityUrls
+    // would push websiteUrl past MAX_FETCH and it never got fetched — so a site whose HH
+    // sits on its given URL (Philly's /index.php/scottsdale/) was dropped before fetch.
+    [input.websiteUrl, ...(input.priorityUrls ?? []), input.otherUrl],
     MAX_FETCH,
     // Tier-2: menus bury HH deep in big SSR pages — give the extractor a larger,
     // menu-dense budget than the verifier's default 8k (siteContent keeps the
