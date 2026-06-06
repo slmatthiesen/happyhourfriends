@@ -82,6 +82,9 @@ export interface ExtractedHappyHour {
   /** URL actually fetched this run that contains this schedule. Required by §13. */
   sourceUrl: string;
   offerings: ExtractedOffering[];
+  /** Free deterministic parse only: force this window HIDDEN (active=false) for review
+   *  even when the realness gate would pass it. Unset by the AI extractor. */
+  suspect?: boolean;
 }
 
 export interface ExtractResult {

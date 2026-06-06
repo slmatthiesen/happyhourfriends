@@ -91,7 +91,7 @@ export async function persistExtractedWindows(
         endTime: hh.endTime,
         locationWithinVenue: hh.locationWithinVenue as typeof happyHours.$inferInsert["locationWithinVenue"],
         notes: hh.notes,
-        active: !verdict.suspect,
+        active: !verdict.suspect && !hh.suspect,
         extractConfidence: String(extracted.confidence),
         timeKnown: hh.timeKnown,
         sourceUrl: hh.sourceUrl,
