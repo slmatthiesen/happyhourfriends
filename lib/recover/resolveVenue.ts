@@ -81,6 +81,10 @@ export async function persistExtractedWindows(
       timeKnown: hh.timeKnown,
       confidence: extracted.confidence,
     });
+    // Hidden if the realness gate is suspicious OR the free parser flagged the window
+    // implausible. Used for the insert, the live/hidden tally, AND the audit row so all
+    // three agree (a window hidden only via hh.suspect must not count as live / promote).
+    const isActive = !verdict.suspect && !hh.suspect;
     const [row] = await db
       .insert(happyHours)
       .values({
@@ -91,7 +95,7 @@ export async function persistExtractedWindows(
         endTime: hh.endTime,
         locationWithinVenue: hh.locationWithinVenue as typeof happyHours.$inferInsert["locationWithinVenue"],
         notes: hh.notes,
-        active: !verdict.suspect && !hh.suspect,
+        active: isActive,
         extractConfidence: String(extracted.confidence),
         timeKnown: hh.timeKnown,
         sourceUrl: hh.sourceUrl,
@@ -99,8 +103,8 @@ export async function persistExtractedWindows(
       .onConflictDoNothing()
       .returning({ id: happyHours.id });
     if (!row) continue; // duplicate window already present
-    if (verdict.suspect) hidden++;
-    else live++;
+    if (isActive) live++;
+    else hidden++;
     for (const off of hh.offerings) {
       await db.insert(offerings).values({
         happyHourId: row.id,
@@ -120,7 +124,7 @@ export async function persistExtractedWindows(
       tableName: "happy_hours",
       rowId: row.id,
       beforeJsonb: null,
-      afterJsonb: { venueId, daysOfWeek: days, startTime: hh.startTime, endTime: hh.endTime, active: !verdict.suspect },
+      afterJsonb: { venueId, daysOfWeek: days, startTime: hh.startTime, endTime: hh.endTime, active: isActive },
       actor,
       reason: "stub resolve",
     });
