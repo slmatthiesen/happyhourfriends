@@ -39,6 +39,7 @@ TESTS=(
   test:cardinal-districts
   test:hh-text
   test:hh-signal-gate
+  test:extract-time
   test:sitemap
   test:routes
 )
