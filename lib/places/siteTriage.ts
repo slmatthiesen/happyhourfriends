@@ -12,6 +12,7 @@
  */
 
 import { scoreHhUrl } from "@/lib/places/hhText";
+import { discoverSitemapUrls, type TextFetcher } from "@/lib/places/sitemap";
 
 export type SiteKind = "real" | "social_only" | "none";
 export type Reachability = "ok" | "dead" | "parked" | "timeout";
@@ -239,6 +240,44 @@ export function guessMenuUrls(baseUrl: string): string[] {
   }
 }
 
+// Same-origin pages worth reading for HH even when the URL carries NO menu keyword.
+// Wix (and similar) auto-name a venue's events/HH page with an opaque slug like
+// `/about-3-1` — scoreHhUrl scores it 0, so the old `scoreHhUrl(u) > 0` filter dropped
+// it and the page (which holds the HH) was never fetched. CONTENT_HINT keeps such pages;
+// PAGE_NOISE drops cart/account/legal/ordering routes that never carry HH.
+const CONTENT_HINT =
+  /about|event|special|menu|food|drink|dining|cocktail|happy|hour|deal|brunch|lunch|dinner|\bbar\b/i;
+const PAGE_NOISE =
+  /\/(cart|checkout|account|login|sign-?in|register|privacy|terms|gift|careers?|jobs?|contact|reservations?|order-online|form-confirmation|sitemap)\b/i;
+
+/**
+ * From a pool of declared URLs (a sitemap, or a site's embedded routes), pick the
+ * same-origin pages most worth fetching for happy-hour info: keyword pages first
+ * (scoreHhUrl), then about/events/dining-type pages, dropping obvious non-content.
+ * Pure + exported for unit testing.
+ */
+export function pickDeclaredPages(urls: string[], baseUrl: string, limit = 6): string[] {
+  let origin: string;
+  try {
+    origin = new URL(baseUrl).origin;
+  } catch {
+    return [];
+  }
+  const scored = urls
+    .filter((u) => {
+      try {
+        return new URL(u).origin === origin;
+      } catch {
+        return false;
+      }
+    })
+    .filter((u) => !PAGE_NOISE.test(u))
+    .map((u) => ({ u, s: scoreHhUrl(u) }))
+    .filter((x) => x.s > 0 || CONTENT_HINT.test(x.u))
+    .sort((a, b) => b.s - a.s);
+  return [...new Set(scored.map((x) => x.u))].slice(0, limit);
+}
+
 /** Dedupe + rank candidate URLs most-likely-HH first (see hhText.scoreHhUrl). */
 export function rankCandidates(urls: string[], limit = 8): string[] {
   return [...new Set(urls)]
@@ -291,7 +330,11 @@ async function fetchHtml(url: string, ms = 15000): Promise<FetchOutcome> {
  * SACRED: a `timeout` is kept as a stub, never killed — a reachable-but-slow site
  * must survive. Only `network` failure, 5xx, or 4xx-gone (404–410) may kill.
  */
-export function siteVerdictFromFetch(url: string, outcome: FetchOutcome): SiteVerdict {
+export function siteVerdictFromFetch(
+  url: string,
+  outcome: FetchOutcome,
+  sitemapUrls: string[] = [],
+): SiteVerdict {
   if (outcome.kind === "timeout") {
     return { kind: "real", url, reachability: "timeout", hhSignalUrls: [], decision: "stub", reason: "slow site (timeout) — kept as stub" };
   }
@@ -328,10 +371,16 @@ export function siteVerdictFromFetch(url: string, outcome: FetchOutcome): SiteVe
     // score tier. (sort copies — never mutate extractMediaLinks' result in place.)
     const rankedMedia = [...media].sort((a, b) => scoreHhUrl(b) - scoreHhUrl(a));
     const links = extractHhSignalLinks(html, finalUrl);
-    const routes = extractPageRoutes(html, finalUrl).filter((u) => scoreHhUrl(u) > 0);
+    // Embedded routes (Wix pageUriSEO): keep keyword pages AND opaque content slugs
+    // (/about-3-1) — not just scoreHhUrl>0, which dropped the latter.
+    const routes = pickDeclaredPages(extractPageRoutes(html, finalUrl), finalUrl, 8);
     const confirmed = rankCandidates([...links, ...routes], 8);
+    // Pages the site DECLARES in its sitemap — the source of truth, no guessing. These
+    // rank ahead of speculative path guesses (a declared /about-3-1 / /scottsdale exists;
+    // a guessed /happy-hour usually 404s).
+    const declared = pickDeclaredPages(sitemapUrls, finalUrl, 6);
     const guesses = rankCandidates(guessMenuUrls(finalUrl), 12);
-    hhSignalUrls = [...new Set([...rankedMedia, ...confirmed, ...guesses])].slice(0, 12);
+    hhSignalUrls = [...new Set([...rankedMedia, ...confirmed, ...declared, ...guesses])].slice(0, 12);
   } else {
     hhSignalUrls = guessMenuUrls(url); // bot-blocked: still probe the obvious paths
   }
@@ -352,5 +401,30 @@ export async function triageSite(input: {
   }
 
   const outcome = await fetchHtml(cls.url!);
-  return siteVerdictFromFetch(cls.url!, outcome);
+
+  // Read the site's DECLARED pages (robots.txt → sitemap.xml) so discovery uses the
+  // source of truth instead of only guessing paths. Best-effort + free (plain HTTP);
+  // the menu/HH pages that hide from raw-HTML anchors on JS sites (Wix /about-3-1) are
+  // listed here. Only worth it on a live, non-parked page.
+  let sitemapUrls: string[] = [];
+  if (outcome.kind === "response" && outcome.status === 200 && !isParkedHtml(outcome.html)) {
+    let origin: string | null = null;
+    try {
+      origin = new URL(outcome.finalUrl).origin;
+    } catch {
+      origin = null;
+    }
+    if (origin) {
+      const fetchText: TextFetcher = async (u) => {
+        const r = await fetchHtml(u, 10000);
+        return r.kind === "response" && r.status === 200 ? r.html : null;
+      };
+      sitemapUrls = await discoverSitemapUrls(origin, fetchText, {
+        maxSitemaps: 4,
+        maxUrls: 80,
+      }).catch(() => []);
+    }
+  }
+
+  return siteVerdictFromFetch(cls.url!, outcome, sitemapUrls);
 }
