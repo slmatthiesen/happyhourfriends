@@ -26,6 +26,15 @@ export interface ParsedWindow {
   notes: string | null;
   offerings: ParsedOffering[];
   confidence: "clean" | "fuzzy";
+  /**
+   * Structural plausibility flag. `false` means a downstream adapter should hide
+   * this window for operator review rather than publishing it:
+   *   1. Duration > 6 hours (both times known, cross-midnight-aware).
+   *   2. Degenerate: both times known AND duration ≤ 0 (start == end).
+   *   3. Weak evidence: only a deal word matched (not HH_RE) AND days were assumed.
+   * `fuzzy` windows are always `false` (they're never auto-written anyway).
+   */
+  plausible: boolean;
   evidence: string;
   sourceUrl: string;
 }
@@ -151,6 +160,49 @@ function categorize(ctx: string, kind: ParsedOffering["kind"]): string {
   );
 }
 
+/**
+ * Duration in minutes between two "HH:MM" strings, cross-midnight aware.
+ * If end < start (cross-midnight), adds 1440 minutes before subtracting.
+ * Returns null if either string is falsy.
+ */
+function durationMinutes(startTime: string, endTime: string): number {
+  const toMin = (t: string) => {
+    const [h, m] = t.split(":").map(Number);
+    return h * 60 + (m ?? 0);
+  };
+  const s = toMin(startTime);
+  const e = toMin(endTime);
+  return e < s ? e + 1440 - s : e - s;
+}
+
+/**
+ * Compute the structural plausibility of a window.
+ * `isClean` is false → plausible is always false (fuzzy windows are never auto-written).
+ * `hhMatched` — whether HH_RE matched the segment (vs only a deal word).
+ * `daysAssumed` — whether days were assumed (no days stated in the segment).
+ */
+function computePlausible(
+  isClean: boolean,
+  startTime: string | null,
+  endTime: string | null,
+  hhMatched: boolean,
+  daysAssumed: boolean,
+): boolean {
+  if (!isClean) return false;
+
+  // Signal 1 & 2: both times known — check duration.
+  if (startTime !== null && endTime !== null) {
+    const dur = durationMinutes(startTime, endTime);
+    if (dur <= 0) return false;   // degenerate (start == end)
+    if (dur > 360) return false;  // > 6 hours
+  }
+
+  // Signal 3: only a deal word matched (not HH_RE) AND days were assumed.
+  if (!hhMatched && daysAssumed) return false;
+
+  return true;
+}
+
 /** Best-effort offerings from a snippet: "$N off X", "$N Y", "half-price Z". */
 export function parseOfferings(s: string, sourceUrl: string): ParsedOffering[] {
   const out: ParsedOffering[] = [];
@@ -237,6 +289,8 @@ export function parseHappyHours(text: string, sourceUrl: string): ParsedWindow[]
 
     // Context + days are scoped to THIS segment only.
     const hhContext = isHhContext(segment);
+    // Track whether the segment matched HH_RE explicitly (vs only a deal word).
+    const hhMatched = HH_RE.test(segment);
     const segDays = parseDays(segment);
 
     // Find ALL time ranges in the segment; emit one window per range.
@@ -249,7 +303,9 @@ export function parseHappyHours(text: string, sourceUrl: string): ParsedWindow[]
 
       let days = segDays;
       let notes: string | null = null;
-      if (!days && hhContext) { days = [1, 2, 3, 4, 5]; notes = "days assumed Mon–Fri (none stated)"; }
+      // Track whether days were assumed (none stated in text).
+      const daysAssumed = !segDays && hhContext;
+      if (daysAssumed) { days = [1, 2, 3, 4, 5]; notes = "days assumed Mon–Fri (none stated)"; }
 
       const timeKnown = !!(range.startTime || range.endTime);
       // Guard: a range whose meridiem was inferred for BOTH ends and that inverts
@@ -265,6 +321,8 @@ export function parseHappyHours(text: string, sourceUrl: string): ParsedWindow[]
       if (seen.has(key)) continue;
       seen.add(key);
 
+      const plausible = computePlausible(isClean, range.startTime, range.endTime, hhMatched, daysAssumed);
+
       out.push({
         daysOfWeek: days ?? [],
         allDay: false,
@@ -275,6 +333,7 @@ export function parseHappyHours(text: string, sourceUrl: string): ParsedWindow[]
         notes,
         offerings: isClean ? parseOfferings(segment, sourceUrl) : [],
         confidence: isClean ? "clean" : "fuzzy",
+        plausible,
         evidence: segment,
         sourceUrl,
       });

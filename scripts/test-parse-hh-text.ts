@@ -123,4 +123,26 @@ check("'11 a.m. - 2 p.m. daily' parses to clean window", () => {
   assert.equal(w.endTime, "14:00");
 });
 
+// --- plausibility flag ---
+check("normal afternoon HH is plausible", () => {
+  assert.equal(win(parseHappyHours("Happy Hour: 3pm-7pm daily", URL)).plausible, true);
+});
+check("late-night HH to close stays plausible (no time-of-day penalty)", () => {
+  assert.equal(win(parseHappyHours("Happy hour 9pm-close daily", URL)).plausible, true);
+});
+check("cross-midnight 11pm-2am stays plausible", () => {
+  assert.equal(win(parseHappyHours("Happy Hour 11pm-2am Sunday through Thursday", URL)).plausible, true);
+});
+check("business-hours-shaped window (>6h) is implausible", () => {
+  const ws = clean(parseHappyHours("Happy hour 11am-10pm daily", URL));
+  assert.equal(ws.length, 1);
+  assert.equal(ws[0].plausible, false);
+});
+check("weak evidence (deal word only + assumed days) is implausible", () => {
+  assert.equal(win(parseHappyHours("Specials 4-6pm", URL)).plausible, false);
+});
+check("explicit happy hour + stated days + normal window is plausible", () => {
+  assert.equal(win(parseHappyHours("Happy hour Mon-Fri 4pm-6pm", URL)).plausible, true);
+});
+
 console.log(`\n${passed} checks passed.`);
