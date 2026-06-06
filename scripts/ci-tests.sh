@@ -44,6 +44,7 @@ TESTS=(
   test:routes
   test:parse-hh-text
   test:free-extract
+  test:hh-outcomes
 )
 
 failed=()
