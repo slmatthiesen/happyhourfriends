@@ -12,12 +12,13 @@
  * Idempotent: only touches venues where google_place_id IS NULL; never overwrites a
  * place_id already claimed by another venue (reports the collision instead).
  *
- * Usage:  tsx scripts/backfill-place-ids.ts [--city tacoma] [--limit N]
+ * Usage:  tsx scripts/backfill-place-ids.ts --city tacoma --state wa [--limit N]
  * Required env: DATABASE_URL, GOOGLE_PLACES_API_KEY
  */
 import "dotenv/config";
 import postgres from "postgres";
 import { assignNeighborhoods } from "@/lib/geo/assignNeighborhoods";
+import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 const SEARCH_TEXT_ENDPOINT = "https://places.googleapis.com/v1/places:searchText";
 
@@ -28,7 +29,7 @@ interface PlaceResult {
   location?: { latitude?: number; longitude?: number };
 }
 
-function parseArgs(): { city: string; limit: number | null } {
+function parseArgs(): { limit: number | null } {
   const argv = process.argv.slice(2);
   const get = (f: string) => {
     const i = argv.indexOf(f);
@@ -36,7 +37,6 @@ function parseArgs(): { city: string; limit: number | null } {
   };
   const limitRaw = get("--limit");
   return {
-    city: get("--city") ?? "tacoma",
     limit: limitRaw != null ? parseInt(limitRaw, 10) : null,
   };
 }
@@ -85,18 +85,14 @@ async function main() {
     process.exit(1);
   }
 
+  const { slug, state } = requireCityArgs();
   const sql = postgres(dbUrl, { max: 1 });
   try {
-    const [city] = await sql<
-      {
-        id: string;
-        name: string;
-        state: string | null;
-        center_lat: string | null;
-        center_lng: string | null;
-      }[]
-    >`SELECT id, name, state, center_lat, center_lng FROM cities WHERE slug = ${args.city}`;
-    if (!city) throw new Error(`City '${args.city}' not found.`);
+    const cityBase = await resolveCity(sql, slug, state);
+    const [cityExtra] = await sql<{ center_lat: string | null; center_lng: string | null }[]>`
+      SELECT center_lat, center_lng FROM cities WHERE id = ${cityBase.id}
+    `;
+    const city = { ...cityBase, center_lat: cityExtra?.center_lat ?? null, center_lng: cityExtra?.center_lng ?? null };
 
     const bias = {
       lat: city.center_lat ? parseFloat(city.center_lat) : 47.2529,

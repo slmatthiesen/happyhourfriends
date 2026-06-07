@@ -7,19 +7,14 @@
  *     (higher-recall, first-party-only) extractor. Candidates still linked to a
  *     surviving (good, first-party) venue are left alone — enrich skips them.
  *
- * Re-runnable, city-scoped. Usage:  tsx scripts/reset-for-resource.ts --city tacoma
+ * Re-runnable, city-scoped. Usage:  tsx scripts/reset-for-resource.ts --city tacoma --state wa
  * Required env: DATABASE_URL
  */
 import "dotenv/config";
 import postgres from "postgres";
+import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 const AGGREGATOR_LIKE = ["%ultimatehappyhours%", "%seattletravel%", "%happyhour%", "%groupon%"];
-
-function parseArgs() {
-  const argv = process.argv.slice(2);
-  const i = argv.indexOf("--city");
-  return { city: i >= 0 ? argv[i + 1] : "tacoma" };
-}
 
 async function main() {
   const dbUrl = process.env.DATABASE_URL;
@@ -27,11 +22,10 @@ async function main() {
     console.error("ERROR: DATABASE_URL is not set.");
     process.exit(1);
   }
-  const { city: citySlug } = parseArgs();
+  const { slug, state } = requireCityArgs();
   const sql = postgres(dbUrl, { max: 1 });
   try {
-    const [city] = await sql<{ id: string }[]>`SELECT id FROM cities WHERE slug = ${citySlug}`;
-    if (!city) throw new Error(`City '${citySlug}' not found.`);
+    const city = await resolveCity(sql, slug, state);
 
     // 1. Venues with any aggregator-sourced happy hour.
     const editorial = await sql<{ id: string; name: string }[]>`

@@ -7,7 +7,7 @@
  *   normalise → rawWindowCount vs kept windows (so a §13/denylist drop is visible)
  *
  * Usage: tsx scripts/debug-extract.ts --url <site> --name "<venue>" [--type <primary_type>]
- *        tsx scripts/debug-extract.ts --candidate "North Italia" --city tucson
+ *        tsx scripts/debug-extract.ts --candidate "North Italia" --city tucson --state az
  */
 import "dotenv/config";
 import postgres from "postgres";
@@ -16,6 +16,7 @@ import { anthropic } from "@/lib/ai/anthropic";
 import { buildExtractRequest, parseRecordedExtract } from "@/lib/ai/extractHappyHours";
 import { triageSite, resolveEnrichAction } from "@/lib/places/siteTriage";
 import { hhLikelihood } from "@/lib/places/hhLikelihood";
+import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 function get(f: string) {
   const i = process.argv.indexOf(f);
@@ -30,8 +31,9 @@ async function main() {
 
   const candidateName = get("--candidate");
   if (candidateName) {
+    const { slug, state } = requireCityArgs();
     const sql = postgres(process.env.DATABASE_URL!, { max: 1 });
-    const [city] = await sql<{ id: string }[]>`SELECT id FROM cities WHERE slug = ${get("--city") ?? "tucson"}`;
+    const city = await resolveCity(sql, slug, state);
     const [c] = await sql<{ name: string; website_url: string | null; primary_type: string | null; types: string[] | null }[]>`
       SELECT name, website_url, primary_type, types FROM seed_candidates
       WHERE city_id = ${city.id} AND name ILIKE ${candidateName} LIMIT 1`;

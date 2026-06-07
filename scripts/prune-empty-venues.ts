@@ -7,17 +7,12 @@
  * Re-runnable and city-scoped. Decouples seed_candidates first (FK), then deletes
  * offerings → happy_hours (none, by definition) → venue_tags → venues.
  *
- * Usage:  tsx scripts/prune-empty-venues.ts --city tacoma [--dry-run]
+ * Usage:  tsx scripts/prune-empty-venues.ts --city tacoma --state wa [--dry-run]
  * Required env: DATABASE_URL
  */
 import "dotenv/config";
 import postgres from "postgres";
-
-function parseArgs() {
-  const argv = process.argv.slice(2);
-  const i = argv.indexOf("--city");
-  return { city: i >= 0 ? argv[i + 1] : "tacoma", dryRun: argv.includes("--dry-run") };
-}
+import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 async function main() {
   const dbUrl = process.env.DATABASE_URL;
@@ -25,11 +20,11 @@ async function main() {
     console.error("ERROR: DATABASE_URL is not set.");
     process.exit(1);
   }
-  const { city: citySlug, dryRun } = parseArgs();
+  const { slug, state } = requireCityArgs();
+  const dryRun = process.argv.includes("--dry-run");
   const sql = postgres(dbUrl, { max: 1 });
   try {
-    const [city] = await sql<{ id: string }[]>`SELECT id FROM cities WHERE slug = ${citySlug}`;
-    if (!city) throw new Error(`City '${citySlug}' not found.`);
+    const city = await resolveCity(sql, slug, state);
 
     // Venues with no active, non-deleted happy hours.
     const empties = await sql<{ id: string; name: string }[]>`
@@ -44,7 +39,7 @@ async function main() {
       ORDER BY v.name
     `;
 
-    console.log(`${empties.length} venue(s) with no happy hours in '${citySlug}':`);
+    console.log(`${empties.length} venue(s) with no happy hours in '${city.slug}':`);
     for (const v of empties) console.log(`  - ${v.name}`);
 
     if (dryRun) {

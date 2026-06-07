@@ -16,9 +16,9 @@
  * samples). --dry-run is $0 either way (triage only).
  *
  * Usage:
- *   tsx scripts/reextract-stubs.ts --city tucson --dry-run      # $0: triage only, who qualifies
- *   tsx scripts/reextract-stubs.ts --city tucson [--limit N]    # PAID, BATCH (~$0.015/venue)
- *   tsx scripts/reextract-stubs.ts --city tucson --quick        # PAID, synchronous (~$0.03/venue)
+ *   tsx scripts/reextract-stubs.ts --city tucson --state az --dry-run      # $0: triage only, who qualifies
+ *   tsx scripts/reextract-stubs.ts --city tucson --state az [--limit N]    # PAID, BATCH (~$0.015/venue)
+ *   tsx scripts/reextract-stubs.ts --city tucson --state az --quick        # PAID, synchronous (~$0.03/venue)
  *
  * Required env: DATABASE_URL, ANTHROPIC_API_KEY (for the real run), GOOGLE_PLACES_API_KEY optional.
  */
@@ -38,6 +38,7 @@ import { triageSite, resolveEnrichAction } from "@/lib/places/siteTriage";
 import { hhLikelihood } from "@/lib/places/hhLikelihood";
 import { firstOfCurrentMonth } from "@/lib/ai/budget";
 import { persistExtractedWindows } from "@/lib/recover/resolveVenue";
+import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 type Sql = ReturnType<typeof postgres>;
 
@@ -77,7 +78,9 @@ function parseArgs() {
     return out;
   };
   return {
-    city: get("--city") ?? "tucson",
+    // city + state are only required for the city-sweep path (not --collect or --venue).
+    city: get("--city"),
+    state: get("--state"),
     limit: get("--limit") ? parseInt(get("--limit")!, 10) : null,
     dryRun: a.includes("--dry-run"),
     quick: a.includes("--quick"), // synchronous path; default is the Batch API
@@ -319,15 +322,16 @@ async function main() {
     if (args.venue) {
       if (args.urls.length === 0) throw new Error("--venue requires at least one --url <menu/PDF url>");
       const c: Counters = { venuesRecovered: 0, windowsLive: 0, windowsHidden: 0, stillEmpty: 0, skippedNoSignal: 0, spentCents: 0 };
-      await runVenue(sql, args.city, args.venue, args.urls, firstOfCurrentMonth(), c);
+      // --venue accepts a UUID (city-independent) or a name (needs city slug for ILIKE).
+      // Pass args.city as the citySlug fallback; no --state needed for UUID lookups.
+      await runVenue(sql, args.city ?? "", args.venue, args.urls, firstOfCurrentMonth(), c);
       console.log(`\n  spend: $${(c.spentCents / 100).toFixed(2)}`);
       return;
     }
 
-    const [city] = await sql<{ id: string; name: string }[]>`
-      SELECT id, name FROM cities WHERE slug = ${args.city}
-    `;
-    if (!city) throw new Error(`city '${args.city}' not found`);
+    // City-sweep mode: --city and --state are both required.
+    const { slug, state } = requireCityArgs();
+    const city = await resolveCity(sql, slug, state);
 
     // Stubs with a website: the recoverable population. (No-site stubs can't be re-read;
     // social-only stubs are caught by triage below and skipped.)

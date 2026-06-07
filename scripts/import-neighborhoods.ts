@@ -2,7 +2,7 @@
  * Source-agnostic neighborhood importer: GeoJSON → PostGIS.
  *
  *   tsx scripts/import-neighborhoods.ts \
- *     --city tacoma \
+ *     --city tacoma --state wa \
  *     --geojson ./data/tacoma-council-districts.geojson \
  *     --name-prop NAME \
  *     [--slug-prop NAME] \
@@ -20,9 +20,9 @@ import "dotenv/config";
 import { readFileSync } from "node:fs";
 import postgres from "postgres";
 import { assignNeighborhoods } from "@/lib/geo/assignNeighborhoods";
+import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 interface Args {
-  city: string;
   geojson: string;
   nameProp: string;
   slugProp?: string;
@@ -42,14 +42,12 @@ function parseArgs(): Args {
     const i = argv.indexOf(flag);
     return i >= 0 ? argv[i + 1] : undefined;
   };
-  const city = get("--city");
   const geojson = get("--geojson");
   const nameProp = get("--name-prop") ?? "name";
-  if (!city || !geojson) {
-    throw new Error("Required: --city <slug> --geojson <path> [--name-prop <prop>]");
+  if (!geojson) {
+    throw new Error("Required: --city <slug> --state <code> --geojson <path> [--name-prop <prop>]");
   }
   return {
-    city,
     geojson,
     nameProp,
     slugProp: get("--slug-prop"),
@@ -70,19 +68,13 @@ function slugify(input: string): string {
 
 async function main() {
   const args = parseArgs();
+  const { slug: citySlug, state } = requireCityArgs();
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL is not set");
   const sql = postgres(url, { max: 1 });
 
   try {
-    const [city] = await sql<{ id: string }[]>`
-      SELECT id FROM cities WHERE slug = ${args.city}
-    `;
-    if (!city) {
-      throw new Error(
-        `City '${args.city}' not found — insert it into cities before importing neighborhoods.`,
-      );
-    }
+    const city = await resolveCity(sql, citySlug, state);
 
     const raw = JSON.parse(readFileSync(args.geojson, "utf8"));
     const features: GeoJsonFeature[] =
@@ -130,7 +122,7 @@ async function main() {
     const reassigned = await assignNeighborhoods(sql, city.id);
 
     console.log(
-      `Imported/updated ${inserted} neighborhoods for '${args.city}' and reassigned ${reassigned} venue(s).`,
+      `Imported/updated ${inserted} neighborhoods for '${city.slug}' and reassigned ${reassigned} venue(s).`,
     );
   } finally {
     await sql.end();

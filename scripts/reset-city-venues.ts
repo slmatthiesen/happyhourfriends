@@ -7,17 +7,12 @@
  * any seed_candidates pointing at the deleted venues first (FK safety). Use before
  * re-running seed:venues. Also handy for the new-city automation (idempotent reseed).
  *
- * Usage:  tsx scripts/reset-city-venues.ts --city tacoma
+ * Usage:  tsx scripts/reset-city-venues.ts --city tacoma --state wa
  * Required env: DATABASE_URL
  */
 import "dotenv/config";
 import postgres from "postgres";
-
-function parseArgs(): { city: string } {
-  const argv = process.argv.slice(2);
-  const i = argv.indexOf("--city");
-  return { city: i >= 0 ? argv[i + 1] : "tacoma" };
-}
+import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 async function main() {
   const dbUrl = process.env.DATABASE_URL;
@@ -25,13 +20,10 @@ async function main() {
     console.error("ERROR: DATABASE_URL is not set.");
     process.exit(1);
   }
-  const { city: citySlug } = parseArgs();
+  const { slug, state } = requireCityArgs();
   const sql = postgres(dbUrl, { max: 1 });
   try {
-    const [city] = await sql<{ id: string }[]>`
-      SELECT id FROM cities WHERE slug = ${citySlug}
-    `;
-    if (!city) throw new Error(`City '${citySlug}' not found.`);
+    const city = await resolveCity(sql, slug, state);
 
     const result = await sql.begin(async (tx) => {
       // Decouple seed_candidates so the venue delete can't hit an FK.
@@ -66,7 +58,7 @@ async function main() {
       };
     });
 
-    console.log(`\n── Reset complete for '${citySlug}' ─────────────────────`);
+    console.log(`\n── Reset complete for '${city.slug}' ─────────────────────`);
     console.log(`  venues deleted:      ${result.venues}`);
     console.log(`  happy_hours deleted: ${result.happyHours}`);
     console.log(`  offerings deleted:   ${result.offerings}`);
