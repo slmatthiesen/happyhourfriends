@@ -41,6 +41,19 @@ Output buckets per run: `filled → live` (shown), `captured hidden (stub)` (wri
 `active=false` for your review — venue stays a stub), `escalated (→ paid)`, `no signal`.
 The escalate list is written to `docs/hh-escalation-<city>.json`.
 
+**Verify precision BEFORE `--apply`** — see exactly which windows would go live, with the
+source URL + evidence snippet so you can confirm each is a real happy hour (not menu/operating
+hours). Read-only, $0:
+
+```bash
+pnpm tsx scripts/spotcheck-free.ts --city scottsdale            # lists every LIVE window + evidence
+pnpm tsx scripts/spotcheck-free.ts --city scottsdale --show-review   # also list the hidden ones
+```
+
+A window only goes **live** when the literal "happy hour" sits next to its time; deal-word /
+menu / operating-hours matches are kept hidden for review. (Validated: Tacoma went from 20
+live @ ~80% false-positive to 5 live @ 100% real.)
+
 ---
 
 ## 2. Paid escalation — Anthropic (costs money; get a $ estimate first)

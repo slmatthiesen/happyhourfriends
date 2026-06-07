@@ -36,6 +36,7 @@
     "review:suspect": "tsx scripts/review-suspect-hh.ts",
     "reextract:stubs": "tsx scripts/reextract-stubs.ts",
     "reextract:stubs:free": "tsx scripts/reextract-stubs-free.ts",
+    "spotcheck:free": "tsx scripts/spotcheck-free.ts",
     "diagnose:no-hh": "tsx scripts/diagnose-no-hh.ts",
     "triage:stubs": "tsx scripts/triage-stub-sites.ts",
     "rank:stubs": "tsx scripts/rank-stub-candidates.ts",
