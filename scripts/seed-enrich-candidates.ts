@@ -63,13 +63,14 @@ import { hhLikelihood } from "@/lib/places/hhLikelihood";
 import { assessRealness, type RealnessReason } from "@/lib/places/realnessGate";
 import { renderKillReport, type KillEntry, type KillReason } from "@/lib/places/killReport";
 import { writeFile } from "node:fs/promises";
+import { writeFileSync } from "node:fs";
 import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 // ---------------------------------------------------------------------------
 // Arg parsing
 // ---------------------------------------------------------------------------
 
-function parseArgs(): { limit: number | null; batch: boolean } {
+function parseArgs(): { limit: number | null; batch: boolean; noWebsearch: boolean } {
   const argv = process.argv.slice(2);
   const getFlag = (f: string) => {
     const i = argv.indexOf(f);
@@ -79,7 +80,33 @@ function parseArgs(): { limit: number | null; batch: boolean } {
   return {
     limit: limitStr != null ? parseInt(limitStr, 10) : null,
     batch: argv.includes("--batch"),
+    // --no-websearch: don't pay web_search to chase candidates with no captured website.
+    // Defer them (skip, unprocessed) and bubble them up to a report for manual review.
+    noWebsearch: argv.includes("--no-websearch"),
   };
+}
+
+/** No-site candidates deferred by --no-websearch, surfaced for the operator to triage. */
+interface DeferredNoSite {
+  name: string;
+  reviews: number | null;
+  rating: string | null;
+  primaryType: string | null;
+  address: string | null;
+  likelihood: number | null;
+}
+const deferredNoSite: DeferredNoSite[] = [];
+
+/** Write the deferred no-site list (sorted by review count desc) for operator review. */
+function flushDeferredNoSite(citySlug: string): void {
+  if (deferredNoSite.length === 0) return;
+  const rows = [...deferredNoSite].sort((a, b) => (b.reviews ?? 0) - (a.reviews ?? 0));
+  const path = `docs/${citySlug}-no-site-deferred.json`;
+  writeFileSync(path, JSON.stringify(rows, null, 2));
+  console.log(
+    `\n  ⏸ --no-websearch: deferred ${rows.length} no-site candidate(s) → ${path}` +
+      `\n     (sorted by reviews; left UNPROCESSED — re-run without --no-websearch to web_search the keepers)`,
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -96,6 +123,9 @@ interface SeedCandidate {
   source_url: string | null;
   primary_type: string | null;
   types: string[] | null;
+  website_url: string | null;
+  rating: string | null;
+  user_rating_count: number | null;
 }
 
 interface CityRow {
@@ -430,7 +460,7 @@ async function main() {
     // ---- Load unprocessed candidates ---------------------------------------
     const candidates: SeedCandidate[] = await sql<SeedCandidate[]>`
       SELECT id, name, google_place_id, address, lat, lng, source_url,
-             primary_type, types
+             primary_type, types, website_url, rating, user_rating_count
       FROM seed_candidates
       WHERE city_id = ${city.id}
         AND processed_at IS NULL
@@ -498,6 +528,21 @@ async function main() {
           nSkipped++;
           continue;
         }
+      }
+
+      // --no-websearch: no captured website → don't pay web_search to hunt for one.
+      // Defer + bubble up for manual review; leave UNPROCESSED for a later targeted run.
+      if (args.noWebsearch && !candidate.website_url) {
+        deferredNoSite.push({
+          name: candidate.name,
+          reviews: candidate.user_rating_count,
+          rating: candidate.rating,
+          primaryType: candidate.primary_type,
+          address: candidate.address,
+          likelihood: hhLikelihood({ primaryType: candidate.primary_type, types: candidate.types, name: candidate.name }),
+        });
+        console.log("  ⏸ deferred — no website (--no-websearch)");
+        continue;
       }
 
       let outcome: SeedOutcome = "error";
@@ -680,6 +725,7 @@ async function main() {
         `${city.slug}` +
         "\n(see lib/places/realnessGate). Spot-check live venues per PRD §7.3 Stage C.",
     );
+    flushDeferredNoSite(city.slug);
   } finally {
     await sql.end();
     // Close the shared headless browser if the extractor's render fallback launched one.
@@ -712,7 +758,7 @@ interface ReportTally {
 async function runBatch(
   sql: Sql,
   city: CityRow,
-  args: { limit: number | null },
+  args: { limit: number | null; noWebsearch: boolean },
   placesKey: string | null,
 ): Promise<void> {
   const month = firstOfCurrentMonth();
@@ -902,7 +948,7 @@ async function runBatch(
 async function prepAndSubmit(
   sql: Sql,
   city: CityRow,
-  args: { limit: number | null },
+  args: { limit: number | null; noWebsearch: boolean },
   placesKey: string | null,
   tally: ReportTally,
 ): Promise<BatchState | null> {
@@ -941,6 +987,21 @@ async function prepAndSubmit(
         tally.skipped++;
         continue;
       }
+    }
+
+    // --no-websearch: no captured website → defer (skip web_search + Place Details),
+    // bubble up for review, leave unprocessed for a later targeted run.
+    if (args.noWebsearch && !c.website_url) {
+      deferredNoSite.push({
+        name: c.name,
+        reviews: c.user_rating_count,
+        rating: c.rating,
+        primaryType: c.primary_type,
+        address: c.address,
+        likelihood: hhLikelihood({ primaryType: c.primary_type, types: c.types, name: c.name }),
+      });
+      console.log("  ⏸ deferred — no website (--no-websearch)");
+      continue;
     }
 
     let details = null;
@@ -1096,6 +1157,7 @@ async function finalize(sql: Sql, city: CityRow, tally: ReportTally): Promise<vo
   const collected = tally.full + tally.stubs;
   const usd = (c: number) => `$${(c / 100).toFixed(2)}`;
 
+  flushDeferredNoSite(city.slug);
   console.log("\n── Enrichment complete (batch) ───────────────────────────");
   console.log(`Venues collected:        ${collected + tally.hiddenVenues}`);
   console.log(`  ├─ live data:          ${tally.full}`);
