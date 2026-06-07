@@ -4,28 +4,22 @@
  * offerings by source_url, deletes the offending rows and any venue left with zero
  * happy hours as a result. Reports exactly what it found. Idempotent.
  *
- * Usage:  tsx scripts/purge-source-data.ts [--city tacoma]
+ * Usage:  tsx scripts/purge-source-data.ts --city tacoma --state wa
  * Required env: DATABASE_URL
  */
 import "dotenv/config";
 import postgres from "postgres";
+import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 const PATTERNS = ["%ultimatehappyhours%", "%seattletravel%"];
-
-function parseArgs() {
-  const argv = process.argv.slice(2);
-  const i = argv.indexOf("--city");
-  return { city: i >= 0 ? argv[i + 1] : "tacoma" };
-}
 
 async function main() {
   const dbUrl = process.env.DATABASE_URL;
   if (!dbUrl) { console.error("ERROR: DATABASE_URL not set."); process.exit(1); }
-  const { city: citySlug } = parseArgs();
+  const { slug, state } = requireCityArgs();
   const sql = postgres(dbUrl, { max: 1 });
   try {
-    const [city] = await sql<{ id: string }[]>`SELECT id FROM cities WHERE slug = ${citySlug}`;
-    if (!city) throw new Error(`City '${citySlug}' not found.`);
+    const city = await resolveCity(sql, slug, state);
 
     const like = (col: string) =>
       sql.unsafe(PATTERNS.map((p) => `${col} ILIKE '${p}'`).join(" OR "));

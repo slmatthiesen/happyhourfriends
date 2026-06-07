@@ -6,8 +6,8 @@
  *   - --dry-run (default) prints the matches without deleting; pass --apply to delete.
  *
  * Usage:
- *   tsx scripts/prune-by-place-type.ts --city tucson            # dry run
- *   tsx scripts/prune-by-place-type.ts --city tucson --apply    # delete
+ *   tsx scripts/prune-by-place-type.ts --city tucson --state az            # dry run
+ *   tsx scripts/prune-by-place-type.ts --city tucson --state az --apply    # delete
  */
 import "dotenv/config";
 import postgres from "postgres";
@@ -16,15 +16,7 @@ import {
   isExcludedByBusinessStatus,
   isLowSignalCandidate,
 } from "@/lib/places/chainDenylist";
-
-function parseArgs() {
-  const argv = process.argv.slice(2);
-  const get = (f: string) => {
-    const i = argv.indexOf(f);
-    return i >= 0 ? argv[i + 1] : undefined;
-  };
-  return { city: get("--city") ?? "tucson", apply: argv.includes("--apply") };
-}
+import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 async function main() {
   const dbUrl = process.env.DATABASE_URL;
@@ -32,13 +24,11 @@ async function main() {
     console.error("ERROR: DATABASE_URL is not set.");
     process.exit(1);
   }
-  const args = parseArgs();
+  const { slug, state } = requireCityArgs();
+  const apply = process.argv.includes("--apply");
   const sql = postgres(dbUrl, { max: 1 });
   try {
-    const [city] = await sql<{ id: string }[]>`
-      SELECT id FROM cities WHERE slug = ${args.city}
-    `;
-    if (!city) throw new Error(`City '${args.city}' not found.`);
+    const city = await resolveCity(sql, slug, state);
 
     const rows = await sql<
       {
@@ -69,7 +59,7 @@ async function main() {
     );
 
     console.log(
-      `${args.city}: ${rows.length} unprocessed candidates, ${matches.length} match the exclusion gates.\n`,
+      `${city.slug}: ${rows.length} unprocessed candidates, ${matches.length} match the exclusion gates.\n`,
     );
     for (const m of matches) {
       const reasons: string[] = [];
@@ -87,7 +77,7 @@ async function main() {
       return;
     }
 
-    if (!args.apply) {
+    if (!apply) {
       console.log(`\nDRY RUN — pass --apply to delete these ${matches.length}.`);
       return;
     }

@@ -2,7 +2,7 @@
  * One-time, operator-gated review of existing ALL-DAY happy-hour rows.
  *
  *   Report (no DB writes):
- *     npx tsx scripts/reverify-all-day.ts [--city <slug>] [--limit N]
+ *     npx tsx scripts/reverify-all-day.ts [--city <slug> --state <code>] [--limit N]
  *   → writes docs/all-day-review-<YYYY-MM-DD>.{json,md}
  *
  *   Apply (after you review + edit the .json's `action` fields):
@@ -15,6 +15,7 @@
 import "dotenv/config";
 import { readFileSync, writeFileSync } from "node:fs";
 import postgres from "postgres";
+import { requireCityArgs } from "@/lib/cities/resolveCity";
 import { reverifyAllDay } from "@/lib/reverify/adversarial";
 import {
   buildReportEntries,
@@ -34,8 +35,11 @@ const argValue = (f: string) => {
   return i >= 0 ? args[i + 1] : undefined;
 };
 const applyPath = argValue("--apply");
-const citySlug = argValue("--city");
 const limit = argValue("--limit") ? Number(argValue("--limit")) : undefined;
+
+// --city is optional (omit to scan all cities); when provided, --state is required.
+const hasCityFlag = args.includes("--city");
+const cityArgs = hasCityFlag ? requireCityArgs() : null;
 
 // A YYYY-MM-DD stamp. tsx scripts run ad-hoc, so OS date is fine here.
 function today(): string {
@@ -71,7 +75,7 @@ async function runReport() {
       JOIN venues v ON v.id = hh.venue_id
       JOIN cities c ON c.id = v.city_id
       WHERE hh.all_day = true AND hh.deleted_at IS NULL AND v.deleted_at IS NULL
-        ${citySlug ? sql`AND c.slug = ${citySlug}` : sql``}
+        ${cityArgs ? sql`AND lower(c.slug) = ${cityArgs.slug} AND lower(c.state) = ${cityArgs.state}` : sql``}
       ORDER BY c.slug, v.name
       ${limit ? sql`LIMIT ${limit}` : sql``}
     `;

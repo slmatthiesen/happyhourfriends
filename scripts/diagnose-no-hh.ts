@@ -23,13 +23,14 @@
  *   no_link_has_text   reachable, real homepage text, but no HH-signal link found →
  *                      HH page undiscovered, or genuinely not published (bucket "B").
  *
- * Usage: tsx scripts/diagnose-no-hh.ts --city tucson [--limit N] [--types bar,bar_and_grill]
+ * Usage: tsx scripts/diagnose-no-hh.ts --city tucson --state az [--limit N] [--types bar,bar_and_grill]
  */
 import "dotenv/config";
 import postgres from "postgres";
 import { writeFile } from "node:fs/promises";
 import { triageSite } from "@/lib/places/siteTriage";
 import { fetchPages } from "@/lib/ai/siteContent";
+import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 const SHELL_TEXT_FLOOR = 600; // chars of usable text below which we call it a JS husk
 
@@ -62,7 +63,6 @@ function parseArgs() {
     return i >= 0 ? a[i + 1] : undefined;
   };
   return {
-    city: get("--city") ?? "tucson",
     limit: get("--limit") ? parseInt(get("--limit")!, 10) : null,
     types: get("--types")?.split(",").map((s) => s.trim()) ?? null,
   };
@@ -125,12 +125,10 @@ async function classify(c: {
 
 async function main() {
   const args = parseArgs();
+  const { slug, state } = requireCityArgs();
   const sql = postgres(process.env.DATABASE_URL!, { max: 1 });
   try {
-    const [city] = await sql<{ id: string; name: string }[]>`
-      SELECT id, name FROM cities WHERE slug = ${args.city}
-    `;
-    if (!city) throw new Error(`city '${args.city}' not found`);
+    const city = await resolveCity(sql, slug, state);
 
     const cands = await sql<
       { name: string; primary_type: string | null; website_url: string; user_rating_count: number | null }[]
@@ -191,7 +189,7 @@ async function main() {
       }
     }
 
-    const reportPath = `docs/${args.city}-no-hh-diagnosis-2026-06-01.json`;
+    const reportPath = `docs/${slug}-no-hh-diagnosis-${new Date().toISOString().slice(0, 10)}.json`;
     await writeFile(reportPath, JSON.stringify(rows, null, 2), "utf8");
     console.log(`\nFull per-venue detail → ${reportPath}`);
   } finally {

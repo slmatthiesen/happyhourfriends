@@ -3,9 +3,9 @@
  * boundary. The friendly-rollup floor: only surfaces where no recognizable named or admin
  * coarse area covers a venue.
  *
- *   npm run generate:cardinal-districts -- --city tucson
- *   npm run generate:cardinal-districts -- --city tucson --boundary ./data/tucson-boundary.geojson
- *   npm run generate:cardinal-districts -- --city tucson --downtown 32.2226,-110.9747
+ *   npm run generate:cardinal-districts -- --city tucson --state az
+ *   npm run generate:cardinal-districts -- --city tucson --state az --boundary ./data/tucson-boundary.geojson
+ *   npm run generate:cardinal-districts -- --city tucson --state az --downtown 32.2226,-110.9747
  *
  * Boundary source order: --boundary file → data/<city>-boundary.geojson. The bbox of that
  * boundary feeds cardinalRects(); each rectangle is intersected with the boundary so zones
@@ -24,6 +24,7 @@ import {
   type Bbox,
   type CardinalAliases,
 } from "@/lib/geo/cardinalDistricts";
+import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 const DOWNTOWN_RADIUS_M = 1500;
 
@@ -69,8 +70,7 @@ function extractGeometries(raw: unknown): string[] {
 }
 
 async function main() {
-  const city = getArg("--city");
-  if (!city) throw new Error("Required: --city <slug> [--boundary file] [--downtown lat,lng]");
+  const { slug: city, state } = requireCityArgs();
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL is not set");
 
@@ -91,8 +91,7 @@ async function main() {
 
   const sql = postgres(url, { max: 1 });
   try {
-    const [c] = await sql<{ id: string }[]>`SELECT id FROM cities WHERE slug = ${city}`;
-    if (!c) throw new Error(`City '${city}' not found.`);
+    const c = await resolveCity(sql, city, state);
 
     // Build the merged boundary geometry in Postgres: union all parts, compute bbox +
     // centroid in one query. Each geometry string is a separate row in a VALUES clause.

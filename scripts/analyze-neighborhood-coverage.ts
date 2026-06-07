@@ -2,7 +2,7 @@
  * Neighborhood coverage gate (PRD §3 + operator bar: ≥95% per city is a launch requirement).
  *
  *   npm run analyze:neighborhood-coverage              # all cities, summary
- *   npm run analyze:neighborhood-coverage -- --city tucson --list   # + blank venues w/ coords
+ *   npm run analyze:neighborhood-coverage -- --city tucson --state wa --list   # + blank venues w/ coords
  *
  * Prints each city's venue→neighborhood assignment rate and PASS/FAIL against the 95%
  * gate. With --list, dumps the unassigned venues (name + lat/lng + nearest neighborhood +
@@ -12,23 +12,29 @@
 import "dotenv/config";
 import postgres from "postgres";
 import { RECOGNIZABLE_BAR } from "@/lib/geo/recognizability";
+import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 const GATE = 0.95;
 
 async function main() {
   const argv = process.argv.slice(2);
-  const get = (f: string) => {
-    const i = argv.indexOf(f);
-    return i >= 0 ? argv[i + 1] : undefined;
-  };
-  const citySlug = get("--city");
+  const hasCityFlag = argv.includes("--city");
   const list = argv.includes("--list");
 
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL is not set");
   const sql = postgres(url, { max: 1 });
 
+  // --city is optional; when provided, --state is also required.
+  let citySlug: string | undefined;
+
   try {
+    if (hasCityFlag) {
+      const { slug, state } = requireCityArgs();
+      const city = await resolveCity(sql, slug, state);
+      citySlug = city.slug;
+    }
+
     const rows = await sql<
       {
         slug: string;
