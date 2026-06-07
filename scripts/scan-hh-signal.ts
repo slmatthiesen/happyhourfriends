@@ -12,13 +12,14 @@
  *                     (the /menu link was a food menu; HH simply isn't published here).
  *   unreachable       fetchPages returned nothing (robots/UA/JS) — counted separately.
  *
- * Usage: tsx scripts/scan-hh-signal.ts --city tucson [--limit N]
+ * Usage: tsx scripts/scan-hh-signal.ts --city tucson --state az [--limit N]
  */
 import "dotenv/config";
 import postgres from "postgres";
 import { writeFile } from "node:fs/promises";
 import { triageSite } from "@/lib/places/siteTriage";
 import { fetchPages } from "@/lib/ai/siteContent";
+import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 const HH = /happy\s*hour|happy\s*hr\b/i;
 const SPECIAL = /special|drink\s*deal|\bdaily\b|industry\s*night|\b\d{1,2}\s*(?:am|pm)?\s*[-–to]+\s*\d{1,2}\s*(?:am|pm)\b/i;
@@ -31,7 +32,7 @@ function parseArgs() {
     const i = a.indexOf(f);
     return i >= 0 ? a[i + 1] : undefined;
   };
-  return { city: get("--city") ?? "tucson", limit: get("--limit") ? parseInt(get("--limit")!, 10) : null };
+  return { limit: get("--limit") ? parseInt(get("--limit")!, 10) : null };
 }
 
 async function pool<T, R>(items: T[], size: number, fn: (t: T, i: number) => Promise<R>): Promise<R[]> {
@@ -50,10 +51,10 @@ async function pool<T, R>(items: T[], size: number, fn: (t: T, i: number) => Pro
 
 async function main() {
   const args = parseArgs();
+  const { slug, state } = requireCityArgs();
   const sql = postgres(process.env.DATABASE_URL!, { max: 1 });
   try {
-    const [city] = await sql<{ id: string; name: string }[]>`SELECT id, name FROM cities WHERE slug = ${args.city}`;
-    if (!city) throw new Error(`city '${args.city}' not found`);
+    const city = await resolveCity(sql, slug, state);
     const cands = await sql<{ name: string; primary_type: string | null; website_url: string }[]>`
       SELECT name, primary_type, website_url FROM seed_candidates
       WHERE city_id = ${city.id} AND outcome = 'no_hh_found' AND website_url IS NOT NULL
@@ -102,7 +103,7 @@ async function main() {
       if (r.snippet) console.log(`        …${r.snippet}…`);
     }
 
-    const path = `docs/${args.city}-hh-signal-scan-2026-06-01.json`;
+    const path = `docs/${city.slug}-hh-signal-scan-2026-06-01.json`;
     await writeFile(path, JSON.stringify(rows, null, 2), "utf8");
     console.log(`\nFull detail → ${path}`);
   } finally {

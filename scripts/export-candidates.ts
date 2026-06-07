@@ -2,13 +2,14 @@
  * Dump seed_candidates for a city to a CSV you can open/sort/triage in a spreadsheet.
  * Read-only. The CSV is gitignored (scraped Google data — not redistributed).
  *
- * Usage:  tsx scripts/export-candidates.ts [--city tacoma] [--out data/tacoma-candidates.csv]
+ * Usage:  tsx scripts/export-candidates.ts --city tacoma --state wa [--out data/tacoma-candidates.csv]
  * Required env: DATABASE_URL
  */
 import "dotenv/config";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import postgres from "postgres";
+import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 function parseArgs() {
   const argv = process.argv.slice(2);
@@ -17,8 +18,7 @@ function parseArgs() {
     return i >= 0 ? argv[i + 1] : undefined;
   };
   return {
-    city: get("--city") ?? "tacoma",
-    out: get("--out") ?? "data/tacoma-candidates.csv",
+    out: get("--out"),
   };
 }
 
@@ -34,12 +34,11 @@ async function main() {
     process.exit(1);
   }
   const args = parseArgs();
+  const { slug, state } = requireCityArgs();
   const sql = postgres(dbUrl, { max: 1 });
   try {
-    const [city] = await sql<{ id: string }[]>`
-      SELECT id FROM cities WHERE slug = ${args.city}
-    `;
-    if (!city) throw new Error(`City '${args.city}' not found.`);
+    const city = await resolveCity(sql, slug, state);
+    const outPath = args.out ?? `data/${slug}-candidates.csv`;
 
     const rows = await sql<
       {
@@ -84,7 +83,7 @@ async function main() {
         csvCell(r.outcome),
       ].join(","),
     );
-    const path = join(process.cwd(), args.out);
+    const path = join(process.cwd(), outPath);
     writeFileSync(path, [header, ...lines].join("\n"), "utf8");
 
     const processed = rows.filter((r) => r.processed_at).length;

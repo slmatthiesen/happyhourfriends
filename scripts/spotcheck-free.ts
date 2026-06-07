@@ -8,7 +8,7 @@
  * For each LIVE window it prints the source URL and the evidence snippet, so you can confirm
  * the "happy hour" is real and next to the time (not menu/operating hours).
  *
- * Usage: pnpm tsx scripts/spotcheck-free.ts --city <slug> [--limit N] [--show-review]
+ * Usage: pnpm tsx scripts/spotcheck-free.ts --city <slug> --state <code> [--limit N] [--show-review]
  */
 import "dotenv/config";
 import postgres from "postgres";
@@ -16,20 +16,19 @@ import { triageSite, resolveEnrichAction } from "@/lib/places/siteTriage";
 import { hhLikelihood } from "@/lib/places/hhLikelihood";
 import { buildExtractRequest } from "@/lib/ai/extractHappyHours";
 import { parseHappyHours, type ParsedWindow } from "@/lib/places/parseHhText";
+import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 function arg(f: string) { const i = process.argv.indexOf(f); return i >= 0 ? process.argv[i + 1] : undefined; }
-const CITY = arg("--city");
 const LIMIT = arg("--limit") ? parseInt(arg("--limit")!, 10) : null;
 const SHOW_REVIEW = process.argv.includes("--show-review");
 
 const fmt = (w: ParsedWindow) => `[${w.daysOfWeek.join(",")}] ${w.startTime ?? "open"}-${w.endTime ?? "close"}`;
 
 async function main() {
-  if (!CITY) throw new Error("--city <slug> required");
+  const { slug, state } = requireCityArgs();
   const sql = postgres(process.env.DATABASE_URL!, { max: 6 });
   try {
-    const [city] = await sql<{ id: string; name: string }[]>`SELECT id, name FROM cities WHERE slug = ${CITY}`;
-    if (!city) throw new Error(`city '${CITY}' not found`);
+    const city = await resolveCity(sql, slug, state);
     const stubs = await sql<{ id: string; name: string; website_url: string | null; primary_type: string | null }[]>`
       SELECT v.id, v.name, v.website_url, sc.primary_type
       FROM venues v LEFT JOIN seed_candidates sc ON sc.resulting_venue_id = v.id

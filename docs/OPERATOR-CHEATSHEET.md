@@ -3,7 +3,12 @@
 Quick reference for the scripts you actually run. Everything uses `pnpm`. Local DB must be
 up (`docker compose up -d`) for anything that touches the database.
 
-**City slugs:** `tacoma` · `tucson` · `phoenix-central` · `scottsdale` · `daly-city` · `five-cities`
+**Every location-targeting script REQUIRES both `--city <slug>` and `--state <code>`** — city
+slugs are unique per state, not globally, so a bare slug (e.g. `hollywood`) could match two
+cities. Omitting `--state` fails loud instead of guessing.
+
+**Cities (`--city <slug> --state <code>`):**
+`tacoma wa` · `tucson az` · `phoenix-central az` · `scottsdale az` · `daly-city ca` · `five-cities ca`
 
 ---
 
@@ -14,26 +19,28 @@ hides the iffy ones for review, and shortlists the rest for paid extraction.
 
 ```bash
 # Dry-run a single city (no writes, no spend) — see filled/hidden/escalate/no-signal:
-pnpm tsx scripts/reextract-stubs-free.ts --city scottsdale
+pnpm tsx scripts/reextract-stubs-free.ts --city scottsdale --state az
 
 # Actually write the confident ones (audited, reversible):
-pnpm tsx scripts/reextract-stubs-free.ts --city scottsdale --apply
+pnpm tsx scripts/reextract-stubs-free.ts --city scottsdale --state az --apply
 
 # Bounded sample while you eyeball it:
-pnpm tsx scripts/reextract-stubs-free.ts --city tucson --limit 30
+pnpm tsx scripts/reextract-stubs-free.ts --city tucson --state az --limit 30
 ```
 
-**Refresh ALL cities** (dry-run first, then apply):
+**Refresh ALL cities** (dry-run first, then apply). The list is `slug:state` pairs:
 
 ```bash
+CITIES="tacoma:wa tucson:az phoenix-central:az scottsdale:az daly-city:ca five-cities:ca"
+
 # Dry-run everything:
-for c in tacoma tucson phoenix-central scottsdale daly-city five-cities; do
-  echo "=== $c ==="; pnpm tsx scripts/reextract-stubs-free.ts --city "$c"
+for cs in $CITIES; do c=${cs%:*}; s=${cs#*:};
+  echo "=== $c ($s) ==="; pnpm tsx scripts/reextract-stubs-free.ts --city "$c" --state "$s"
 done
 
 # Apply everything (after you're happy with the dry-run):
-for c in tacoma tucson phoenix-central scottsdale daly-city five-cities; do
-  echo "=== $c ==="; pnpm tsx scripts/reextract-stubs-free.ts --city "$c" --apply
+for cs in $CITIES; do c=${cs%:*}; s=${cs#*:};
+  echo "=== $c ($s) ==="; pnpm tsx scripts/reextract-stubs-free.ts --city "$c" --state "$s" --apply
 done
 ```
 
@@ -46,8 +53,8 @@ source URL + evidence snippet so you can confirm each is a real happy hour (not 
 hours). Read-only, $0:
 
 ```bash
-pnpm tsx scripts/spotcheck-free.ts --city scottsdale            # lists every LIVE window + evidence
-pnpm tsx scripts/spotcheck-free.ts --city scottsdale --show-review   # also list the hidden ones
+pnpm tsx scripts/spotcheck-free.ts --city scottsdale --state az            # lists every LIVE window + evidence
+pnpm tsx scripts/spotcheck-free.ts --city scottsdale --state az --show-review   # also list the hidden ones
 ```
 
 A window only goes **live** when the literal "happy hour" sits next to its time; deal-word /
@@ -62,10 +69,10 @@ For the venues the free pass shortlisted (real HH signal, no clean deterministic
 
 ```bash
 # Dry-run (triage only, $0) to see how many qualify:
-pnpm tsx scripts/reextract-stubs.ts --city scottsdale --dry-run
+pnpm tsx scripts/reextract-stubs.ts --city scottsdale --state az --dry-run
 
 # Batch run (~$0.015/venue, ~50% cheaper than --quick):
-pnpm tsx scripts/reextract-stubs.ts --city scottsdale
+pnpm tsx scripts/reextract-stubs.ts --city scottsdale --state az
 
 # One targeted venue from a specific menu/PDF URL (from the escalation shortlist):
 pnpm tsx scripts/reextract-stubs.ts --venue <venueId> --url <https://…/menu-or.pdf>
@@ -83,11 +90,11 @@ pnpm tsx scripts/reextract-stubs.ts --collect <batchId>
 pnpm tsx scripts/debug-extract.ts --url "https://venue.com/" --name "Venue Name" --type bar
 
 # Or by candidate already in the DB:
-pnpm tsx scripts/debug-extract.ts --candidate "North Italia" --city tucson
+pnpm tsx scripts/debug-extract.ts --candidate "North Italia" --city tucson --state az
 
 # FREE diagnostics (no model call):
-pnpm tsx scripts/scan-hh-signal.ts --city <slug>
-pnpm tsx scripts/diagnose-no-hh.ts --city <slug>
+pnpm tsx scripts/scan-hh-signal.ts --city <slug> --state <code>
+pnpm tsx scripts/diagnose-no-hh.ts --city <slug> --state <code>
 ```
 
 ---

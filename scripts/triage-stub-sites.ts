@@ -12,7 +12,7 @@
  * Dry-run by default (report only). Pass --apply to perform deletes + upgrades.
  * Always writes docs/<city>-killed-venues.md.
  *
- * Usage: tsx scripts/triage-stub-sites.ts --city phoenix [--limit N] [--apply]
+ * Usage: tsx scripts/triage-stub-sites.ts --city phoenix --state az [--limit N] [--apply]
  * Env: DATABASE_URL (required), ANTHROPIC_API_KEY (only needed for --apply upgrades).
  */
 import "dotenv/config";
@@ -23,6 +23,7 @@ import { hhLikelihood } from "@/lib/places/hhLikelihood";
 import { renderKillReport, type KillEntry, type KillReason } from "@/lib/places/killReport";
 import { extractHappyHours } from "@/lib/ai/extractHappyHours";
 import type { VenueType } from "@/lib/places/venueType";
+import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 function killReasonOf(reason: string): KillReason {
   if (reason.startsWith("dead")) return "dead";
@@ -37,7 +38,6 @@ function parseArgs() {
     return i >= 0 ? a[i + 1] : undefined;
   };
   return {
-    city: get("--city") ?? "tacoma",
     limit: get("--limit") ? parseInt(get("--limit")!, 10) : null,
     apply: a.includes("--apply"),
   };
@@ -73,6 +73,7 @@ async function hasAttachments(sql: Sql, venueId: string): Promise<boolean> {
 
 async function main() {
   const args = parseArgs();
+  const { slug, state } = requireCityArgs();
   const dbUrl = process.env.DATABASE_URL;
   if (!dbUrl) {
     console.error("ERROR: DATABASE_URL not set.");
@@ -82,9 +83,7 @@ async function main() {
   const mode = args.apply ? "APPLY" : "DRY-RUN";
 
   try {
-    const [city] = await sql<{ id: string; slug: string; name: string }[]>`
-      SELECT id, slug, name FROM cities WHERE slug = ${args.city}`;
-    if (!city) throw new Error(`City '${args.city}' not found.`);
+    const city = await resolveCity(sql, slug, state);
 
     const stubs = await sql<StubVenue[]>`
       SELECT v.id, v.name, v.website_url, v.type::text AS type,

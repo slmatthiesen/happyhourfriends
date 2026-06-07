@@ -6,7 +6,7 @@
  * extractor (reextract:stubs --venue / the /admin/stubs Auto-retry button).
  *
  * Dry-run by DEFAULT. Pass --apply to write.
- * Usage: pnpm tsx scripts/reextract-stubs-free.ts --city <slug> [--limit N] [--apply]
+ * Usage: pnpm tsx scripts/reextract-stubs-free.ts --city <slug> --state <code> [--limit N] [--apply]
  */
 import "dotenv/config";
 import postgres from "postgres";
@@ -17,13 +17,13 @@ import { buildExtractRequest } from "@/lib/ai/extractHappyHours";
 import { freeExtractFromPages } from "@/lib/ai/freeExtract";
 import { persistExtractedWindows } from "@/lib/recover/resolveVenue";
 import { hasHhOrDealSignal } from "@/lib/places/hhText";
+import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 function arg(f: string): string | undefined {
   const i = process.argv.indexOf(f);
   return i >= 0 ? process.argv[i + 1] : undefined;
 }
 
-const CITY = arg("--city");
 const LIMIT = arg("--limit") ? parseInt(arg("--limit")!, 10) : null;
 const APPLY = process.argv.includes("--apply");
 
@@ -43,17 +43,11 @@ interface EscalationEntry {
 }
 
 async function main() {
-  if (!CITY) {
-    console.error("Error: --city <slug> is required.");
-    console.error("Usage: pnpm tsx scripts/reextract-stubs-free.ts --city <slug> [--limit N] [--apply]");
-    process.exit(1);
-  }
+  const { slug, state } = requireCityArgs();
 
   const sql = postgres(process.env.DATABASE_URL!, { max: 4 });
   try {
-    const [city] = await sql<{ id: string; name: string; slug: string }[]>`
-      SELECT id, name, slug FROM cities WHERE slug = ${CITY}`;
-    if (!city) throw new Error(`city '${CITY}' not found`);
+    const city = await resolveCity(sql, slug, state);
 
     const stubs = await sql<StubVenue[]>`
       SELECT v.id, v.name, v.website_url, sc.primary_type

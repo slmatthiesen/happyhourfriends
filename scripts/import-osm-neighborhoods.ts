@@ -1,9 +1,9 @@
 /**
  * OSM neighborhood importer: OpenStreetMap `place` polygons → PostGIS `neighborhoods`.
  *
- *   npm run import:osm-neighborhoods -- --city phoenix-central
- *   npm run import:osm-neighborhoods -- --city tucson --bbox 31.9,-111.2,32.4,-110.7
- *   npm run import:osm-neighborhoods -- --city phoenix-central --fallback
+ *   npm run import:osm-neighborhoods -- --city phoenix-central --state az
+ *   npm run import:osm-neighborhoods -- --city tucson --state az --bbox 31.9,-111.2,32.4,-110.7
+ *   npm run import:osm-neighborhoods -- --city phoenix-central --state az --fallback
  *
  * OSM carries the vernacular / "what locals and Redfin call it" neighborhood names
  * (Arcadia, Biltmore, Sam Hughes) that administrative layers (urban villages, council
@@ -30,6 +30,7 @@ import {
   tierForPlace,
   recognizabilityScore,
 } from "@/lib/geo/recognizability";
+import { requireCityArgs } from "@/lib/cities/resolveCity";
 
 const require = createRequire(import.meta.url);
 // osmtogeojson ships no types; require keeps it `any` and tsc-clean.
@@ -49,7 +50,6 @@ interface GeoJsonFc {
 }
 
 interface Args {
-  city: string;
   bbox?: string;
   fallback: boolean;
   placeTypes: string[];
@@ -61,11 +61,8 @@ function parseArgs(): Args {
     const i = argv.indexOf(f);
     return i >= 0 ? argv[i + 1] : undefined;
   };
-  const city = get("--city");
-  if (!city) throw new Error("Required: --city <slug> [--bbox s,w,n,e] [--fallback]");
   const pt = get("--place-types");
   return {
-    city,
     bbox: get("--bbox"),
     fallback: argv.includes("--fallback"),
     placeTypes: pt ? pt.split(",").map((s) => s.trim()) : DEFAULT_PLACE_TYPES,
@@ -83,6 +80,7 @@ function slugify(input: string): string {
 
 async function main() {
   const args = parseArgs();
+  const { slug, state } = requireCityArgs();
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL is not set");
   const sql = postgres(url, { max: 1 });
@@ -94,14 +92,14 @@ async function main() {
                ST_YMin(bbox::geometry)::text || ',' || ST_XMin(bbox::geometry)::text || ',' ||
                ST_YMax(bbox::geometry)::text || ',' || ST_XMax(bbox::geometry)::text
              END AS bbox
-      FROM cities WHERE slug = ${args.city}
+      FROM cities WHERE lower(slug) = ${slug} AND lower(state) = ${state}
     `;
-    if (!city) throw new Error(`City '${args.city}' not found.`);
+    if (!city) throw new Error(`No city found for --city '${slug}' --state '${state}'.`);
 
     const bbox = args.bbox ?? city.bbox;
     if (!bbox) {
       throw new Error(
-        `No bbox for '${args.city}' (cities.bbox is null). Pass --bbox "south,west,north,east".`,
+        `No bbox for '${slug}' (cities.bbox is null). Pass --bbox "south,west,north,east".`,
       );
     }
     const [s, w, n, e] = bbox.split(",").map((x) => Number(x.trim()));
@@ -117,7 +115,7 @@ async function main() {
 );
 out geom;`;
 
-    console.log(`Querying Overpass for ${args.city} place=${filter} in [${bbox}]…`);
+    console.log(`Querying Overpass for ${slug} place=${filter} in [${bbox}]…`);
     const res = await fetch(OVERPASS_URL, {
       method: "POST",
       headers: {
@@ -208,7 +206,7 @@ out geom;`;
 
     const reassigned = await assignNeighborhoods(sql, city.id);
     console.log(
-      `OSM neighborhoods for '${args.city}': ${polys.length} polygons found, ` +
+      `OSM neighborhoods for '${slug}': ${polys.length} polygons found, ` +
         `${inserted} inserted, ${promoted} promoted (recognizability bumped), ${failed} failed. ` +
         `Reassigned ${reassigned} venue(s).`,
     );

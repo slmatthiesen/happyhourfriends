@@ -5,10 +5,10 @@
  * Paradise Valley; Kierland mails as "Scottsdale" though it's Phoenix), so discovery accreted
  * cross-jurisdiction venues. This gate scopes by point-in-boundary + a small tolerance buffer.
  *
- *   npm run scope:venues -- --city scottsdale                 # report in/out of scope
- *   npm run scope:venues -- --city scottsdale --list          # + list the out-of-scope venues
- *   npm run scope:venues -- --city scottsdale --prune         # soft-delete out-of-scope (BY ID)
- *   npm run scope:venues -- --city scottsdale --buffer 500 --boundary data/scottsdale-boundary.geojson
+ *   npm run scope:venues -- --city scottsdale --state az                 # report in/out of scope
+ *   npm run scope:venues -- --city scottsdale --state az --list          # + list the out-of-scope venues
+ *   npm run scope:venues -- --city scottsdale --state az --prune         # soft-delete out-of-scope (BY ID)
+ *   npm run scope:venues -- --city scottsdale --state az --buffer 500 --boundary data/scottsdale-boundary.geojson
  *
  * In scope = inside the boundary OR within --buffer meters of it (default 500m). The buffer
  * keeps geocode/precision edge cases and immediately-adjacent destinations that read as part
@@ -23,6 +23,7 @@
 import "dotenv/config";
 import { readFileSync } from "node:fs";
 import postgres from "postgres";
+import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 function parseArgs() {
   const argv = process.argv.slice(2);
@@ -30,15 +31,8 @@ function parseArgs() {
     const i = argv.indexOf(f);
     return i >= 0 ? argv[i + 1] : undefined;
   };
-  const city = get("--city");
-  if (!city) {
-    throw new Error(
-      "Required: --city <slug> [--boundary <geojson>] [--buffer m] [--list] [--prune]",
-    );
-  }
   return {
-    city,
-    boundary: get("--boundary") ?? `data/${city}-boundary.geojson`,
+    boundary: get("--boundary"),
     // Undefined → fall back to the city's seed_config.serviceBufferMeters (then 500m), so
     // scope:venues uses the SAME buffer seed:discover used — otherwise --prune would delete
     // venues discovery deliberately included in the metro buffer ring.
@@ -50,22 +44,24 @@ function parseArgs() {
 
 async function main() {
   const args = parseArgs();
+  const { slug, state } = requireCityArgs();
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL is not set");
   const sql = postgres(url, { max: 1 });
 
   try {
-    const [city] = await sql<{ id: string; seed_config: unknown }[]>`
-      SELECT id, seed_config FROM cities WHERE slug = ${args.city}
+    const city = await resolveCity(sql, slug, state);
+    const [cityExtra] = await sql<{ seed_config: unknown }[]>`
+      SELECT seed_config FROM cities WHERE id = ${city.id}
     `;
-    if (!city) throw new Error(`City '${args.city}' not found.`);
+    const boundary = args.boundary ?? `data/${city.slug}-boundary.geojson`;
 
     // Effective buffer: explicit --buffer wins; else the city's configured discovery
     // buffer; else 500m. Keeps discovery coverage and scope pruning on one number.
     const cfg =
-      typeof city.seed_config === "string"
-        ? (JSON.parse(city.seed_config) as { serviceBufferMeters?: number })
-        : ((city.seed_config as { serviceBufferMeters?: number } | null) ?? {});
+      typeof cityExtra.seed_config === "string"
+        ? (JSON.parse(cityExtra.seed_config) as { serviceBufferMeters?: number })
+        : ((cityExtra.seed_config as { serviceBufferMeters?: number } | null) ?? {});
     const buffer =
       args.bufferArg != null
         ? Number(args.bufferArg)
@@ -74,16 +70,16 @@ async function main() {
       throw new Error(`Bad buffer "${args.bufferArg ?? buffer}"`);
     }
 
-    const raw = JSON.parse(readFileSync(args.boundary, "utf8"));
+    const raw = JSON.parse(readFileSync(boundary, "utf8"));
     const features: { geometry: unknown }[] =
       raw.type === "FeatureCollection" ? raw.features : [raw];
     const geoms = features.map((f) => JSON.stringify(f.geometry));
-    if (!geoms.length) throw new Error(`No features in ${args.boundary}`);
+    if (!geoms.length) throw new Error(`No features in ${boundary}`);
 
     // Boundary as one geography, built inline from the feature geometries (no temp table).
     // A venue is OUT of scope when it is NOT within `buffer` meters of the boundary.
     const point = sql`ST_SetSRID(ST_MakePoint(v.lng::float8, v.lat::float8), 4326)::geography`;
-    const boundary = sql`(
+    const boundaryExpr = sql`(
       SELECT ST_Collect(ST_MakeValid(ST_SetSRID(ST_GeomFromGeoJSON(g), 4326)))::geography AS geom
       FROM unnest(${geoms}::text[]) AS g
     )`;
@@ -91,7 +87,7 @@ async function main() {
     const rows = await sql<
       { id: string; name: string; lat: string; lng: string; m: number }[]
     >`
-      WITH b AS ${boundary}
+      WITH b AS ${boundaryExpr}
       SELECT v.id, v.name, v.lat::text, v.lng::text,
              round(ST_Distance(b.geom, ${point})::numeric, 0)::int AS m
       FROM venues v, b
@@ -108,7 +104,7 @@ async function main() {
     `;
     const active = tot?.n ?? 0;
     console.log(
-      `\n${args.city}: ${active} active geocoded venues — ` +
+      `\n${city.slug}: ${active} active geocoded venues — ` +
         `${active - rows.length} in scope, ${rows.length} OUT of scope ` +
         `(boundary + ${buffer}m buffer).`,
     );
