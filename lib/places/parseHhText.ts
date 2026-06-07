@@ -214,36 +214,36 @@ function durationMinutes(startTime: string, endTime: string): number {
 }
 
 /**
- * Compute the structural plausibility of a window.
+ * Compute the structural plausibility of a window — i.e. is it safe to show LIVE, or
+ * should it be captured HIDDEN for operator review?
  * `isClean` is false → plausible is always false (fuzzy windows are never auto-written).
- * `hhMatched` — whether HH_RE matched the segment (vs only a deal word).
- * `daysAssumed` — whether days were assumed (no days stated in the segment).
- * `hadExplicitMeridiem` — true if at least one endpoint wrote am/pm or was unambiguously
- *   24h (h ≥ 13). False means both ends used bare numbers only.
+ * `hhMatched` — whether the literal "happy hour" (HH_RE) appears in THIS window's segment.
+ *
+ * Precision gate (validated against real Tacoma/Daly City pages): a window only goes LIVE
+ * when "happy hour" sits in its own segment. A restaurant's dining page routinely lists
+ * breakfast/lunch/dinner service hours AND a real happy hour together; a page-level "does
+ * the site mention happy hour" check keeps ALL of them, so the only thing that isolates the
+ * real window from the service-hours noise is same-segment adjacency. Deal-word-only context
+ * (daily/specials) is NOT enough for live → those land in review.
  */
 function computePlausible(
   isClean: boolean,
   startTime: string | null,
   endTime: string | null,
   hhMatched: boolean,
-  daysAssumed: boolean,
-  hadExplicitMeridiem: boolean,
 ): boolean {
   if (!isClean) return false;
 
-  // Signal 1 & 2: both times known — check duration.
+  // Duration sanity: drop degenerate and business-hours-shaped windows.
   if (startTime !== null && endTime !== null) {
     const dur = durationMinutes(startTime, endTime);
     if (dur <= 0) return false;   // degenerate (start == end)
-    if (dur > 360) return false;  // > 6 hours
+    if (dur > 360) return false;  // > 6 hours — almost always operating hours, not HH
   }
 
-  // Signal 3: only a deal word matched (not HH_RE) AND days were assumed.
-  if (!hhMatched && daysAssumed) return false;
-
-  // Signal 4: bare-number range with no explicit meridiem and no 'happy hour' literal.
-  // Most likely operating/menu hours leaked through — hide for operator review.
-  if (!hadExplicitMeridiem && !hhMatched) return false;
+  // Precision gate: live requires the literal "happy hour" next to the time. Everything
+  // else clean (deal-word-only, bare numbers, menu/service hours) → hidden for review.
+  if (!hhMatched) return false;
 
   return true;
 }
@@ -336,8 +336,6 @@ export function parseHappyHours(text: string, sourceUrl: string): ParsedWindow[]
 
     // Context + days are scoped to THIS segment only.
     const hhContext = isHhContext(segment);
-    // Track whether the segment matched HH_RE explicitly (vs only a deal word).
-    const hhMatched = HH_RE.test(segment);
     const segDays = parseDays(segment);
 
     // Find ALL time ranges in the segment; emit one window per range.
@@ -347,6 +345,15 @@ export function parseHappyHours(text: string, sourceUrl: string): ParsedWindow[]
       if (m[0].length === 0) { RANGE_RE.lastIndex++; continue; }
       const range = parseTimeRange(m[0], hhContext);
       if (!range) continue;
+
+      // Live gate is PROXIMITY-based: the literal "happy hour" must sit NEAR this time,
+      // not merely somewhere in the segment. SSR/Wix pages with sparse punctuation bundle a
+      // real "Happy Hour" mention and the "OPENING HOURS" footer into one giant segment —
+      // segment-level matching then mislabels lunch/dinner service hours as live. The window
+      // is generous backward (offerings often sit between the phrase and the time, e.g. Side
+      // Pony) and tight forward (the phrase rarely follows the time).
+      const around = segment.slice(Math.max(0, m.index - 140), m.index + m[0].length + 40);
+      const hhNearTime = HH_RE.test(around);
 
       let days = segDays;
       let notes: string | null = null;
@@ -368,7 +375,7 @@ export function parseHappyHours(text: string, sourceUrl: string): ParsedWindow[]
       if (seen.has(key)) continue;
       seen.add(key);
 
-      const plausible = computePlausible(isClean, range.startTime, range.endTime, hhMatched, daysAssumed, range.hadExplicitMeridiem);
+      const plausible = computePlausible(isClean, range.startTime, range.endTime, hhNearTime);
 
       out.push({
         daysOfWeek: days ?? [],
