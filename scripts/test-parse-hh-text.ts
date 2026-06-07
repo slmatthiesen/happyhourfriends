@@ -177,9 +177,15 @@ check("bare-number range, deal word only, no meridiem → implausible (likely op
 check("explicit 'happy hour' with bare numbers stays plausible", () => {
   assert.equal(win(parseHappyHours("Happy hour 3-7", URL)).plausible, true);
 });
-check("explicit meridiem stays plausible even without 'happy hour' literal", () => {
-  // deal word + explicit pm → confident enough
-  assert.equal(win(parseHappyHours("Specials daily 4pm-6pm", URL)).plausible, true);
+check("deal word + explicit pm but NO 'happy hour' literal → implausible (review, not live)", () => {
+  // Validated against real pages: a deal word ('specials'/'daily') next to a time is most
+  // often menu/operating hours, not a happy hour. Live requires the literal phrase.
+  const w = win(parseHappyHours("Specials daily 4pm-6pm", URL));
+  assert.equal(w.confidence, "clean"); // still parses + captured
+  assert.equal(w.plausible, false); // but hidden for review, not auto-shown
+});
+check("'happy hour' literal in the segment → plausible (live)", () => {
+  assert.equal(win(parseHappyHours("Happy hour specials daily 4pm-6pm", URL)).plausible, true);
 });
 
 console.log(`\n${passed} checks passed.`);
