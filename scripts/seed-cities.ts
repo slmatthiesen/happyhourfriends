@@ -158,6 +158,28 @@ const CITIES: CitySeed[] = [
       serviceBufferMeters: 500,
     },
   },
+  {
+    // Oakland, CA — first larger-metro test of the discovery→enrich→free-fill→spotcheck
+    // process (prior CA cities were small). Boundary mode via data/oakland-boundary.geojson
+    // drives discovery; the locality gate keeps Oakland and drops Berkeley / Emeryville /
+    // Alameda / Piedmont (Piedmont is an enclave but a separate town). centerLat/Lng are a
+    // fallback only — once the boundary file lands, refine to its ST_Centroid.
+    slug: "oakland",
+    name: "Oakland",
+    state: "CA",
+    country: "US",
+    timezone: "America/Los_Angeles",
+    currency: "USD",
+    // approx ST_Centroid of data/oakland-boundary.geojson (OSM relation 2833530)
+    centerLat: 37.7876,
+    centerLng: -122.2059,
+    seedConfig: {
+      radiusKm: 12, // fallback only; data/oakland-boundary.geojson drives real tiling/gate
+      cellMeters: 3000,
+      serviceLocalities: ["Oakland"],
+      serviceBufferMeters: 500,
+    },
+  },
 ];
 
 async function main() {
