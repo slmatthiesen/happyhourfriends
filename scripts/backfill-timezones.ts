@@ -5,17 +5,12 @@
  *
  * Only fills NULLs; venues with an explicit tz (e.g. enriched) are left untouched.
  *
- * Usage:  tsx scripts/backfill-timezones.ts [--city tacoma]   (omit --city = all)
+ * Usage:  tsx scripts/backfill-timezones.ts [--city tacoma --state wa]   (omit --city = all)
  * Required env: DATABASE_URL
  */
 import "dotenv/config";
 import postgres from "postgres";
-
-function parseArgs(): { city: string | null } {
-  const argv = process.argv.slice(2);
-  const i = argv.indexOf("--city");
-  return { city: i >= 0 ? argv[i + 1] : null };
-}
+import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 async function main() {
   const dbUrl = process.env.DATABASE_URL;
@@ -23,16 +18,14 @@ async function main() {
     console.error("ERROR: DATABASE_URL is not set.");
     process.exit(1);
   }
-  const { city } = parseArgs();
+  const hasCityFlag = process.argv.includes("--city");
   const sql = postgres(dbUrl, { max: 1 });
   try {
     let cityId: string | null = null;
-    if (city) {
-      const [c] = await sql<{ id: string }[]>`
-        SELECT id FROM cities WHERE slug = ${city}
-      `;
-      if (!c) throw new Error(`City '${city}' not found — run npm run seed:cities first.`);
-      cityId = c.id;
+    if (hasCityFlag) {
+      const { slug, state } = requireCityArgs();
+      const city = await resolveCity(sql, slug, state);
+      cityId = city.id;
     }
 
     const updated = await sql<{ id: string }[]>`

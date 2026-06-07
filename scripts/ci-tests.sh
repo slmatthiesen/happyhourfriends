@@ -46,6 +46,7 @@ TESTS=(
   test:free-extract
   test:hh-outcomes
   test:hh-golden
+  test:resolve-city
 )
 
 failed=()

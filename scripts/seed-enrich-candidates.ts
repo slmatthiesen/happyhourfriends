@@ -21,7 +21,7 @@
  * 50% discount. Processing is idempotent: candidates with processed_at set are skipped.
  *
  * Usage:
- *   tsx scripts/seed-enrich-candidates.ts [--city tacoma] [--limit N] [--batch]
+ *   tsx scripts/seed-enrich-candidates.ts --city tacoma --state wa [--limit N] [--batch]
  *
  * Required env vars:
  *   DATABASE_URL       Postgres connection string
@@ -63,12 +63,13 @@ import { hhLikelihood } from "@/lib/places/hhLikelihood";
 import { assessRealness, type RealnessReason } from "@/lib/places/realnessGate";
 import { renderKillReport, type KillEntry, type KillReason } from "@/lib/places/killReport";
 import { writeFile } from "node:fs/promises";
+import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 // ---------------------------------------------------------------------------
 // Arg parsing
 // ---------------------------------------------------------------------------
 
-function parseArgs(): { city: string; limit: number | null; batch: boolean } {
+function parseArgs(): { limit: number | null; batch: boolean } {
   const argv = process.argv.slice(2);
   const getFlag = (f: string) => {
     const i = argv.indexOf(f);
@@ -76,7 +77,6 @@ function parseArgs(): { city: string; limit: number | null; batch: boolean } {
   };
   const limitStr = getFlag("--limit");
   return {
-    city: getFlag("--city") ?? "tacoma",
     limit: limitStr != null ? parseInt(limitStr, 10) : null,
     batch: argv.includes("--batch"),
   };
@@ -418,14 +418,8 @@ async function main() {
 
   try {
     // ---- Resolve city row --------------------------------------------------
-    const [city] = await sql<CityRow[]>`
-      SELECT id, slug, name FROM cities WHERE slug = ${args.city}
-    `;
-    if (!city) {
-      throw new Error(
-        `City '${args.city}' not found — run npm run seed:cities first.`,
-      );
-    }
+    const { slug, state } = requireCityArgs();
+    const city = await resolveCity(sql, slug, state);
 
     // ---- Batch path branches off here --------------------------------------
     if (args.batch) {
@@ -446,14 +440,14 @@ async function main() {
 
     if (candidates.length === 0) {
       console.log(
-        `No unprocessed seed_candidates found for '${args.city}'. ` +
+        `No unprocessed seed_candidates found for '${city.slug}'. ` +
           "Run seed-discover-tacoma.ts first.",
       );
       return;
     }
 
     console.log(
-      `Enriching ${candidates.length} candidates for '${args.city}'…`,
+      `Enriching ${candidates.length} candidates for '${city.slug}'…`,
     );
 
     let nConfirmed = 0;
@@ -718,7 +712,7 @@ interface ReportTally {
 async function runBatch(
   sql: Sql,
   city: CityRow,
-  args: { city: string; limit: number | null },
+  args: { limit: number | null },
   placesKey: string | null,
 ): Promise<void> {
   const month = firstOfCurrentMonth();
@@ -908,7 +902,7 @@ async function runBatch(
 async function prepAndSubmit(
   sql: Sql,
   city: CityRow,
-  args: { city: string; limit: number | null },
+  args: { limit: number | null },
   placesKey: string | null,
   tally: ReportTally,
 ): Promise<BatchState | null> {
@@ -921,7 +915,7 @@ async function prepAndSubmit(
     ${args.limit != null ? sql`LIMIT ${args.limit}` : sql``}
   `;
   if (candidates.length === 0) return null;
-  console.log(`Prepping ${candidates.length} candidates for '${args.city}'…`);
+  console.log(`Prepping ${candidates.length} candidates for '${city.slug}'…`);
 
   const requests: BatchRequest[] = [];
   const contexts: Record<string, PrepContext> = {};

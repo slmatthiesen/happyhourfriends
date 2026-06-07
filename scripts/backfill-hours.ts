@@ -3,23 +3,24 @@
  * google_place_id. After the close-time hardening, all-day / until-close windows stay
  * SUPPRESSED (no "now" badge) until a venue has hours — this restores them.
  *
- * Run: npx tsx scripts/backfill-hours.ts [--city <slug>] [--limit N] [--dry-run]
+ * Run: npx tsx scripts/backfill-hours.ts [--city <slug> --state <code>] [--limit N] [--dry-run]
  * Requires GOOGLE_PLACES_API_KEY + DATABASE_URL.
  */
 import "dotenv/config";
 import postgres from "postgres";
 import { fetchPlaceDetails, PlaceDetailsQuotaError } from "@/lib/places/placeDetails";
+import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 const DATABASE_URL = process.env.DATABASE_URL;
 const API_KEY = process.env.GOOGLE_PLACES_API_KEY;
 if (!DATABASE_URL) { console.error("DATABASE_URL is not set"); process.exit(1); }
 if (!API_KEY) { console.error("GOOGLE_PLACES_API_KEY is not set"); process.exit(1); }
 
-function parseArgs(): { citySlug: string | undefined; limit: number | undefined; dryRun: boolean } {
+function parseArgs(): { hasCity: boolean; limit: number | undefined; dryRun: boolean } {
   const args = process.argv.slice(2);
   const argValue = (flag: string) => { const i = args.indexOf(flag); return i >= 0 ? args[i + 1] : undefined; };
   return {
-    citySlug: argValue("--city"),
+    hasCity: args.includes("--city"),
     limit: argValue("--limit") ? Number(argValue("--limit")) : undefined,
     dryRun: args.includes("--dry-run"),
   };
@@ -28,16 +29,23 @@ function parseArgs(): { citySlug: string | undefined; limit: number | undefined;
 const sql = postgres(DATABASE_URL, { max: 4 });
 
 async function main() {
-  const { citySlug, limit, dryRun } = parseArgs();
+  const { hasCity, limit, dryRun } = parseArgs();
+
+  // --city is optional; when provided, --state is also required.
+  let cityId: string | undefined;
+  if (hasCity) {
+    const { slug, state } = requireCityArgs();
+    const city = await resolveCity(sql, slug, state);
+    cityId = city.id;
+  }
 
   const rows = await sql<{ id: string; google_place_id: string; name: string }[]>`
     SELECT v.id, v.google_place_id, v.name
     FROM venues v
-    ${citySlug ? sql`JOIN cities c ON c.id = v.city_id` : sql``}
     WHERE v.google_place_id IS NOT NULL
       AND v.hours_json IS NULL
       AND v.deleted_at IS NULL
-      ${citySlug ? sql`AND c.slug = ${citySlug}` : sql``}
+      ${cityId ? sql`AND v.city_id = ${cityId}` : sql``}
     ORDER BY v.name
     ${limit ? sql`LIMIT ${limit}` : sql``}
   `;

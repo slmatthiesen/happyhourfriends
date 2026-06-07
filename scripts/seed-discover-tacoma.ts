@@ -11,7 +11,7 @@
  * them as seed_candidates with googlePlaceId=null.
  *
  * Usage:
- *   tsx scripts/seed-discover-tacoma.ts [--city tacoma] [--curated]
+ *   tsx scripts/seed-discover-tacoma.ts --city tacoma --state wa [--curated]
  *
  * Required env vars:
  *   DATABASE_URL           Postgres connection string
@@ -20,6 +20,7 @@
 import "dotenv/config";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import postgres from "postgres";
+import { requireCityArgs } from "@/lib/cities/resolveCity";
 import {
   isDenylistedChain,
   isLikelyNoHappyHourFormat,
@@ -42,25 +43,20 @@ import { haversineMeters } from "@/lib/geo/distance";
 // Arg parsing
 // ---------------------------------------------------------------------------
 
-function parseArgs(): { city: string; curated: boolean; fresh: boolean; debugDrops: boolean } {
+function parseArgs(): { curated: boolean; fresh: boolean; debugDrops: boolean } {
   const argv = process.argv.slice(2);
-  const getFlag = (f: string) => {
-    const i = argv.indexOf(f);
-    return i >= 0 ? argv[i + 1] : undefined;
-  };
   // Reject stray args. `seed:discover tucson` (no --city) silently ran Tacoma before — a
-  // costly footgun (wrong city / wasted Places quota). The city MUST be a --city flag.
+  // costly footgun (wrong city / wasted Places quota). The city MUST be --city + --state flags.
   for (let i = 0; i < argv.length; i++) {
     const tok = argv[i];
-    if (tok === "--city") { i++; continue; } // --city consumes its value
+    if (tok === "--city" || tok === "--state") { i++; continue; } // these consume their value
     if (tok === "--curated" || tok === "--fresh" || tok === "--debug-drops") continue;
     throw new Error(
-      `Unexpected argument "${tok}". Pass the city as a flag:\n` +
-        `  npm run seed:discover -- --city <slug>   (e.g. --city tucson)`,
+      `Unexpected argument "${tok}". Pass the city as flags:\n` +
+        `  npm run seed:discover -- --city <slug> --state <code>   (e.g. --city tucson --state az)`,
     );
   }
   return {
-    city: getFlag("--city") ?? "tacoma",
     curated: argv.includes("--curated"),
     // --fresh: clear this city's existing candidates first (re-discover from scratch,
     // e.g. after changing the type/area filters). Candidates already linked to a venue
@@ -399,6 +395,7 @@ async function fetchCuratedPage(url: string): Promise<string[]> {
 
 async function main() {
   const args = parseArgs();
+  const { slug: citySlug, state: cityState } = requireCityArgs();
   const dbUrl = process.env.DATABASE_URL;
   if (!dbUrl) {
     console.error("ERROR: DATABASE_URL is not set.");
@@ -425,15 +422,18 @@ async function main() {
     const [city] = await sql<
       {
         id: string;
+        name: string;
+        slug: string;
         state: string | null;
         center_lat: string | null;
         center_lng: string | null;
         seed_config: SeedConfig | string | null;
       }[]
-    >`SELECT id, state, center_lat, center_lng, seed_config FROM cities WHERE slug = ${args.city}`;
+    >`SELECT id, name, slug, state, center_lat, center_lng, seed_config FROM cities
+      WHERE lower(slug) = ${citySlug} AND lower(state) = ${cityState}`;
     if (!city) {
       throw new Error(
-        `City '${args.city}' not found — run npm run seed:cities first.`,
+        `City '${citySlug}' (state '${cityState}') not found — run npm run seed:cities first.`,
       );
     }
 
@@ -463,7 +463,7 @@ async function main() {
     // If a municipal boundary GeoJSON exists for this city, tile over its bbox and gate
     // every result spatially with ST_DWithin(boundary, point, buffer) — the same file +
     // buffer scope:venues uses. Otherwise fall back to the radius circle.
-    const boundaryFile = `data/${args.city}-boundary.geojson`;
+    const boundaryFile = `data/${city.slug}-boundary.geojson`;
     const useBoundary = existsSync(boundaryFile);
     const SERVICE_BUFFER_METERS =
       cfg.serviceBufferMeters ?? DEFAULT_SERVICE_BUFFER_METERS;
@@ -496,7 +496,7 @@ async function main() {
     }
 
     console.log(
-      `Discovering venues for city '${args.city}' around (lat=${lat}, lng=${lng})…`,
+      `Discovering venues for city '${city.slug}' around (lat=${lat}, lng=${lng})…`,
     );
 
     // ---- Google Places: tiled search (junk primary types excluded) ----------
@@ -758,10 +758,10 @@ async function main() {
     );
 
     if (args.debugDrops) {
-      const path = `docs/${args.city}-discovery-drops.json`;
+      const path = `docs/${city.slug}-discovery-drops.json`;
       const byReason: Record<string, number> = {};
       for (const d of drops) byReason[d.reason] = (byReason[d.reason] ?? 0) + 1;
-      writeFileSync(path, JSON.stringify({ city: args.city, total: drops.length, byReason, drops }, null, 2));
+      writeFileSync(path, JSON.stringify({ city: city.slug, total: drops.length, byReason, drops }, null, 2));
       console.log(`  --debug-drops: wrote ${drops.length} dropped candidates to ${path}`);
     }
 
@@ -837,7 +837,7 @@ async function main() {
       SELECT count(*) AS n FROM seed_candidates WHERE city_id = ${city.id}
     `;
     console.log(
-      `\nDone. seed_candidates total for '${args.city}': ${count?.n ?? "?"}`,
+      `\nDone. seed_candidates total for '${city.slug}': ${count?.n ?? "?"}`,
     );
   } finally {
     await sql.end();

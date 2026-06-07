@@ -7,7 +7,7 @@
  *   3. a small popularity tiebreak (rating x reviews)
  * and emits a per-city ranked markdown + json shortlist the operator hand-verifies.
  *
- * Usage: tsx scripts/rank-stub-candidates.ts [--city <slug>] [--limit N] [--min-score X]
+ * Usage: tsx scripts/rank-stub-candidates.ts [--city <slug> --state <code>] [--limit N] [--min-score X]
  * Env: DATABASE_URL (required). Reads docs/hh-harvest.jsonl if present.
  *
  * See docs/superpowers/specs/2026-06-01-rank-stub-candidates-design.md.
@@ -18,6 +18,7 @@ import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { scoreStub, LOW_YIELD_PRIOR, type StubScore } from "@/lib/places/stubRank";
 import { isDenylistedSource } from "@/lib/ai/sourceDenylist";
 import type { VenueType } from "@/lib/places/venueType";
+import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 const HARVEST_PATH = "docs/hh-harvest.jsonl";
 const DATE = "2026-06-01";
@@ -31,7 +32,7 @@ function parseArgs() {
     return i >= 0 ? a[i + 1] : undefined;
   };
   return {
-    city: get("--city"),
+    hasCity: a.includes("--city"),
     limit: get("--limit") ? parseInt(get("--limit")!, 10) : null,
     minScore: get("--min-score") ? parseFloat(get("--min-score")!) : null,
   };
@@ -203,6 +204,14 @@ async function main() {
   const sql = postgres(dbUrl, { max: 1 });
   const { byId, byNameCity } = loadHarvest();
 
+  // --city is optional; when provided, --state is also required.
+  let cityId: string | undefined;
+  if (args.hasCity) {
+    const { slug, state } = requireCityArgs();
+    const city = await resolveCity(sql, slug, state);
+    cityId = city.id;
+  }
+
   const rows = await sql<StubRow[]>`
     SELECT v.id, v.name, c.slug AS city, v.website_url, v.type::text AS type,
            sc.primary_type, sc.types, sc.rating::text AS rating,
@@ -222,7 +231,7 @@ async function main() {
         SELECT 1 FROM happy_hours hh
         WHERE hh.venue_id = v.id AND hh.active AND hh.deleted_at IS NULL
       )
-      ${args.city ? sql`AND c.slug = ${args.city}` : sql``}
+      ${cityId ? sql`AND v.city_id = ${cityId}` : sql``}
     ORDER BY c.slug, v.name`;
 
   const ranked: Ranked[] = rows.map((row) => {

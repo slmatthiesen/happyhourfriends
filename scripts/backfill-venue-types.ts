@@ -3,7 +3,7 @@
  * fallback via deriveVenueType. Phase 2 (OPT-IN via --ai-refine): a cheap Haiku pass
  * using NAME + Google types only (no web fetch) to upgrade obvious finer types.
  *
- *   npm run backfill:venue-types -- [--city <slug>] [--ai-refine] [--dry-run] [--limit N]
+ *   npm run backfill:venue-types -- [--city <slug> --state <code>] [--ai-refine] [--dry-run] [--limit N]
  *
  * Phase 2 is OFF by default ON PURPOSE: with only the name + Google types (no website),
  * its "finer type" picks are guesses and WILL misclassify some venues (e.g. it tagged
@@ -22,6 +22,7 @@ import { anthropic } from "@/lib/ai/anthropic";
 import { MODELS } from "@/lib/ai/models";
 import { costCents } from "@/lib/ai/pricing";
 import { recordUsage } from "@/lib/ai/ledger";
+import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 type Sql = ReturnType<typeof postgres>;
 
@@ -32,7 +33,7 @@ function parseArgs() {
     return i >= 0 ? a[i + 1] : undefined;
   };
   return {
-    city: get("--city") ?? null,
+    hasCity: a.includes("--city"),
     aiRefine: a.includes("--ai-refine"),
     dryRun: a.includes("--dry-run"),
     limit: get("--limit") ? Number(get("--limit")) : null,
@@ -48,10 +49,8 @@ interface Row {
   types: string[] | null;
 }
 
-async function loadRows(sql: Sql, city: string | null, limit: number | null): Promise<Row[]> {
-  const cityFilter = city
-    ? sql`AND v.city_id = (SELECT id FROM cities WHERE slug = ${city})`
-    : sql``;
+async function loadRows(sql: Sql, cityId: string | null, limit: number | null): Promise<Row[]> {
+  const cityFilter = cityId ? sql`AND v.city_id = ${cityId}` : sql``;
   const limitClause = limit != null ? sql`LIMIT ${limit}` : sql``;
   return sql<Row[]>`
     SELECT v.id, v.name, v.city_id, v.type::text AS type,
@@ -184,8 +183,16 @@ async function main() {
   if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL not set");
   const sql = postgres(process.env.DATABASE_URL);
   try {
-    const rows = await loadRows(sql, args.city, args.limit);
-    console.log(`Loaded ${rows.length} venue(s)${args.city ? ` for '${args.city}'` : ""}.`);
+    let cityId: string | null = null;
+    let cityLabel: string | null = null;
+    if (args.hasCity) {
+      const { slug, state } = requireCityArgs();
+      const city = await resolveCity(sql, slug, state);
+      cityId = city.id;
+      cityLabel = city.slug;
+    }
+    const rows = await loadRows(sql, cityId, args.limit);
+    console.log(`Loaded ${rows.length} venue(s)${cityLabel ? ` for '${cityLabel}'` : ""}.`);
     console.log("Before:", distribution(rows));
 
     const base = await phase1(sql, rows, args.dryRun);
@@ -196,7 +203,7 @@ async function main() {
       const computed = [...base.values()].map((type) => ({ type }));
       console.log("After (computed, dry-run):", distribution(computed));
     } else {
-      const after = await loadRows(sql, args.city, args.limit);
+      const after = await loadRows(sql, cityId, args.limit);
       console.log("After:", distribution(after));
     }
   } finally {

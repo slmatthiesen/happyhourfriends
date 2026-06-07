@@ -9,21 +9,24 @@
  * This is the recall step. It NEVER writes venue data. Reading the digests and
  * turning them into happy_hours rows is a separate, deliberate step.
  *
- * Usage: tsx scripts/harvest-hh.ts [--city <slug>] [--limit N] [--concurrency 8]
+ * Usage: tsx scripts/harvest-hh.ts [--city <slug> --state <code>] [--limit N] [--concurrency 8]
  */
 import "dotenv/config";
 import postgres from "postgres";
 import { appendFileSync, writeFileSync } from "node:fs";
 import { HH_RE, matchesHappyHour, scoreHhUrl } from "@/lib/places/hhText";
 import { discoverSitemapUrls } from "@/lib/places/sitemap";
+import { requireCityArgs } from "@/lib/cities/resolveCity";
 
 const UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36";
 const OUT = "docs/hh-harvest.jsonl";
 
 function arg(f: string) { const i = process.argv.indexOf(f); return i >= 0 ? process.argv[i + 1] : undefined; }
-const CITY = arg("--city");
 const LIMIT = arg("--limit") ? parseInt(arg("--limit")!, 10) : null;
 const CONC = arg("--concurrency") ? parseInt(arg("--concurrency")!, 10) : 8;
+
+// When --city is given, --state is also required (cities are unique by state+slug, not slug alone).
+const cityFilter = process.argv.includes("--city") ? requireCityArgs() : null;
 
 async function fetchText(url: string, ms = 12000): Promise<string | null> {
   const ctrl = new AbortController();
@@ -168,7 +171,7 @@ async function main() {
     WHERE v.deleted_at IS NULL AND v.website_url IS NOT NULL
       AND v.website_url !~* 'facebook|instagram|doordash|linktr|ubereats|grubhub|toasttab'
       AND NOT EXISTS (SELECT 1 FROM happy_hours hh WHERE hh.venue_id=v.id AND hh.active AND hh.deleted_at IS NULL)
-      ${CITY ? sql`AND c.slug = ${CITY}` : sql``}
+      ${cityFilter ? sql`AND lower(c.slug) = ${cityFilter.slug} AND lower(c.state) = ${cityFilter.state}` : sql``}
     ORDER BY c.slug, v.name
     ${LIMIT ? sql`LIMIT ${LIMIT}` : sql``}`;
   console.log(`Harvesting ${stubs.length} stub site(s)  (concurrency ${CONC})…`);
