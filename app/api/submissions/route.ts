@@ -77,20 +77,6 @@ export async function POST(req: Request) {
     );
   }
 
-  // A free-text "report a change" must carry at least one real signal so an empty
-  // contribution can't be queued: a meaningful note (≥10 chars), a source URL, or
-  // an attached photo/PDF. A note alone was previously required; now any one suffices.
-  if (body.targetType === "intent") {
-    const note = String((after as Record<string, unknown>)?.note ?? "").trim();
-    const hasUrl = !!body.diff?.sourceUrl?.trim();
-    const hasPhoto = !!body.evidenceImage;
-    if (note.length < 10 && !hasUrl && !hasPhoto) {
-      return NextResponse.json(
-        { error: "Add a sentence about what's changed, or include a link or photo." },
-        { status: 400 },
-      );
-    }
-  }
   const fingerprint = (body.fingerprint ?? "").trim();
   if (!fingerprint) {
     return NextResponse.json({ error: "Missing fingerprint" }, { status: 400 });
@@ -146,16 +132,20 @@ export async function POST(req: Request) {
   const providedUrl = body.diff.sourceUrl?.trim() || null;
   const effectiveSourceUrl = providedUrl ?? storedEvidence?.url ?? null;
 
-  // Evidence is required for happy-hour / offering changes and for the "add the first
-  // happy hour" path — satisfied by EITHER a source URL or a photo. Venue metadata
-  // fixes (name, phone…) don't require it.
+  // Every user-driven contribution must be backed by evidence — satisfied by EITHER a
+  // source URL or an uploaded photo/PDF. That covers the free-text "report a change"
+  // box (`intent`), explicit happy-hour / offering edits, and the "add the first happy
+  // hour" path. If we're being told something we don't already have, there must be a
+  // source to verify it against (operator decision 2026-06-07). The only path exempt is
+  // `new_venue`, which gates evidence on its own HH/offering fields.
   const needsEvidence =
+    body.targetType === "intent" ||
     body.targetType === "happy_hour" ||
     body.targetType === "offering" ||
     body.targetType === "new_happy_hour";
   if (needsEvidence && !effectiveSourceUrl) {
     return NextResponse.json(
-      { error: "Add a source for this change — paste a link or upload a photo of the menu." },
+      { error: "Add a link or a photo of the menu — we need a source to verify this update." },
       { status: 400 },
     );
   }
