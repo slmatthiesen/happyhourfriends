@@ -64,9 +64,12 @@ export function Contribute({
     const noteTrimmed = note.trim();
     const urlTrimmed = sourceUrl.trim();
 
-    if (noteTrimmed.length < 10 && !urlTrimmed && !imageDataUrl) {
+    // Every contribution must be backed by evidence — a link or a photo/PDF of the
+    // menu. A description alone isn't enough: if we don't already have this info, we
+    // need a source to verify it against.
+    if (!urlTrimmed && !imageDataUrl) {
       setError(
-        "Tell us what's happening (a sentence), or add a link or photo.",
+        "Add a link or a photo of the menu — we need a source to verify your update.",
       );
       return;
     }
@@ -131,8 +134,8 @@ export function Contribute({
     ? "Something off? Tell us"
     : `Know ${venueName}'s happy hour? Add it`;
   const blurb = hasHappyHour
-    ? "Prices changed? New deal? Closed? Just tell us in plain words — or paste a link / snap the menu. Our AI sorts out the details and a human approves before anything goes live."
-    : "Paste a link to their happy-hour page or snap a photo of the menu, and add whatever details you know. A human reviews everything before it goes live.";
+    ? "Prices changed? New deal? Closed? Tell us in plain words and back it up with a link or a photo of the menu — our AI sorts out the details and a human approves before anything goes live."
+    : "Paste a link to their happy-hour page or snap a photo of the menu (required), and add whatever details you know. A human reviews everything before it goes live.";
 
   return (
     <div>
@@ -179,7 +182,8 @@ export function Contribute({
 
           <div>
             <label className="mb-1 block text-text-muted">
-              Got a source? (optional, but it speeds things up)
+              Add a source <span className="text-accent-hot">*</span> — a link or a
+              photo of the menu
             </label>
             <input
               className={inputCls}
