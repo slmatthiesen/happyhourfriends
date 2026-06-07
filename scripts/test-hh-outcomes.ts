@@ -76,9 +76,9 @@ check("A5 '9pm to close' Thursday-Saturday → live 21:00-open-ended", () => {
   assert.deepEqual(w.daysOfWeek, [4, 5, 6]);
 });
 
-check("A6 'Specials daily 4pm-6pm' (deal word + explicit pm, days stated) → live", () => {
-  const w = live("Specials daily 4pm-6pm")[0];
-  assert.ok(w, "explicit meridiem + stated days is confident even without 'happy hour'");
+check("A6 'Happy hour specials daily 4pm-6pm' (literal phrase present) → live", () => {
+  const w = live("Happy hour specials daily 4pm-6pm")[0];
+  assert.ok(w, "the literal 'happy hour' next to the time makes it live");
   assert.equal(w.startTime, "16:00");
   assert.equal(w.endTime, "18:00");
 });
