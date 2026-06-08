@@ -25,8 +25,10 @@ judgment the AI needs to make. They are fixable in pure code.
 Consistent with the operator directive (2026-05-31, `realnessGate`): **the AI extractor
 captures everything it can read and never judges realness; a cheap, pure-code,
 deterministic gate decides what is shown publicly.** This gate extends that pattern. It
-**never deletes** — it only flips `active` (visibility) or unions `days_of_week`. Suspect
-rows stay queryable and appear in a review report.
+**never hard-deletes** — suspect windows only flip `active` (visibility); merging unions
+`days_of_week` onto a kept row and reversibly soft-deletes the absorbed exact-duplicate
+copies (`deleted_at`, recoverable). No real data is lost, and suspect rows stay queryable
+and appear in a review report.
 
 ## Architecture
 
@@ -115,7 +117,11 @@ operator ground-truth as the expected output. Pure-function unit tests in
 | Swinging Doors | 6×`15–18` per-day + `{1-5}15–18` + `08–23`,`08–22` | `15–18 {1-6}` live (merged); 2 hidden `operating_hours` |
 | Bigfoot | `18–20`,`19–21`,`19–22`,`11:00-`,`20:00-`,`21:00-` `{1-7}` | all hidden (`overlap_conflict` / `operating_hours`) → stub |
 | Garland | `{1} all-day 15–21`, `{2-5} 15–17` | both live (all-day exempt; 2h bounded) |
-| 1919, Crazy Train | (current over-captured sets) | hidden → stub (operator supplies/declines) |
+
+1919 Wine Cellar and Crazy Train are **not** pure-gate golden cases — the gate hides their
+overlapping/operating-hours rows but a non-conflicting residual may survive (e.g. 1919's
+`{Tue,Sun} 12–15`). They are resolved in rollout by operator ground-truth (1919 → Sunday
+all-day; Crazy Train → left as a stub), not asserted in the unit test.
 
 ## Rollout — "fix these for review"
 
