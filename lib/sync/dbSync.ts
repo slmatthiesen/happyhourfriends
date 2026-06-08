@@ -347,6 +347,46 @@ export async function publishVenue(
   return results;
 }
 
+/**
+ * prod → local, non-destructive. Upserts (by id) every prod edit_submissions row that
+ * is currently 'queued_admin', plus any parent rows they reference (self-FK), so the
+ * operator's local /admin queue shows exactly the leftovers the prod AI couldn't
+ * resolve. Idempotent — re-running is safe, and a submission that has since been
+ * resolved on prod (status flipped) simply stops matching. Never deletes local rows.
+ */
+export async function pullQueuedSubmissions(
+  prod: Sql,
+  local: Sql,
+  opts: { dryRun?: boolean } = {},
+): Promise<SyncResult[]> {
+  const results: SyncResult[] = [];
+
+  await local.begin(async (tx) => {
+    const meta = await tableMeta(tx, "edit_submissions");
+    // queued_admin rows + their parents (a report fan-out parent may itself be resolved
+    // but is still needed to satisfy the self-FK on its children).
+    let rows: Record<string, unknown>[] = await prod`
+      SELECT ${prod(meta.columns)} FROM edit_submissions
+       WHERE status = 'queued_admin'
+          OR id IN (
+            SELECT parent_submission_id FROM edit_submissions
+             WHERE status = 'queued_admin' AND parent_submission_id IS NOT NULL
+          )`;
+    rows = topoSortByParent(rows, "parent_submission_id");
+
+    const nonPk = meta.columns.filter((c) => !meta.pk.includes(c));
+    const changed = await insertRows(tx, "edit_submissions", meta.columns, rows, {
+      update: nonPk,
+      pk: meta.pk,
+    });
+    results.push({ table: "edit_submissions" as SyncTable, changed });
+
+    if (opts.dryRun) throw new RollbackSignal();
+  }).catch(swallowRollback);
+
+  return results;
+}
+
 // dryRun is implemented by throwing inside the transaction so postgres.js rolls back.
 class RollbackSignal extends Error {}
 function swallowRollback(err: unknown) {
