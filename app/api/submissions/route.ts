@@ -8,6 +8,7 @@ import {
   type SubmissionPayload,
 } from "@/lib/submit/payload";
 import { saveEvidenceFile } from "@/lib/submit/evidenceStore";
+import { normalizeUrl } from "@/lib/submit/normalizeUrl";
 import { checkSubmissionRateLimit } from "@/lib/trust/rateLimits";
 import { ensureSubmitter, hashIp } from "@/lib/trust/submitter";
 import { moderateImage } from "@/lib/moderation/safeSearch";
@@ -129,7 +130,9 @@ export async function POST(req: Request) {
   // the change's source when no link was supplied (operator decision: a photo/PDF OR
   // a URL satisfies the evidence requirement).
   const storedEvidence = await saveEvidenceFile(body.evidenceImage);
-  const providedUrl = body.diff.sourceUrl?.trim() || null;
+  // Lenient: a bare domain ("www.somesite.com") becomes https://… so non-browser
+  // clients aren't held to a stricter bar than the forms (which normalize too).
+  const providedUrl = normalizeUrl(body.diff.sourceUrl);
   const effectiveSourceUrl = providedUrl ?? storedEvidence?.url ?? null;
 
   // Every user-driven contribution must be backed by evidence — satisfied by EITHER a

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { SubmissionPayload, SubmissionTargetType } from "@/lib/submit/payload";
+import { normalizeUrl } from "@/lib/submit/normalizeUrl";
 import { HCaptcha } from "./hcaptcha";
 
 export interface FieldSpec {
@@ -160,7 +161,12 @@ export function SubmissionForm({
       setError("Add a short note or a photo so we know what to update.");
       return;
     }
-    if (requireSource && !sourceUrl.trim() && !imageDataUrl) {
+    const normalizedUrl = normalizeUrl(sourceUrl);
+    if (sourceUrl.trim() && !normalizedUrl) {
+      setError("That link doesn't look right — include the full address, e.g. example.com");
+      return;
+    }
+    if (requireSource && !normalizedUrl && !imageDataUrl) {
       setError("Add a source — paste a link or snap a photo of the menu.");
       return;
     }
@@ -175,7 +181,7 @@ export function SubmissionForm({
       diff: {
         before: newRecord ? null : before,
         after,
-        sourceUrl: sourceUrl.trim() || null,
+        sourceUrl: normalizedUrl,
         summary: reason.trim() || summary,
       },
       fingerprint: getFingerprint(),
@@ -340,9 +346,14 @@ export function SubmissionForm({
         </label>
         <input
           className={inputCls}
-          type="url"
+          type="text"
+          inputMode="url"
           value={sourceUrl}
           onChange={(e) => setSourceUrl(e.target.value)}
+          onBlur={(e) => {
+            const n = normalizeUrl(e.target.value);
+            if (n) setSourceUrl(n);
+          }}
           placeholder="Link — e.g. the venue's website or menu"
         />
 

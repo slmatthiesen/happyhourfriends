@@ -38,6 +38,7 @@ TESTS=(
   test:safesearch
   test:cardinal-districts
   test:hh-text
+  test:normalize-url
   test:hh-signal-gate
   test:extract-time
   test:sitemap

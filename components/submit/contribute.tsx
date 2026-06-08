@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { SubmissionPayload } from "@/lib/submit/payload";
+import { normalizeUrl } from "@/lib/submit/normalizeUrl";
 import { getFingerprint } from "./submission-form";
 import { HCaptcha } from "./hcaptcha";
 
@@ -62,12 +63,17 @@ export function Contribute({
     setError(null);
 
     const noteTrimmed = note.trim();
-    const urlTrimmed = sourceUrl.trim();
+    const normalizedUrl = normalizeUrl(sourceUrl);
 
+    // A typed-but-unparseable link (e.g. a typo) shouldn't be silently dropped.
+    if (sourceUrl.trim() && !normalizedUrl) {
+      setError("That link doesn't look right — include the full address, e.g. example.com");
+      return;
+    }
     // Every contribution must be backed by evidence — a link or a photo/PDF of the
     // menu. A description alone isn't enough: if we don't already have this info, we
     // need a source to verify it against.
-    if (!urlTrimmed && !imageDataUrl) {
+    if (!normalizedUrl && !imageDataUrl) {
       setError(
         "Add a link or a photo of the menu — we need a source to verify your update.",
       );
@@ -80,7 +86,7 @@ export function Contribute({
       diff: {
         before: null,
         after: { note: noteTrimmed },
-        sourceUrl: urlTrimmed || null,
+        sourceUrl: normalizedUrl,
         summary: (noteTrimmed || `Contribution for ${venueName}`).slice(0, 120),
       },
       fingerprint: getFingerprint(),
@@ -187,9 +193,14 @@ export function Contribute({
             </label>
             <input
               className={inputCls}
-              type="url"
+              type="text"
+              inputMode="url"
               value={sourceUrl}
               onChange={(e) => setSourceUrl(e.target.value)}
+              onBlur={(e) => {
+                const n = normalizeUrl(e.target.value);
+                if (n) setSourceUrl(n);
+              }}
               placeholder="Link — e.g. the venue's website or menu"
             />
             <div className="mt-2 flex items-center gap-3">
