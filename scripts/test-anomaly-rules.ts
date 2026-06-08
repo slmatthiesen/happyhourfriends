@@ -4,6 +4,7 @@
  */
 import assert from "node:assert/strict";
 import { auditVenue, hasAutoFixable, isHighConfidenceCorrection, type VenueAuditInput } from "@/lib/audit/anomalyRules";
+import { computeCorrection, type StoredRow } from "@/lib/audit/computeCorrection";
 
 let passed = 0;
 function check(name: string, fn: () => void) {
@@ -152,6 +153,44 @@ check("isHighConfidenceCorrection returns false when sourceUrl is a homepage", (
 // isHighConfidenceCorrection — reject: empty array.
 check("isHighConfidenceCorrection returns false for an empty corrections array", () => {
   assert.ok(!isHighConfidenceCorrection([]));
+});
+
+const storedLondon: StoredRow[] = [
+  { id: "row-home", daysOfWeek: [1, 2, 3, 4, 5], startTime: "16:00:00", endTime: "19:00:00", allDay: false, active: true, sourceUrl: "https://londonbargrill.com/", notes: "days assumed Mon–Fri (none stated)" },
+  { id: "row-menu", daysOfWeek: [1, 2, 3, 4, 5], startTime: "18:00:00", endTime: "21:00:00", allDay: false, active: true, sourceUrl: "https://londonbargrill.com/menu/", notes: "days assumed Mon–Fri (none stated)" },
+];
+// What the FIXED free parser returns from /happy-hour/: one real-days window, same clock as the home row.
+const correctedLondon = [
+  { daysOfWeek: [1, 2, 3, 4, 5], startTime: "16:00:00", endTime: "19:00:00", allDay: false, sourceUrl: "https://londonbargrill.com/happy-hour/", notes: null },
+];
+
+check("computeCorrection: updates the matching home row's provenance, deactivates /menu/", () => {
+  const plan = computeCorrection(storedLondon, correctedLondon);
+  assert.equal(plan.updates.length, 1);
+  assert.equal(plan.updates[0].id, "row-home");
+  assert.equal(plan.updates[0].sourceUrl, "https://londonbargrill.com/happy-hour/");
+  assert.equal(plan.updates[0].notes, null);
+  assert.deepEqual(plan.deactivations, ["row-menu"]);
+  assert.equal(plan.inserts.length, 0);
+});
+
+check("computeCorrection: a corrected window with no stored match becomes an insert", () => {
+  const plan = computeCorrection(
+    [{ id: "r1", daysOfWeek: [6], startTime: "12:00:00", endTime: "15:00:00", allDay: false, active: true, sourceUrl: "https://x.com/", notes: null }],
+    [{ daysOfWeek: [1, 2, 3, 4, 5], startTime: "16:00:00", endTime: "19:00:00", allDay: false, sourceUrl: "https://x.com/happy-hour", notes: null }],
+  );
+  assert.equal(plan.inserts.length, 1);
+  assert.deepEqual(plan.deactivations, ["r1"]);
+});
+
+check("computeCorrection: no provenance change → no-op update", () => {
+  const plan = computeCorrection(
+    [{ id: "r1", daysOfWeek: [1], startTime: "16:00:00", endTime: "19:00:00", allDay: false, active: true, sourceUrl: "https://x.com/happy-hour", notes: null }],
+    [{ daysOfWeek: [1], startTime: "16:00:00", endTime: "19:00:00", allDay: false, sourceUrl: "https://x.com/happy-hour", notes: null }],
+  );
+  assert.equal(plan.updates.length, 0);
+  assert.equal(plan.deactivations.length, 0);
+  assert.equal(plan.inserts.length, 0);
 });
 
 console.log(`\n✓ ${passed} anomaly-rule checks passed.`);
