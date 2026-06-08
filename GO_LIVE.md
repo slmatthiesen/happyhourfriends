@@ -25,8 +25,9 @@ live, then let's do the highest-leverage item."** Each item links to its section
 - [ ] **All-day / hours backfills:** `backfill:timezones` → `backfill:hours` →
       `reverify:all-day` (see "All-day happy-hour cleanup" below).
 - [ ] **Google-neighborhood backfill (real vernacular neighborhoods):** run
-      `backfill:google-neighborhoods` once per live city — **~$7.50 total** for the 6 live
-      cities (Oakland already done). See "Google-neighborhood backfill" below.
+      `backfill:google-neighborhoods` once per live city — **~$2.79 total** for the 6 live
+      cities (non-stubs only by default; Oakland already done). See "Google-neighborhood
+      backfill" below.
 - [ ] **After live with data:** submit `sitemap.xml` to Google Search Console + Bing
       Webmaster (see "Search rankings" below).
 - [ ] *(optional)* per-city intro paragraph — the one remaining cheap SEO item.
@@ -88,28 +89,36 @@ venues got real names — Temescal, West Oakland, Rockridge…; flipped to `live
 
 **Cost — verified, cheap.** `addressComponents`-only Place Details is the **Place Details
 Essentials SKU = $5 / 1,000** (confirmed against Google's data-fields table). The backfill
-field mask is `addressComponents` ONLY, so it never bumps to the $17 Pro tier. At
-$0.005/venue (counts from the LOCAL DB, the source of truth):
+field mask is `addressComponents` ONLY, so it never bumps to the $17 Pro tier.
 
-| City | State | Venues to backfill | Est. cost |
+**Non-stubs only by default.** The script backfills only venues with an active happy hour
+(the listings that actually display HH) and skips stubs (the help-wanted placeholders,
+which are the bulk of the count). That cuts spend ~63%. Counts from the LOCAL DB at
+$0.005/venue:
+
+| City | State | Non-stub venues | Est. cost |
 |---|---|---|---|
-| tucson | az | 487 | $2.44 |
-| scottsdale | az | 405 | $2.03 |
-| phoenix-central | az | 296 | $1.48 |
-| tacoma | wa | 165 | $0.83 |
-| five-cities | ca | 79 | $0.40 |
-| daly-city | ca | 52 | $0.26 |
-| **6 live cities total** | | **1,484** | **~$7.50** |
-| spokane *(discovery — optional, do when it goes live)* | wa | 205 | $1.03 |
+| scottsdale | az | 202 | $1.01 |
+| tucson | az | 150 | $0.75 |
+| phoenix-central | az | 130 | $0.65 |
+| tacoma | wa | 58 | $0.29 |
+| five-cities | ca | 12 | $0.06 |
+| daly-city | ca | 6 | $0.03 |
+| **6 live cities total** | | **558** | **~$2.79** |
+| spokane *(discovery — optional, do when it goes live)* | wa | 47 | $0.24 |
+
+(Backfilling everything incl. stubs — `--include-stubs` — would be ~1,484 venues / ~$7.50
+for the 6 live cities, if you ever want neighborhood filters to cover stub listings too.)
 
 **Run** (needs `GOOGLE_PLACES_API_KEY`; per-city — both `--city` and `--state` required):
 
 ```bash
 # Dry-run first (writes nothing; still makes a few real Place Details calls — pennies):
 pnpm tsx scripts/backfill-google-neighborhoods.ts --city tucson --state az --dry-run --limit 5
-# Then commit:
+# Then commit (non-stubs only):
 pnpm tsx scripts/backfill-google-neighborhoods.ts --city tucson --state az
 # Repeat for: scottsdale/az, phoenix-central/az, tacoma/wa, five-cities/ca, daly-city/ca
+# Add --include-stubs to backfill every venue with a place id instead.
 ```
 
 Each run fetches `addressComponents`, stores the parsed name, then re-runs neighborhood
