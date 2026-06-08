@@ -82,7 +82,8 @@
     "test:free-extract": "tsx scripts/test-free-extract.ts",
     "test:hh-outcomes": "tsx scripts/test-hh-outcomes.ts",
     "test:hh-golden": "tsx scripts/test-hh-golden.ts",
-    "test:daly-boundary": "tsx scripts/test-daly-boundary.ts"
+    "test:daly-boundary": "tsx scripts/test-daly-boundary.ts",
+    "test:neighborhood-name": "tsx scripts/test-neighborhood-name.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.99.0",
