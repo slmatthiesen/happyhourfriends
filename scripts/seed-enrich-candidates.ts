@@ -56,7 +56,7 @@ import { slugify, placeIdSuffix } from "@/lib/places/venueSlug";
 import { deriveVenueType, isVenueType, type VenueType } from "@/lib/places/venueType";
 import { triageSite, resolveEnrichAction } from "@/lib/places/siteTriage";
 import { hhLikelihood } from "@/lib/places/hhLikelihood";
-import { assessRealness, type RealnessReason } from "@/lib/places/realnessGate";
+import { assessRealness, windowShouldBeActive, type RealnessReason } from "@/lib/places/realnessGate";
 import { renderKillReport, type KillEntry, type KillReason } from "@/lib/places/killReport";
 import { writeFile } from "node:fs/promises";
 import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
@@ -105,6 +105,7 @@ interface SeedCandidate {
   hours_json: OpenPeriod[] | null;
   phone: string | null;
   price_level: number | null;
+  google_neighborhood: string | null;
 }
 
 interface CityRow {
@@ -166,6 +167,7 @@ function stubCtxFor(c: SeedCandidate): PrepContext {
     photoName: null,
     primaryType: c.primary_type ?? null,
     types: c.types ?? null,
+    googleNeighborhood: c.google_neighborhood ?? null,
   };
 }
 
@@ -218,12 +220,12 @@ async function insertVenueRow(
     const inserted = await sql<{ id: string }[]>`
       INSERT INTO venues
         (city_id, name, slug, address, lat, lng, google_place_id,
-         website_url, phone, price_level, hours_json, type, status, data_completeness, last_verified_at)
+         website_url, phone, price_level, hours_json, google_neighborhood, type, status, data_completeness, last_verified_at)
       VALUES
         (${cityId}, ${ctx.name}, ${slug},
          ${ctx.address}, ${ctx.lat}, ${ctx.lng},
          ${ctx.googlePlaceId}, ${ctx.siteUrl}, ${ctx.phone},
-         ${ctx.priceLevel}, ${sql.json((ctx.hoursJson ?? null) as never)}, ${venueType}::venue_type, 'active'::venue_status,
+         ${ctx.priceLevel}, ${sql.json((ctx.hoursJson ?? null) as never)}, ${ctx.googleNeighborhood ?? null}, ${venueType}::venue_type, 'active'::venue_status,
          ${completeness}::data_completeness, ${lastVerified}::timestamptz)
       ON CONFLICT (${ctx.googlePlaceId ? sql`google_place_id` : sql`city_id, slug`})
         DO NOTHING
@@ -305,7 +307,9 @@ async function persistExtraction(
   });
 
   const hasHH = windows.length > 0;
-  const activeCount = windows.filter((w) => !w.verdict.suspect).length;
+  const activeCount = windows.filter((w) =>
+    windowShouldBeActive({ realnessSuspect: w.verdict.suspect, freeSuspect: w.hh.suspect }),
+  ).length;
   const hiddenCount = windows.length - activeCount;
   const hiddenReasons = [...new Set(windows.flatMap((w) => w.verdict.reasons))];
   const outcome: SeedOutcome = hasHH ? "confirmed_hh" : "no_hh_found";
@@ -352,7 +356,7 @@ async function persistExtraction(
           (${venueId}, ${days}, ${hh.allDay},
            ${hh.startTime}, ${hh.endTime},
            ${hh.locationWithinVenue}::location_within_venue,
-           ${hh.notes}, ${!verdict.suspect}, ${extracted!.confidence}, ${hh.timeKnown}, ${hh.sourceUrl})
+           ${hh.notes}, ${windowShouldBeActive({ realnessSuspect: verdict.suspect, freeSuspect: hh.suspect })}, ${extracted!.confidence}, ${hh.timeKnown}, ${hh.sourceUrl})
         ON CONFLICT DO NOTHING
         RETURNING id
       `;
@@ -459,7 +463,7 @@ async function main() {
     const candidates: SeedCandidate[] = await sql<SeedCandidate[]>`
       SELECT id, name, google_place_id, address, lat, lng, source_url,
              primary_type, types, website_url, rating, user_rating_count,
-             serves_alcohol, hours_json, phone, price_level
+             serves_alcohol, hours_json, phone, price_level, google_neighborhood
       FROM seed_candidates
       WHERE city_id = ${city.id}
         AND processed_at IS NULL
@@ -640,6 +644,7 @@ async function main() {
           photoName: null,
           primaryType: candidate.primary_type ?? null,
           types: candidate.types ?? null,
+          googleNeighborhood: candidate.google_neighborhood ?? null,
         };
         const persisted = await persistExtraction(sql, {
           cityId: city.id,
@@ -952,7 +957,7 @@ async function prepAndSubmit(
   const candidates = await sql<SeedCandidate[]>`
     SELECT id, name, google_place_id, address, lat, lng, source_url,
            primary_type, types, website_url, rating, user_rating_count,
-           serves_alcohol, hours_json, phone, price_level
+           serves_alcohol, hours_json, phone, price_level, google_neighborhood
     FROM seed_candidates
     WHERE city_id = ${city.id} AND processed_at IS NULL
     ORDER BY created_at ASC
@@ -1055,6 +1060,7 @@ async function prepAndSubmit(
       photoName: null,
       primaryType: c.primary_type ?? null,
       types: c.types ?? null,
+      googleNeighborhood: c.google_neighborhood ?? null,
       priorityUrls: decided.priorityUrls,
     };
 

@@ -39,6 +39,7 @@ import {
 } from "@/lib/places/airportGate";
 import { haversineMeters } from "@/lib/geo/distance";
 import { parseRegularOpeningHours } from "@/lib/places/placeDetails";
+import { pickNeighborhood } from "@/lib/places/neighborhoodName";
 
 // ---------------------------------------------------------------------------
 // Arg parsing
@@ -102,6 +103,7 @@ interface PlaceResult {
   servesCocktails?: boolean;
   nationalPhoneNumber?: string;
   regularOpeningHours?: { periods?: { open?: { day?: number; hour?: number; minute?: number }; close?: { day?: number; hour?: number; minute?: number } }[] };
+  addressComponents?: { longText: string; shortText?: string; types: string[] }[];
 }
 
 /** Google priceLevel enum → 1..4 (or null). Mirrors lib/places/placeDetails.ts. */
@@ -285,7 +287,7 @@ async function fetchNearby(
         "places.primaryType,places.types,places.websiteUri,places.rating," +
         "places.userRatingCount,places.priceLevel,places.businessStatus," +
         "places.servesBeer,places.servesWine,places.servesCocktails," +
-        "places.nationalPhoneNumber,places.regularOpeningHours",
+        "places.nationalPhoneNumber,places.regularOpeningHours,places.addressComponents",
     },
     body: JSON.stringify(body),
   });
@@ -733,11 +735,13 @@ async function main() {
         );
         const hoursJson = parseRegularOpeningHours(place.regularOpeningHours);
         const phone = place.nationalPhoneNumber ?? null;
+        const googleNeighborhood = pickNeighborhood(place.addressComponents, city.name);
         await sql`
           INSERT INTO seed_candidates
             (city_id, name, google_place_id, address, lat, lng, source_url,
              primary_type, types, website_url, rating, user_rating_count,
-             price_level, business_status, serves_alcohol, hours_json, phone)
+             price_level, business_status, serves_alcohol, hours_json, phone,
+             google_neighborhood)
           VALUES
             (${city.id}, ${name}, ${place.id}, ${address},
              ${pLat != null ? String(pLat) : null},
@@ -745,7 +749,8 @@ async function main() {
              ${place.primaryType ?? null}, ${types}, ${place.websiteUri ?? null},
              ${place.rating ?? null}, ${place.userRatingCount ?? null},
              ${priceLevel}, ${place.businessStatus ?? null},
-             ${servesAlcohol}, ${sql.json((hoursJson ?? null) as never)}, ${phone})
+             ${servesAlcohol}, ${sql.json((hoursJson ?? null) as never)}, ${phone},
+             ${googleNeighborhood})
           ON CONFLICT (google_place_id) DO UPDATE SET
             name             = EXCLUDED.name,
             address          = EXCLUDED.address,
@@ -761,6 +766,7 @@ async function main() {
             serves_alcohol   = EXCLUDED.serves_alcohol,
             hours_json       = EXCLUDED.hours_json,
             phone            = EXCLUDED.phone,
+            google_neighborhood = EXCLUDED.google_neighborhood,
             updated_at = now()
         `;
         placesInserted++;

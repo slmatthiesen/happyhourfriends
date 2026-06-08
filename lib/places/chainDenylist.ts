@@ -258,6 +258,12 @@ const EXCLUDED_PRIMARY_TYPE = new Set<string>([
   "service",
   "catering_service",
   "laundry",
+  // Operator 2026-06-05 (Tucson stub review): a place whose PRIMARY type is a school is
+  // not a venue — e.g. "Movers and Shakers Bartending" (a bartending school) carried
+  // cocktail_bar/bar in types[] but is primaryType=educational_institution. PRIMARY-only
+  // match by design: a real bar that also offers classes keeps primaryType=bar (and the
+  // alcohol override above protects it anyway).
+  "educational_institution",
 ]);
 
 /** Excluded when present ANYWHERE in types[] (format never runs a happy hour). */
