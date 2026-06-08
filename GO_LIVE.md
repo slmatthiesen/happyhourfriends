@@ -24,6 +24,9 @@ live, then let's do the highest-leverage item."** Each item links to its section
       (see "Data sync" below) + install the **nightly backup cron** on the droplet.
 - [ ] **All-day / hours backfills:** `backfill:timezones` → `backfill:hours` →
       `reverify:all-day` (see "All-day happy-hour cleanup" below).
+- [ ] **Google-neighborhood backfill (real vernacular neighborhoods):** run
+      `backfill:google-neighborhoods` once per live city — **~$7.50 total** for the 6 live
+      cities (Oakland already done). See "Google-neighborhood backfill" below.
 - [ ] **After live with data:** submit `sitemap.xml` to Google Search Console + Bing
       Webmaster (see "Search rankings" below).
 - [ ] *(optional)* per-city intro paragraph — the one remaining cheap SEO item.
@@ -75,6 +78,48 @@ Brings prod down to local incl. submissions/flags/audit. **Overwrites local data
   production, so prod spun up a new 10-connection pool per query path and leaked ~80 idle
   connections until non-superuser slots ran out. No longer a go-live blocker; just deploy
   current `main`.
+
+## Google-neighborhood backfill (built 2026-06-07, PR #49)
+
+Makes Google's per-venue `addressComponents` neighborhood NAME the primary neighborhood
+(polygons/cardinal become fallback). NEW cities capture it free at discovery; cities
+discovered BEFORE this shipped need a one-time backfill. **Oakland already done** (144/164
+venues got real names — Temescal, West Oakland, Rockridge…; flipped to `live`).
+
+**Cost — verified, cheap.** `addressComponents`-only Place Details is the **Place Details
+Essentials SKU = $5 / 1,000** (confirmed against Google's data-fields table). The backfill
+field mask is `addressComponents` ONLY, so it never bumps to the $17 Pro tier. At
+$0.005/venue (counts from the LOCAL DB, the source of truth):
+
+| City | State | Venues to backfill | Est. cost |
+|---|---|---|---|
+| tucson | az | 487 | $2.44 |
+| scottsdale | az | 405 | $2.03 |
+| phoenix-central | az | 296 | $1.48 |
+| tacoma | wa | 165 | $0.83 |
+| five-cities | ca | 79 | $0.40 |
+| daly-city | ca | 52 | $0.26 |
+| **6 live cities total** | | **1,484** | **~$7.50** |
+| spokane *(discovery — optional, do when it goes live)* | wa | 205 | $1.03 |
+
+**Run** (needs `GOOGLE_PLACES_API_KEY`; per-city — both `--city` and `--state` required):
+
+```bash
+# Dry-run first (writes nothing; still makes a few real Place Details calls — pennies):
+pnpm tsx scripts/backfill-google-neighborhoods.ts --city tucson --state az --dry-run --limit 5
+# Then commit:
+pnpm tsx scripts/backfill-google-neighborhoods.ts --city tucson --state az
+# Repeat for: scottsdale/az, phoenix-central/az, tacoma/wa, five-cities/ca, daly-city/ca
+```
+
+Each run fetches `addressComponents`, stores the parsed name, then re-runs neighborhood
+assignment (Google name > polygon > cardinal). After backfilling a city, verify with
+`npm run analyze:neighborhood-coverage -- --city <slug> --state <st>` and spot-check its
+neighborhood filter on the site. Daly City / Five Cities may legitimately return mostly
+town-name → null (keep their cardinal/town label — not a bug).
+
+The names live on the LOCAL DB; they reach prod via the normal `push:data` / data-sync
+channel at deploy (see "Data sync" above).
 
 ## Search rankings — SEO + AI/GEO (code built 2026-06-03, branch `feat/seo-itemlist-canonical` / PR #19)
 
