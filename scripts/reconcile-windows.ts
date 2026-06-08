@@ -38,7 +38,9 @@ async function main() {
       >`
         SELECT id, days_of_week, start_time, end_time, all_day, active
         FROM happy_hours
-        WHERE venue_id = ${v.id} AND deleted_at IS NULL`;
+        -- active=true only: already-hidden rows are withheld, so they must NOT drag a live
+        -- window into an overlap/duplicate verdict (that re-hid a venue we'd just fixed).
+        WHERE venue_id = ${v.id} AND deleted_at IS NULL AND active = true`;
       if (rows.length === 0) continue;
 
       // Map DB rows to reconcile inputs, remembering the source row id per (key).
