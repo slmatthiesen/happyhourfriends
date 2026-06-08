@@ -120,6 +120,13 @@
       "when": 1780536923205,
       "tag": "0016_awesome_anthem",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1780896287915,
+      "tag": "0017_majestic_boomer",
+      "breakpoints": true
     }
   ]
 }

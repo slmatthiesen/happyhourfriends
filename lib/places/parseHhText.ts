@@ -24,6 +24,8 @@ export interface ParsedWindow {
   timeKnown: boolean;
   locationWithinVenue: "all";
   notes: string | null;
+  /** True when no days were stated in the text and Mon–Fri was inferred. */
+  daysAssumed: boolean;
   offerings: ParsedOffering[];
   confidence: "clean" | "fuzzy";
   /**
@@ -385,6 +387,7 @@ export function parseHappyHours(text: string, sourceUrl: string): ParsedWindow[]
         timeKnown,
         locationWithinVenue: "all",
         notes,
+        daysAssumed,
         offerings: isClean ? parseOfferings(segment, sourceUrl) : [],
         confidence: isClean ? "clean" : "fuzzy",
         plausible,
