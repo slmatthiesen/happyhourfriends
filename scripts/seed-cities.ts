@@ -180,6 +180,28 @@ const CITIES: CitySeed[] = [
       serviceBufferMeters: 500,
     },
   },
+  {
+    // Spokane, WA — Inland Northwest process-test city (moderate, ~180 km², ~230k pop).
+    // First WA city since Tacoma; tests neighborhood-data + HH-publishing generalization
+    // outside AZ/Bay. Boundary mode via data/spokane-boundary.geojson (OSM relation 237599)
+    // drives discovery; the locality gate + spatial boundary drop Spokane Valley (separate
+    // city), Airway Heights, Liberty Lake, Cheney. centerLat/Lng = bbox center of the
+    // boundary file (fallback map anchor only; the boundary drives real tiling/gate).
+    slug: "spokane",
+    name: "Spokane",
+    state: "WA",
+    country: "US",
+    timezone: "America/Los_Angeles",
+    currency: "USD",
+    centerLat: 47.67279,
+    centerLng: -117.45393,
+    seedConfig: {
+      radiusKm: 12, // fallback only; data/spokane-boundary.geojson drives real tiling/gate
+      cellMeters: 3000,
+      serviceLocalities: ["Spokane"],
+      serviceBufferMeters: 500,
+    },
+  },
 ];
 
 async function main() {
