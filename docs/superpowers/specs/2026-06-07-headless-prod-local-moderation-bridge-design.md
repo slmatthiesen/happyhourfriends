@@ -114,8 +114,11 @@ Auto-publish requires the operator's running local server to reach prod at runti
 box; the Apply action reuses that path.
 
 **Accepted tradeoff:** "fully automatic" moves some attack surface off prod and onto the
-desktop — the running dev server can now write the live DB. Mitigation: a **dedicated,
-narrowly-scoped SSH key** for publish, never the operator's root key.
+desktop — the running dev server can now write the live DB.
+
+**Initial build:** reuse the existing SSH credentials path the bash sync scripts already use.
+**Follow-up (tracked, not in initial scope):** swap in a **dedicated, narrowly-scoped SSH key**
+for publish, never the operator's root key. Important for later; not blocking the first version.
 
 ## Risks (assessed, accepted)
 
