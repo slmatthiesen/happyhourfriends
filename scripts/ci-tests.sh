@@ -22,6 +22,7 @@ TESTS=(
   test:stub-rank
   test:extract
   test:realness-gate
+  test:window-reconcile
   test:format
   test:active
   test:hours
