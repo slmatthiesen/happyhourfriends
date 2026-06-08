@@ -792,8 +792,9 @@ async function runBatch(
   }
 
   // ---- Poll to completion --------------------------------------------------
-  console.log(`Polling batch ${state.batchId} every 300s until complete…`);
+  console.log(`Polling batch ${state.batchId} every 180s until complete…`);
   await pollBatch(state.batchId, {
+    intervalMs: 180_000,
     onTick: (b) =>
       console.log(
         `  …status=${b.processing_status} ` +
