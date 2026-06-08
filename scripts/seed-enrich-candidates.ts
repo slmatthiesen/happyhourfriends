@@ -56,7 +56,7 @@ import { slugify, placeIdSuffix } from "@/lib/places/venueSlug";
 import { deriveVenueType, isVenueType, type VenueType } from "@/lib/places/venueType";
 import { triageSite, resolveEnrichAction } from "@/lib/places/siteTriage";
 import { hhLikelihood } from "@/lib/places/hhLikelihood";
-import { assessRealness, type RealnessReason } from "@/lib/places/realnessGate";
+import { assessRealness, windowShouldBeActive, type RealnessReason } from "@/lib/places/realnessGate";
 import { renderKillReport, type KillEntry, type KillReason } from "@/lib/places/killReport";
 import { writeFile } from "node:fs/promises";
 import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
@@ -305,7 +305,9 @@ async function persistExtraction(
   });
 
   const hasHH = windows.length > 0;
-  const activeCount = windows.filter((w) => !w.verdict.suspect).length;
+  const activeCount = windows.filter((w) =>
+    windowShouldBeActive({ realnessSuspect: w.verdict.suspect, freeSuspect: w.hh.suspect }),
+  ).length;
   const hiddenCount = windows.length - activeCount;
   const hiddenReasons = [...new Set(windows.flatMap((w) => w.verdict.reasons))];
   const outcome: SeedOutcome = hasHH ? "confirmed_hh" : "no_hh_found";
@@ -352,7 +354,7 @@ async function persistExtraction(
           (${venueId}, ${days}, ${hh.allDay},
            ${hh.startTime}, ${hh.endTime},
            ${hh.locationWithinVenue}::location_within_venue,
-           ${hh.notes}, ${!verdict.suspect}, ${extracted!.confidence}, ${hh.timeKnown}, ${hh.sourceUrl})
+           ${hh.notes}, ${windowShouldBeActive({ realnessSuspect: verdict.suspect, freeSuspect: hh.suspect })}, ${extracted!.confidence}, ${hh.timeKnown}, ${hh.sourceUrl})
         ON CONFLICT DO NOTHING
         RETURNING id
       `;

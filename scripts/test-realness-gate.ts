@@ -7,7 +7,7 @@
  * docs/superpowers/specs/2026-05-31-capture-everything-realness-filter-design.md.
  */
 import assert from "node:assert/strict";
-import { assessRealness, MIN_CONFIDENCE } from "@/lib/places/realnessGate";
+import { assessRealness, windowShouldBeActive, MIN_CONFIDENCE } from "@/lib/places/realnessGate";
 
 let passed = 0;
 function check(name: string, fn: () => void) {
@@ -77,6 +77,23 @@ check("multiple signals accumulate distinct reasons", () => {
   assert.ok(r.reasons.includes("all_day_many_days"));
   assert.ok(r.reasons.includes("no_time_window"));
   assert.ok(r.reasons.includes("low_confidence"));
+});
+
+// windowShouldBeActive — the shared "show this window?" decision. A window goes live
+// ONLY if the realness gate is happy AND the free parser did not flag it implausible.
+// This is the bug enrich had: it honored realness but ignored the free-parser suspect flag,
+// so an implausible free window (london's dinner-menu 6–9pm twin) went live.
+check("active when neither the realness gate nor the free parser is suspicious", () => {
+  assert.equal(windowShouldBeActive({ realnessSuspect: false, freeSuspect: false }), true);
+});
+check("HIDDEN when the free parser flagged the window implausible (realness fine)", () => {
+  assert.equal(windowShouldBeActive({ realnessSuspect: false, freeSuspect: true }), false);
+});
+check("HIDDEN when the realness gate is suspicious (free parser fine)", () => {
+  assert.equal(windowShouldBeActive({ realnessSuspect: true, freeSuspect: false }), false);
+});
+check("freeSuspect defaults to false (paid-extractor windows have no free flag)", () => {
+  assert.equal(windowShouldBeActive({ realnessSuspect: false }), true);
 });
 
 console.log(`\n${passed} checks passed.`);

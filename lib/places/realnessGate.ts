@@ -51,3 +51,19 @@ export function assessRealness(input: RealnessInput): RealnessVerdict {
 
   return { suspect: reasons.length > 0, reasons };
 }
+
+/**
+ * The shared "should this window be shown publicly?" decision, consolidating the two
+ * suspicion signals so every persist path agrees:
+ *   - `realnessSuspect` — the realness gate flagged it (assessRealness().suspect), and
+ *   - `freeSuspect`     — the free deterministic parser flagged it implausible
+ *                         (ExtractedHappyHour.suspect; absent for paid-extractor windows).
+ * A window goes live ONLY if BOTH are clear. Callers with extra gates (e.g. the
+ * reconcile gate) AND their result on top.
+ */
+export function windowShouldBeActive(input: {
+  realnessSuspect: boolean;
+  freeSuspect?: boolean;
+}): boolean {
+  return !input.realnessSuspect && !input.freeSuspect;
+}
