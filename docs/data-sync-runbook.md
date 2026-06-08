@@ -89,7 +89,42 @@ run on a nightly cron mid-curation. Scope = venue/curation tables only (not
 Local cron example:
 ```bash
 15 4 * * * cd <repo> && PROD_IP=<ip> npm run pull:data:upsert -- --apply >> /tmp/hhf-pull.log 2>&1
+30 4 * * * cd <repo> && PROD_IP=<ip> npm run pull:queue -- --apply >> /tmp/hhf-queue.log 2>&1
 ```
+
+## Moderation bridge (headless prod → local /admin → auto-publish)
+
+Prod has no /admin. Its AI pipeline auto-applies what it can confirm; the rest park as
+`queued_admin`. This bridge brings those leftovers to your local /admin and publishes
+your approvals back up.
+
+- **Pull leftovers down** (nightly cron + on demand):
+  ```bash
+  PROD_IP=<ip> npm run pull:queue            # DRY RUN
+  PROD_IP=<ip> npm run pull:queue -- --apply # commit
+  ```
+  Upserts prod `edit_submissions` rows where `status='queued_admin'` into local by id.
+  Idempotent; never deletes. Add to the nightly cron next to `pull:data:upsert`.
+
+- **Approve in local /admin** → the Apply button applies locally AND auto-publishes that
+  venue to prod (`publishVenueToProd` → `scripts/publish-venue-to-prod.sh`), flipping the
+  prod submission to `applied`. Needs `PROD_IP` in the local environment; without it the
+  apply still works locally and publishing is skipped.
+
+- **Revert** round-trips: reverting an applied change publishes the reverted venue state
+  (restored or soft-deleted) back to prod too.
+
+> Follow-up (tracked, not yet done): use a dedicated, narrowly-scoped SSH key for publish
+> instead of the root key the sync scripts currently use.
+
+### Manual end-to-end smoke (requires prod access)
+
+1. Create a `queued_admin` submission on prod (via the live submit flow or psql).
+2. Pull it down: `PROD_IP=<ip> npm run pull:queue` then `… -- --apply`.
+3. Confirm it appears in local /admin (`npm run dev` → /admin).
+4. Approve it in /admin. Confirm: local DB shows the change; prod shows the change
+   (psql over the tunnel); prod `edit_submissions.status` is now `applied`.
+5. Revert it in /admin/audit. Confirm prod reflects the revert.
 
 ## Nightly backups (on the droplet — the real safety net)
 
