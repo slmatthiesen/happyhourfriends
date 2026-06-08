@@ -76,6 +76,27 @@ Brings prod down to local incl. submissions/flags/audit. **Overwrites local data
   connections until non-superuser slots ran out. No longer a go-live blocker; just deploy
   current `main`.
 
+## Google-neighborhood backfill (built 2026-06-07, PR #49)
+
+Makes Google's per-venue `addressComponents` neighborhood NAME the primary neighborhood
+(polygons/cardinal become fallback). NEW cities capture it free at discovery; cities
+discovered before this shipped needed a one-time backfill.
+
+✅ **DONE on the LOCAL DB (2026-06-08).** Oakland (144 named) + the 6 live cities backfilled
+non-stubs-only — **529 venues named across ~558 scanned, ~$2.79** (scottsdale 195, tucson 140,
+phoenix-central 130, tacoma 52, five-cities 8, daly-city 4). Names reach prod via the normal
+`push:data` / data-sync channel at deploy (see "Data sync" above) — no separate prod run needed.
+
+**Still pending:** `spokane` is discovery-status (47 non-stub venues, ~$0.24) — backfill it
+when it goes live:
+```bash
+pnpm tsx scripts/backfill-google-neighborhoods.ts --city spokane --state wa
+```
+The script skips stubs by default (cost control); pass `--include-stubs` to also cover the
+help-wanted placeholders (~1,484 / ~$7.50 across the 6 live cities) if you ever want
+neighborhood filters to span stub listings. Verify a city with
+`npm run analyze:neighborhood-coverage -- --city <slug> --state <st>`.
+
 ## Search rankings — SEO + AI/GEO (code built 2026-06-03, branch `feat/seo-itemlist-canonical` / PR #19)
 
 The strategic wedge: rank #1–3 for **"happy hour &lt;city&gt;"** in *lesser-known* markets

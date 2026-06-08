@@ -81,6 +81,7 @@ export const seedCandidates = pgTable("seed_candidates", {
   primaryType: text("primary_type"),
   types: text("types").array(),
   websiteUrl: text("website_url"),
+  googleNeighborhood: text("google_neighborhood"),
   rating: numeric("rating", { precision: 2, scale: 1 }),
   userRatingCount: integer("user_rating_count"),
   priceLevel: integer("price_level"),
