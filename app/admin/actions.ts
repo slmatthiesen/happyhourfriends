@@ -123,10 +123,17 @@ export async function setPromotionAction(
 export async function revertAction(auditId: string): Promise<ActionResult> {
   try {
     const admin = await requireAdmin();
-    await revertAudit(auditId, { actor: adminActor(admin.email) });
+    const res = await revertAudit(auditId, { actor: adminActor(admin.email) });
     revalidatePath("/admin/audit");
     revalidatePath("/admin");
-    return { ok: true };
+
+    const venueId = await venueIdForRow(res.tableName, res.rowId);
+    let warning: string | undefined;
+    if (venueId) {
+      const pub = await publishVenueToProd(venueId);
+      if (!pub.ok) warning = `Reverted locally, but publishing the revert to prod failed: ${pub.error}`;
+    }
+    return { ok: true, warning };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Revert failed" };
   }
