@@ -5,6 +5,12 @@
  * insert any new ones. Auto-applies ONLY high-confidence corrections; everything else is
  * reported. Free by default. Dry-run unless --apply.
  *
+ * Lifecycle / exclusion: venues with fix_applied=true (corrected) or resolution='reported'
+ * (re-fetched but not high-confidence or not extractable) are excluded from subsequent runs,
+ * so each venue is live-fetched at most ONCE. To retry them — e.g. after improving the
+ * extractor — run `audit:data --city <slug> --state <code> --recheck` first, which resets
+ * their resolution back to 'scanned' so this script will pick them up again.
+ *
  * Usage: pnpm tsx scripts/audit-fix.ts --city <slug> --state <code> [--apply] [--limit N]
  */
 import "dotenv/config";
@@ -44,6 +50,7 @@ async function main() {
       WHERE v.city_id = ${city.id}
         AND v.status = 'active'
         AND da.fix_applied = false
+        AND da.resolution <> 'reported'
         AND EXISTS (SELECT 1 FROM jsonb_array_elements(da.flags) f WHERE f->>'severity' = 'auto_fixable')
       ORDER BY v.name
       ${LIMIT ? sql`LIMIT ${LIMIT}` : sql``}`;
@@ -53,11 +60,20 @@ async function main() {
     let reported = 0;
 
     for (const v of flagged) {
-      if (!v.website_url) { reported++; continue; }
+      if (!v.website_url) {
+        if (APPLY) await sql`UPDATE data_audit SET resolution='reported' WHERE venue_id=${v.id}`;
+        reported++;
+        continue;
+      }
 
       const verdict = await triageSite({ websiteUri: v.website_url, name: v.name, cityName: city.name });
       const decided = resolveEnrichAction(verdict, hhLikelihood({ primaryType: null, types: null, name: v.name }));
-      if (decided.action !== "extract") { console.log(`  – ${v.name}: site not extractable → report`); reported++; continue; }
+      if (decided.action !== "extract") {
+        console.log(`  – ${v.name}: site not extractable → report`);
+        if (APPLY) await sql`UPDATE data_audit SET resolution='reported' WHERE venue_id=${v.id}`;
+        reported++;
+        continue;
+      }
       const built = await buildExtractRequest({
         venueName: v.name,
         websiteUrl: verdict.kind === "real" ? verdict.url : null,
@@ -74,6 +90,7 @@ async function main() {
 
       if (!isHighConfidenceCorrection(corrected)) {
         console.log(`  ⚑ ${v.name}: re-parse not high-confidence (${corrected.length} window(s)) → report only`);
+        if (APPLY) await sql`UPDATE data_audit SET resolution='reported' WHERE venue_id=${v.id}`;
         reported++;
         continue;
       }
