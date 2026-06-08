@@ -179,6 +179,36 @@ function normaliseDaysOfWeek(after: Record<string, unknown>): Record<string, unk
 }
 
 /**
+ * Resolve the owning venue id for an audited row. venues → itself; happy_hours →
+ * its venue_id; offerings → its happy hour's venue_id. Returns null for anything else.
+ * Used by the admin actions to know which venue to publish to prod after apply/revert.
+ */
+export async function venueIdForRow(
+  tableName: string,
+  rowId: string,
+): Promise<string | null> {
+  if (tableName === "venues") return rowId;
+  if (tableName === "happy_hours") {
+    const [hh] = await db
+      .select({ venueId: happyHours.venueId })
+      .from(happyHours)
+      .where(eq(happyHours.id, rowId))
+      .limit(1);
+    return hh?.venueId ?? null;
+  }
+  if (tableName === "offerings") {
+    const [row] = await db
+      .select({ venueId: happyHours.venueId })
+      .from(offerings)
+      .innerJoin(happyHours, eq(offerings.happyHourId, happyHours.id))
+      .where(eq(offerings.id, rowId))
+      .limit(1);
+    return row?.venueId ?? null;
+  }
+  return null;
+}
+
+/**
  * Map a written row (any of the three audited tables) back to the venue whose public
  * pages need their cache refreshed. Runs after the write transaction has committed.
  */
@@ -186,25 +216,7 @@ async function resolveVenueRevalidationTarget(
   tableName: string,
   rowId: string,
 ): Promise<VenueRevalidationTarget | null> {
-  let venueId: string | null = null;
-  if (tableName === "venues") {
-    venueId = rowId;
-  } else if (tableName === "happy_hours") {
-    const [hh] = await db
-      .select({ venueId: happyHours.venueId })
-      .from(happyHours)
-      .where(eq(happyHours.id, rowId))
-      .limit(1);
-    venueId = hh?.venueId ?? null;
-  } else if (tableName === "offerings") {
-    const [row] = await db
-      .select({ venueId: happyHours.venueId })
-      .from(offerings)
-      .innerJoin(happyHours, eq(offerings.happyHourId, happyHours.id))
-      .where(eq(offerings.id, rowId))
-      .limit(1);
-    venueId = row?.venueId ?? null;
-  }
+  const venueId = await venueIdForRow(tableName, rowId);
   if (!venueId) return null;
 
   // No deletedAt filter: a revert can soft-delete a venue, and we still want to refresh
@@ -481,6 +493,8 @@ export interface RevertResult {
   auditId: string;
   revertAuditId: string;
   action: "restored" | "soft_deleted";
+  tableName: string;
+  rowId: string;
 }
 
 /**
@@ -545,7 +559,7 @@ export async function revertAudit(
       );
 
     return {
-      result: { auditId, revertAuditId: revertAudit.id, action },
+      result: { auditId, revertAuditId: revertAudit.id, action, tableName, rowId },
       tableName,
       rowId,
     };
