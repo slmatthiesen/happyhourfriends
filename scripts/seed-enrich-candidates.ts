@@ -59,7 +59,6 @@ import { hhLikelihood } from "@/lib/places/hhLikelihood";
 import { assessRealness, type RealnessReason } from "@/lib/places/realnessGate";
 import { renderKillReport, type KillEntry, type KillReason } from "@/lib/places/killReport";
 import { writeFile } from "node:fs/promises";
-import { writeFileSync } from "node:fs";
 import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 // ---------------------------------------------------------------------------
@@ -80,29 +79,6 @@ function parseArgs(): { limit: number | null; batch: boolean; noWebsearch: boole
     // Defer them (skip, unprocessed) and bubble them up to a report for manual review.
     noWebsearch: argv.includes("--no-websearch"),
   };
-}
-
-/** No-site candidates deferred by --no-websearch, surfaced for the operator to triage. */
-interface DeferredNoSite {
-  name: string;
-  reviews: number | null;
-  rating: string | null;
-  primaryType: string | null;
-  address: string | null;
-  likelihood: number | null;
-}
-const deferredNoSite: DeferredNoSite[] = [];
-
-/** Write the deferred no-site list (sorted by review count desc) for operator review. */
-function flushDeferredNoSite(citySlug: string): void {
-  if (deferredNoSite.length === 0) return;
-  const rows = [...deferredNoSite].sort((a, b) => (b.reviews ?? 0) - (a.reviews ?? 0));
-  const path = `docs/${citySlug}-no-site-deferred.json`;
-  writeFileSync(path, JSON.stringify(rows, null, 2));
-  console.log(
-    `\n  ⏸ --no-websearch: deferred ${rows.length} no-site candidate(s) → ${path}` +
-      `\n     (sorted by reviews; left UNPROCESSED — re-run without --no-websearch to web_search the keepers)`,
-  );
 }
 
 // ---------------------------------------------------------------------------
@@ -160,6 +136,37 @@ function killReasonOf(reason: string): KillReason {
   if (reason.startsWith("dead")) return "dead";
   if (reason.startsWith("parked")) return "parked";
   return "no_site";
+}
+
+/** Does this candidate clear the alcohol gate (i.e. is it a plausible HH spot)?
+ * Drops only when discovery explicitly captured serves_alcohol=false AND there's no
+ * bar-type / alcohol-name signal to override Google's unreliable flag. */
+function passesAlcoholGate(c: SeedCandidate): boolean {
+  if (c.serves_alcohol === false && !hasAlcoholSignal(c.name, c.primary_type, c.types)) {
+    return false;
+  }
+  return true;
+}
+
+/** Build a stub PrepContext from a candidate — no website, no extraction. Used to
+ * POPULATE high-HH-likelihood no-site spots (bars w/o a site) as $0 crowdsource stubs
+ * instead of dropping them. Carries the discovery-captured phone/price/hours. */
+function stubCtxFor(c: SeedCandidate): PrepContext {
+  return {
+    candidateId: c.id,
+    name: c.name,
+    address: c.address,
+    lat: c.lat,
+    lng: c.lng,
+    googlePlaceId: c.google_place_id,
+    siteUrl: c.website_url ?? null,
+    phone: c.phone ?? null,
+    priceLevel: c.price_level ?? null,
+    hoursJson: c.hours_json ?? null,
+    photoName: null,
+    primaryType: c.primary_type ?? null,
+    types: c.types ?? null,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -522,18 +529,25 @@ async function main() {
         }
       }
 
-      // --no-websearch: no captured website → don't pay web_search to hunt for one.
-      // Defer + bubble up for manual review; leave UNPROCESSED for a later targeted run.
+      // --no-websearch + no website: skip paid web_search. But never DROP a high-HH-
+      // likelihood spot just because it has no site — POPULATE it as a $0 crowdsource
+      // stub (carrying captured phone/hours) so it's listed. Only candidates that fail
+      // the alcohol gate (non-alcohol) are filtered, same as the site-having path.
       if (args.noWebsearch && !candidate.website_url) {
-        deferredNoSite.push({
-          name: candidate.name,
-          reviews: candidate.user_rating_count,
-          rating: candidate.rating,
-          primaryType: candidate.primary_type,
-          address: candidate.address,
-          likelihood: hhLikelihood({ primaryType: candidate.primary_type, types: candidate.types, name: candidate.name }),
+        if (!passesAlcoholGate(candidate)) {
+          console.log("  ↷ filtered — no site, no alcohol signal");
+          await markProcessed(sql, candidate.id, "no_hh_found", null, { skipOutcome: true });
+          nFiltered++;
+          continue;
+        }
+        const persisted = await persistExtraction(sql, {
+          cityId: city.id,
+          ctx: stubCtxFor(candidate),
+          extracted: null,
         });
-        console.log("  ⏸ deferred — no website (--no-websearch)");
+        await markProcessed(sql, candidate.id, persisted.outcome, persisted.venueId);
+        nNoHhFound++;
+        console.log("  ◦ no-site stub kept (high HH likelihood — crowdsource)");
         continue;
       }
 
@@ -552,10 +566,7 @@ async function main() {
         // beer garden, pub, bar type…) OVERRIDES a false negative. When serves_alcohol is
         // null (not captured for this city), the candidate passes — slip-throughs become
         // cheap stubs, not paid extractions.
-        if (
-          candidate.serves_alcohol === false &&
-          !hasAlcoholSignal(candidate.name, candidate.primary_type, candidate.types)
-        ) {
+        if (!passesAlcoholGate(candidate)) {
           console.log("  ↷ filtered — Google reports no alcohol served");
           await markProcessed(sql, candidate.id, "no_hh_found", null, { skipOutcome: true });
           nFiltered++;
@@ -714,7 +725,6 @@ async function main() {
         `${city.slug}` +
         "\n(see lib/places/realnessGate). Spot-check live venues per PRD §7.3 Stage C.",
     );
-    flushDeferredNoSite(city.slug);
   } finally {
     await sql.end();
     // Close the shared headless browser if the extractor's render fallback launched one.
@@ -977,18 +987,24 @@ async function prepAndSubmit(
       }
     }
 
-    // --no-websearch: no captured website → defer (skip web_search + Place Details),
-    // bubble up for review, leave unprocessed for a later targeted run.
+    // --no-websearch + no website: never DROP a high-HH-likelihood spot. Populate it as
+    // a $0 crowdsource stub (with captured phone/hours); only non-alcohol candidates are
+    // filtered, same as the site-having path. No web_search either way.
     if (args.noWebsearch && !c.website_url) {
-      deferredNoSite.push({
-        name: c.name,
-        reviews: c.user_rating_count,
-        rating: c.rating,
-        primaryType: c.primary_type,
-        address: c.address,
-        likelihood: hhLikelihood({ primaryType: c.primary_type, types: c.types, name: c.name }),
+      if (!passesAlcoholGate(c)) {
+        await markProcessed(sql, c.id, "no_hh_found", null, { skipOutcome: true });
+        tally.filtered++;
+        console.log("  ↷ filtered — no site, no alcohol signal");
+        continue;
+      }
+      const persisted = await persistExtraction(sql, {
+        cityId: city.id,
+        ctx: stubCtxFor(c),
+        extracted: null,
       });
-      console.log("  ⏸ deferred — no website (--no-websearch)");
+      await markProcessed(sql, c.id, persisted.outcome, persisted.venueId);
+      tally.stubs++;
+      console.log("  ◦ no-site stub kept (high HH likelihood — crowdsource)");
       continue;
     }
 
@@ -996,10 +1012,7 @@ async function prepAndSubmit(
     // Details call (discovery already gives name + URL; that's all the extractor needs).
     // Alcohol gate only drops an explicit serves_alcohol=false; null passes (slip-throughs
     // become cheap stubs). Name/type signal overrides Google's unreliable false negatives.
-    if (
-      c.serves_alcohol === false &&
-      !hasAlcoholSignal(c.name, c.primary_type, c.types)
-    ) {
+    if (!passesAlcoholGate(c)) {
       await markProcessed(sql, c.id, "no_hh_found", null, { skipOutcome: true });
       tally.filtered++;
       continue;
@@ -1135,7 +1148,6 @@ async function finalize(sql: Sql, city: CityRow, tally: ReportTally): Promise<vo
   const collected = tally.full + tally.stubs;
   const usd = (c: number) => `$${(c / 100).toFixed(2)}`;
 
-  flushDeferredNoSite(city.slug);
   console.log("\n── Enrichment complete (batch) ───────────────────────────");
   console.log(`Venues collected:        ${collected + tally.hiddenVenues}`);
   console.log(`  ├─ live data:          ${tally.full}`);
