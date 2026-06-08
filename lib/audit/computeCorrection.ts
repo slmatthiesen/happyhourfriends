@@ -43,6 +43,13 @@ function normTime(t: string | null): string {
   return t ? t.slice(0, 5) : "";
 }
 
+/**
+ * Natural key for matching stored rows to corrected windows. Intentionally omits
+ * `locationWithinVenue` even though the DB natural-key index includes it: the free re-parser
+ * always emits location='all', so a venue with paid-extracted location-specific windows (e.g.
+ * bar vs. patio) at the same time/days would fail to match. That is a known narrow limitation —
+ * such rows should be left to manual review rather than auto-fixed by this script.
+ */
 function key(w: { daysOfWeek: number[]; startTime: string | null; endTime: string | null; allDay: boolean }): string {
   const days = [...new Set(w.daysOfWeek)].sort((a, b) => a - b).join(",");
   return `${days}|${normTime(w.startTime)}|${normTime(w.endTime)}|${w.allDay}`;
