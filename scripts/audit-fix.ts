@@ -42,6 +42,7 @@ async function main() {
       FROM data_audit da
       JOIN venues v ON v.id = da.venue_id
       WHERE v.city_id = ${city.id}
+        AND v.status = 'active'
         AND da.fix_applied = false
         AND EXISTS (SELECT 1 FROM jsonb_array_elements(da.flags) f WHERE f->>'severity' = 'auto_fixable')
       ORDER BY v.name
@@ -80,7 +81,7 @@ async function main() {
       const stored = await sql<StoredRow[]>`
         SELECT id, days_of_week AS "daysOfWeek", start_time AS "startTime", end_time AS "endTime",
                all_day AS "allDay", active, source_url AS "sourceUrl", notes
-        FROM happy_hours WHERE venue_id = ${v.id}`;
+        FROM happy_hours WHERE venue_id = ${v.id} AND deleted_at IS NULL`;
       const plan = computeCorrection(stored, corrected);
 
       if (plan.updates.length === 0 && plan.deactivations.length === 0 && plan.inserts.length === 0) {
@@ -97,33 +98,38 @@ async function main() {
         continue;
       }
 
-      await sql.begin(async (tx) => {
-        for (const u of plan.updates) {
-          const [before] = await tx`SELECT source_url, notes, active FROM happy_hours WHERE id=${u.id}`;
-          await tx`UPDATE happy_hours SET source_url=${u.sourceUrl}, notes=${u.notes}, active=true, updated_at=now() WHERE id=${u.id}`;
-          await tx`INSERT INTO audit_log (table_name, row_id, before_jsonb, after_jsonb, actor, reason)
-                   VALUES ('happy_hours', ${u.id}, ${tx.json(before as never)}, ${tx.json({ sourceUrl: u.sourceUrl, notes: u.notes, active: true } as never)}, 'audit-fix', 'data audit: provenance correction')`;
-        }
-        for (const id of plan.deactivations) {
-          const [before] = await tx`SELECT source_url, notes, active FROM happy_hours WHERE id=${id}`;
-          await tx`UPDATE happy_hours SET active=false, updated_at=now() WHERE id=${id}`;
-          await tx`INSERT INTO audit_log (table_name, row_id, before_jsonb, after_jsonb, actor, reason)
-                   VALUES ('happy_hours', ${id}, ${tx.json(before as never)}, ${tx.json({ active: false } as never)}, 'audit-fix', 'data audit: deactivate spurious window')`;
-        }
-        for (const ins of plan.inserts) {
-          const [row] = await tx`
-            INSERT INTO happy_hours (venue_id, days_of_week, start_time, end_time, all_day, location_within_venue, notes, active, source_url, time_known)
-            VALUES (${v.id}, ${ins.daysOfWeek}, ${ins.startTime}, ${ins.endTime}, ${ins.allDay}, 'all', ${ins.notes}, true, ${ins.sourceUrl}, ${ins.startTime !== null})
-            ON CONFLICT DO NOTHING RETURNING id`;
-          if (row) {
+      try {
+        await sql.begin(async (tx) => {
+          for (const u of plan.updates) {
+            const [before] = await tx`SELECT source_url, notes, active FROM happy_hours WHERE id=${u.id}`;
+            await tx`UPDATE happy_hours SET source_url=${u.sourceUrl}, notes=${u.notes}, active=true, updated_at=now() WHERE id=${u.id}`;
             await tx`INSERT INTO audit_log (table_name, row_id, before_jsonb, after_jsonb, actor, reason)
-                     VALUES ('happy_hours', ${row.id}, null, ${tx.json({ ...ins, active: true } as never)}, 'audit-fix', 'data audit: insert corrected window')`;
+                     VALUES ('happy_hours', ${u.id}, ${tx.json(before as never)}, ${tx.json({ source_url: u.sourceUrl, notes: u.notes, active: true } as never)}, 'audit-fix', 'data audit: provenance correction')`;
           }
-        }
-        await tx`UPDATE data_audit SET resolution='fixed', fix_applied=true WHERE venue_id=${v.id}`;
-      });
-      console.log(`  ✓ ${v.name}: APPLIED [${desc}]`);
-      fixed++;
+          for (const id of plan.deactivations) {
+            const [before] = await tx`SELECT source_url, notes, active FROM happy_hours WHERE id=${id}`;
+            await tx`UPDATE happy_hours SET active=false, updated_at=now() WHERE id=${id}`;
+            await tx`INSERT INTO audit_log (table_name, row_id, before_jsonb, after_jsonb, actor, reason)
+                     VALUES ('happy_hours', ${id}, ${tx.json(before as never)}, ${tx.json({ source_url: before.source_url, notes: before.notes, active: false } as never)}, 'audit-fix', 'data audit: deactivate spurious window')`;
+          }
+          for (const ins of plan.inserts) {
+            const [row] = await tx`
+              INSERT INTO happy_hours (venue_id, days_of_week, start_time, end_time, all_day, location_within_venue, notes, active, source_url, time_known)
+              VALUES (${v.id}, ${ins.daysOfWeek}, ${ins.startTime}, ${ins.endTime}, ${ins.allDay}, 'all', ${ins.notes}, true, ${ins.sourceUrl}, ${ins.startTime !== null})
+              ON CONFLICT DO NOTHING RETURNING id`;
+            if (row) {
+              await tx`INSERT INTO audit_log (table_name, row_id, before_jsonb, after_jsonb, actor, reason)
+                       VALUES ('happy_hours', ${row.id}, null, ${tx.json({ days_of_week: ins.daysOfWeek, start_time: ins.startTime, end_time: ins.endTime, all_day: ins.allDay, source_url: ins.sourceUrl, notes: ins.notes, active: true } as never)}, 'audit-fix', 'data audit: insert corrected window')`;
+            }
+          }
+          await tx`UPDATE data_audit SET resolution='fixed', fix_applied=true WHERE venue_id=${v.id}`;
+        });
+        console.log(`  ✓ ${v.name}: APPLIED [${desc}]`);
+        fixed++;
+      } catch (err) {
+        console.error(`  ✗ ${v.name}: transaction failed — ${(err as Error).message}`);
+        reported++;
+      }
     }
 
     console.log(`\n${APPLY ? "Applied" : "Would fix"}: ${fixed}; reported: ${reported}.`);
