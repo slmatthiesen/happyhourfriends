@@ -72,6 +72,7 @@
     "test:route-contribution": "tsx scripts/test-route-contribution.ts",
     "test:interpreter-newhh": "tsx scripts/test-interpreter-newhh.ts",
     "test:contribution-pipeline": "tsx --conditions react-server scripts/test-contribution-pipeline.ts",
+    "test:audit-fix": "tsx scripts/test-audit-fix.ts",
     "test:safesearch": "tsx scripts/test-safesearch.ts",
     "test:cardinal-districts": "tsx scripts/test-cardinal-districts.ts",
     "generate:cardinal-districts": "tsx scripts/generate-cardinal-districts.ts",
