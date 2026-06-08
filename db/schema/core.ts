@@ -133,6 +133,7 @@ export const venues = pgTable(
     type: venueType("type"),
     chainId: uuid("chain_id").references(() => chains.id),
     websiteUrl: text("website_url"),
+    googleNeighborhood: text("google_neighborhood"),
     otherUrl: text("other_url"),
     googlePlaceId: text("google_place_id").unique(), // canonical dedup key
     phone: text("phone"),

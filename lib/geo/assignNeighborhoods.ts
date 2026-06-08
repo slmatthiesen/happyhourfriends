@@ -55,6 +55,35 @@ export async function assignNeighborhoods(
   sql: Sql,
   cityId?: string | null,
 ): Promise<number> {
+  // Stage 0 — name-primary: a venue's Google neighborhood name wins over any polygon.
+  // Upsert a polygon-less neighborhood row per distinct name, then assign by name. The
+  // stored google_neighborhood is already noise-filtered (pickNeighborhood at capture time),
+  // so any non-null value is a valid vernacular name.
+  await sql`
+    INSERT INTO neighborhoods (city_id, name, slug, polygon, source, tier, recognizability, is_fallback, in_scope)
+    SELECT DISTINCT vv.city_id, vv.google_neighborhood,
+           lower(regexp_replace(vv.google_neighborhood, '[^a-zA-Z0-9]+', '-', 'g')),
+           NULL, 'Google Places', 'fine', ${RECOGNIZABLE_BAR}::smallint, false, true
+    FROM venues vv
+    WHERE vv.google_neighborhood IS NOT NULL
+      AND vv.deleted_at IS NULL
+      ${cityId ? sql`AND vv.city_id = ${cityId}` : sql``}
+    ON CONFLICT (city_id, slug) DO NOTHING
+  `;
+  const named = await sql<{ id: string }[]>`
+    UPDATE venues v
+    SET neighborhood_id = n.id, updated_at = now()
+    FROM neighborhoods n
+    WHERE n.city_id = v.city_id
+      AND n.source = 'Google Places'
+      AND lower(regexp_replace(v.google_neighborhood, '[^a-zA-Z0-9]+', '-', 'g')) = n.slug
+      AND v.google_neighborhood IS NOT NULL
+      AND v.deleted_at IS NULL
+      AND v.neighborhood_id IS DISTINCT FROM n.id
+      ${cityId ? sql`AND v.city_id = ${cityId}` : sql``}
+    RETURNING v.id
+  `;
+
   const rows = await sql<{ id: string }[]>`
     UPDATE venues v
     SET neighborhood_id = sub.nid,
@@ -73,6 +102,7 @@ export async function assignNeighborhoods(
       WHERE vv.lat IS NOT NULL
         AND vv.lng IS NOT NULL
         AND vv.deleted_at IS NULL
+        AND vv.google_neighborhood IS NULL
         ${cityId ? sql`AND vv.city_id = ${cityId}` : sql``}
       ORDER BY vv.id,
                -- 1. Eligible candidates first: a recognizable fine neighborhood, OR any
@@ -153,5 +183,5 @@ export async function assignNeighborhoods(
     RETURNING v.id
   `;
 
-  return rows.length + wide.length;
+  return named.length + rows.length + wide.length;
 }
