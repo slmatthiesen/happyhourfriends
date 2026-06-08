@@ -24,6 +24,7 @@
  */
 import "dotenv/config";
 import { createRequire } from "node:module";
+import { readFileSync, existsSync } from "node:fs";
 import postgres from "postgres";
 import { assignNeighborhoods } from "@/lib/geo/assignNeighborhoods";
 import {
@@ -53,6 +54,35 @@ interface Args {
   bbox?: string;
   fallback: boolean;
   placeTypes: string[];
+}
+
+/** Derive a "south,west,north,east" bbox from data/<slug>-boundary.geojson when
+ * cities.bbox isn't set. Every onboarded city ships this boundary file, so the OSM
+ * import never needs a manual --bbox. Pure JS walk over all coordinate pairs. */
+function bboxFromBoundaryFile(slug: string): string | undefined {
+  const path = `data/${slug}-boundary.geojson`;
+  if (!existsSync(path)) return undefined;
+  const raw = JSON.parse(readFileSync(path, "utf8")) as {
+    features?: GeoJsonFeature[];
+    geometry?: { coordinates?: unknown };
+  };
+  let minLat = Infinity, minLng = Infinity, maxLat = -Infinity, maxLng = -Infinity;
+  const walk = (c: unknown): void => {
+    if (!Array.isArray(c)) return;
+    if (typeof c[0] === "number" && typeof c[1] === "number") {
+      const [lng, lat] = c as [number, number];
+      if (lng < minLng) minLng = lng;
+      if (lng > maxLng) maxLng = lng;
+      if (lat < minLat) minLat = lat;
+      if (lat > maxLat) maxLat = lat;
+      return;
+    }
+    for (const x of c) walk(x);
+  };
+  const feats = raw.features ?? [raw as GeoJsonFeature];
+  for (const f of feats) walk(f.geometry?.coordinates);
+  if (!Number.isFinite(minLat)) return undefined;
+  return `${minLat},${minLng},${maxLat},${maxLng}`;
 }
 
 function parseArgs(): Args {
@@ -96,11 +126,15 @@ async function main() {
     `;
     if (!city) throw new Error(`No city found for --city '${slug}' --state '${state}'.`);
 
-    const bbox = args.bbox ?? city.bbox;
+    const bbox = args.bbox ?? city.bbox ?? bboxFromBoundaryFile(slug);
     if (!bbox) {
       throw new Error(
-        `No bbox for '${slug}' (cities.bbox is null). Pass --bbox "south,west,north,east".`,
+        `No bbox for '${slug}': cities.bbox is null, no --bbox passed, and no ` +
+          `data/${slug}-boundary.geojson to derive one from. Pass --bbox "south,west,north,east".`,
       );
+    }
+    if (!args.bbox && !city.bbox) {
+      console.log(`  bbox derived from data/${slug}-boundary.geojson: ${bbox}`);
     }
     const [s, w, n, e] = bbox.split(",").map((x) => Number(x.trim()));
     if ([s, w, n, e].some((x) => !Number.isFinite(x))) {
