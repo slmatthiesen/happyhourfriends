@@ -69,6 +69,7 @@
     "test:assignment": "tsx scripts/test-neighborhood-assignment.ts",
     "restore:neighborhoods": "tsx scripts/restore-neighborhoods.ts",
     "test:hh-text": "tsx scripts/test-hh-text.ts",
+    "test:normalize-url": "tsx scripts/test-normalize-url.ts",
     "test:hh-signal-gate": "tsx scripts/test-hh-signal-gate.ts",
     "test:extract-time": "tsx scripts/test-extract-time.ts",
     "test:sitemap": "tsx scripts/test-sitemap.ts",

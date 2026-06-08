@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { SubmissionPayload } from "@/lib/submit/payload";
+import { normalizeUrl } from "@/lib/submit/normalizeUrl";
 import { getFingerprint } from "./submission-form";
 import { HCaptcha } from "./hcaptcha";
 
@@ -65,13 +66,19 @@ export function ReportChange({
       return;
     }
 
+    const normalizedUrl = normalizeUrl(sourceUrl);
+    if (sourceUrl.trim() && !normalizedUrl) {
+      setError("That link doesn't look right — include the full address, e.g. example.com");
+      return;
+    }
+
     const payload: SubmissionPayload = {
       targetType: "intent",
       targetId: venueId,
       diff: {
         before: null,
         after: { note: trimmed },
-        sourceUrl: sourceUrl.trim() || null,
+        sourceUrl: normalizedUrl,
         summary: trimmed.slice(0, 120),
       },
       fingerprint: getFingerprint(),
@@ -158,9 +165,14 @@ export function ReportChange({
             </label>
             <input
               className={inputCls}
-              type="url"
+              type="text"
+              inputMode="url"
               value={sourceUrl}
               onChange={(e) => setSourceUrl(e.target.value)}
+              onBlur={(e) => {
+                const n = normalizeUrl(e.target.value);
+                if (n) setSourceUrl(n);
+              }}
               placeholder="Link — e.g. the venue's website or menu"
             />
             <div className="mt-2 flex items-center gap-3">
