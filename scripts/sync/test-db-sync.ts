@@ -10,6 +10,7 @@
  *   1. additivePush adds NEW venues + subtree to prod and NEVER clobbers a prod-side edit.
  *   2. upsertPull brings prod rows down WITHOUT deleting local-only staged work.
  */
+import "dotenv/config";
 import { execSync } from "node:child_process";
 import assert from "node:assert/strict";
 import postgres from "postgres";
