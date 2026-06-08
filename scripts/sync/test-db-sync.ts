@@ -10,10 +10,11 @@
  *   1. additivePush adds NEW venues + subtree to prod and NEVER clobbers a prod-side edit.
  *   2. upsertPull brings prod rows down WITHOUT deleting local-only staged work.
  */
+import "dotenv/config";
 import { execSync } from "node:child_process";
 import assert from "node:assert/strict";
 import postgres from "postgres";
-import { additivePush, upsertPull } from "@/lib/sync/dbSync";
+import { additivePush, upsertPull, publishVenue, pullQueuedSubmissions } from "@/lib/sync/dbSync";
 
 const BASE = process.env.DATABASE_URL;
 if (!BASE) throw new Error("DATABASE_URL must be set (local docker DB)");
@@ -45,8 +46,11 @@ const U = {
   vProdOnly: "00000000-0000-0000-0000-000000000f03",
   hhNew: "00000000-0000-0000-0000-0000000000e2",
   offNew: "00000000-0000-0000-0000-0000000000fa",
+  vEdit: "00000000-0000-0000-0000-000000000f04",
+  hhEdit: "00000000-0000-0000-0000-0000000000e9",
   nbStaged: "00000000-0000-0000-0000-0000000000a2", // local-only, has polygon (push round-trip)
   nbProdOnly: "00000000-0000-0000-0000-0000000000a3", // prod-only, has polygon (pull round-trip)
+  subQueued: "00000000-0000-0000-0000-0000000000b1",
 };
 
 const POLY = "MULTIPOLYGON(((-122.5 47.2,-122.4 47.2,-122.4 47.3,-122.5 47.3,-122.5 47.2)))";
@@ -180,6 +184,63 @@ async function main() {
       (await local`SELECT ST_AsText(polygon) t FROM neighborhoods WHERE id = ${U.nbProdOnly}`)[0].t,
       POLY,
       "neighbourhood polygon must survive the pull round-trip",
+    );
+
+    // ── 4. publishVenue: an EDIT to an EXISTING prod venue publishes up ────────────
+    // vShared exists on BOTH sides. Stage a local edit to it + a NEW happy hour, then
+    // publish ONLY that venue. (additivePush in step 2 deliberately did NOT carry these.)
+    await local`UPDATE venues SET name = 'Shared Bar (corrected locally)' WHERE id = ${U.vShared}`;
+    await local`INSERT INTO happy_hours (id, venue_id, days_of_week, start_time, end_time)
+      VALUES (${U.hhEdit}, ${U.vShared}, ARRAY[6]::smallint[], '14:00', '16:00')`;
+
+    await publishVenue(local, prod, { venueId: U.vShared, dryRun: false });
+
+    assert.equal(
+      (await prod`SELECT name FROM venues WHERE id = ${U.vShared}`)[0].name,
+      "Shared Bar (corrected locally)",
+      "publishVenue must update an existing prod venue's fields",
+    );
+    assert.equal(
+      Number((await prod`SELECT count(*)::int n FROM happy_hours WHERE id = ${U.hhEdit}`)[0].n),
+      1,
+      "publishVenue must carry the venue's new happy hour up to prod",
+    );
+
+    // ── 4b. Natural-key dup is rejected loudly, never duplicated ───────────────────
+    // Insert the SAME window on prod under a DIFFERENT id, then try to publish local's.
+    await prod`UPDATE happy_hours SET id = gen_random_uuid() WHERE id = ${U.hhEdit}`;
+    let rejected = false;
+    try {
+      await publishVenue(local, prod, { venueId: U.vShared, dryRun: false });
+    } catch {
+      rejected = true;
+    }
+    assert.ok(rejected, "publishVenue must reject (not duplicate) a same-window natural-key conflict");
+    assert.equal(
+      Number((await prod`SELECT count(*)::int n FROM happy_hours
+        WHERE venue_id = ${U.vShared} AND days_of_week = ARRAY[6]::smallint[] AND deleted_at IS NULL`)[0].n),
+      1,
+      "a natural-key conflict must leave exactly one window on prod",
+    );
+
+    // ── 5. pullQueuedSubmissions: prod's queued_admin leftovers come down ──────────
+    await prod`INSERT INTO edit_submissions (id, target_type, target_id, diff_jsonb, status)
+      VALUES (${U.subQueued}, 'venue', ${U.vShared}, '{"after":{"name":"x"}}'::jsonb, 'queued_admin')`;
+    // A prod submission that is NOT queued_admin must NOT come down.
+    await prod`INSERT INTO edit_submissions (target_type, target_id, diff_jsonb, status)
+      VALUES ('venue', ${U.vShared}, '{"after":{"name":"y"}}'::jsonb, 'auto_applied')`;
+
+    await pullQueuedSubmissions(prod, local, { dryRun: false });
+
+    assert.equal(
+      Number((await local`SELECT count(*)::int n FROM edit_submissions WHERE id = ${U.subQueued}`)[0].n),
+      1,
+      "pullQueuedSubmissions must bring a queued_admin row into local",
+    );
+    assert.equal(
+      Number((await local`SELECT count(*)::int n FROM edit_submissions WHERE status = 'auto_applied'`)[0].n),
+      0,
+      "pullQueuedSubmissions must NOT bring down non-queued_admin rows",
     );
 
     console.log("✅ db-sync integration test passed (push additive + no-clobber, pull upsert + staged-safe).");

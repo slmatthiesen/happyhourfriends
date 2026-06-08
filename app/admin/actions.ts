@@ -9,7 +9,9 @@ import {
   applySubmission,
   rejectSubmission,
   revertAudit,
+  venueIdForRow,
 } from "@/lib/apply/engine";
+import { publishVenueToProd } from "@/lib/sync/publishVenueToProd";
 import { adminActor } from "@/lib/apply/types";
 
 type PromotionTier = (typeof promotionTier.enumValues)[number];
@@ -17,6 +19,8 @@ type PromotionTier = (typeof promotionTier.enumValues)[number];
 export interface ActionResult {
   ok: boolean;
   error?: string;
+  /** Set when the local apply succeeded but publishing to prod did not. */
+  warning?: string;
 }
 
 /** Apply a pending submission, optionally with admin-edited values. */
@@ -26,7 +30,7 @@ export async function applyAction(
 ): Promise<ActionResult> {
   try {
     const admin = await requireAdmin();
-    await applySubmission(
+    const res = await applySubmission(
       submissionId,
       { actor: adminActor(admin.email) },
       overrideAfter && Object.keys(overrideAfter).length > 0
@@ -35,7 +39,14 @@ export async function applyAction(
     );
     revalidatePath("/admin");
     revalidatePath("/admin/audit");
-    return { ok: true };
+
+    const venueId = await venueIdForRow(res.tableName, res.rowId);
+    let warning: string | undefined;
+    if (venueId) {
+      const pub = await publishVenueToProd(venueId, submissionId);
+      if (!pub.ok) warning = `Applied locally, but publishing to prod failed: ${pub.error}`;
+    }
+    return { ok: true, warning };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Apply failed" };
   }
@@ -112,10 +123,17 @@ export async function setPromotionAction(
 export async function revertAction(auditId: string): Promise<ActionResult> {
   try {
     const admin = await requireAdmin();
-    await revertAudit(auditId, { actor: adminActor(admin.email) });
+    const res = await revertAudit(auditId, { actor: adminActor(admin.email) });
     revalidatePath("/admin/audit");
     revalidatePath("/admin");
-    return { ok: true };
+
+    const venueId = await venueIdForRow(res.tableName, res.rowId);
+    let warning: string | undefined;
+    if (venueId) {
+      const pub = await publishVenueToProd(venueId);
+      if (!pub.ok) warning = `Reverted locally, but publishing the revert to prod failed: ${pub.error}`;
+    }
+    return { ok: true, warning };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Revert failed" };
   }

@@ -63,6 +63,8 @@
     "pull:data": "bash scripts/pull-data-from-prod.sh",
     "push:data:additive": "bash scripts/push-data-additive.sh",
     "pull:data:upsert": "bash scripts/pull-data-upsert.sh",
+    "pull:queue": "bash scripts/pull-queue-from-prod.sh",
+    "publish:venue": "bash scripts/publish-venue-to-prod.sh",
     "test:db-sync": "tsx scripts/sync/test-db-sync.ts",
     "test:route-contribution": "tsx scripts/test-route-contribution.ts",
     "test:interpreter-newhh": "tsx scripts/test-interpreter-newhh.ts",
