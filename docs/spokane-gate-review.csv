@@ -1,0 +1,97 @@
+name,status,days,start,end,all_day,dur_h,source_url,website
+1919 Wine Cellar,LIVE,2|7,12:00,15:00,false,3.0,https://www.1919winecellar.com/special-events,https://www.1919winecellar.com/
+1919 Wine Cellar,HIDDEN,1|2|3|4|5|6|7,16:00,21:00,false,5.0,https://www.1919winecellar.com/weekly-events,https://www.1919winecellar.com/
+1919 Wine Cellar,HIDDEN,1|2|3|4|5|6|7,18:00,20:00,false,2.0,https://www.1919winecellar.com/special-events,https://www.1919winecellar.com/
+"Adelo's | Pizza, Pasta & Pints",LIVE,1|2|3|4|5|6|7,15:00,18:00,false,3.0,https://www.adelospizza.com/happy-hour,http://www.adelospizza.com/
+Bigfoot Pub & Eatery,HIDDEN,1|2|3|4|5|6|7,11:00,,false,,https://www.bigfootspokane.com/,https://www.bigfootspokane.com/
+Bigfoot Pub & Eatery,HIDDEN,1|2|3|4|5|6|7,18:00,20:00,false,2.0,https://www.bigfootspokane.com/,https://www.bigfootspokane.com/
+Bigfoot Pub & Eatery,HIDDEN,1|2|3|4|5|6|7,19:00,21:00,false,2.0,https://www.bigfootspokane.com/,https://www.bigfootspokane.com/
+Bigfoot Pub & Eatery,HIDDEN,1|2|3|4|5|6|7,19:00,22:00,false,3.0,https://www.bigfootspokane.com/,https://www.bigfootspokane.com/
+Bigfoot Pub & Eatery,HIDDEN,1|2|3|4|5|6|7,20:00,,false,,https://www.bigfootspokane.com/,https://www.bigfootspokane.com/
+Bigfoot Pub & Eatery,HIDDEN,1|2|3|4|5|6|7,21:00,,false,,https://www.bigfootspokane.com/,https://www.bigfootspokane.com/
+Borracho Tacos & Tequileria,LIVE,1|2|3|4|5|6|7,15:00,18:00,false,3.0,https://borrachospokane.com/menu-pdf-page/,https://borrachospokane.com/
+Borracho Tacos & Tequileria,LIVE,2,,,true,,https://borrachospokane.com/menu-pdf-page/,https://borrachospokane.com/
+Buffalo Wild Wings,LIVE,1|2|3|4|5,15:00,18:00,false,3.0,https://www.buffalowildwings.com/happy-hour,https://www.buffalowildwings.com/locations/us/wa/spokane/4750-north-division-street/sports-bar-1232?utm_source=google-my-business&utm_medium=organic&utm_campaign=website-link&y_source=1_MjAxNjYxMjEwNi03MTUtbG9jYXRpb24ud2Vic2l0ZQ%3D%3D
+Caruso's Sandwiches and Artisan Pizza,LIVE,1|2|3|4|5|6|7,10:00,15:00,false,5.0,https://www.ilovecarusos.com/carusos-udistrict-catering-menu,https://www.ilovecarusos.com/carusos-udistrict-menu
+Cathay Inn,HIDDEN,1|2|3|4|5|6|7,12:00,21:00,false,9.0,https://cathayinn.com/,https://cathayinn.com/
+Chef Lu's Asian Bistro,LIVE,2|3|4|5,11:00,15:00,false,4.0,https://www.chefluasianbistro.com/menu-dine-in,https://www.chefluasianbistro.com/
+Chili's Grill & Bar,LIVE,1|2|3|4|7,15:00,18:00,false,3.0,https://www.chilis.com/locations/us/washington/spokane/spokane-downtown?utm_source=google&utm_medium=local&utm_campaign=Chilis,https://www.chilis.com/locations/us/washington/spokane/spokane-downtown?utm_source=google&utm_medium=local&utm_campaign=Chilis
+Chili's Grill & Bar,HIDDEN,1|2|3|4|7,11:00,00:00,false,13.0,https://www.chilis.com/locations/us/washington/spokane/spokane-downtown?utm_source=google&utm_medium=local&utm_campaign=Chilis,https://www.chilis.com/locations/us/washington/spokane/spokane-downtown?utm_source=google&utm_medium=local&utm_campaign=Chilis
+Chili's Grill & Bar,HIDDEN,1|2|3|4|7,11:00,22:00,false,11.0,https://www.chilis.com/locations/us/washington/spokane/spokane-downtown?utm_source=google&utm_medium=local&utm_campaign=Chilis,https://www.chilis.com/locations/us/washington/spokane/spokane-downtown?utm_source=google&utm_medium=local&utm_campaign=Chilis
+China Dragon Restaurant | Chinese,HIDDEN,1|2|3|4|5|6|7,02:00,14:00,false,12.0,https://chinadragonspokane.com/eat/main-dinner-menu/,http://chinadragonspokane.com/
+China Dragon Restaurant | Chinese,HIDDEN,1|2|3|4|5|6|7,11:00,21:00,false,10.0,https://chinadragonspokane.com/eat/main-dinner-menu/,http://chinadragonspokane.com/
+Crazy Train Eatery,LIVE,1|2|3|4|5|6|7,13:00,15:00,false,2.0,https://www.thegrainshed.coop/,https://www.thegrainshed.coop/
+Crazy Train Eatery,HIDDEN,1|2|3|4|5|6|7,07:00,17:00,false,10.0,https://www.thegrainshed.coop/,https://www.thegrainshed.coop/
+Crazy Train Eatery,HIDDEN,1|2|3|4|5|6|7,07:00,18:30,false,11.5,https://www.thegrainshed.coop/,https://www.thegrainshed.coop/
+Crazy Train Eatery,HIDDEN,1|2|3|4|5|6|7,07:00,20:00,false,13.0,https://www.thegrainshed.coop/,https://www.thegrainshed.coop/
+Crazy Train Eatery,HIDDEN,1|2|3|4|5|6|7,07:00,21:00,false,14.0,https://www.thegrainshed.coop/,https://www.thegrainshed.coop/
+Crazy Train Eatery,HIDDEN,1|2|3|4|5|6|7,15:00,17:00,false,2.0,https://www.thegrainshed.coop/,https://www.thegrainshed.coop/
+Crazy Train Eatery,HIDDEN,1|2|3|4|5|6|7,16:30,18:30,false,2.0,https://www.thegrainshed.coop/,https://www.thegrainshed.coop/
+El Que,HIDDEN,1|2|3|4|6|7,,,true,,https://wedonthaveone.com/el-que/,https://wedonthaveone.com/el-que/
+Fast Eddie's,HIDDEN,1|2|3|4|5|6,,,true,,http://www.fasteddiesspokane.com/,http://www.fasteddiesspokane.com/
+Française Spokane | French,LIVE,1|2|3|4|5|6|7,15:00,17:00,false,2.0,http://francaisespokane.com/,http://francaisespokane.com/
+Française Spokane | French,HIDDEN,1|2|3|4|5,06:30,14:00,false,7.5,https://eatgoodgroup.com/happy-hour/,http://francaisespokane.com/
+Française Spokane | French,HIDDEN,1|2|3|4|5|6|7,15:00,,false,,http://francaisespokane.com/,http://francaisespokane.com/
+Garland Brew Werks,LIVE,1|2|3|4,15:00,17:00,false,2.0,https://garlandbrewwerks.com/happy-hour,https://www.garlandbrewwerks.com/
+Garland Brew Werks,HIDDEN,1|2|3|4|5|6|7,15:00,22:00,false,7.0,https://garlandbrewwerks.com/happy-hour,https://www.garlandbrewwerks.com/
+Garland Brew Werks,HIDDEN,1|2|3|4|5|6|7,15:00,21:00,false,6.0,https://garlandbrewwerks.com/happy-hour,https://www.garlandbrewwerks.com/
+Garland Pub & Grill,LIVE,1|2|3|4|5,12:00,16:00,false,4.0,http://www.garlandpubandgrill.com/index2.html,http://www.garlandpubandgrill.com/
+Garland Pub & Grill,HIDDEN,2,,,true,,http://www.garlandpubandgrill.com/index2.html,http://www.garlandpubandgrill.com/
+Gena’s Mexican Kitchen,LIVE,1|2|3|4|5|6|7,08:00,11:00,false,3.0,https://genasmexicankitchen.com/menu-2,http://www.genasmexicankitchen.com/
+Gena’s Mexican Kitchen,LIVE,5|6,14:00,17:00,false,3.0,https://genasmexicankitchen.com/happy-hour,http://www.genasmexicankitchen.com/
+Gena’s Mexican Kitchen,HIDDEN,1|2|3|4|5,11:00,21:00,false,10.0,https://genasmexicankitchen.com/menu-2,http://www.genasmexicankitchen.com/
+Globe,HIDDEN,4|5|6,20:00,02:00,false,6.0,http://www.globespokane.com/,http://www.globespokane.com/
+Happiness Chinese Restaurant,LIVE,1|2|3|4|5,11:00,14:30,false,3.5,https://www.happinesswatogo.com/07am5tla/happiness-chinese-restaurant-spokane-99202/menu,https://happinesswatogo.com/
+Heritage Bar & Kitchen,LIVE,1|2|3|4,15:00,18:00,false,3.0,https://www.heritagebarandkitchen.com/,https://www.heritagebarandkitchen.com/
+Hi Neighbor Tavern,HIDDEN,1|2|3|4|5,09:00,02:00,false,17.0,https://hineighbortavern.com/spokane-monroe-hi-neighbor-tavern-happy-hours-specials,http://hineighbortavern.com/
+Indicana | Flavors of India X Mexico,LIVE,1|2|3|4|5|6|7,11:00,14:00,false,3.0,https://indicanaeats.com/,https://indicanaeats.com/
+Indicana | Flavors of India X Mexico,HIDDEN,1|2|3|4|5|6|7,15:00,20:30,false,5.5,https://indicanaeats.com/,https://indicanaeats.com/
+Indicana | Flavors of India X Mexico,HIDDEN,1|2|3|4|5|6|7,15:00,21:00,false,6.0,https://indicanaeats.com/,https://indicanaeats.com/
+Inland Cider Mill,LIVE,3|4,16:00,18:00,false,2.0,https://inlandcidermill.com/hours/home-2/,https://inlandcidermill.com/
+Izumi Sushi & Asian Bistro,LIVE,1|2|3|4|5|6|7,11:00,15:00,false,4.0,https://www.izumi-spokane.com/menu#special-roll,http://www.izumi-spokane.com/
+Izumi Sushi & Asian Bistro,LIVE,7,19:00,20:00,false,1.0,https://www.izumi-spokane.com/menu#special-roll,http://www.izumi-spokane.com/
+Jack & Dan's Bar & Grill,LIVE,1|2|3|4|5|6|7,10:00,,false,,http://www.jackanddans.com/,http://www.jackanddans.com/
+Jack & Dan's Bar & Grill,HIDDEN,1|2|3|4|5|6|7,10:00,21:00,false,11.0,http://www.jackanddans.com/,http://www.jackanddans.com/
+Jack & Dan's Bar & Grill,HIDDEN,1|2|3|4|5|6|7,10:00,02:00,false,16.0,http://www.jackanddans.com/,http://www.jackanddans.com/
+Liberty Ciderworks,HIDDEN,1|2|3|4|5|6|7,16:00,21:00,false,5.0,http://libertycider.com/,http://libertycider.com/
+Longhorn Barbecue,LIVE,1|2|3|4|5|6|7,15:00,18:00,false,3.0,https://thelonghornbbq.com/spokane-valley-spokane-valley-longhorn-barbecue-happy-hours-specials,http://www.thelonghornbbq.com/
+Longhorn Barbecue,HIDDEN,1|2|3|4|5|6|7,11:00,14:00,false,3.0,https://thelonghornbbq.com/spokane-valley-spokane-valley-longhorn-barbecue-happy-hours-specials,http://www.thelonghornbbq.com/
+Longhorn Barbecue,HIDDEN,1|2|3|4|5,11:00,15:00,false,4.0,https://thelonghornbbq.com/spokane-valley-spokane-valley-longhorn-barbecue-happy-hours-specials,http://www.thelonghornbbq.com/
+Longhorn Barbecue,HIDDEN,1|2|3|4|5,11:30,20:00,false,8.5,https://thelonghornbbq.com/spokane-valley-spokane-valley-longhorn-barbecue-happy-hours-specials,http://www.thelonghornbbq.com/
+"MacKenzie River Pizza, Grill & Pub",LIVE,1|2|3|4|5,14:00,17:00,false,3.0,https://locations.mackenzieriverpizza.com/locations/wa/spokane/2910-e-57th-ave,https://locations.mackenzieriverpizza.com/locations/wa/spokane/2910-e-57th-ave
+Mamma Mia's Italian Restaurant & Catering,HIDDEN,1|2|3|4,16:00,20:00,false,4.0,http://www.mammamiaspokane.com/,http://www.mammamiaspokane.com/
+Nectar Wine and Beer,LIVE,1|2|3|4|5,,17:00,false,,http://nectarwineandbeer.com/,http://nectarwineandbeer.com/
+Pacific to Palouse Wine Bar,LIVE,1|2|3|4|5|6|7,15:00,17:00,false,2.0,http://pacifictopalouse.com/,http://pacifictopalouse.com/
+Pacific to Palouse Wine Bar,HIDDEN,1|2|3|4|5|6|7,15:00,21:00,false,6.0,http://pacifictopalouse.com/,http://pacifictopalouse.com/
+Pete's Pizza,HIDDEN,1|2|3|4|5|6|7,11:00,21:00,false,10.0,https://www.petesspokane.com/locations-hours,http://petesspokane.com/
+Pete's Pizza,HIDDEN,1|2|3|4|5|6|7,11:00,21:00,false,10.0,https://www.petesspokane.com/locations-hours,http://petesspokane.com/
+PJ’s Pub,LIVE,1|2|3|4|5|6,15:00,19:00,false,4.0,https://www.pjspubspokane.com/,https://www.pjspubspokane.com/
+PJ’s Pub,HIDDEN,7,15:00,02:00,false,11.0,https://www.pjspubspokane.com/,https://www.pjspubspokane.com/
+PJ’s Pub,HIDDEN,1,,,true,,https://www.pjspubspokane.com/,https://www.pjspubspokane.com/
+Pure Northwest,LIVE,1|2|3|4|5|6|7,15:00,18:00,false,3.0,https://purepacificnorthwest.com/,https://purepacificnorthwest.com/
+Red Wheel Bar & Grill,HIDDEN,1|2|3|4|5|6|7,09:00,,false,,https://www.redwheelspokane.com/menu,https://www.redwheelspokane.com/
+Red Wheel Bar & Grill,HIDDEN,1|2|3|4|5|6|7,11:00,,false,,https://www.redwheelspokane.com/menu,https://www.redwheelspokane.com/
+Red Wheel Bar & Grill,HIDDEN,2|3|4|7,15:00,17:00,false,2.0,https://www.redwheelspokane.com/,https://www.redwheelspokane.com/
+Remedy Kitchen and Tavern,LIVE,1|2|3|4|5|6|7,14:00,,false,,http://remedyspokane.com/menu/,http://www.remedyspokane.com/
+Republic Pi,LIVE,1|2|3|4|5|6|7,14:00,17:00,false,3.0,http://republicpi.com/,http://republicpi.com/
+Republic Pi,HIDDEN,1|2|3|4|5|6|7,11:00,21:00,false,10.0,http://republicpi.com/,http://republicpi.com/
+Republic Pi,HIDDEN,1|2|3|4|5|6|7,11:00,22:00,false,11.0,http://republicpi.com/,http://republicpi.com/
+RÜT Bar & Kitchen,LIVE,1|2|3|4|5|6|7,15:00,17:00,false,2.0,https://www.rutspokane.com/menu,http://www.rutspokane.com/
+South Perry Lantern,LIVE,1|2|3|4|5|6|7,14:00,17:00,false,3.0,https://www.lanternspokane.com/,https://www.lanternspokane.com/
+South Perry Lantern,HIDDEN,1|2|3|4|5|6|7,10:00,23:00,false,13.0,https://www.lanternspokane.com/,https://www.lanternspokane.com/
+South Perry Lantern,HIDDEN,1|2|3|4|5|6|7,11:00,23:00,false,12.0,https://www.lanternspokane.com/,https://www.lanternspokane.com/
+South Perry Lantern,HIDDEN,1|2|3|4|5|6|7,11:00,00:00,false,13.0,https://www.lanternspokane.com/,https://www.lanternspokane.com/
+Spencer's for Steaks & Chops,LIVE,1|2|3|4|5|6|7,15:00,17:00,false,2.0,https://www.spencersspokane.com/menus/,https://www.spencersspokane.com/?SEO_id=GMB-DT-R-SPCCDT&y_source=1_MTU0MDU0MDgtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D
+Taco Time,HIDDEN,1|2|3|4|5|6|7,10:00,19:00,false,9.0,https://www.tacotime.com/stores/6399?utm_source=gmb&utm_medium=gmb&utm_campaign=gmb&utm_id=gmb,https://www.tacotime.com/stores/6399?utm_source=gmb&utm_medium=gmb&utm_campaign=gmb&utm_id=gmb
+Taco Time,HIDDEN,1|2|3|4|5|6|7,10:00,20:00,false,10.0,https://www.tacotime.com/stores/6399?utm_source=gmb&utm_medium=gmb&utm_campaign=gmb&utm_id=gmb,https://www.tacotime.com/stores/6399?utm_source=gmb&utm_medium=gmb&utm_campaign=gmb&utm_id=gmb
+Thai Bamboo Restaurant,LIVE,1|2|3|4|5|6|7,15:00,18:00,false,3.0,https://thaibamboorestaurant.com/drink-menu/,http://www.thaibamboorestaurant.com/
+The Backyard Public House,LIVE,1|2|3|4|5|6|7,14:00,17:00,false,3.0,https://backyardspokane.com/,https://backyardspokane.com/
+The Backyard Public House,HIDDEN,1|2|3|4|5|6|7,23:00,14:00,false,15.0,https://backyardspokane.com/,https://backyardspokane.com/
+The Boiler Room,HIDDEN,1|2|3|4|7,11:00,22:00,false,11.0,https://boilerroompizza.com/menu-items/drink-specials/,http://boilerroompizza.com/
+The Boiler Room,HIDDEN,1|2|3|4|7,11:00,21:00,false,10.0,https://boilerroompizza.com/menu-items/drink-specials/,http://boilerroompizza.com/
+The Centennial Restaurant & Bar,LIVE,1|2|3|4|5|6|7,14:00,17:00,false,3.0,https://www.davenporthotelcollection.com/the-centennial/restaurants/the-centennial-restaurant/?utm_source=google-gbp&utm_medium=organic&utm_campaign=gbp,https://www.davenporthotelcollection.com/the-centennial/restaurants/the-centennial-restaurant/?utm_source=google-gbp&utm_medium=organic&utm_campaign=gbp
+The Swinging Doors,LIVE,1|2|3|4|5|6,15:00,18:00,false,3.0,https://theswingingdoors.com/spokane-north-side-the-swinging-doors-happy-hours-specials,http://theswingingdoors.com/
+The Swinging Doors,HIDDEN,1|2|3|4|5,08:00,23:00,false,15.0,https://theswingingdoors.com/spokane-north-side-the-swinging-doors-happy-hours-specials,http://theswingingdoors.com/
+The Swinging Doors,HIDDEN,1|2|3|4|5,08:00,22:00,false,14.0,https://theswingingdoors.com/spokane-north-side-the-swinging-doors-happy-hours-specials,http://theswingingdoors.com/
+Yo Dumplings,HIDDEN,1|2|3|4|5|6|7,23:00,20:00,false,21.0,https://yodumplings.com/yo-menu,https://yodumplings.com/
+ZOLA,LIVE,1|2|3|4|5|6,16:00,19:00,false,3.0,http://www.zolainspokane.com/,http://www.zolainspokane.com/
