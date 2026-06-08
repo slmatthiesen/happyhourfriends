@@ -130,7 +130,11 @@ export async function persistExtractedWindows(
       })
       .onConflictDoNothing()
       .returning({ id: happyHours.id });
-    if (!row) continue; // duplicate window already present
+    // Duplicate window already present (or an absorbed merge fragment that collapsed onto
+    // an earlier insert via the merged day-set). We skip its offerings here; per-day merge
+    // fragments carry identical offerings, so nothing real is lost. (Follow-up: if the
+    // extractor ever fragments DIFFERENT offerings across same-time windows, merge them.)
+    if (!row) continue;
     if (isActive) live++;
     else hidden++;
     for (const off of hh.offerings) {

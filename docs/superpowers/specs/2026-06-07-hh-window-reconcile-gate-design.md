@@ -148,3 +148,7 @@ all-day; Crazy Train → left as a stub), not asserted in the unit test.
 - Auto-resolving overlap conflicts to a "winner" (decided: hide all for review).
 - Re-gating other cities (separate opt-in pass once the gate is proven on Spokane).
 - Any deletion of rows (gate only flips `active` / unions days).
+- Offering-level merge across same-time fragments. When merge collapses duplicate windows,
+  only the first fragment's offerings persist (the rest skip via `onConflictDoNothing`).
+  Per-day fragments carry identical offerings today, so nothing real is lost; revisit only
+  if the extractor begins splitting *different* offerings across same-time windows.
