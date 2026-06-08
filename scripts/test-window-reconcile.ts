@@ -1,0 +1,182 @@
+/**
+ * Runnable unit checks for the pure window-reconcile gate (no test framework in repo).
+ * Run: npx tsx scripts/test-window-reconcile.ts — exits non-zero on any failure.
+ * The gate NEVER drops data; it merges duplicate windows or flips active=false.
+ * See docs/superpowers/specs/2026-06-07-hh-window-reconcile-gate-design.md.
+ */
+import assert from "node:assert/strict";
+import {
+  durationMin,
+  mergeDuplicates,
+  isOperatingHours,
+  windowsOverlap,
+  reconcileWindows,
+  type ReconcileWindow,
+} from "@/lib/places/windowReconcile";
+import type { OpenPeriod } from "@/lib/geo/timezone";
+
+let passed = 0;
+function check(name: string, fn: () => void) {
+  fn();
+  passed++;
+  console.log(`  ✓ ${name}`);
+}
+
+function w(daysOfWeek: number[], startTime: string | null, endTime: string | null, allDay = false): ReconcileWindow {
+  return { daysOfWeek, startTime, endTime, allDay };
+}
+
+check("durationMin: same-day bounded", () => {
+  assert.equal(durationMin(w([1], "14:00:00", "17:00:00")), 180);
+});
+check("durationMin: crosses midnight (end < start)", () => {
+  // 11:00 → 00:00 is 13h
+  assert.equal(durationMin(w([1], "11:00:00", "00:00:00")), 780);
+});
+check("durationMin: null start or end → null", () => {
+  assert.equal(durationMin(w([1], "20:00:00", null)), null);
+  assert.equal(durationMin(w([1], null, "17:00:00")), null);
+});
+
+check("mergeDuplicates: identical times across days union into one window", () => {
+  const merged = mergeDuplicates([
+    w([1], "15:00:00", "18:00:00"),
+    w([2], "15:00:00", "18:00:00"),
+    w([1, 2, 3, 4, 5], "15:00:00", "18:00:00"),
+    w([6], "15:00:00", "18:00:00"),
+  ]);
+  assert.equal(merged.length, 1);
+  assert.deepEqual(merged[0].window.daysOfWeek, [1, 2, 3, 4, 5, 6]);
+  assert.ok(merged[0].reasons.includes("merged_duplicate"));
+  assert.equal(merged[0].active, true);
+});
+
+check("mergeDuplicates: different times stay separate, no merged_duplicate reason", () => {
+  const merged = mergeDuplicates([
+    w([1, 2, 3, 4, 5], "15:00:00", "18:00:00"),
+    w([1, 2, 3, 4, 5], "08:00:00", "23:00:00"),
+  ]);
+  assert.equal(merged.length, 2);
+  assert.equal(merged[0].reasons.includes("merged_duplicate"), false);
+});
+
+check("mergeDuplicates: allDay is part of the key (not merged with bounded)", () => {
+  const merged = mergeDuplicates([
+    w([1], "15:00:00", "21:00:00", true),
+    w([2, 3, 4, 5], "15:00:00", "21:00:00", false),
+  ]);
+  assert.equal(merged.length, 2);
+});
+
+check("op-hours: ≥8h window with no hours_json is operating-hours", () => {
+  assert.equal(isOperatingHours(w([1, 2, 3, 4, 5], "08:00:00", "23:00:00"), null), true); // 15h
+});
+check("op-hours: 3h afternoon HH is NOT operating-hours", () => {
+  assert.equal(isOperatingHours(w([1, 2, 3, 4, 5], "14:00:00", "17:00:00"), null), false);
+});
+check("op-hours: business-day span (start ≤11:00 & ≥6h) is operating-hours", () => {
+  assert.equal(isOperatingHours(w([1], "09:00:00", "16:00:00"), null), true); // 7h, starts 09:00
+});
+check("op-hours: 6h afternoon HH (start >11:00) is NOT operating-hours (Garland Mon if bounded)", () => {
+  assert.equal(isOperatingHours(w([1], "15:00:00", "21:00:00"), null), false); // 6h but starts 15:00
+});
+check("op-hours: allDay windows are EXEMPT", () => {
+  assert.equal(isOperatingHours(w([1], "15:00:00", "21:00:00", true), null), false);
+});
+check("op-hours: hours_json ≥80% coverage is operating-hours", () => {
+  const hours: OpenPeriod[] = [{ openDay: 1, openMin: 600, closeDay: 1, closeMin: 1380 }]; // 10:00–23:00
+  assert.equal(isOperatingHours(w([1], "10:00:00", "23:00:00"), hours), true); // covers 100%
+});
+check("op-hours: start-only window starting ≈ open time is operating-hours", () => {
+  const hours: OpenPeriod[] = [{ openDay: 1, openMin: 660, closeDay: 1, closeMin: 1380 }]; // 11:00–23:00
+  assert.equal(isOperatingHours(w([1], "11:00:00", null), hours), true); // start ≈ open, no end
+});
+check("op-hours: start-only window with no hours_json is NOT operating-hours", () => {
+  assert.equal(isOperatingHours(w([1], "20:00:00", null), null), false);
+});
+
+check("overlap: same-day different-range windows overlap", () => {
+  assert.equal(windowsOverlap(w([1, 2], "18:00:00", "20:00:00"), w([1], "19:00:00", "21:00:00")), true);
+});
+check("overlap: identical times are NOT an overlap-conflict (handled by merge)", () => {
+  assert.equal(windowsOverlap(w([1], "15:00:00", "18:00:00"), w([2], "15:00:00", "18:00:00")), false);
+});
+check("overlap: no shared day → no overlap", () => {
+  assert.equal(windowsOverlap(w([1], "18:00:00", "20:00:00"), w([2], "19:00:00", "21:00:00")), false);
+});
+check("overlap: non-overlapping ranges on shared day → no overlap", () => {
+  assert.equal(windowsOverlap(w([1], "12:00:00", "15:00:00"), w([1], "16:00:00", "21:00:00")), false);
+});
+check("overlap: start-only (until close) overlaps a later bounded window on shared day", () => {
+  assert.equal(windowsOverlap(w([1], "11:00:00", null), w([1], "18:00:00", "20:00:00")), true);
+});
+
+function active(rs: ReturnType<typeof reconcileWindows>) {
+  return rs.filter((r) => r.active);
+}
+
+check("GOLDEN Lantern: 3 operating-hours hidden, real 14–17 stays live", () => {
+  const rs = reconcileWindows(
+    [
+      w([1, 2, 3, 4, 5, 6, 7], "10:00:00", "23:00:00"),
+      w([1, 2, 3, 4, 5, 6, 7], "11:00:00", "23:00:00"),
+      w([1, 2, 3, 4, 5, 6, 7], "11:00:00", "00:00:00"),
+      w([1, 2, 3, 4, 5, 6, 7], "14:00:00", "17:00:00"),
+    ],
+    null,
+  );
+  const live = active(rs);
+  assert.equal(live.length, 1);
+  assert.equal(live[0].window.startTime, "14:00:00");
+  assert.equal(rs.filter((r) => r.reasons.includes("operating_hours")).length, 3);
+});
+
+check("GOLDEN Swinging Doors: per-day frags merge to one 15–18, op-hours hidden", () => {
+  const rs = reconcileWindows(
+    [
+      w([1], "15:00:00", "18:00:00"),
+      w([2], "15:00:00", "18:00:00"),
+      w([3], "15:00:00", "18:00:00"),
+      w([4], "15:00:00", "18:00:00"),
+      w([5], "15:00:00", "18:00:00"),
+      w([6], "15:00:00", "18:00:00"),
+      w([1, 2, 3, 4, 5], "15:00:00", "18:00:00"),
+      w([1, 2, 3, 4, 5], "08:00:00", "23:00:00"),
+      w([1, 2, 3, 4, 5], "08:00:00", "22:00:00"),
+    ],
+    null,
+  );
+  const live = active(rs);
+  assert.equal(live.length, 1);
+  assert.deepEqual(live[0].window.daysOfWeek, [1, 2, 3, 4, 5, 6]);
+  assert.equal(live[0].window.startTime, "15:00:00");
+  assert.equal(live[0].window.endTime, "18:00:00");
+});
+
+check("GOLDEN Bigfoot: all overlapping/start-only windows hidden → stub", () => {
+  const rs = reconcileWindows(
+    [
+      w([1, 2, 3, 4, 5, 6, 7], "18:00:00", "20:00:00"),
+      w([1, 2, 3, 4, 5, 6, 7], "19:00:00", "21:00:00"),
+      w([1, 2, 3, 4, 5, 6, 7], "19:00:00", "22:00:00"),
+      w([1, 2, 3, 4, 5, 6, 7], "11:00:00", null),
+      w([1, 2, 3, 4, 5, 6, 7], "20:00:00", null),
+      w([1, 2, 3, 4, 5, 6, 7], "21:00:00", null),
+    ],
+    null,
+  );
+  assert.equal(active(rs).length, 0);
+});
+
+check("GOLDEN Garland: all-day Monday + Tue–Fri 3–5 both live (no conflict)", () => {
+  const rs = reconcileWindows(
+    [
+      w([1], "15:00:00", "21:00:00", true), // All Day Monday (3–9)
+      w([2, 3, 4, 5], "15:00:00", "17:00:00"),
+    ],
+    null,
+  );
+  assert.equal(active(rs).length, 2);
+});
+
+console.log(`\n${passed} checks passed.`);
