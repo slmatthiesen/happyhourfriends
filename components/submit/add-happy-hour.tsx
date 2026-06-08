@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { SubmissionPayload } from "@/lib/submit/payload";
+import { normalizeUrl } from "@/lib/submit/normalizeUrl";
 import { getFingerprint } from "./submission-form";
 import { HCaptcha } from "./hcaptcha";
 
@@ -140,9 +141,13 @@ export function AddHappyHour({
     e.preventDefault();
     setError(null);
 
-    const hasLink = sourceUrl.trim().length > 0;
+    const normalizedUrl = normalizeUrl(sourceUrl);
+    if (sourceUrl.trim() && !normalizedUrl) {
+      setError("That link doesn't look right — include the full address, e.g. example.com");
+      return;
+    }
     const hasFile = !!fileDataUrl;
-    if (!hasLink && !hasFile) {
+    if (!normalizedUrl && !hasFile) {
       setError("Add a source — paste the venue's menu/website link, or upload a photo of the menu.");
       return;
     }
@@ -175,7 +180,7 @@ export function AddHappyHour({
       diff: {
         before: null,
         after,
-        sourceUrl: sourceUrl.trim() || null,
+        sourceUrl: normalizedUrl,
         summary: `Add first happy hour for ${venueName}`,
       },
       fingerprint: getFingerprint(),
@@ -379,10 +384,15 @@ export function AddHappyHour({
             </p>
             <input
               className={inputCls}
-              type="url"
+              type="text"
+              inputMode="url"
               value={sourceUrl}
               onChange={(e) => setSourceUrl(e.target.value)}
-              placeholder="https://… (menu page, social post, etc.)"
+              onBlur={(e) => {
+                const n = normalizeUrl(e.target.value);
+                if (n) setSourceUrl(n);
+              }}
+              placeholder="venue's menu page, social post, etc."
             />
             <div className="mt-2 flex items-center gap-3">
               <label className="cursor-pointer rounded-md border border-border bg-bg-surface px-3 py-1.5 text-xs text-text-primary hover:border-accent-cool">
