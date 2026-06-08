@@ -98,6 +98,21 @@ async function main() {
           }
         }
       }
+
+      // If reconcile hid a venue's LAST active window, it's no longer a complete listing —
+      // demote it to a stub so it surfaces for crowdsourced / re-extracted recovery rather
+      // than rendering as a "complete" venue with no happy hour.
+      if (apply) {
+        const [{ n }] = await sql<{ n: number }[]>`
+          SELECT count(*)::int AS n FROM happy_hours
+          WHERE venue_id = ${v.id} AND active = true AND deleted_at IS NULL`;
+        if (n === 0) {
+          const [demoted] = await sql`
+            UPDATE venues SET data_completeness = 'stub', updated_at = now()
+            WHERE id = ${v.id} AND data_completeness = 'complete' RETURNING id`;
+          if (demoted) report.push(`  STUB   ${v.name}: last active window hidden → demoted to stub`);
+        }
+      }
     }
 
     console.log(report.join("\n"));
