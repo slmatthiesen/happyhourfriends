@@ -49,12 +49,8 @@ import {
 } from "@/lib/ai/enrichBatchState";
 import { firstOfCurrentMonth } from "@/lib/ai/budget";
 import { assignNeighborhoods } from "@/lib/geo/assignNeighborhoods";
-import {
-  fetchPlaceDetails,
-  fetchPlacePhoto,
-  PlaceDetailsQuotaError,
-} from "@/lib/places/placeDetails";
-import { saveVenuePhoto } from "@/lib/places/venuePhoto";
+import { PlaceDetailsQuotaError } from "@/lib/places/placeDetails";
+import type { OpenPeriod } from "@/lib/geo/timezone";
 import { isDenylistedChain, isLikelyNoHappyHourFormat, hasAlcoholSignal } from "@/lib/places/chainDenylist";
 import { slugify, placeIdSuffix } from "@/lib/places/venueSlug";
 import { deriveVenueType, isVenueType, type VenueType } from "@/lib/places/venueType";
@@ -126,6 +122,13 @@ interface SeedCandidate {
   website_url: string | null;
   rating: string | null;
   user_rating_count: number | null;
+  // Captured at discovery (migration 0016) — read here instead of a per-candidate
+  // Place Details call. serves_alcohol/hours_json/phone are null for cities discovered
+  // before/after the #26 capture window (e.g. Oakland); the pipeline degrades gracefully.
+  serves_alcohol: boolean | null;
+  hours_json: OpenPeriod[] | null;
+  phone: string | null;
+  price_level: number | null;
 }
 
 interface CityRow {
@@ -259,15 +262,14 @@ async function insertVenueRow(
 }
 
 /**
- * Write one enriched candidate to the DB: insert the venue (complete|stub), hero
- * photo, and any HH windows + offerings. Identical output across all three paths.
+ * Write one enriched candidate to the DB: insert the venue (complete|stub) and any
+ * HH windows + offerings. Identical output across all three paths.
  * Returns the venue id + outcome. Does NOT mark the candidate processed.
  */
 async function persistExtraction(
   sql: Sql,
   args: {
     cityId: string;
-    placesKey: string | null;
     ctx: PrepContext;
     extracted: ExtractResult | null;
   },
@@ -279,7 +281,7 @@ async function persistExtraction(
   hiddenCount: number;
   hiddenReasons: RealnessReason[];
 }> {
-  const { cityId, placesKey, ctx, extracted } = args;
+  const { cityId, ctx, extracted } = args;
 
   // Run the pure realness gate per window (no AI). It NEVER drops data — it only
   // decides active (shown) vs. hidden-for-review (active=false). The expensive
@@ -331,16 +333,6 @@ async function persistExtraction(
   if (venueId) {
     await sql`UPDATE venues SET type = ${finalType}::venue_type, updated_at = now()
               WHERE id = ${venueId} AND type IS NULL`;
-  }
-
-  if (venueId && placesKey && ctx.photoName) {
-    const photo = await fetchPlacePhoto(placesKey, ctx.photoName);
-    if (photo) {
-      const path = await saveVenuePhoto(venueId, photo.bytes);
-      if (path) {
-        await sql`UPDATE venues SET hero_image_url = ${path}, updated_at = now() WHERE id = ${venueId}`;
-      }
-    }
   }
 
   if (venueId && hasHH) {
@@ -443,7 +435,6 @@ async function main() {
     process.exit(0);
   }
 
-  const placesKey = process.env.GOOGLE_PLACES_API_KEY ?? null;
   const sql = postgres(dbUrl, { max: 1 });
 
   try {
@@ -453,14 +444,15 @@ async function main() {
 
     // ---- Batch path branches off here --------------------------------------
     if (args.batch) {
-      await runBatch(sql, city, args, placesKey);
+      await runBatch(sql, city, args);
       return;
     }
 
     // ---- Load unprocessed candidates ---------------------------------------
     const candidates: SeedCandidate[] = await sql<SeedCandidate[]>`
       SELECT id, name, google_place_id, address, lat, lng, source_url,
-             primary_type, types, website_url, rating, user_rating_count
+             primary_type, types, website_url, rating, user_rating_count,
+             serves_alcohol, hours_json, phone, price_level
       FROM seed_candidates
       WHERE city_id = ${city.id}
         AND processed_at IS NULL
@@ -552,19 +544,17 @@ async function main() {
       let hiddenReasonsThis: RealnessReason[] = [];
 
       try {
-        // ---- Place Details: alcohol gate + website + price tier + photo ------
-        const details =
-          placesKey && candidate.google_place_id
-            ? await fetchPlaceDetails(placesKey, candidate.google_place_id)
-            : null;
-
-        // Alcohol gate — only when details actually came back. Google's serves* fields are
-        // unreliable, so a name/type alcohol signal (brewery, beer garden, pub, bar type…)
-        // OVERRIDES a false negative rather than dropping an obvious alcohol venue.
+        // ---- Use the website/price/hours/phone captured at discovery (migration 0016) --
+        // No per-candidate Place Details call: discovery already gives us name + URL, which
+        // is all the extractor needs to scrape. Saves ~$0.04/candidate in Google calls.
+        // Alcohol gate — only drop when discovery explicitly captured serves_alcohol=false.
+        // Google's serves* fields are unreliable, so a name/type alcohol signal (brewery,
+        // beer garden, pub, bar type…) OVERRIDES a false negative. When serves_alcohol is
+        // null (not captured for this city), the candidate passes — slip-throughs become
+        // cheap stubs, not paid extractions.
         if (
-          details &&
-          !details.servesAlcohol &&
-          !hasAlcoholSignal(candidate.name, candidate.primary_type ?? details.primaryType, candidate.types)
+          candidate.serves_alcohol === false &&
+          !hasAlcoholSignal(candidate.name, candidate.primary_type, candidate.types)
         ) {
           console.log("  ↷ filtered — Google reports no alcohol served");
           await markProcessed(sql, candidate.id, "no_hh_found", null, { skipOutcome: true });
@@ -572,7 +562,7 @@ async function main() {
           continue;
         }
 
-        const siteUrl = details?.websiteUri ?? null;
+        const siteUrl = candidate.website_url ?? null;
 
         // ---- Site triage: kill dead/parked/no-site; point extractor at HH links --
         const verdict = await triageSite({
@@ -633,16 +623,15 @@ async function main() {
           lng: candidate.lng,
           googlePlaceId: candidate.google_place_id,
           siteUrl,
-          phone: details?.phone ?? null,
-          priceLevel: details?.priceLevel ?? null,
-          hoursJson: details?.openingPeriods ?? null,
-          photoName: details?.photoName ?? null,
+          phone: candidate.phone ?? null,
+          priceLevel: candidate.price_level ?? null,
+          hoursJson: candidate.hours_json ?? null,
+          photoName: null,
           primaryType: candidate.primary_type ?? null,
           types: candidate.types ?? null,
         };
         const persisted = await persistExtraction(sql, {
           cityId: city.id,
-          placesKey,
           ctx,
           extracted,
         });
@@ -759,7 +748,6 @@ async function runBatch(
   sql: Sql,
   city: CityRow,
   args: { limit: number | null; noWebsearch: boolean },
-  placesKey: string | null,
 ): Promise<void> {
   const month = firstOfCurrentMonth();
   const tally: ReportTally = {
@@ -785,7 +773,7 @@ async function runBatch(
   if (state) {
     console.log(`Resuming in-flight batch ${state.batchId} for '${city.slug}'…`);
   } else {
-    state = await prepAndSubmit(sql, city, args, placesKey, tally);
+    state = await prepAndSubmit(sql, city, args, tally);
     if (!state) {
       console.log("No eligible candidates to batch.");
       await finalize(sql, city, tally);
@@ -859,7 +847,7 @@ async function runBatch(
       await writeLedger(sql, city.id, month, extracted);
       tally.batchCostCents += extracted.costCents;
 
-      const persisted = await persistExtraction(sql, { cityId: city.id, placesKey, ctx, extracted });
+      const persisted = await persistExtraction(sql, { cityId: city.id, ctx, extracted });
       await markProcessed(sql, ctx.candidateId, persisted.outcome, persisted.venueId);
 
       if (persisted.activeCount > 0) {
@@ -912,7 +900,7 @@ async function runBatch(
           await writeLedger(sql, city.id, month, extracted);
           tally.fallbackCostCents += extracted.costCents;
         }
-        const persisted = await persistExtraction(sql, { cityId: city.id, placesKey, ctx, extracted });
+        const persisted = await persistExtraction(sql, { cityId: city.id, ctx, extracted });
         await markProcessed(sql, ctx.candidateId, persisted.outcome, persisted.venueId);
         if (persisted.activeCount > 0) {
           tally.full++;
@@ -949,12 +937,12 @@ async function prepAndSubmit(
   sql: Sql,
   city: CityRow,
   args: { limit: number | null; noWebsearch: boolean },
-  placesKey: string | null,
   tally: ReportTally,
 ): Promise<BatchState | null> {
   const candidates = await sql<SeedCandidate[]>`
     SELECT id, name, google_place_id, address, lat, lng, source_url,
-           primary_type, types
+           primary_type, types, website_url, rating, user_rating_count,
+           serves_alcohol, hours_json, phone, price_level
     FROM seed_candidates
     WHERE city_id = ${city.id} AND processed_at IS NULL
     ORDER BY created_at ASC
@@ -1004,20 +992,13 @@ async function prepAndSubmit(
       continue;
     }
 
-    let details = null;
-    try {
-      details =
-        placesKey && c.google_place_id
-          ? await fetchPlaceDetails(placesKey, c.google_place_id)
-          : null;
-    } catch (err) {
-      if (err instanceof PlaceDetailsQuotaError) throw err;
-      console.error(`  prep error for ${c.name}:`, err);
-    }
+    // Use the website/price/hours/phone captured at discovery — no per-candidate Place
+    // Details call (discovery already gives name + URL; that's all the extractor needs).
+    // Alcohol gate only drops an explicit serves_alcohol=false; null passes (slip-throughs
+    // become cheap stubs). Name/type signal overrides Google's unreliable false negatives.
     if (
-      details &&
-      !details.servesAlcohol &&
-      !hasAlcoholSignal(c.name, c.primary_type ?? details.primaryType, c.types)
+      c.serves_alcohol === false &&
+      !hasAlcoholSignal(c.name, c.primary_type, c.types)
     ) {
       await markProcessed(sql, c.id, "no_hh_found", null, { skipOutcome: true });
       tally.filtered++;
@@ -1026,7 +1007,7 @@ async function prepAndSubmit(
 
     // ---- Site triage (non-AI gate) — kill dead/parked/no-site before batching --
     const verdict = await triageSite({
-      websiteUri: details?.websiteUri ?? null,
+      websiteUri: c.website_url ?? null,
       name: c.name,
       cityName: city.name,
     });
@@ -1054,11 +1035,11 @@ async function prepAndSubmit(
       lng: c.lng,
       googlePlaceId: c.google_place_id,
       // Keep whatever URL Google had (incl. a Facebook link) on the stub venue.
-      siteUrl: details?.websiteUri ?? null,
-      phone: details?.phone ?? null,
-      priceLevel: details?.priceLevel ?? null,
-      hoursJson: details?.openingPeriods ?? null,
-      photoName: details?.photoName ?? null,
+      siteUrl: c.website_url ?? null,
+      phone: c.phone ?? null,
+      priceLevel: c.price_level ?? null,
+      hoursJson: c.hours_json ?? null,
+      photoName: null,
       primaryType: c.primary_type ?? null,
       types: c.types ?? null,
       priorityUrls: decided.priorityUrls,
@@ -1070,7 +1051,6 @@ async function prepAndSubmit(
     if (decided.action === "stub") {
       const persisted = await persistExtraction(sql, {
         cityId: city.id,
-        placesKey,
         ctx,
         extracted: null,
       });
@@ -1092,7 +1072,6 @@ async function prepAndSubmit(
     if (built.fetchedUrls.length === 0) {
       const persisted = await persistExtraction(sql, {
         cityId: city.id,
-        placesKey,
         ctx,
         extracted: null,
       });
@@ -1107,7 +1086,6 @@ async function prepAndSubmit(
     if (!built.hasSignal) {
       const persisted = await persistExtraction(sql, {
         cityId: city.id,
-        placesKey,
         ctx,
         extracted: null,
       });
@@ -1121,7 +1099,7 @@ async function prepAndSubmit(
     // hidden by the persist layer — venue stays a stub for review.)
     const free = freeExtractFromPages(built.pages, { model: "deterministic-html-v1", promptHash: built.promptHash });
     if (free) {
-      const persisted = await persistExtraction(sql, { cityId: city.id, placesKey, ctx, extracted: free });
+      const persisted = await persistExtraction(sql, { cityId: city.id, ctx, extracted: free });
       await markProcessed(sql, c.id, persisted.outcome, persisted.venueId);
       if (persisted.activeCount > 0) {
         tally.full++;

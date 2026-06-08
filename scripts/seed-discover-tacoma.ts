@@ -38,6 +38,7 @@ import {
   type GeoPoint,
 } from "@/lib/places/airportGate";
 import { haversineMeters } from "@/lib/geo/distance";
+import { parseRegularOpeningHours } from "@/lib/places/placeDetails";
 
 // ---------------------------------------------------------------------------
 // Arg parsing
@@ -94,6 +95,13 @@ interface PlaceResult {
   userRatingCount?: number;
   priceLevel?: string;       // enum string, e.g. "PRICE_LEVEL_MODERATE"
   businessStatus?: string;   // OPERATIONAL | CLOSED_TEMPORARILY | CLOSED_PERMANENTLY
+  // Atmosphere-tier fields — captured here so enrich needs no per-candidate Place
+  // Details call (searchNearby bills per tile, Place Details per candidate).
+  servesBeer?: boolean;
+  servesWine?: boolean;
+  servesCocktails?: boolean;
+  nationalPhoneNumber?: string;
+  regularOpeningHours?: { periods?: { open?: { day?: number; hour?: number; minute?: number }; close?: { day?: number; hour?: number; minute?: number } }[] };
 }
 
 /** Google priceLevel enum → 1..4 (or null). Mirrors lib/places/placeDetails.ts. */
@@ -267,14 +275,17 @@ async function fetchNearby(
     headers: {
       "Content-Type": "application/json",
       "X-Goog-Api-Key": apiKey,
-      // Enterprise-tier mask: websiteUri/rating/priceLevel/businessStatus cost more
-      // than the basic mask but are captured once per city at discovery time (no
-      // per-candidate Place Details call needed for the triage sheet), and
-      // businessStatus lets us drop permanently-closed venues before any AI spend.
+      // Atmosphere-tier mask: the Enterprise fields (websiteUri/rating/priceLevel/
+      // businessStatus) PLUS serves*/regularOpeningHours/phone. searchNearby bills per
+      // TILE CALL, not per result, so capturing the alcohol gate + hours + phone here
+      // (≈+$1/city) deletes the per-CANDIDATE Place Details call from enrich
+      // (≈-$8-30/city). photos is intentionally omitted — hero capture is broken.
       "X-Goog-FieldMask":
         "places.id,places.displayName,places.formattedAddress,places.location," +
         "places.primaryType,places.types,places.websiteUri,places.rating," +
-        "places.userRatingCount,places.priceLevel,places.businessStatus",
+        "places.userRatingCount,places.priceLevel,places.businessStatus," +
+        "places.servesBeer,places.servesWine,places.servesCocktails," +
+        "places.nationalPhoneNumber,places.regularOpeningHours",
     },
     body: JSON.stringify(body),
   });
@@ -716,18 +727,25 @@ async function main() {
       try {
         const priceLevel = priceLevelNum;
         const types = place.types ?? null;
+        // Atmosphere fields captured at discovery for the enrich gate (no Place Details call).
+        const servesAlcohol = Boolean(
+          place.servesBeer || place.servesWine || place.servesCocktails,
+        );
+        const hoursJson = parseRegularOpeningHours(place.regularOpeningHours);
+        const phone = place.nationalPhoneNumber ?? null;
         await sql`
           INSERT INTO seed_candidates
             (city_id, name, google_place_id, address, lat, lng, source_url,
              primary_type, types, website_url, rating, user_rating_count,
-             price_level, business_status)
+             price_level, business_status, serves_alcohol, hours_json, phone)
           VALUES
             (${city.id}, ${name}, ${place.id}, ${address},
              ${pLat != null ? String(pLat) : null},
              ${pLng != null ? String(pLng) : null}, ${"google_places"},
              ${place.primaryType ?? null}, ${types}, ${place.websiteUri ?? null},
              ${place.rating ?? null}, ${place.userRatingCount ?? null},
-             ${priceLevel}, ${place.businessStatus ?? null})
+             ${priceLevel}, ${place.businessStatus ?? null},
+             ${servesAlcohol}, ${sql.json((hoursJson ?? null) as never)}, ${phone})
           ON CONFLICT (google_place_id) DO UPDATE SET
             name             = EXCLUDED.name,
             address          = EXCLUDED.address,
@@ -740,6 +758,9 @@ async function main() {
             user_rating_count = EXCLUDED.user_rating_count,
             price_level      = EXCLUDED.price_level,
             business_status  = EXCLUDED.business_status,
+            serves_alcohol   = EXCLUDED.serves_alcohol,
+            hours_json       = EXCLUDED.hours_json,
+            phone            = EXCLUDED.phone,
             updated_at = now()
         `;
         placesInserted++;

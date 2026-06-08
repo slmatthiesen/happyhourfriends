@@ -7,6 +7,7 @@
 # are intentionally excluded (run them locally against a real DB / keys):
 #   - test:email                 (needs RESEND_API_KEY)
 #   - test:assignment            (needs a live Postgres/PostGIS)
+#   - test:db-sync               (needs a live Postgres; creates scratch DBs)
 #   - test:contribution-pipeline (needs a live DB + ANTHROPIC_API_KEY)
 #   - test:discovery-coverage / test:site-triage (make live outbound fetches)
 #
