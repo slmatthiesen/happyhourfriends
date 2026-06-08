@@ -39,6 +39,7 @@
     "reextract:stubs:free": "tsx scripts/reextract-stubs-free.ts",
     "reconcile:windows": "tsx scripts/reconcile-windows.ts",
     "audit:data": "tsx scripts/audit-data.ts",
+    "audit:fix": "tsx scripts/audit-fix.ts",
     "spotcheck:free": "tsx scripts/spotcheck-free.ts",
     "diagnose:no-hh": "tsx scripts/diagnose-no-hh.ts",
     "triage:stubs": "tsx scripts/triage-stub-sites.ts",
