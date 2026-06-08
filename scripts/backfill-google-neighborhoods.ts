@@ -3,9 +3,14 @@
  * were discovered before T3 (addressComponents capture at discovery). After the backfill,
  * re-runs assignNeighborhoods so the name-primary stage (T5) takes effect.
  *
- * Run: npx tsx scripts/backfill-google-neighborhoods.ts --city <slug> --state <code> [--limit N] [--dry-run]
+ * Run: npx tsx scripts/backfill-google-neighborhoods.ts --city <slug> --state <code> [--limit N] [--dry-run] [--include-stubs]
  * Requires GOOGLE_PLACES_API_KEY + DATABASE_URL.
  * --city and --state are BOTH required (cities are unique by (state, slug)).
+ *
+ * By DEFAULT only NON-STUB venues are backfilled — i.e. venues that have at least one
+ * active happy hour (the listings that actually display HH data). Stubs (no active
+ * happy_hours, the help-wanted placeholders) are skipped to save spend, since they're the
+ * bulk of the count. Pass --include-stubs to backfill every venue with a place id instead.
  *
  * COST NOTE: uses the Essentials tier ($5/1000) with field mask "addressComponents" only.
  * Do NOT add other fields to the field mask — any upgrade field bumps to a pricier SKU.
@@ -24,23 +29,33 @@ if (!API_KEY) { console.error("GOOGLE_PLACES_API_KEY is not set"); process.exit(
 
 const PLACES_ENDPOINT = "https://places.googleapis.com/v1/places/";
 
-function parseArgs(): { limit: number | undefined; dryRun: boolean } {
+function parseArgs(): { limit: number | undefined; dryRun: boolean; includeStubs: boolean } {
   const args = process.argv.slice(2);
   const argValue = (flag: string) => { const i = args.indexOf(flag); return i >= 0 ? args[i + 1] : undefined; };
   return {
     limit: argValue("--limit") ? Number(argValue("--limit")) : undefined,
     dryRun: args.includes("--dry-run"),
+    includeStubs: args.includes("--include-stubs"),
   };
 }
 
 const sql = postgres(DATABASE_URL, { max: 4 });
 
 async function main() {
-  const { limit, dryRun } = parseArgs();
+  const { limit, dryRun, includeStubs } = parseArgs();
 
   // --city and --state are BOTH required for this script.
   const { slug, state } = requireCityArgs();
   const city = await resolveCity(sql, slug, state);
+
+  // Default: skip stubs (venues with no active happy hour). Stubs are the help-wanted
+  // placeholders and the bulk of the count; backfilling only real listings keeps spend down.
+  const nonStubOnly = !includeStubs
+    ? sql`AND EXISTS (
+        SELECT 1 FROM happy_hours hh
+        WHERE hh.venue_id = v.id AND hh.active = true AND hh.deleted_at IS NULL
+      )`
+    : sql``;
 
   const rows = await sql<{ id: string; google_place_id: string; name: string }[]>`
     SELECT v.id, v.google_place_id, v.name
@@ -49,11 +64,12 @@ async function main() {
       AND v.google_neighborhood IS NULL
       AND v.deleted_at IS NULL
       AND v.city_id = ${city.id}
+      ${nonStubOnly}
     ORDER BY v.name
     ${limit ? sql`LIMIT ${limit}` : sql``}
   `;
 
-  console.log(`${dryRun ? "[dry-run] " : ""}${rows.length} venue(s) to backfill for ${city.name}, ${city.state.toUpperCase()}…`);
+  console.log(`${dryRun ? "[dry-run] " : ""}${rows.length} ${includeStubs ? "venue(s) (incl. stubs)" : "non-stub venue(s)"} to backfill for ${city.name}, ${city.state.toUpperCase()}…`);
 
   let found = 0, blank = 0, updated = 0;
   let aborted = false;
