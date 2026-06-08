@@ -56,6 +56,7 @@ export function SubmissionCard({ item }: { item: QueueItem }) {
   const [pending, start] = useTransition();
   const [done, setDone] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [warning, setWarning] = useState<string | null>(null);
 
   // Derive whether this submission looks bad / unapplyable.
   const after = item.diff.after ?? {};
@@ -70,12 +71,15 @@ export function SubmissionCard({ item }: { item: QueueItem }) {
     onlyNote ||
     /contradict|reject|could not map|no .* change|too large/.test(reasoning);
 
-  function run(fn: () => Promise<{ ok: boolean; error?: string }>) {
+  function run(fn: () => Promise<{ ok: boolean; error?: string; warning?: string }>) {
     setError(null);
+    setWarning(null);
     start(async () => {
       const res = await fn();
-      if (res.ok) setDone("done");
-      else setError(res.error ?? "Action failed");
+      if (res.ok) {
+        if (res.warning) setWarning(res.warning);
+        setDone("done");
+      } else setError(res.error ?? "Action failed");
     });
   }
 
@@ -104,6 +108,11 @@ export function SubmissionCard({ item }: { item: QueueItem }) {
     return (
       <div className="rounded-lg border border-border bg-bg-surface p-4 text-sm text-text-muted">
         {item.targetName ?? item.targetType} — actioned.
+        {warning && (
+          <p className="mt-2 rounded-md border border-accent-warm/40 bg-accent-warm/10 px-3 py-2 text-accent-warm">
+            ⚠ {warning}
+          </p>
+        )}
       </div>
     );
   }

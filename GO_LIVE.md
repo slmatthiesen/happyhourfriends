@@ -76,6 +76,24 @@ Brings prod down to local incl. submissions/flags/audit. **Overwrites local data
   connections until non-superuser slots ran out. No longer a go-live blocker; just deploy
   current `main`.
 
+### Moderation bridge — pull prod's `queued_admin` leftovers to local /admin (built, PR #50 — NOT YET RUN)
+
+Prod is headless (no `/admin`); its AI auto-applies what it can and parks the rest as
+`queued_admin`. The bridge brings those leftovers DOWN to your local `/admin` and publishes
+your approvals back UP to prod. **Built + tested (`npm run test:db-sync` green), not yet run
+in anger** — it only matters once prod is live and accumulating real submissions, so it's a
+**post-launch** step. Canonical procedure: **`docs/data-sync-runbook.md` → "Moderation bridge"**.
+
+When you're ready (needs `PROD_IP`):
+```bash
+PROD_IP=<droplet-ip> npm run pull:queue            # DRY RUN — preview the queued_admin rows
+PROD_IP=<droplet-ip> npm run pull:queue -- --apply # bring them down to local /admin
+# then approve/revert in local /admin → each action auto-publishes that venue back to prod.
+```
+Add the `pull:queue -- --apply` line to the nightly cron next to `pull:data:upsert` (the
+runbook has the cron snippet). Deferred follow-up (also in the runbook): give publish a
+dedicated narrowly-scoped SSH key instead of the root sync key.
+
 ## Google-neighborhood backfill (built 2026-06-07, PR #49)
 
 Makes Google's per-venue `addressComponents` neighborhood NAME the primary neighborhood

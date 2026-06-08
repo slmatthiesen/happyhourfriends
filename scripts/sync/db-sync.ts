@@ -14,7 +14,7 @@
  * --apply to commit. Neither direction ever truncates or deletes.
  */
 import postgres from "postgres";
-import { additivePush, upsertPull, type SyncResult } from "@/lib/sync/dbSync";
+import { additivePush, upsertPull, publishVenue, pullQueuedSubmissions, type SyncResult } from "@/lib/sync/dbSync";
 
 function connect(url: string) {
   // Low ceiling: this is a short batch job, not the app pool.
@@ -35,8 +35,9 @@ async function main() {
   const apply = flags.includes("--apply");
   const dryRun = !apply;
 
-  if (direction !== "push" && direction !== "pull") {
-    console.error("Usage: db-sync.ts <push|pull> [--apply]");
+  const VALID = ["push", "pull", "publish-venue", "pull-queue"];
+  if (!VALID.includes(direction)) {
+    console.error("Usage: db-sync.ts <push|pull|publish-venue|pull-queue> [--apply] [--venue <id>] [--submission <id>]");
     process.exit(1);
   }
 
@@ -45,15 +46,29 @@ async function main() {
   if (!localUrl) throw new Error("DATABASE_URL is not set (local DB)");
   if (!prodUrl) throw new Error("PROD_DATABASE_URL is not set (prod DB / tunnel)");
 
+  const flagValue = (name: string): string | undefined => {
+    const i = flags.indexOf(name);
+    return i >= 0 ? flags[i + 1] : undefined;
+  };
+
   const local = connect(localUrl);
   const prod = connect(prodUrl);
   try {
     if (direction === "push") {
-      const results = await additivePush(local, prod, { dryRun });
-      printResults("local → prod (additive push)", results, dryRun);
+      printResults("local → prod (additive push)", await additivePush(local, prod, { dryRun }), dryRun);
+    } else if (direction === "pull") {
+      printResults("prod → local (upsert pull)", await upsertPull(prod, local, { dryRun }), dryRun);
+    } else if (direction === "pull-queue") {
+      printResults("prod → local (queued_admin submissions)", await pullQueuedSubmissions(prod, local, { dryRun }), dryRun);
     } else {
-      const results = await upsertPull(prod, local, { dryRun });
-      printResults("prod → local (upsert pull)", results, dryRun);
+      const venueId = flagValue("--venue");
+      if (!venueId) throw new Error("publish-venue requires --venue <id>");
+      const submissionId = flagValue("--submission");
+      printResults(
+        `local → prod (publish venue ${venueId})`,
+        await publishVenue(local, prod, { venueId, submissionId, dryRun }),
+        dryRun,
+      );
     }
     if (dryRun) console.log("\nRe-run with --apply to commit.");
   } finally {
