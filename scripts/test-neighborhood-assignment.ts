@@ -15,11 +15,11 @@ async function main() {
   let passed = 0;
   try {
     await sql.begin(async (tx) => {
-      // Throwaway city. Required NOT-NULL cols (verified in db/schema/core.ts):
-      // slug, name, country, default_timezone, currency_code.
+      // Throwaway city. Required NOT-NULL cols (verified against the live schema):
+      // slug, name, state, country, default_timezone, currency_code.
       const [city] = await tx<{ id: string }[]>`
-        INSERT INTO cities (name, slug, country, default_timezone, currency_code)
-        VALUES ('TestVille', 'testville-assign', 'US', 'America/Phoenix', 'USD')
+        INSERT INTO cities (name, slug, state, country, default_timezone, currency_code)
+        VALUES ('TestVille', 'testville-assign', 'AZ', 'US', 'America/Phoenix', 'USD')
         RETURNING id`;
 
       // Helper to insert a square polygon covering [lng0..lng1] x [lat0..lat1].
