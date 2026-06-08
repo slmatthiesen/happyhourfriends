@@ -20,6 +20,7 @@ import { extractHappyHours, type ExtractResult } from "@/lib/ai/extractHappyHour
 import { triageSite, resolveEnrichAction } from "@/lib/places/siteTriage";
 import { hhLikelihood } from "@/lib/places/hhLikelihood";
 import { assessRealness } from "@/lib/places/realnessGate";
+import { reconcileWindows, type ReconcileWindow } from "@/lib/places/windowReconcile";
 import { firstOfCurrentMonth } from "@/lib/ai/budget";
 
 export interface ResolveResult {
@@ -71,10 +72,37 @@ export async function persistExtractedWindows(
     promptHash: extracted.promptHash,
   });
 
+  const [venueRow] = await db
+    .select({ hoursJson: venues.hoursJson })
+    .from(venues)
+    .where(eq(venues.id, venueId))
+    .limit(1);
+
+  const reconWindows: ReconcileWindow[] = extracted.happyHours.map((hh) => ({
+    daysOfWeek: hh.daysOfWeek,
+    startTime: hh.startTime,
+    endTime: hh.endTime,
+    allDay: hh.allDay,
+  }));
+  const reconResults = reconcileWindows(reconWindows, venueRow?.hoursJson ?? null);
+  // Align reconcile verdicts back to source rows by identity index. reconcileWindows
+  // may MERGE rows, so map each original hh to the reconciled result whose merged day-set
+  // covers it and whose (start,end,allDay) match.
+  function reconFor(hh: (typeof extracted.happyHours)[number]) {
+    return reconResults.find(
+      (r) =>
+        r.window.startTime === hh.startTime &&
+        r.window.endTime === hh.endTime &&
+        r.window.allDay === hh.allDay,
+    );
+  }
+
   let live = 0;
   let hidden = 0;
   for (const hh of extracted.happyHours) {
-    const days = [...new Set(hh.daysOfWeek)].sort((a, b) => a - b);
+    const recon = reconFor(hh);
+    const reconActive = recon ? recon.active : true;
+    const days = recon ? recon.window.daysOfWeek : [...new Set(hh.daysOfWeek)].sort((a, b) => a - b);
     const verdict = assessRealness({
       allDay: hh.allDay,
       dayCount: days.length,
@@ -82,9 +110,9 @@ export async function persistExtractedWindows(
       confidence: extracted.confidence,
     });
     // Hidden if the realness gate is suspicious OR the free parser flagged the window
-    // implausible. Used for the insert, the live/hidden tally, AND the audit row so all
-    // three agree (a window hidden only via hh.suspect must not count as live / promote).
-    const isActive = !verdict.suspect && !hh.suspect;
+    // implausible OR the reconcile gate marked it inactive (operating-hours / overlap).
+    // Used for the insert, the live/hidden tally, AND the audit row so all three agree.
+    const isActive = !verdict.suspect && !hh.suspect && reconActive;
     const [row] = await db
       .insert(happyHours)
       .values({
@@ -102,7 +130,11 @@ export async function persistExtractedWindows(
       })
       .onConflictDoNothing()
       .returning({ id: happyHours.id });
-    if (!row) continue; // duplicate window already present
+    // Duplicate window already present (or an absorbed merge fragment that collapsed onto
+    // an earlier insert via the merged day-set). We skip its offerings here; per-day merge
+    // fragments carry identical offerings, so nothing real is lost. (Follow-up: if the
+    // extractor ever fragments DIFFERENT offerings across same-time windows, merge them.)
+    if (!row) continue;
     if (isActive) live++;
     else hidden++;
     for (const off of hh.offerings) {
