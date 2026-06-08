@@ -173,4 +173,36 @@ check("D3 an ignore page → null (nothing written, escalate/stay stub)", () => 
   assert.equal(r, null);
 });
 
+// GROUP E — CROSS-PAGE DEDUP: when two pages yield the SAME window, keep the one with
+// the better provenance (real days from the HH-specific page), not whichever parsed first.
+// This is the london-bar-grill bug: homepage said "4pm-7pm" (days assumed) and /happy-hour/
+// said "Monday-Friday 4pm-7pm" (days stated) — both 16:00-19:00 {1-5}, so they collide.
+check("E1 real-days HH-page window beats an assumed-days homepage twin (same time)", () => {
+  const r = freeExtractFromPages(
+    [
+      { url: "https://lbg.com/", text: "Happy Hour 4pm-7pm" }, // homepage, days ASSUMED — parsed first
+      { url: "https://lbg.com/happy-hour/", text: "Happy Hour Monday-Friday 4pm-7pm" }, // days STATED
+    ],
+    { model: "deterministic-html-v1", promptHash: "test" },
+  );
+  assert.ok(r, "expected a result");
+  assert.equal(r!.happyHours.length, 1, "the two identical-time windows collapse to one");
+  assert.equal(r!.happyHours[0].sourceUrl, "https://lbg.com/happy-hour/", "keep the HH-specific source");
+  assert.equal(r!.happyHours[0].notes, null, "keep the real-days window, not the 'days assumed' one");
+});
+
+check("E2 order-independent: assumed-days twin parsed LAST does not overwrite the real one", () => {
+  const r = freeExtractFromPages(
+    [
+      { url: "https://lbg.com/happy-hour/", text: "Happy Hour Monday-Friday 4pm-7pm" }, // days STATED first
+      { url: "https://lbg.com/", text: "Happy Hour 4pm-7pm" }, // days ASSUMED last
+    ],
+    { model: "deterministic-html-v1", promptHash: "test" },
+  );
+  assert.ok(r);
+  assert.equal(r!.happyHours.length, 1);
+  assert.equal(r!.happyHours[0].sourceUrl, "https://lbg.com/happy-hour/");
+  assert.equal(r!.happyHours[0].notes, null);
+});
+
 console.log(`\n${passed} checks passed.`);

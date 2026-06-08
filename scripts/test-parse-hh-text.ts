@@ -47,6 +47,12 @@ check("time but NO days + HH context → assume Mon-Fri, note it", () => {
   assert.deepEqual(w.daysOfWeek, [1, 2, 3, 4, 5]);
   assert.match(w.notes ?? "", /assumed Mon.Fri/i);
 });
+check("daysAssumed boolean: false when days are stated, true when inferred", () => {
+  const stated = win(parseHappyHours("Happy Hour Monday-Friday 4pm-7pm", URL));
+  assert.equal(stated.daysAssumed, false);
+  const assumed = win(parseHappyHours("Happy hour 4pm-7pm", URL));
+  assert.equal(assumed.daysAssumed, true);
+});
 check("attached offering parsed: '$1 off menu cocktails'", () => {
   const w = win(parseHappyHours("Happy hour Mon-Fri 3-6pm: $1 off menu cocktails", URL));
   assert.ok(w.offerings.length >= 1);

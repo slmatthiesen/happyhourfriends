@@ -32,6 +32,7 @@
     "test:first-party": "tsx scripts/test-first-party.ts",
     "backfill:venue-types": "tsx scripts/backfill-venue-types.ts",
     "backfill:neighborhood-tiers": "tsx scripts/backfill-neighborhood-tiers.ts",
+    "backfill:google-neighborhoods": "tsx scripts/backfill-google-neighborhoods.ts",
     "prune:empty-venues": "tsx scripts/prune-empty-venues.ts",
     "review:suspect": "tsx scripts/review-suspect-hh.ts",
     "reextract:stubs": "tsx scripts/reextract-stubs.ts",
@@ -72,6 +73,7 @@
     "test:cardinal-districts": "tsx scripts/test-cardinal-districts.ts",
     "generate:cardinal-districts": "tsx scripts/generate-cardinal-districts.ts",
     "test:assignment": "tsx scripts/test-neighborhood-assignment.ts",
+    "test:name-primary": "tsx scripts/test-name-primary-assignment.ts",
     "restore:neighborhoods": "tsx scripts/restore-neighborhoods.ts",
     "test:hh-text": "tsx scripts/test-hh-text.ts",
     "test:normalize-url": "tsx scripts/test-normalize-url.ts",
@@ -84,7 +86,8 @@
     "test:free-extract": "tsx scripts/test-free-extract.ts",
     "test:hh-outcomes": "tsx scripts/test-hh-outcomes.ts",
     "test:hh-golden": "tsx scripts/test-hh-golden.ts",
-    "test:daly-boundary": "tsx scripts/test-daly-boundary.ts"
+    "test:daly-boundary": "tsx scripts/test-daly-boundary.ts",
+    "test:neighborhood-name": "tsx scripts/test-neighborhood-name.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.99.0",
