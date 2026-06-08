@@ -62,19 +62,33 @@ async function main() {
         const ids = idsByKey.get(key) ?? [];
         if (ids.length === 0) continue;
         const [keep, ...absorbed] = ids;
+        let keepAlive = true;
 
-        // Merge: expand the kept row's days, soft-delete absorbed duplicates.
+        // Merge: soft-delete absorbed FIRST so they leave the partial unique index
+        // (happy_hours_natural_uq WHERE deleted_at IS NULL) before we expand the kept row's
+        // days to the union — otherwise a subset keep colliding with an absorbed copy that
+        // already equals the union trips the constraint.
         if (absorbed.length > 0) {
           mergedTotal += absorbed.length;
           report.push(`  MERGE  ${v.name}: ${ids.length} rows ${key} → 1 (days ${res.window.daysOfWeek.join(",")})`);
           if (apply) {
-            await sql`UPDATE happy_hours SET days_of_week = ${res.window.daysOfWeek}, updated_at = now() WHERE id = ${keep}`;
             await sql`UPDATE happy_hours SET deleted_at = now(), active = false, updated_at = now() WHERE id = ANY(${absorbed})`;
+            try {
+              await sql`UPDATE happy_hours SET days_of_week = ${res.window.daysOfWeek}, updated_at = now() WHERE id = ${keep}`;
+            } catch (e) {
+              // The natural-key index ignores all_day; a unioned day-set can still collide with
+              // a different live row. Soft-delete the kept row — the colliding row already covers it.
+              const code = e && typeof e === "object" && "code" in e ? (e as { code?: string }).code : undefined;
+              if (code !== "23505") throw e;
+              await sql`UPDATE happy_hours SET deleted_at = now(), active = false, updated_at = now() WHERE id = ${keep}`;
+              keepAlive = false;
+              report.push(`  COLLIDE ${v.name}: ${key} union collides with a live row; kept row soft-deleted`);
+            }
           }
         }
 
-        // Hide: operating-hours / overlap-conflict.
-        if (!res.active) {
+        // Hide: operating-hours / overlap-conflict (skip if a collision already removed keep).
+        if (!res.active && keepAlive) {
           hiddenTotal += 1;
           report.push(`  HIDE   ${v.name}: ${key} [${res.reasons.join(",")}]`);
           if (apply) {
