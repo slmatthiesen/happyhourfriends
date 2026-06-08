@@ -24,6 +24,7 @@ export interface AuditWindow {
 }
 
 export interface VenueAuditInput {
+  /** Carried for the report and a possible future source-domain-vs-website rule; no rule reads it yet. */
   websiteUrl: string | null;
   hoursJson: OpenPeriod[] | null;
   windows: AuditWindow[];
@@ -67,7 +68,8 @@ function isHomepageSource(sourceUrl: string | null): boolean {
   if (!sourceUrl) return false;
   try {
     const p = new URL(sourceUrl).pathname.replace(/\/+$/, "");
-    return p === "" || p === "/";
+    // trailing slashes already collapsed: "/" → ""
+    return p === "";
   } catch {
     return false;
   }
@@ -76,6 +78,8 @@ function isHomepageSource(sourceUrl: string | null): boolean {
 /**
  * Retroactive plausibility check from STORED shape (mirrors parseHhText's plausible=false
  * cases we can see post-hoc): duration > 6h, or degenerate (both times known, duration ≤ 0).
+ * Note: a long window (e.g. 10:00–20:00) can ALSO trip `operating_hours_active` via reconcile —
+ * both are distinct codes and both are intentionally kept.
  */
 function isImplausibleShape(w: AuditWindow): boolean {
   if (w.allDay) return false; // all-day handled by realness gate, not here
@@ -118,7 +122,7 @@ export function auditVenue(input: VenueAuditInput): AnomalyFlag[] {
   }
   if (overlapped) flags.push(flag("overlapping_windows", "two active windows overlap on shared days"));
   if (operating) flags.push(flag("operating_hours_active", "an active window looks like operating hours"));
-  if (duplicated) flags.push(flag("duplicate_windows", "two active windows share days|start|end"));
+  if (duplicated) flags.push(flag("duplicate_windows", "two active windows share start|end|allDay (days may differ)"));
 
   // De-dup identical (code) flags so a venue with 3 assumed windows reports the code once.
   const seen = new Set<string>();
@@ -137,7 +141,7 @@ export function hasAutoFixable(flags: AnomalyFlag[]): boolean {
 /** A re-parsed correction is HIGH-CONFIDENCE (safe to auto-apply) when every corrected
  *  window has REAL days, ≥1 is sourced from an HH-specific page, and reconcile keeps all. */
 export function isHighConfidenceCorrection(
-  corrected: { daysOfWeek: number[]; startTime: string | null; endTime: string | null; allDay: boolean; sourceUrl: string | null; notes: string | null }[],
+  corrected: Omit<AuditWindow, "active">[],
 ): boolean {
   if (corrected.length === 0) return false;
   if (corrected.some((w) => isAssumedDays(w.notes))) return false;
