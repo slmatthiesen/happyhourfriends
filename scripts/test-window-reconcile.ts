@@ -37,6 +37,18 @@ check("durationMin: null start or end → null", () => {
   assert.equal(durationMin(w([1], "20:00:00", null)), null);
   assert.equal(durationMin(w([1], null, "17:00:00")), null);
 });
+check("durationMin: parses HH:MM (no seconds) same as HH:MM:SS", () => {
+  assert.equal(durationMin(w([1], "14:00", "17:00")), 180);
+});
+check("op-hours: coverage ≥80% on only 1 of 2 days is NOT a majority (strict >50%)", () => {
+  // 5h window (15:00–20:00, start>11:00 so business-day rule N/A, <8h so backstop N/A).
+  // Mon open 15:00–20:00 → window covers 100% (match); Tue open 12:00–23:00 → 45% (no match).
+  const hours = [
+    { openDay: 1, openMin: 900, closeDay: 1, closeMin: 1200 },
+    { openDay: 2, openMin: 720, closeDay: 2, closeMin: 1380 },
+  ];
+  assert.equal(isOperatingHours(w([1, 2], "15:00:00", "20:00:00"), hours), false);
+});
 
 check("mergeDuplicates: identical times across days union into one window", () => {
   const merged = mergeDuplicates([

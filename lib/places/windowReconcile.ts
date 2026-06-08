@@ -115,7 +115,7 @@ export function isOperatingHours(win: ReconcileWindow, hoursJson: OpenPeriod[] |
       total += 1;
       if (Math.abs(start - open) <= OPEN_TIME_TOLERANCE_MIN) near += 1;
     }
-    return total > 0 && near * 2 >= total;
+    return total > 0 && near * 2 > total; // strict majority of covered days
   }
 
   const dur = durationMin(win);
@@ -132,7 +132,7 @@ export function isOperatingHours(win: ReconcileWindow, hoursJson: OpenPeriod[] |
     covered += 1;
     if (dur / openLen >= OPERATING_HOURS_COVERAGE) matches += 1;
   }
-  return covered > 0 && matches * 2 >= covered;
+  return covered > 0 && matches * 2 > covered; // strict majority of covered days
 }
 
 /** Effective [start,end] minute interval; end-null → until end of day (MIN_PER_DAY). */
@@ -155,7 +155,8 @@ function shareADay(a: ReconcileWindow, b: ReconcileWindow): boolean {
  */
 export function windowsOverlap(a: ReconcileWindow, b: ReconcileWindow): boolean {
   if (!shareADay(a, b)) return false;
-  if (a.startTime === b.startTime && a.endTime === b.endTime) return false; // identical → merge, not conflict
+  if (a.startTime === b.startTime && a.endTime === b.endTime && a.allDay === b.allDay)
+    return false; // identical → merge, not conflict
   const ia = interval(a);
   const ib = interval(b);
   if (!ia || !ib) return false;

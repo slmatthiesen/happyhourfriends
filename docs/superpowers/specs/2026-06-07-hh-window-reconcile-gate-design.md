@@ -109,7 +109,8 @@ HH (incl. Garland's 6h all-day Monday and Tue–Fri 3–5pm) is spared.
 
 Golden set built from the **actual extracted window-sets** of the 6 Spokane venues, with
 operator ground-truth as the expected output. Pure-function unit tests in
-`lib/places/windowReconcile.test.ts` (no DB/AI):
+`scripts/test-window-reconcile.ts` (runnable tsx checks, no DB/AI; matches the repo's
+`test-realness-gate.ts` idiom):
 
 | Venue | Input windows | Expected after reconcile |
 |---|---|---|
