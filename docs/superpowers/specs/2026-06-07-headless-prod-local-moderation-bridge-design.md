@@ -55,6 +55,10 @@ Add a step to the existing prod→local pull that copies prod `edit_submissions`
 - The nightly pull must **not** clobber a local edit the operator has approved but not yet
   published. Practically: the pull only touches `edit_submissions` here, and venue/curation
   upsert is already PK-keyed and never deletes, so a pending local change survives.
+- **On-demand pull (same logic, runnable anytime).** The leftover-pull is exposed as a manual
+  command (e.g. `npm run pull:queue`) in addition to the nightly cron, so the operator can
+  force the queue down immediately when something can't wait until overnight. Idempotent, so
+  running it ad-hoc and then having the cron run later is harmless.
 
 ### 2. Local review (existing `/admin`, unchanged)
 
