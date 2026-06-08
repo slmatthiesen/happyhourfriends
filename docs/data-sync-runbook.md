@@ -43,17 +43,53 @@ Guards: refuses to run if prod has any `audit_log` / `edit_submissions` rows
 local venue tables → scp → truncate+restore as `postgres` → restart → print counts.
 
 **Post-launch:** do NOT use this to add venues — it truncates and would clobber
-user edits. Add new venues with the enrich pipeline pointed at prod over an SSH
-tunnel (dedups on `google_place_id`).
+user edits. Use the **additive push** below instead.
 
-## Pull: prod → local (mirror, on demand)
+## Additive push: local → prod (POST-LAUNCH safe — never truncates)
+
+```bash
+PROD_IP=<droplet-ip> npm run push:data:additive            # DRY RUN (preview counts)
+PROD_IP=<droplet-ip> npm run push:data:additive -- --apply # commit
+```
+
+Promotes a city you curated locally **without touching anything that already exists on
+prod**. Opens an SSH tunnel to prod's Postgres (prod credentials are read off the box,
+never written to local disk), then INSERTs only:
+- venues whose `google_place_id`/`id` aren't already on prod, plus their happy-hours /
+  offerings / tags subtree;
+- any missing `cities` / `neighborhoods` / `chains` / `tags` / `seed_candidates`.
+
+It **never modifies an existing prod venue** — a venue users edited on prod is safe, and
+a local edit to an *existing* venue will NOT propagate (edit live venues on prod
+directly). Defaults to a dry run; add `--apply` to write. Implementation:
+`lib/sync/dbSync.ts` (`additivePush`); verified by `npm run test:db-sync`.
+
+## Pull: prod → local (FULL mirror, on demand)
 
 ```bash
 PROD_IP=<droplet-ip> npm run pull:data
 ```
 Full-DB custom-format dump from prod → `pg_restore --clean` into your local DB.
-Brings down everything incl. submissions/flags/audit. **Overwrites local data.**
-Stop your local `npm run dev` first so `--clean` can drop objects.
+Brings down everything incl. submissions/flags/audit. **Overwrites local data**, so it
+also wipes any city you've staged locally but not pushed. Stop your local `npm run dev`
+first so `--clean` can drop objects. For routine refreshes prefer the upsert pull:
+
+## Upsert pull: prod → local (nightly-safe — never deletes)
+
+```bash
+PROD_IP=<droplet-ip> npm run pull:data:upsert            # DRY RUN
+PROD_IP=<droplet-ip> npm run pull:data:upsert -- --apply # commit
+```
+
+The non-destructive counterpart. For every prod row it upserts into local by primary key
+(inserts rows users added on prod, updates ones they edited) and **never deletes
+local-only rows** — so a city you've staged locally but not yet pushed survives. Safe to
+run on a nightly cron mid-curation. Scope = venue/curation tables only (not
+`edit_submissions`/`flags`/`audit_log` — use the full `pull:data` when you need those).
+Local cron example:
+```bash
+15 4 * * * cd <repo> && PROD_IP=<ip> npm run pull:data:upsert -- --apply >> /tmp/hhf-pull.log 2>&1
+```
 
 ## Nightly backups (on the droplet — the real safety net)
 
