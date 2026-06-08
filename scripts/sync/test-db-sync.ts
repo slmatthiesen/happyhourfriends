@@ -14,7 +14,7 @@ import "dotenv/config";
 import { execSync } from "node:child_process";
 import assert from "node:assert/strict";
 import postgres from "postgres";
-import { additivePush, upsertPull, publishVenue } from "@/lib/sync/dbSync";
+import { additivePush, upsertPull, publishVenue, pullQueuedSubmissions } from "@/lib/sync/dbSync";
 
 const BASE = process.env.DATABASE_URL;
 if (!BASE) throw new Error("DATABASE_URL must be set (local docker DB)");
@@ -50,6 +50,7 @@ const U = {
   hhEdit: "00000000-0000-0000-0000-0000000000e9",
   nbStaged: "00000000-0000-0000-0000-0000000000a2", // local-only, has polygon (push round-trip)
   nbProdOnly: "00000000-0000-0000-0000-0000000000a3", // prod-only, has polygon (pull round-trip)
+  subQueued: "00000000-0000-0000-0000-0000000000b1",
 };
 
 const POLY = "MULTIPOLYGON(((-122.5 47.2,-122.4 47.2,-122.4 47.3,-122.5 47.3,-122.5 47.2)))";
@@ -220,6 +221,26 @@ async function main() {
         WHERE venue_id = ${U.vShared} AND days_of_week = ARRAY[6]::smallint[] AND deleted_at IS NULL`)[0].n),
       1,
       "a natural-key conflict must leave exactly one window on prod",
+    );
+
+    // ── 5. pullQueuedSubmissions: prod's queued_admin leftovers come down ──────────
+    await prod`INSERT INTO edit_submissions (id, target_type, target_id, diff_jsonb, status)
+      VALUES (${U.subQueued}, 'venue', ${U.vShared}, '{"after":{"name":"x"}}'::jsonb, 'queued_admin')`;
+    // A prod submission that is NOT queued_admin must NOT come down.
+    await prod`INSERT INTO edit_submissions (target_type, target_id, diff_jsonb, status)
+      VALUES ('venue', ${U.vShared}, '{"after":{"name":"y"}}'::jsonb, 'auto_applied')`;
+
+    await pullQueuedSubmissions(prod, local, { dryRun: false });
+
+    assert.equal(
+      Number((await local`SELECT count(*)::int n FROM edit_submissions WHERE id = ${U.subQueued}`)[0].n),
+      1,
+      "pullQueuedSubmissions must bring a queued_admin row into local",
+    );
+    assert.equal(
+      Number((await local`SELECT count(*)::int n FROM edit_submissions WHERE status = 'auto_applied'`)[0].n),
+      0,
+      "pullQueuedSubmissions must NOT bring down non-queued_admin rows",
     );
 
     console.log("✅ db-sync integration test passed (push additive + no-clobber, pull upsert + staged-safe).");
