@@ -26,6 +26,8 @@ import { isHighConfidenceCorrection } from "@/lib/audit/anomalyRules";
 import { computeCorrection, type StoredRow, type CorrectedWindow } from "@/lib/audit/computeCorrection";
 import { needsRenderEscalation } from "@/lib/audit/renderEscalation";
 import { persistExtractedWindows } from "@/lib/recover/resolveVenue";
+import { renderUrl, closeRenderBrowser } from "@/lib/verification/renderUrl";
+import { hasHhOrDealSignal } from "@/lib/places/hhText";
 
 function arg(f: string): string | undefined {
   const i = process.argv.indexOf(f);
@@ -35,6 +37,7 @@ const APPLY = process.argv.includes("--apply");
 const LIMIT = arg("--limit") ? parseInt(arg("--limit")!, 10) : null;
 const ESCALATE = process.argv.includes("--escalate-paid");
 const PREVIEW = process.argv.includes("--preview");
+const ESTIMATE = process.argv.includes("--estimate");
 const APPLY_FROM = arg("--apply-from"); // path to a previously-previewed report json
 const ESC_VENUE = arg("--venue"); // optional venue UUID to restrict escalation to one venue
 const ESCALATION_COST_EST_USD = 0.05; // ~1 render + 1 Sonnet extract (observed 3–5¢)
@@ -92,6 +95,41 @@ async function runEscalation(
     }
   }
 
+  if (ESTIMATE) {
+    let billable = 0;
+    let free = 0;
+    const freeList: string[] = [];
+    try {
+      for (const c of toEscalate) {
+        let isBillable = false;
+        try {
+          const r = await renderUrl(c.hhPage);
+          isBillable = !!(r.ok && (r.isPdf || r.isImage || (r.contentText && hasHhOrDealSignal(r.contentText))));
+        } catch {
+          isBillable = false; // render failed → no content → $0
+        }
+        if (isBillable) {
+          billable++;
+          console.log(`  $ ${c.v.name}: BILLABLE (renderable HH content at ${c.hhPage})`);
+        } else {
+          free++;
+          freeList.push(c.v.name);
+        }
+      }
+    } finally {
+      await closeRenderBrowser();
+    }
+    const lo = (billable * 0.03).toFixed(2);
+    const hi = (billable * 0.05).toFixed(2);
+    console.log(`\n=== ESTIMATE ===`);
+    console.log(`Candidates flagged: ${toEscalate.length}`);
+    console.log(`BILLABLE (have renderable HH content → ~$0.03–0.05 each): ${billable}  → est $${lo}–$${hi}`);
+    console.log(`FREE (no PDF/content → $0, model skipped): ${free}`);
+    if (freeList.length) console.log(`\nFree venues (no model call needed):\n${freeList.map((n) => `  - ${n}`).join("\n")}`);
+    console.log(`\nNo model calls were made — this estimate cost $0.`);
+    return;
+  }
+
   if (!PREVIEW && !APPLY) {
     const est = (toEscalate.length * ESCALATION_COST_EST_USD).toFixed(2);
     console.log(`\n${toEscalate.length} venue(s) would escalate. Est. paid cost: ~$${est}.`);
@@ -108,7 +146,7 @@ async function runEscalation(
       console.log(`  ⏫ ${r.name}: found ${r.found.length} window(s), ${offers} offering(s)${r.highConfidence ? "" : " [LOW-CONF → report]"} ($${(r.costCents / 100).toFixed(3)})`);
     }
   } finally {
-    await (await import("@/lib/verification/renderUrl")).closeRenderBrowser().catch(() => {});
+    await closeRenderBrowser().catch(() => {});
   }
 
   mkdirSync("docs/audit-escalation", { recursive: true });
@@ -382,7 +420,7 @@ async function main() {
 
     console.log(`\n${APPLY ? "Applied" : "Would fix"}: ${fixed}; reported: ${reported}.`);
   } finally {
-    await (await import("@/lib/verification/renderUrl")).closeRenderBrowser().catch(() => {});
+    await closeRenderBrowser().catch(() => {});
     await sql.end();
   }
 }
