@@ -176,6 +176,14 @@ async function run() {
     const s = buildRelevanceSnippet([{ url: "u", text: "x".repeat(10_000) }]);
     assert.ok(s!.length < 4_000, `expected per-page cap, got ${s!.length}`);
   });
+  await check("snippet WINDOWS around the HH signal on a long page (no recall hole)", () => {
+    // HH text sits at ~char 7000, well past the per-page cap — a head-only slice would
+    // miss it and Haiku would wrongly skip a real happy hour. Windowing must include it.
+    const s = buildRelevanceSnippet([
+      { url: "u", text: "filler ".repeat(1000) + "HAPPY HOUR Mon-Fri 4-6pm $5 wells " + "tail ".repeat(1000) },
+    ]);
+    assert.ok(s!.toLowerCase().includes("happy hour mon-fri 4-6pm"), "HH text must survive the cap");
+  });
   await check("snippet is null when there is no HTML text (doc-only)", () => {
     assert.equal(buildRelevanceSnippet([{ url: "u", pdfBase64: "JVBERi0=" }]), null);
     assert.equal(buildRelevanceSnippet([]), null);
@@ -287,12 +295,25 @@ import { anthropic, type Usage } from "@/lib/ai/anthropic";
 import { costCents as calcCostCents } from "@/lib/ai/pricing";
 import { MODELS } from "@/lib/ai/models";
 import { loadPrompt, splitPrompt } from "@/lib/ai/promptHash";
+import { HH_RE, DEAL_RE } from "@/lib/places/hhText";
 import type { FetchedPage } from "@/lib/ai/siteContent";
 
 /** Per-page and total caps on the text we feed Haiku — relevance needs a sample, not the
  *  whole site. Keeps the input cheap (this is the point of gating). */
 const PER_PAGE_CHARS = 2_500;
 const TOTAL_CHARS = 8_000;
+
+/** Window an excerpt around the FIRST happy-hour/deal signal so a long page can't hide the
+ *  HH below the cap (the free hasSignal gate already confirmed a signal exists somewhere —
+ *  taking only the page head would let Haiku miss it and skip a real happy hour). Falls back
+ *  to the head when there's no keyword match or the page already fits. */
+function windowAroundSignal(text: string, cap: number): string {
+  if (text.length <= cap) return text;
+  const m = text.match(HH_RE) ?? text.match(DEAL_RE);
+  if (!m || m.index === undefined) return text.slice(0, cap);
+  const start = Math.max(0, m.index - Math.floor(cap / 2));
+  return text.slice(start, start + cap);
+}
 
 export interface HhRelevanceVerdict {
   relevant: boolean;
@@ -330,7 +351,7 @@ export function buildRelevanceSnippet(pages: FetchedPage[]): string | null {
     if (typeof p.text !== "string" || p.text.trim().length === 0) continue;
     if (total >= TOTAL_CHARS) break;
     const room = Math.min(PER_PAGE_CHARS, TOTAL_CHARS - total);
-    const body = p.text.trim().slice(0, room);
+    const body = windowAroundSignal(p.text.trim(), room);
     parts.push(`Source: ${p.url}\n${body}`);
     total += body.length;
   }
@@ -436,7 +457,7 @@ export async function classifyHhRelevance(
 - [ ] **Step 4: Run the test to verify it passes**
 
 Run: `cd /Users/stevenmatthiesen/Personal/hhf-audit && pnpm tsx scripts/test-hh-relevance.ts`
-Expected: PASS — `✓ hh-relevance: 12 checks passed.`
+Expected: PASS — `✓ hh-relevance: 13 checks passed.`
 
 - [ ] **Step 5: Typecheck**
 
