@@ -64,4 +64,31 @@ check("pagesHaveExtractableSignal: false for no pages", () => {
   assert.ok(!pagesHaveExtractableSignal([]));
 });
 
+// Operator-named empty-page classes (free-gate review 2026-06-09): a Toast/Clover online-
+// ordering shell, an empty About page, and a no-menu homepage must all be skipped FREE so we
+// never pay even the cheap Haiku relevance gate to read "nothing here". Confirmed empirically.
+check("pagesHaveExtractableSignal: false for a Toast/online-ordering shell (no menu)", () => {
+  assert.ok(!pagesHaveExtractableSignal([
+    { url: "https://x.com", text: "Order Online for pickup or delivery. Menu. Locations. Powered by Toast. Sign In. Start Group Order. View Cart." },
+  ]));
+});
+check("pagesHaveExtractableSignal: false for an empty About page", () => {
+  assert.ok(!pagesHaveExtractableSignal([
+    { url: "https://x.com/about", text: "About us. Family owned since 1998. Come visit us! Reservations recommended." },
+  ]));
+});
+check("pagesHaveExtractableSignal: false for a no-menu-link homepage", () => {
+  assert.ok(!pagesHaveExtractableSignal([
+    { url: "https://x.com", text: "Welcome. Contact us. Follow us on Instagram. Catering and private events available." },
+  ]));
+});
+// A page that literally lists "Specials" DOES trip the gate — deliberately. We do NOT force-skip
+// it on a URL/keyword rule (some bars put real HH under a Specials category); the cheap Haiku gate
+// reads it and decides. This is the permissive-gate + smart-backstop split working as designed.
+check("pagesHaveExtractableSignal: true for a page naming Specials (→ Haiku decides, not a URL rule)", () => {
+  assert.ok(pagesHaveExtractableSignal([
+    { url: "https://x.com", text: "Order Online. Menu. Appetizers. Entrees. Specials. Desserts. Powered by Toast." },
+  ]));
+});
+
 console.log(`\n${passed} checks passed.`);

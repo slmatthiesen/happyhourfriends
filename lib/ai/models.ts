@@ -8,4 +8,8 @@ export const MODELS = {
   // within its range, and it's ~3× cheaper than Sonnet (matters since web_fetch pulls
   // page text in as input tokens). Override with ANTHROPIC_MODEL_EXTRACTOR if needed.
   extractor: process.env.ANTHROPIC_MODEL_EXTRACTOR ?? "claude-haiku-4-5",
+  // HH-relevance gate. A cheap content read — "is this a recurring happy hour?" — that
+  // gates the (more expensive) extractor: kills wasted extractions of soft-404 catch-alls,
+  // covid notices, operating hours, and hotel-package pages. Haiku by default.
+  relevance: process.env.ANTHROPIC_MODEL_RELEVANCE ?? "claude-haiku-4-5",
 } as const;
