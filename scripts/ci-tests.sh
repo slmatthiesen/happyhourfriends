@@ -44,6 +44,7 @@ TESTS=(
   test:safesearch
   test:cardinal-districts
   test:hh-text
+  test:hh-relevance
   test:normalize-url
   test:hh-signal-gate
   test:extract-time
