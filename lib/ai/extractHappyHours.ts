@@ -36,6 +36,7 @@ import { loadPrompt, splitPrompt } from "@/lib/ai/promptHash";
 import { fetchPages, renderPagesAsBlocks, pagesHaveExtractableSignal } from "@/lib/ai/siteContent";
 import type { FetchedPage } from "@/lib/ai/siteContent";
 import { freeExtractFromPages } from "@/lib/ai/freeExtract";
+import { classifyHhRelevance, foldRelevanceCost } from "@/lib/ai/hhRelevance";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -617,16 +618,38 @@ export async function extractHappyHours(
     };
   }
 
+  // forcePaid (audit render-escalation) skips every cost-optimization gate and goes
+  // straight to the model — the caller already decided to spend.
+  if (input.forcePaid) return runExtractModel(built);
+
   // Free deterministic parse: if the fetched HTML yields >=1 CLEAN happy-hour window,
   // take it for $0 and skip the paid model call entirely.
-  // forcePaid bypasses this so audit render-escalation always reaches the model.
-  if (!input.forcePaid) {
-    const free = freeExtractFromPages(pages, { model: "deterministic-html-v1", promptHash });
-    if (free) {
-      if (process.env.EXTRACT_DEBUG) console.error(`[extract] free parse hit: ${free.happyHours.length} window(s), $0`);
-      return free;
-    }
+  const free = freeExtractFromPages(pages, { model: "deterministic-html-v1", promptHash });
+  if (free) {
+    if (process.env.EXTRACT_DEBUG) console.error(`[extract] free parse hit: ${free.happyHours.length} window(s), $0`);
+    return free;
   }
 
-  return runExtractModel(built);
+  // Doc fast-path: a PDF/image IS the happy-hour lead. Send it straight to the (vision)
+  // extractor — a separate vision relevance read would re-pay the expensive doc input on
+  // every real menu, and the extractor itself returns [] on a junk doc.
+  const hasDoc = pages.some((p) => p.pdfBase64 || p.imageBase64);
+  if (hasDoc) return runExtractModel(built);
+
+  // HTML-only Haiku relevance gate: the free parser found no clean window. Ask the cheap
+  // model whether this is a recurring happy hour before paying the extractor. Not → skip
+  // at the (tiny) relevance cost; yes → extract and fold the relevance cost into the total.
+  const rel = await classifyHhRelevance({ pages, venueName: input.venueName });
+  if (!rel.relevant) {
+    if (process.env.EXTRACT_DEBUG) console.error(`[extract] relevance gate: skip (${rel.reason})`);
+    return {
+      ...EMPTY_PARSE,
+      summary: `Relevance gate: not a recurring happy hour — skipped paid extraction (${rel.reason}).`,
+      usage: rel.usage,
+      costCents: rel.costCents,
+      promptHash,
+      model: rel.model,
+    };
+  }
+  return foldRelevanceCost(await runExtractModel(built), rel);
 }
