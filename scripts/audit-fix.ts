@@ -34,6 +34,7 @@ const LIMIT = arg("--limit") ? parseInt(arg("--limit")!, 10) : null;
 const ESCALATE = process.argv.includes("--escalate-paid");
 const PREVIEW = process.argv.includes("--preview");
 const APPLY_FROM = arg("--apply-from"); // path to a previously-previewed report json
+const ESC_VENUE = arg("--venue"); // optional venue UUID to restrict escalation to one venue
 const ESCALATION_COST_EST_USD = 0.05; // ~1 render + 1 Sonnet extract (observed 3–5¢)
 
 interface EscalationCandidate {
@@ -58,6 +59,7 @@ async function runEscalation(
           WHERE da.venue_id = v.id AND jsonb_array_length(da.flags) > 0
         )
       )
+      ${ESC_VENUE ? sql`AND v.id = ${ESC_VENUE}` : sql``}
     ORDER BY v.name
     ${LIMIT ? sql`LIMIT ${LIMIT}` : sql``}`;
 
@@ -154,12 +156,14 @@ async function extractAndDiff(
 ): Promise<EscalationResult> {
   const verdict = await triageSite({ websiteUri: c.v.website_url!, name: c.v.name, cityName });
   const decided = resolveEnrichAction(verdict, hhLikelihood({ primaryType: null, types: null, name: c.v.name }));
+  const hhPage = c.hhPage; // the unread HH-specific page the detector found
   const extracted = await extractHappyHours({
     venueName: c.v.name,
-    websiteUrl: verdict.kind === "real" ? verdict.url : null,
-    otherUrl: null,
+    websiteUrl: hhPage,                              // fetched FIRST → render (JS shell → PDF)
+    otherUrl: verdict.kind === "real" ? verdict.url : c.v.website_url, // keep the real site as backup
     cityName,
-    priorityUrls: decided.priorityUrls,
+    priorityUrls: decided.priorityUrls.filter((u) => u !== hhPage),
+    forcePaid: true,                                 // skip free-first; always render+model
   });
   const stored = await sql<StoredRow[]>`
     SELECT id, days_of_week AS "daysOfWeek", start_time AS "startTime", end_time AS "endTime",
