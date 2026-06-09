@@ -9,7 +9,7 @@
  *   - hh_page_no_offerings: an HH-specific page was read, but the free windows carry NO
  *                          offerings (times without specials — the specials are likely in a PDF).
  */
-import { scoreHhUrl, matchesHappyHour, isDrinkOrHhPageUrl } from "@/lib/places/hhText";
+import { scoreHhUrl } from "@/lib/places/hhText";
 import { isDenylistedSource } from "@/lib/ai/sourceDenylist";
 import type { FetchedPage } from "@/lib/ai/siteContent";
 
@@ -58,50 +58,34 @@ export function needsRenderEscalation(input: EscalationInput): EscalationVerdict
   return { escalate: false, reason: null, hhPages };
 }
 
-export type EscalationRoute = "free" | "paid" | "skip";
+export type EscalationRoute = "free" | "paid" | "skip" | "relevance-check";
 
 /**
- * Phase-2 routing for a flagged venue's fetched HH pages (operator policy B): reserve the paid
- * model for what the deterministic free parser fundamentally can't read, take the $0 free parse
- * when it already found a real stocked window, and skip when there's nothing to read.
- *   - skip:  no usable page content was fetched.
- *   - paid:  any page is a PDF/image (a doc — needs the vision model), OR the HTML free parse
- *            missed / returned only thin (no-offering) or suspect windows.
- *   - free:  pure-HTML pages AND the free parse yielded a clean, non-suspect window carrying
- *            ≥1 offering — apply it for $0, no model call.
- * Pure ($0, no DB/network/AI) — the doc check runs BEFORE trusting any free window so a thin
- * HTML window can never short-circuit a linked PDF that holds the real offerings.
+ * Phase-2 STRUCTURAL routing for a flagged venue's fetched HH pages. The paid-vs-skip
+ * RELEVANCE judgment for ambiguous HTML is no longer made here (URL/keyword heuristics were
+ * brittle) — it returns "relevance-check" and the async caller asks the Haiku gate
+ * (classifyHhRelevance). Pure ($0, no DB/network/AI), so it stays unit-testable.
+ *   - skip:            no usable page content was fetched.
+ *   - free:            free parse yielded a clean, non-suspect window carrying >=1 offering.
+ *   - paid:            a clean-but-thin (no-offering) window (model finds the offerings), OR
+ *                      any PDF/image doc (a single vision call extracts, or returns [] on junk
+ *                      — a separate relevance read would re-pay the doc input).
+ *   - relevance-check: HTML with no clean window and no doc — let the Haiku gate decide.
+ * Suspect-only free windows are parser NOISE and are ignored here (never an escalation signal).
  */
 export function routeEscalation(
   pages: FetchedPage[],
   freeResult: { happyHours: { suspect?: boolean; offerings: unknown[] }[] } | null,
-  /** The flagged HH page's URL. A literal happy-hour page (scoreHhUrl>=100) makes ANY doc it
-   *  resolves to worth a vision call (Oeste's opaquely-named CDN PDF); a drink/cocktail page url
-   *  escalates on its own (drink menus can carry HH — operator's call). */
-  hhPageUrl = "",
 ): EscalationRoute {
   const usable = pages.filter((p) => p.text || p.pdfBase64 || p.imageBase64);
   if (usable.length === 0) return "skip";
   const freeWindows = freeResult?.happyHours ?? [];
   // Free parse already found a clean window WITH offerings → take it for $0.
   if (freeWindows.some((w) => !w.suspect && w.offerings.length > 0)) return "free";
-  // Free parse found a CLEAN window but thin (no offerings) → the model may find the offerings.
-  // NOTE: only NON-suspect windows count. parseHhText hallucinates suspect junk windows from
-  // unrelated text (Marisol's hotel-package page → a bogus 2am-8pm window; Giuseppe's lunch/dinner
-  // hours → bogus windows); escalating on those was the Five-Cities waste.
+  // Clean but thin (no offerings) → the model may find the offerings (e.g. in a linked doc).
   if (freeWindows.some((w) => !w.suspect)) return "paid";
-  // No clean window. Only pay the model for a genuine HH lead:
-  //   - an HH-RELEVANT doc: a PDF/image whose own filename is HH-named (scoreHhUrl>=60: happy-hour/
-  //     specials/drink/cocktail/wine), OR any doc when the HH page is a literal happy-hour page. A
-  //     generic Dinner/Bar/Dessert-Menu.pdf scores 0 and is NOT worth a vision call.
-  //   - HTML text that LITERALLY says "happy hour" (NOT a day+time pattern — that matched Giuseppe's
-  //     operating hours on /about; the parser already turns real day+time windows into clean rows).
-  //   - or the flagged page is itself a drink/cocktail/happy-hour URL (drink menus can carry HH).
-  // Bare "specials" packages, /about hours, covid notices, generic/food menus → skip at $0.
-  const hhPageScore = scoreHhUrl(hhPageUrl);
-  const hhDoc = usable.some(
-    (p) => (p.pdfBase64 || p.imageBase64) && (scoreHhUrl(p.url) >= 60 || hhPageScore >= 100),
-  );
-  const hhText = usable.some((p) => p.text != null && matchesHappyHour(p.text));
-  return hhDoc || hhText || isDrinkOrHhPageUrl(hhPageUrl) ? "paid" : "skip";
+  // No clean window. A doc always extracts; ambiguous HTML goes to the Haiku relevance gate.
+  const hasDoc = usable.some((p) => p.pdfBase64 || p.imageBase64);
+  if (hasDoc) return "paid";
+  return "relevance-check";
 }
