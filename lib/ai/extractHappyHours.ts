@@ -647,7 +647,8 @@ export async function extractHappyHours(
       summary: `Relevance gate: not a recurring happy hour — skipped paid extraction (${rel.reason}).`,
       usage: rel.usage,
       costCents: rel.costCents,
-      promptHash,
+      // Attribute the spend to the RELEVANCE call that actually ran, not the (un-run) extractor.
+      promptHash: rel.promptHash,
       model: rel.model,
     };
   }
