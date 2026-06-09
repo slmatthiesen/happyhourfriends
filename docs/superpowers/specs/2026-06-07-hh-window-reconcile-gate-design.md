@@ -181,3 +181,20 @@ Twisted Fork's site; Fondi's specials page checked directly).
 Callers that pass no `offeringsKey` (e.g. `lib/audit/anomalyRules.ts`) get the strict
 pre-discriminator behavior, so the audit still FLAGS these shapes for operator review —
 it just no longer auto-hides windows whose deals vouch for them.
+
+### Second iteration (same day): extension days + bare-vs-deal asymmetry
+
+The first all-cities apply demoted 11 venues to stub; operator review + site checks
+showed two of the overlap-conflict verdicts were recognizable FALSE-POSITIVE patterns:
+
+- **Day-specific extension.** Same deal set, same-day overlap, but one window runs on a
+  STRICT SUBSET of the other's days → it is "extended (or shortened) happy hour on day X"
+  of the same deal, not a contradiction. Site-verified at Mr. An's (Tucson): "TUESDAY
+  EXTENDED HAPPY HOUR ... 4pm–8pm" beside the Mon–Sat 4–7 base; BOCA's daily 16–18 +
+  Thursday 16–close is the same shape. EQUAL day-sets remain a conflict — that is exactly
+  the 4–6-vs-4–7 duplicate-capture class.
+- **Bare-vs-deal conflicts hide the bare side only.** "We do not guess a winner" assumed
+  symmetric evidence; a window with no offerings overlapping one carrying priced deals is
+  not symmetric. SunSet Wine Bistro's real 16:00–17:30 (site-verified) was being poisoned
+  by a bare 16:00–17:00 fragment. Bigfoot's bare start-only fragment still hides; its
+  deal-carrying overlaps still mutually conflict (same fingerprints).
