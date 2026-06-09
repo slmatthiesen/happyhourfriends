@@ -11,6 +11,7 @@ import {
   isOperatingHours,
   windowsOverlap,
   reconcileWindows,
+  offeringsFingerprint,
   type ReconcileWindow,
 } from "@/lib/places/windowReconcile";
 import type { OpenPeriod } from "@/lib/geo/timezone";
@@ -80,6 +81,41 @@ check("mergeDuplicates: allDay is part of the key (not merged with bounded)", ()
   assert.equal(merged.length, 2);
 });
 
+check("mergeDuplicates: same times but DIFFERENT offerings stay separate (per-day specials)", () => {
+  const merged = mergeDuplicates([
+    { ...w([1], "11:00:00", "19:00:00"), offeringsKey: "moonshine|700" },
+    { ...w([2], "11:00:00", "19:00:00"), offeringsKey: "tequila|500" },
+  ]);
+  assert.equal(merged.length, 2);
+  assert.equal(merged.some((r) => r.reasons.includes("merged_duplicate")), false);
+});
+
+check("mergeDuplicates: same times AND same offerings union their days", () => {
+  const merged = mergeDuplicates([
+    { ...w([1], "16:00:00", "18:00:00"), offeringsKey: "wells|500" },
+    { ...w([6, 7], "16:00:00", "18:00:00"), offeringsKey: "wells|500" },
+  ]);
+  assert.equal(merged.length, 1);
+  assert.deepEqual(merged[0].window.daysOfWeek, [1, 6, 7]);
+});
+
+check("mergeDuplicates: omitted offeringsKey keeps the times-only behavior", () => {
+  const merged = mergeDuplicates([w([1], "16:00:00", "18:00:00"), w([2], "16:00:00", "18:00:00")]);
+  assert.equal(merged.length, 1);
+});
+
+check("offeringsFingerprint: order-insensitive, case/whitespace-normalized", () => {
+  const a = offeringsFingerprint([
+    { name: "Wells", priceCents: 500 },
+    { name: " Tacos ", priceCents: null },
+  ]);
+  const b = offeringsFingerprint([
+    { name: "tacos", priceCents: null },
+    { name: "wells", priceCents: 500 },
+  ]);
+  assert.equal(a, b);
+});
+
 check("op-hours: ≥8h window with no hours_json is operating-hours", () => {
   assert.equal(isOperatingHours(w([1, 2, 3, 4, 5], "08:00:00", "23:00:00"), null), true); // 15h
 });
@@ -98,6 +134,19 @@ check("op-hours: allDay windows are EXEMPT", () => {
 check("op-hours: hours_json ≥80% coverage is operating-hours", () => {
   const hours: OpenPeriod[] = [{ openDay: 1, openMin: 600, closeDay: 1, closeMin: 1380 }]; // 10:00–23:00
   assert.equal(isOperatingHours(w([1], "10:00:00", "23:00:00"), hours), true); // covers 100%
+});
+check("op-hours: coverage is interval OVERLAP, not duration ratio (GOLDEN Fuego)", () => {
+  // Fri 16:00–18:00 special; club open Fri 21:30–00:00 (2.5h). Duration ratio is 80%
+  // but the windows don't even touch — NOT operating hours.
+  const hours: OpenPeriod[] = [{ openDay: 5, openMin: 1290, closeDay: 6, closeMin: 0 }];
+  assert.equal(isOperatingHours(w([5], "16:00:00", "18:00:00"), hours), false);
+});
+check("op-hours: usable hours_json is AUTHORITATIVE over the ≥8h backstop (GOLDEN Dirty Oscar's)", () => {
+  // 8h daily-special window at a venue open 14h → 57% coverage → real deal, not op-hours.
+  const hours: OpenPeriod[] = [{ openDay: 1, openMin: 600, closeDay: 2, closeMin: 0 }]; // 10:00–00:00
+  assert.equal(isOperatingHours(w([1], "11:00:00", "19:00:00"), hours), false);
+  // Same window with NO hours_json still trips the ≥8h backstop.
+  assert.equal(isOperatingHours(w([1], "11:00:00", "19:00:00"), null), true);
 });
 check("op-hours: start-only window starting ≈ open time is operating-hours", () => {
   const hours: OpenPeriod[] = [{ openDay: 1, openMin: 660, closeDay: 1, closeMin: 1380 }]; // 11:00–23:00
@@ -178,6 +227,21 @@ check("GOLDEN Bigfoot: all overlapping/start-only windows hidden → stub", () =
     null,
   );
   assert.equal(active(rs).length, 0);
+});
+
+check("GOLDEN Elks Temple: Mon–Fri base HH + same-time per-day specials all stay live, unmerged", () => {
+  const hours: OpenPeriod[] = [1, 2, 3, 4, 5].map((d) => ({ openDay: d, openMin: 420, closeDay: d, closeMin: 1380 }));
+  const rs = reconcileWindows(
+    [
+      { ...w([1, 2, 3, 4, 5], "14:00:00", "17:00:00"), offeringsKey: "base-hh-menu" },
+      { ...w([1], "14:00:00", "17:00:00"), offeringsKey: "mule monday|1000" },
+      { ...w([2], "14:00:00", "17:00:00"), offeringsKey: "la paloma|875" },
+      { ...w([3], "14:00:00", "17:00:00"), offeringsKey: "old fashioned|950" },
+    ],
+    hours,
+  );
+  assert.equal(rs.length, 4); // no merge — distinct deals
+  assert.equal(active(rs).length, 4); // identical times never overlap-conflict
 });
 
 check("GOLDEN Garland: all-day Monday + Tue–Fri 3–5 both live (no conflict)", () => {
