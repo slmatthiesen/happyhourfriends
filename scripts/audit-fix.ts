@@ -148,6 +148,9 @@ interface EscalationResult {
   highConfidence: boolean;
   costCents: number;
   extracted: unknown; // ExtractResult, cached for --apply-from
+  // Prior active-window ids to soft-deactivate, SNAPSHOTTED at preview/extract time. Safe to use
+  // later at --apply-from time: persist uses ON CONFLICT DO NOTHING (a matched-key window is never
+  // in this list), and applyEscalationResults skips any id already inactive (`if (!before)`).
   deactivateIds: string[];
 }
 
@@ -211,6 +214,11 @@ async function applyEscalationResults(
       continue;
     }
     try {
+      // PARTIAL-APPLY FAILURE MODE: persist (drizzle db) runs OUTSIDE the postgres.js txn below,
+      // so if the deactivation txn throws after persist commits, the venue is left with BOTH the
+      // new windows and the superseded old ones active. Recoverable: re-run `audit:data --recheck`
+      // (re-flags it) then `audit:fix --apply` / `--escalate-paid --apply`. Acceptable for an
+      // operator-run CLI; do NOT promote to a server retry-loop without making this one txn.
       // 1) Land the paid windows + offerings via the ONE audited persist path (drizzle db).
       await persistExtractedWindows({
         venueId: r.venueId,
