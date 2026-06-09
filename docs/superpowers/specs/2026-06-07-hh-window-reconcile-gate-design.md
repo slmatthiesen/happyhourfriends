@@ -152,3 +152,32 @@ all-day; Crazy Train → left as a stub), not asserted in the unit test.
   only the first fragment's offerings persist (the rest skip via `onConflictDoNothing`).
   Per-day fragments carry identical offerings today, so nothing real is lost; revisit only
   if the extractor begins splitting *different* offerings across same-time windows.
+
+## Addendum (2026-06-09): offerings as the discriminator (PRs #56 + follow-up)
+
+Tacoma's dry-run surfaced three false-positive classes the time-shape rules alone can't
+separate, all resolved by bringing the window's OFFERINGS into the gate. Validated against
+both Spokane (no regressions; re-run is a no-op) and Tacoma ground truth (operator checked
+Twisted Fork's site; Fondi's specials page checked directly).
+
+- **Merge identity = `(startTime, endTime, allDay, offeringsKey)`.** Same-time windows
+  with different deals are per-day specials (Dirty Oscar's Moonshine-Monday/Tequila-Tuesday;
+  Elks Temple's base HH + same-time daily add-ons) and must NOT merge — merging soft-deleted
+  rows together with their distinct offerings. `offeringsFingerprint` is an order-insensitive
+  hash of `(name, priceCents)` pairs. This also retires the "offering-level merge" caveat
+  above: windows now merge ONLY when their offering sets already match.
+- **Operating-hours: `hours_json` is authoritative when usable** (the backstops were always
+  specced as hours-unknown fallbacks), and coverage is interval OVERLAP, not duration ratio —
+  Fuego's Fri 4–6PM special was flagged because 2h ≈ 80% of the club's 2.5h open day
+  (9:30PM–12) despite zero overlap. A shape-flagged window is hidden only when it is
+  offerings-BARE (Swinging Doors' 08–23) or a COPY of a non-flagged window's deal set
+  (Lantern's 10–23 beside its real 14–17). An open-to-close window carrying its own unique
+  deal set is a genuine all-day special (Twisted Fork — operator-verified) and stays live.
+- **Overlap-conflict requires same (or bare) deal sets.** Overlapping windows with distinct
+  offerings are coexisting deals (Fondi: lunch menu 11–16 + Pizza Per Due 14–17, both on
+  fondi.com/specials). The true duplicate-capture class (4–6 vs 4–7 of the same deal,
+  Bigfoot's five same-set overlaps, and its bare `11:00–` row) still conflicts.
+
+Callers that pass no `offeringsKey` (e.g. `lib/audit/anomalyRules.ts`) get the strict
+pre-discriminator behavior, so the audit still FLAGS these shapes for operator review —
+it just no longer auto-hides windows whose deals vouch for them.
