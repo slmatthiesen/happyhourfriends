@@ -18,12 +18,14 @@ import postgres from "postgres";
 import { triageSite, resolveEnrichAction } from "@/lib/places/siteTriage";
 import { hhLikelihood } from "@/lib/places/hhLikelihood";
 import { buildExtractRequest, extractHappyHours } from "@/lib/ai/extractHappyHours";
+import type { ExtractResult } from "@/lib/ai/extractHappyHours";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { freeExtractFromPages } from "@/lib/ai/freeExtract";
 import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 import { isHighConfidenceCorrection } from "@/lib/audit/anomalyRules";
 import { computeCorrection, type StoredRow, type CorrectedWindow } from "@/lib/audit/computeCorrection";
 import { needsRenderEscalation } from "@/lib/audit/renderEscalation";
+import { persistExtractedWindows } from "@/lib/recover/resolveVenue";
 
 function arg(f: string): string | undefined {
   const i = process.argv.indexOf(f);
@@ -194,8 +196,48 @@ async function extractAndDiff(
   };
 }
 
-async function applyEscalationResults(_sql: ReturnType<typeof postgres>, _cityId: string, _results: EscalationResult[]): Promise<void> {
-  throw new Error("applyEscalationResults not implemented yet (Task 4)");
+async function applyEscalationResults(
+  sql: ReturnType<typeof postgres>,
+  cityId: string,
+  results: EscalationResult[],
+): Promise<void> {
+  let applied = 0;
+  let reported = 0;
+  for (const r of results) {
+    if (!r.highConfidence) {
+      await sql`UPDATE data_audit SET resolution='reported' WHERE venue_id=${r.venueId}`;
+      console.log(`  ⚑ ${r.name}: low confidence → report only`);
+      reported++;
+      continue;
+    }
+    try {
+      // 1) Land the paid windows + offerings via the ONE audited persist path (drizzle db).
+      await persistExtractedWindows({
+        venueId: r.venueId,
+        cityId,
+        extracted: r.extracted as ExtractResult,
+        actor: "audit-escalate",
+      });
+      // 2) Soft-deactivate prior windows the new set supersedes (audit_log each), in a txn.
+      await sql.begin(async (tx) => {
+        for (const id of r.deactivateIds) {
+          const [before] = await tx`SELECT source_url, notes, active FROM happy_hours WHERE id=${id} AND active=true`;
+          if (!before) continue; // already inactive / absorbed by persist
+          await tx`UPDATE happy_hours SET active=false, updated_at=now() WHERE id=${id}`;
+          await tx`INSERT INTO audit_log (table_name, row_id, before_jsonb, after_jsonb, actor, reason)
+                   VALUES ('happy_hours', ${id}, ${tx.json(before as never)}, ${tx.json({ source_url: before.source_url, notes: before.notes, active: false } as never)}, 'audit-escalate', 'render-escalation: deactivate superseded window')`;
+        }
+        await tx`UPDATE data_audit SET resolution='fixed', fix_applied=true WHERE venue_id=${r.venueId}`;
+      });
+      const offers = r.found.reduce((a, w) => a + w.offerings.length, 0);
+      console.log(`  ✓ ${r.name}: applied ${r.found.length} window(s) + ${offers} offering(s); deactivated ${r.deactivateIds.length} prior`);
+      applied++;
+    } catch (err) {
+      console.error(`  ✗ ${r.name}: apply failed — ${(err as Error).message}`);
+      reported++;
+    }
+  }
+  console.log(`\nEscalation applied: ${applied}; reported: ${reported}.`);
 }
 
 interface FlaggedVenue {
@@ -214,6 +256,14 @@ async function main() {
     if (ESCALATE && !APPLY_FROM) {
       await runEscalation(sql, city);
       return; // escalation owns this run; later tasks add preview/apply branches
+    }
+
+    if (APPLY_FROM) {
+      const { readFileSync } = await import("node:fs");
+      const results = JSON.parse(readFileSync(APPLY_FROM, "utf8")) as EscalationResult[];
+      console.log(`[apply-from] ${results.length} previewed result(s) from ${APPLY_FROM}. No re-extraction (spend already incurred).`);
+      await applyEscalationResults(sql, city.id, results);
+      return;
     }
 
     const flagged = await sql<FlaggedVenue[]>`
