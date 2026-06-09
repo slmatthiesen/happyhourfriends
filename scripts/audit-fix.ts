@@ -17,7 +17,7 @@ import "dotenv/config";
 import postgres from "postgres";
 import { triageSite, resolveEnrichAction } from "@/lib/places/siteTriage";
 import { hhLikelihood } from "@/lib/places/hhLikelihood";
-import { buildExtractRequest, extractHappyHours } from "@/lib/ai/extractHappyHours";
+import { buildExtractRequest, runExtractModel, extractorMetadata } from "@/lib/ai/extractHappyHours";
 import type { ExtractResult } from "@/lib/ai/extractHappyHours";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { freeExtractFromPages } from "@/lib/ai/freeExtract";
@@ -27,7 +27,6 @@ import { computeCorrection, type StoredRow, type CorrectedWindow } from "@/lib/a
 import { needsRenderEscalation, routeEscalation, type EscalationRoute } from "@/lib/audit/renderEscalation";
 import { persistExtractedWindows } from "@/lib/recover/resolveVenue";
 import { closeRenderBrowser } from "@/lib/verification/renderUrl";
-import { extractorMetadata } from "@/lib/ai/extractHappyHours";
 
 function arg(f: string): string | undefined {
   const i = process.argv.indexOf(f);
@@ -47,6 +46,24 @@ interface EscalationCandidate {
   name: string;
   website_url: string | null;
 }
+
+/** Run `fn` over `items` with at most `limit` in flight. Detection is network-bound (a triage +
+ *  plain-HTTP fetch per candidate), so triaging concurrently cuts a 100+-stub sweep from ~20 min
+ *  to a few minutes. A single item's failure resolves to its handler's value, never aborts the pool. */
+async function mapPool<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const out: R[] = new Array(items.length);
+  let next = 0;
+  async function worker() {
+    while (next < items.length) {
+      const i = next++;
+      out[i] = await fn(items[i]);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+  return out;
+}
+
+type Flagged = { v: EscalationCandidate; reason: string; hhPage: string };
 
 async function runEscalation(
   sql: ReturnType<typeof postgres>,
@@ -70,29 +87,36 @@ async function runEscalation(
 
   console.log(`[escalate] ${candidates.length} candidate venue(s) (stubs ∪ flagged) in ${city.name}. Free detection — $0.\n`);
 
-  const toEscalate: { v: EscalationCandidate; reason: string; hhPage: string }[] = [];
-  for (const v of candidates) {
-    const verdict = await triageSite({ websiteUri: v.website_url!, name: v.name, cityName: city.name });
-    const decided = resolveEnrichAction(verdict, hhLikelihood({ primaryType: null, types: null, name: v.name }));
-    if (decided.action !== "extract") continue;
-    const built = await buildExtractRequest({
-      venueName: v.name,
-      websiteUrl: verdict.kind === "real" ? verdict.url : null,
-      otherUrl: null,
-      cityName: city.name,
-      priorityUrls: decided.priorityUrls,
-      noRender: true,
-    });
-    const free = freeExtractFromPages(built.pages, { model: "deterministic-html-v1", promptHash: built.promptHash });
-    const esc = needsRenderEscalation({
-      confirmedHhUrls: decided.confirmedHhUrls,
-      readUrls: built.pages.map((p) => p.url),
-      freeWindows: free ? free.happyHours.map((h) => ({ offerings: h.offerings })) : null,
-    });
-    if (esc.escalate) {
-      toEscalate.push({ v, reason: esc.reason!, hhPage: esc.hhPages[0] ?? "?" });
-      console.log(`  ⏫ ${v.name}: would escalate [${esc.reason}] (HH page: ${esc.hhPages[0] ?? "?"})`);
+  // Detect concurrently — each candidate is an independent triage + plain-HTTP free pass (no DB,
+  // no render, no model), so a sequential loop over 100+ stubs was the ~20-min bottleneck.
+  const DETECT_CONCURRENCY = 8;
+  const detected = await mapPool(candidates, DETECT_CONCURRENCY, async (v): Promise<Flagged | null> => {
+    try {
+      const verdict = await triageSite({ websiteUri: v.website_url!, name: v.name, cityName: city.name });
+      const decided = resolveEnrichAction(verdict, hhLikelihood({ primaryType: null, types: null, name: v.name }));
+      if (decided.action !== "extract") return null;
+      const built = await buildExtractRequest({
+        venueName: v.name,
+        websiteUrl: verdict.kind === "real" ? verdict.url : null,
+        otherUrl: null,
+        cityName: city.name,
+        priorityUrls: decided.priorityUrls,
+        noRender: true,
+      });
+      const free = freeExtractFromPages(built.pages, { model: "deterministic-html-v1", promptHash: built.promptHash });
+      const esc = needsRenderEscalation({
+        confirmedHhUrls: decided.confirmedHhUrls,
+        readUrls: built.pages.map((p) => p.url),
+        freeWindows: free ? free.happyHours.map((h) => ({ offerings: h.offerings })) : null,
+      });
+      return esc.escalate ? { v, reason: esc.reason!, hhPage: esc.hhPages[0] ?? "?" } : null;
+    } catch {
+      return null; // one site's failure must never abort the whole sweep
     }
+  });
+  const toEscalate = detected.filter((x): x is Flagged => x !== null);
+  for (const c of toEscalate) {
+    console.log(`  ⏫ ${c.v.name}: would escalate [${c.reason}] (HH page: ${c.hhPage})`);
   }
 
   if (ESTIMATE) {
@@ -204,8 +228,6 @@ async function fetchAndRoute(
   built: Awaited<ReturnType<typeof buildExtractRequest>>;
   free: ExtractResult | null;
   route: EscalationRoute;
-  otherUrl: string | null;
-  confirmedMinusHh: string[];
 }> {
   const verdict = await triageSite({ websiteUri: c.v.website_url!, name: c.v.name, cityName });
   const decided = resolveEnrichAction(verdict, hhLikelihood({ primaryType: null, types: null, name: c.v.name }));
@@ -222,7 +244,7 @@ async function fetchAndRoute(
   });
   const free = freeExtractFromPages(built.pages, extractorMetadata());
   const route = routeEscalation(built.pages, free);
-  return { built, free, route, otherUrl, confirmedMinusHh };
+  return { built, free, route };
 }
 
 async function extractAndDiff(
@@ -231,7 +253,7 @@ async function extractAndDiff(
   c: { v: EscalationCandidate; reason: string; hhPage: string },
 ): Promise<EscalationResult> {
   const hhPage = c.hhPage; // the unread HH-specific page the detector found
-  const { built, free, route, otherUrl, confirmedMinusHh } = await fetchAndRoute(cityName, c);
+  const { built, free, route } = await fetchAndRoute(cityName, c);
 
   // Policy B routing: a $0 free-parse of rendered HTML when it already found a stocked window;
   // the paid model only for PDFs/images and HTML the free parser couldn't read; nothing when the
@@ -240,14 +262,9 @@ async function extractAndDiff(
   if (route === "free") {
     extracted = free!;
   } else if (route === "paid") {
-    extracted = await extractHappyHours({
-      venueName: c.v.name,
-      websiteUrl: hhPage,
-      otherUrl,
-      cityName,
-      priorityUrls: confirmedMinusHh,
-      forcePaid: true, // free-first already evaluated above; go straight to the model
-    });
+    // Reuse the pages fetchAndRoute already fetched/rendered — re-fetching is what some sites (the
+    // -happy-hours-specials platform) block, returning "no content" and dropping a real HH page.
+    extracted = await runExtractModel(built);
   } else {
     extracted = {
       happyHours: [], confidence: 0, summary: "render-escalation: no readable content on the confirmed HH page",

@@ -552,10 +552,44 @@ const EMPTY_PARSE = {
   rawWindowCount: 0,
 };
 
+/**
+ * Call the model for an ALREADY-BUILT request and normalise the result. Exported so a caller that
+ * has already fetched/rendered the venue's pages (e.g. the audit render-escalation, which renders +
+ * free-parses first to pick a route) can reach the model WITHOUT a second fetch — some sites block
+ * the rapid re-fetch and return "no content", silently dropping a real HH page.
+ */
+export async function runExtractModel(built: ExtractRequest): Promise<ExtractResult> {
+  const { params, promptHash, model } = built;
+  const response: Message = await anthropic().messages.create(params);
+  const summedUsage: Usage = {
+    inputTokens: response.usage.input_tokens,
+    outputTokens: response.usage.output_tokens,
+  };
+  if (process.env.EXTRACT_DEBUG) {
+    console.error(
+      `[extract] stop=${response.stop_reason} fetched=${built.fetchedUrls.length} blocks=[${response.content
+        .map((b) => (b.type === "tool_use" ? `tool_use:${b.name}` : b.type))
+        .join(", ")}]`,
+    );
+  }
+  const parsed = parseRecordedExtract(response);
+  return {
+    happyHours: parsed.happyHours,
+    confidence: parsed.confidence,
+    summary: parsed.summary,
+    venueType: parsed.venueType,
+    usage: summedUsage,
+    costCents: calcCostCents(model, summedUsage),
+    promptHash,
+    model,
+  };
+}
+
 export async function extractHappyHours(
   input: ExtractInput,
 ): Promise<ExtractResult> {
-  const { params, promptHash, model, fetchedUrls, hasSignal, pages } = await buildExtractRequest(input);
+  const built = await buildExtractRequest(input);
+  const { fetchedUrls, hasSignal, pages, promptHash, model } = built;
 
   // Nothing fetched (no reachable site / all fetches failed) → no point spending a token.
   if (fetchedUrls.length === 0) {
@@ -594,30 +628,5 @@ export async function extractHappyHours(
     }
   }
 
-  const response: Message = await anthropic().messages.create(params);
-  const summedUsage: Usage = {
-    inputTokens: response.usage.input_tokens,
-    outputTokens: response.usage.output_tokens,
-  };
-
-  if (process.env.EXTRACT_DEBUG) {
-    console.error(
-      `[extract] stop=${response.stop_reason} fetched=${fetchedUrls.length} blocks=[${response.content
-        .map((b) => (b.type === "tool_use" ? `tool_use:${b.name}` : b.type))
-        .join(", ")}]`,
-    );
-  }
-
-  const parsed = parseRecordedExtract(response);
-
-  return {
-    happyHours: parsed.happyHours,
-    confidence: parsed.confidence,
-    summary: parsed.summary,
-    venueType: parsed.venueType,
-    usage: summedUsage,
-    costCents: calcCostCents(model, summedUsage),
-    promptHash,
-    model,
-  };
+  return runExtractModel(built);
 }
