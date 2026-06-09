@@ -1,6 +1,7 @@
 import { and, asc, eq, inArray, isNull, or, sql } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { db } from "@/db/client";
+import { MIN_VENUES_PER_NEIGHBORHOOD } from "@/lib/geo/assignNeighborhoods";
 import {
   cities,
   happyHours,
@@ -145,10 +146,11 @@ export const listCities = unstable_cache(listCitiesUncached, ["cities-summary"],
 
 /**
  * A neighborhood is only surfaced once it has at least this many venues — a lone
- * venue in its own area reads as noise, not a useful filter. Tunable; the operator
- * is still feeling out the right rule (2026-05).
+ * venue in its own area reads as noise, not a useful filter. Canonical definition
+ * lives with the assignment logic (lib/geo/assignNeighborhoods), which uses the same
+ * threshold to gate Google-name-primary assignment so DB state matches what we show.
  */
-export const MIN_VENUES_PER_NEIGHBORHOOD = 2;
+export { MIN_VENUES_PER_NEIGHBORHOOD };
 
 export async function listNeighborhoods(cityId: string) {
   return db

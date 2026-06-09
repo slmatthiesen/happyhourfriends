@@ -43,6 +43,12 @@ pnpm backfill:neighborhoods
 - **Revert lever:** `pnpm restore:neighborhoods` (restores from the `nb_snapshot` /
   `venue_nb_snapshot` tables).
 - **Check coverage after:** `pnpm analyze:neighborhood-coverage --city <slug> --state <code>`.
+- **Google names need critical mass (2026-06-09).** A venue's Google neighborhood name only
+  wins over polygon assignment when ≥ `MIN_VENUES_PER_NEIGHBORHOOD` venues in the city share
+  it; lone micro-names ("Motel District") fall through to polygon assignment, because the UI
+  suppresses below-threshold neighborhoods and the venue would render blank despite being
+  assigned. The coverage report prints a `UI-hidden` count for venues still in lone-venue
+  neighborhoods (no containing above-threshold polygon — by-design suppression, not a bug).
 
 ---
 

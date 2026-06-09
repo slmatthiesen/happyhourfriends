@@ -8,6 +8,9 @@
  *     [--slug-prop NAME] \
  *     [--source "City of Tacoma GIS — Neighborhood Council Districts"] \
  *     [--source-url https://...] \
+ *     [--tier fine|coarse]        # default coarse (admin layers); fine = a named
+ *                                 # neighborhood locals actually say
+ *     [--recognizability 0|1|2]   # default 1; see lib/geo/recognizability
  *     [--fallback]   # coarse gap-filler layer (e.g. council wards); ranked below
  *                    # precise neighborhoods, used only where none is within snap range
  *
@@ -29,6 +32,8 @@ interface Args {
   source?: string;
   sourceUrl?: string;
   fallback: boolean;
+  tier: "fine" | "coarse";
+  recognizability: number;
 }
 
 interface GeoJsonFeature {
@@ -47,6 +52,14 @@ function parseArgs(): Args {
   if (!geojson) {
     throw new Error("Required: --city <slug> --state <code> --geojson <path> [--name-prop <prop>]");
   }
+  const tier = get("--tier") ?? "coarse";
+  if (tier !== "fine" && tier !== "coarse") {
+    throw new Error(`--tier must be fine|coarse, got "${tier}"`);
+  }
+  const recognizability = Number(get("--recognizability") ?? 1);
+  if (![0, 1, 2].includes(recognizability)) {
+    throw new Error(`--recognizability must be 0|1|2, got "${get("--recognizability")}"`);
+  }
   return {
     geojson,
     nameProp,
@@ -54,6 +67,8 @@ function parseArgs(): Args {
     source: get("--source"),
     sourceUrl: get("--source-url"),
     fallback: argv.includes("--fallback"),
+    tier,
+    recognizability,
   };
 }
 
@@ -91,16 +106,16 @@ async function main() {
       const slug = slugify(args.slugProp ? props[args.slugProp] : name);
       const geomJson = JSON.stringify(feature.geometry);
 
-      // This importer is used exclusively for coarse admin layers (council districts,
-      // ward boundaries, etc.). Always set tier='coarse', recognizability=1 so these
-      // polygons rank correctly relative to fine named neighborhoods in assignNeighborhoods.
+      // Defaults suit coarse admin layers (council districts, ward boundaries, etc.);
+      // pass --tier fine --recognizability 2 for a curated vernacular neighborhood so it
+      // ranks correctly relative to other polygons in assignNeighborhoods.
       await sql`
         INSERT INTO neighborhoods (city_id, name, slug, polygon, source, source_url, is_fallback, tier, recognizability)
         VALUES (
           ${city.id}, ${name}, ${slug},
           ST_Multi(ST_SetSRID(ST_GeomFromGeoJSON(${geomJson}), 4326)),
           ${args.source ?? null}, ${args.sourceUrl ?? null}, ${args.fallback},
-          'coarse', 1
+          ${args.tier}, ${args.recognizability}
         )
         ON CONFLICT (city_id, slug) DO UPDATE SET
           name = EXCLUDED.name,
