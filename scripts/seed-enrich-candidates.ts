@@ -1136,6 +1136,11 @@ async function prepAndSubmit(
       }
       continue;
     }
+    // NOTE: the --batch path applies the free hasSignal + deterministic-parse gates but NOT the
+    // Haiku relevance gate (that lives in the on-demand extractHappyHours wrapper; it's a sync
+    // call that can't interleave into async batch submission, and batch is already ~50% cheaper).
+    // So hasSignal survivors here go straight to the paid extractor. The on-demand path (no
+    // --batch) gets the full relevance gating.
     requests.push({ custom_id: c.id, params: built.params });
     contexts[c.id] = ctx;
   }
