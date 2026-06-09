@@ -25,6 +25,7 @@ import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 import { isHighConfidenceCorrection } from "@/lib/audit/anomalyRules";
 import { computeCorrection, type StoredRow, type CorrectedWindow } from "@/lib/audit/computeCorrection";
 import { needsRenderEscalation, routeEscalation, type EscalationRoute } from "@/lib/audit/renderEscalation";
+import { classifyHhRelevance, foldRelevanceCost } from "@/lib/ai/hhRelevance";
 import { persistExtractedWindows } from "@/lib/recover/resolveVenue";
 import { closeRenderBrowser } from "@/lib/verification/renderUrl";
 
@@ -122,10 +123,11 @@ async function runEscalation(
   if (ESTIMATE) {
     let billable = 0;
     const freeList: string[] = [];
+    const relevanceGated: string[] = [];
     try {
       for (const c of toEscalate) {
-        // Run the EXACT routing the real extract will use (render + free-parse), so the estimate
-        // is the truth, not a heuristic. Only route==='paid' spends; free/skip are $0.
+        // Structural route only — do NOT resolve relevance-check here (that would spend a Haiku
+        // call). The $0 estimate buckets relevance-check separately as a run-time upper bound.
         let route: EscalationRoute = "paid";
         try {
           ({ route } = await fetchAndRoute(city.name, c));
@@ -135,6 +137,8 @@ async function runEscalation(
         if (route === "paid") {
           billable++;
           console.log(`  $ ${c.v.name}: BILLABLE (route=paid — PDF/image or free-parse miss at ${c.hhPage})`);
+        } else if (route === "relevance-check") {
+          relevanceGated.push(c.v.name);
         } else {
           freeList.push(`${c.v.name} [${route}]`);
         }
@@ -147,7 +151,9 @@ async function runEscalation(
     console.log(`\n=== ESTIMATE ===`);
     console.log(`Candidates flagged: ${toEscalate.length}`);
     console.log(`BILLABLE (route=paid → ~$0.03–0.05 each): ${billable}  → est $${lo}–$${hi}`);
-    console.log(`FREE/SKIP (route=free|skip → $0, model skipped): ${toEscalate.length - billable}`);
+    console.log(`RELEVANCE-GATED (HTML, Haiku ~$0.00X decides paid-vs-skip at run time): ${relevanceGated.length}`);
+    console.log(`FREE/SKIP (route=free|skip → $0, model skipped): ${freeList.length}`);
+    if (relevanceGated.length) console.log(`\nWill ask the relevance gate (a subset become paid):\n${relevanceGated.map((n) => `  - ${n}`).join("\n")}`);
     if (freeList.length) console.log(`\nNo model call needed:\n${freeList.map((n) => `  - ${n}`).join("\n")}`);
     console.log(`\nNo model calls were made — this estimate cost $0.`);
     return;
@@ -224,10 +230,12 @@ interface EscalationResult {
 async function fetchAndRoute(
   cityName: string,
   c: { v: EscalationCandidate; hhPage: string },
+  opts: { resolveRelevance?: boolean } = {},
 ): Promise<{
   built: Awaited<ReturnType<typeof buildExtractRequest>>;
   free: ExtractResult | null;
   route: EscalationRoute;
+  relevance: Awaited<ReturnType<typeof classifyHhRelevance>> | null;
 }> {
   const verdict = await triageSite({ websiteUri: c.v.website_url!, name: c.v.name, cityName });
   const decided = resolveEnrichAction(verdict, hhLikelihood({ primaryType: null, types: null, name: c.v.name }));
@@ -243,8 +251,15 @@ async function fetchAndRoute(
     // render ON (no noRender): a JS-walled HH page resolves to its PDF or rendered text here.
   });
   const free = freeExtractFromPages(built.pages, extractorMetadata());
-  const route = routeEscalation(built.pages, free, c.hhPage);
-  return { built, free, route };
+  let route = routeEscalation(built.pages, free);
+  let relevance: Awaited<ReturnType<typeof classifyHhRelevance>> | null = null;
+  // Resolve the HTML relevance decision with the Haiku gate (a tiny spend) ONLY for the real
+  // extract. The $0 --estimate path leaves route as "relevance-check" and buckets it instead.
+  if (route === "relevance-check" && opts.resolveRelevance) {
+    relevance = await classifyHhRelevance({ pages: built.pages, venueName: c.v.name });
+    route = relevance.relevant ? "paid" : "skip";
+  }
+  return { built, free, route, relevance };
 }
 
 async function extractAndDiff(
@@ -253,7 +268,7 @@ async function extractAndDiff(
   c: { v: EscalationCandidate; reason: string; hhPage: string },
 ): Promise<EscalationResult> {
   const hhPage = c.hhPage; // the unread HH-specific page the detector found
-  const { built, free, route } = await fetchAndRoute(cityName, c);
+  const { built, free, route, relevance } = await fetchAndRoute(cityName, c, { resolveRelevance: true });
 
   // Policy B routing: a $0 free-parse of rendered HTML when it already found a stocked window;
   // the paid model only for PDFs/images and HTML the free parser couldn't read; nothing when the
@@ -272,6 +287,9 @@ async function extractAndDiff(
       promptHash: built.promptHash, model: "render-escalation-skip",
     };
   }
+  // Fold the relevance gate's (tiny) cost into the result so report/spend totals include it —
+  // even when the gate resolved to skip (we DID spend on the Haiku call).
+  if (relevance) extracted = foldRelevanceCost(extracted, relevance);
   const stored = await sql<StoredRow[]>`
     SELECT id, days_of_week AS "daysOfWeek", start_time AS "startTime", end_time AS "endTime",
            all_day AS "allDay", active, source_url AS "sourceUrl", notes
