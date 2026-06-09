@@ -12,7 +12,7 @@
  * 'complete' when at least one ACTIVE window lands. Every model call is ledgered.
  * Uses the drizzle client so it runs in the Next.js admin action and in tsx scripts.
  */
-import { eq } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { venues, cities, happyHours, offerings, auditLog } from "@/db/schema";
 import { aiUsageLedger } from "@/db/schema/ops";
@@ -128,16 +128,36 @@ export async function persistExtractedWindows(
         timeKnown: hh.timeKnown,
         sourceUrl: hh.sourceUrl,
       })
-      .onConflictDoNothing()
-      .returning({ id: happyHours.id });
-    // Duplicate window already present (or an absorbed merge fragment that collapsed onto
-    // an earlier insert via the merged day-set). We skip its offerings here; per-day merge
-    // fragments carry identical offerings, so nothing real is lost. (Follow-up: if the
-    // extractor ever fragments DIFFERENT offerings across same-time windows, merge them.)
-    if (!row) continue;
-    if (isActive) live++;
+      .onConflictDoUpdate({
+        // A re-extraction with the SAME natural key ENRICHES the existing window instead of being
+        // dropped. The old onConflictDoNothing + `if (!row) continue` silently lost a better
+        // re-extraction's offerings onto a stale empty window (alaMar: 12 offerings → 0). Here we
+        // reactivate a hidden window when the new data is plausible, never downgrade a live one,
+        // and refresh provenance. Offerings are deduped below so re-applying never multiplies them.
+        target: [happyHours.venueId, happyHours.daysOfWeek, happyHours.startTime, happyHours.endTime, happyHours.locationWithinVenue],
+        targetWhere: sql`${happyHours.deletedAt} IS NULL`,
+        set: {
+          active: sql`${happyHours.active} OR ${isActive}`,
+          sourceUrl: hh.sourceUrl,
+          notes: hh.notes,
+          updatedAt: new Date(),
+        },
+      })
+      .returning({ id: happyHours.id, active: happyHours.active });
+    if (!row) continue; // upsert always returns a row; guard satisfies the type
+    if (row.active) live++;
     else hidden++;
+    // Insert only offerings not already on this window (key by name+price) — re-extraction must
+    // not duplicate the existing set, but must add any the prior pass missed.
+    const existingOff = await db
+      .select({ name: offerings.name, priceCents: offerings.priceCents })
+      .from(offerings)
+      .where(and(eq(offerings.happyHourId, row.id), eq(offerings.active, true)));
+    const seenOff = new Set(existingOff.map((o) => `${o.name ?? ""}|${o.priceCents ?? ""}`));
     for (const off of hh.offerings) {
+      const offKey = `${off.name ?? ""}|${off.priceCents ?? ""}`;
+      if (seenOff.has(offKey)) continue;
+      seenOff.add(offKey);
       await db.insert(offerings).values({
         happyHourId: row.id,
         kind: off.kind as typeof offerings.$inferInsert["kind"],

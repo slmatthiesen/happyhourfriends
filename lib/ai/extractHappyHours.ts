@@ -36,6 +36,7 @@ import { loadPrompt, splitPrompt } from "@/lib/ai/promptHash";
 import { fetchPages, renderPagesAsBlocks, pagesHaveExtractableSignal } from "@/lib/ai/siteContent";
 import type { FetchedPage } from "@/lib/ai/siteContent";
 import { freeExtractFromPages } from "@/lib/ai/freeExtract";
+import { classifyHhRelevance, foldRelevanceCost } from "@/lib/ai/hhRelevance";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -51,6 +52,9 @@ export interface ExtractInput {
   priorityUrls?: string[];
   /** Skip the headless-render fallback (the free batch sweep wants pure HTTP, no browser). */
   noRender?: boolean;
+  /** Skip the internal free-first short-circuit and ALWAYS call the paid model (after
+   *  render). Used by audit render-escalation to read JS/PDF HH pages the free parser can't. */
+  forcePaid?: boolean;
 }
 
 export interface ExtractedOffering {
@@ -549,10 +553,44 @@ const EMPTY_PARSE = {
   rawWindowCount: 0,
 };
 
+/**
+ * Call the model for an ALREADY-BUILT request and normalise the result. Exported so a caller that
+ * has already fetched/rendered the venue's pages (e.g. the audit render-escalation, which renders +
+ * free-parses first to pick a route) can reach the model WITHOUT a second fetch — some sites block
+ * the rapid re-fetch and return "no content", silently dropping a real HH page.
+ */
+export async function runExtractModel(built: ExtractRequest): Promise<ExtractResult> {
+  const { params, promptHash, model } = built;
+  const response: Message = await anthropic().messages.create(params);
+  const summedUsage: Usage = {
+    inputTokens: response.usage.input_tokens,
+    outputTokens: response.usage.output_tokens,
+  };
+  if (process.env.EXTRACT_DEBUG) {
+    console.error(
+      `[extract] stop=${response.stop_reason} fetched=${built.fetchedUrls.length} blocks=[${response.content
+        .map((b) => (b.type === "tool_use" ? `tool_use:${b.name}` : b.type))
+        .join(", ")}]`,
+    );
+  }
+  const parsed = parseRecordedExtract(response);
+  return {
+    happyHours: parsed.happyHours,
+    confidence: parsed.confidence,
+    summary: parsed.summary,
+    venueType: parsed.venueType,
+    usage: summedUsage,
+    costCents: calcCostCents(model, summedUsage),
+    promptHash,
+    model,
+  };
+}
+
 export async function extractHappyHours(
   input: ExtractInput,
 ): Promise<ExtractResult> {
-  const { params, promptHash, model, fetchedUrls, hasSignal, pages } = await buildExtractRequest(input);
+  const built = await buildExtractRequest(input);
+  const { fetchedUrls, hasSignal, pages, promptHash, model } = built;
 
   // Nothing fetched (no reachable site / all fetches failed) → no point spending a token.
   if (fetchedUrls.length === 0) {
@@ -580,6 +618,10 @@ export async function extractHappyHours(
     };
   }
 
+  // forcePaid (audit render-escalation) skips every cost-optimization gate and goes
+  // straight to the model — the caller already decided to spend.
+  if (input.forcePaid) return runExtractModel(built);
+
   // Free deterministic parse: if the fetched HTML yields >=1 CLEAN happy-hour window,
   // take it for $0 and skip the paid model call entirely.
   const free = freeExtractFromPages(pages, { model: "deterministic-html-v1", promptHash });
@@ -588,30 +630,27 @@ export async function extractHappyHours(
     return free;
   }
 
-  const response: Message = await anthropic().messages.create(params);
-  const summedUsage: Usage = {
-    inputTokens: response.usage.input_tokens,
-    outputTokens: response.usage.output_tokens,
-  };
+  // Doc fast-path: a PDF/image IS the happy-hour lead. Send it straight to the (vision)
+  // extractor — a separate vision relevance read would re-pay the expensive doc input on
+  // every real menu, and the extractor itself returns [] on a junk doc.
+  const hasDoc = pages.some((p) => p.pdfBase64 || p.imageBase64);
+  if (hasDoc) return runExtractModel(built);
 
-  if (process.env.EXTRACT_DEBUG) {
-    console.error(
-      `[extract] stop=${response.stop_reason} fetched=${fetchedUrls.length} blocks=[${response.content
-        .map((b) => (b.type === "tool_use" ? `tool_use:${b.name}` : b.type))
-        .join(", ")}]`,
-    );
+  // HTML-only Haiku relevance gate: the free parser found no clean window. Ask the cheap
+  // model whether this is a recurring happy hour before paying the extractor. Not → skip
+  // at the (tiny) relevance cost; yes → extract and fold the relevance cost into the total.
+  const rel = await classifyHhRelevance({ pages, venueName: input.venueName });
+  if (!rel.relevant) {
+    if (process.env.EXTRACT_DEBUG) console.error(`[extract] relevance gate: skip (${rel.reason})`);
+    return {
+      ...EMPTY_PARSE,
+      summary: `Relevance gate: not a recurring happy hour — skipped paid extraction (${rel.reason}).`,
+      usage: rel.usage,
+      costCents: rel.costCents,
+      // Attribute the spend to the RELEVANCE call that actually ran, not the (un-run) extractor.
+      promptHash: rel.promptHash,
+      model: rel.model,
+    };
   }
-
-  const parsed = parseRecordedExtract(response);
-
-  return {
-    happyHours: parsed.happyHours,
-    confidence: parsed.confidence,
-    summary: parsed.summary,
-    venueType: parsed.venueType,
-    usage: summedUsage,
-    costCents: calcCostCents(model, summedUsage),
-    promptHash,
-    model,
-  };
+  return foldRelevanceCost(await runExtractModel(built), rel);
 }

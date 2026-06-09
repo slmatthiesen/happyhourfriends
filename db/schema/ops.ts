@@ -101,3 +101,26 @@ export const seedCandidates = pgTable("seed_candidates", {
   resultingVenueId: uuid("resulting_venue_id").references(() => venues.id),
   ...timestamps,
 });
+
+/**
+ * data_audit — one row per venue scanned by the data-anomaly audit (audit:data).
+ * Idempotency ledger: audit:data skips venues already here unless --recheck.
+ * flags = AnomalyFlag[] from lib/audit/anomalyRules.ts; agent_verdict = the in-session
+ * sniff-test note; resolution tracks the lifecycle (scanned → clean | fixed | reported).
+ */
+export const dataAudit = pgTable(
+  "data_audit",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    venueId: uuid("venue_id")
+      .notNull()
+      .unique()
+      .references(() => venues.id, { onDelete: "cascade" }),
+    auditedAt: timestamp("audited_at", { withTimezone: true }).notNull().defaultNow(),
+    flags: jsonb("flags").notNull().default([]),
+    agentVerdict: text("agent_verdict"),
+    resolution: text("resolution").notNull().default("scanned"),
+    fixApplied: boolean("fix_applied").notNull().default(false),
+  },
+  (t) => [index("data_audit_resolution_idx").on(t.resolution)],
+);

@@ -10,7 +10,7 @@
 #   - test:name-primary          (needs a live Postgres/PostGIS)
 #   - test:db-sync               (needs a live Postgres; creates scratch DBs)
 #   - test:contribution-pipeline (needs a live DB + ANTHROPIC_API_KEY)
-#   - test:discovery-coverage / test:site-triage (make live outbound fetches)
+#   - test:discovery-coverage    (makes live outbound fetches)
 #
 # When you add a new pure-logic test, add its `test:<name>` script here.
 # Runs them all and reports every failure (does not stop at the first).
@@ -24,6 +24,9 @@ TESTS=(
   test:extract
   test:realness-gate
   test:window-reconcile
+  test:anomaly-rules
+  test:render-escalation
+  test:site-triage
   test:format
   test:active
   test:hours
@@ -41,6 +44,7 @@ TESTS=(
   test:safesearch
   test:cardinal-districts
   test:hh-text
+  test:hh-relevance
   test:normalize-url
   test:hh-signal-gate
   test:extract-time

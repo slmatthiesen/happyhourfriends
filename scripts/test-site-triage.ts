@@ -68,7 +68,7 @@ check("anchor text 'Happy Hour' counts even with opaque href", () => {
 
 // resolveEnrichAction — the decision matrix
 const real = (r: "ok" | "dead" | "parked", hh: string[] = []): SiteVerdict => ({
-  kind: "real", url: "http://x.com", reachability: r, hhSignalUrls: hh,
+  kind: "real", url: "http://x.com", reachability: r, hhSignalUrls: hh, confirmedHhUrls: hh,
   decision: r === "ok" ? "extract" : "kill", reason: r,
 });
 check("real+ok → extract", () =>
@@ -79,19 +79,19 @@ check("real+parked → kill", () =>
   assert.equal(resolveEnrichAction(real("parked"), 0.9).action, "kill"));
 check("social_only → stub", () =>
   assert.equal(resolveEnrichAction(
-    { kind: "social_only", url: "http://fb", reachability: null, hhSignalUrls: [], decision: "stub", reason: "social" }, 0.9
+    { kind: "social_only", url: "http://fb", reachability: null, hhSignalUrls: [], confirmedHhUrls: [], decision: "stub", reason: "social" }, 0.9
   ).action, "stub"));
 check("no-site, likelihood>0.5 → extract (go for it)", () =>
   assert.equal(resolveEnrichAction(
-    { kind: "none", url: null, reachability: null, hhSignalUrls: [], decision: "kill", reason: "no site on file" }, 0.62
+    { kind: "none", url: null, reachability: null, hhSignalUrls: [], confirmedHhUrls: [], decision: "kill", reason: "no site on file" }, 0.62
   ).action, "extract"));
 check("no-site, likelihood<=0.5 → kill", () =>
   assert.equal(resolveEnrichAction(
-    { kind: "none", url: null, reachability: null, hhSignalUrls: [], decision: "kill", reason: "no site on file" }, 0.33
+    { kind: "none", url: null, reachability: null, hhSignalUrls: [], confirmedHhUrls: [], decision: "kill", reason: "no site on file" }, 0.33
   ).action, "kill"));
 check("no-site, likelihood null → kill", () =>
   assert.equal(resolveEnrichAction(
-    { kind: "none", url: null, reachability: null, hhSignalUrls: [], decision: "kill", reason: "no site on file" }, null
+    { kind: "none", url: null, reachability: null, hhSignalUrls: [], confirmedHhUrls: [], decision: "kill", reason: "no site on file" }, null
   ).action, "kill"));
 
 // siteVerdictFromFetch — reachability from a fetch outcome.
@@ -238,6 +238,55 @@ check("declared sitemap page (no anchor in raw HTML) becomes a candidate, ahead 
   const idxGuess = v.hhSignalUrls.indexOf("https://sp.com/happy-hour"); // a pure guess
   assert.ok(idxAbout >= 0, "declared /about-3-1 present in candidates");
   assert.ok(idxGuess === -1 || idxAbout < idxGuess, "declared page ranks ahead of guessed /happy-hour");
+});
+
+// --- confirmedHhUrls: the set the render-escalation detector may PAY to read. Anchor
+// links / Wix routes / sitemap pages are CONFIRMED; GUESS_MENU_PATHS are NOT (Webflow/Wix
+// soft-404 a guessed /happy-hour-menu to a 200 catch-all → paying to read a guess was the
+// Oakland $1.09/6%-hit-rate waste). hhSignalUrls keeps the guesses (free HTTP pass probes them).
+check("confirmedHhUrls includes the anchor-linked HH page, excludes a pure guess", () => {
+  const v = siteVerdictFromFetch("https://brix.com/", {
+    kind: "response", status: 200,
+    html: "<a href='/happy-hour-menu'>Happy Hour</a> lots of real content ".repeat(20),
+    finalUrl: "https://brix.com/",
+  });
+  assert.ok(v.confirmedHhUrls.includes("https://brix.com/happy-hour-menu"), "anchor-linked HH page is confirmed");
+  assert.ok(v.hhSignalUrls.includes("https://brix.com/happy-hour"), "guessed /happy-hour still in hhSignalUrls (free pass probes it)");
+  assert.ok(!v.confirmedHhUrls.includes("https://brix.com/happy-hour"), "guessed /happy-hour is NOT confirmed");
+});
+check("confirmedHhUrls includes a sitemap-declared page, excludes guesses", () => {
+  const v = siteVerdictFromFetch(
+    "https://sp.com/",
+    { kind: "response", status: 200, html: "<html><body>JS shell</body></html>", finalUrl: "https://sp.com/" },
+    ["https://sp.com/cocktails"],
+  );
+  assert.ok(v.confirmedHhUrls.includes("https://sp.com/cocktails"), "sitemap-declared /cocktails is confirmed");
+  assert.ok(!v.confirmedHhUrls.includes("https://sp.com/happy-hour"), "guessed /happy-hour is NOT confirmed");
+});
+check("confirmedHhUrls includes an anchor-linked menu PDF (real doc, not a guess)", () => {
+  const v = siteVerdictFromFetch("https://x.com/", {
+    kind: "response", status: 200,
+    html: "<a href='/s/Happy-Hour-Menu.pdf'>Happy Hour</a> real content ".repeat(20),
+    finalUrl: "https://x.com/",
+  });
+  assert.ok(v.confirmedHhUrls.includes("https://x.com/s/Happy-Hour-Menu.pdf"), "linked HH PDF is confirmed");
+});
+check("resolveEnrichAction surfaces confirmedHhUrls to the detector", () => {
+  const v = siteVerdictFromFetch("https://brix.com/", {
+    kind: "response", status: 200,
+    html: "<a href='/happy-hour-menu'>HH</a> content ".repeat(20),
+    finalUrl: "https://brix.com/",
+  });
+  assert.deepEqual(resolveEnrichAction(v, 0.6).confirmedHhUrls, v.confirmedHhUrls);
+});
+check("bot-blocked (non-200) → confirmedHhUrls empty (no confirmed links were readable)", () => {
+  const v = siteVerdictFromFetch("https://x.com/", { kind: "response", status: 403, html: "", finalUrl: "https://x.com/" });
+  assert.deepEqual(v.confirmedHhUrls, []);
+  assert.ok(v.hhSignalUrls.length > 0, "still probes guesses for the free pass");
+});
+check("dead/stub verdicts carry an empty confirmedHhUrls", () => {
+  assert.deepEqual(siteVerdictFromFetch("http://gone/", { kind: "unreachable" }).confirmedHhUrls, []);
+  assert.deepEqual(siteVerdictFromFetch("http://slow/", { kind: "timeout" }).confirmedHhUrls, []);
 });
 
 console.log(`\n${passed} checks passed.`);
