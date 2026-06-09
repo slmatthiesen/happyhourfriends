@@ -95,21 +95,46 @@ does not.
   (`data_completeness='stub'` OR have ≥1 `data_audit` flag). Excludes confident-complete venues.
 - For each candidate: triage → `buildExtractRequest({noRender:true})` → `freeExtractFromPages`
   (all `$0`) → `needsRenderEscalation(...)`.
-- If it escalates AND `--escalate-paid`:
-  - **Dry-run:** count it, add its `~$0.05` to the estimate, print `⏫ <name>: would escalate
-    [<reason>] (HH page: <url>)`. No spend, no writes.
-  - **`--apply`:** run `extractHappyHours({venueName, websiteUrl, cityName, priorityUrls})` — the
-    paid path, render ON, reads the PDF (ledgers spend). Map its `happyHours` → corrected windows;
-    gate `isHighConfidenceCorrection`. If high-confidence:
+- Three modes for an escalation candidate, gated by flag (default → most → most):
+  - **`--escalate-paid` (default dry-run, $0):** count it, add its `~$0.05` to the estimate, print
+    `⏫ <name>: would escalate [<reason>] (HH page: <url>)`. NO spend, NO writes, NO extraction.
+    This is the free "how many / how much" preview.
+  - **`--escalate-paid --preview` (PAID extract, NO DB write):** run
+    `extractHappyHours({venueName, websiteUrl, cityName, priorityUrls})` — render ON, reads the PDF
+    (ledgers spend) — but **write nothing to the venue tables**. Instead emit the **review report**
+    (below) showing, per venue, STORED vs FOUND vs PROPOSED CHANGE, and persist the extracted
+    results to `docs/audit-escalation/<city>-<date>.json` so a later apply needs no re-extraction.
+    This is the "show me before you do anything" gate the operator runs first.
+  - **`--escalate-paid --apply` (PAID extract + write):** as `--preview`, then for high-confidence
+    results apply immediately:
     - Land windows **+ offerings** via `persistExtractedWindows` (the ONE audited persist:
       reconcile gate + realness gate + offerings insert + promote-to-complete + ledger).
     - Soft-deactivate the venue's **prior** active windows not in the new set
       (`computeCorrection`'s deactivation set over `stored` vs the paid windows), each with an
       `audit_log` row. This removes the superseded homepage-sourced windows.
     - Update `data_audit.resolution='fixed'`, `fix_applied=true`.
-  - Not high-confidence → report; `resolution='reported'` (per the existing lifecycle).
+    - Not high-confidence → report; `resolution='reported'`.
+  - **`--apply-from <report.json>` (write only, no spend):** apply a previously-`--preview`ed report
+    to the DB without re-extracting (mirrors `reextract --collect`: review the report, then commit
+    it). Same persist + deactivate + ledger-of-prior-spend path; re-checks `isHighConfidenceCorrection`.
 - **Without `--escalate-paid`:** behavior is unchanged (free-only) — escalation is purely additive.
 - **Reporting:** final tally adds `escalated: N ($X spent)` alongside `fixed`/`reported`.
+
+### 2b. Review report (the "before we do anything" output)
+
+`--preview` writes `docs/<city>-escalation-review-<date>.md` + the apply-cache
+`docs/audit-escalation/<city>-<date>.json`. Per escalated venue the markdown shows three blocks so
+the operator can judge each change before committing:
+
+- **STORED** — current active windows + offerings + source URLs (what users see now).
+- **FOUND** — windows + offerings the paid render+PDF extraction returned, with the source URL it
+  cited (e.g. `/happy-hour-menu`) and the model's confidence.
+- **PROPOSED CHANGE** — the computed diff: which windows would be inserted (with offerings), which
+  prior windows soft-deactivated, and whether it passes the high-confidence gate (so report-only
+  cases are visible too).
+
+The operator reviews this, then runs `--apply-from <report.json>` to commit only what they approve
+(or re-runs `--apply` to do it in one pass once trusted).
 
 ### 3. Cost estimate + safety
 
@@ -128,18 +153,23 @@ candidate venues (stubs ∪ flagged, w/ website)
         ▼
  needsRenderEscalation? ──no──▶ (unchanged free behavior)
         │ yes
-        ▼  --escalate-paid?  ──dry-run──▶ count + est $; print; no spend
-        │ --apply
-        ▼
- extractHappyHours (render ON → PDF → model)   [PAID, ledgered]
-        │ high-confidence?
-   ┌────┴─────────────────────────┐
-  yes                            no
-   │                              └─▶ resolution='reported'
-   ▼
- persistExtractedWindows (windows + OFFERINGS + reconcile + promote)
-   + soft-deactivate superseded prior windows (audit_log)
-   + resolution='fixed'
+        ▼  mode?
+   ┌──────────────┬──────────────────────┬───────────────────────┐
+ default        --preview               --apply              --apply-from <json>
+ (free)         (PAID, no write)        (PAID + write)       (write, no spend)
+   │              │                       │                     │
+ count+est$   extractHappyHours       extractHappyHours      read cached results
+ print        (render→PDF→model)      (render→PDF→model)         │
+   │              │                       │                     │
+   │           REVIEW REPORT           ┌──┴── high-confidence? ──┴──┐
+   │           (STORED vs FOUND        yes                         no
+   │            vs PROPOSED)            │                           └─▶ resolution='reported'
+   │           + cache json            ▼
+   │              │            persistExtractedWindows (windows + OFFERINGS + reconcile + promote)
+   │              │              + soft-deactivate superseded prior windows (audit_log)
+   │           NO DB WRITE        + resolution='fixed'
+   ▼              ▼
+ (operator reviews report → --apply-from to commit)
 ```
 
 ## Testing
@@ -148,11 +178,15 @@ candidate venues (stubs ∪ flagged, w/ website)
   shape — priorityUrls containing `/happy-hour-menu` (scoreHhUrl>0) not in readUrls, free windows
   with empty offerings → `escalate:true, reason:"unread_hh_page"`; a fully-captured venue (HH page
   read, offerings present) → `escalate:false`; a venue with no HH-specific page → `escalate:false`.
-- **Loop (manual / integration):** `audit:fix --city oakland --state ca --escalate-paid` (dry-run)
-  lists Oeste with est cost and writes nothing. Then `--apply --escalate-paid` on Oeste recovers
-  the PDF specials end-to-end: ≥1 active window with offerings sourced from `/happy-hour-menu`, the
-  prior homepage windows deactivated, an `audit_log` trail, real spend ledgered. **This is the proof
-  gate.**
+- **Loop (manual / integration), the operator-facing sequence:**
+  1. `audit:fix --city oakland --state ca --escalate-paid` (free dry-run) → lists Oeste + est cost,
+     writes nothing, spends nothing.
+  2. `… --escalate-paid --preview` → spends on extraction, writes the **review report**
+     (`docs/oakland-escalation-review-<date>.md`) with Oeste's STORED (homepage times, no specials)
+     vs FOUND (windows + offerings from `/happy-hour-menu` PDF) vs PROPOSED CHANGE — but NO DB write.
+  3. operator reviews → `… --escalate-paid --apply-from docs/audit-escalation/oakland-<date>.json`
+     commits it: ≥1 active window WITH offerings sourced from `/happy-hour-menu`, prior homepage
+     windows deactivated, `audit_log` trail, spend ledgered. **This is the proof gate.**
 
 ## Rollout
 
