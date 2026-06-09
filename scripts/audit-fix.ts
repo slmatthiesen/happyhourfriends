@@ -24,10 +24,10 @@ import { freeExtractFromPages } from "@/lib/ai/freeExtract";
 import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 import { isHighConfidenceCorrection } from "@/lib/audit/anomalyRules";
 import { computeCorrection, type StoredRow, type CorrectedWindow } from "@/lib/audit/computeCorrection";
-import { needsRenderEscalation } from "@/lib/audit/renderEscalation";
+import { needsRenderEscalation, routeEscalation, type EscalationRoute } from "@/lib/audit/renderEscalation";
 import { persistExtractedWindows } from "@/lib/recover/resolveVenue";
-import { renderUrl, closeRenderBrowser } from "@/lib/verification/renderUrl";
-import { hasHhOrDealSignal } from "@/lib/places/hhText";
+import { closeRenderBrowser } from "@/lib/verification/renderUrl";
+import { extractorMetadata } from "@/lib/ai/extractHappyHours";
 
 function arg(f: string): string | undefined {
   const i = process.argv.indexOf(f);
@@ -85,7 +85,7 @@ async function runEscalation(
     });
     const free = freeExtractFromPages(built.pages, { model: "deterministic-html-v1", promptHash: built.promptHash });
     const esc = needsRenderEscalation({
-      priorityUrls: decided.priorityUrls,
+      confirmedHhUrls: decided.confirmedHhUrls,
       readUrls: built.pages.map((p) => p.url),
       freeWindows: free ? free.happyHours.map((h) => ({ offerings: h.offerings })) : null,
     });
@@ -97,23 +97,22 @@ async function runEscalation(
 
   if (ESTIMATE) {
     let billable = 0;
-    let free = 0;
     const freeList: string[] = [];
     try {
       for (const c of toEscalate) {
-        let isBillable = false;
+        // Run the EXACT routing the real extract will use (render + free-parse), so the estimate
+        // is the truth, not a heuristic. Only route==='paid' spends; free/skip are $0.
+        let route: EscalationRoute = "paid";
         try {
-          const r = await renderUrl(c.hhPage);
-          isBillable = !!(r.ok && (r.isPdf || r.isImage || (r.contentText && hasHhOrDealSignal(r.contentText))));
+          ({ route } = await fetchAndRoute(city.name, c));
         } catch {
-          isBillable = false; // render failed → no content → $0
+          route = "skip"; // fetch/render failed → no content → $0
         }
-        if (isBillable) {
+        if (route === "paid") {
           billable++;
-          console.log(`  $ ${c.v.name}: BILLABLE (renderable HH content at ${c.hhPage})`);
+          console.log(`  $ ${c.v.name}: BILLABLE (route=paid — PDF/image or free-parse miss at ${c.hhPage})`);
         } else {
-          free++;
-          freeList.push(c.v.name);
+          freeList.push(`${c.v.name} [${route}]`);
         }
       }
     } finally {
@@ -123,9 +122,9 @@ async function runEscalation(
     const hi = (billable * 0.05).toFixed(2);
     console.log(`\n=== ESTIMATE ===`);
     console.log(`Candidates flagged: ${toEscalate.length}`);
-    console.log(`BILLABLE (have renderable HH content → ~$0.03–0.05 each): ${billable}  → est $${lo}–$${hi}`);
-    console.log(`FREE (no PDF/content → $0, model skipped): ${free}`);
-    if (freeList.length) console.log(`\nFree venues (no model call needed):\n${freeList.map((n) => `  - ${n}`).join("\n")}`);
+    console.log(`BILLABLE (route=paid → ~$0.03–0.05 each): ${billable}  → est $${lo}–$${hi}`);
+    console.log(`FREE/SKIP (route=free|skip → $0, model skipped): ${toEscalate.length - billable}`);
+    if (freeList.length) console.log(`\nNo model call needed:\n${freeList.map((n) => `  - ${n}`).join("\n")}`);
     console.log(`\nNo model calls were made — this estimate cost $0.`);
     return;
   }
@@ -143,7 +142,7 @@ async function runEscalation(
       const r = await extractAndDiff(sql, city.name, c);
       results.push(r);
       const offers = r.found.reduce((a, w) => a + w.offerings.length, 0);
-      console.log(`  ⏫ ${r.name}: found ${r.found.length} window(s), ${offers} offering(s)${r.highConfidence ? "" : " [LOW-CONF → report]"} ($${(r.costCents / 100).toFixed(3)})`);
+      console.log(`  ⏫ ${r.name}: [${r.route}] found ${r.found.length} window(s), ${offers} offering(s)${r.highConfidence ? "" : " [LOW-CONF → report]"} ($${(r.costCents / 100).toFixed(3)})`);
     }
   } finally {
     await closeRenderBrowser().catch(() => {});
@@ -157,7 +156,7 @@ async function runEscalation(
     `${results.length} venue(s) extracted. Total spend: $${(results.reduce((a, r) => a + r.costCents, 0) / 100).toFixed(2)}.`, "",
   ];
   for (const r of results) {
-    md.push(`## ${r.name}  [${r.reason}]  ${r.highConfidence ? "→ would apply" : "→ report only (low confidence)"}`);
+    md.push(`## ${r.name}  [${r.reason} · route=${r.route}]  ${r.highConfidence ? "→ would apply" : "→ report only (low confidence)"}`);
     md.push(`HH page: ${r.hhPage}`);
     md.push(`**STORED (now):**`);
     for (const w of r.storedActive) md.push(`  - ${JSON.stringify(w.days)} ${w.start ?? "open"}–${w.end ?? "close"}  offerings:${w.offerings}  src=${w.src ?? "—"}`);
@@ -184,6 +183,7 @@ interface EscalationResult {
   storedActive: { days: number[]; start: string | null; end: string | null; offerings: number; src: string | null }[];
   found: { days: number[]; start: string | null; end: string | null; offerings: { name: string | null; price: number | null }[]; src: string | null }[];
   highConfidence: boolean;
+  route: EscalationRoute; // how the data was obtained: free ($0 HTML parse) | paid (model) | skip
   costCents: number;
   extracted: unknown; // ExtractResult, cached for --apply-from
   // Prior active-window ids to soft-deactivate, SNAPSHOTTED at preview/extract time. Safe to use
@@ -192,22 +192,69 @@ interface EscalationResult {
   deactivateIds: string[];
 }
 
+/**
+ * Fetch+render the confirmed HH page, free-parse it, and decide the route (policy B). Shared by
+ * --estimate (counts route==='paid' as billable) and the real extract. The fetch is $0 (plain
+ * HTTP + headless render, no AI); only the caller's later model call on a 'paid' route spends.
+ */
+async function fetchAndRoute(
+  cityName: string,
+  c: { v: EscalationCandidate; hhPage: string },
+): Promise<{
+  built: Awaited<ReturnType<typeof buildExtractRequest>>;
+  free: ExtractResult | null;
+  route: EscalationRoute;
+  otherUrl: string | null;
+  confirmedMinusHh: string[];
+}> {
+  const verdict = await triageSite({ websiteUri: c.v.website_url!, name: c.v.name, cityName });
+  const decided = resolveEnrichAction(verdict, hhLikelihood({ primaryType: null, types: null, name: c.v.name }));
+  const otherUrl = verdict.kind === "real" ? verdict.url : c.v.website_url;
+  // CONFIRMED urls only (anchors/sitemap/routes), HH page first — never speculative guesses.
+  const confirmedMinusHh = decided.confirmedHhUrls.filter((u) => u !== c.hhPage);
+  const built = await buildExtractRequest({
+    venueName: c.v.name,
+    websiteUrl: c.hhPage, // fetched FIRST → render (JS shell → PDF) so the doc is captured
+    otherUrl,
+    cityName,
+    priorityUrls: confirmedMinusHh,
+    // render ON (no noRender): a JS-walled HH page resolves to its PDF or rendered text here.
+  });
+  const free = freeExtractFromPages(built.pages, extractorMetadata());
+  const route = routeEscalation(built.pages, free);
+  return { built, free, route, otherUrl, confirmedMinusHh };
+}
+
 async function extractAndDiff(
   sql: ReturnType<typeof postgres>,
   cityName: string,
   c: { v: EscalationCandidate; reason: string; hhPage: string },
 ): Promise<EscalationResult> {
-  const verdict = await triageSite({ websiteUri: c.v.website_url!, name: c.v.name, cityName });
-  const decided = resolveEnrichAction(verdict, hhLikelihood({ primaryType: null, types: null, name: c.v.name }));
   const hhPage = c.hhPage; // the unread HH-specific page the detector found
-  const extracted = await extractHappyHours({
-    venueName: c.v.name,
-    websiteUrl: hhPage,                              // fetched FIRST → render (JS shell → PDF)
-    otherUrl: verdict.kind === "real" ? verdict.url : c.v.website_url, // keep the real site as backup
-    cityName,
-    priorityUrls: decided.priorityUrls.filter((u) => u !== hhPage),
-    forcePaid: true,                                 // skip free-first; always render+model
-  });
+  const { built, free, route, otherUrl, confirmedMinusHh } = await fetchAndRoute(cityName, c);
+
+  // Policy B routing: a $0 free-parse of rendered HTML when it already found a stocked window;
+  // the paid model only for PDFs/images and HTML the free parser couldn't read; nothing when the
+  // page yielded no readable content (a once-confirmed page that now 404s / renders empty).
+  let extracted: ExtractResult;
+  if (route === "free") {
+    extracted = free!;
+  } else if (route === "paid") {
+    extracted = await extractHappyHours({
+      venueName: c.v.name,
+      websiteUrl: hhPage,
+      otherUrl,
+      cityName,
+      priorityUrls: confirmedMinusHh,
+      forcePaid: true, // free-first already evaluated above; go straight to the model
+    });
+  } else {
+    extracted = {
+      happyHours: [], confidence: 0, summary: "render-escalation: no readable content on the confirmed HH page",
+      venueType: null, usage: { inputTokens: 0, outputTokens: 0 }, costCents: 0,
+      promptHash: built.promptHash, model: "render-escalation-skip",
+    };
+  }
   const stored = await sql<StoredRow[]>`
     SELECT id, days_of_week AS "daysOfWeek", start_time AS "startTime", end_time AS "endTime",
            all_day AS "allDay", active, source_url AS "sourceUrl", notes
@@ -231,6 +278,7 @@ async function extractAndDiff(
     storedActive: stored.map((s) => ({ days: s.daysOfWeek, start: s.startTime, end: s.endTime, offerings: offCount.get(s.id) ?? 0, src: s.sourceUrl })),
     found: extracted.happyHours.filter((h) => !h.suspect).map((h) => ({ days: h.daysOfWeek, start: h.startTime, end: h.endTime, offerings: h.offerings.map((o) => ({ name: o.name, price: o.priceCents })), src: h.sourceUrl })),
     highConfidence,
+    route,
     costCents: extracted.costCents,
     extracted,
     deactivateIds: plan.deactivations,

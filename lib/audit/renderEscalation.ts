@@ -10,10 +10,14 @@
  *                          offerings (times without specials — the specials are likely in a PDF).
  */
 import { scoreHhUrl } from "@/lib/places/hhText";
+import { isDenylistedSource } from "@/lib/ai/sourceDenylist";
+import type { FetchedPage } from "@/lib/ai/siteContent";
 
 export interface EscalationInput {
-  /** Triage-ranked candidate URLs (resolveEnrichAction.priorityUrls). */
-  priorityUrls: string[];
+  /** CONFIRMED HH candidate URLs only (resolveEnrichAction.confirmedHhUrls) — anchor links,
+   *  sitemap/Wix routes, linked menu docs; NEVER speculative `GUESS_MENU_PATHS`. Passing the
+   *  flattened priorityUrls here reintroduces the soft-404 over-escalation the audit had. */
+  confirmedHhUrls: string[];
   /** URLs the free pass actually read usable content from (built.pages[].url). */
   readUrls: string[];
   /** The free ExtractResult.happyHours (or null when the free pass returned nothing). */
@@ -36,7 +40,9 @@ function norm(u: string): string {
 export function needsRenderEscalation(input: EscalationInput): EscalationVerdict {
   // Threshold ≥ 60: explicit HH pages (100+), specials (70), and drink/cocktail menus (60).
   // Generic menu paths (score 30–40) are not HH-specific enough to justify escalation.
-  const hhPages = input.priorityUrls.filter((u) => scoreHhUrl(u) >= 60);
+  // HH-specific (score ≥ 60) AND first-party: a denylisted-aggregator page would be paid for
+  // and then rejected by the §13 source guard, so drop it before it can escalate (condition 3).
+  const hhPages = input.confirmedHhUrls.filter((u) => scoreHhUrl(u) >= 60 && !isDenylistedSource(u));
   if (hhPages.length === 0) return { escalate: false, reason: null, hhPages: [] };
 
   const read = new Set(input.readUrls.map(norm));
@@ -50,4 +56,30 @@ export function needsRenderEscalation(input: EscalationInput): EscalationVerdict
   if (noOfferings) return { escalate: true, reason: "hh_page_no_offerings", hhPages };
 
   return { escalate: false, reason: null, hhPages };
+}
+
+export type EscalationRoute = "free" | "paid" | "skip";
+
+/**
+ * Phase-2 routing for a flagged venue's fetched HH pages (operator policy B): reserve the paid
+ * model for what the deterministic free parser fundamentally can't read, take the $0 free parse
+ * when it already found a real stocked window, and skip when there's nothing to read.
+ *   - skip:  no usable page content was fetched.
+ *   - paid:  any page is a PDF/image (a doc — needs the vision model), OR the HTML free parse
+ *            missed / returned only thin (no-offering) or suspect windows.
+ *   - free:  pure-HTML pages AND the free parse yielded a clean, non-suspect window carrying
+ *            ≥1 offering — apply it for $0, no model call.
+ * Pure ($0, no DB/network/AI) — the doc check runs BEFORE trusting any free window so a thin
+ * HTML window can never short-circuit a linked PDF that holds the real offerings.
+ */
+export function routeEscalation(
+  pages: FetchedPage[],
+  freeResult: { happyHours: { suspect?: boolean; offerings: unknown[] }[] } | null,
+): EscalationRoute {
+  const usable = pages.filter((p) => p.text || p.pdfBase64 || p.imageBase64);
+  if (usable.length === 0) return "skip";
+  if (usable.some((p) => p.pdfBase64 || p.imageBase64)) return "paid";
+  const freeHasStockedWindow =
+    !!freeResult && freeResult.happyHours.some((w) => !w.suspect && w.offerings.length > 0);
+  return freeHasStockedWindow ? "free" : "paid";
 }

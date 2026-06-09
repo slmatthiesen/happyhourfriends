@@ -49,7 +49,13 @@ export interface SiteVerdict {
   kind: SiteKind;
   url: string | null;
   reachability: Reachability | null;
+  /** All candidate pages worth a FREE fetch — confirmed pages PLUS speculative path guesses. */
   hhSignalUrls: string[];
+  /** The subset of hhSignalUrls that are CONFIRMED to exist — anchor links, Wix routes,
+   *  sitemap-declared pages, and linked menu docs — with `GUESS_MENU_PATHS` removed. Only these
+   *  may trigger a PAID render-escalation (a guessed path soft-404s to a 200 catch-all, which is
+   *  what made the audit escalation expensive). Empty when the page wasn't readable. */
+  confirmedHhUrls: string[];
   decision: "extract" | "stub" | "kill";
   reason: string;
 }
@@ -291,13 +297,13 @@ export function rankCandidates(urls: string[], limit = 8): string[] {
 export function resolveEnrichAction(
   verdict: SiteVerdict,
   likelihood: number | null,
-): { action: "extract" | "stub" | "kill"; reason: string; priorityUrls: string[] } {
+): { action: "extract" | "stub" | "kill"; reason: string; priorityUrls: string[]; confirmedHhUrls: string[] } {
   // No real site on file, but the venue type is promising → "go for it":
   // let the extractor's web_search try to find the site before we give up.
   if (verdict.kind === "none" && likelihood != null && likelihood > 0.5) {
-    return { action: "extract", reason: "no site on file but likely HH (>50%)", priorityUrls: [] };
+    return { action: "extract", reason: "no site on file but likely HH (>50%)", priorityUrls: [], confirmedHhUrls: [] };
   }
-  return { action: verdict.decision, reason: verdict.reason, priorityUrls: verdict.hhSignalUrls };
+  return { action: verdict.decision, reason: verdict.reason, priorityUrls: verdict.hhSignalUrls, confirmedHhUrls: verdict.confirmedHhUrls };
 }
 
 // Real first-party sites can be heavy (a 200 KB homepage took ~12s in the field),
@@ -336,20 +342,20 @@ export function siteVerdictFromFetch(
   sitemapUrls: string[] = [],
 ): SiteVerdict {
   if (outcome.kind === "timeout") {
-    return { kind: "real", url, reachability: "timeout", hhSignalUrls: [], decision: "stub", reason: "slow site (timeout) — kept as stub" };
+    return { kind: "real", url, reachability: "timeout", hhSignalUrls: [], confirmedHhUrls: [], decision: "stub", reason: "slow site (timeout) — kept as stub" };
   }
   if (outcome.kind === "blocked") {
-    return { kind: "real", url, reachability: "timeout", hhSignalUrls: [], decision: "stub", reason: "server present but unreadable (TLS/reset) — kept as stub" };
+    return { kind: "real", url, reachability: "timeout", hhSignalUrls: [], confirmedHhUrls: [], decision: "stub", reason: "server present but unreadable (TLS/reset) — kept as stub" };
   }
   if (outcome.kind === "unreachable") {
-    return { kind: "real", url, reachability: "dead", hhSignalUrls: [], decision: "kill", reason: "dead site (unreachable)" };
+    return { kind: "real", url, reachability: "dead", hhSignalUrls: [], confirmedHhUrls: [], decision: "kill", reason: "dead site (unreachable)" };
   }
   const { status, html, finalUrl } = outcome;
   if (status >= 500 || (status >= 404 && status <= 410)) {
-    return { kind: "real", url, reachability: "dead", hhSignalUrls: [], decision: "kill", reason: `dead site (${status})` };
+    return { kind: "real", url, reachability: "dead", hhSignalUrls: [], confirmedHhUrls: [], decision: "kill", reason: `dead site (${status})` };
   }
   if (status === 200 && isParkedHtml(html)) {
-    return { kind: "real", url, reachability: "parked", hhSignalUrls: [], decision: "kill", reason: "parked domain" };
+    return { kind: "real", url, reachability: "parked", hhSignalUrls: [], confirmedHhUrls: [], decision: "kill", reason: "parked domain" };
   }
   // Reachable (incl. 403 bot-block) → extract. Cast a WIDE net for candidate pages
   // from three sources, ranked most-likely-HH first: (1) anchor links in the HTML,
@@ -360,6 +366,7 @@ export function siteVerdictFromFetch(
   // they're known to exist. Speculative path guesses only FILL remaining slots, so a
   // high-scoring guess (/happy-hour) can't crowd out a real route (/menu).
   let hhSignalUrls: string[];
+  let confirmedHhUrls: string[];
   if (status === 200) {
     const media = extractMediaLinks(html, finalUrl); // PDF/image menus — highest value
     // Menu docs (PDF/image), RANKED by happy-hour relevance (scoreHhUrl): happy-hour >
@@ -380,11 +387,15 @@ export function siteVerdictFromFetch(
     // a guessed /happy-hour usually 404s).
     const declared = pickDeclaredPages(sitemapUrls, finalUrl, 6);
     const guesses = rankCandidates(guessMenuUrls(finalUrl), 12);
+    // CONFIRMED = linked docs + anchor/route links + sitemap pages (all known to exist).
+    // EXCLUDES `guesses` — only confirmed pages may trigger a PAID escalation downstream.
+    confirmedHhUrls = rankCandidates([...rankedMedia, ...confirmed, ...declared], 12);
     hhSignalUrls = [...new Set([...rankedMedia, ...confirmed, ...declared, ...guesses])].slice(0, 12);
   } else {
     hhSignalUrls = guessMenuUrls(url); // bot-blocked: still probe the obvious paths
+    confirmedHhUrls = []; // page unreadable → nothing confirmed (guesses must not escalate)
   }
-  return { kind: "real", url, reachability: "ok", hhSignalUrls, decision: "extract", reason: "reachable" };
+  return { kind: "real", url, reachability: "ok", hhSignalUrls, confirmedHhUrls, decision: "extract", reason: "reachable" };
 }
 
 export async function triageSite(input: {
@@ -394,10 +405,10 @@ export async function triageSite(input: {
 }): Promise<SiteVerdict> {
   const cls = classifyUrl(input.websiteUri);
   if (cls.kind === "none") {
-    return { kind: "none", url: null, reachability: null, hhSignalUrls: [], decision: "kill", reason: "no site on file" };
+    return { kind: "none", url: null, reachability: null, hhSignalUrls: [], confirmedHhUrls: [], decision: "kill", reason: "no site on file" };
   }
   if (cls.kind === "social_only") {
-    return { kind: "social_only", url: cls.url, reachability: null, hhSignalUrls: [], decision: "stub", reason: "social/ordering link only" };
+    return { kind: "social_only", url: cls.url, reachability: null, hhSignalUrls: [], confirmedHhUrls: [], decision: "stub", reason: "social/ordering link only" };
   }
 
   const outcome = await fetchHtml(cls.url!);
