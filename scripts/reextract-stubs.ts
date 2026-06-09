@@ -291,6 +291,10 @@ async function runVenue(
     otherUrl: null,
     cityName: citySlug,
     priorityUrls: urls,
+    // Operator pointed at these URLs and decided to spend — skip the free-first /
+    // relevance cost gates so a supplied PDF/menu is actually read by the model
+    // (the free HTML parse otherwise wins on the homepage and never reaches the doc).
+    forcePaid: true,
   });
   await persistResult(sql, v.city_id, month, v, extracted, c);
 }
