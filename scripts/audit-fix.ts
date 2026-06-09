@@ -17,7 +17,8 @@ import "dotenv/config";
 import postgres from "postgres";
 import { triageSite, resolveEnrichAction } from "@/lib/places/siteTriage";
 import { hhLikelihood } from "@/lib/places/hhLikelihood";
-import { buildExtractRequest } from "@/lib/ai/extractHappyHours";
+import { buildExtractRequest, extractHappyHours } from "@/lib/ai/extractHappyHours";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { freeExtractFromPages } from "@/lib/ai/freeExtract";
 import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 import { isHighConfidenceCorrection } from "@/lib/audit/anomalyRules";
@@ -87,10 +88,110 @@ async function runEscalation(
     }
   }
 
-  const est = (toEscalate.length * ESCALATION_COST_EST_USD).toFixed(2);
-  console.log(`\n${toEscalate.length} venue(s) would escalate. Est. paid cost: ~$${est} (~$${ESCALATION_COST_EST_USD}/venue).`);
-  console.log(`Re-run with --preview to extract + write a review report (no DB write), or --apply to extract + apply.`);
-  return toEscalate;
+  if (!PREVIEW && !APPLY) {
+    const est = (toEscalate.length * ESCALATION_COST_EST_USD).toFixed(2);
+    console.log(`\n${toEscalate.length} venue(s) would escalate. Est. paid cost: ~$${est}.`);
+    console.log(`Re-run with --preview (report, no write) or --apply (apply).`);
+    return;
+  }
+
+  const results: EscalationResult[] = [];
+  try {
+    for (const c of toEscalate) {
+      const r = await extractAndDiff(sql, city.name, c);
+      results.push(r);
+      const offers = r.found.reduce((a, w) => a + w.offerings.length, 0);
+      console.log(`  ⏫ ${r.name}: found ${r.found.length} window(s), ${offers} offering(s)${r.highConfidence ? "" : " [LOW-CONF → report]"} ($${(r.costCents / 100).toFixed(3)})`);
+    }
+  } finally {
+    await (await import("@/lib/verification/renderUrl")).closeRenderBrowser().catch(() => {});
+  }
+
+  mkdirSync("docs/audit-escalation", { recursive: true });
+  const date = new Date().toISOString().slice(0, 10);
+  writeFileSync(`docs/audit-escalation/${city.slug}-${date}.json`, JSON.stringify(results, null, 2));
+  const md: string[] = [
+    `# Escalation review — ${city.name} (${date})`, "",
+    `${results.length} venue(s) extracted. Total spend: $${(results.reduce((a, r) => a + r.costCents, 0) / 100).toFixed(2)}.`, "",
+  ];
+  for (const r of results) {
+    md.push(`## ${r.name}  [${r.reason}]  ${r.highConfidence ? "→ would apply" : "→ report only (low confidence)"}`);
+    md.push(`HH page: ${r.hhPage}`);
+    md.push(`**STORED (now):**`);
+    for (const w of r.storedActive) md.push(`  - ${JSON.stringify(w.days)} ${w.start ?? "open"}–${w.end ?? "close"}  offerings:${w.offerings}  src=${w.src ?? "—"}`);
+    md.push(`**FOUND (render+PDF):**`);
+    for (const w of r.found) md.push(`  - ${JSON.stringify(w.days)} ${w.start ?? "open"}–${w.end ?? "close"}  offerings:${w.offerings.length} [${w.offerings.slice(0, 6).map((o) => o.name ?? "(unnamed)").join(", ")}]  src=${w.src ?? "—"}`);
+    md.push(`**PROPOSED CHANGE:** insert ${r.found.length} window(s)+offerings; deactivate ${r.deactivateIds.length} prior window(s).`);
+    md.push("");
+  }
+  writeFileSync(`docs/${city.slug}-escalation-review-${date}.md`, md.join("\n"));
+  console.log(`\nReview report → docs/${city.slug}-escalation-review-${date}.md  (cache: docs/audit-escalation/${city.slug}-${date}.json)`);
+
+  if (PREVIEW && !APPLY) {
+    console.log(`PREVIEW only — NO DB writes. Review the report, then run with --apply-from docs/audit-escalation/${city.slug}-${date}.json`);
+    return;
+  }
+  await applyEscalationResults(sql, city.id, results);
+}
+
+interface EscalationResult {
+  venueId: string;
+  name: string;
+  hhPage: string;
+  reason: string;
+  storedActive: { days: number[]; start: string | null; end: string | null; offerings: number; src: string | null }[];
+  found: { days: number[]; start: string | null; end: string | null; offerings: { name: string | null; price: number | null }[]; src: string | null }[];
+  highConfidence: boolean;
+  costCents: number;
+  extracted: unknown; // ExtractResult, cached for --apply-from
+  deactivateIds: string[];
+}
+
+async function extractAndDiff(
+  sql: ReturnType<typeof postgres>,
+  cityName: string,
+  c: { v: EscalationCandidate; reason: string; hhPage: string },
+): Promise<EscalationResult> {
+  const verdict = await triageSite({ websiteUri: c.v.website_url!, name: c.v.name, cityName });
+  const decided = resolveEnrichAction(verdict, hhLikelihood({ primaryType: null, types: null, name: c.v.name }));
+  const extracted = await extractHappyHours({
+    venueName: c.v.name,
+    websiteUrl: verdict.kind === "real" ? verdict.url : null,
+    otherUrl: null,
+    cityName,
+    priorityUrls: decided.priorityUrls,
+  });
+  const stored = await sql<StoredRow[]>`
+    SELECT id, days_of_week AS "daysOfWeek", start_time AS "startTime", end_time AS "endTime",
+           all_day AS "allDay", active, source_url AS "sourceUrl", notes
+    FROM happy_hours WHERE venue_id = ${c.v.id} AND deleted_at IS NULL AND active = true`;
+  const corrected: CorrectedWindow[] = extracted.happyHours
+    .filter((h) => !h.suspect)
+    .map((h) => ({ daysOfWeek: h.daysOfWeek, startTime: h.startTime, endTime: h.endTime, allDay: h.allDay, sourceUrl: h.sourceUrl, notes: h.notes }));
+  const highConfidence = isHighConfidenceCorrection(corrected);
+  const plan = computeCorrection(stored, corrected);
+  const offRows = stored.length
+    ? await sql<{ id: string; n: number }[]>`
+        SELECT happy_hour_id AS id, count(*)::int AS n FROM offerings
+        WHERE happy_hour_id = ANY(${stored.map((s) => s.id)}) AND active = true GROUP BY happy_hour_id`
+    : [];
+  const offCount = new Map(offRows.map((r) => [r.id, r.n]));
+  return {
+    venueId: c.v.id,
+    name: c.v.name,
+    hhPage: c.hhPage,
+    reason: c.reason,
+    storedActive: stored.map((s) => ({ days: s.daysOfWeek, start: s.startTime, end: s.endTime, offerings: offCount.get(s.id) ?? 0, src: s.sourceUrl })),
+    found: extracted.happyHours.filter((h) => !h.suspect).map((h) => ({ days: h.daysOfWeek, start: h.startTime, end: h.endTime, offerings: h.offerings.map((o) => ({ name: o.name, price: o.priceCents })), src: h.sourceUrl })),
+    highConfidence,
+    costCents: extracted.costCents,
+    extracted,
+    deactivateIds: plan.deactivations,
+  };
+}
+
+async function applyEscalationResults(_sql: ReturnType<typeof postgres>, _cityId: string, _results: EscalationResult[]): Promise<void> {
+  throw new Error("applyEscalationResults not implemented yet (Task 4)");
 }
 
 interface FlaggedVenue {
