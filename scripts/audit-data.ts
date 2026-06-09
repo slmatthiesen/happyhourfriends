@@ -43,6 +43,7 @@ async function main() {
       FROM venues v
       WHERE v.city_id = ${city.id}
         AND v.status = 'active'
+        AND v.deleted_at IS NULL
         ${RECHECK ? sql`` : sql`AND NOT EXISTS (SELECT 1 FROM data_audit da WHERE da.venue_id = v.id)`}
       ORDER BY v.name
       ${LIMIT ? sql`LIMIT ${LIMIT}` : sql``}`;
