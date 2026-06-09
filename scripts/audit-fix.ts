@@ -22,6 +22,7 @@ import { freeExtractFromPages } from "@/lib/ai/freeExtract";
 import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 import { isHighConfidenceCorrection } from "@/lib/audit/anomalyRules";
 import { computeCorrection, type StoredRow, type CorrectedWindow } from "@/lib/audit/computeCorrection";
+import { needsRenderEscalation } from "@/lib/audit/renderEscalation";
 
 function arg(f: string): string | undefined {
   const i = process.argv.indexOf(f);
@@ -29,6 +30,68 @@ function arg(f: string): string | undefined {
 }
 const APPLY = process.argv.includes("--apply");
 const LIMIT = arg("--limit") ? parseInt(arg("--limit")!, 10) : null;
+const ESCALATE = process.argv.includes("--escalate-paid");
+const PREVIEW = process.argv.includes("--preview");
+const APPLY_FROM = arg("--apply-from"); // path to a previously-previewed report json
+const ESCALATION_COST_EST_USD = 0.05; // ~1 render + 1 Sonnet extract (observed 3–5¢)
+
+interface EscalationCandidate {
+  id: string;
+  name: string;
+  website_url: string | null;
+}
+
+async function runEscalation(
+  sql: ReturnType<typeof postgres>,
+  city: { id: string; name: string; slug: string },
+) {
+  const candidates = await sql<EscalationCandidate[]>`
+    SELECT v.id, v.name, v.website_url
+    FROM venues v
+    WHERE v.city_id = ${city.id} AND v.status = 'active' AND v.deleted_at IS NULL
+      AND v.website_url IS NOT NULL
+      AND (
+        v.data_completeness = 'stub'
+        OR EXISTS (
+          SELECT 1 FROM data_audit da
+          WHERE da.venue_id = v.id AND jsonb_array_length(da.flags) > 0
+        )
+      )
+    ORDER BY v.name
+    ${LIMIT ? sql`LIMIT ${LIMIT}` : sql``}`;
+
+  console.log(`[escalate] ${candidates.length} candidate venue(s) (stubs ∪ flagged) in ${city.name}. Free detection — $0.\n`);
+
+  const toEscalate: { v: EscalationCandidate; reason: string; hhPage: string }[] = [];
+  for (const v of candidates) {
+    const verdict = await triageSite({ websiteUri: v.website_url!, name: v.name, cityName: city.name });
+    const decided = resolveEnrichAction(verdict, hhLikelihood({ primaryType: null, types: null, name: v.name }));
+    if (decided.action !== "extract") continue;
+    const built = await buildExtractRequest({
+      venueName: v.name,
+      websiteUrl: verdict.kind === "real" ? verdict.url : null,
+      otherUrl: null,
+      cityName: city.name,
+      priorityUrls: decided.priorityUrls,
+      noRender: true,
+    });
+    const free = freeExtractFromPages(built.pages, { model: "deterministic-html-v1", promptHash: built.promptHash });
+    const esc = needsRenderEscalation({
+      priorityUrls: decided.priorityUrls,
+      readUrls: built.pages.map((p) => p.url),
+      freeWindows: free ? free.happyHours.map((h) => ({ offerings: h.offerings })) : null,
+    });
+    if (esc.escalate) {
+      toEscalate.push({ v, reason: esc.reason!, hhPage: esc.hhPages[0] ?? "?" });
+      console.log(`  ⏫ ${v.name}: would escalate [${esc.reason}] (HH page: ${esc.hhPages[0] ?? "?"})`);
+    }
+  }
+
+  const est = (toEscalate.length * ESCALATION_COST_EST_USD).toFixed(2);
+  console.log(`\n${toEscalate.length} venue(s) would escalate. Est. paid cost: ~$${est} (~$${ESCALATION_COST_EST_USD}/venue).`);
+  console.log(`Re-run with --preview to extract + write a review report (no DB write), or --apply to extract + apply.`);
+  return toEscalate;
+}
 
 interface FlaggedVenue {
   id: string;
@@ -42,6 +105,11 @@ async function main() {
   const sql = postgres(process.env.DATABASE_URL!, { max: 4 });
   try {
     const city = await resolveCity(sql, slug, state);
+
+    if (ESCALATE && !APPLY_FROM) {
+      await runEscalation(sql, city);
+      return; // escalation owns this run; later tasks add preview/apply branches
+    }
 
     const flagged = await sql<FlaggedVenue[]>`
       SELECT v.id, v.name, v.website_url, da.flags
