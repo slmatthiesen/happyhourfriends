@@ -20,7 +20,7 @@ import { extractHappyHours, type ExtractResult } from "@/lib/ai/extractHappyHour
 import { triageSite, resolveEnrichAction } from "@/lib/places/siteTriage";
 import { hhLikelihood } from "@/lib/places/hhLikelihood";
 import { assessRealness } from "@/lib/places/realnessGate";
-import { reconcileWindows, type ReconcileWindow } from "@/lib/places/windowReconcile";
+import { reconcileWindows, offeringsFingerprint, type ReconcileWindow } from "@/lib/places/windowReconcile";
 import { firstOfCurrentMonth } from "@/lib/ai/budget";
 
 export interface ResolveResult {
@@ -78,22 +78,29 @@ export async function persistExtractedWindows(
     .where(eq(venues.id, venueId))
     .limit(1);
 
+  // offeringsKey keeps same-time windows with DIFFERENT offerings (per-day specials)
+  // from merging — only true duplicates (same times AND same deals) union their days.
+  const hhOfferingsKey = (hh: (typeof extracted.happyHours)[number]) =>
+    offeringsFingerprint(hh.offerings.map((o) => ({ name: o.name, priceCents: o.priceCents })));
   const reconWindows: ReconcileWindow[] = extracted.happyHours.map((hh) => ({
     daysOfWeek: hh.daysOfWeek,
     startTime: hh.startTime,
     endTime: hh.endTime,
     allDay: hh.allDay,
+    offeringsKey: hhOfferingsKey(hh),
   }));
   const reconResults = reconcileWindows(reconWindows, venueRow?.hoursJson ?? null);
   // Align reconcile verdicts back to source rows by identity index. reconcileWindows
   // may MERGE rows, so map each original hh to the reconciled result whose merged day-set
-  // covers it and whose (start,end,allDay) match.
+  // covers it and whose (start,end,allDay,offeringsKey) match.
   function reconFor(hh: (typeof extracted.happyHours)[number]) {
+    const key = hhOfferingsKey(hh);
     return reconResults.find(
       (r) =>
         r.window.startTime === hh.startTime &&
         r.window.endTime === hh.endTime &&
-        r.window.allDay === hh.allDay,
+        r.window.allDay === hh.allDay &&
+        (r.window.offeringsKey ?? "") === key,
     );
   }
 
