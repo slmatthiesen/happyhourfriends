@@ -12,6 +12,7 @@
 import "dotenv/config";
 import postgres from "postgres";
 import { RECOGNIZABLE_BAR } from "@/lib/geo/recognizability";
+import { MIN_VENUES_PER_NEIGHBORHOOD } from "@/lib/geo/assignNeighborhoods";
 import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 const GATE = 0.95;
@@ -43,8 +44,15 @@ async function main() {
         rate: number;
         on_fine: number;
         recognizable_rate: number;
+        ui_hidden: number;
       }[]
     >`
+      WITH nb_counts AS (
+        SELECT neighborhood_id, count(*) AS cnt
+        FROM venues
+        WHERE deleted_at IS NULL AND neighborhood_id IS NOT NULL
+        GROUP BY neighborhood_id
+      )
       SELECT c.slug,
              count(v.id)::int AS venues,
              count(v.neighborhood_id)::int AS assigned,
@@ -52,10 +60,14 @@ async function main() {
              count(v.id) FILTER (WHERE n.tier = 'fine' AND n.recognizability >= ${RECOGNIZABLE_BAR})::int AS on_fine,
              COALESCE(
                count(v.id) FILTER (WHERE n.tier = 'fine' AND n.recognizability >= ${RECOGNIZABLE_BAR})::float
-               / NULLIF(count(v.neighborhood_id), 0), 0) AS recognizable_rate
+               / NULLIF(count(v.neighborhood_id), 0), 0) AS recognizable_rate,
+             -- Assigned in the DB but rendered blank in the UI: the venue's neighborhood is
+             -- below the MIN_VENUES_PER_NEIGHBORHOOD suppression bar (lib/queries/venues.ts).
+             count(v.id) FILTER (WHERE nc.cnt < ${MIN_VENUES_PER_NEIGHBORHOOD})::int AS ui_hidden
       FROM cities c
       LEFT JOIN venues v ON v.city_id = c.id AND v.deleted_at IS NULL
       LEFT JOIN neighborhoods n ON n.id = v.neighborhood_id
+      LEFT JOIN nb_counts nc ON nc.neighborhood_id = v.neighborhood_id
       ${citySlug ? sql`WHERE c.slug = ${citySlug}` : sql``}
       GROUP BY c.slug
       HAVING count(v.id) > 0
@@ -73,7 +85,8 @@ async function main() {
       console.log(
         `  ${pass ? "PASS" : "FAIL"}  ${r.slug.padEnd(18)} ` +
           `${pct.padStart(5)}%  (${r.assigned}/${r.venues}, ${r.venues - r.assigned} blank)` +
-          `  — ${recPct.padStart(3)}% recognizable (${r.on_fine}/${r.assigned})`,
+          `  — ${recPct.padStart(3)}% recognizable (${r.on_fine}/${r.assigned})` +
+          (r.ui_hidden > 0 ? `  — ${r.ui_hidden} UI-hidden (lone-venue neighborhood)` : ""),
       );
     }
     console.log("─".repeat(54));
