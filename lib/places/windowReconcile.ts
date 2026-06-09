@@ -198,27 +198,45 @@ export function windowsOverlap(a: ReconcileWindow, b: ReconcileWindow): boolean 
  * Reconcile a venue's full window set. Order: (1) merge exact duplicates;
  * (2) hide operating-hours windows; (3) among still-active survivors, hide any that
  * overlap another survivor on a shared day with a different time. Pure — caller persists.
+ *
+ * Offerings discriminate in passes 2 and 3 (validated against Spokane + Tacoma ground
+ * truth, 2026-06-09): an over-capture is offerings-BARE (Swinging Doors' 08–23) or a
+ * COPY of a real window's deal set at bogus times (Lantern's 10–23 beside its real
+ * 14–17; Bigfoot's five same-deal overlaps). A window carrying its own unique deal set
+ * is a real deal even when its shape says operating-hours (Twisted Fork's open-to-close
+ * daily specials) or it overlaps a different deal (Fondi's lunch menu vs Pizza Per Due).
+ * Callers that pass no offeringsKey get the strict pre-discriminator behavior.
  */
 export function reconcileWindows(
   windows: ReconcileWindow[],
   hoursJson?: OpenPeriod[] | null,
 ): ReconcileResult[] {
   const results = mergeDuplicates(windows);
+  const key = (r: ReconcileResult) => r.window.offeringsKey ?? "";
 
-  // Pass 2: operating-hours.
-  for (const r of results) {
-    if (isOperatingHours(r.window, hoursJson)) {
-      r.active = false;
-      r.reasons.push("operating_hours");
+  // Pass 2: operating-hours shape, hidden only when bare or a copy of a real window.
+  const shapeFlagged = results.map((r) => isOperatingHours(r.window, hoursJson));
+  for (let i = 0; i < results.length; i++) {
+    if (!shapeFlagged[i]) continue;
+    const k = key(results[i]);
+    const copyOfReal =
+      k !== "" && results.some((other, j) => j !== i && !shapeFlagged[j] && key(other) === k);
+    if (k === "" || copyOfReal) {
+      results[i].active = false;
+      results[i].reasons.push("operating_hours");
     }
   }
 
-  // Pass 3: overlap-conflict among survivors only.
+  // Pass 3: overlap-conflict among survivors only. Same (or bare) deal sets at
+  // overlapping times contradict each other; distinct deal sets coexist.
   const survivors = results.filter((r) => r.active);
   const conflicted = new Set<ReconcileResult>();
   for (let i = 0; i < survivors.length; i++) {
     for (let j = i + 1; j < survivors.length; j++) {
-      if (windowsOverlap(survivors[i].window, survivors[j].window)) {
+      if (!windowsOverlap(survivors[i].window, survivors[j].window)) continue;
+      const ki = key(survivors[i]);
+      const kj = key(survivors[j]);
+      if (ki === kj || ki === "" || kj === "") {
         conflicted.add(survivors[i]);
         conflicted.add(survivors[j]);
       }
