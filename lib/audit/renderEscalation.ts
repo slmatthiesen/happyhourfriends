@@ -9,7 +9,7 @@
  *   - hh_page_no_offerings: an HH-specific page was read, but the free windows carry NO
  *                          offerings (times without specials — the specials are likely in a PDF).
  */
-import { scoreHhUrl } from "@/lib/places/hhText";
+import { scoreHhUrl, matchesHappyHour, isDrinkOrHhPageUrl } from "@/lib/places/hhText";
 import { isDenylistedSource } from "@/lib/ai/sourceDenylist";
 import type { FetchedPage } from "@/lib/ai/siteContent";
 
@@ -75,11 +75,33 @@ export type EscalationRoute = "free" | "paid" | "skip";
 export function routeEscalation(
   pages: FetchedPage[],
   freeResult: { happyHours: { suspect?: boolean; offerings: unknown[] }[] } | null,
+  /** The flagged HH page's URL. A literal happy-hour page (scoreHhUrl>=100) makes ANY doc it
+   *  resolves to worth a vision call (Oeste's opaquely-named CDN PDF); a drink/cocktail page url
+   *  escalates on its own (drink menus can carry HH — operator's call). */
+  hhPageUrl = "",
 ): EscalationRoute {
   const usable = pages.filter((p) => p.text || p.pdfBase64 || p.imageBase64);
   if (usable.length === 0) return "skip";
-  if (usable.some((p) => p.pdfBase64 || p.imageBase64)) return "paid";
-  const freeHasStockedWindow =
-    !!freeResult && freeResult.happyHours.some((w) => !w.suspect && w.offerings.length > 0);
-  return freeHasStockedWindow ? "free" : "paid";
+  const freeWindows = freeResult?.happyHours ?? [];
+  // Free parse already found a clean window WITH offerings → take it for $0.
+  if (freeWindows.some((w) => !w.suspect && w.offerings.length > 0)) return "free";
+  // Free parse found a CLEAN window but thin (no offerings) → the model may find the offerings.
+  // NOTE: only NON-suspect windows count. parseHhText hallucinates suspect junk windows from
+  // unrelated text (Marisol's hotel-package page → a bogus 2am-8pm window; Giuseppe's lunch/dinner
+  // hours → bogus windows); escalating on those was the Five-Cities waste.
+  if (freeWindows.some((w) => !w.suspect)) return "paid";
+  // No clean window. Only pay the model for a genuine HH lead:
+  //   - an HH-RELEVANT doc: a PDF/image whose own filename is HH-named (scoreHhUrl>=60: happy-hour/
+  //     specials/drink/cocktail/wine), OR any doc when the HH page is a literal happy-hour page. A
+  //     generic Dinner/Bar/Dessert-Menu.pdf scores 0 and is NOT worth a vision call.
+  //   - HTML text that LITERALLY says "happy hour" (NOT a day+time pattern — that matched Giuseppe's
+  //     operating hours on /about; the parser already turns real day+time windows into clean rows).
+  //   - or the flagged page is itself a drink/cocktail/happy-hour URL (drink menus can carry HH).
+  // Bare "specials" packages, /about hours, covid notices, generic/food menus → skip at $0.
+  const hhPageScore = scoreHhUrl(hhPageUrl);
+  const hhDoc = usable.some(
+    (p) => (p.pdfBase64 || p.imageBase64) && (scoreHhUrl(p.url) >= 60 || hhPageScore >= 100),
+  );
+  const hhText = usable.some((p) => p.text != null && matchesHappyHour(p.text));
+  return hhDoc || hhText || isDrinkOrHhPageUrl(hhPageUrl) ? "paid" : "skip";
 }

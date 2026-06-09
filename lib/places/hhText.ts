@@ -35,6 +35,17 @@ export function hasHhOrDealSignal(text: string): boolean {
 }
 
 /**
+ * True for a happy-hour OR drink/cocktail/wine/beer page URL — a page whose very PATH is about
+ * drinks or happy hour is worth a paid check even when its text never says "happy hour" (drink
+ * menus sometimes carry the HH). Deliberately does NOT include bare "/specials" (which is just as
+ * often hotel packages) or food/menu pages — those must show actual HH content to escalate.
+ */
+export function isDrinkOrHhPageUrl(url: string): boolean {
+  const u = url.toLowerCase();
+  return HH_RE.test(u) || /(beer|drink|cocktail|wine)[-_ ]?menu|\/(drinks?|cocktails?)\b/.test(u);
+}
+
+/**
  * Likelihood that a URL points at HH info, for ordering candidate pages
  * most→least likely. Higher = check first. 0 = no signal.
  *

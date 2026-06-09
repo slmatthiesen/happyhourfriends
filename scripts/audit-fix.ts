@@ -243,7 +243,7 @@ async function fetchAndRoute(
     // render ON (no noRender): a JS-walled HH page resolves to its PDF or rendered text here.
   });
   const free = freeExtractFromPages(built.pages, extractorMetadata());
-  const route = routeEscalation(built.pages, free);
+  const route = routeEscalation(built.pages, free, c.hhPage);
   return { built, free, route };
 }
 
