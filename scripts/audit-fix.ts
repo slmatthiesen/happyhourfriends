@@ -267,7 +267,6 @@ async function extractAndDiff(
   cityName: string,
   c: { v: EscalationCandidate; reason: string; hhPage: string },
 ): Promise<EscalationResult> {
-  const hhPage = c.hhPage; // the unread HH-specific page the detector found
   const { built, free, route, relevance } = await fetchAndRoute(cityName, c, { resolveRelevance: true });
 
   // Policy B routing: a $0 free-parse of rendered HTML when it already found a stocked window;

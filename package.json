@@ -80,6 +80,7 @@
     "test:name-primary": "tsx scripts/test-name-primary-assignment.ts",
     "restore:neighborhoods": "tsx scripts/restore-neighborhoods.ts",
     "test:hh-text": "tsx scripts/test-hh-text.ts",
+    "test:hh-relevance": "tsx scripts/test-hh-relevance.ts",
     "test:normalize-url": "tsx scripts/test-normalize-url.ts",
     "test:hh-signal-gate": "tsx scripts/test-hh-signal-gate.ts",
     "test:extract-time": "tsx scripts/test-extract-time.ts",
