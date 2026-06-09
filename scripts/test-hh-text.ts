@@ -6,7 +6,7 @@
  * Run: tsx scripts/test-hh-text.ts
  */
 import assert from "node:assert";
-import { matchesHappyHour, scoreHhUrl } from "@/lib/places/hhText";
+import { matchesHappyHour, scoreHhUrl, isDrinkOrHhPageUrl } from "@/lib/places/hhText";
 
 let passed = 0;
 function check(name: string, fn: () => void) { fn(); passed++; console.log(`  ✓ ${name}`); }
@@ -38,6 +38,20 @@ check("scoreHhUrl ranks HH page above specials above generic menu above none", (
 check("scoreHhUrl catches no-space + underscore spellings in the path", () => {
   assert.ok(scoreHhUrl("https://x.com/happyhour") >= 100);
   assert.ok(scoreHhUrl("https://x.com/happy_hour") >= 100);
+});
+
+// isDrinkOrHhPageUrl — a page whose PATH is about drinks or happy hour is worth a check even with
+// no in-text "happy hour". Bare /specials (hotel packages) and food/menu pages are NOT — they must
+// show real HH content. This is what keeps Mason's /cocktails while skipping Marisol's /specials.
+check("isDrinkOrHhPageUrl true: happy-hour or drink/cocktail/wine/beer pages", () => {
+  for (const u of ["https://x.com/happy-hour", "https://x.com/cocktails/barrel-aged", "https://x.com/drinks", "https://x.com/wine-menu", "https://x.com/beer-menu"]) {
+    assert.ok(isDrinkOrHhPageUrl(u), `should match: ${u}`);
+  }
+});
+check("isDrinkOrHhPageUrl false: specials/food/menu/announcement pages (need real HH content)", () => {
+  for (const u of ["https://x.com/specials/", "https://x.com/special-announcement", "https://x.com/menu", "https://x.com/food-menu", "https://x.com/about"]) {
+    assert.ok(!isDrinkOrHhPageUrl(u), `should NOT match: ${u}`);
+  }
 });
 
 console.log(`\n${passed} checks passed.`);
