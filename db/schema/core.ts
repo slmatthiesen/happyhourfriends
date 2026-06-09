@@ -212,7 +212,10 @@ export const happyHours = pgTable(
   },
   (t) => [
     // Unique among non-deleted rows (PRD §3.3). days_of_week is stored sorted so the
-    // array compares as a stable natural key.
+    // array compares as a stable natural key. NOTE: migration 0019 recreates this index
+    // with NULLS NOT DISTINCT so all-day / open-until-close windows (null start/end) actually
+    // collide and dedupe — drizzle 0.45's uniqueIndex DSL can't express NULLS NOT DISTINCT,
+    // so it lives only in the migration, not here.
     uniqueIndex("happy_hours_natural_uq")
       .on(t.venueId, t.daysOfWeek, t.startTime, t.endTime, t.locationWithinVenue)
       .where(sql`deleted_at IS NULL`),
