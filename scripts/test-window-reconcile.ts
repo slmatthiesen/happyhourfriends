@@ -229,6 +229,81 @@ check("GOLDEN Bigfoot: all overlapping/start-only windows hidden → stub", () =
   assert.equal(active(rs).length, 0);
 });
 
+check("GOLDEN Lantern WITH offerings: op-hours windows carrying the real window's deals are copies → hidden", () => {
+  const k = "old fashioned|800;wings|600;house red|700";
+  const rs = reconcileWindows(
+    [
+      { ...w([1, 2, 3, 4, 5, 6, 7], "10:00:00", "23:00:00"), offeringsKey: k },
+      { ...w([1, 2, 3, 4, 5, 6, 7], "11:00:00", "23:00:00"), offeringsKey: k },
+      { ...w([1, 2, 3, 4, 5, 6, 7], "14:00:00", "17:00:00"), offeringsKey: k },
+    ],
+    null,
+  );
+  const live = active(rs);
+  assert.equal(live.length, 1);
+  assert.equal(live[0].window.startTime, "14:00:00");
+});
+
+check("GOLDEN Twisted Fork: open-to-close windows with their OWN deal sets are all-day specials → live", () => {
+  // Each day's window exactly equals that day's open hours, but each carries real
+  // priced deals and no shorter window competes — operator verified on the site.
+  const hours: OpenPeriod[] = [
+    { openDay: 1, openMin: 840, closeDay: 1, closeMin: 1320 },
+    { openDay: 2, openMin: 840, closeDay: 2, closeMin: 1380 },
+    { openDay: 3, openMin: 840, closeDay: 3, closeMin: 1380 },
+    { openDay: 4, openMin: 840, closeDay: 4, closeMin: 1380 },
+    { openDay: 5, openMin: 840, closeDay: 5, closeMin: 1380 },
+    { openDay: 6, openMin: 720, closeDay: 6, closeMin: 1380 },
+    { openDay: 7, openMin: 720, closeDay: 7, closeMin: 1320 },
+  ];
+  const base = "house wine|500;mimosa|400;well drinks|600";
+  const rs = reconcileWindows(
+    [
+      { ...w([1], "14:00:00", "22:00:00"), offeringsKey: `chili|;${base}` },
+      { ...w([2], "14:00:00", "23:00:00"), offeringsKey: `taco tuesday|;${base}` },
+      { ...w([3, 4, 5], "14:00:00", "23:00:00"), offeringsKey: base },
+      { ...w([6], "12:00:00", "23:00:00"), offeringsKey: base },
+      { ...w([7], "12:00:00", "22:00:00"), offeringsKey: base },
+    ],
+    hours,
+  );
+  assert.equal(active(rs).length, 5); // disjoint days, unique-per-venue deal sets → all live
+});
+
+check("GOLDEN Fondi: overlapping windows with DIFFERENT deals coexist (lunch menu + Pizza Per Due)", () => {
+  const rs = reconcileWindows(
+    [
+      { ...w([1, 2, 3, 4, 5, 6, 7], "11:00:00", "16:00:00"), offeringsKey: "lunch menu items|1250" },
+      { ...w([1, 2, 3, 4, 5, 6, 7], "14:00:00", "17:00:00"), offeringsKey: "beverages|;pizza & salad combo|3400" },
+    ],
+    null,
+  );
+  assert.equal(active(rs).length, 2);
+});
+
+check("overlap-conflict: SAME deal set at overlapping times still conflicts (the 4–6 vs 4–7 capture)", () => {
+  const rs = reconcileWindows(
+    [
+      { ...w([1, 2, 3, 4, 5], "16:00:00", "18:00:00"), offeringsKey: "wells|500" },
+      { ...w([1, 2, 3, 4, 5], "16:00:00", "19:00:00"), offeringsKey: "wells|500" },
+    ],
+    null,
+  );
+  assert.equal(active(rs).length, 0);
+  assert.ok(rs.every((r) => r.reasons.includes("overlap_conflict")));
+});
+
+check("overlap-conflict: a BARE window overlapping a deal-carrying one conflicts (Bigfoot 11:00–)", () => {
+  const rs = reconcileWindows(
+    [
+      { ...w([1, 2, 3, 4, 5, 6, 7], "18:00:00", "20:00:00"), offeringsKey: "coors bucket|2200" },
+      { ...w([1, 2, 3, 4, 5, 6, 7], "19:00:00", "21:00:00"), offeringsKey: "" },
+    ],
+    null,
+  );
+  assert.equal(active(rs).length, 0);
+});
+
 check("GOLDEN Elks Temple: Mon–Fri base HH + same-time per-day specials all stay live, unmerged", () => {
   const hours: OpenPeriod[] = [1, 2, 3, 4, 5].map((d) => ({ openDay: d, openMin: 420, closeDay: d, closeMin: 1380 }));
   const rs = reconcileWindows(
