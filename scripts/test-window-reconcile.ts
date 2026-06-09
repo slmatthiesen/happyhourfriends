@@ -293,7 +293,7 @@ check("overlap-conflict: SAME deal set at overlapping times still conflicts (the
   assert.ok(rs.every((r) => r.reasons.includes("overlap_conflict")));
 });
 
-check("overlap-conflict: a BARE window overlapping a deal-carrying one conflicts (Bigfoot 11:00–)", () => {
+check("overlap-conflict: a BARE window hides ALONE against a deal-carrying one (evidence asymmetry)", () => {
   const rs = reconcileWindows(
     [
       { ...w([1, 2, 3, 4, 5, 6, 7], "18:00:00", "20:00:00"), offeringsKey: "coors bucket|2200" },
@@ -301,8 +301,45 @@ check("overlap-conflict: a BARE window overlapping a deal-carrying one conflicts
     ],
     null,
   );
-  assert.equal(active(rs).length, 0);
+  const live = active(rs);
+  assert.equal(live.length, 1);
+  assert.equal(live[0].window.startTime, "18:00:00");
 });
+
+check("GOLDEN Mr. An's: Tuesday EXTENDED happy hour (same deals, subset days) coexists with the base window", () => {
+  // mrantucson.com/specials: HH Mon–Sat 4–7 + "TUESDAY EXTENDED HAPPY HOUR ... 4pm-8pm".
+  const k = "wells|600;mules|800;sake bombs|850";
+  const rs = reconcileWindows(
+    [
+      { ...w([1, 2, 3, 4, 5, 6], "16:00:00", "19:00:00"), offeringsKey: k },
+      { ...w([2], "16:00:00", "20:00:00"), offeringsKey: k },
+    ],
+    null,
+  );
+  assert.equal(active(rs).length, 2);
+});
+
+check("GOLDEN SunSet: real deal window survives a bare fragment AND an op-hours copy", () => {
+  // sunsetwinebistro.com: open Mon–Sat 4–8; HH 4–5:30 with $2-off deals. Extractor also
+  // emitted a bare 16–17 fragment and the same deals spanning the full open hours.
+  const k = "$2 off glass|;$6 off bottle|;$2 off apps|";
+  const hours: OpenPeriod[] = [1, 2, 3, 4, 5, 6].map((d) => ({ openDay: d, openMin: 960, closeDay: d, closeMin: 1200 }));
+  const rs = reconcileWindows(
+    [
+      { ...w([1, 2, 3, 4, 5, 6], "16:00:00", "17:30:00"), offeringsKey: k },
+      { ...w([1, 2, 3, 4, 5, 6], "16:00:00", "17:00:00"), offeringsKey: "" },
+      { ...w([1, 2, 3, 4, 5, 6], "16:00:00", "20:00:00"), offeringsKey: k },
+    ],
+    hours,
+  );
+  const live = active(rs);
+  assert.equal(live.length, 1);
+  assert.equal(live[0].window.endTime, "17:30:00");
+  const hidden = rs.filter((r) => !r.active);
+  assert.ok(hidden.find((r) => r.window.endTime === "20:00:00")?.reasons.includes("operating_hours"));
+  assert.ok(hidden.find((r) => r.window.endTime === "17:00:00")?.reasons.includes("overlap_conflict"));
+});
+
 
 check("GOLDEN Elks Temple: Mon–Fri base HH + same-time per-day specials all stay live, unmerged", () => {
   const hours: OpenPeriod[] = [1, 2, 3, 4, 5].map((d) => ({ openDay: d, openMin: 420, closeDay: d, closeMin: 1380 }));
