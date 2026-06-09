@@ -27,9 +27,21 @@ const WIDE_SNAP_METERS = 1609; // 1 mile
 const AMBIGUITY_GAP_METERS = 500;
 
 /**
- * Assign venues to a neighborhood by spatial match (PRD §3 — venues.neighborhood_id is
- * derived, not stored by hand). For each venue with coordinates we pick the best
- * neighborhood polygon within SNAP_METERS, ranked:
+ * Critical mass for a neighborhood label (operator rule 2026-05: a lone-venue neighborhood
+ * isn't a useful label or filter). Shared by two enforcement points that MUST agree:
+ *   - the UI, which suppresses below-threshold neighborhoods (lib/queries/venues.ts), and
+ *   - stage 0 here, where a venue's Google neighborhood name only wins over polygon
+ *     assignment when at least this many venues in the city share the name. A lone
+ *     micro-name ("Motel District") would create a neighborhood the UI hides — leaving the
+ *     venue rendering blank despite being assigned — so it falls through to polygons instead.
+ */
+export const MIN_VENUES_PER_NEIGHBORHOOD = 2;
+
+/**
+ * Assign venues to a neighborhood (PRD §3 — venues.neighborhood_id is derived, not stored
+ * by hand). Stage 0 assigns by the venue's Google neighborhood name when that name has
+ * critical mass (>= MIN_VENUES_PER_NEIGHBORHOOD venues sharing it). Everyone else gets a
+ * spatial match: we pick the best neighborhood polygon within SNAP_METERS, ranked:
  *   1. Eligible candidates first: a recognizable fine neighborhood (tier='fine' AND
  *      recognizability >= RECOGNIZABLE_BAR), OR any coarse district. A fine neighborhood
  *      below the recognizability bar is ineligible (shadowed) and only wins when no
@@ -55,30 +67,50 @@ export async function assignNeighborhoods(
   sql: Sql,
   cityId?: string | null,
 ): Promise<number> {
-  // Stage 0 — name-primary: a venue's Google neighborhood name wins over any polygon.
-  // Upsert a polygon-less neighborhood row per distinct name, then assign by name. The
-  // stored google_neighborhood is already noise-filtered (pickNeighborhood at capture time),
-  // so any non-null value is a valid vernacular name.
+  // Stage 0 — name-primary: a venue's Google neighborhood name wins over any polygon,
+  // but ONLY when the name has critical mass (>= MIN_VENUES_PER_NEIGHBORHOOD venues in
+  // the city share it — the UI suppresses smaller neighborhoods, so honoring a lone
+  // micro-name would leave the venue rendering blank). Upsert a polygon-less neighborhood
+  // row per qualifying name, then assign by name. The stored google_neighborhood is
+  // already noise-filtered (pickNeighborhood at capture time). Sub-threshold names fall
+  // through to polygon assignment (stages 1–2), and start winning automatically once a
+  // second venue with the name appears.
   await sql`
     INSERT INTO neighborhoods (city_id, name, slug, polygon, source, tier, recognizability, is_fallback, in_scope)
     SELECT DISTINCT vv.city_id, vv.google_neighborhood,
            lower(regexp_replace(vv.google_neighborhood, '[^a-zA-Z0-9]+', '-', 'g')),
            NULL, 'Google Places', 'fine', ${RECOGNIZABLE_BAR}::smallint, false, true
     FROM venues vv
+    JOIN (
+      SELECT city_id, google_neighborhood, count(*) AS cnt
+      FROM venues
+      WHERE deleted_at IS NULL AND google_neighborhood IS NOT NULL
+      GROUP BY city_id, google_neighborhood
+    ) nc ON nc.city_id = vv.city_id AND nc.google_neighborhood = vv.google_neighborhood
     WHERE vv.google_neighborhood IS NOT NULL
       AND vv.deleted_at IS NULL
+      AND nc.cnt >= ${MIN_VENUES_PER_NEIGHBORHOOD}
       ${cityId ? sql`AND vv.city_id = ${cityId}` : sql``}
     ON CONFLICT (city_id, slug) DO NOTHING
   `;
   const named = await sql<{ id: string }[]>`
     UPDATE venues v
     SET neighborhood_id = n.id, updated_at = now()
-    FROM neighborhoods n
+    FROM neighborhoods n,
+         (
+           SELECT city_id, google_neighborhood, count(*) AS cnt
+           FROM venues
+           WHERE deleted_at IS NULL AND google_neighborhood IS NOT NULL
+           GROUP BY city_id, google_neighborhood
+         ) nc
     WHERE n.city_id = v.city_id
       AND n.source = 'Google Places'
       AND lower(regexp_replace(v.google_neighborhood, '[^a-zA-Z0-9]+', '-', 'g')) = n.slug
       AND v.google_neighborhood IS NOT NULL
       AND v.deleted_at IS NULL
+      AND nc.city_id = v.city_id
+      AND nc.google_neighborhood = v.google_neighborhood
+      AND nc.cnt >= ${MIN_VENUES_PER_NEIGHBORHOOD}
       AND v.neighborhood_id IS DISTINCT FROM n.id
       ${cityId ? sql`AND v.city_id = ${cityId}` : sql``}
     RETURNING v.id
@@ -102,7 +134,17 @@ export async function assignNeighborhoods(
       WHERE vv.lat IS NOT NULL
         AND vv.lng IS NOT NULL
         AND vv.deleted_at IS NULL
-        AND vv.google_neighborhood IS NULL
+        -- Name-primary venues (critical-mass google name) are stage 0's; everyone else —
+        -- no google name, or a sub-threshold one — gets polygon assignment.
+        AND (
+          vv.google_neighborhood IS NULL
+          OR (
+            SELECT count(*) FROM venues v2
+            WHERE v2.city_id = vv.city_id
+              AND v2.google_neighborhood = vv.google_neighborhood
+              AND v2.deleted_at IS NULL
+          ) < ${MIN_VENUES_PER_NEIGHBORHOOD}
+        )
         ${cityId ? sql`AND vv.city_id = ${cityId}` : sql``}
       ORDER BY vv.id,
                -- 1. Eligible candidates first: a recognizable fine neighborhood, OR any
@@ -181,6 +223,19 @@ export async function assignNeighborhoods(
     WHERE v.id = sub.vid
       AND v.neighborhood_id IS NULL
     RETURNING v.id
+  `;
+
+  // Tidy: drop polygon-less Google-name rows no venue points at anymore (e.g. a name that
+  // lost critical mass, or pre-gate micro-name rows like a lone "Motel District"). They're
+  // invisible in the UI but would accumulate forever across cities. Recreated by stage 0
+  // if the name ever reaches critical mass again.
+  await sql`
+    DELETE FROM neighborhoods n
+    WHERE n.source = 'Google Places'
+      AND n.polygon IS NULL
+      AND NOT EXISTS (SELECT 1 FROM venues v WHERE v.neighborhood_id = n.id)
+      AND NOT EXISTS (SELECT 1 FROM neighborhoods ch WHERE ch.parent_id = n.id)
+      ${cityId ? sql`AND n.city_id = ${cityId}` : sql``}
   `;
 
   return named.length + rows.length + wide.length;

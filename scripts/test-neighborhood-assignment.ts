@@ -86,6 +86,43 @@ async function main() {
       passed++;
       console.log("  ✓ containing coarse beats merely-near fine");
 
+      // Venue D: lone google_neighborhood name ("Micro Spot", below the 2-venue critical
+      // mass), located inside Famous Hood. The micro-name must NOT win (it would render
+      // blank in the UI) — the venue falls through to polygon assignment.
+      const [vD] = await tx<{ id: string }[]>`
+        INSERT INTO venues (city_id, name, slug, lat, lng, google_neighborhood)
+        VALUES (${city.id}, 'Venue D', 'venue-d', 32.85, -110.95, 'Micro Spot') RETURNING id`;
+      // Venues E + F share a google_neighborhood ("Cool Name", meets critical mass) inside
+      // Big District. Name-primary must still win for both.
+      const [vE] = await tx<{ id: string }[]>`
+        INSERT INTO venues (city_id, name, slug, lat, lng, google_neighborhood)
+        VALUES (${city.id}, 'Venue E', 'venue-e', 32.5, -110.5, 'Cool Name') RETURNING id`;
+      const [vF] = await tx<{ id: string }[]>`
+        INSERT INTO venues (city_id, name, slug, lat, lng, google_neighborhood)
+        VALUES (${city.id}, 'Venue F', 'venue-f', 32.51, -110.51, 'Cool Name') RETURNING id`;
+
+      await assignNeighborhoods(tx as unknown as typeof sql, city.id);
+
+      assert.equal(await got(vD.id), "Famous Hood",
+        "sub-critical-mass google name falls through to polygon assignment");
+      passed++;
+      console.log("  ✓ lone google name falls through to polygon");
+
+      assert.equal(await got(vE.id), "Cool Name",
+        "google name with critical mass stays name-primary");
+      assert.equal(await got(vF.id), "Cool Name",
+        "google name with critical mass stays name-primary");
+      passed++;
+      console.log("  ✓ critical-mass google name stays name-primary");
+
+      const [micro] = await tx<{ n: number }[]>`
+        SELECT count(*)::int AS n FROM neighborhoods
+        WHERE city_id = ${city.id} AND slug = 'micro-spot'`;
+      assert.equal(micro.n, 0,
+        "no neighborhood row is created for a sub-critical-mass google name");
+      passed++;
+      console.log("  ✓ no orphan row for sub-critical-mass name");
+
       // Roll back: throw a sentinel so sql.begin aborts the txn.
       throw new Error("ROLLBACK_SENTINEL");
     });
@@ -95,7 +132,7 @@ async function main() {
     await sql.end();
   }
   console.log(`\n${passed} checks passed (fixtures rolled back).`);
-  if (passed !== 3) process.exit(1);
+  if (passed !== 6) process.exit(1);
 }
 
 main().catch((err) => {
