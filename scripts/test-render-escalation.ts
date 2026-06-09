@@ -82,49 +82,36 @@ check("first-party HH page still escalates alongside a denylisted one (only the 
   assert.deepEqual(v.hhPages, ["https://realvenue.com/happy-hour-menu"]);
 });
 
-// --- routeEscalation: phase-2 routing (replaces the blanket forcePaid). Operator policy B:
-// PDF/image → paid model (free parser can't read a doc); HTML with a clean STOCKED window →
-// take the $0 free parse; otherwise → paid model ("free-parse, then model").
-check("HH-named PDF → paid (the doc itself looks like happy hour)", () =>
+// --- routeEscalation: phase-2 STRUCTURAL routing (relevance now decided by the Haiku gate).
+// free: clean stocked window | paid: doc OR clean-thin window | skip: no content |
+// relevance-check: HTML with no clean window — caller asks classifyHhRelevance.
+check("route paid: a PDF doc always extracts (single call returns [] on junk)", () =>
   assert.equal(routeEscalation([{ url: "https://v.com/Happy-Hour-Menu.pdf", pdfBase64: "JVBERi0=" }], null), "paid"));
-check("drink/cocktail-named image → paid", () =>
-  assert.equal(routeEscalation([{ url: "https://v.com/drinks-menu.jpg", imageBase64: "abc", imageMediaType: "image/jpeg" }], null), "paid"));
-check("generic Dinner-Menu.pdf (not HH-named, no HH page) → skip (Marisol waste)", () =>
-  assert.equal(routeEscalation([{ url: "https://v.com/Marisol-Dinner-Menu.pdf", pdfBase64: "JVBERi0=" }], null), "skip"));
-check("opaque-named doc on a literal /happy-hour page → paid (Oeste's CDN PDF)", () =>
-  assert.equal(routeEscalation([{ url: "https://cdn.x/9f3a2b.pdf", pdfBase64: "JVBERi0=" }], null, "https://v.com/happy-hour-menu"), "paid"));
-check("drink/cocktail PAGE url → paid even with no doc and no 'happy hour' text (operator: worth a check)", () =>
-  assert.equal(routeEscalation([{ url: "h", text: "Our cocktail list and spirits." }], null, "https://v.com/cocktails/barrel-aged"), "paid"));
-check("/specials hotel-package page → skip (not a drink/HH url, no HH content — Marisol)", () =>
-  assert.equal(routeEscalation([{ url: "h", text: "Spa packages and a great dinner." }], null, "https://v.com/specials/"), "skip"));
-check("/about operating-hours page → skip (hours are not happy hour — Giuseppe's)", () =>
-  assert.equal(routeEscalation([{ url: "h", text: "Open Monday-Sunday 11:30am-3pm and 4:30-9pm." }], null, "https://v.com/special-announcement"), "skip"));
-check("thin HTML window + a linked PDF → paid (the doc wins; don't short-circuit on the thin window)", () => {
-  const pages = [{ url: "h", text: "happy hour 4-6" }, { url: "p", pdfBase64: "JVBERi0=" }];
+check("route paid: an image doc always extracts", () =>
+  assert.equal(routeEscalation([{ url: "https://v.com/menu.jpg", imageBase64: "abc", imageMediaType: "image/jpeg" }], null), "paid"));
+check("route paid: a generic dinner-menu PDF also extracts (no filename rule anymore)", () =>
+  assert.equal(routeEscalation([{ url: "https://v.com/Dinner-Menu.pdf", pdfBase64: "JVBERi0=" }], null), "paid"));
+check("route relevance-check: HTML with no clean window → ask the Haiku gate", () =>
+  assert.equal(routeEscalation([{ url: "h", text: "Our cocktail list and spirits." }], null), "relevance-check"));
+check("route relevance-check: hotel-package HTML → ask the gate (no URL rule skips it)", () =>
+  assert.equal(routeEscalation([{ url: "h", text: "Spa packages and a great dinner." }], null), "relevance-check"));
+check("route paid: free parse found a clean but thin (no-offering) window → model finds offerings", () => {
+  const pages = [{ url: "h", text: "happy hour 4-6" }];
   assert.equal(routeEscalation(pages, { happyHours: [{ suspect: false, offerings: [] }] }), "paid");
 });
-check("HTML with a clean stocked window → free ($0)", () => {
-  const free = { happyHours: [{ suspect: false, offerings: [{ name: "$5 taco" }] }] };
+check("route free: free parse found a clean stocked window → $0", () => {
+  const free = { happyHours: [{ suspect: false, offerings: [{}] }] };
   assert.equal(routeEscalation([{ url: "h", text: "real menu" }], free), "free");
 });
-check("HTML free-parse miss WITH a real HH signal → paid (recall: model may read it)", () =>
-  assert.equal(routeEscalation([{ url: "h", text: "Our Happy Hour runs Mon-Fri 4-6pm" }], null), "paid"));
-check("HTML free-parse miss, NO real HH signal → skip ($0, don't pay to confirm 'no HH')", () => {
-  // hotel /specials packages, cocktail menu, announcement — matched our URL keywords but no HH
-  assert.equal(routeEscalation([{ url: "h", text: "Spa packages and dining specials. Book today." }], null), "skip");
-  assert.equal(routeEscalation([{ url: "h", text: "Special Announcement: closed July 4th." }], null), "skip");
+check("route paid: suspect-only free window is ignored; a doc still extracts", () => {
+  const free = { happyHours: [{ suspect: true, offerings: [{}] }] };
+  assert.equal(routeEscalation([{ url: "h", pdfBase64: "JVBERi0=" }], free), "paid");
 });
-check("HTML window with NO offerings → paid (model may read offerings the parser missed)", () =>
-  assert.equal(routeEscalation([{ url: "h", text: "hh 4-6" }], { happyHours: [{ suspect: false, offerings: [] }] }), "paid"));
-check("only a SUSPECT window + no HH lead → skip (parser noise, e.g. Marisol's bogus 2am-8pm window)", () => {
-  const free = { happyHours: [{ suspect: true, offerings: [{ name: "$5 taco" }] }] };
-  assert.equal(routeEscalation([{ url: "h", text: "Spa packages and dining specials." }], free), "skip");
+check("route relevance-check: suspect-only free window + HTML → ask the gate (never escalate on noise)", () => {
+  const free = { happyHours: [{ suspect: true, offerings: [{}] }] };
+  assert.equal(routeEscalation([{ url: "h", text: "Spa packages and dining specials." }], free), "relevance-check");
 });
-check("a suspect window BUT the page also shows real HH → paid (corroborated)", () => {
-  const free = { happyHours: [{ suspect: true, offerings: [] }] };
-  assert.equal(routeEscalation([{ url: "h", text: "Happy Hour Mon-Fri 4-6pm" }], free), "paid");
-});
-check("no usable pages → skip ($0)", () => {
+check("route skip: no usable content", () => {
   assert.equal(routeEscalation([], null), "skip");
   assert.equal(routeEscalation([{ url: "x" }], null), "skip");
 });
