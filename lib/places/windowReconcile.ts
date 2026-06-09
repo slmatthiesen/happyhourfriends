@@ -227,18 +227,30 @@ export function reconcileWindows(
     }
   }
 
-  // Pass 3: overlap-conflict among survivors only. Same (or bare) deal sets at
-  // overlapping times contradict each other; distinct deal sets coexist.
+  // Pass 3: overlap-conflict among survivors only. Same deal sets at overlapping times
+  // contradict each other UNLESS one runs on a strict subset of the other's days — that
+  // is a day-specific extension of the same deal ("Tuesday extended happy hour, 4–8" at
+  // Mr. An's, site-verified), not a contradiction. A BARE window overlapping a
+  // deal-carrying one hides alone: the deal side is better evidenced (SunSet's real
+  // 16:00–17:30 must not be poisoned by a bare 16:00–17:00 fragment). Distinct
+  // non-empty deal sets coexist.
   const survivors = results.filter((r) => r.active);
   const conflicted = new Set<ReconcileResult>();
   for (let i = 0; i < survivors.length; i++) {
     for (let j = i + 1; j < survivors.length; j++) {
-      if (!windowsOverlap(survivors[i].window, survivors[j].window)) continue;
-      const ki = key(survivors[i]);
-      const kj = key(survivors[j]);
-      if (ki === kj || ki === "" || kj === "") {
-        conflicted.add(survivors[i]);
-        conflicted.add(survivors[j]);
+      const a = survivors[i];
+      const b = survivors[j];
+      if (!windowsOverlap(a.window, b.window)) continue;
+      const ka = key(a);
+      const kb = key(b);
+      if (ka === kb) {
+        if (ka !== "" && isDayVariant(a.window, b.window)) continue; // extended-day special
+        conflicted.add(a);
+        conflicted.add(b);
+      } else if (ka === "") {
+        conflicted.add(a);
+      } else if (kb === "") {
+        conflicted.add(b);
       }
     }
   }
@@ -248,4 +260,16 @@ export function reconcileWindows(
   }
 
   return results;
+}
+
+function isProperSubset(a: number[], b: number[]): boolean {
+  if (a.length >= b.length) return false;
+  const set = new Set(b);
+  return a.every((d) => set.has(d));
+}
+
+/** One window runs on a strict subset of the other's days (a per-day variant of the
+ *  same deal). Equal day-sets are NOT a variant — that is the 4–6-vs-4–7 conflict. */
+function isDayVariant(a: ReconcileWindow, b: ReconcileWindow): boolean {
+  return isProperSubset(a.daysOfWeek, b.daysOfWeek) || isProperSubset(b.daysOfWeek, a.daysOfWeek);
 }
