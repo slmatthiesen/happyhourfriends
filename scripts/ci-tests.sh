@@ -25,6 +25,7 @@ TESTS=(
   test:realness-gate
   test:window-reconcile
   test:anomaly-rules
+  test:render-escalation
   test:format
   test:active
   test:hours
