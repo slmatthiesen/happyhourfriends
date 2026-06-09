@@ -1,0 +1,745 @@
+{
+  "city": "five-cities",
+  "total": 73,
+  "byReason": {
+    "out-of-area": 14,
+    "low-signal": 21,
+    "airport": 9,
+    "place-type": 12,
+    "format": 6,
+    "closed": 5,
+    "chain": 6
+  },
+  "drops": [
+    {
+      "name": "Palo Mesa Pizza",
+      "reason": "out-of-area",
+      "address": "2790 S Halcyon Rd, Arroyo Grande, CA 93420, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "http://www.palomesapizza.com/",
+      "lat": 35.0803173,
+      "lng": -120.58596179999999,
+      "reviews": 207
+    },
+    {
+      "name": "Burrito Loco",
+      "reason": "out-of-area",
+      "address": "2808 S Halcyon Rd, Arroyo Grande, CA 93420, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 35.0812059,
+      "lng": -120.58660630000001,
+      "reviews": 524
+    },
+    {
+      "name": "Jocey's Juices and Deli",
+      "reason": "low-signal",
+      "address": "564 Mesa View Dr Suite E, Arroyo Grande, CA 93420, USA",
+      "primaryType": "restaurant",
+      "website": "https://joceysjuicesdeli.com/",
+      "lat": 35.0815956,
+      "lng": -120.58633839999999,
+      "reviews": 2
+    },
+    {
+      "name": "SpeedJuice",
+      "reason": "airport",
+      "address": "1205 Silver Spur Pl SPC 101, Oceano, CA 93445, USA",
+      "primaryType": "restaurant",
+      "website": "http://speedjuicestore.com/",
+      "lat": 35.0936257,
+      "lng": -120.61625799999999,
+      "reviews": null
+    },
+    {
+      "name": "Slappy’s Chowder House",
+      "reason": "airport",
+      "address": "306 Pier Ave, Oceano, CA 93445, USA",
+      "primaryType": "seafood_restaurant",
+      "website": null,
+      "lat": 35.1054794,
+      "lng": -120.63025289999999,
+      "reviews": 80
+    },
+    {
+      "name": "Pier St. Deli",
+      "reason": "place-type",
+      "address": "325 Pier Ave, Oceano, CA 93445, USA",
+      "primaryType": "deli",
+      "website": "https://www.pierstdelioceano.com/",
+      "lat": 35.1058679,
+      "lng": -120.6296747,
+      "reviews": 206
+    },
+    {
+      "name": "Rock & Roll Diner",
+      "reason": "format",
+      "address": "1300 Railroad St, Oceano, CA 93445, USA",
+      "primaryType": "diner",
+      "website": "https://rockandrolldiner.com/?utm_source=google",
+      "lat": 35.1053973,
+      "lng": -120.62261249999999,
+      "reviews": 1747
+    },
+    {
+      "name": "Beach Side BBQ",
+      "reason": "airport",
+      "address": "1262 Pacific Blvd, Oceano, CA 93445, USA",
+      "primaryType": "restaurant",
+      "website": "https://beachsidebbq.com/",
+      "lat": 35.106791,
+      "lng": -120.6235626,
+      "reviews": 1
+    },
+    {
+      "name": "Old Juan's Cantina",
+      "reason": "place-type",
+      "address": "649 Pier Ave, Oceano, CA 93445, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://www.oldjuanscantina.com/",
+      "lat": 35.1073818,
+      "lng": -120.62408339999998,
+      "reviews": 2242
+    },
+    {
+      "name": "Eagles nest",
+      "reason": "airport",
+      "address": "Oceano, CA 93445, USA",
+      "primaryType": "bar_and_grill",
+      "website": null,
+      "lat": 35.1005128,
+      "lng": -120.61464240000001,
+      "reviews": 3
+    },
+    {
+      "name": "Big Hot ' N Juicy",
+      "reason": "airport",
+      "address": "1309 Beach St, Oceano, CA 93445, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 35.0993273,
+      "lng": -120.6129199,
+      "reviews": null
+    },
+    {
+      "name": "Kuma",
+      "reason": "closed",
+      "address": "1875 Front St, Oceano, CA 93445, USA",
+      "primaryType": "sushi_restaurant",
+      "website": "https://www.kumabowls.com/",
+      "lat": 35.0993895,
+      "lng": -120.61291059999999,
+      "reviews": null
+    },
+    {
+      "name": "La Tapatia Markets & Deli",
+      "reason": "airport",
+      "address": "1909 Beach St, Oceano, CA 93445, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 35.0990472,
+      "lng": -120.61233490000001,
+      "reviews": 107
+    },
+    {
+      "name": "Efren's Mexican Restaurant",
+      "reason": "airport",
+      "address": "1720 Beach St, Oceano, CA 93445, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://efrensdeli.com/",
+      "lat": 35.099067399999996,
+      "lng": -120.61192129999999,
+      "reviews": 884
+    },
+    {
+      "name": "Chacho's Mexican Takeout",
+      "reason": "airport",
+      "address": "1911 Cienaga St, Oceano, CA 93445, USA",
+      "primaryType": "restaurant",
+      "website": "http://chachosauthenticmexicanfood.com/",
+      "lat": 35.0983314,
+      "lng": -120.6106382,
+      "reviews": 358
+    },
+    {
+      "name": "Tacos De Acapulco | Grover Beach",
+      "reason": "airport",
+      "address": "1051 S 13th St, Grover Beach, CA 93433, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 35.111944,
+      "lng": -120.6154586,
+      "reviews": 1036
+    },
+    {
+      "name": "#Laundromat",
+      "reason": "place-type",
+      "address": "1051 S 13th St STE D, Grover Beach, CA 93433, USA",
+      "primaryType": "laundry",
+      "website": null,
+      "lat": 35.111900299999995,
+      "lng": -120.61535610000001,
+      "reviews": 70
+    },
+    {
+      "name": "Taqueria San Miguel",
+      "reason": "format",
+      "address": "350 W Grand Ave, Grover Beach, CA 93433, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 35.121646,
+      "lng": -120.62703599999999,
+      "reviews": 164
+    },
+    {
+      "name": "chrussys brainrot factory",
+      "reason": "low-signal",
+      "address": "2496 Ocean St, Oceano, CA 93445, USA",
+      "primaryType": "brazilian_restaurant",
+      "website": null,
+      "lat": 35.099936299999996,
+      "lng": -120.60255350000001,
+      "reviews": 1
+    },
+    {
+      "name": "Dough Boys BBQ",
+      "reason": "low-signal",
+      "address": "601 S 13th St, Grover Beach, CA 93433, USA",
+      "primaryType": "barbecue_restaurant",
+      "website": null,
+      "lat": 35.115926099999996,
+      "lng": -120.6154596,
+      "reviews": null
+    },
+    {
+      "name": "Casa de berta",
+      "reason": "low-signal",
+      "address": "561 S 14th St, Grover Beach, CA 93433, USA",
+      "primaryType": "american_restaurant",
+      "website": null,
+      "lat": 35.1165119,
+      "lng": -120.61414490000001,
+      "reviews": null
+    },
+    {
+      "name": "Feed My Seoul",
+      "reason": "low-signal",
+      "address": "802 Park Way, Arroyo Grande, CA 93420, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 35.117768399999996,
+      "lng": -120.5908765,
+      "reviews": 10
+    },
+    {
+      "name": "Village Cafe",
+      "reason": "place-type",
+      "address": "112 W Branch St, Arroyo Grande, CA 93420, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "http://villagecafeag.com/",
+      "lat": 35.123189499999995,
+      "lng": -120.5796177,
+      "reviews": 363
+    },
+    {
+      "name": "The Deck",
+      "reason": "low-signal",
+      "address": "100 Stimson Ave, Pismo Beach, CA 93449, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://www.thedeckpismobeach.com/",
+      "lat": 35.1375013,
+      "lng": -120.64175329999998,
+      "reviews": 3
+    },
+    {
+      "name": "TNT Tacos",
+      "reason": "low-signal",
+      "address": "511 W Grand Ave, Grover Beach, CA 93433, USA",
+      "primaryType": "food",
+      "website": "https://order.online/store/tnt-tacos-arroyo-grande-28078943/",
+      "lat": 35.121977,
+      "lng": -120.6249565,
+      "reviews": 7
+    },
+    {
+      "name": "Taqueria El Guero",
+      "reason": "format",
+      "address": "583 W Grand Ave, Grover Beach, CA 93433, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://taqueriaelguero.com/",
+      "lat": 35.1219361,
+      "lng": -120.6241903,
+      "reviews": 13
+    },
+    {
+      "name": "Lil' Bits Café",
+      "reason": "place-type",
+      "address": "151 N 7th St, Grover Beach, CA 93433, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://www.facebook.com/Lil-Bits-Cafe-125829454148049/",
+      "lat": 35.1221585,
+      "lng": -120.6233033,
+      "reviews": 1220
+    },
+    {
+      "name": "Honey Bee",
+      "reason": "low-signal",
+      "address": "W Grand Ave, Grover Beach, CA 93433, USA",
+      "primaryType": "asian_restaurant",
+      "website": "https://usmapiqs.org/details/honey-bee-ChIJyUh",
+      "lat": 35.121582499999995,
+      "lng": -120.62178259999999,
+      "reviews": 3
+    },
+    {
+      "name": "Hanna's Mexican Fusion Restaurant",
+      "reason": "closed",
+      "address": "1412 E Grand Ave, Arroyo Grande, CA 93420, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.hannasmexicanfusionrestaurant.com/",
+      "lat": 35.1221178,
+      "lng": -120.6047481,
+      "reviews": 94
+    },
+    {
+      "name": "Panda Express",
+      "reason": "chain",
+      "address": "1401 E Grand Ave, Arroyo Grande, CA 93420, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.pandaexpress.com/locations/ca/arroyo-grande/932?utm_source=google_gbp&utm_medium=organic&utm_campaign=websitelink",
+      "lat": 35.1205071,
+      "lng": -120.6056706,
+      "reviews": 748
+    },
+    {
+      "name": "Little Caesars Pizza",
+      "reason": "chain",
+      "address": "1530 E Grand Ave STE A, Arroyo Grande, CA 93420, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://littlecaesars.com/en-us/store/7828",
+      "lat": 35.121171,
+      "lng": -120.60750300000001,
+      "reviews": 392
+    },
+    {
+      "name": "La Parrilla Taqueria",
+      "reason": "format",
+      "address": "1427 E Grand Ave, Arroyo Grande, CA 93420, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://laparrillataqueria.com/laparrilla?utm_source=google",
+      "lat": 35.120536799999996,
+      "lng": -120.6063264,
+      "reviews": 277
+    },
+    {
+      "name": "Chipotle Mexican Grill",
+      "reason": "chain",
+      "address": "1229 E Grand Ave, Arroyo Grande, CA 93420, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://locations.chipotle.com/ca/arroyo-grande/1229-e-grand-ave?utm_source=google&utm_medium=yext&utm_campaign=yext_listings?restaurant=2906",
+      "lat": 35.1201735,
+      "lng": -120.6017122,
+      "reviews": 469
+    },
+    {
+      "name": "Taqueria Guerrero #2",
+      "reason": "format",
+      "address": "1800 E Grand Ave, Grover Beach, CA 93433, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.taqueriaguerrero123.com/",
+      "lat": 35.1203528,
+      "lng": -120.6083879,
+      "reviews": 251
+    },
+    {
+      "name": "Mariscos & tostadas culiacan vip",
+      "reason": "low-signal",
+      "address": "1800 E Grand Ave suite C, Grover Beach, CA 93433, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 35.120756899999996,
+      "lng": -120.60895519999998,
+      "reviews": 24
+    },
+    {
+      "name": "Branch Street Deli and Pizzeria",
+      "reason": "place-type",
+      "address": "203 E Branch St, Arroyo Grande, CA 93420, USA",
+      "primaryType": "deli",
+      "website": "http://branchstreetdeli.com/",
+      "lat": 35.124039599999996,
+      "lng": -120.57776090000002,
+      "reviews": 509
+    },
+    {
+      "name": "Montesinos Fiesta",
+      "reason": "low-signal",
+      "address": "995 Cecchetti Rd, Arroyo Grande, CA 93420, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 35.1464588,
+      "lng": -120.5296795,
+      "reviews": null
+    },
+    {
+      "name": "Mersea's Seafood Restaurant",
+      "reason": "out-of-area",
+      "address": "3985 Avila Beach Dr, Avila Beach, CA 93424, USA",
+      "primaryType": "seafood_restaurant",
+      "website": "http://www.merseas.com/",
+      "lat": 35.1688659,
+      "lng": -120.7540325,
+      "reviews": 1683
+    },
+    {
+      "name": "Marisol",
+      "reason": "low-signal",
+      "address": "2757 Shell Beach Rd, Pismo Beach, CA 93449, San Luis Obispo, CA 93401, USA",
+      "primaryType": "seafood_restaurant",
+      "website": null,
+      "lat": 35.1650418,
+      "lng": -120.69041510000001,
+      "reviews": 1
+    },
+    {
+      "name": "Oasis Restaurant & Catering Moroccan / Mediterranean Cuisine and Seafood",
+      "reason": "closed",
+      "address": "1351 Price St, Pismo Beach, CA 93449, USA",
+      "primaryType": "moroccan_restaurant",
+      "website": "https://oasispismo.com/?utm_source=google",
+      "lat": 35.1453894,
+      "lng": -120.64421519999999,
+      "reviews": 418
+    },
+    {
+      "name": "Penny's All American Cafe",
+      "reason": "place-type",
+      "address": "1053 Price St, Pismo Beach, CA 93449, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "http://www.pennysallamericancafe.com/",
+      "lat": 35.1436026,
+      "lng": -120.64240079999999,
+      "reviews": 1737
+    },
+    {
+      "name": "Beachin' Biscuits",
+      "reason": "place-type",
+      "address": "800 Price St, Pismo Beach, CA 93449, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://www.beachinbiscuitspismobeach.com/",
+      "lat": 35.142582499999996,
+      "lng": -120.6405718,
+      "reviews": 829
+    },
+    {
+      "name": "Pismo Beach",
+      "reason": "low-signal",
+      "address": "Pismo Beach, CA 93449, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 35.142684599999995,
+      "lng": -120.6413039,
+      "reviews": null
+    },
+    {
+      "name": "Pismo Beach Smash Burger",
+      "reason": "low-signal",
+      "address": "750 Price St, Pismo Beach, CA 93449, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.pismobeachsmashburger.com/",
+      "lat": 35.1421474,
+      "lng": -120.64017620000001,
+      "reviews": 8
+    },
+    {
+      "name": "Taste of Pismo",
+      "reason": "closed",
+      "address": "649 Dolliver St, Pismo Beach, CA 93448, USA",
+      "primaryType": "event_venue",
+      "website": "http://www.pismochamber.com/",
+      "lat": 35.1412061,
+      "lng": -120.6396994,
+      "reviews": null
+    },
+    {
+      "name": "Oak Park Plaza",
+      "reason": "place-type",
+      "address": "Oak Park Plaza Shopping Center, 1510 W Branch St #1566, Arroyo Grande, CA 93420, USA",
+      "primaryType": "shopping_mall",
+      "website": null,
+      "lat": 35.1307366,
+      "lng": -120.60391229999999,
+      "reviews": 665
+    },
+    {
+      "name": "Denny's Restaurant",
+      "reason": "chain",
+      "address": "611 5 Cities Dr, Pismo Beach, CA 93449, USA",
+      "primaryType": "restaurant",
+      "website": "https://locations.dennys.com/CA/PISMO-BEACH/248069?utm_source=G&utm_medium=organic&utm_campaign=DAC",
+      "lat": 35.1351647,
+      "lng": -120.6214054,
+      "reviews": 1892
+    },
+    {
+      "name": "The Burger Den",
+      "reason": "low-signal",
+      "address": "611 5 Cities Dr, Pismo Beach, CA 93449, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.theburgerden.com/?utm_source=G&utm_medium=organic&utm_campaign=DAC",
+      "lat": 35.1351657,
+      "lng": -120.6214093,
+      "reviews": 19
+    },
+    {
+      "name": "Mountain Mike's Pizza",
+      "reason": "place-type",
+      "address": "441 5 Cities Dr, Pismo Beach, CA 93449, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://www.mountainmikespizza.com/locations/pismo-beach-5-cities-dr/",
+      "lat": 35.1364255,
+      "lng": -120.6250652,
+      "reviews": 163
+    },
+    {
+      "name": "Wingstop",
+      "reason": "chain",
+      "address": "1144 W Branch St B-3, Arroyo Grande, CA 93420, USA",
+      "primaryType": "chicken_wings_restaurant",
+      "website": "https://www.wingstop.com/location/wingstop-2383-arroyo-grande-ca-93420/menu?y_source=1_MTAxMDM5NTU5MS03MTUtbG9jYXRpb24ud2Vic2l0ZQ%3D%3D",
+      "lat": 35.1287694,
+      "lng": -120.59654880000001,
+      "reviews": 120
+    },
+    {
+      "name": "Blaze Pizza",
+      "reason": "chain",
+      "address": "1150 W Branch St, Arroyo Grande, CA 93420, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://www.blazepizza.com/",
+      "lat": 35.1286936,
+      "lng": -120.59675100000001,
+      "reviews": 264
+    },
+    {
+      "name": "Press Quesadilla Grill",
+      "reason": "low-signal",
+      "address": "929 Rancho Pkwy, Arroyo Grande, CA 93420, USA",
+      "primaryType": "restaurant",
+      "website": "https://pressqg.com/",
+      "lat": 35.125710399999996,
+      "lng": -120.5935369,
+      "reviews": null
+    },
+    {
+      "name": "Shaka Shak",
+      "reason": "low-signal",
+      "address": "443 Front St, Avila Beach, CA 93424, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.shakashak.net/",
+      "lat": 35.1787278,
+      "lng": -120.73452350000001,
+      "reviews": 1
+    },
+    {
+      "name": "Blue Moon Over Avila",
+      "reason": "out-of-area",
+      "address": "460 Front St, Avila Beach, CA 93424, USA",
+      "primaryType": "french_restaurant",
+      "website": "https://www.bluemoonoveravila.com/",
+      "lat": 35.1791887,
+      "lng": -120.73447360000002,
+      "reviews": 623
+    },
+    {
+      "name": "Shuck Shack",
+      "reason": "out-of-area",
+      "address": "480 Front St, Avila Beach, CA 93424, USA",
+      "primaryType": "oyster_bar_restaurant",
+      "website": "https://shuck-shack-natural-wine-bar.obtainwine.com/",
+      "lat": 35.179218999999996,
+      "lng": -120.7344731,
+      "reviews": 26
+    },
+    {
+      "name": "Mr. Rick's",
+      "reason": "out-of-area",
+      "address": "404 Front St, Avila Beach, CA 93424, USA",
+      "primaryType": "bar",
+      "website": "https://mrricks.com/",
+      "lat": 35.1790751,
+      "lng": -120.73404339999999,
+      "reviews": 686
+    },
+    {
+      "name": "Custom House",
+      "reason": "out-of-area",
+      "address": "404 Front St, Avila Beach, CA 93424, USA",
+      "primaryType": "seafood_restaurant",
+      "website": "https://www.oldcustomhouse.com/",
+      "lat": 35.1790412,
+      "lng": -120.73384709999999,
+      "reviews": 2781
+    },
+    {
+      "name": "Mission Pizza",
+      "reason": "out-of-area",
+      "address": "36 San Miguel St, Avila Beach, CA 93424, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://missionpizzaavila.com/",
+      "lat": 35.1791027,
+      "lng": -120.7337699,
+      "reviews": 78
+    },
+    {
+      "name": "Avila Market",
+      "reason": "place-type",
+      "address": "354 Front St, Avila Beach, CA 93424, USA",
+      "primaryType": "market",
+      "website": "http://www.avila.market/",
+      "lat": 35.1789104,
+      "lng": -120.7331764,
+      "reviews": 63
+    },
+    {
+      "name": "Locals Taproom",
+      "reason": "out-of-area",
+      "address": "90 San Miguel St, Avila Beach, CA 93424, USA",
+      "primaryType": "brewpub",
+      "website": "http://localstaproomavila.com/",
+      "lat": 35.179446299999995,
+      "lng": -120.73336080000001,
+      "reviews": 54
+    },
+    {
+      "name": "Ocean Grill",
+      "reason": "closed",
+      "address": "268 Front St, Avila Beach, CA 93424, USA",
+      "primaryType": "californian_restaurant",
+      "website": "http://www.oceangrillavila.com/",
+      "lat": 35.1786305,
+      "lng": -120.7323344,
+      "reviews": 574
+    },
+    {
+      "name": "San Luis Bay Estates",
+      "reason": "low-signal",
+      "address": "191 San Miguel St #311, Avila Beach, CA 93424, USA",
+      "primaryType": "real_estate_agency",
+      "website": "https://www.sanluisbayestates.com/",
+      "lat": 35.180641099999995,
+      "lng": -120.73325159999999,
+      "reviews": 6
+    },
+    {
+      "name": "Mulligan's Restaurant",
+      "reason": "out-of-area",
+      "address": "6460 Ana Bay Rd, Avila Beach, CA 93424, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.avilabeachresort.com/mulligans/",
+      "lat": 35.1819752,
+      "lng": -120.7390944,
+      "reviews": 172
+    },
+    {
+      "name": "Avila Bay Athletic Club & Spa",
+      "reason": "out-of-area",
+      "address": "6699 Bay Laurel Pl, Avila Beach, CA 93424, USA",
+      "primaryType": "sports_club",
+      "website": "https://abac.caclubs.com/",
+      "lat": 35.18976620000001,
+      "lng": -120.72208289999999,
+      "reviews": 143
+    },
+    {
+      "name": "Secret Garden at Sycamore Mineral Springs Resort & Spa",
+      "reason": "out-of-area",
+      "address": "1215 Avila Beach Dr, San Luis Obispo, CA 93405, USA",
+      "primaryType": "bar",
+      "website": "https://www.sycamoresprings.com/dining/secret-garden",
+      "lat": 35.186098799999996,
+      "lng": -120.71319249999999,
+      "reviews": 114
+    },
+    {
+      "name": "Gardens of Avila Restaurant",
+      "reason": "out-of-area",
+      "address": "1215 Avila Beach Dr, San Luis Obispo, CA 93405, USA",
+      "primaryType": "fine_dining_restaurant",
+      "website": "https://www.sycamoresprings.com/dining",
+      "lat": 35.185979100000004,
+      "lng": -120.7128204,
+      "reviews": 122
+    },
+    {
+      "name": "Chicken shack and smokehouse",
+      "reason": "low-signal",
+      "address": "560 Avila Beach Dr, San Luis Obispo, CA 93405, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://www.avilavalleybarn.com/",
+      "lat": 35.1826418,
+      "lng": -120.70677,
+      "reviews": 10
+    },
+    {
+      "name": "Kelsey See Canyon Vineyards",
+      "reason": "out-of-area",
+      "address": "1947 See Canyon Rd, San Luis Obispo, CA 93405, USA",
+      "primaryType": "winery",
+      "website": "http://www.kelseywine.com/",
+      "lat": 35.2078837,
+      "lng": -120.71804919999998,
+      "reviews": 288
+    },
+    {
+      "name": "Lumpia Bros. Cafe",
+      "reason": "place-type",
+      "address": "1187 W Grand Ave, Grover Beach, CA 93433, USA",
+      "primaryType": "filipino_restaurant",
+      "website": "https://lumpiabroscafe.square.site/",
+      "lat": 35.1217879,
+      "lng": -120.61679840000001,
+      "reviews": 136
+    },
+    {
+      "name": "Flora And Fauna Catering | Fine Food, Flora and Fauna Take Out",
+      "reason": "low-signal",
+      "address": "816 E Grand Ave, Arroyo Grande, CA 93420, USA",
+      "primaryType": "food",
+      "website": "http://www.floraandfaunafinefood.com/",
+      "lat": 35.1192016,
+      "lng": -120.59108690000001,
+      "reviews": 15
+    },
+    {
+      "name": "Puerto el Grande",
+      "reason": "low-signal",
+      "address": "1156 E Grand Ave, Arroyo Grande, CA 93420, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.puertoelgrandetortillagrill.com/",
+      "lat": 35.1204149,
+      "lng": -120.5983332,
+      "reviews": 9
+    },
+    {
+      "name": "Swell Sandwich Shop",
+      "reason": "low-signal",
+      "address": "231B Pomeroy Ave, Pismo Beach, CA 93449, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 35.1403862,
+      "lng": -120.64191819999999,
+      "reviews": 3
+    },
+    {
+      "name": "Taqueria El Guero",
+      "reason": "format",
+      "address": "711 Dolliver St, Pismo Beach, CA 93449, USA",
+      "primaryType": "restaurant",
+      "website": "https://taqueriaelguero.com/",
+      "lat": 35.1407154,
+      "lng": -120.64164559999998,
+      "reviews": 899
+    }
+  ]
+}

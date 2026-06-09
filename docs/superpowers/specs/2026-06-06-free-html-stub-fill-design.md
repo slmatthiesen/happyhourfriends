@@ -14,6 +14,7 @@ sitemap discovery), but the step that turns `"Happy Hour: 3pm-7pm daily"` into a
 `{daysOfWeek, startTime, endTime}` row is currently done by the **paid** Claude extractor.
 
 We want a **deterministic, $0 parser** that structures the clean cases, so we:
+
 1. Fill existing stubs we can patch from HTML alone — no Anthropic API.
 2. Escalate only the genuinely-needs-interpretation high-signal pages to the paid extractor.
 3. Apply the same free-first gate to **new discovery**, so we never pay to extract a HH we
