@@ -51,6 +51,9 @@ export interface ExtractInput {
   priorityUrls?: string[];
   /** Skip the headless-render fallback (the free batch sweep wants pure HTTP, no browser). */
   noRender?: boolean;
+  /** Skip the internal free-first short-circuit and ALWAYS call the paid model (after
+   *  render). Used by audit render-escalation to read JS/PDF HH pages the free parser can't. */
+  forcePaid?: boolean;
 }
 
 export interface ExtractedOffering {
@@ -582,10 +585,13 @@ export async function extractHappyHours(
 
   // Free deterministic parse: if the fetched HTML yields >=1 CLEAN happy-hour window,
   // take it for $0 and skip the paid model call entirely.
-  const free = freeExtractFromPages(pages, { model: "deterministic-html-v1", promptHash });
-  if (free) {
-    if (process.env.EXTRACT_DEBUG) console.error(`[extract] free parse hit: ${free.happyHours.length} window(s), $0`);
-    return free;
+  // forcePaid bypasses this so audit render-escalation always reaches the model.
+  if (!input.forcePaid) {
+    const free = freeExtractFromPages(pages, { model: "deterministic-html-v1", promptHash });
+    if (free) {
+      if (process.env.EXTRACT_DEBUG) console.error(`[extract] free parse hit: ${free.happyHours.length} window(s), $0`);
+      return free;
+    }
   }
 
   const response: Message = await anthropic().messages.create(params);
