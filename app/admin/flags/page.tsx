@@ -2,7 +2,12 @@ import { and, eq, inArray, isNull, notInArray, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { cities, dataAudit, happyHours, offerings, venues } from "@/db/schema";
 import type { AnomalyFlag } from "@/lib/audit/anomalyRules";
-import { FlagReviewRow, type FlaggedVenue, type FlaggedWindow } from "@/components/admin/flag-review-row";
+import {
+  FlagReviewRow,
+  type FlaggedOffering,
+  type FlaggedVenue,
+  type FlaggedWindow,
+} from "@/components/admin/flag-review-row";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +46,20 @@ export default async function FlagsPage() {
             endTime: happyHours.endTime,
             allDay: happyHours.allDay,
             sourceUrl: happyHours.sourceUrl,
-            offeringCount: sql<number>`count(${offerings.id})::int`,
+            offerings: sql<FlaggedOffering[]>`coalesce(
+              json_agg(json_build_object(
+                'kind', ${offerings.kind},
+                'category', ${offerings.category},
+                'name', ${offerings.name},
+                'priceCents', ${offerings.priceCents},
+                'originalPriceCents', ${offerings.originalPriceCents},
+                'currencyCode', ${offerings.currencyCode},
+                'description', ${offerings.description},
+                'conditions', ${offerings.conditions}
+              ) ORDER BY ${offerings.kind}, ${offerings.name})
+              FILTER (WHERE ${offerings.id} IS NOT NULL),
+              '[]'
+            )`,
           })
           .from(happyHours)
           .leftJoin(
