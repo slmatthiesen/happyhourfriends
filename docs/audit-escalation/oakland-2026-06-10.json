@@ -1,0 +1,252 @@
+[
+  {
+    "venueId": "833421dc-a507-4359-9f16-d94d048746fe",
+    "name": "Asmara Restaurant",
+    "hhPage": "https://asmararestaurantoakland.com/drinks-menu/",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 1,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "No happy hour schedule found on Asmara Restaurant's website pages.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 7865,
+        "outputTokens": 83
+      },
+      "costCents": 1,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "eabdc3e6-b25e-4826-97d2-28443b58c3be",
+    "name": "D.Monaghans On The Hill",
+    "hhPage": "https://dmonaghansoakland.com/oakland-d-monaghans-on-the-hill-happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 2,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 8111,
+        "outputTokens": 684
+      },
+      "costCents": 2,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "b38c86f3-4983-4970-8910-1f6336d60366",
+    "name": "Hidden Spot Emeryville",
+    "hhPage": "https://hiddenspot.online/emeryville-emeryville-hidden-spot-emeryville-happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 1,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "One-time happy hour event on Monday June 15th 4–6 PM at Emeryville location only; no recurring schedule found.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 4830,
+        "outputTokens": 99
+      },
+      "costCents": 1,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "f8d34a93-8e60-49e2-a81f-93d6de078db9",
+    "name": "LIMEWOOD BAR & RESTAURANT",
+    "hhPage": "https://claremontresortandclub.com/gather/special-offer/",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 4,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "No recurring happy hour or time-limited discount found on Limewood Bar & Restaurant pages. Menu and wine list pages show regular pricing with no stated happy hour windows or promotions.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 30598,
+        "outputTokens": 105
+      },
+      "costCents": 4,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "93fd46f5-4617-4827-8866-7d2f7a9740b2",
+    "name": "Oh G Burger",
+    "hhPage": "https://ohgburger.com/specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "skip",
+    "costCents": 1,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "render-escalation: no readable content on the confirmed HH page",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 2567,
+        "outputTokens": 92
+      },
+      "costCents": 1,
+      "promptHash": "a5e339e67b91c717",
+      "model": "render-escalation-skip"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "acae6769-a74a-4564-b009-0ea102863fb1",
+    "name": "RnR Sushi & Bowls",
+    "hhPage": "https://www.piedmontrnr.com/sushi-special-1",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 3,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "No recurring happy hour schedule found. Site contains lunch specials (Monday-Friday until 3pm) but these are regular menu items, not time-limited discounted offers.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 14630,
+        "outputTokens": 204
+      },
+      "costCents": 3,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "547675bf-7328-40e4-9fd3-c6cbb8784d08",
+    "name": "Rob Ben’s Restaurant & Lounge",
+    "hhPage": "https://robbensrestaurant.com/happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "skip",
+    "costCents": 0,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "render-escalation: no readable content on the confirmed HH page",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      },
+      "costCents": 0,
+      "promptHash": "a5e339e67b91c717",
+      "model": "render-escalation-skip"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "06834158-cae2-48d5-9e3f-546527c7c086",
+    "name": "The Lumpia Company",
+    "hhPage": "https://thelumpiacompany.com/oakland-the-lumpia-company-happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "skip",
+    "costCents": 0,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "render-escalation: no readable content on the confirmed HH page",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      },
+      "costCents": 0,
+      "promptHash": "a5e339e67b91c717",
+      "model": "render-escalation-skip"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "d69690e1-b060-457f-b6a2-50382e9b7068",
+    "name": "The Park Street Tavern",
+    "hhPage": "https://theparkstreettavern.com/alameda-the-park-street-tavern-drink-menu",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "skip",
+    "costCents": 0,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "render-escalation: no readable content on the confirmed HH page",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      },
+      "costCents": 0,
+      "promptHash": "a5e339e67b91c717",
+      "model": "render-escalation-skip"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "a32b08d7-1f08-4de0-a940-fe4e46b60684",
+    "name": "Willows & Pine",
+    "hhPage": "https://willowsandpine-restaurant.com/oakland-dimond-district-willows-and-pine-restaurant-and-catering-happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "skip",
+    "costCents": 0,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "render-escalation: no readable content on the confirmed HH page",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      },
+      "costCents": 0,
+      "promptHash": "a5e339e67b91c717",
+      "model": "render-escalation-skip"
+    },
+    "deactivateIds": []
+  }
+]
