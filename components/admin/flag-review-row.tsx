@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { hideWindowAction, keepFlagAction, type ActionResult } from "@/app/admin/actions";
+import { furtherReviewAction, hideWindowAction, keepFlagAction, type ActionResult } from "@/app/admin/actions";
 import type { AnomalyFlag } from "@/lib/audit/anomalyRules";
 import { formatDays, formatPrice } from "@/lib/format";
 
@@ -33,6 +33,10 @@ export interface FlaggedVenue {
   websiteUrl: string | null;
   flags: AnomalyFlag[];
   windows: FlaggedWindow[];
+  /** Operator note from the Further-review lane (data_audit.operator_note). */
+  note: string | null;
+  /** True when the venue is parked in the Further-review lane (resolution further_review). */
+  parked: boolean;
 }
 
 function windowLabel(w: FlaggedWindow): string {
@@ -57,6 +61,9 @@ export function FlagReviewRow({ venue }: { venue: FlaggedVenue }) {
   const [pending, startTransition] = useTransition();
   const [result, setResult] = useState<ActionResult | null>(null);
   const [done, setDone] = useState(false);
+  const [noteOpen, setNoteOpen] = useState(venue.parked);
+  const [note, setNote] = useState(venue.note ?? "");
+  const [noteSaved, setNoteSaved] = useState(false);
 
   function keep() {
     setResult(null);
@@ -73,6 +80,18 @@ export function FlagReviewRow({ venue }: { venue: FlaggedVenue }) {
       const r = await hideWindowAction(happyHourId);
       setResult(r);
       if (r.ok) setDone(true);
+    });
+  }
+
+  function saveNote() {
+    setResult(null);
+    setNoteSaved(false);
+    startTransition(async () => {
+      const r = await furtherReviewAction(venue.venueId, note);
+      setResult(r);
+      // A queue row leaves for the parked lane; a parked row stays put with its new note.
+      if (r.ok && !venue.parked) setDone(true);
+      if (r.ok && venue.parked) setNoteSaved(true);
     });
   }
 
@@ -95,15 +114,50 @@ export function FlagReviewRow({ venue }: { venue: FlaggedVenue }) {
             )}
           </div>
         </div>
-        <button
-          onClick={keep}
-          disabled={pending || done}
-          className="rounded-md border border-border px-2.5 py-1 text-xs hover:bg-row-hover disabled:opacity-50"
-          title="The data is correct — resolve all of this venue's flags"
-        >
-          {pending ? "…" : "Keep (data is correct)"}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setNoteOpen((o) => !o)}
+            disabled={pending || done}
+            className="rounded-md border border-border px-2.5 py-1 text-xs hover:bg-row-hover disabled:opacity-50"
+            title="Not sure yet — park this venue with a note for a deeper dive"
+          >
+            Further review…
+          </button>
+          <button
+            onClick={keep}
+            disabled={pending || done}
+            className="rounded-md border border-border px-2.5 py-1 text-xs hover:bg-row-hover disabled:opacity-50"
+            title="The data is correct — resolve all of this venue's flags"
+          >
+            {pending ? "…" : "Keep (data is correct)"}
+          </button>
+        </div>
       </div>
+
+      {noteOpen && (
+        <div className="mt-2">
+          <textarea
+            value={note}
+            onChange={(e) => {
+              setNote(e.target.value);
+              setNoteSaved(false);
+            }}
+            rows={2}
+            placeholder="Sourcing story: where did this come from, what did the pipeline get/miss and why?"
+            className="w-full rounded-md border border-border bg-transparent p-2 text-xs text-text-primary placeholder:text-text-muted"
+          />
+          <div className="mt-1 flex items-center gap-2">
+            <button
+              onClick={saveNote}
+              disabled={pending || done || !note.trim()}
+              className="rounded-md border border-border px-2.5 py-1 text-xs hover:bg-row-hover disabled:opacity-50"
+            >
+              {pending ? "…" : venue.parked ? "Update note" : "Park for further review"}
+            </button>
+            {noteSaved && <span className="text-xs text-text-muted">✓ saved</span>}
+          </div>
+        </div>
+      )}
 
       <ul className="mt-2 space-y-0.5 text-xs">
         {venue.flags.map((f, i) => (

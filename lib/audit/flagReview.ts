@@ -47,6 +47,29 @@ export async function keepFlaggedVenue(
   });
 }
 
+/** Operator verdict: NOT SURE YET — park the venue in the "Further review" lane with a
+ *  free-text note. Re-running updates the note. The venue leaves the main queue but stays
+ *  unresolved (resolution `further_review`); Keep/Hide from the lane settles it. */
+export async function markForFurtherReview(
+  dbx: Dbx,
+  { venueId, adminEmail, note }: { venueId: string; adminEmail: string; note: string },
+): Promise<void> {
+  const [da] = await dbx.select().from(dataAudit).where(eq(dataAudit.venueId, venueId)).limit(1);
+  if (!da) throw new Error("No data_audit row for venue");
+  await dbx
+    .update(dataAudit)
+    .set({ resolution: "further_review", operatorNote: note })
+    .where(eq(dataAudit.venueId, venueId));
+  await dbx.insert(auditLog).values({
+    tableName: "data_audit",
+    rowId: da.id,
+    beforeJsonb: { resolution: da.resolution, operatorNote: da.operatorNote },
+    afterJsonb: { resolution: "further_review", operatorNote: note },
+    actor: adminActor(adminEmail),
+    reason: "Flag review: parked for further review",
+  });
+}
+
 /** Operator verdict: the window is WRONG. Reversible hide (active=false, never deletes),
  *  audit-logged; demotes the venue to stub when its last active window goes dark (same
  *  policy as reconcile:windows). */
