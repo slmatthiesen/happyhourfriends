@@ -21,6 +21,7 @@ import { triageSite, resolveEnrichAction } from "@/lib/places/siteTriage";
 import { hhLikelihood } from "@/lib/places/hhLikelihood";
 import { assessRealness } from "@/lib/places/realnessGate";
 import { reconcileWindows, offeringsFingerprint, type ReconcileWindow } from "@/lib/places/windowReconcile";
+import { sanitizeOfferings } from "@/lib/recover/offeringSanity";
 import { firstOfCurrentMonth } from "@/lib/ai/budget";
 
 export interface ResolveResult {
@@ -161,7 +162,10 @@ export async function persistExtractedWindows(
       .from(offerings)
       .where(and(eq(offerings.happyHourId, row.id), eq(offerings.active, true)));
     const seenOff = new Set(existingOff.map((o) => `${o.name ?? ""}|${o.priceCents ?? ""}`));
-    for (const off of hh.offerings) {
+    // $0 deterministic cleanup: dedupe exact repeats, re-kind food mislabeled as drink,
+    // and flag day-specific items that don't match this window's days (warn-only).
+    const sanitized = sanitizeOfferings(hh.offerings, days);
+    for (const off of sanitized.offerings) {
       const offKey = `${off.name ?? ""}|${off.priceCents ?? ""}`;
       if (seenOff.has(offKey)) continue;
       seenOff.add(offKey);
@@ -185,7 +189,10 @@ export async function persistExtractedWindows(
       beforeJsonb: null,
       afterJsonb: { venueId, daysOfWeek: days, startTime: hh.startTime, endTime: hh.endTime, active: isActive },
       actor,
-      reason: "stub resolve",
+      reason:
+        sanitized.warnings.length > 0
+          ? `stub resolve (offering sanity: ${sanitized.warnings.join("; ")})`
+          : "stub resolve",
     });
   }
 
