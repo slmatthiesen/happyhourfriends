@@ -44,6 +44,7 @@ TESTS=(
   test:route-contribution
   test:interpreter-newhh
   test:safesearch
+  test:evidence-relevance
   test:cardinal-districts
   test:hh-text
   test:hh-relevance

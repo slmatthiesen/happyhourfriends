@@ -1,0 +1,1 @@
+ALTER TYPE "public"."ai_stage" ADD VALUE 'evidence_check';

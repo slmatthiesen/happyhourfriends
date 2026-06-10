@@ -8,7 +8,8 @@ export type LedgerStage =
   | "verify"
   | "reverify_cron"
   | "seed"
-  | "interpret";
+  | "interpret"
+  | "evidence_check";
 
 /**
  * Append one row to ai_usage_ledger (PRD §3.12, §4.7). Every paid call records its
