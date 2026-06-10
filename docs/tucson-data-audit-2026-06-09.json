@@ -1,0 +1,1053 @@
+[
+  {
+    "name": "Bear Canyon Pizza on Broadway",
+    "slug": "bear-canyon-pizza-on-broadway",
+    "website": "https://bearcanyonpizza.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: https://bearcanyonpizza.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "startTime": "13:00:00",
+        "endTime": "17:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://bearcanyonpizza.com/",
+        "notes": "Happy hour specials 1-5pm Monday-Friday; specific offerings not detailed on provided pages",
+        "offeringsKey": "happy hour specials|"
+      }
+    ]
+  },
+  {
+    "name": "Bear Canyon Pizza on Tanque Verde",
+    "slug": "bear-canyon-pizza-on-tanque-verde",
+    "website": "https://bearcanyonpizza.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: https://bearcanyonpizza.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "startTime": "13:00:00",
+        "endTime": "17:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://bearcanyonpizza.com/",
+        "notes": null,
+        "offeringsKey": ""
+      }
+    ]
+  },
+  {
+    "name": "Bistro 44",
+    "slug": "bistro-44",
+    "website": "http://www.bistro44tucson.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: http://www.bistro44tucson.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "15:00:00",
+        "endTime": "17:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "http://www.bistro44tucson.com/",
+        "notes": null,
+        "offeringsKey": "$1 off all drinks|;$3 off all appetizers open daily|;half priced burgers on sunday|;half priced burgers on sunday|"
+      }
+    ]
+  },
+  {
+    "name": "Brother John's Beer Bourbon & BBQ",
+    "slug": "brother-john-s-beer-bourbon-bbq",
+    "website": "https://brotherjohns.com/",
+    "flags": [
+      {
+        "code": "implausible_active",
+        "severity": "auto_fixable",
+        "evidence": "active window 11:00:00–22:00:00 is implausible (>6h or degenerate)"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          2
+        ],
+        "startTime": "11:00:00",
+        "endTime": "22:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://brotherjohns.com/brother-johns-beer-bourbon-bbq/menu/",
+        "notes": "With any food purchase",
+        "offeringsKey": "$2 beers|200"
+      },
+      {
+        "daysOfWeek": [
+          1
+        ],
+        "startTime": "11:00:00",
+        "endTime": "22:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://brotherjohns.com/brother-johns-beer-bourbon-bbq/menu/",
+        "notes": "15% off entire bill with work ID (teachers, law enforcement, firefighters, medical professionals)",
+        "offeringsKey": "15% off entire bill|"
+      },
+      {
+        "daysOfWeek": [
+          5
+        ],
+        "startTime": "11:00:00",
+        "endTime": "22:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://brotherjohns.com/brother-johns-beer-bourbon-bbq/menu/",
+        "notes": "Fish Fry-Days - special fish items added to menu",
+        "offeringsKey": "fish & chips|;fish tacos|"
+      },
+      {
+        "daysOfWeek": [
+          3
+        ],
+        "startTime": null,
+        "endTime": null,
+        "allDay": true,
+        "active": true,
+        "sourceUrl": "https://brotherjohns.com/brother-johns-beer-bourbon-bbq/menu/",
+        "notes": "With any food purchase",
+        "offeringsKey": "whiskey & bourbon - half off|"
+      }
+    ]
+  },
+  {
+    "name": "El Sur Mexican Restaurant",
+    "slug": "el-sur-mexican-restaurant",
+    "website": "http://www.elsurmexicanrestaurant.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: http://www.elsurmexicanrestaurant.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "startTime": "16:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "http://www.elsurmexicanrestaurant.com/",
+        "notes": "Happy Hour Monday–Thursday 4–6PM.",
+        "offeringsKey": ""
+      }
+    ]
+  },
+  {
+    "name": "Empire Pizza & Pub",
+    "slug": "empire-pizza-pub",
+    "website": "http://www.empire.pizza/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: http://www.empire.pizza/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          7
+        ],
+        "startTime": null,
+        "endTime": null,
+        "allDay": true,
+        "active": true,
+        "sourceUrl": "http://www.empire.pizza/",
+        "notes": null,
+        "offeringsKey": "|"
+      },
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "startTime": "16:00:00",
+        "endTime": "19:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "http://www.empire.pizza/",
+        "notes": null,
+        "offeringsKey": "|"
+      }
+    ]
+  },
+  {
+    "name": "Fat Willy's Kolb Rd & I-10",
+    "slug": "fat-willy-s-kolb-rd-i-10",
+    "website": "https://www.fatwillysaz.com/",
+    "flags": [
+      {
+        "code": "implausible_active",
+        "severity": "auto_fixable",
+        "evidence": "active window 11:00:00–21:00:00 is implausible (>6h or degenerate)"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          4
+        ],
+        "startTime": null,
+        "endTime": null,
+        "allDay": true,
+        "active": true,
+        "sourceUrl": "https://fatwillysaz.com/wp-content/uploads/2025/11/fw_football_cr.pdf",
+        "notes": "Tasty Thursdays: $36 MVP Pizza Combo",
+        "offeringsKey": "mvp pizza combo|3600"
+      },
+      {
+        "daysOfWeek": [
+          5
+        ],
+        "startTime": "11:00:00",
+        "endTime": "21:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://fatwillysaz.com/wp-content/uploads/2025/11/fw_football_cr.pdf",
+        "notes": "Fish Fry Friday 11AM-9PM",
+        "offeringsKey": "fish basket special|"
+      },
+      {
+        "daysOfWeek": [
+          3
+        ],
+        "startTime": null,
+        "endTime": null,
+        "allDay": true,
+        "active": true,
+        "sourceUrl": "https://fatwillysaz.com/wp-content/uploads/2025/11/fw_football_cr.pdf",
+        "notes": "WINsdays: $2 off all wines, all day",
+        "offeringsKey": "all wines|"
+      },
+      {
+        "daysOfWeek": [
+          1
+        ],
+        "startTime": null,
+        "endTime": null,
+        "allDay": true,
+        "active": true,
+        "sourceUrl": "https://fatwillysaz.com/wp-content/uploads/2025/11/fw_football_cr.pdf",
+        "notes": "Burger Monday: $5 off any burger with beverage purchase, all day",
+        "offeringsKey": "any burger|"
+      },
+      {
+        "daysOfWeek": [
+          7
+        ],
+        "startTime": null,
+        "endTime": null,
+        "allDay": true,
+        "active": true,
+        "sourceUrl": "https://fatwillysaz.com/wp-content/uploads/2025/11/fw_football_cr.pdf",
+        "notes": "Sunday Funday Football Seasonal Specials: Boneless Wings $8 all day, $12 Chili Cheese Dog, $10 Smirnoff Breakfast Bloody Mary, $6 Bloody Mary/Mimosa, $27 Nutrl Buckets, $5 Coors Light 25oz",
+        "offeringsKey": "bloody mary or mimosa|600;boneless wings|800;chili cheese dog|1200;coors light|500;nutrl buckets|2700;smirnoff breakfast bloody mary|1000"
+      },
+      {
+        "daysOfWeek": [
+          2
+        ],
+        "startTime": null,
+        "endTime": null,
+        "allDay": true,
+        "active": true,
+        "sourceUrl": "https://fatwillysaz.com/wp-content/uploads/2025/11/fw_football_cr.pdf",
+        "notes": "Kids Eat Free with any adult entrée, all day",
+        "offeringsKey": "kids meals|"
+      },
+      {
+        "daysOfWeek": [
+          6
+        ],
+        "startTime": null,
+        "endTime": null,
+        "allDay": true,
+        "active": true,
+        "sourceUrl": "https://fatwillysaz.com/wp-content/uploads/2025/11/fw_football_cr.pdf",
+        "notes": "Football Seasonal Specials: $13 Brat Basket, $7 ASU Desert Halo beer",
+        "offeringsKey": "asu desert halo|700;brat basket|1300"
+      }
+    ]
+  },
+  {
+    "name": "Grumpy's Grill",
+    "slug": "grumpy-s-grill",
+    "website": "http://www.grumpysgrill.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: https://www.grumpysgrill.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "14:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://www.grumpysgrill.com/",
+        "notes": null,
+        "offeringsKey": "all alcoholic drinks|;all appetizers|"
+      }
+    ]
+  },
+  {
+    "name": "HiFalutin Rapid Western Grill",
+    "slug": "hifalutin-rapid-western-grill",
+    "website": "http://www.hifalutinaz.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: http://www.hifalutinaz.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          7
+        ],
+        "startTime": "15:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "http://www.hifalutinaz.com/",
+        "notes": null,
+        "offeringsKey": "discounted appetizers|;discounted drinks|"
+      }
+    ]
+  },
+  {
+    "name": "Hops Sports Grill",
+    "slug": "hops-sports-grill",
+    "website": "http://hopssportsgrill.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: https://www.hopssportsgrill.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "15:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://www.hopssportsgrill.com/",
+        "notes": null,
+        "offeringsKey": "happy hour|"
+      }
+    ]
+  },
+  {
+    "name": "IBT's Bar + Food",
+    "slug": "ibt-s-bar-food",
+    "website": "http://www.ibtstucson.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: https://www.ibtstucson.com/#special-events"
+      },
+      {
+        "code": "implausible_active",
+        "severity": "auto_fixable",
+        "evidence": "active window 17:00:00–02:00:00 is implausible (>6h or degenerate)"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          7
+        ],
+        "startTime": "17:00:00",
+        "endTime": "02:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://www.ibtstucson.com/#special-events",
+        "notes": "Karaoke and 2-4-1's, hosted by Diva",
+        "offeringsKey": "2-4-1's|"
+      },
+      {
+        "daysOfWeek": [
+          1
+        ],
+        "startTime": "21:00:00",
+        "endTime": "02:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://www.ibtstucson.com/#special-events",
+        "notes": "Karaoke and 3-4-1's, hosted by Diva",
+        "offeringsKey": "3-4-1's|"
+      }
+    ]
+  },
+  {
+    "name": "La Escondida",
+    "slug": "la-escondida",
+    "website": "http://whiskeydelbac.com/",
+    "flags": [
+      {
+        "code": "assumed_days_avoidable",
+        "severity": "auto_fixable",
+        "evidence": "https://whiskeydelbac.com/menu/happy-hour — days assumed Mon–Fri (none stated)"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "startTime": "17:30:00",
+        "endTime": "19:30:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://whiskeydelbac.com/menu/happy-hour",
+        "notes": "days assumed Mon–Fri (none stated)",
+        "offeringsKey": ""
+      },
+      {
+        "daysOfWeek": [
+          3,
+          5
+        ],
+        "startTime": "15:00:00",
+        "endTime": "16:30:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://whiskeydelbac.com/2023/11/kxci-limited-release-barrell-event/",
+        "notes": null,
+        "offeringsKey": ""
+      }
+    ]
+  },
+  {
+    "name": "Los Pochos Sports Bar",
+    "slug": "los-pochos-sports-bar",
+    "website": "https://www.facebook.com/profile.php?id=100077324047155",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: https://los-pochos-sports-bar.weeblyte.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "17:00:00",
+        "endTime": "19:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://los-pochos-sports-bar.weeblyte.com/",
+        "notes": "Daily happy hour",
+        "offeringsKey": "|"
+      }
+    ]
+  },
+  {
+    "name": "Monterey Court",
+    "slug": "monterey-court",
+    "website": "http://www.montereycourtaz.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: http://www.montereycourtaz.com/"
+      },
+      {
+        "code": "implausible_active",
+        "severity": "auto_fixable",
+        "evidence": "active window 11:00:00–22:00:00 is implausible (>6h or degenerate)"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          2
+        ],
+        "startTime": "11:00:00",
+        "endTime": "22:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "http://www.montereycourtaz.com/",
+        "notes": "Tequila Tuesdays",
+        "offeringsKey": "house margaritas|400;shots|"
+      },
+      {
+        "daysOfWeek": [
+          4
+        ],
+        "startTime": "16:00:00",
+        "endTime": null,
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "http://www.montereycourtaz.com/",
+        "notes": "Terrific Thursdays - Appreciation night for working women",
+        "offeringsKey": "signature cocktails|"
+      },
+      {
+        "daysOfWeek": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "16:00:00",
+        "endTime": "19:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "http://www.montereycourtaz.com/",
+        "notes": "Drink and craft brew specials plus reduced pricing on most appetizers and $12 brew & burger special",
+        "offeringsKey": "brew & burger special|1200;cocktails|;craft brews|;most appetizers|"
+      },
+      {
+        "daysOfWeek": [
+          5
+        ],
+        "startTime": "17:00:00",
+        "endTime": "19:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "http://www.montereycourtaz.com/",
+        "notes": "Different craft brewery featured with tastings, often with grilled pairings at north patio bar",
+        "offeringsKey": "craft brewery tastings|;grilled pairings|"
+      },
+      {
+        "daysOfWeek": [
+          3
+        ],
+        "startTime": null,
+        "endTime": null,
+        "allDay": true,
+        "active": true,
+        "sourceUrl": "http://www.montereycourtaz.com/",
+        "notes": "Wine Wednesdays",
+        "offeringsKey": "wine bottles|"
+      }
+    ]
+  },
+  {
+    "name": "Pockets Pool & Pub",
+    "slug": "pockets-pool-pub",
+    "website": "http://www.pocketstucson.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: http://www.pocketstucson.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "16:00:00",
+        "endTime": "19:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "http://www.pocketstucson.com/",
+        "notes": "Daily happy hour",
+        "offeringsKey": "happy hour specials|"
+      }
+    ]
+  },
+  {
+    "name": "Tesoro Latin Kitchen & Cantina",
+    "slug": "tesoro-latin-kitchen-cantina",
+    "website": "https://tesorotucson.com/",
+    "flags": [
+      {
+        "code": "implausible_active",
+        "severity": "auto_fixable",
+        "evidence": "active window 11:00:00–21:00:00 is implausible (>6h or degenerate)"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          3,
+          4,
+          5
+        ],
+        "startTime": "16:00:00",
+        "endTime": "19:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://tesorotucson.com/tucson-tesoro-latin-kitchen-and-cantina-happy-hours-specials",
+        "notes": null,
+        "offeringsKey": "chicken & ground beef tacos|300;most appetizers|;select tequilas (hornitos reposado, hornitos plata, sauza silver, corralejo blanco, corralejo reposado)|500;titos vodka|500"
+      },
+      {
+        "daysOfWeek": [
+          4
+        ],
+        "startTime": "11:00:00",
+        "endTime": "21:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://tesorotucson.com/tucson-tesoro-latin-kitchen-and-cantina-happy-hours-specials",
+        "notes": null,
+        "offeringsKey": "house margaritas|300"
+      }
+    ]
+  },
+  {
+    "name": "The Canyon's Crown Restaurant & Pub",
+    "slug": "the-canyon-s-crown-restaurant-pub",
+    "website": "https://www.canyonscrown.com/",
+    "flags": [
+      {
+        "code": "implausible_active",
+        "severity": "auto_fixable",
+        "evidence": "active window 11:00:00–21:00:00 is implausible (>6h or degenerate)"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          3
+        ],
+        "startTime": "11:00:00",
+        "endTime": "21:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://canyonscrown.com/tucson-canyon-s-crown-restaurant-andamp-pub-happy-hours-specials",
+        "notes": null,
+        "offeringsKey": "wings|"
+      },
+      {
+        "daysOfWeek": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "15:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://canyonscrown.com/tucson-canyon-s-crown-restaurant-andamp-pub-happy-hours-specials",
+        "notes": null,
+        "offeringsKey": "all starters|;drafts|;wells|;wines|"
+      }
+    ]
+  },
+  {
+    "name": "The Cork Tucson",
+    "slug": "the-cork-tucson",
+    "website": "https://corktucson.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: https://corktucson.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "15:00:00",
+        "endTime": "18:30:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://corktucson.com/",
+        "notes": null,
+        "offeringsKey": "calamari steak|1000;classic escargot|1200;draft beer|500;jumbo shrimp cocktail|1300;prime rib strips|1300;sauteed mushrooms|900;select cocktails|"
+      }
+    ]
+  },
+  {
+    "name": "The Depot Bar",
+    "slug": "the-depot-bar",
+    "website": "https://thedepotbar.shop/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: https://thedepotbar.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1
+        ],
+        "startTime": "16:00:00",
+        "endTime": null,
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://thedepotbar.com/",
+        "notes": null,
+        "offeringsKey": "beers & seltzers|350"
+      }
+    ]
+  },
+  {
+    "name": "The Horseshoe Grill",
+    "slug": "the-horseshoe-grill",
+    "website": "https://www.thehorseshoetucson.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: https://www.thehorseshoetucson.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          2
+        ],
+        "startTime": null,
+        "endTime": null,
+        "allDay": true,
+        "active": true,
+        "sourceUrl": "https://www.thehorseshoetucson.com/",
+        "notes": "All-day Taco Tuesday with fun-priced tacos and discounted tequila",
+        "offeringsKey": "discounted tequila|;horseshoe tacos baja style|"
+      }
+    ]
+  },
+  {
+    "name": "The Monica",
+    "slug": "the-monica",
+    "website": "http://themonicatucson.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: https://themonicatucson.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "startTime": "14:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://themonicatucson.com/",
+        "notes": null,
+        "offeringsKey": "|"
+      }
+    ]
+  },
+  {
+    "name": "Vero Amore - Swan",
+    "slug": "vero-amore-swan",
+    "website": "https://veroamorepizza.com/?utm_source=google",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: https://catering.veroamorepizza.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "16:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://catering.veroamorepizza.com/",
+        "notes": null,
+        "offeringsKey": "|"
+      }
+    ]
+  },
+  {
+    "name": "Wing Factory",
+    "slug": "wing-factory",
+    "website": "http://www.wingfactorytucson.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: http://www.wingfactorytucson.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          2,
+          4
+        ],
+        "startTime": null,
+        "endTime": null,
+        "allDay": true,
+        "active": true,
+        "sourceUrl": "http://www.wingfactorytucson.com/",
+        "notes": null,
+        "offeringsKey": "boneless wings|99"
+      },
+      {
+        "daysOfWeek": [
+          3
+        ],
+        "startTime": null,
+        "endTime": null,
+        "allDay": true,
+        "active": true,
+        "sourceUrl": "http://www.wingfactorytucson.com/",
+        "notes": null,
+        "offeringsKey": "wings|99"
+      },
+      {
+        "daysOfWeek": [
+          1
+        ],
+        "startTime": null,
+        "endTime": null,
+        "allDay": true,
+        "active": true,
+        "sourceUrl": "http://www.wingfactorytucson.com/",
+        "notes": null,
+        "offeringsKey": "military discount|"
+      }
+    ]
+  },
+  {
+    "name": "Wooden Nickel Tavern",
+    "slug": "wooden-nickel-tavern",
+    "website": "https://www.woodennickeltavern.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: https://www.woodennickeltavern.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "15:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://www.woodennickeltavern.com/",
+        "notes": null,
+        "offeringsKey": "domestic bottles|200;draft beers|200;well drinks|200"
+      }
+    ]
+  },
+  {
+    "name": "Your Mom's House, Bar & Grill",
+    "slug": "your-mom-s-house-bar-grill",
+    "website": "https://ymhtucson.com/",
+    "flags": [
+      {
+        "code": "implausible_active",
+        "severity": "auto_fixable",
+        "evidence": "active window 11:00:00–20:30:00 is implausible (>6h or degenerate)"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1
+        ],
+        "startTime": "11:00:00",
+        "endTime": "20:30:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://ymhtucson.com/specials",
+        "notes": null,
+        "offeringsKey": "jack daniels|500;smash burger|"
+      },
+      {
+        "daysOfWeek": [
+          3,
+          6
+        ],
+        "startTime": "11:00:00",
+        "endTime": "20:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://ymhtucson.com/specials",
+        "notes": null,
+        "offeringsKey": "wings|75"
+      },
+      {
+        "daysOfWeek": [
+          4
+        ],
+        "startTime": "11:00:00",
+        "endTime": "20:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://ymhtucson.com/specials",
+        "notes": null,
+        "offeringsKey": "crispy chicken sandwich|"
+      },
+      {
+        "daysOfWeek": [
+          2
+        ],
+        "startTime": "11:00:00",
+        "endTime": "20:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://ymhtucson.com/specials",
+        "notes": null,
+        "offeringsKey": "crispy tacos|200;dos equis|;margarita|300"
+      },
+      {
+        "daysOfWeek": [
+          5
+        ],
+        "startTime": "11:00:00",
+        "endTime": "20:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://ymhtucson.com/specials",
+        "notes": null,
+        "offeringsKey": "appetizers|"
+      },
+      {
+        "daysOfWeek": [
+          7
+        ],
+        "startTime": "11:00:00",
+        "endTime": "20:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://ymhtucson.com/specials",
+        "notes": null,
+        "offeringsKey": "bloody mary|"
+      }
+    ]
+  }
+]

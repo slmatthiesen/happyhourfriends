@@ -1,0 +1,2339 @@
+[
+  {
+    "venueId": "2fab7de6-9f5d-4fde-b693-eb01702b2e65",
+    "name": "Burrito House",
+    "hhPage": "https://burritohousespokanewa.com/spokane-burrito-house-happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "skip",
+    "costCents": 1,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "render-escalation: no readable content on the confirmed HH page",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 3447,
+        "outputTokens": 95
+      },
+      "costCents": 1,
+      "promptHash": "a5e339e67b91c717",
+      "model": "render-escalation-skip"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "e668ea0a-5753-4cbd-99d0-61a835652d14",
+    "name": "Das Stein Haus - Bar",
+    "hhPage": "https://dassteinhaus.co/spokane-north-spokane-das-stein-haus-happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 2,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "Drink menu mentions \"Happy Hour\" with appetizer discounts (25% off, +$2 fries) but no specific days or times are stated in the fetched content.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 6724,
+        "outputTokens": 205
+      },
+      "costCents": 2,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "d7a549d2-e5ca-4893-8757-207480795400",
+    "name": "Das Stein Haus - Dining | German",
+    "hhPage": "https://dassteinhaus.co/spokane-north-spokane-das-stein-haus-happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "skip",
+    "costCents": 1,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "render-escalation: no readable content on the confirmed HH page",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 1907,
+        "outputTokens": 93
+      },
+      "costCents": 1,
+      "promptHash": "a5e339e67b91c717",
+      "model": "render-escalation-skip"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "6ac5b238-b7d5-47bd-a021-6920dcb3ae6a",
+    "name": "Ferraro's Restaurant and Bar | Italian",
+    "hhPage": "https://www.ferrarosfamilyitalian.com/spokane-logan-neighborhood-ferraro-s-restaurant-and-bar-happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [
+      {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "start": "11:00",
+        "end": "14:00",
+        "offerings": [
+          {
+            "name": "$35 Friday Salmon Fettuccini Saturday",
+            "price": 3500
+          }
+        ],
+        "src": "https://www.ferrarosfamilyitalian.com/spokane-logan-neighborhood-ferraro-s-restaurant-and-bar-food-menu"
+      }
+    ],
+    "highConfidence": false,
+    "route": "free",
+    "costCents": 0,
+    "extracted": {
+      "happyHours": [
+        {
+          "daysOfWeek": [
+            7
+          ],
+          "allDay": false,
+          "startTime": "11:00",
+          "endTime": "21:00",
+          "timeKnown": true,
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://www.ferrarosfamilyitalian.com/spokane-logan-neighborhood-ferraro-s-restaurant-and-bar-happy-hours-specials",
+          "suspect": true,
+          "offerings": []
+        },
+        {
+          "daysOfWeek": [
+            1
+          ],
+          "allDay": false,
+          "startTime": "11:00",
+          "endTime": "21:00",
+          "timeKnown": true,
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://www.ferrarosfamilyitalian.com/spokane-logan-neighborhood-ferraro-s-restaurant-and-bar-happy-hours-specials",
+          "suspect": true,
+          "offerings": []
+        },
+        {
+          "daysOfWeek": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "allDay": false,
+          "startTime": "11:00",
+          "endTime": "21:00",
+          "timeKnown": true,
+          "locationWithinVenue": "all",
+          "notes": "days assumed Mon–Fri (none stated)",
+          "sourceUrl": "https://www.ferrarosfamilyitalian.com/spokane-logan-neighborhood-ferraro-s-restaurant-and-bar-happy-hours-specials",
+          "suspect": true,
+          "offerings": []
+        },
+        {
+          "daysOfWeek": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "allDay": false,
+          "startTime": "11:00",
+          "endTime": "14:00",
+          "timeKnown": true,
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://www.ferrarosfamilyitalian.com/spokane-logan-neighborhood-ferraro-s-restaurant-and-bar-food-menu",
+          "suspect": false,
+          "offerings": [
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "$35 Friday Salmon Fettuccini Saturday",
+              "priceCents": 3500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.ferrarosfamilyitalian.com/spokane-logan-neighborhood-ferraro-s-restaurant-and-bar-food-menu"
+            }
+          ]
+        },
+        {
+          "daysOfWeek": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "allDay": false,
+          "startTime": "18:00",
+          "endTime": "20:00",
+          "timeKnown": true,
+          "locationWithinVenue": "all",
+          "notes": "days assumed Mon–Fri (none stated)",
+          "sourceUrl": "https://www.ferrarosfamilyitalian.com/spokane-logan-neighborhood-ferraro-s-restaurant-and-bar-food-menu",
+          "suspect": true,
+          "offerings": [
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "$1.50 per person for plates",
+              "priceCents": 150,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.ferrarosfamilyitalian.com/spokane-logan-neighborhood-ferraro-s-restaurant-and-bar-food-menu"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "$50 Delivery Fee",
+              "priceCents": 5000,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.ferrarosfamilyitalian.com/spokane-logan-neighborhood-ferraro-s-restaurant-and-bar-food-menu"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "$250 before tax Lasagna",
+              "priceCents": 25000,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.ferrarosfamilyitalian.com/spokane-logan-neighborhood-ferraro-s-restaurant-and-bar-food-menu"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "$65.00",
+              "priceCents": 6500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.ferrarosfamilyitalian.com/spokane-logan-neighborhood-ferraro-s-restaurant-and-bar-food-menu"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "$65.00",
+              "priceCents": 6500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.ferrarosfamilyitalian.com/spokane-logan-neighborhood-ferraro-s-restaurant-and-bar-food-menu"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "$75.00",
+              "priceCents": 7500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.ferrarosfamilyitalian.com/spokane-logan-neighborhood-ferraro-s-restaurant-and-bar-food-menu"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "$75.00",
+              "priceCents": 7500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.ferrarosfamilyitalian.com/spokane-logan-neighborhood-ferraro-s-restaurant-and-bar-food-menu"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "$50.00",
+              "priceCents": 5000,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.ferrarosfamilyitalian.com/spokane-logan-neighborhood-ferraro-s-restaurant-and-bar-food-menu"
+            }
+          ]
+        }
+      ],
+      "confidence": 1,
+      "summary": "Deterministic HTML parse: 5 window(s).",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      },
+      "costCents": 0,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": [],
+    "reviewNote": "operator review 2026-06-09: rejected (contamination/event-page/junk extraction)"
+  },
+  {
+    "venueId": "546d4836-fd75-49a7-8b80-e8d98fa4ea66",
+    "name": "Française Spokane | French",
+    "hhPage": "https://eatgoodgroup.com/wp-content/uploads/2025/05/fran-happy-hour-1.pdf",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [
+      {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "start": "15:00:00",
+        "end": "17:00:00",
+        "offerings": 0,
+        "src": "http://francaisespokane.com/"
+      }
+    ],
+    "found": [
+      {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "start": "15:00",
+        "end": "17:00",
+        "offerings": [
+          {
+            "name": "Glass of Rosé",
+            "price": 500
+          },
+          {
+            "name": "Well Cocktails",
+            "price": 500
+          },
+          {
+            "name": "Featured Cocktail",
+            "price": 500
+          },
+          {
+            "name": "Select Draft Beer",
+            "price": 500
+          },
+          {
+            "name": "Select White or Red Wine",
+            "price": 700
+          },
+          {
+            "name": "House Cocktails",
+            "price": null
+          },
+          {
+            "name": "House Bread",
+            "price": 500
+          },
+          {
+            "name": "Pate de Campagne",
+            "price": 500
+          },
+          {
+            "name": "Œufs Farcis au Caviar (2)",
+            "price": 500
+          },
+          {
+            "name": "Petite Soupe à l'Oignon",
+            "price": 500
+          },
+          {
+            "name": "Salad Lyonnaise",
+            "price": 500
+          },
+          {
+            "name": "Pommes Frites",
+            "price": 500
+          },
+          {
+            "name": "Champignons Sautés",
+            "price": 500
+          },
+          {
+            "name": "Roasted Carrots",
+            "price": 500
+          },
+          {
+            "name": "Escargot",
+            "price": 1500
+          },
+          {
+            "name": "Le Burger",
+            "price": 1700
+          },
+          {
+            "name": "Steak Frites",
+            "price": 2500
+          },
+          {
+            "name": "Charcuterie and Cheese Plate",
+            "price": 2500
+          },
+          {
+            "name": "Beignets",
+            "price": 500
+          }
+        ],
+        "src": "https://eatgoodgroup.com/wp-content/uploads/2025/05/fran-happy-hour-1.pdf"
+      }
+    ],
+    "highConfidence": true,
+    "route": "paid",
+    "costCents": 6,
+    "extracted": {
+      "happyHours": [
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "startTime": "15:00",
+          "endTime": "17:00",
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://eatgoodgroup.com/wp-content/uploads/2025/05/fran-happy-hour-1.pdf",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "wine",
+              "name": "Glass of Rosé",
+              "priceCents": 500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://eatgoodgroup.com/wp-content/uploads/2025/05/fran-happy-hour-1.pdf"
+            },
+            {
+              "kind": "drink",
+              "category": "cocktail",
+              "name": "Well Cocktails",
+              "priceCents": 500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://eatgoodgroup.com/wp-content/uploads/2025/05/fran-happy-hour-1.pdf"
+            },
+            {
+              "kind": "drink",
+              "category": "cocktail",
+              "name": "Featured Cocktail",
+              "priceCents": 500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://eatgoodgroup.com/wp-content/uploads/2025/05/fran-happy-hour-1.pdf"
+            },
+            {
+              "kind": "drink",
+              "category": "beer",
+              "name": "Select Draft Beer",
+              "priceCents": 500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://eatgoodgroup.com/wp-content/uploads/2025/05/fran-happy-hour-1.pdf"
+            },
+            {
+              "kind": "drink",
+              "category": "wine",
+              "name": "Select White or Red Wine",
+              "priceCents": 700,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://eatgoodgroup.com/wp-content/uploads/2025/05/fran-happy-hour-1.pdf"
+            },
+            {
+              "kind": "drink",
+              "category": "cocktail",
+              "name": "House Cocktails",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 200,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://eatgoodgroup.com/wp-content/uploads/2025/05/fran-happy-hour-1.pdf"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "House Bread",
+              "priceCents": 500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://eatgoodgroup.com/wp-content/uploads/2025/05/fran-happy-hour-1.pdf"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Pate de Campagne",
+              "priceCents": 500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://eatgoodgroup.com/wp-content/uploads/2025/05/fran-happy-hour-1.pdf"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Œufs Farcis au Caviar (2)",
+              "priceCents": 500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://eatgoodgroup.com/wp-content/uploads/2025/05/fran-happy-hour-1.pdf"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Petite Soupe à l'Oignon",
+              "priceCents": 500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://eatgoodgroup.com/wp-content/uploads/2025/05/fran-happy-hour-1.pdf"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Salad Lyonnaise",
+              "priceCents": 500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://eatgoodgroup.com/wp-content/uploads/2025/05/fran-happy-hour-1.pdf"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Pommes Frites",
+              "priceCents": 500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://eatgoodgroup.com/wp-content/uploads/2025/05/fran-happy-hour-1.pdf"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Champignons Sautés",
+              "priceCents": 500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://eatgoodgroup.com/wp-content/uploads/2025/05/fran-happy-hour-1.pdf"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Roasted Carrots",
+              "priceCents": 500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://eatgoodgroup.com/wp-content/uploads/2025/05/fran-happy-hour-1.pdf"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Escargot",
+              "priceCents": 1500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://eatgoodgroup.com/wp-content/uploads/2025/05/fran-happy-hour-1.pdf"
+            },
+            {
+              "kind": "food",
+              "category": "entree",
+              "name": "Le Burger",
+              "priceCents": 1700,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://eatgoodgroup.com/wp-content/uploads/2025/05/fran-happy-hour-1.pdf"
+            },
+            {
+              "kind": "food",
+              "category": "entree",
+              "name": "Steak Frites",
+              "priceCents": 2500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://eatgoodgroup.com/wp-content/uploads/2025/05/fran-happy-hour-1.pdf"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Charcuterie and Cheese Plate",
+              "priceCents": 2500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://eatgoodgroup.com/wp-content/uploads/2025/05/fran-happy-hour-1.pdf"
+            },
+            {
+              "kind": "food",
+              "category": "dessert",
+              "name": "Beignets",
+              "priceCents": 500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://eatgoodgroup.com/wp-content/uploads/2025/05/fran-happy-hour-1.pdf"
+            }
+          ]
+        }
+      ],
+      "confidence": 0.85,
+      "summary": "Française Spokane offers daily happy hour from 3–5pm with discounted drinks ($5 well cocktails, featured cocktails, select beers/wines; $7 select wines) and food plates ($5 appetizers, $15–$25 larger plates), detailed in PDF happy hour menu.",
+      "venueType": "restaurant",
+      "usage": {
+        "inputTokens": 49501,
+        "outputTokens": 1912
+      },
+      "costCents": 6,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "d233fe77-dcb2-48ab-8fd0-2609083f3dd2",
+    "name": "JJ’s Tap and Smokehouse",
+    "hhPage": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [
+      {
+        "days": [
+          2
+        ],
+        "start": "11:00",
+        "end": "22:00",
+        "offerings": [
+          {
+            "name": "Two for One Entrees",
+            "price": null
+          }
+        ],
+        "src": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials"
+      },
+      {
+        "days": [
+          3
+        ],
+        "start": "11:00",
+        "end": "22:00",
+        "offerings": [
+          {
+            "name": "Wings",
+            "price": 1400
+          },
+          {
+            "name": "Well Drinks",
+            "price": null
+          },
+          {
+            "name": "Specialty Drinks",
+            "price": null
+          }
+        ],
+        "src": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials"
+      },
+      {
+        "days": [
+          4
+        ],
+        "start": "11:00",
+        "end": "22:00",
+        "offerings": [
+          {
+            "name": "Ribs",
+            "price": 200
+          },
+          {
+            "name": "Seltzer",
+            "price": 300
+          },
+          {
+            "name": "Tall Boys",
+            "price": 200
+          }
+        ],
+        "src": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials"
+      },
+      {
+        "days": [
+          5
+        ],
+        "start": "11:00",
+        "end": "22:00",
+        "offerings": [
+          {
+            "name": "Bartender's Choice",
+            "price": null
+          }
+        ],
+        "src": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials"
+      },
+      {
+        "days": [
+          6
+        ],
+        "start": "08:30",
+        "end": "23:00",
+        "offerings": [
+          {
+            "name": "Burger",
+            "price": 1400
+          },
+          {
+            "name": "Pint of the Night",
+            "price": null
+          }
+        ],
+        "src": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials"
+      },
+      {
+        "days": [
+          7
+        ],
+        "start": null,
+        "end": null,
+        "offerings": [
+          {
+            "name": "Glass Pour Wine",
+            "price": null
+          },
+          {
+            "name": "Draft Beer",
+            "price": null
+          },
+          {
+            "name": "Well Drinks",
+            "price": null
+          },
+          {
+            "name": "Pub Grub",
+            "price": null
+          }
+        ],
+        "src": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials"
+      },
+      {
+        "days": [
+          1
+        ],
+        "start": "11:00",
+        "end": "22:00",
+        "offerings": [
+          {
+            "name": "Wine",
+            "price": null
+          },
+          {
+            "name": "Steaks",
+            "price": null
+          }
+        ],
+        "src": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials"
+      }
+    ],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 4,
+    "extracted": {
+      "happyHours": [
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            2
+          ],
+          "startTime": "11:00",
+          "endTime": "22:00",
+          "locationWithinVenue": "all",
+          "notes": "Two for Tuesday",
+          "sourceUrl": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "other",
+              "name": "Two for One Entrees",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Buy One - Get One 1/2 Off",
+              "conditions": null,
+              "sourceUrl": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials"
+            }
+          ]
+        },
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            3
+          ],
+          "startTime": "11:00",
+          "endTime": "22:00",
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials",
+          "offerings": [
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Wings",
+              "priceCents": 1400,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "$14.00 per lb",
+              "conditions": null,
+              "sourceUrl": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials"
+            },
+            {
+              "kind": "drink",
+              "category": "spirit",
+              "name": "Well Drinks",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 500,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials"
+            },
+            {
+              "kind": "drink",
+              "category": "cocktail",
+              "name": "Specialty Drinks",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 100,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials"
+            }
+          ]
+        },
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            4
+          ],
+          "startTime": "11:00",
+          "endTime": "22:00",
+          "locationWithinVenue": "all",
+          "notes": "Thirsty Thursday",
+          "sourceUrl": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials",
+          "offerings": [
+            {
+              "kind": "food",
+              "category": "entree",
+              "name": "Ribs",
+              "priceCents": 200,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "$2.00",
+              "conditions": null,
+              "sourceUrl": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials"
+            },
+            {
+              "kind": "drink",
+              "category": "other",
+              "name": "Seltzer",
+              "priceCents": 300,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials"
+            },
+            {
+              "kind": "drink",
+              "category": "beer",
+              "name": "Tall Boys",
+              "priceCents": 200,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials"
+            }
+          ]
+        },
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            5
+          ],
+          "startTime": "11:00",
+          "endTime": "22:00",
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "other",
+              "name": "Bartender's Choice",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Smokehouse Special",
+              "conditions": null,
+              "sourceUrl": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials"
+            }
+          ]
+        },
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            6
+          ],
+          "startTime": "08:30",
+          "endTime": "23:00",
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials",
+          "offerings": [
+            {
+              "kind": "food",
+              "category": "entree",
+              "name": "Burger",
+              "priceCents": 1400,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials"
+            },
+            {
+              "kind": "drink",
+              "category": "beer",
+              "name": "Pint of the Night",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 100,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials"
+            }
+          ]
+        },
+        {
+          "allDay": true,
+          "timeKnown": true,
+          "daysOfWeek": [
+            7
+          ],
+          "startTime": null,
+          "endTime": null,
+          "locationWithinVenue": "all",
+          "notes": "All Day Happy Hour on Sunday",
+          "sourceUrl": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "wine",
+              "name": "Glass Pour Wine",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 100,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials"
+            },
+            {
+              "kind": "drink",
+              "category": "beer",
+              "name": "Draft Beer",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 100,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials"
+            },
+            {
+              "kind": "drink",
+              "category": "spirit",
+              "name": "Well Drinks",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 100,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Pub Grub",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 200,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials"
+            }
+          ]
+        },
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            1
+          ],
+          "startTime": "11:00",
+          "endTime": "22:00",
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "wine",
+              "name": "Wine",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 50,
+              "description": "1/2 Off Wine, $1.00 Off Glass Pour Wine",
+              "conditions": null,
+              "sourceUrl": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials"
+            },
+            {
+              "kind": "food",
+              "category": "entree",
+              "name": "Steaks",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 500,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://jjstapandsmokehouse.org/spokane-jj-s-tap-and-smokehouse-happy-hours-specials"
+            }
+          ]
+        }
+      ],
+      "confidence": 0.75,
+      "summary": "JJ's Tap and Smokehouse offers daily recurring specials: Tuesday BOGO 1/2 off, Wednesday wings/wells/specialty drinks, Thursday ribs/seltzer/tall boys, Friday bartender's choice, Saturday burgers/pint specials, Sunday all-day happy hour with wine/beer/wells/pub grub discounts, and Monday wine/steak specials. Times listed range from 11am–10pm weekdays, 8:30am–11:30pm weekends (with Sunday all-day). Confidence tempered by undated page content (dated June 2024 on specials listing).",
+      "venueType": "bar",
+      "usage": {
+        "inputTokens": 18080,
+        "outputTokens": 2505
+      },
+      "costCents": 4,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "a7407aaf-b8d6-48f9-b398-483bcfc965b1",
+    "name": "Kings Bar & Grill",
+    "hhPage": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [
+      {
+        "days": [
+          2
+        ],
+        "start": "11:00",
+        "end": "02:00",
+        "offerings": [
+          {
+            "name": "Tequila",
+            "price": null
+          },
+          {
+            "name": "Corona",
+            "price": null
+          },
+          {
+            "name": "Taco Salad",
+            "price": null
+          }
+        ],
+        "src": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials"
+      },
+      {
+        "days": [
+          3
+        ],
+        "start": "11:00",
+        "end": "02:00",
+        "offerings": [
+          {
+            "name": "Whiskey",
+            "price": null
+          },
+          {
+            "name": "Domestic pitchers",
+            "price": null
+          },
+          {
+            "name": "Chicken Strips",
+            "price": null
+          }
+        ],
+        "src": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials"
+      },
+      {
+        "days": [
+          4
+        ],
+        "start": "11:00",
+        "end": "02:00",
+        "offerings": [
+          {
+            "name": "Vodka",
+            "price": null
+          },
+          {
+            "name": "Tall cans",
+            "price": 350
+          },
+          {
+            "name": "Nachos",
+            "price": null
+          }
+        ],
+        "src": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials"
+      },
+      {
+        "days": [
+          5
+        ],
+        "start": "11:00",
+        "end": "02:00",
+        "offerings": [
+          {
+            "name": "Fireball",
+            "price": 450
+          },
+          {
+            "name": "Quesadillas",
+            "price": null
+          }
+        ],
+        "src": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials"
+      },
+      {
+        "days": [
+          6
+        ],
+        "start": "11:00",
+        "end": "02:00",
+        "offerings": [
+          {
+            "name": "All shots and domestic drafts",
+            "price": null
+          }
+        ],
+        "src": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials"
+      },
+      {
+        "days": [
+          7
+        ],
+        "start": null,
+        "end": null,
+        "offerings": [
+          {
+            "name": "Cheeseburger",
+            "price": null
+          },
+          {
+            "name": "32 oz Bloody Mary",
+            "price": 900
+          }
+        ],
+        "src": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials"
+      },
+      {
+        "days": [
+          1
+        ],
+        "start": "11:00",
+        "end": "02:00",
+        "offerings": [
+          {
+            "name": "Appetizers",
+            "price": null
+          },
+          {
+            "name": "Rum",
+            "price": null
+          },
+          {
+            "name": "Microbrews",
+            "price": null
+          }
+        ],
+        "src": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials"
+      }
+    ],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 2,
+    "extracted": {
+      "happyHours": [
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            2
+          ],
+          "startTime": "11:00",
+          "endTime": "02:00",
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "spirit",
+              "name": "Tequila",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 100,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials"
+            },
+            {
+              "kind": "drink",
+              "category": "beer",
+              "name": "Corona",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 50,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials"
+            },
+            {
+              "kind": "food",
+              "category": "entree",
+              "name": "Taco Salad",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 100,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials"
+            }
+          ]
+        },
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            3
+          ],
+          "startTime": "11:00",
+          "endTime": "02:00",
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "spirit",
+              "name": "Whiskey",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 100,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials"
+            },
+            {
+              "kind": "drink",
+              "category": "beer",
+              "name": "Domestic pitchers",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 100,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials"
+            },
+            {
+              "kind": "food",
+              "category": "entree",
+              "name": "Chicken Strips",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 100,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials"
+            }
+          ]
+        },
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            4
+          ],
+          "startTime": "11:00",
+          "endTime": "02:00",
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "spirit",
+              "name": "Vodka",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 100,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials"
+            },
+            {
+              "kind": "drink",
+              "category": "beer",
+              "name": "Tall cans",
+              "priceCents": 350,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Nachos",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 100,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials"
+            }
+          ]
+        },
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            5
+          ],
+          "startTime": "11:00",
+          "endTime": "02:00",
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "spirit",
+              "name": "Fireball",
+              "priceCents": 450,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Quesadillas",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 100,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials"
+            }
+          ]
+        },
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            6
+          ],
+          "startTime": "11:00",
+          "endTime": "02:00",
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "beer",
+              "name": "All shots and domestic drafts",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 50,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials"
+            }
+          ]
+        },
+        {
+          "allDay": true,
+          "timeKnown": true,
+          "daysOfWeek": [
+            7
+          ],
+          "startTime": null,
+          "endTime": null,
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials",
+          "offerings": [
+            {
+              "kind": "food",
+              "category": "entree",
+              "name": "Cheeseburger",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 100,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials"
+            },
+            {
+              "kind": "drink",
+              "category": "cocktail",
+              "name": "32 oz Bloody Mary",
+              "priceCents": 900,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials"
+            }
+          ]
+        },
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            1
+          ],
+          "startTime": "11:00",
+          "endTime": "02:00",
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials",
+          "offerings": [
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Appetizers",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 100,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials"
+            },
+            {
+              "kind": "drink",
+              "category": "spirit",
+              "name": "Rum",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 100,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials"
+            },
+            {
+              "kind": "drink",
+              "category": "beer",
+              "name": "Microbrews",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 100,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://kingbarandgrill.com/spokane-kings-bar-grill-happy-hours-specials"
+            }
+          ]
+        }
+      ],
+      "confidence": 0.85,
+      "summary": "Kings Bar & Grill runs daily happy hour specials 11 AM–2 AM with day-specific drink and food discounts. Sunday is all-day happy hour.",
+      "venueType": "bar",
+      "usage": {
+        "inputTokens": 6500,
+        "outputTokens": 2128
+      },
+      "costCents": 2,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "27de9fe7-1bd6-49e2-9d74-84443a83e5e3",
+    "name": "Latah Bistro",
+    "hhPage": "https://latahbistro.com/spokane-south-hill-spokane-latah-bistro-happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [
+      {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "start": "14:00",
+        "end": "16:00",
+        "offerings": [
+          {
+            "name": "$15.00 Gruyere cream",
+            "price": 1500
+          }
+        ],
+        "src": "https://latahbistro.com/spokane-south-hill-spokane-latah-bistro-food-menu"
+      }
+    ],
+    "highConfidence": false,
+    "route": "free",
+    "costCents": 0,
+    "extracted": {
+      "happyHours": [
+        {
+          "daysOfWeek": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "allDay": false,
+          "startTime": "14:00",
+          "endTime": "16:00",
+          "timeKnown": true,
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://latahbistro.com/spokane-south-hill-spokane-latah-bistro-food-menu",
+          "suspect": false,
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "wine",
+              "name": "$15.00 Gruyere cream",
+              "priceCents": 1500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://latahbistro.com/spokane-south-hill-spokane-latah-bistro-food-menu"
+            }
+          ]
+        },
+        {
+          "daysOfWeek": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "allDay": false,
+          "startTime": "11:00",
+          "endTime": "21:00",
+          "timeKnown": true,
+          "locationWithinVenue": "all",
+          "notes": "days assumed Mon–Fri (none stated)",
+          "sourceUrl": "https://latahbistro.com/spokane-south-hill-spokane-latah-bistro-events",
+          "suspect": true,
+          "offerings": []
+        }
+      ],
+      "confidence": 1,
+      "summary": "Deterministic HTML parse: 2 window(s).",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      },
+      "costCents": 0,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": [],
+    "reviewNote": "operator review 2026-06-09: rejected (contamination/event-page/junk extraction)"
+  },
+  {
+    "venueId": "cc7397c4-cbe0-4b07-91af-e78c22b6ae7e",
+    "name": "Lebanon Restaurant & Cafe",
+    "hhPage": "https://lebanonspokane.com/spokane-downtown-at-cooper-george-building-the-corner-of-wall-st-and-5th-ave-our-entrance-is-on-s-wall-street-side-lebanon-restaurant-and-cafe-drink-menu",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "skip",
+    "costCents": 0,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "render-escalation: no readable content on the confirmed HH page",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      },
+      "costCents": 0,
+      "promptHash": "a5e339e67b91c717",
+      "model": "render-escalation-skip"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "1ee667f9-3d1e-423d-a231-4b6e8284e448",
+    "name": "Market Street Pizza",
+    "hhPage": "https://marketstreetpizzeriaspokane.com/spokane-valley-market-street-pizza-valley-happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 2,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "The Specials page states \"We are updating our specials Please stay tuned\" — no happy hour schedule is currently published on the venue's own pages.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 11671,
+        "outputTokens": 101
+      },
+      "costCents": 2,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "fca2d525-219b-4180-a4ce-7fd397ab376d",
+    "name": "Maxwell House Restaurant",
+    "hhPage": "https://maxwellhouserestaurant.com/spokane-maxwell-house-restaurant-happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "skip",
+    "costCents": 0,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "render-escalation: no readable content on the confirmed HH page",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      },
+      "costCents": 0,
+      "promptHash": "a5e339e67b91c717",
+      "model": "render-escalation-skip"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "78803057-89d1-4a90-88b0-335ccea76504",
+    "name": "Osprey Restaurant & Bar",
+    "hhPage": "https://ospreyspokane.com/specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 1,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "No happy hour schedule found. Main page mentions \"Happy Hour, Elevated\" but does not provide details. Specials page was not provided in the fetched content.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 6564,
+        "outputTokens": 103
+      },
+      "costCents": 1,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "3625ebb2-b92c-4188-8b10-1a3435987e3a",
+    "name": "Poole's Public House - South",
+    "hhPage": "https://poolespublichouse.com/spokane-poole-s-public-house-happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [
+      {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "start": "15:00",
+        "end": "17:00",
+        "offerings": [
+          {
+            "name": "All alcoholic beverages",
+            "price": null
+          }
+        ],
+        "src": "https://poolespublichouse.com/spokane-poole-s-public-house-happy-hours-specials"
+      },
+      {
+        "days": [
+          2
+        ],
+        "start": "11:00",
+        "end": "22:00",
+        "offerings": [
+          {
+            "name": "Beef Tacos",
+            "price": 250
+          },
+          {
+            "name": "Chicken Tacos",
+            "price": 400
+          },
+          {
+            "name": "Beef Nachos",
+            "price": 1000
+          },
+          {
+            "name": "Chicken Nachos",
+            "price": 1200
+          },
+          {
+            "name": "House Margaritas",
+            "price": 800
+          },
+          {
+            "name": "Mexican beers",
+            "price": 400
+          },
+          {
+            "name": "Mexican beer bucket",
+            "price": 1400
+          }
+        ],
+        "src": "https://poolespublichouse.com/spokane-poole-s-public-house-happy-hours-specials"
+      },
+      {
+        "days": [
+          3
+        ],
+        "start": null,
+        "end": null,
+        "offerings": [
+          {
+            "name": "All wine by the glass or bottle",
+            "price": null
+          },
+          {
+            "name": "All Whiskey & Scotch",
+            "price": null
+          }
+        ],
+        "src": "https://poolespublichouse.com/spokane-poole-s-public-house-food-menu"
+      },
+      {
+        "days": [
+          4
+        ],
+        "start": "11:00",
+        "end": "22:00",
+        "offerings": [
+          {
+            "name": "Burger & Beer Thursday combo",
+            "price": 1799
+          }
+        ],
+        "src": "https://poolespublichouse.com/spokane-poole-s-public-house-happy-hours-specials"
+      },
+      {
+        "days": [
+          5
+        ],
+        "start": "11:00",
+        "end": "22:00",
+        "offerings": [
+          {
+            "name": "Fish & Chips with pint",
+            "price": 1599
+          }
+        ],
+        "src": "https://poolespublichouse.com/spokane-poole-s-public-house-happy-hours-specials"
+      },
+      {
+        "days": [
+          6,
+          7
+        ],
+        "start": "08:00",
+        "end": "12:00",
+        "offerings": [
+          {
+            "name": "Bloody Marys",
+            "price": 500
+          },
+          {
+            "name": "Mimosas",
+            "price": 500
+          }
+        ],
+        "src": "https://poolespublichouse.com/spokane-poole-s-public-house-happy-hours-specials"
+      },
+      {
+        "days": [
+          1
+        ],
+        "start": "11:00",
+        "end": "22:00",
+        "offerings": [
+          {
+            "name": "Wings",
+            "price": null
+          }
+        ],
+        "src": "https://poolespublichouse.com/spokane-poole-s-public-house-happy-hours-specials"
+      }
+    ],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 3,
+    "extracted": {
+      "happyHours": [
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "startTime": "15:00",
+          "endTime": "17:00",
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://poolespublichouse.com/spokane-poole-s-public-house-happy-hours-specials",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "other",
+              "name": "All alcoholic beverages",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Half-off all alcoholic beverages",
+              "conditions": null,
+              "sourceUrl": "https://poolespublichouse.com/spokane-poole-s-public-house-happy-hours-specials"
+            }
+          ]
+        },
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            2
+          ],
+          "startTime": "11:00",
+          "endTime": "22:00",
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://poolespublichouse.com/spokane-poole-s-public-house-happy-hours-specials",
+          "offerings": [
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Beef Tacos",
+              "priceCents": 250,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://poolespublichouse.com/spokane-poole-s-public-house-happy-hours-specials"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Chicken Tacos",
+              "priceCents": 400,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://poolespublichouse.com/spokane-poole-s-public-house-happy-hours-specials"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Beef Nachos",
+              "priceCents": 1000,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://poolespublichouse.com/spokane-poole-s-public-house-happy-hours-specials"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Chicken Nachos",
+              "priceCents": 1200,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://poolespublichouse.com/spokane-poole-s-public-house-happy-hours-specials"
+            },
+            {
+              "kind": "drink",
+              "category": "cocktail",
+              "name": "House Margaritas",
+              "priceCents": 800,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://poolespublichouse.com/spokane-poole-s-public-house-happy-hours-specials"
+            },
+            {
+              "kind": "drink",
+              "category": "beer",
+              "name": "Mexican beers",
+              "priceCents": 400,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://poolespublichouse.com/spokane-poole-s-public-house-happy-hours-specials"
+            },
+            {
+              "kind": "drink",
+              "category": "beer",
+              "name": "Mexican beer bucket",
+              "priceCents": 1400,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://poolespublichouse.com/spokane-poole-s-public-house-happy-hours-specials"
+            }
+          ]
+        },
+        {
+          "allDay": true,
+          "timeKnown": false,
+          "daysOfWeek": [
+            3
+          ],
+          "startTime": null,
+          "endTime": null,
+          "locationWithinVenue": "all",
+          "notes": "Wine & Whiskey Wednesday – no specific time published on menu",
+          "sourceUrl": "https://poolespublichouse.com/spokane-poole-s-public-house-food-menu",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "wine",
+              "name": "All wine by the glass or bottle",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Half-price by the glass or bottle",
+              "conditions": null,
+              "sourceUrl": "https://poolespublichouse.com/spokane-poole-s-public-house-food-menu"
+            },
+            {
+              "kind": "drink",
+              "category": "spirit",
+              "name": "All Whiskey & Scotch",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Half off",
+              "conditions": null,
+              "sourceUrl": "https://poolespublichouse.com/spokane-poole-s-public-house-food-menu"
+            }
+          ]
+        },
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            4
+          ],
+          "startTime": "11:00",
+          "endTime": "22:00",
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://poolespublichouse.com/spokane-poole-s-public-house-happy-hours-specials",
+          "offerings": [
+            {
+              "kind": "food",
+              "category": "entree",
+              "name": "Burger & Beer Thursday combo",
+              "priceCents": 1799,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Choice of any one burger and a pint of beer for $17.99",
+              "conditions": null,
+              "sourceUrl": "https://poolespublichouse.com/spokane-poole-s-public-house-happy-hours-specials"
+            }
+          ]
+        },
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            5
+          ],
+          "startTime": "11:00",
+          "endTime": "22:00",
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://poolespublichouse.com/spokane-poole-s-public-house-happy-hours-specials",
+          "offerings": [
+            {
+              "kind": "food",
+              "category": "entree",
+              "name": "Fish & Chips with pint",
+              "priceCents": 1599,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Two-piece order of Fish & Chips and a Pint of Draft Beer or Soda for $15.99, or one piece of fish à la carte $4",
+              "conditions": null,
+              "sourceUrl": "https://poolespublichouse.com/spokane-poole-s-public-house-happy-hours-specials"
+            }
+          ]
+        },
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            6,
+            7
+          ],
+          "startTime": "08:00",
+          "endTime": "12:00",
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://poolespublichouse.com/spokane-poole-s-public-house-happy-hours-specials",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "cocktail",
+              "name": "Bloody Marys",
+              "priceCents": 500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://poolespublichouse.com/spokane-poole-s-public-house-happy-hours-specials"
+            },
+            {
+              "kind": "drink",
+              "category": "cocktail",
+              "name": "Mimosas",
+              "priceCents": 500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://poolespublichouse.com/spokane-poole-s-public-house-happy-hours-specials"
+            }
+          ]
+        },
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            1
+          ],
+          "startTime": "11:00",
+          "endTime": "22:00",
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://poolespublichouse.com/spokane-poole-s-public-house-happy-hours-specials",
+          "offerings": [
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Wings",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Buy one order, Get one order 1/2 off - Bone-in or Boneless",
+              "conditions": null,
+              "sourceUrl": "https://poolespublichouse.com/spokane-poole-s-public-house-happy-hours-specials"
+            }
+          ]
+        }
+      ],
+      "confidence": 0.75,
+      "summary": "Recurring happy hours Monday–Sunday 3–5 PM with half-off alcoholic beverages, plus daily specials including Taco Tuesday (all day), Wine & Whiskey Wednesday, Burger & Beer Thursday, Fish-On Friday, weekend breakfast specials, and Wing Monday.",
+      "venueType": "sports_bar",
+      "usage": {
+        "inputTokens": 16706,
+        "outputTokens": 2219
+      },
+      "costCents": 3,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "4830aaf6-87c7-44e0-ae8c-d0215504eb69",
+    "name": "Rancho Viejo",
+    "hhPage": "https://ranchoviejomexican.net/spokane-valley-rancho-viejo-spokane-valley-happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "skip",
+    "costCents": 1,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "render-escalation: no readable content on the confirmed HH page",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 3445,
+        "outputTokens": 119
+      },
+      "costCents": 1,
+      "promptHash": "a5e339e67b91c717",
+      "model": "render-escalation-skip"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "e967ff2b-5ac8-4bea-9ef5-d4577567b715",
+    "name": "Shelby's Burgers",
+    "hhPage": "https://shelbysburgers.com/spokane-shelby-s-burgers-drink-menu",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "skip",
+    "costCents": 1,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "render-escalation: no readable content on the confirmed HH page",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 1995,
+        "outputTokens": 86
+      },
+      "costCents": 1,
+      "promptHash": "a5e339e67b91c717",
+      "model": "render-escalation-skip"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "08496f48-8780-4781-913a-c44f20f78301",
+    "name": "Wine & Taps",
+    "hhPage": "https://latahbistro.com/spokane-south-hill-spokane-latah-bistro-happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [
+      {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "start": "14:00",
+        "end": "16:00",
+        "offerings": [
+          {
+            "name": "$15.00 Gruyere cream",
+            "price": 1500
+          }
+        ],
+        "src": "https://latahbistro.com/spokane-south-hill-spokane-latah-bistro-food-menu"
+      }
+    ],
+    "highConfidence": false,
+    "route": "free",
+    "costCents": 0,
+    "extracted": {
+      "happyHours": [
+        {
+          "daysOfWeek": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "allDay": false,
+          "startTime": "14:00",
+          "endTime": "16:00",
+          "timeKnown": true,
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://latahbistro.com/spokane-south-hill-spokane-latah-bistro-food-menu",
+          "suspect": false,
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "wine",
+              "name": "$15.00 Gruyere cream",
+              "priceCents": 1500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://latahbistro.com/spokane-south-hill-spokane-latah-bistro-food-menu"
+            }
+          ]
+        },
+        {
+          "daysOfWeek": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "allDay": false,
+          "startTime": "11:00",
+          "endTime": "21:00",
+          "timeKnown": true,
+          "locationWithinVenue": "all",
+          "notes": "days assumed Mon–Fri (none stated)",
+          "sourceUrl": "https://latahbistro.com/spokane-south-hill-spokane-latah-bistro-events",
+          "suspect": true,
+          "offerings": []
+        }
+      ],
+      "confidence": 1,
+      "summary": "Deterministic HTML parse: 2 window(s).",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      },
+      "costCents": 0,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": [],
+    "reviewNote": "operator review 2026-06-09: rejected (contamination/event-page/junk extraction)"
+  }
+]
