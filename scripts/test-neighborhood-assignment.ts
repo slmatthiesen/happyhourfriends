@@ -123,6 +123,55 @@ async function main() {
       passed++;
       console.log("  ✓ no orphan row for sub-critical-mass name");
 
+      // Venues G + H: critical-mass google name "Obscure NA" colliding with the EXISTING
+      // imported fine row (recognizability 0, source != 'Google Places'). The name must
+      // win onto that row — not be dropped because of its source, and not spawn a
+      // duplicate polygon-less Google row. (Regression: Tucson's West University / Sam
+      // Hughes / Downtown were stuck on cardinal districts.)
+      const [vG] = await tx<{ id: string }[]>`
+        INSERT INTO venues (city_id, name, slug, lat, lng, google_neighborhood)
+        VALUES (${city.id}, 'Venue G', 'venue-g', 32.5, -110.6, 'Obscure NA') RETURNING id`;
+      const [vH] = await tx<{ id: string }[]>`
+        INSERT INTO venues (city_id, name, slug, lat, lng, google_neighborhood)
+        VALUES (${city.id}, 'Venue H', 'venue-h', 32.52, -110.62, 'Obscure NA') RETURNING id`;
+
+      await assignNeighborhoods(tx as unknown as typeof sql, city.id);
+
+      assert.equal(await got(vG.id), "Obscure NA",
+        "critical-mass google name wins onto an existing imported row");
+      assert.equal(await got(vH.id), "Obscure NA",
+        "critical-mass google name wins onto an existing imported row");
+      passed++;
+      console.log("  ✓ critical-mass google name wins onto existing imported row");
+
+      const [obscureRows] = await tx<{ n: number }[]>`
+        SELECT count(*)::int AS n FROM neighborhoods
+        WHERE city_id = ${city.id} AND slug = 'obscure-na'`;
+      assert.equal(obscureRows.n, 1,
+        "no duplicate row is created when the name collides with an imported row");
+      passed++;
+      console.log("  ✓ no duplicate row for a colliding name");
+
+      // Venues I + J: critical-mass google name "Big District" colliding with the COARSE
+      // district row, both located inside Famous Hood. A name that equals a coarse
+      // district adds no specificity — the containing fine polygon must win instead
+      // (regression: McCormick Ranch venues carry google_neighborhood='South Scottsdale').
+      const [vI] = await tx<{ id: string }[]>`
+        INSERT INTO venues (city_id, name, slug, lat, lng, google_neighborhood)
+        VALUES (${city.id}, 'Venue I', 'venue-i', 32.85, -110.95, 'Big District') RETURNING id`;
+      const [vJ] = await tx<{ id: string }[]>`
+        INSERT INTO venues (city_id, name, slug, lat, lng, google_neighborhood)
+        VALUES (${city.id}, 'Venue J', 'venue-j', 32.86, -110.96, 'Big District') RETURNING id`;
+
+      await assignNeighborhoods(tx as unknown as typeof sql, city.id);
+
+      assert.equal(await got(vI.id), "Famous Hood",
+        "name colliding with a coarse district falls through to polygon assignment");
+      assert.equal(await got(vJ.id), "Famous Hood",
+        "name colliding with a coarse district falls through to polygon assignment");
+      passed++;
+      console.log("  ✓ coarse-collision name falls through to polygon");
+
       // Roll back: throw a sentinel so sql.begin aborts the txn.
       throw new Error("ROLLBACK_SENTINEL");
     });
@@ -132,7 +181,7 @@ async function main() {
     await sql.end();
   }
   console.log(`\n${passed} checks passed (fixtures rolled back).`);
-  if (passed !== 6) process.exit(1);
+  if (passed !== 9) process.exit(1);
 }
 
 main().catch((err) => {
