@@ -19,6 +19,10 @@ export interface ReconcileWindow {
    *  times but DIFFERENT offerings are distinct deals (Taco Tuesday vs Whiskey Wednesday)
    *  and must not merge. Omitted/null → "" (times-only merge, the pre-offerings behavior). */
   offeringsKey?: string | null;
+  /** location_within_venue. Windows in DIFFERENT specific areas coexist (Bistro 44 runs
+   *  3–7 in the bar and 3–6 in the dining room — not a conflict). Omitted/null/"all" is
+   *  the wildcard: it spans every area, so it still conflicts with anything it overlaps. */
+  location?: string | null;
 }
 
 /** Order-insensitive fingerprint of an offering set, for merge identity. */
@@ -241,6 +245,7 @@ export function reconcileWindows(
       const a = survivors[i];
       const b = survivors[j];
       if (!windowsOverlap(a.window, b.window)) continue;
+      if (locationsDistinct(a.window, b.window)) continue; // bar vs dining etc. coexist
       const ka = key(a);
       const kb = key(b);
       if (ka === kb) {
@@ -260,6 +265,14 @@ export function reconcileWindows(
   }
 
   return results;
+}
+
+/** Both windows name a specific, different area — they serve different rooms and coexist.
+ *  "all" (or unset) spans every area and conflicts as before. */
+function locationsDistinct(a: ReconcileWindow, b: ReconcileWindow): boolean {
+  const la = a.location ?? "all";
+  const lb = b.location ?? "all";
+  return la !== "all" && lb !== "all" && la !== lb;
 }
 
 function isProperSubset(a: number[], b: number[]): boolean {

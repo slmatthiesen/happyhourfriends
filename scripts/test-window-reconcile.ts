@@ -367,4 +367,35 @@ check("GOLDEN Garland: all-day Monday + Tue–Fri 3–5 both live (no conflict)"
   assert.equal(active(rs).length, 2);
 });
 
+check("GOLDEN Bistro 44: bar 3–7 + dining 3–6 coexist (location-distinct, no conflict)", () => {
+  const rs = reconcileWindows(
+    [
+      { ...w([1, 2, 3, 4, 5, 6, 7], "15:00:00", "19:00:00"), location: "bar" },
+      { ...w([1, 2, 3, 4, 5, 6, 7], "15:00:00", "18:00:00"), location: "dining" },
+    ],
+    null,
+  );
+  assert.equal(active(rs).length, 2);
+});
+
+check("location 'all' still conflicts with an overlapping area window", () => {
+  const rs = reconcileWindows(
+    [
+      { ...w([1, 2, 3, 4, 5], "15:00:00", "19:00:00"), location: "bar" },
+      { ...w([1, 2, 3, 4, 5], "15:00:00", "17:00:00"), location: "all" },
+    ],
+    null,
+  );
+  // Same (empty) deal sets overlapping with a wildcard area — conflict hides both, as before.
+  assert.equal(active(rs).length, 0);
+});
+
+check("unset location behaves as 'all' (pre-location behavior unchanged)", () => {
+  const rs = reconcileWindows(
+    [w([1, 2, 3, 4, 5], "15:00:00", "19:00:00"), w([1, 2, 3, 4, 5], "15:00:00", "17:00:00")],
+    null,
+  );
+  assert.equal(active(rs).length, 0);
+});
+
 console.log(`\n${passed} checks passed.`);
