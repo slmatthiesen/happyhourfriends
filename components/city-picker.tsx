@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import type { CityListItem } from "@/lib/queries/venues";
 import { haversineMiles } from "@/lib/geo/distance";
+import { setGeoIntent } from "@/lib/geo/geoIntent";
 import { cityPath } from "@/lib/routes";
 
 function nearestCity(
@@ -49,6 +50,9 @@ export function CityPicker({ cities }: { cities: CityListItem[] }) {
           cities,
         );
         if (nearest) {
+          // Hand the location intent to the city page so its venue table
+          // auto-enables "Near you" without a second click.
+          setGeoIntent();
           router.push(cityPath(nearest.state, nearest.slug));
         } else {
           setLocating(false);
