@@ -152,6 +152,21 @@ export async function keepFlagAction(venueId: string, note?: string): Promise<Ac
   }
 }
 
+/** Flag review (/admin/flags): not sure yet — park the venue in the Further-review lane
+ *  with a note. Re-running updates the note. */
+export async function furtherReviewAction(venueId: string, note: string): Promise<ActionResult> {
+  try {
+    if (!note.trim()) return { ok: false, error: "Note is required — what needs digging into?" };
+    const admin = await requireAdmin();
+    const { markForFurtherReview } = await import("@/lib/audit/flagReview");
+    await markForFurtherReview(db, { venueId, adminEmail: admin.email, note: note.trim() });
+    revalidatePath("/admin/flags");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Further review failed" };
+  }
+}
+
 /** Flag review (/admin/flags): hide one wrong window (reversible via /admin/audit). */
 export async function hideWindowAction(happyHourId: string): Promise<ActionResult> {
   try {

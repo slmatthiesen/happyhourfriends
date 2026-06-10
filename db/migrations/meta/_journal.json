@@ -155,6 +155,13 @@
       "when": 1781069686633,
       "tag": "0021_evidence_check_stage",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1781128689502,
+      "tag": "0022_misty_serpent_society",
+      "breakpoints": true
     }
   ]
 }

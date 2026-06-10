@@ -10,7 +10,7 @@ import assert from "node:assert/strict";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { auditLog, cities, dataAudit, happyHours, venues } from "@/db/schema";
-import { hideWindowForFlag, keepFlaggedVenue } from "@/lib/audit/flagReview";
+import { hideWindowForFlag, keepFlaggedVenue, markForFurtherReview } from "@/lib/audit/flagReview";
 
 const ROLLBACK = new Error("__rollback__");
 let passed = 0;
@@ -53,6 +53,32 @@ async function main() {
       assert.equal(keepLogs.length, 1);
       assert.ok(keepLogs[0].reason?.includes("implausible_active"), `reason should carry flag codes: ${keepLogs[0].reason}`);
       check("keep writes an audit_log row carrying the flag codes");
+
+      // Re-arm for the further-review path.
+      await tx.update(dataAudit).set({ resolution: "scanned" }).where(eq(dataAudit.venueId, venue.id));
+
+      // --- further review: parks the venue with a note; re-running updates the note ---
+      await markForFurtherReview(tx, { venueId: venue.id, adminEmail: "test@example.com", note: "PDF promo — is this seasonal?" });
+      const [daParked] = await tx.select().from(dataAudit).where(eq(dataAudit.venueId, venue.id));
+      assert.equal(daParked.resolution, "further_review");
+      assert.equal(daParked.operatorNote, "PDF promo — is this seasonal?");
+      check("markForFurtherReview parks the venue with the note");
+      await markForFurtherReview(tx, { venueId: venue.id, adminEmail: "test@example.com", note: "confirmed: football-season only" });
+      const [daReParked] = await tx.select().from(dataAudit).where(eq(dataAudit.venueId, venue.id));
+      assert.equal(daReParked.operatorNote, "confirmed: football-season only");
+      check("re-running markForFurtherReview updates the note");
+      const parkLogs = await tx
+        .select()
+        .from(auditLog)
+        .where(and(eq(auditLog.tableName, "data_audit"), eq(auditLog.rowId, daParked.id)));
+      assert.equal(parkLogs.length, 3); // keep + 2 parks
+      check("each park writes an audit_log row");
+      // Resolving from the lane keeps the note (the dig-in record survives the verdict).
+      await keepFlaggedVenue(tx, { venueId: venue.id, adminEmail: "test@example.com" });
+      const [daSettled] = await tx.select().from(dataAudit).where(eq(dataAudit.venueId, venue.id));
+      assert.equal(daSettled.resolution, "operator_kept");
+      assert.equal(daSettled.operatorNote, "confirmed: football-season only");
+      check("keep from the lane settles the venue and preserves the note");
 
       // Re-arm for the hide path.
       await tx.update(dataAudit).set({ resolution: "scanned" }).where(eq(dataAudit.venueId, venue.id));
