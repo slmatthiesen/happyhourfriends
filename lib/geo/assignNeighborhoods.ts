@@ -93,6 +93,16 @@ export async function assignNeighborhoods(
       ${cityId ? sql`AND vv.city_id = ${cityId}` : sql``}
     ON CONFLICT (city_id, slug) DO NOTHING
   `;
+  // Match the neighborhood row by (city_id, slug) for any FINE row, regardless of source:
+  // when the city already has a fine row for the name (GIS/OSM import), the critical-mass
+  // Google name must win onto THAT row — even one below the recognizability bar (Google
+  // usage with critical mass IS the vernacular signal). Filtering to source='Google
+  // Places' here silently lost every name that collided with an imported row (Tucson:
+  // West University, Sam Hughes, Downtown… stuck on cardinal districts). COARSE rows are
+  // deliberately excluded: a Google name that equals a coarse district ("South
+  // Scottsdale") adds no specificity, and a containing fine polygon is the better label
+  // (McCormick Ranch venues carry google_neighborhood='South Scottsdale') — those venues
+  // fall through to polygon assignment below.
   const named = await sql<{ id: string }[]>`
     UPDATE venues v
     SET neighborhood_id = n.id, updated_at = now()
@@ -104,7 +114,7 @@ export async function assignNeighborhoods(
            GROUP BY city_id, google_neighborhood
          ) nc
     WHERE n.city_id = v.city_id
-      AND n.source = 'Google Places'
+      AND n.tier = 'fine'
       AND lower(regexp_replace(v.google_neighborhood, '[^a-zA-Z0-9]+', '-', 'g')) = n.slug
       AND v.google_neighborhood IS NOT NULL
       AND v.deleted_at IS NULL
@@ -134,8 +144,9 @@ export async function assignNeighborhoods(
       WHERE vv.lat IS NOT NULL
         AND vv.lng IS NOT NULL
         AND vv.deleted_at IS NULL
-        -- Name-primary venues (critical-mass google name) are stage 0's; everyone else —
-        -- no google name, or a sub-threshold one — gets polygon assignment.
+        -- Name-primary venues (critical-mass google name resolving to a FINE row) are
+        -- stage 0's; everyone else — no google name, a sub-threshold one, or a name that
+        -- collides with a COARSE district (stage 0 skips those) — gets polygon assignment.
         AND (
           vv.google_neighborhood IS NULL
           OR (
@@ -144,6 +155,12 @@ export async function assignNeighborhoods(
               AND v2.google_neighborhood = vv.google_neighborhood
               AND v2.deleted_at IS NULL
           ) < ${MIN_VENUES_PER_NEIGHBORHOOD}
+          OR NOT EXISTS (
+            SELECT 1 FROM neighborhoods nf
+            WHERE nf.city_id = vv.city_id
+              AND nf.tier = 'fine'
+              AND nf.slug = lower(regexp_replace(vv.google_neighborhood, '[^a-zA-Z0-9]+', '-', 'g'))
+          )
         )
         ${cityId ? sql`AND vv.city_id = ${cityId}` : sql``}
       ORDER BY vv.id,

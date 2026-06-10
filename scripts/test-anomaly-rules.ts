@@ -66,12 +66,38 @@ check("duplicate_windows: same days|start|end, differing source", () => {
   assert.ok(codes.includes("duplicate_windows"));
 });
 
-check("implausible_active: an active >6h window flags", () => {
+check("implausible_active: an active >6h window from a non-HH page flags", () => {
+  const codes = auditVenue({
+    websiteUrl: "https://y.com", hoursJson: null,
+    windows: [{ daysOfWeek: [1], startTime: "10:00:00", endTime: "20:00:00", allDay: false, active: true, sourceUrl: "https://y.com/menu", notes: null }],
+  }).map((f) => f.code);
+  assert.ok(codes.includes("implausible_active"));
+});
+
+check("implausible_active: a >6h window with NO sourceUrl flags", () => {
+  const codes = auditVenue({
+    websiteUrl: "https://y.com", hoursJson: null,
+    windows: [{ daysOfWeek: [1], startTime: "10:00:00", endTime: "20:00:00", allDay: false, active: true, sourceUrl: null, notes: null }],
+  }).map((f) => f.code);
+  assert.ok(codes.includes("implausible_active"), `expected implausible_active, got: ${JSON.stringify(codes)}`);
+});
+
+// Operator policy 2026-06-09: a page that is explicitly a happy-hour page (HH in the URL slug)
+// vouches for its own wide window — "all day happy hour" is real, not a scraper error.
+check("implausible_active: a >6h window sourced from an explicit HH page does NOT flag", () => {
   const codes = auditVenue({
     websiteUrl: "https://y.com", hoursJson: null,
     windows: [{ daysOfWeek: [1], startTime: "10:00:00", endTime: "20:00:00", allDay: false, active: true, sourceUrl: "https://y.com/happy-hour", notes: null }],
   }).map((f) => f.code);
-  assert.ok(codes.includes("implausible_active"));
+  assert.ok(!codes.includes("implausible_active"), `unexpected implausible_active: ${JSON.stringify(codes)}`);
+});
+
+check("implausible_active: a degenerate window (start == end) flags even from an HH page", () => {
+  const codes = auditVenue({
+    websiteUrl: "https://y.com", hoursJson: null,
+    windows: [{ daysOfWeek: [1], startTime: "16:00:00", endTime: "16:00:00", allDay: false, active: true, sourceUrl: "https://y.com/happy-hour", notes: null }],
+  }).map((f) => f.code);
+  assert.ok(codes.includes("implausible_active"), `expected implausible_active, got: ${JSON.stringify(codes)}`);
 });
 
 check("inactive windows are ignored (only audit live data)", () => {
@@ -99,6 +125,184 @@ check("operating_hours_active fires when window covers most of the venue's openi
   });
   const codes = flags.map((f) => f.code);
   assert.ok(codes.includes("operating_hours_active"), `expected operating_hours_active, got: ${JSON.stringify(codes)}`);
+});
+
+// --- Source-URL semantics (2026-06-09 triage: every stale/wrong row had a telling URL) ---
+
+check("third_party_source: a scraper-mirror host differing from the venue's website flags", () => {
+  const codes = auditVenue({
+    websiteUrl: "https://theplayabarandgrill.com",
+    hoursJson: null,
+    windows: [{ daysOfWeek: [1], startTime: "16:00:00", endTime: "18:00:00", allDay: false, active: true, sourceUrl: "https://the-playa-ii.weeblyte.com/specials", notes: null }],
+  }).map((f) => f.code);
+  assert.ok(codes.includes("third_party_source"), `expected third_party_source, got: ${JSON.stringify(codes)}`);
+});
+
+check("third_party_source: a subdomain of the venue's own domain does NOT flag", () => {
+  const codes = auditVenue({
+    websiteUrl: "https://veroamorepizza.com",
+    hoursJson: null,
+    windows: [{ daysOfWeek: [1], startTime: "16:00:00", endTime: "18:00:00", allDay: false, active: true, sourceUrl: "https://catering.veroamorepizza.com/happy-hour", notes: null }],
+  }).map((f) => f.code);
+  assert.ok(!codes.includes("third_party_source"), `unexpected third_party_source: ${JSON.stringify(codes)}`);
+});
+
+check("third_party_source: first-party social (Instagram/Facebook) is exempt", () => {
+  const codes = auditVenue({
+    websiteUrl: "https://todosoakland.com",
+    hoursJson: null,
+    windows: [{ daysOfWeek: [1], startTime: "15:00:00", endTime: "18:00:00", allDay: false, active: true, sourceUrl: "https://www.instagram.com/p/abc123/", notes: null }],
+  }).map((f) => f.code);
+  assert.ok(!codes.includes("third_party_source"), `unexpected third_party_source: ${JSON.stringify(codes)}`);
+});
+
+check("third_party_source: no venue website on record → cannot judge, no flag", () => {
+  const codes = auditVenue({
+    websiteUrl: null,
+    hoursJson: null,
+    windows: [{ daysOfWeek: [1], startTime: "16:00:00", endTime: "18:00:00", allDay: false, active: true, sourceUrl: "https://somewhere.example.com/happy-hour", notes: null }],
+  }).map((f) => f.code);
+  assert.ok(!codes.includes("third_party_source"), `unexpected third_party_source: ${JSON.stringify(codes)}`);
+});
+
+check("third_party_source: a site-builder CDN hosting the venue's own asset does NOT flag (wixstatic)", () => {
+  const codes = auditVenue({
+    websiteUrl: "http://www.themuletavern.com/",
+    hoursJson: null,
+    windows: [{ daysOfWeek: [1], startTime: "15:00:00", endTime: "18:00:00", allDay: false, active: true, sourceUrl: "https://static.wixstatic.com/media/00bbed_a5a6~mv2.jpg/v1/fill/MFOODWINTER.jpg", notes: null }],
+  }).map((f) => f.code);
+  assert.ok(!codes.includes("third_party_source"), `unexpected third_party_source: ${JSON.stringify(codes)}`);
+});
+
+check("third_party_source: an image-proxy URL containing the venue's own domain does NOT flag (i0.wp.com)", () => {
+  const codes = auditVenue({
+    websiteUrl: "http://www.branchline.bar/",
+    hoursJson: null,
+    windows: [{ daysOfWeek: [1], startTime: "15:00:00", endTime: "18:00:00", allDay: false, active: true, sourceUrl: "https://i0.wp.com/branchline.bar/wp-content/uploads/2026/06/menu.jpg?w=1080", notes: null }],
+  }).map((f) => f.code);
+  assert.ok(!codes.includes("third_party_source"), `unexpected third_party_source: ${JSON.stringify(codes)}`);
+});
+
+check("third_party_source: an HH-aggregator source flags (thehappyhourfinder)", () => {
+  const codes = auditVenue({
+    websiteUrl: "https://redgartertucson.com/",
+    hoursJson: null,
+    windows: [{ daysOfWeek: [1], startTime: "15:00:00", endTime: "18:00:00", allDay: false, active: true, sourceUrl: "https://thehappyhourfinder.com/us_az/tucson/red-garter-saloon/", notes: null }],
+  }).map((f) => f.code);
+  assert.ok(codes.includes("third_party_source"), `expected third_party_source, got: ${JSON.stringify(codes)}`);
+});
+
+check("stale_event_source: a RECENT-year uploads path is a current menu, not stale (wp uploads 2025)", () => {
+  const codes = auditVenue({
+    websiteUrl: "https://brotzeitbiergarten.com",
+    hoursJson: null,
+    windows: [{ daysOfWeek: [1, 2, 3, 4, 5], startTime: "15:00:00", endTime: "18:00:00", allDay: false, active: true, sourceUrl: "https://brotzeitbiergarten.com/wp-content/uploads/2025/11/Happy-Hour-Menu-2025-2.pdf", notes: null }],
+  }, new Date("2026-06-09")).map((f) => f.code);
+  assert.ok(!codes.includes("stale_event_source"), `unexpected stale_event_source: ${JSON.stringify(codes)}`);
+});
+
+check("stale_event_source: an OLD-year uploads path is a stale menu (2014 png)", () => {
+  const codes = auditVenue({
+    websiteUrl: "https://ovenandvine.com",
+    hoursJson: null,
+    windows: [{ daysOfWeek: [1, 2, 3, 4, 5], startTime: "11:00:00", endTime: "14:00:00", allDay: false, active: true, sourceUrl: "https://ovenandvine.com/wp-content/uploads/2014/08/happyhour.png", notes: null }],
+  }, new Date("2026-06-09")).map((f) => f.code);
+  assert.ok(codes.includes("stale_event_source"), `expected stale_event_source, got: ${JSON.stringify(codes)}`);
+});
+
+check("stale_event_source: an old upload dir with a CURRENT-year filename is not stale (Torero's)", () => {
+  const codes = auditVenue({
+    websiteUrl: "https://www.toreros-mexicanrestaurants.com",
+    hoursJson: null,
+    windows: [{ daysOfWeek: [1], startTime: "15:00:00", endTime: "18:00:00", allDay: false, active: true, sourceUrl: "https://www.toreros-mexicanrestaurants.com/wp-content/uploads/2024/09/Toreros-Tacoma-HH-Food-April-2026.jpg", notes: null }],
+  }, new Date("2026-06-09")).map((f) => f.code);
+  assert.ok(!codes.includes("stale_event_source"), `unexpected stale_event_source: ${JSON.stringify(codes)}`);
+});
+
+check("stale_event_source: a year-dated event path flags (2023 barrel-release case)", () => {
+  const codes = auditVenue({
+    websiteUrl: "https://laescondidatucson.com",
+    hoursJson: null,
+    windows: [{ daysOfWeek: [3, 5], startTime: "15:00:00", endTime: "16:30:00", allDay: false, active: true, sourceUrl: "https://laescondidatucson.com/2023/11/kxci-limited-release-barrell-event/", notes: null }],
+  }).map((f) => f.code);
+  assert.ok(codes.includes("stale_event_source"), `expected stale_event_source, got: ${JSON.stringify(codes)}`);
+});
+
+check("stale_event_source: a holiday-special page flags (valentines case)", () => {
+  const codes = auditVenue({
+    websiteUrl: "https://mitamaoakland.com",
+    hoursJson: null,
+    windows: [{ daysOfWeek: [1, 2, 3, 4, 5], startTime: "12:00:00", endTime: "14:00:00", allDay: false, active: true, sourceUrl: "https://mitamaoakland.com/valentines-day-special.html", notes: null }],
+  }).map((f) => f.code);
+  assert.ok(codes.includes("stale_event_source"), `expected stale_event_source, got: ${JSON.stringify(codes)}`);
+});
+
+check("stale_event_source: a seasonal-promo PDF flags (football flyer case)", () => {
+  const codes = auditVenue({
+    websiteUrl: "https://fatwillys.com",
+    hoursJson: null,
+    windows: [{ daysOfWeek: [5], startTime: "11:00:00", endTime: "14:00:00", allDay: false, active: true, sourceUrl: "https://fatwillys.com/wp-content/uploads/fw_football_cr.pdf", notes: null }],
+  }).map((f) => f.code);
+  assert.ok(codes.includes("stale_event_source"), `expected stale_event_source, got: ${JSON.stringify(codes)}`);
+});
+
+check("stale_event_source: a normal dedicated happy-hour page does NOT flag", () => {
+  const flags = auditVenue({
+    websiteUrl: "https://example.com",
+    hoursJson: null,
+    windows: [{ daysOfWeek: [1, 2, 3, 4, 5], startTime: "16:00:00", endTime: "19:00:00", allDay: false, active: true, sourceUrl: "https://example.com/happy-hour/", notes: null }],
+  });
+  assert.equal(flags.length, 0, `expected no flags, got: ${JSON.stringify(flags)}`);
+});
+
+// --- Offerings-aware parity with the reconcile gate (PRs #56–#59) ---
+// The audit passes each window's offerings fingerprint into reconcileWindows so it agrees
+// with the persist gate: per-day specials, day-subset extensions, and distinct-deal
+// overlaps that the gate deliberately keeps must NOT re-flag here.
+
+check("offerings: same-time windows with DIFFERENT deals are per-day specials, not duplicates", () => {
+  const flags = auditVenue({
+    websiteUrl: "https://specials.example.com", hoursJson: null,
+    windows: [
+      { daysOfWeek: [2], startTime: "16:00:00", endTime: "18:00:00", allDay: false, active: true, sourceUrl: "https://specials.example.com/happy-hour", notes: null, offeringsKey: "taco|300" },
+      { daysOfWeek: [3], startTime: "16:00:00", endTime: "18:00:00", allDay: false, active: true, sourceUrl: "https://specials.example.com/happy-hour", notes: null, offeringsKey: "whiskey|600" },
+    ],
+  });
+  assert.deepEqual(flags, [], `expected no flags, got: ${JSON.stringify(flags)}`);
+});
+
+check("offerings: a day-subset extension of the same deal (Tue 4–8 within Mon–Fri 4–6) does not flag overlap", () => {
+  const flags = auditVenue({
+    websiteUrl: "https://extension.example.com", hoursJson: null,
+    windows: [
+      { daysOfWeek: [1, 2, 3, 4, 5], startTime: "16:00:00", endTime: "18:00:00", allDay: false, active: true, sourceUrl: "https://extension.example.com/happy-hour", notes: null, offeringsKey: "well drinks|500" },
+      { daysOfWeek: [2], startTime: "16:00:00", endTime: "20:00:00", allDay: false, active: true, sourceUrl: "https://extension.example.com/happy-hour", notes: null, offeringsKey: "well drinks|500" },
+    ],
+  });
+  assert.deepEqual(flags, [], `expected no flags, got: ${JSON.stringify(flags)}`);
+});
+
+check("offerings: overlapping windows with DISTINCT deal sets coexist (no overlapping_windows)", () => {
+  const flags = auditVenue({
+    websiteUrl: "https://fondi.example.com", hoursJson: null,
+    windows: [
+      { daysOfWeek: [1, 2, 3, 4, 5], startTime: "11:00:00", endTime: "15:00:00", allDay: false, active: true, sourceUrl: "https://fondi.example.com/specials", notes: null, offeringsKey: "lunch menu|1200" },
+      { daysOfWeek: [1, 2, 3, 4, 5], startTime: "11:30:00", endTime: "14:00:00", allDay: false, active: true, sourceUrl: "https://fondi.example.com/specials", notes: null, offeringsKey: "pizza per due|1500" },
+    ],
+  });
+  assert.deepEqual(flags, [], `expected no flags, got: ${JSON.stringify(flags)}`);
+});
+
+check("offerings: an operating-hours-shaped window carrying its OWN deal set stays unflagged (Twisted Fork)", () => {
+  const flags = auditVenue({
+    websiteUrl: "https://twistedfork.example.com",
+    hoursJson: [{ openDay: 1, openMin: 11 * 60, closeDay: 1, closeMin: 21 * 60 }],
+    windows: [{
+      daysOfWeek: [1], startTime: "11:00:00", endTime: null, allDay: false,
+      active: true, sourceUrl: "https://twistedfork.example.com/specials", notes: null, offeringsKey: "monday burger|900",
+    }],
+  });
+  assert.deepEqual(flags, [], `expected no flags, got: ${JSON.stringify(flags)}`);
 });
 
 // hasAutoFixable: true when the venue has an auto_fixable flag (duplicate_windows).
@@ -147,6 +351,15 @@ check("isHighConfidenceCorrection returns false when notes contains assumed days
 check("isHighConfidenceCorrection returns false when sourceUrl is a homepage", () => {
   assert.ok(!isHighConfidenceCorrection([
     { daysOfWeek: [1, 2, 3, 4, 5], startTime: "16:00:00", endTime: "19:00:00", allDay: false, sourceUrl: "https://x.com/", notes: null },
+  ]));
+});
+
+// isHighConfidenceCorrection — reject: sourced from a one-time-event page (La Escondida
+// 2026-06-09: the re-extract only re-found a "final-friday" event window; its slug contains
+// "happy-hours" so scoreHhUrl passed it, and the apply deactivated the venue's real Mon–Fri row).
+check("isHighConfidenceCorrection returns false when a corrected window is event-page-sourced", () => {
+  assert.ok(!isHighConfidenceCorrection([
+    { daysOfWeek: [5], startTime: "17:30:00", endTime: "19:30:00", allDay: false, sourceUrl: "https://whiskeydelbac.com/event/final-friday-happy-hours-at-la-escondida-with-joe-pena/", notes: null },
   ]));
 });
 

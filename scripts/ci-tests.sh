@@ -25,6 +25,8 @@ TESTS=(
   test:realness-gate
   test:window-reconcile
   test:anomaly-rules
+  test:flag-eval
+  test:evidence-cleanup
   test:render-escalation
   test:site-triage
   test:format
@@ -42,6 +44,7 @@ TESTS=(
   test:route-contribution
   test:interpreter-newhh
   test:safesearch
+  test:evidence-relevance
   test:cardinal-districts
   test:hh-text
   test:hh-relevance

@@ -12,6 +12,7 @@ import { normalizeUrl } from "@/lib/submit/normalizeUrl";
 import { checkSubmissionRateLimit } from "@/lib/trust/rateLimits";
 import { ensureSubmitter, hashIp } from "@/lib/trust/submitter";
 import { moderateImage } from "@/lib/moderation/safeSearch";
+import { checkEvidenceRelevance } from "@/lib/moderation/evidenceRelevance";
 
 // Writes uploaded evidence photos to disk (lib/submit/evidenceStore) → needs Node.
 export const runtime = "nodejs";
@@ -122,6 +123,16 @@ export async function POST(req: Request) {
           { error: verdict.reason ?? "That image can't be accepted." },
           { status: 400 },
         );
+      }
+      // Second gate, AI relevance: SafeSearch passes plenty of safe-but-useless images
+      // (memes, selfies). Fail-open — only an explicit "not venue evidence" rejects.
+      const relevance = await checkEvidenceRelevance({
+        base64,
+        mime,
+        venueName: typeof after.name === "string" ? after.name : "",
+      });
+      if (!relevance.allowed) {
+        return NextResponse.json({ error: relevance.reason }, { status: 400 });
       }
     }
   }

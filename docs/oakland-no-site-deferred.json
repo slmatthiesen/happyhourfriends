@@ -1,0 +1,26 @@
+[
+  {
+    "name": "San Gaspar",
+    "reviews": 203,
+    "rating": "4.3",
+    "primaryType": "restaurant",
+    "address": "201 E 14th St, San Leandro, CA 94577, USA",
+    "likelihood": 0.45
+  },
+  {
+    "name": "Taquitos Callejeros",
+    "reviews": 59,
+    "rating": "4.7",
+    "primaryType": "mexican_restaurant",
+    "address": "98th Ave, Oakland, CA 94603, USA",
+    "likelihood": 0.33
+  },
+  {
+    "name": "Lil' Baby Sharkies",
+    "reviews": null,
+    "rating": null,
+    "primaryType": "bar",
+    "address": "210 Hegenberger Loop, Oakland, CA 94621, USA",
+    "likelihood": 0.61
+  }
+]

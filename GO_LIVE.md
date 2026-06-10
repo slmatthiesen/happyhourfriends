@@ -1,32 +1,51 @@
-# Run before going live
+# Go-live record + post-launch reference
 
-Things built but not yet run against production. Each step needs `DATABASE_URL` pointed
-at the prod DB (and the noted API key).
+**🚀 LAUNCHED 2026-06-10.** Every pre-launch item below is done and verified. This file
+is now the record of what was checked plus the reference for the sections further down
+(data sync, search rankings, site triage). Day-to-day operations: `docs/OPERATOR-CHEATSHEET.md`.
+New cities: `docs/new-city-runbook.md`.
 
-## ✅ Remaining before launch (at-a-glance)
+## ✅ Launch checklist (all complete)
 
-The fast way to resume: tell an agent **"Read GO_LIVE.md and tell me what's left to go
-live, then let's do the highest-leverage item."** Each item links to its section below.
-
-**Done (shipped to `main`, just needs deploying):**
+**Code (shipped to `main`):**
 - [x] SEO: canonical + `metadataBase`, ItemList/BreadcrumbList/FAQPage JSON-LD, "Updated"
       freshness line, sitemap `<lastmod>`, `/llms.txt` (PRs #19/#20).
-- [x] CI: typecheck → lint → 24-suite test → build, + fork-safe gitleaks scan (PR #21).
+- [x] CI: typecheck → lint → test suites → build, + fork-safe gitleaks scan (PR #21).
 - [x] DB connection-pool leak fixed (commit `e428583`).
 
-**Still to do (operator):**
-- [ ] **Deploy current `main` to prod** (CODE channel: git pull → `npm ci` → `db:migrate`
-      → build → restart). Ships everything in the "Done" list above.
-- [ ] **Prod env vars set at BUILD time:** `NEXT_PUBLIC_SITE_URL=https://happyhourfriends.com`
-      (build-time inlined) and `HCAPTCHA_SECRET_KEY` (submissions fail closed without it).
-      Verify: `curl -s https://happyhourfriends.com/wa/tacoma | grep canonical`.
-- [ ] **Data loaded + safe:** initial `npm run push:data` if prod isn't seeded yet
-      (see "Data sync" below) + install the **nightly backup cron** on the droplet.
-- [ ] **All-day / hours backfills:** `backfill:timezones` → `backfill:hours` →
-      `reverify:all-day` (see "All-day happy-hour cleanup" below).
-- [ ] **After live with data:** submit `sitemap.xml` to Google Search Console + Bing
-      Webmaster (see "Search rankings" below).
+**Prod config (verified 2026-06-09):**
+- [x] **Env vars:** `NEXT_PUBLIC_SITE_URL` correct (canonical on `/wa/tacoma` resolves
+      to the prod host), `HCAPTCHA_SECRET_KEY` set (captcha confirmed working),
+      `ANTHROPIC_API_KEY` + `RESEND_API_KEY` + `RESEND_FROM` set. **`ADMIN_EMAIL` was
+      missing** — added 2026-06-09 + service restarted (without it every operator email
+      silently skipped: empty recipient list).
+- [x] **Nightly backup cron live on the droplet:** 3:15am daily, dumps in
+      `/var/backups/happyhourfriends/` (14d retention), log healthy.
+
+**Launch (done 2026-06-10):**
+- [x] **`main` deployed to prod** (CODE channel incl. migration `0020`) and **data
+      pushed** (`push:data`) — verified: sitemap `<lastmod>` = 2026-06-10, city pages 200.
+      Ships the 2026-06-09 audit fixes + Google-neighborhood names.
+- [x] **Backfills:** `backfill:timezones` + `backfill:hours` run on local (every live-city
+      venue has a timezone; 98% carry `hours_json`), shipped via the data push.
+      `reverify:all-day` was **superseded** by the deterministic window-reconcile gate
+      (PRs #56/#57, applied per city) + the 2026-06-09 all-cities audit — not run, not needed.
+- [x] **Sitemap submitted to Google Search Console + Bing Webmaster** (one-time; both
+      recrawl automatically off `<lastmod>` — never needs resubmitting).
+
+**Open (non-blocking):**
 - [ ] *(optional)* per-city intro paragraph — the one remaining cheap SEO item.
+- [ ] Oakland venue timezones when Oakland goes live:
+      `pnpm run backfill:timezones -- --city oakland --state ca` (free, instant).
+- [ ] Wire the **moderation bridge** nightly cron once real submissions accumulate
+      (`pull:queue -- --apply`, see "Moderation bridge" below).
+- [ ] Watch GSC Coverage/Performance once indexing starts (see "Search rankings" below).
+
+**Adding cities:** follow **`docs/new-city-runbook.md`** end to end
+(register → discover → enrich → gate → neighborhoods → audit → QA → flip live →
+`push:data:additive`). **Post-launch, never use full `push:data` again** — it truncates;
+the additive push and the tunnel pipeline are the safe paths (it self-guards, but don't
+lean on the guard).
 
 ## Data sync — local ⇄ prod (canonical runbook: `docs/data-sync-runbook.md`)
 
@@ -105,11 +124,12 @@ non-stubs-only — **529 venues named across ~558 scanned, ~$2.79** (scottsdale 
 phoenix-central 130, tacoma 52, five-cities 8, daly-city 4). Names reach prod via the normal
 `push:data` / data-sync channel at deploy (see "Data sync" above) — no separate prod run needed.
 
-**Still pending:** `spokane` is discovery-status (47 non-stub venues, ~$0.24) — backfill it
-when it goes live:
-```bash
-pnpm tsx scripts/backfill-google-neighborhoods.ts --city spokane --state wa
-```
+✅ **Spokane done (2026-06-09):** backfilled (34 non-stub scanned, 31 named, 25 venues
+re-assigned) and flipped `status='live'` on the LOCAL DB — city #7. Coverage gate PASS
+99.5% (204/205). Reaches prod via the normal `push:data` channel at deploy. Known data
+caveat: Red Wheel's genuine 3–5pm HH is still hidden by the reconcile gate (the start-only
+morning-window fix from `docs/spokane-handoff-2026-06-08.md` §1 was never implemented);
+fix the gate, then `reconcile:windows --city spokane --state wa --apply`.
 The script skips stubs by default (cost control); pass `--include-stubs` to also cover the
 help-wanted placeholders (~1,484 / ~$7.50 across the 6 live cities) if you ever want
 neighborhood filters to span stub listings. Verify a city with
@@ -176,14 +196,13 @@ hard part. Don't launch 50 thin cities; take a handful to genuine completeness.
   differentiate from scrapers (deferred 2026-06-03; needs operator voice/tone). This is the
   one remaining cheap SEO item; BreadcrumbList / FAQPage / llms.txt all shipped (see above).
 
-## All-day happy-hour cleanup (built 2026-05-31, merged to `main`)
+## All-day happy-hour cleanup (built 2026-05-31 — RESOLVED 2026-06-10)
 
-The code only *sets up* these reviews — running them is a manual step. To hand it to an
-agent in one line:
-
-> Run the all-day reverify pipeline — see memory `project_run-all-day-reverify`.
-
-Or run it yourself, in order:
+**Status: steps 1–2 ran on local and shipped via the data push; steps 3–4
+(`reverify:all-day`) were superseded** by the deterministic window-reconcile gate
+(PRs #56/#57, run per city) + the 2026-06-09 all-cities audit, which catch
+operating-hours-as-HH windows without a paid AI pass. Kept below for reference —
+the script still works if a one-off AI review of all-day windows is ever wanted.
 
 1. **`npm run backfill:timezones`** — venues need a correct timezone before "happening now"
    works. Phoenix/Scottsdale/Tucson = `America/Phoenix` (no DST); Tacoma = `America/Los_Angeles`.

@@ -4,12 +4,16 @@
 # exec the db-sync CLI. Sourced by push-data-additive.sh / pull-data-upsert.sh.
 #
 # Usage (from a wrapper): run_sync <push|pull> "$@"
-# Env: PROD_IP (required); SSH_USER=root, APP_DIR=/home/happyhourfriends, TUNNEL_PORT=6543.
+# Env: PROD_IP (from .env or inline); SSH_USER=root, APP_DIR=/home/happyhourfriends, TUNNEL_PORT=6543.
 set -euo pipefail
 
 run_sync() {
   local direction="$1"; shift
-  local PROD_IP="${PROD_IP:?Set PROD_IP (droplet IP)}"
+  # PROD_IP may come from .env (an inline PROD_IP=... still wins).
+  if [ -z "${PROD_IP:-}" ] && [ -f ./.env ]; then
+    PROD_IP="$(sed -n 's/^PROD_IP=//p' ./.env | head -1 | tr -d "'\"")"
+  fi
+  local PROD_IP="${PROD_IP:?Set PROD_IP (droplet IP) in .env or inline}"
   local SSH_USER="${SSH_USER:-root}"
   local APP_DIR="${APP_DIR:-/home/happyhourfriends}"
   local TUNNEL_PORT="${TUNNEL_PORT:-6543}"

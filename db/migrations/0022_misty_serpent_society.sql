@@ -1,0 +1,1 @@
+ALTER TABLE "data_audit" ADD COLUMN "operator_note" text;

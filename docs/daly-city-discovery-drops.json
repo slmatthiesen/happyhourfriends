@@ -1,0 +1,2327 @@
+{
+  "city": "daly-city",
+  "total": 257,
+  "byReason": {
+    "out-of-area": 151,
+    "place-type": 13,
+    "closed": 16,
+    "format": 24,
+    "low-signal": 31,
+    "chain": 22
+  },
+  "drops": [
+    {
+      "name": "Camelot Fish and Chips",
+      "reason": "out-of-area",
+      "address": "70 W Manor Dr, Pacifica, CA 94044, USA",
+      "primaryType": "fish_and_chips_restaurant",
+      "website": "http://www.camelotfishandchips.com/",
+      "lat": 37.649240600000006,
+      "lng": -122.4919944
+    },
+    {
+      "name": "Tam's Cuisine of China",
+      "reason": "out-of-area",
+      "address": "494 Manor Plaza, Pacifica, CA 94044, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "http://www.tamscuisine.com/",
+      "lat": 37.649588400000006,
+      "lng": -122.49205299999998
+    },
+    {
+      "name": "Colombo's Deli",
+      "reason": "out-of-area",
+      "address": "484 Manor Plaza, Pacifica, CA 94044, USA",
+      "primaryType": "deli",
+      "website": "https://www.colombosdeli.com/",
+      "lat": 37.6497434,
+      "lng": -122.4919403
+    },
+    {
+      "name": "Oasis Vietnamese Cuisine",
+      "reason": "out-of-area",
+      "address": "549 Oceana Blvd suite b, Pacifica, CA 94044, USA",
+      "primaryType": "vietnamese_restaurant",
+      "website": "https://oasisvietnamesecui.wixsite.com/oasis-vietnamese-cui",
+      "lat": 37.6484211,
+      "lng": -122.4904906
+    },
+    {
+      "name": "Grand HotPot",
+      "reason": "place-type",
+      "address": "452 Manor Plaza, Pacifica, CA 94044, USA",
+      "primaryType": "hot_pot_restaurant",
+      "website": null,
+      "lat": 37.6507109,
+      "lng": -122.49179699999999
+    },
+    {
+      "name": "Paisanos Pacifica",
+      "reason": "closed",
+      "address": "442 Manor Plaza, Pacifica, CA 94044, USA",
+      "primaryType": "italian_restaurant",
+      "website": "http://www.paisanospacifica.menu/",
+      "lat": 37.6509576,
+      "lng": -122.49180799999999
+    },
+    {
+      "name": "ZaZa Grill",
+      "reason": "out-of-area",
+      "address": "446 Manor Plaza, Pacifica, CA 94044, USA",
+      "primaryType": "turkish_restaurant",
+      "website": "http://www.zazagrill.com/",
+      "lat": 37.6508588,
+      "lng": -122.49173119999999
+    },
+    {
+      "name": "Taqueria la Mordida",
+      "reason": "format",
+      "address": "535 Oceana Blvd, Pacifica, CA 94044, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.taquerialamordida.com/",
+      "lat": 37.6487711,
+      "lng": -122.49041120000001
+    },
+    {
+      "name": "The Green Enchilada",
+      "reason": "out-of-area",
+      "address": "444 Manor Plaza, Pacifica, CA 94044, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://www.thegreenenchilada.com/",
+      "lat": 37.650908699999995,
+      "lng": -122.4916846
+    },
+    {
+      "name": "Top Pot",
+      "reason": "out-of-area",
+      "address": "63 Bill Drake Way, Pacifica, CA 94044, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 37.651342299999996,
+      "lng": -122.4918239
+    },
+    {
+      "name": "Viva Italiano Pizzeria & Restaurant",
+      "reason": "out-of-area",
+      "address": "67 Bill Drake Way, Pacifica, CA 94044, USA",
+      "primaryType": "italian_restaurant",
+      "website": "https://www.vivaitalianopizzeria.com/",
+      "lat": 37.651331,
+      "lng": -122.49175950000001
+    },
+    {
+      "name": "Surf Lounge",
+      "reason": "out-of-area",
+      "address": "77 Bill Drake Way, Pacifica, CA 94044, USA",
+      "primaryType": "cocktail_bar",
+      "website": "http://pacificasurflounge.com/",
+      "lat": 37.651266799999995,
+      "lng": -122.4915538
+    },
+    {
+      "name": "Ocean Fish Sushi & Grill",
+      "reason": "out-of-area",
+      "address": "455 Oceana Blvd, Pacifica, CA 94044, USA",
+      "primaryType": "japanese_restaurant",
+      "website": "https://www.oceanfishsushipacifica.com/",
+      "lat": 37.6495916,
+      "lng": -122.49036439999999
+    },
+    {
+      "name": "Raymond's Chinese Restaurant",
+      "reason": "out-of-area",
+      "address": "1709 Palmetto Ave, Pacifica, CA 94044, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://raymondpacifica.com/",
+      "lat": 37.6357907,
+      "lng": -122.49187
+    },
+    {
+      "name": "Taquería La Perla",
+      "reason": "out-of-area",
+      "address": "330 Palmetto Ave ste a, Pacifica, CA 94044, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.laperlapacifica.com/",
+      "lat": 37.6518253,
+      "lng": -122.4912497
+    },
+    {
+      "name": "Kitten & Pinky",
+      "reason": "out-of-area",
+      "address": "1715 Palmetto Ave, Pacifica, CA 94044, USA",
+      "primaryType": "restaurant",
+      "website": "https://kittenandpinky.carrd.co/",
+      "lat": 37.6354545,
+      "lng": -122.49176529999998
+    },
+    {
+      "name": "Winters Tavern",
+      "reason": "out-of-area",
+      "address": "1522 Francisco Blvd, Pacifica, CA 94044, USA",
+      "primaryType": "bar",
+      "website": "http://www.winterstavern.com/",
+      "lat": 37.6366674,
+      "lng": -122.4904114
+    },
+    {
+      "name": "Buona italia caffe",
+      "reason": "out-of-area",
+      "address": "1610 Francisco Blvd, Pacifica, CA 94044, USA",
+      "primaryType": "italian_restaurant",
+      "website": "https://buonaitaliacaffeca.com/",
+      "lat": 37.636307099999996,
+      "lng": -122.4904281
+    },
+    {
+      "name": "Burger Blvd",
+      "reason": "low-signal",
+      "address": "1624 Francisco Blvd, Pacifica, CA 94044, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 37.6362526,
+      "lng": -122.4904329
+    },
+    {
+      "name": "Taqueria Pacifica",
+      "reason": "format",
+      "address": "1710 Francisco Blvd, Pacifica, CA 94044, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://taqueriapacifica.lovable.app/",
+      "lat": 37.6357901,
+      "lng": -122.49037460000001
+    },
+    {
+      "name": "Little Caesars Pizza",
+      "reason": "chain",
+      "address": "1000 King Dr, Daly City, CA 94015, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://littlecaesars.com/en-us/store/8849",
+      "lat": 37.650523799999995,
+      "lng": -122.46971229999998
+    },
+    {
+      "name": "La bonita Food truck",
+      "reason": "format",
+      "address": "Callan Blvd &, King Dr, South San Francisco, CA 94080, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 37.6504194,
+      "lng": -122.46899520000001
+    },
+    {
+      "name": "Crispy Town",
+      "reason": "out-of-area",
+      "address": "3545 Callan Blvd, South San Francisco, CA 94080, USA",
+      "primaryType": "filipino_restaurant",
+      "website": null,
+      "lat": 37.6433021,
+      "lng": -122.4636804
+    },
+    {
+      "name": "Grill City",
+      "reason": "out-of-area",
+      "address": "3573 Callan Blvd, South San Francisco, CA 94080, USA",
+      "primaryType": "filipino_restaurant",
+      "website": "http://www.grillcity.com/",
+      "lat": 37.6434296,
+      "lng": -122.4634827
+    },
+    {
+      "name": "Jollibee",
+      "reason": "chain",
+      "address": "3543 Callan Blvd, South San Francisco, CA 94080, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://locations.jollibeefoods.com/usa/ca/south-san-francisco/3543-callan-blvd?utm_medium=organic&utm_source=local&utm_campaign=googlelistings&utm_content=website&utm_term=3022",
+      "lat": 37.6432212,
+      "lng": -122.4634115
+    },
+    {
+      "name": "Chowking",
+      "reason": "out-of-area",
+      "address": "3589 Callan Blvd, South San Francisco, CA 94080, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://locations.chowkingusa.com/ca/south-san-francisco/3589-callan-blvd?utm_medium=organic&utm_source=local&utm_campaign=googlelistings&utm_content=website&utm_term=1361755",
+      "lat": 37.644166,
+      "lng": -122.46329349999999
+    },
+    {
+      "name": "朝粵軒",
+      "reason": "low-signal",
+      "address": "950 King Dr #100, Daly City, CA 94015, USA",
+      "primaryType": "chinese_restaurant",
+      "website": null,
+      "lat": 37.6512568,
+      "lng": -122.4688381
+    },
+    {
+      "name": "CH Imperial Garden",
+      "reason": "low-signal",
+      "address": "950 King Dr #100, Daly City, CA 94015, USA",
+      "primaryType": "chinese_restaurant",
+      "website": null,
+      "lat": 37.6511481,
+      "lng": -122.46843890000001
+    },
+    {
+      "name": "Garcia's Cocina",
+      "reason": "low-signal",
+      "address": "Galway Dr &, Wright Ct, South San Francisco, CA 94080, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 37.6446596,
+      "lng": -122.4563954
+    },
+    {
+      "name": "Pit Stop Boba Shop",
+      "reason": "out-of-area",
+      "address": "2300 Westborough Blvd, South San Francisco, CA 94080, USA",
+      "primaryType": "tea_house",
+      "website": "https://pitstopbobashop.square.site/",
+      "lat": 37.6435367,
+      "lng": -122.4534993
+    },
+    {
+      "name": "Pho Saigon",
+      "reason": "out-of-area",
+      "address": "2280 Westborough Blvd, South San Francisco, CA 94080, USA",
+      "primaryType": "vietnamese_restaurant",
+      "website": null,
+      "lat": 37.6444348,
+      "lng": -122.4532779
+    },
+    {
+      "name": "Grills",
+      "reason": "low-signal",
+      "address": "Avalon Park, 324 Avalon Dr, South San Francisco, CA 94080, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 37.6412538,
+      "lng": -122.43466310000001
+    },
+    {
+      "name": "La bonita Food truck",
+      "reason": "format",
+      "address": "4000 Callan Blvd, South San Francisco, CA 94080, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 37.6462984,
+      "lng": -122.4299156
+    },
+    {
+      "name": "The 346 LONCHERA",
+      "reason": "low-signal",
+      "address": "147-1 Ponderosa Rd, South San Francisco, CA 94080, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 37.6486178,
+      "lng": -122.42998639999998
+    },
+    {
+      "name": "El Faro's Mexican Food",
+      "reason": "out-of-area",
+      "address": "435 El Camino Real, South San Francisco, CA 94080, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://elfarosmexicanfood.site/",
+      "lat": 37.6464363,
+      "lng": -122.4285484
+    },
+    {
+      "name": "Eggettes",
+      "reason": "out-of-area",
+      "address": "639 El Camino Real, South San Francisco, CA 94080, USA",
+      "primaryType": "tea_house",
+      "website": "http://eggettes.com/",
+      "lat": 37.649129599999995,
+      "lng": -122.43025120000001
+    },
+    {
+      "name": "Sky Dragon",
+      "reason": "out-of-area",
+      "address": "117 Southwood Center, South San Francisco, CA 94080, USA",
+      "primaryType": "chinese_restaurant",
+      "website": null,
+      "lat": 37.649565900000006,
+      "lng": -122.43068470000001
+    },
+    {
+      "name": "LAFFA FALAFEL",
+      "reason": "low-signal",
+      "address": "665 El Camino Real, South San Francisco, CA 94080, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 37.6495483,
+      "lng": -122.4304779
+    },
+    {
+      "name": "Taqueria Mi Durango 2",
+      "reason": "format",
+      "address": "671 El Camino Real, South San Francisco, CA 94080, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.taqueriamidurango.com/",
+      "lat": 37.6496219,
+      "lng": -122.4305418
+    },
+    {
+      "name": "Speedy's Pizza & Grill",
+      "reason": "out-of-area",
+      "address": "687 El Camino Real, South San Francisco, CA 94080, USA",
+      "primaryType": "italian_restaurant",
+      "website": "https://www.speedyspizzagrill.com/?utm_source=gbp",
+      "lat": 37.6498862,
+      "lng": -122.4307434
+    },
+    {
+      "name": "Yo-Kai Express",
+      "reason": "low-signal",
+      "address": "630 El Camino Real, South San Francisco, CA 94080, USA",
+      "primaryType": "asian_restaurant",
+      "website": null,
+      "lat": 37.6492575,
+      "lng": -122.4294573
+    },
+    {
+      "name": "Cocina Milonga",
+      "reason": "out-of-area",
+      "address": "308 Alida Way, South San Francisco, CA 94080, USA",
+      "primaryType": "argentinian_restaurant",
+      "website": "https://www.cocinamilonga.com/",
+      "lat": 37.6430827,
+      "lng": -122.4264405
+    },
+    {
+      "name": "Los Cuates Taqueria",
+      "reason": "format",
+      "address": "140 Hazelwood Dr, South San Francisco, CA 94080, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 37.642188999999995,
+      "lng": -122.42655370000001
+    },
+    {
+      "name": "New Dragon Garden",
+      "reason": "out-of-area",
+      "address": "136 Hazelwood Dr, South San Francisco, CA 94080, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.newdragongardenca.com/?utm_source=gmb&utm_medium=website",
+      "lat": 37.6421812,
+      "lng": -122.42649109999998
+    },
+    {
+      "name": "Rancho Las Trancas",
+      "reason": "out-of-area",
+      "address": "792 El Camino Real, South San Francisco, CA 94080, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 37.65188140000001,
+      "lng": -122.43131659999999
+    },
+    {
+      "name": "Boracay Garden & Grill",
+      "reason": "out-of-area",
+      "address": "269 El Camino Real, South San Francisco, CA 94080, USA",
+      "primaryType": "filipino_restaurant",
+      "website": "https://www.boracayrestaurant.com/",
+      "lat": 37.643491999999995,
+      "lng": -122.42619529999997
+    },
+    {
+      "name": "Sofra Grill",
+      "reason": "out-of-area",
+      "address": "132 Hazelwood Dr, South San Francisco, CA 94080, USA",
+      "primaryType": "mediterranean_restaurant",
+      "website": "http://sofragrills.com/",
+      "lat": 37.6422336,
+      "lng": -122.426379
+    },
+    {
+      "name": "Hawaiian Drive Inn",
+      "reason": "closed",
+      "address": "128 Hazelwood Dr, South San Francisco, CA 94080, USA",
+      "primaryType": "hawaiian_restaurant",
+      "website": "http://www.hawaiiandriveinn.com/",
+      "lat": 37.6422612,
+      "lng": -122.42631700000001
+    },
+    {
+      "name": "Nation's Giant Hamburgers & Great Pies",
+      "reason": "out-of-area",
+      "address": "925 El Camino Real, South San Francisco, CA 94080, USA",
+      "primaryType": "restaurant",
+      "website": "https://nationsrestaurants.com/",
+      "lat": 37.6533245,
+      "lng": -122.43314339999999
+    },
+    {
+      "name": "Fairway Cocktail Lounge",
+      "reason": "out-of-area",
+      "address": "900 El Camino Real, South San Francisco, CA 94080, USA",
+      "primaryType": "bar",
+      "website": null,
+      "lat": 37.653219899999996,
+      "lng": -122.4321995
+    },
+    {
+      "name": "Ongpin Restaurant",
+      "reason": "out-of-area",
+      "address": "73 Camaritas Ave, South San Francisco, CA 94080, USA",
+      "primaryType": "filipino_restaurant",
+      "website": "http://www.ongpin.com/",
+      "lat": 37.6544944,
+      "lng": -122.43705000000001
+    },
+    {
+      "name": "KFC",
+      "reason": "chain",
+      "address": "287 Westmoor Ave, Daly City, CA 94015, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://locations.kfc.com/ca/daly-city/287-westmoor-ave",
+      "lat": 37.6829039,
+      "lng": -122.48855319999998
+    },
+    {
+      "name": "Mountain Mike's Pizza",
+      "reason": "place-type",
+      "address": "35 Skyline Plaza, Daly City, CA 94015, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://www.mountainmikespizza.com/locations/daly-city-skyline/",
+      "lat": 37.6826503,
+      "lng": -122.48778129999998
+    },
+    {
+      "name": "Picnic table",
+      "reason": "low-signal",
+      "address": "102 Palisades Dr, Daly City, CA 94015, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 37.6889403,
+      "lng": -122.49515939999999
+    },
+    {
+      "name": "T C Pastry",
+      "reason": "closed",
+      "address": "67 St Francis Square, Daly City, CA 94015, USA",
+      "primaryType": "dim_sum_restaurant",
+      "website": null,
+      "lat": 37.6744238,
+      "lng": -122.47946400000001
+    },
+    {
+      "name": "Shwe Yankin",
+      "reason": "closed",
+      "address": "63 St Francis Square, Daly City, CA 94015, USA",
+      "primaryType": "burmese_restaurant",
+      "website": "https://shweyankin.com/",
+      "lat": 37.6743879,
+      "lng": -122.47933880000001
+    },
+    {
+      "name": "Supreme Pot",
+      "reason": "closed",
+      "address": "3 St Francis Square, Daly City, CA 94015, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 37.6748201,
+      "lng": -122.4786111
+    },
+    {
+      "name": "Grill City",
+      "reason": "low-signal",
+      "address": "27 St Francis Square, Daly City, CA 94015, USA",
+      "primaryType": "barbecue_restaurant",
+      "website": null,
+      "lat": 37.6749262,
+      "lng": -122.4786251
+    },
+    {
+      "name": "Taqueria El Gran Amigo",
+      "reason": "format",
+      "address": "72 B Serramonte Center, Daly City, CA 94015, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.taqueriaelgranamigoorder.com/",
+      "lat": 37.6717661,
+      "lng": -122.472157
+    },
+    {
+      "name": "Panda Express",
+      "reason": "chain",
+      "address": "86 Serramonte Center #703, Daly City, CA 94015, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.pandaexpress.com/locations/ca/daly-city/417?utm_source=google_gbp&utm_medium=organic&utm_campaign=websitelink",
+      "lat": 37.671633199999995,
+      "lng": -122.4717457
+    },
+    {
+      "name": "Jollibee",
+      "reason": "chain",
+      "address": "84 Serramonte Center Suite J700, Daly City, CA 94015, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://locations.jollibeefoods.com/usa/ca/daly-city/84-serramonte-center?utm_medium=organic&utm_source=local&utm_campaign=googlelistings&utm_content=website&utm_term=3061",
+      "lat": 37.671481,
+      "lng": -122.47124600000001
+    },
+    {
+      "name": "Sidewalk Juice",
+      "reason": "place-type",
+      "address": "41 Serramonte Center, Daly City, CA 94015, USA",
+      "primaryType": "juice_shop",
+      "website": "http://www.sidewalkjuice.com/",
+      "lat": 37.6720606,
+      "lng": -122.47165700000001
+    },
+    {
+      "name": "MOD Pizza",
+      "reason": "chain",
+      "address": "127 Serramonte Center Suite 660, Daly City, CA 94015, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.modpizza.com/usa/ca/daly-city/127-serramonte-center?utm_source=google&utm_medium=yext",
+      "lat": 37.6710182,
+      "lng": -122.4703879
+    },
+    {
+      "name": "The Garden Club",
+      "reason": "out-of-area",
+      "address": "1144 Mission Rd, South San Francisco, CA 94080, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://www.gardenclubrestaurant.com/",
+      "lat": 37.661642,
+      "lng": -122.43830799999999
+    },
+    {
+      "name": "Food truck las pencas #1",
+      "reason": "format",
+      "address": "1655 Mission Rd, South San Francisco, CA 94080, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 37.6700958,
+      "lng": -122.4510365
+    },
+    {
+      "name": "California Catering Company",
+      "reason": "place-type",
+      "address": "920 Stonegate Dr, South San Francisco, CA 94080, USA",
+      "primaryType": "catering_service",
+      "website": "http://california-catering-company.com/",
+      "lat": 37.6657629,
+      "lng": -122.42518
+    },
+    {
+      "name": "Mountain Mike's Pizza",
+      "reason": "place-type",
+      "address": "101 Hickey Blvd d, South San Francisco, CA 94080, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://www.mountainmikespizza.com/locations/south-san-francisco-hickey-blvd/",
+      "lat": 37.6656875,
+      "lng": -122.4515399
+    },
+    {
+      "name": "Max's Restaurant South San Francisco, Cuisine of the Philippines",
+      "reason": "out-of-area",
+      "address": "1155 El Camino Real, South San Francisco, CA 94080, USA",
+      "primaryType": "filipino_restaurant",
+      "website": "https://www.maxsrestaurantna.com/",
+      "lat": 37.657059499999995,
+      "lng": -122.43800909999997
+    },
+    {
+      "name": "Karilagan",
+      "reason": "out-of-area",
+      "address": "1129 El Camino Real, South San Francisco, CA 94080, USA",
+      "primaryType": "filipino_restaurant",
+      "website": "http://www.karilagan.com/",
+      "lat": 37.6566853,
+      "lng": -122.43740129999999
+    },
+    {
+      "name": "Lucky Chances Casino",
+      "reason": "format",
+      "address": "1700 Hillside Blvd, Colma, CA 94014, USA",
+      "primaryType": "casino",
+      "website": "http://www.luckychances.com/",
+      "lat": 37.6798676,
+      "lng": -122.4526719
+    },
+    {
+      "name": "Gunter's Restaurant",
+      "reason": "out-of-area",
+      "address": "1057 El Camino Real, South San Francisco, CA 94080, USA",
+      "primaryType": "american_restaurant",
+      "website": null,
+      "lat": 37.6556883,
+      "lng": -122.43581250000001
+    },
+    {
+      "name": "Round Table Pizza",
+      "reason": "chain",
+      "address": "20 Chestnut Ave, South San Francisco, CA 94080, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://www.roundtablepizza.com/?olonwp=JjBtp_vMLk25gkYh_bnoiQ",
+      "lat": 37.655826999999995,
+      "lng": -122.432453
+    },
+    {
+      "name": "Wingstop",
+      "reason": "chain",
+      "address": "22 Chestnut Ave, South San Francisco, CA 94080, USA",
+      "primaryType": "chicken_wings_restaurant",
+      "website": "https://www.wingstop.com/location/wingstop-550-south-san-francisco-ca-94080/menu?y_source=1_NTUyMDY2NzUtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 37.6558424,
+      "lng": -122.4323608
+    },
+    {
+      "name": "Starbird Chicken",
+      "reason": "out-of-area",
+      "address": "988 El Camino Real Suite 2, South San Francisco, CA 94080, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.starbirdchicken.com/",
+      "lat": 37.655187399999996,
+      "lng": -122.4338799
+    },
+    {
+      "name": "Taco Jalisco",
+      "reason": "low-signal",
+      "address": "1057 El Camino Real, South San Francisco, CA 94080, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 37.654657799999995,
+      "lng": -122.4360357
+    },
+    {
+      "name": "Tacos Jalisco",
+      "reason": "low-signal",
+      "address": "1200 El Camino Real, Colma, CA 94014, USA",
+      "primaryType": "taco_restaurant",
+      "website": null,
+      "lat": 37.6752113,
+      "lng": -122.4590216
+    },
+    {
+      "name": "Focaccia Reserve Inc",
+      "reason": "out-of-area",
+      "address": "1 Tower Pl, South San Francisco, CA 94080, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.focaccia.com/",
+      "lat": 37.6660185,
+      "lng": -122.39817500000001
+    },
+    {
+      "name": "Chico Marx",
+      "reason": "out-of-area",
+      "address": "2 Tower Pl, South San Francisco, CA 94080, USA",
+      "primaryType": "latin_american_restaurant",
+      "website": "https://www.chicomarxssf.com/",
+      "lat": 37.666959899999995,
+      "lng": -122.397086
+    },
+    {
+      "name": "Cafe de Casa",
+      "reason": "place-type",
+      "address": "1165 Airport Blvd, South San Francisco, CA 94080, USA",
+      "primaryType": "brazilian_restaurant",
+      "website": "http://www.cafedecasa.com/",
+      "lat": 37.664063,
+      "lng": -122.39988999999998
+    },
+    {
+      "name": "BayArea Homemade",
+      "reason": "out-of-area",
+      "address": "621 Hillside Blvd, South San Francisco, CA 94080, USA",
+      "primaryType": "filipino_restaurant",
+      "website": "https://www.facebook.com/BayAreaRuby",
+      "lat": 37.6656058,
+      "lng": -122.4119414
+    },
+    {
+      "name": "Mike & Ken's Deli",
+      "reason": "out-of-area",
+      "address": "1031 Airport Blvd, South San Francisco, CA 94080, USA",
+      "primaryType": "deli",
+      "website": null,
+      "lat": 37.6630405,
+      "lng": -122.40154100000001
+    },
+    {
+      "name": "El Palenque Taqueria",
+      "reason": "format",
+      "address": "245 Hillside Blvd, South San Francisco, CA 94080, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 37.6630009,
+      "lng": -122.40843640000001
+    },
+    {
+      "name": "Mariscos El Pariente",
+      "reason": "low-signal",
+      "address": "200 Hillside Blvd, South San Francisco, CA 94080, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 37.662287,
+      "lng": -122.40749969999999
+    },
+    {
+      "name": "AC Lounge",
+      "reason": "out-of-area",
+      "address": "1333 Veterans Blvd, South San Francisco, CA 94080, USA",
+      "primaryType": "lounge_bar",
+      "website": "https://www.marriott.com/hotels/hotel-information/restaurant/sfoya-ac-hotel-san-francisco-airport-oyster-point-waterfront/",
+      "lat": 37.664593499999995,
+      "lng": -122.3955206
+    },
+    {
+      "name": "Nashville Hot Chicken",
+      "reason": "out-of-area",
+      "address": "899 Airport Blvd, South San Francisco, CA 94080, USA",
+      "primaryType": "restaurant",
+      "website": "https://hotchicken.org/",
+      "lat": 37.660951499999996,
+      "lng": -122.4045582
+    },
+    {
+      "name": "Nick The Greek",
+      "reason": "out-of-area",
+      "address": "101 Oyster Point Blvd Suite 104, South San Francisco, CA 94080, USA",
+      "primaryType": "greek_restaurant",
+      "website": "http://www.nickthegreek.com/?utm_source=cumulus&utm_medium=onlinepresence&utm_campaign=gbp",
+      "lat": 37.662767699999996,
+      "lng": -122.396326
+    },
+    {
+      "name": "Bluegrain Sandwich Market",
+      "reason": "out-of-area",
+      "address": "101 Oyster Point Blvd #105, South San Francisco, CA 94080, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.bluegrainsandwich.com/",
+      "lat": 37.662609599999996,
+      "lng": -122.39640069999999
+    },
+    {
+      "name": "Guapas Mexican Grill",
+      "reason": "out-of-area",
+      "address": "101 Oyster Point Blvd suite 106, South San Francisco, CA 94080, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://www.guapasmexicangrill.com/",
+      "lat": 37.662609599999996,
+      "lng": -122.39640069999999
+    },
+    {
+      "name": "Truffle Poké Bar",
+      "reason": "out-of-area",
+      "address": "101 Oyster Point Blvd # 107, South San Francisco, CA 94080, USA",
+      "primaryType": "hawaiian_restaurant",
+      "website": "http://trufflepokebar.com/",
+      "lat": 37.6626711,
+      "lng": -122.3962894
+    },
+    {
+      "name": "Foundry & Lux",
+      "reason": "out-of-area",
+      "address": "151 Oyster Point Blvd, South San Francisco, CA 94080, USA",
+      "primaryType": "american_restaurant",
+      "website": "http://www.foundryandlux.com/",
+      "lat": 37.6633688,
+      "lng": -122.39503850000001
+    },
+    {
+      "name": "Krispy Krunchy Chicken",
+      "reason": "out-of-area",
+      "address": "812 Linden Ave, South San Francisco, CA 94080, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://locations.krispykrunchy.com/ca/south-san-francisco/812-linden-ave",
+      "lat": 37.6605342,
+      "lng": -122.4080348
+    },
+    {
+      "name": "The Parlour House @Brisbane",
+      "reason": "out-of-area",
+      "address": "301 Visitacion Ave, Brisbane, CA 94005, USA",
+      "primaryType": "restaurant",
+      "website": "http://www.theparlourhousebrisbane.com/",
+      "lat": 37.6823025,
+      "lng": -122.40355609999999
+    },
+    {
+      "name": "Barrera’s Taqueria Taco Truck",
+      "reason": "format",
+      "address": "801 1/2 Linden Ave, South San Francisco, CA 94080, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 37.6601189,
+      "lng": -122.4085305
+    },
+    {
+      "name": "Amoura",
+      "reason": "out-of-area",
+      "address": "713 Linden Ave, South San Francisco, CA 94080, USA",
+      "primaryType": "restaurant",
+      "website": "http://www.amourasf.com/",
+      "lat": 37.65955100000001,
+      "lng": -122.40896049999999
+    },
+    {
+      "name": "Melissas Taqueria",
+      "reason": "format",
+      "address": "160 Visitacion Ave, Brisbane, CA 94005, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://melissastaqueria.com/",
+      "lat": 37.683352,
+      "lng": -122.40336399999998
+    },
+    {
+      "name": "Lucky House Restaurant",
+      "reason": "out-of-area",
+      "address": "148 Visitacion Ave, Brisbane, CA 94005, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://luckyhousebrisbane.com/",
+      "lat": 37.6834432,
+      "lng": -122.4033554
+    },
+    {
+      "name": "Hot Dog Bills",
+      "reason": "out-of-area",
+      "address": "599 CA-35, San Francisco, CA 94132, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.hotdogbills.com/",
+      "lat": 37.709629799999995,
+      "lng": -122.49737879999998
+    },
+    {
+      "name": "Daly City",
+      "reason": "low-signal",
+      "address": "209 Southgate Ave, Daly City, CA 94015, USA",
+      "primaryType": "chinese_restaurant",
+      "website": null,
+      "lat": 37.6970065,
+      "lng": -122.4847132
+    },
+    {
+      "name": "Wingstop",
+      "reason": "chain",
+      "address": "227 Lake Merced Blvd, Daly City, CA 94015, USA",
+      "primaryType": "chicken_wings_restaurant",
+      "website": "https://www.wingstop.com/location/wingstop-517-daly-city-ca-94015/menu?y_source=1_NTUyMDY2NjktNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 37.6995983,
+      "lng": -122.4837371
+    },
+    {
+      "name": "Panda Express",
+      "reason": "chain",
+      "address": "701 Westlake Center, Daly City, CA 94015, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.pandaexpress.com/locations/ca/daly-city/2212?utm_source=google_gbp&utm_medium=organic&utm_campaign=websitelink",
+      "lat": 37.69899890000001,
+      "lng": -122.48207319999999
+    },
+    {
+      "name": "Chipotle Mexican Grill",
+      "reason": "chain",
+      "address": "213 Westlake Center, Daly City, CA 94015, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://locations.chipotle.com/ca/daly-city/213-westlake-ctr?utm_source=google&utm_medium=yext&utm_campaign=yext_listings?restaurant=1102",
+      "lat": 37.701481799999996,
+      "lng": -122.4824343
+    },
+    {
+      "name": "IHOP",
+      "reason": "chain",
+      "address": "2398 Junipero Serra Blvd, Daly City, CA 94015, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://restaurants.ihop.com/en-us/ca/daly-city/breakfast-2398-junipero-serra-blvd-1709?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=1709&utm_content=website",
+      "lat": 37.6934115,
+      "lng": -122.4717126
+    },
+    {
+      "name": "Daly Buffet",
+      "reason": "format",
+      "address": "1901 Junipero Serra Blvd A, Daly City, CA 94014, USA",
+      "primaryType": "buffet_restaurant",
+      "website": "https://dalybuffet.com/",
+      "lat": 37.7025085,
+      "lng": -122.47056250000001
+    },
+    {
+      "name": "Taqueria Los Agaves",
+      "reason": "format",
+      "address": "2408 B Junipero Serra Blvd, Daly City, CA 94015, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 37.6931489,
+      "lng": -122.4713056
+    },
+    {
+      "name": "Round Table Pizza",
+      "reason": "chain",
+      "address": "1901 Junipero Serra Blvd, Daly City, CA 94014, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://www.roundtablepizza.com/?olonwp=JjBtp_vMLk25gkYh_bnoiQ",
+      "lat": 37.7026891,
+      "lng": -122.47025319999999
+    },
+    {
+      "name": "SAM'S SANDWICHES & COFFEE",
+      "reason": "low-signal",
+      "address": "Daly City, CA 94015, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 37.6931222,
+      "lng": -122.47484870000001
+    },
+    {
+      "name": "Junior’s Empanadas",
+      "reason": "closed",
+      "address": "125 Station Ave, Daly City, CA 94014, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 37.692905499999995,
+      "lng": -122.4687577
+    },
+    {
+      "name": "Shirly Arepas",
+      "reason": "low-signal",
+      "address": "667 Park Plaza Dr, Daly City, CA 94015, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 37.697375099999995,
+      "lng": -122.4803296
+    },
+    {
+      "name": "El Mateo",
+      "reason": "low-signal",
+      "address": "577 Templeton Ave, Daly City, CA 94014, USA",
+      "primaryType": "bar",
+      "website": null,
+      "lat": 37.7051418,
+      "lng": -122.45125759999999
+    },
+    {
+      "name": "Philippine Delicacies",
+      "reason": "low-signal",
+      "address": "5609 Mission St, San Francisco, CA 94112, USA",
+      "primaryType": "filipino_restaurant",
+      "website": null,
+      "lat": 37.7112124,
+      "lng": -122.44652879999998
+    },
+    {
+      "name": "Reina's Restaurant",
+      "reason": "out-of-area",
+      "address": "5479 Mission St, San Francisco, CA 94112, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.reinasrestaurant.com/",
+      "lat": 37.7128152,
+      "lng": -122.4441689
+    },
+    {
+      "name": "Mountain Mike's Pizza",
+      "reason": "place-type",
+      "address": "5999 Mission St, Daly City, CA 94014, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://www.mountainmikespizza.com/locations/daly-city-mission-st/",
+      "lat": 37.7078685,
+      "lng": -122.45469750000001
+    },
+    {
+      "name": "Geneva Pub",
+      "reason": "low-signal",
+      "address": "1196 Geneva Ave, San Francisco, CA 94112, USA",
+      "primaryType": "pub",
+      "website": null,
+      "lat": 37.7141812,
+      "lng": -122.4364741
+    },
+    {
+      "name": "Universal Breakfast & Lunch",
+      "reason": "format",
+      "address": "1217 Geneva Ave, San Francisco, CA 94112, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": null,
+      "lat": 37.714206100000006,
+      "lng": -122.43574500000001
+    },
+    {
+      "name": "The Salad Place & Rotisserie",
+      "reason": "place-type",
+      "address": "5392 Mission St, San Francisco, CA 94112, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "http://www.thesaladplacerotisserie.com/",
+      "lat": 37.713774199999996,
+      "lng": -122.4437456
+    },
+    {
+      "name": "The Halfway Club",
+      "reason": "out-of-area",
+      "address": "1166 Geneva Ave, San Francisco, CA 94112, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://www.halfwayclub.com/",
+      "lat": 37.7143337,
+      "lng": -122.4369709
+    },
+    {
+      "name": "The Broken Record",
+      "reason": "closed",
+      "address": "1166 Geneva Ave, San Francisco, CA 94112, USA",
+      "primaryType": "bar",
+      "website": "http://the-broken-record.teeq.io/",
+      "lat": 37.7143422,
+      "lng": -122.4369625
+    },
+    {
+      "name": "Antojitos La Loma",
+      "reason": "low-signal",
+      "address": "6005 Mission St, Daly City, CA 94014, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 37.7077922,
+      "lng": -122.4551877
+    },
+    {
+      "name": "Lacaze Gourmet Burger",
+      "reason": "low-signal",
+      "address": "6019 Mission St, Daly City, CA 94014, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 37.7077742,
+      "lng": -122.4552689
+    },
+    {
+      "name": "Pokedon",
+      "reason": "closed",
+      "address": "5301 Mission St # B, San Francisco, CA 94112, USA",
+      "primaryType": "sushi_restaurant",
+      "website": null,
+      "lat": 37.7143521,
+      "lng": -122.4427312
+    },
+    {
+      "name": "Noodle Station",
+      "reason": "closed",
+      "address": "6055 Mission St, Daly City, CA 94014, USA",
+      "primaryType": "chinese_noodle_restaurant",
+      "website": "http://noodlestation.online/",
+      "lat": 37.7075043,
+      "lng": -122.45577730000001
+    },
+    {
+      "name": "Techalla BBQ & Grill",
+      "reason": "out-of-area",
+      "address": "294 Industrial Way, Brisbane, CA 94005, USA",
+      "primaryType": "restaurant",
+      "website": "http://techallabbqngrill.com/",
+      "lat": 37.6966915,
+      "lng": -122.40623989999999
+    },
+    {
+      "name": "KFC",
+      "reason": "chain",
+      "address": "2815 Geneva Ave, Daly City, CA 94014, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://locations.kfc.com/ca/daly-city/2815-geneva-avenue",
+      "lat": 37.7069395,
+      "lng": -122.41443109999999
+    },
+    {
+      "name": "Ichika Sushi House",
+      "reason": "out-of-area",
+      "address": "118 Old County Rd, Brisbane, CA 94005, USA",
+      "primaryType": "sushi_restaurant",
+      "website": "http://ichikasushi.com/",
+      "lat": 37.685904,
+      "lng": -122.3995178
+    },
+    {
+      "name": "L & D Catering and Bistro",
+      "reason": "out-of-area",
+      "address": "110 Old County Rd, Brisbane, CA 94005, USA",
+      "primaryType": "bistro",
+      "website": "http://www.ldcatering.com/",
+      "lat": 37.6858138,
+      "lng": -122.39938710000001
+    },
+    {
+      "name": "鲜味鍋",
+      "reason": "low-signal",
+      "address": "182 Old County Rd, Brisbane, CA 94005, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 37.6854455,
+      "lng": -122.40027629999999
+    },
+    {
+      "name": "Round N Round Pot",
+      "reason": "out-of-area",
+      "address": "182 Old County Rd, Brisbane, CA 94005, USA",
+      "primaryType": "hot_pot_restaurant",
+      "website": null,
+      "lat": 37.685432,
+      "lng": -122.40028330000001
+    },
+    {
+      "name": "Bloom Tea",
+      "reason": "low-signal",
+      "address": "2665 Geneva Ave, Daly City, CA 94014, USA",
+      "primaryType": "tea_house",
+      "website": null,
+      "lat": 37.7074347,
+      "lng": -122.41584879999999
+    },
+    {
+      "name": "Wingstop",
+      "reason": "chain",
+      "address": "2665 Geneva Ave, Daly City, CA 94014, USA",
+      "primaryType": "chicken_wings_restaurant",
+      "website": "https://www.wingstop.com/location/wingstop-2495-daly-city-ca-94014/menu?y_source=1_MTA0NzMxNzQ5Ny03MTUtbG9jYXRpb24ud2Vic2l0ZQ%3D%3D",
+      "lat": 37.7075129,
+      "lng": -122.41594239999999
+    },
+    {
+      "name": "Brisbane Lunch Truck",
+      "reason": "out-of-area",
+      "address": "3501 Bayshore Blvd, Brisbane, CA 94005, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://www.brisbanelunchtruck.com/",
+      "lat": 37.6853042,
+      "lng": -122.3976755
+    },
+    {
+      "name": "Two Jack's Seafood",
+      "reason": "out-of-area",
+      "address": "984 Gilman Ave, San Francisco, CA 94124, USA",
+      "primaryType": "seafood_restaurant",
+      "website": "http://www.twojacksniksplace.com/",
+      "lat": 37.7181095,
+      "lng": -122.3876014
+    },
+    {
+      "name": "Genesis Marina Marketplace",
+      "reason": "out-of-area",
+      "address": "3500 Marina Blvd Ste 230, Brisbane, CA 94005, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.marina-marketplace.com/",
+      "lat": 37.6762608,
+      "lng": -122.3864903
+    },
+    {
+      "name": "La cocina de Angy",
+      "reason": "out-of-area",
+      "address": "3500 Marina Blvd, Brisbane, CA 94005, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.lacocinadeangy.com/",
+      "lat": 37.6761738,
+      "lng": -122.38645469999997
+    },
+    {
+      "name": "Specialty's Café & Bakery",
+      "reason": "out-of-area",
+      "address": "880 Sierra Point Pkwy, Brisbane, CA 94005, USA",
+      "primaryType": "american_restaurant",
+      "website": "http://specialtys.com/",
+      "lat": 37.6739446,
+      "lng": -122.38313819999998
+    },
+    {
+      "name": "Little Green Cyclo",
+      "reason": "out-of-area",
+      "address": "2000 Sierra Point Pkwy, Brisbane, CA 94005, USA",
+      "primaryType": "vietnamese_restaurant",
+      "website": "http://littlegreencyclo.com/",
+      "lat": 37.6740898,
+      "lng": -122.3858319
+    },
+    {
+      "name": "The Station Cafe",
+      "reason": "out-of-area",
+      "address": "1 Zoo Rd, San Francisco, CA 94132, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://www.sfzoo.org/dining/",
+      "lat": 37.73314,
+      "lng": -122.49989380000001
+    },
+    {
+      "name": "Cypress Grill",
+      "reason": "out-of-area",
+      "address": "99 Harding Rd, San Francisco, CA 94132, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://tpc.com/hardingpark/dining/",
+      "lat": 37.7246962,
+      "lng": -122.493753
+    },
+    {
+      "name": "Pasquale's Pizzeria Restaurant",
+      "reason": "out-of-area",
+      "address": "2640 Sloat Blvd, San Francisco, CA 94116, USA",
+      "primaryType": "pizza_restaurant",
+      "website": null,
+      "lat": 37.7356872,
+      "lng": -122.50276649999999
+    },
+    {
+      "name": "Wawona Gates Outdoor Dining with Full Bar (United Irish Cultural Center)",
+      "reason": "out-of-area",
+      "address": "Parking lot, 2700 45th Ave, San Francisco, CA 94116, USA",
+      "primaryType": "bar_and_grill",
+      "website": "http://irishcentersf.org/",
+      "lat": 37.736044199999995,
+      "lng": -122.50265709999998
+    },
+    {
+      "name": "Old Mandarin Islamic Restaurant",
+      "reason": "out-of-area",
+      "address": "3132 Vicente St, San Francisco, CA 94116, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "http://www.oldmandarinislamic.com/",
+      "lat": 37.7384072,
+      "lng": -122.50081449999999
+    },
+    {
+      "name": "Wingstop",
+      "reason": "chain",
+      "address": "1507 Sloat Blvd, Lakeshore Plaza, San Francisco, CA 94132, USA",
+      "primaryType": "chicken_wings_restaurant",
+      "website": "https://www.wingstop.com/location/wingstop-2143-san-francisco-ca-94132/menu?y_source=1_NTYwODIzNjMtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 37.733543,
+      "lng": -122.48956749999999
+    },
+    {
+      "name": "Ono Hawaiian BBQ",
+      "reason": "out-of-area",
+      "address": "1501 Sloat Blvd Suite A, San Francisco, CA 94132, USA",
+      "primaryType": "hawaiian_restaurant",
+      "website": "http://www.onobbq.com/",
+      "lat": 37.733863899999996,
+      "lng": -122.48938559999999
+    },
+    {
+      "name": "Brothers Pizza",
+      "reason": "out-of-area",
+      "address": "3627 Taraval St #3629, San Francisco, CA 94116, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "http://brotherspizzasfca.com/",
+      "lat": 37.741567,
+      "lng": -122.50515039999999
+    },
+    {
+      "name": "The Riptide",
+      "reason": "out-of-area",
+      "address": "3639 Taraval St, San Francisco, CA 94116, USA",
+      "primaryType": "bar",
+      "website": "http://www.riptidesf.com/",
+      "lat": 37.741581,
+      "lng": -122.505349
+    },
+    {
+      "name": "White Cap",
+      "reason": "out-of-area",
+      "address": "3608 Taraval St, San Francisco, CA 94116, USA",
+      "primaryType": "cocktail_bar",
+      "website": "http://whitecapsf.com/",
+      "lat": 37.7418951,
+      "lng": -122.50493399999998
+    },
+    {
+      "name": "Galinette",
+      "reason": "out-of-area",
+      "address": "3554-3560 Taraval St, San Francisco, CA 94116, USA",
+      "primaryType": "french_restaurant",
+      "website": "https://www.galinettesf.com/",
+      "lat": 37.741910399999995,
+      "lng": -122.50450149999999
+    },
+    {
+      "name": "Underdogs Too",
+      "reason": "out-of-area",
+      "address": "3600 Taraval St, San Francisco, CA 94116, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://www.underdogstoo.com/?y_source=1_MTQ3MjMwNzMtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 37.7419362,
+      "lng": -122.5047828
+    },
+    {
+      "name": "Clean Bites (SFSU)",
+      "reason": "place-type",
+      "address": "755 Font Blvd #107A, San Francisco, CA 94132, USA",
+      "primaryType": "restaurant",
+      "website": "https://campusrec.sfsu.edu/CleanBites",
+      "lat": 37.722707799999995,
+      "lng": -122.48392269999998
+    },
+    {
+      "name": "Nali's Place",
+      "reason": "closed",
+      "address": "48 Middlefield Dr, San Francisco, CA 94132, USA",
+      "primaryType": "restaurant",
+      "website": "https://nalisplace.info/?utm_source=google",
+      "lat": 37.7332537,
+      "lng": -122.48613220000001
+    },
+    {
+      "name": "Orzo Octagon 3",
+      "reason": "closed",
+      "address": "48 Middlefield Dr, San Francisco, CA 94132, USA",
+      "primaryType": "restaurant",
+      "website": "https://orzooctagon.xyz/?utm_source=google",
+      "lat": 37.7332537,
+      "lng": -122.48613220000001
+    },
+    {
+      "name": "North Beach Pizza",
+      "reason": "out-of-area",
+      "address": "3054 Taraval St, San Francisco, CA 94116, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://www.northbeachpizzasanfrancisco.com/",
+      "lat": 37.742171000000006,
+      "lng": -122.49906899999999
+    },
+    {
+      "name": "Sunset's Best Seafood Restaurant",
+      "reason": "out-of-area",
+      "address": "3060 Taraval St, San Francisco, CA 94116, USA",
+      "primaryType": "seafood_restaurant",
+      "website": null,
+      "lat": 37.7422222,
+      "lng": -122.49916669999999
+    },
+    {
+      "name": "Win's Restaurant",
+      "reason": "out-of-area",
+      "address": "3040 Taraval St, San Francisco, CA 94116, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "http://winsrestaurantsf.com/",
+      "lat": 37.7421861,
+      "lng": -122.4989104
+    },
+    {
+      "name": "After Hours Ramen",
+      "reason": "out-of-area",
+      "address": "3044 Taraval St, San Francisco, CA 94116, USA",
+      "primaryType": "ramen_restaurant",
+      "website": "http://www.afterhoursramen.com/",
+      "lat": 37.742228499999996,
+      "lng": -122.4989591
+    },
+    {
+      "name": "Pizza Hut Express",
+      "reason": "chain",
+      "address": "233 Winston Dr, San Francisco, CA 94132, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.pizzahut.com/ca/san-francisco/233-winston-dr?utm_medium=organic&utm_source=local&utm_campaign=googlelistings&utm_content=website&utm_term=315868",
+      "lat": 37.7268095,
+      "lng": -122.47622779999999
+    },
+    {
+      "name": "Marugame Udon",
+      "reason": "out-of-area",
+      "address": "3251 20th Ave, San Francisco, CA 94132, USA",
+      "primaryType": "japanese_restaurant",
+      "website": "https://www.marugameudon.com/?olonwp=JjBtp_vMLk25gkYh_bnoiQ",
+      "lat": 37.727480899999996,
+      "lng": -122.4765005
+    },
+    {
+      "name": "Kizuki Ramen & Izakaya（Stonestown Galleria）",
+      "reason": "out-of-area",
+      "address": "3251 20th Ave #172, San Francisco, CA 94132, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.kizuki.com/",
+      "lat": 37.7270581,
+      "lng": -122.47711350000002
+    },
+    {
+      "name": "Chipotle Mexican Grill",
+      "reason": "chain",
+      "address": "3251 20th Ave Space OP183, San Francisco, CA 94132, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://locations.chipotle.com/ca/san-francisco/3251-20th-ave?utm_source=google&utm_medium=yext&utm_campaign=yext_listings?restaurant=2080",
+      "lat": 37.7276457,
+      "lng": -122.47659859999999
+    },
+    {
+      "name": "Panda Express",
+      "reason": "chain",
+      "address": "3251 20th Ave #250h, San Francisco, CA 94132, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.pandaexpress.com/locations/ca/san-francisco/112?utm_source=google_gbp&utm_medium=organic&utm_campaign=websitelink",
+      "lat": 37.7276883,
+      "lng": -122.4766657
+    },
+    {
+      "name": "Shihlin Taiwan Street Snacks",
+      "reason": "out-of-area",
+      "address": "3251 20th Ave # 250G, San Francisco, CA 94132, USA",
+      "primaryType": "taiwanese_restaurant",
+      "website": "https://www.shihlinca.com/locations",
+      "lat": 37.727764799999996,
+      "lng": -122.47659879999998
+    },
+    {
+      "name": "Round1 Bowling & Arcade - San Francisco",
+      "reason": "out-of-area",
+      "address": "285 Winston Dr Space No. B1, San Francisco, CA 94132, USA",
+      "primaryType": "amusement_center",
+      "website": "https://www.round1usa.com/",
+      "lat": 37.7265995,
+      "lng": -122.47763199999999
+    },
+    {
+      "name": "Rooster & Rice",
+      "reason": "out-of-area",
+      "address": "3251 20th Ave, San Francisco, CA 94132, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.roosterandrice.com/",
+      "lat": 37.727853100000004,
+      "lng": -122.47666339999999
+    },
+    {
+      "name": "TacoMania (San Francisco)",
+      "reason": "out-of-area",
+      "address": "3251 20th Ave #2501, San Francisco, CA 94116, USA",
+      "primaryType": "taco_restaurant",
+      "website": "https://tacomaniainc.com/tacomaniasanfrancisco3521?utm_source=google",
+      "lat": 37.7277266,
+      "lng": -122.476805
+    },
+    {
+      "name": "Quickly",
+      "reason": "out-of-area",
+      "address": "3251 20th Ave #160, San Francisco, CA 94132, USA",
+      "primaryType": "tea_house",
+      "website": "http://www.quicklyusa.com/quicklystores.html",
+      "lat": 37.7278024,
+      "lng": -122.4768074
+    },
+    {
+      "name": "Blaze Pizza",
+      "reason": "chain",
+      "address": "3251 20th Ave, San Francisco, CA 94132, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.blazepizza.com/ca/san-francisco/3251-20th-ave?utm_source=gmb&utm_medium=yext",
+      "lat": 37.7279525,
+      "lng": -122.47665029999999
+    },
+    {
+      "name": "Great Steak",
+      "reason": "out-of-area",
+      "address": "3251 20th Ave Spc 25E, San Francisco, CA 94132, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://www.thegreatsteak.com/stores/7232?utm_source=gmb&utm_medium=gmb&utm_campaign=gmb&utm_id=gmb",
+      "lat": 37.728016499999995,
+      "lng": -122.4765863
+    },
+    {
+      "name": "NAR Doner & Grill",
+      "reason": "out-of-area",
+      "address": "3251 20th Ave, San Francisco, CA 94132, USA",
+      "primaryType": "turkish_restaurant",
+      "website": "https://www.nardonersf.com/",
+      "lat": 37.7277303,
+      "lng": -122.47697489999999
+    },
+    {
+      "name": "Potato Meets Wing",
+      "reason": "low-signal",
+      "address": "3251 20th Ave Food Court #6501, San Francisco, CA 94132, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 37.7277303,
+      "lng": -122.47697489999999
+    },
+    {
+      "name": "Palmetto Superfoods - Stonestown Mall",
+      "reason": "place-type",
+      "address": "3251 20th Ave #156, San Francisco, CA 94132, USA",
+      "primaryType": "restaurant",
+      "website": "http://www.palmettosuperfoods.com/",
+      "lat": 37.7279461,
+      "lng": -122.47674999999998
+    },
+    {
+      "name": "Blondie’s Pizza",
+      "reason": "closed",
+      "address": "3251 20th Ave, San Francisco, CA 94132, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://blondiespizza.com/stonestown/",
+      "lat": 37.7280647,
+      "lng": -122.47670409999998
+    },
+    {
+      "name": "Onigilly - Stonestown",
+      "reason": "out-of-area",
+      "address": "3251 20th Ave, San Francisco, CA 94132, USA",
+      "primaryType": "japanese_restaurant",
+      "website": "https://onigilly.com/order/onigilly-stonestown",
+      "lat": 37.7278631,
+      "lng": -122.47695019999999
+    },
+    {
+      "name": "Red Ninja Sushi",
+      "reason": "closed",
+      "address": "3251 20th Ave, San Francisco, CA 94132, USA",
+      "primaryType": "japanese_restaurant",
+      "website": null,
+      "lat": 37.7280793,
+      "lng": -122.4768161
+    },
+    {
+      "name": "Poke Bowl",
+      "reason": "out-of-area",
+      "address": "3251 20th Ave, San Francisco, CA 94132, USA",
+      "primaryType": "hawaiian_restaurant",
+      "website": "https://thepokebowls.com/",
+      "lat": 37.7280283,
+      "lng": -122.47689690000001
+    },
+    {
+      "name": "Tang Bar",
+      "reason": "out-of-area",
+      "address": "3251 20th Ave Second Floor, San Francisco, CA 94132, USA",
+      "primaryType": "hot_pot_restaurant",
+      "website": "http://tangbar.us/",
+      "lat": 37.7277813,
+      "lng": -122.4773794
+    },
+    {
+      "name": "Beijing Restaurant",
+      "reason": "out-of-area",
+      "address": "1801 Alemany Blvd, San Francisco, CA 94112, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.beijingfoodsf.com/",
+      "lat": 37.723558499999996,
+      "lng": -122.43723539999999
+    },
+    {
+      "name": "4650 Mission St Parking",
+      "reason": "low-signal",
+      "address": "4650 Mission St, San Francisco, CA 94112, USA",
+      "primaryType": "bar",
+      "website": null,
+      "lat": 37.723521399999996,
+      "lng": -122.43602670000001
+    },
+    {
+      "name": "Sippin Wine Bar",
+      "reason": "out-of-area",
+      "address": "4704 Mission St, San Francisco, CA 94112, USA",
+      "primaryType": "wine_bar",
+      "website": "https://www.sippinsf.com/",
+      "lat": 37.723008199999995,
+      "lng": -122.4364088
+    },
+    {
+      "name": "Bottoms Up Bar & Lounge",
+      "reason": "out-of-area",
+      "address": "4704 Mission St, San Francisco, CA 94112, USA",
+      "primaryType": "bar",
+      "website": "http://bottomsupsf.com/",
+      "lat": 37.7229853,
+      "lng": -122.43635359999999
+    },
+    {
+      "name": "Chef Hunan",
+      "reason": "out-of-area",
+      "address": "4661 Mission St, San Francisco, CA 94112, USA",
+      "primaryType": "chinese_restaurant",
+      "website": null,
+      "lat": 37.723709,
+      "lng": -122.4353938
+    },
+    {
+      "name": "Taqueria Vallarta",
+      "reason": "format",
+      "address": "4696 Mission St, San Francisco, CA 94112, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 37.7232212,
+      "lng": -122.43573450000001
+    },
+    {
+      "name": "Dim Sum King",
+      "reason": "out-of-area",
+      "address": "4675 Mission St, San Francisco, CA 94112, USA",
+      "primaryType": "dim_sum_restaurant",
+      "website": "https://dimsumkingsf.com/",
+      "lat": 37.7234323,
+      "lng": -122.43546590000001
+    },
+    {
+      "name": "Pho Golden",
+      "reason": "out-of-area",
+      "address": "4683 Mission St, San Francisco, CA 94112, USA",
+      "primaryType": "vietnamese_restaurant",
+      "website": "https://www.phogoldenca.com/",
+      "lat": 37.723318,
+      "lng": -122.43555230000001
+    },
+    {
+      "name": "Tala Wine",
+      "reason": "out-of-area",
+      "address": "4625 Mission St, San Francisco, CA 94112, USA",
+      "primaryType": "wine_bar",
+      "website": "https://www.tala.wine/",
+      "lat": 37.724233399999996,
+      "lng": -122.4348657
+    },
+    {
+      "name": "CHOPSTICKS CHINESE FAST FOOD",
+      "reason": "closed",
+      "address": "4615 Mission St, San Francisco, CA 94112, USA",
+      "primaryType": "chinese_restaurant",
+      "website": null,
+      "lat": 37.7243685,
+      "lng": -122.434812
+    },
+    {
+      "name": "La Espiga de Oro #2",
+      "reason": "low-signal",
+      "address": "4615 Mission St, San Francisco, CA 94112, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 37.7243666,
+      "lng": -122.43476480000001
+    },
+    {
+      "name": "The Check-In Lounge",
+      "reason": "out-of-area",
+      "address": "201 Ocean Ave, San Francisco, CA 94112, USA",
+      "primaryType": "cocktail_bar",
+      "website": "http://checkinsf.com/",
+      "lat": 37.7232018,
+      "lng": -122.4413283
+    },
+    {
+      "name": "Baby's Eatery & Palabok",
+      "reason": "out-of-area",
+      "address": "4609 Mission St, San Francisco, CA 94112, USA",
+      "primaryType": "filipino_restaurant",
+      "website": null,
+      "lat": 37.724433,
+      "lng": -122.4347249
+    },
+    {
+      "name": "Los Planes De Renderos",
+      "reason": "out-of-area",
+      "address": "12 Persia Ave, San Francisco, CA 94112, USA",
+      "primaryType": "restaurant",
+      "website": "http://losplanesderenderossf.com/?mibextid=Zxz2cZ",
+      "lat": 37.7228407,
+      "lng": -122.435639
+    },
+    {
+      "name": "El Gran Taco Loco",
+      "reason": "out-of-area",
+      "address": "4591 Mission St, San Francisco, CA 94112, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.elgrantacoloco.com/",
+      "lat": 37.7247892,
+      "lng": -122.43457180000001
+    },
+    {
+      "name": "The Salad Place",
+      "reason": "out-of-area",
+      "address": "400 London St, San Francisco, CA 94112, USA",
+      "primaryType": "salad_shop",
+      "website": "https://www.thesaladplaceca.com/",
+      "lat": 37.7227855,
+      "lng": -122.4355101
+    },
+    {
+      "name": "Mexico Tipico",
+      "reason": "out-of-area",
+      "address": "4581 Mission St, San Francisco, CA 94112, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://mexicotipico.net/",
+      "lat": 37.72495,
+      "lng": -122.4344265
+    },
+    {
+      "name": "Rocks Den",
+      "reason": "out-of-area",
+      "address": "4753 Mission St, San Francisco, CA 94112, USA",
+      "primaryType": "bar",
+      "website": "http://www.rocksden.com/",
+      "lat": 37.7221285,
+      "lng": -122.43645029999999
+    },
+    {
+      "name": "Hidden Spot - EXL",
+      "reason": "out-of-area",
+      "address": "4528 Mission St, San Francisco, CA 94112, USA",
+      "primaryType": "restaurant",
+      "website": "https://hiddenspot.online/",
+      "lat": 37.7255834,
+      "lng": -122.43451259999998
+    },
+    {
+      "name": "Recovery Room",
+      "reason": "out-of-area",
+      "address": "4528 Mission St, San Francisco, CA 94112, USA",
+      "primaryType": "bar",
+      "website": null,
+      "lat": 37.7255762,
+      "lng": -122.43445949999997
+    },
+    {
+      "name": "El Trebol Sports Bar #4",
+      "reason": "low-signal",
+      "address": "2888 San Bruno Ave, San Francisco, CA 94134, USA",
+      "primaryType": "bar",
+      "website": null,
+      "lat": 37.7254679,
+      "lng": -122.4028436
+    },
+    {
+      "name": "Fun Tea House",
+      "reason": "out-of-area",
+      "address": "2891 San Bruno Ave, San Francisco, CA 94134, USA",
+      "primaryType": "restaurant",
+      "website": "http://www.funteahouse.com/",
+      "lat": 37.725554699999996,
+      "lng": -122.40250340000001
+    },
+    {
+      "name": "2901 club",
+      "reason": "low-signal",
+      "address": "2901 San Bruno Ave, San Francisco, CA 94134, USA",
+      "primaryType": "bar",
+      "website": null,
+      "lat": 37.7252134,
+      "lng": -122.40233660000001
+    },
+    {
+      "name": "Hong Kong BBQ Restaurant",
+      "reason": "out-of-area",
+      "address": "2728 San Bruno Ave, San Francisco, CA 94134, USA",
+      "primaryType": "chinese_restaurant",
+      "website": null,
+      "lat": 37.727084999999995,
+      "lng": -122.40370999999998
+    },
+    {
+      "name": "Chef Li's Cafe Hk B.B.Q",
+      "reason": "out-of-area",
+      "address": "2726 San Bruno Ave, San Francisco, CA 94134, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.chefliscafeca.com/",
+      "lat": 37.727240099999996,
+      "lng": -122.40361
+    },
+    {
+      "name": "The Stop Cafe",
+      "reason": "place-type",
+      "address": "1485 Bayshore Blvd, San Francisco, CA 94124, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": null,
+      "lat": 37.7258218,
+      "lng": -122.40128980000001
+    },
+    {
+      "name": "Pupusería Ilobasco",
+      "reason": "out-of-area",
+      "address": "2680 San Bruno Ave, San Francisco, CA 94134, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 37.727806799999996,
+      "lng": -122.40393449999999
+    },
+    {
+      "name": "Sunshine Wheat Field Dim Sum",
+      "reason": "out-of-area",
+      "address": "2668 San Bruno Ave, San Francisco, CA 94134, USA",
+      "primaryType": "dim_sum_restaurant",
+      "website": null,
+      "lat": 37.7278865,
+      "lng": -122.40400799999999
+    },
+    {
+      "name": "Round Table Pizza",
+      "reason": "chain",
+      "address": "2660 San Bruno Ave, San Francisco, CA 94134, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://www.roundtablepizza.com/?olonwp=JjBtp_vMLk25gkYh_bnoiQ",
+      "lat": 37.7280096,
+      "lng": -122.40391729999997
+    },
+    {
+      "name": "Banh Mi & Rolls",
+      "reason": "out-of-area",
+      "address": "2646 San Bruno Ave, San Francisco, CA 94134, USA",
+      "primaryType": "vietnamese_restaurant",
+      "website": "https://www.banhmiandrollsfactory.com/Home",
+      "lat": 37.7282108,
+      "lng": -122.4041176
+    },
+    {
+      "name": "Out The Road",
+      "reason": "out-of-area",
+      "address": "2636 San Bruno Ave, San Francisco, CA 94134, USA",
+      "primaryType": "bar",
+      "website": "http://www.outtheroadsf.com/",
+      "lat": 37.728267,
+      "lng": -122.404165
+    },
+    {
+      "name": "Sassy Foods",
+      "reason": "out-of-area",
+      "address": "2626 San Bruno Ave, San Francisco, CA 94134, USA",
+      "primaryType": "vegan_restaurant",
+      "website": "http://imperialgardensf.com/",
+      "lat": 37.728414199999996,
+      "lng": -122.4042314
+    },
+    {
+      "name": "Imperial Garden Seafood Restaurant",
+      "reason": "out-of-area",
+      "address": "2626 San Bruno Ave, San Francisco, CA 94134, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://imperialgardensf.com/?utm_source=google",
+      "lat": 37.728459,
+      "lng": -122.404085
+    },
+    {
+      "name": "Ramen House",
+      "reason": "out-of-area",
+      "address": "2623 San Bruno Ave, San Francisco, CA 94134, USA",
+      "primaryType": "ramen_restaurant",
+      "website": "https://ramenhouseca.com/",
+      "lat": 37.7285724,
+      "lng": -122.40386819999999
+    },
+    {
+      "name": "Hawaiian Drive Inn",
+      "reason": "out-of-area",
+      "address": "2600 San Bruno Ave, San Francisco, CA 94134, USA",
+      "primaryType": "hawaiian_restaurant",
+      "website": "http://hawaiiandriveinn.com/",
+      "lat": 37.7286579,
+      "lng": -122.4043389
+    },
+    {
+      "name": "Fat Beli Deli",
+      "reason": "out-of-area",
+      "address": "2598 San Bruno Ave, San Francisco, CA 94134, USA",
+      "primaryType": "deli",
+      "website": "http://www.fatbelideli.com/",
+      "lat": 37.7289208,
+      "lng": -122.40433849999998
+    },
+    {
+      "name": "Phở No 1",
+      "reason": "out-of-area",
+      "address": "2571 San Bruno Ave, San Francisco, CA 94134, USA",
+      "primaryType": "vietnamese_restaurant",
+      "website": "https://orderphono1.com/",
+      "lat": 37.7293306,
+      "lng": -122.4041472
+    },
+    {
+      "name": "Ming Hing Restaurant",
+      "reason": "out-of-area",
+      "address": "2550 San Bruno Ave, San Francisco, CA 94134, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.minghingrestaurant.com/",
+      "lat": 37.7293784,
+      "lng": -122.40453819999999
+    },
+    {
+      "name": "2546 Cafe",
+      "reason": "out-of-area",
+      "address": "2546 San Bruno Ave, San Francisco, CA 94134, USA",
+      "primaryType": "chinese_restaurant",
+      "website": null,
+      "lat": 37.729507999999996,
+      "lng": -122.40452350000001
+    },
+    {
+      "name": "Dim Sum Kitchen Express",
+      "reason": "out-of-area",
+      "address": "2520 San Bruno Ave, San Francisco, CA 94134, USA",
+      "primaryType": "chinese_restaurant",
+      "website": null,
+      "lat": 37.7296615,
+      "lng": -122.4048103
+    },
+    {
+      "name": "Guerrero's Taqueria #2",
+      "reason": "format",
+      "address": "713 Hickey Blvd, Pacifica, CA 94044, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.guerrerostaqueria.com/",
+      "lat": 37.6606714,
+      "lng": -122.4785508
+    },
+    {
+      "name": "Kanto food truck",
+      "reason": "format",
+      "address": "Building 3, Daly City, CA 94015, USA",
+      "primaryType": "filipino_restaurant",
+      "website": null,
+      "lat": 37.645308899999996,
+      "lng": -122.45223209999999
+    },
+    {
+      "name": "Basque Cultural Center",
+      "reason": "out-of-area",
+      "address": "599 Railroad Ave, South San Francisco, CA 94080, USA",
+      "primaryType": "basque_restaurant",
+      "website": "http://www.basqueculturalcenter.com/",
+      "lat": 37.6538006,
+      "lng": -122.42039099999998
+    },
+    {
+      "name": "La Torta Sabrosa",
+      "reason": "out-of-area",
+      "address": "439 Grand Ave, South San Francisco, CA 94080, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.latortasabrosasf.com/",
+      "lat": 37.6558426,
+      "lng": -122.41413379999999
+    },
+    {
+      "name": "Cable Car Cafe",
+      "reason": "place-type",
+      "address": "423 Grand Ave, South San Francisco, CA 94080, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://cablecarcafe-ssf.com/",
+      "lat": 37.6557037,
+      "lng": -122.4135658
+    },
+    {
+      "name": "Villa Del Sol Argentinian Restaurant",
+      "reason": "out-of-area",
+      "address": "423 Grand Ave, South San Francisco, CA 94080, USA",
+      "primaryType": "argentinian_restaurant",
+      "website": null,
+      "lat": 37.6557908,
+      "lng": -122.4135105
+    },
+    {
+      "name": "American Relations",
+      "reason": "out-of-area",
+      "address": "103 Fir Ave, South San Francisco, CA 94080, USA",
+      "primaryType": "vietnamese_restaurant",
+      "website": "https://www.americanrelations.uk/",
+      "lat": 37.651089299999995,
+      "lng": -122.41984869999999
+    },
+    {
+      "name": "Mom's Tofu House",
+      "reason": "out-of-area",
+      "address": "415 Grand Ave Ste 001, South San Francisco, CA 94080, USA",
+      "primaryType": "korean_restaurant",
+      "website": "https://ssf.momstofu.com/",
+      "lat": 37.6555904,
+      "lng": -122.4131455
+    },
+    {
+      "name": "Curry Pizza House South San Francisco",
+      "reason": "out-of-area",
+      "address": "415 Grand Ave, South San Francisco, CA 94080, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://currypizzahouse.com/locations/south-san-francisco-2/",
+      "lat": 37.6555904,
+      "lng": -122.4131455
+    },
+    {
+      "name": "Secret Wine Bar",
+      "reason": "out-of-area",
+      "address": "415 Grand Ave, South San Francisco, CA 94080, USA",
+      "primaryType": "wine_bar",
+      "website": "http://www.sanfranciscowineschool.com/winebar",
+      "lat": 37.6555787,
+      "lng": -122.41311879999999
+    },
+    {
+      "name": "Hidden Tap and Barrel South San Francisco",
+      "reason": "out-of-area",
+      "address": "415 Grand Ave, South San Francisco, CA 94080, USA",
+      "primaryType": "bar",
+      "website": "https://untappd.com/v/hidden-tap-and-barrel-south-sf/13308894",
+      "lat": 37.6555787,
+      "lng": -122.41311879999999
+    },
+    {
+      "name": "Ben Tre Restaurant",
+      "reason": "out-of-area",
+      "address": "398 Grand Ave, South San Francisco, CA 94080, USA",
+      "primaryType": "vietnamese_restaurant",
+      "website": "http://www.bentrerestaurant.com/",
+      "lat": 37.655799699999996,
+      "lng": -122.412303
+    },
+    {
+      "name": "Taqueria El Farolito",
+      "reason": "format",
+      "address": "394 Grand Ave, South San Francisco, CA 94080, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://taqueriaelfarolito.shop/",
+      "lat": 37.6559496,
+      "lng": -122.41219199999999
+    },
+    {
+      "name": "Grill Kebabs and Gyros",
+      "reason": "out-of-area",
+      "address": "385 Grand Ave, South San Francisco, CA 94080, USA",
+      "primaryType": "restaurant",
+      "website": "http://grillkebabsgyrosmenu.com/",
+      "lat": 37.655480499999996,
+      "lng": -122.41217080000001
+    },
+    {
+      "name": "Industry Pizza",
+      "reason": "out-of-area",
+      "address": "386 Grand Ave, South San Francisco, CA 94080, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "http://industrypizzassf.com/",
+      "lat": 37.6557181,
+      "lng": -122.41198949999999
+    },
+    {
+      "name": "Brothers Cafe",
+      "reason": "out-of-area",
+      "address": "382 Grand Ave, South San Francisco, CA 94080, USA",
+      "primaryType": "american_restaurant",
+      "website": "http://brotherscafes.com/",
+      "lat": 37.6557165,
+      "lng": -122.4119108
+    },
+    {
+      "name": "BeauTea",
+      "reason": "out-of-area",
+      "address": "375 Grand Ave, South San Francisco, CA 94080, USA",
+      "primaryType": "tea_house",
+      "website": "http://beauteassfca.com/",
+      "lat": 37.655436400000006,
+      "lng": -122.41195420000001
+    },
+    {
+      "name": "Grand Palace Seafood Restaurant 富源酒家",
+      "reason": "out-of-area",
+      "address": "359 Grand Ave, South San Francisco, CA 94080, USA",
+      "primaryType": "dim_sum_restaurant",
+      "website": "https://grandpalaceseafoodrestaurant.com/?utm_source=google",
+      "lat": 37.6553374,
+      "lng": -122.41152369999999
+    },
+    {
+      "name": "Kevin’s Noodle House",
+      "reason": "out-of-area",
+      "address": "337 Grand Ave, South San Francisco, CA 94080, USA",
+      "primaryType": "vietnamese_restaurant",
+      "website": "https://kevinsnoodlehouse.com/",
+      "lat": 37.65510950000001,
+      "lng": -122.41122139999997
+    },
+    {
+      "name": "Cheung Hing BBQ Seafood",
+      "reason": "out-of-area",
+      "address": "333 Grand Ave, South San Francisco, CA 94080, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://smorefood.com/order-online/cheung-hing-bbq-seafood-south-san-francisco-94080-yerrnsx2?utm_source=gmb&utm_medium=website",
+      "lat": 37.6551021,
+      "lng": -122.41113120000001
+    },
+    {
+      "name": "Hing Lung Cafe",
+      "reason": "out-of-area",
+      "address": "331 Grand Ave, South San Francisco, CA 94080, USA",
+      "primaryType": "chinese_restaurant",
+      "website": null,
+      "lat": 37.6551288,
+      "lng": -122.41101929999999
+    },
+    {
+      "name": "Cochinita",
+      "reason": "out-of-area",
+      "address": "334 Grand Ave, South San Francisco, CA 94080, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://www.cochinitasf.com/",
+      "lat": 37.6555258,
+      "lng": -122.4108667
+    },
+    {
+      "name": "Las pencas food truck #2",
+      "reason": "format",
+      "address": "1165 Hillside Blvd, Daly City, CA 94014, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 37.6870365,
+      "lng": -122.46007970000001
+    },
+    {
+      "name": "Popeyes Louisiana Kitchen",
+      "reason": "chain",
+      "address": "362 E Market St, Daly City, CA 94014, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.popeyes.com/store-locator/store/restaurant_238167",
+      "lat": 37.6895457,
+      "lng": -122.4617531
+    },
+    {
+      "name": "Los Cuates Taqueria",
+      "reason": "format",
+      "address": "311 E Market St, Daly City, CA 94014, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://m.facebook.com/profile.php?id=170041643131634",
+      "lat": 37.6903206,
+      "lng": -122.46222849999998
+    },
+    {
+      "name": "Tacos El Charrito Food Truck",
+      "reason": "format",
+      "address": "7428 Mission St, Daly City, CA 94014, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 37.6876228,
+      "lng": -122.46604089999998
+    },
+    {
+      "name": "Pares sa Daly City",
+      "reason": "closed",
+      "address": "7 San Pedro Rd, Daly City, CA 94014, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 37.6886934,
+      "lng": -122.46686559999999
+    },
+    {
+      "name": "Fiesta Chapina",
+      "reason": "low-signal",
+      "address": "7384 Mission St, Daly City, CA 94014, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 37.6901662,
+      "lng": -122.46612929999999
+    },
+    {
+      "name": "The Village Market & Pizza",
+      "reason": "out-of-area",
+      "address": "Village At Centennial Square, 750 Font Blvd, San Francisco, CA 94132, USA",
+      "primaryType": "pizza_restaurant",
+      "website": null,
+      "lat": 37.723352899999995,
+      "lng": -122.48233040000001
+    },
+    {
+      "name": "Tacos Mexico",
+      "reason": "closed",
+      "address": "205 Lawrence Ave, San Francisco, CA 94112, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 37.7113385,
+      "lng": -122.45349039999999
+    },
+    {
+      "name": "Taco N'Madre",
+      "reason": "low-signal",
+      "address": "2900 Alemany Blvd, San Francisco, CA 94112, USA",
+      "primaryType": "taco_restaurant",
+      "website": null,
+      "lat": 37.7120177,
+      "lng": -122.4528486
+    },
+    {
+      "name": "Young Breakfast",
+      "reason": "format",
+      "address": "6012 Mission St, Daly City, CA 94014, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 37.7080431,
+      "lng": -122.455946
+    },
+    {
+      "name": "Mi Lindo Consuelo",
+      "reason": "out-of-area",
+      "address": "187 Lobos St, San Francisco, CA 94112, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://milindoconsuelo.online/",
+      "lat": 37.714729999999996,
+      "lng": -122.45859000000002
+    },
+    {
+      "name": "Drew's Barbecue",
+      "reason": "out-of-area",
+      "address": "101 Hahn St, San Francisco, CA 94134, USA",
+      "primaryType": "barbecue_restaurant",
+      "website": null,
+      "lat": 37.713333399999996,
+      "lng": -122.41523020000001
+    },
+    {
+      "name": "Ulisess CATERING",
+      "reason": "out-of-area",
+      "address": "706 Athens St, San Francisco, CA 94112, USA",
+      "primaryType": "catering_service",
+      "website": "http://www.ulisesscatering.com/",
+      "lat": 37.7169211,
+      "lng": -122.4322954
+    },
+    {
+      "name": "Taqueria El Buen Sabor",
+      "reason": "format",
+      "address": "98 Leland Ave, San Francisco, CA 94134, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 37.7120804,
+      "lng": -122.4054555
+    },
+    {
+      "name": "Bayside Cafe",
+      "reason": "place-type",
+      "address": "2011 Bayshore Blvd, San Francisco, CA 94124, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": null,
+      "lat": 37.7149722,
+      "lng": -122.39881670000001
+    },
+    {
+      "name": "La Colonia",
+      "reason": "out-of-area",
+      "address": "6275 3rd St, San Francisco, CA 94124, USA",
+      "primaryType": "restaurant",
+      "website": "https://lacoloniasf.com/",
+      "lat": 37.7212544,
+      "lng": -122.39599140000001
+    },
+    {
+      "name": "Montecristo",
+      "reason": "out-of-area",
+      "address": "6286 3rd St, San Francisco, CA 94124, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 37.7209845,
+      "lng": -122.3965343
+    },
+    {
+      "name": "Marthita's",
+      "reason": "out-of-area",
+      "address": "1401 Egbert Ave, San Francisco, CA 94124, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 37.7226473,
+      "lng": -122.3928344
+    },
+    {
+      "name": "Laughing Monk Brewing",
+      "reason": "out-of-area",
+      "address": "1439 Egbert Ave unit a/b, San Francisco, CA 94124, USA",
+      "primaryType": "brewery",
+      "website": "http://taproom.laughingmonk.com/",
+      "lat": 37.7229805,
+      "lng": -122.39342449999998
+    },
+    {
+      "name": "Antojitos Mexicanos la costeñita",
+      "reason": "low-signal",
+      "address": "1408 Bancroft Ave, San Francisco, CA 94124, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 37.7238648,
+      "lng": -122.3892722
+    },
+    {
+      "name": "B&J Burgers",
+      "reason": "out-of-area",
+      "address": "6202 3rd St, San Francisco, CA 94124, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://www.bandjburgers.com/",
+      "lat": 37.722336999999996,
+      "lng": -122.39596399999999
+    }
+  ]
+}

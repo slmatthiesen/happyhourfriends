@@ -400,6 +400,7 @@ async function main() {
       JOIN venues v ON v.id = da.venue_id
       WHERE v.city_id = ${city.id}
         AND v.status = 'active'
+        AND v.deleted_at IS NULL
         AND da.fix_applied = false
         AND da.resolution <> 'reported'
         AND EXISTS (SELECT 1 FROM jsonb_array_elements(da.flags) f WHERE f->>'severity' = 'auto_fixable')

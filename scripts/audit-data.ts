@@ -4,13 +4,15 @@
  * no network, no AI — it reads only what's already in the DB.
  *
  * Usage: pnpm tsx scripts/audit-data.ts --city <slug> --state <code> [--recheck] [--emit-batches] [--limit N]
- *   --recheck       re-scan venues already in data_audit
+ *   --recheck       re-scan venues already in data_audit (operator-adjudicated rows are
+ *                   never touched — a human keep/hide verdict outranks a rule re-scan)
  *   --emit-batches  also write docs/audit-batches/<slug>-<n>.md for the in-session agent sniff-test
  */
 import "dotenv/config";
 import postgres from "postgres";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { auditVenue, type AuditWindow, type AnomalyFlag } from "@/lib/audit/anomalyRules";
+import { offeringsFingerprint } from "@/lib/places/windowReconcile";
 import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 import type { OpenPeriod } from "@/lib/geo/timezone";
 
@@ -42,7 +44,10 @@ async function main() {
       FROM venues v
       WHERE v.city_id = ${city.id}
         AND v.status = 'active'
-        ${RECHECK ? sql`` : sql`AND NOT EXISTS (SELECT 1 FROM data_audit da WHERE da.venue_id = v.id)`}
+        AND v.deleted_at IS NULL
+        ${RECHECK
+          ? sql`AND NOT EXISTS (SELECT 1 FROM data_audit da WHERE da.venue_id = v.id AND da.resolution IN ('operator_kept', 'operator_hidden'))`
+          : sql`AND NOT EXISTS (SELECT 1 FROM data_audit da WHERE da.venue_id = v.id)`}
       ORDER BY v.name
       ${LIMIT ? sql`LIMIT ${LIMIT}` : sql``}`;
 
@@ -52,21 +57,38 @@ async function main() {
     let flagged = 0;
 
     for (const v of venuesRows) {
-      const hhRows = await sql<AuditWindow[]>`
-        SELECT days_of_week AS "daysOfWeek", start_time AS "startTime", end_time AS "endTime",
-               all_day AS "allDay", active, source_url AS "sourceUrl", notes
-        FROM happy_hours WHERE venue_id = ${v.id}`;
+      // Offerings ride along so the shared reconcile gate discriminates per-day specials /
+      // distinct-deal overlaps the persist gate deliberately keeps (same join as reconcile-windows).
+      const rawRows = await sql<
+        (Omit<AuditWindow, "offeringsKey"> & { offs: { name: string | null; price_cents: number | null }[] })[]
+      >`
+        SELECT hh.days_of_week AS "daysOfWeek", hh.start_time AS "startTime", hh.end_time AS "endTime",
+               hh.all_day AS "allDay", hh.active, hh.source_url AS "sourceUrl", hh.notes,
+               coalesce(json_agg(json_build_object('name', o.name, 'price_cents', o.price_cents))
+                        FILTER (WHERE o.id IS NOT NULL), '[]') AS offs
+        FROM happy_hours hh
+        LEFT JOIN offerings o ON o.happy_hour_id = hh.id AND o.deleted_at IS NULL AND o.active = true
+        WHERE hh.venue_id = ${v.id} AND hh.deleted_at IS NULL
+        GROUP BY hh.id`;
+      const hhRows: AuditWindow[] = rawRows.map(({ offs, ...w }) => ({
+        ...w,
+        offeringsKey: offeringsFingerprint(offs.map((o) => ({ name: o.name, priceCents: o.price_cents }))),
+      }));
       const flags = auditVenue({ websiteUrl: v.website_url, hoursJson: v.hours_json, windows: hhRows });
       const resolution = flags.length === 0 ? "clean" : "scanned";
       if (flags.length > 0) {
         flagged++;
         report.push({ name: v.name, slug: v.slug, website: v.website_url, flags, windows: hhRows.filter((w) => w.active) });
       }
+      // audit_input pins the rule inputs the flags (and any later operator verdict) refer
+      // to — a hide mutates the live rows, so the labeled example must not read the DB later.
+      const auditInput = { websiteUrl: v.website_url, hoursJson: v.hours_json, windows: hhRows };
       await sql`
-        INSERT INTO data_audit (venue_id, flags, resolution, audited_at)
-        VALUES (${v.id}, ${sql.json(flags as never)}, ${resolution}, now())
+        INSERT INTO data_audit (venue_id, flags, resolution, audited_at, audit_input)
+        VALUES (${v.id}, ${sql.json(flags as never)}, ${resolution}, now(), ${sql.json(auditInput as never)})
         ON CONFLICT (venue_id) DO UPDATE
-          SET flags = EXCLUDED.flags, resolution = EXCLUDED.resolution, audited_at = now()`;
+          SET flags = EXCLUDED.flags, resolution = EXCLUDED.resolution, audited_at = now(),
+              audit_input = EXCLUDED.audit_input`;
     }
 
     console.log(`Scanned ${venuesRows.length}; flagged ${flagged}.`);
