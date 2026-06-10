@@ -9,7 +9,7 @@
  * — flag codes that keep predicting "operator hid it" are candidates for auto-hide in
  * the realness/reconcile gates (the "catch them for the future" loop).
  */
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 import type { db } from "@/db/client";
 import { auditLog, dataAudit, happyHours, venues } from "@/db/schema";
 import { adminActor } from "@/lib/apply/types";
@@ -104,10 +104,12 @@ export async function hideWindowForFlag(
     .limit(1);
   let venueDemoted = false;
   if (remaining.length === 0) {
+    // 'verified' demotes too — a venue with zero active windows must not keep rendering
+    // as verified (Woven Seafood stayed 'verified' after its last window hid, 2026-06-10).
     const demoted = await dbx
       .update(venues)
       .set({ dataCompleteness: "stub", updatedAt: new Date() })
-      .where(and(eq(venues.id, win.venueId), eq(venues.dataCompleteness, "complete")))
+      .where(and(eq(venues.id, win.venueId), inArray(venues.dataCompleteness, ["complete", "verified"])))
       .returning({ id: venues.id });
     venueDemoted = demoted.length > 0;
     // Only settle the audit row when the venue has nothing active left. Settling on the
