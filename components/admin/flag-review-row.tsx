@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { furtherReviewAction, hideWindowAction, keepFlagAction, type ActionResult } from "@/app/admin/actions";
+import {
+  furtherReviewAction,
+  hideWindowAction,
+  keepFlagAction,
+  stubVenueAction,
+  type ActionResult,
+} from "@/app/admin/actions";
 import type { AnomalyFlag } from "@/lib/audit/anomalyRules";
 import { formatDays, formatPrice } from "@/lib/format";
 
@@ -64,6 +70,7 @@ export function FlagReviewRow({ venue }: { venue: FlaggedVenue }) {
   const [noteOpen, setNoteOpen] = useState(venue.parked);
   const [note, setNote] = useState(venue.note ?? "");
   const [noteSaved, setNoteSaved] = useState(false);
+  const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
 
   function keep() {
     setResult(null);
@@ -78,6 +85,21 @@ export function FlagReviewRow({ venue }: { venue: FlaggedVenue }) {
     setResult(null);
     startTransition(async () => {
       const r = await hideWindowAction(happyHourId);
+      setResult(r);
+      if (r.ok) {
+        // The row stays interactive so further windows can be hidden; the venue only
+        // settles (and the row leaves) when its last window goes dark.
+        const nowHidden = new Set(hiddenIds).add(happyHourId);
+        setHiddenIds(nowHidden);
+        if (nowHidden.size >= venue.windows.length) setDone(true);
+      }
+    });
+  }
+
+  function stubVenue() {
+    setResult(null);
+    startTransition(async () => {
+      const r = await stubVenueAction(venue.venueId);
       setResult(r);
       if (r.ok) setDone(true);
     });
@@ -131,6 +153,16 @@ export function FlagReviewRow({ venue }: { venue: FlaggedVenue }) {
           >
             {pending ? "…" : "Keep (data is correct)"}
           </button>
+          {venue.windows.length > 0 && (
+            <button
+              onClick={stubVenue}
+              disabled={pending || done}
+              className="rounded-md border border-accent-hot/50 px-2.5 py-1 text-xs text-accent-hot hover:bg-row-hover disabled:opacity-50"
+              title="All of this venue's HH data is wrong — hide every window and demote to stub (each window reversible from /admin/audit)"
+            >
+              {pending ? "…" : `Stub venue (hide all ${venue.windows.length})`}
+            </button>
+          )}
         </div>
       </div>
 
@@ -175,13 +207,15 @@ export function FlagReviewRow({ venue }: { venue: FlaggedVenue }) {
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   onClick={() => hide(w.id)}
-                  disabled={pending || done}
+                  disabled={pending || done || hiddenIds.has(w.id)}
                   className="rounded-md border border-border px-2 py-0.5 hover:bg-row-hover disabled:opacity-50"
                   title="This window is wrong — hide it (reversible from /admin/audit)"
                 >
-                  Hide
+                  {hiddenIds.has(w.id) ? "Hidden ✓" : "Hide"}
                 </button>
-                <span className="text-text-primary">{windowLabel(w)}</span>
+                <span className={hiddenIds.has(w.id) ? "text-text-muted line-through" : "text-text-primary"}>
+                  {windowLabel(w)}
+                </span>
                 {w.offerings.length === 0 && <span className="text-text-muted">· no offerings captured</span>}
                 {w.sourceUrl && (
                   <a href={w.sourceUrl} target="_blank" rel="noreferrer" className="text-accent-cool hover:underline">

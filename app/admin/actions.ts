@@ -186,6 +186,25 @@ export async function hideWindowAction(happyHourId: string): Promise<ActionResul
   }
 }
 
+/** Flag review (/admin/flags): the whole venue's HH data is wrong — hide every active
+ *  window and demote the venue to a stub (each window reversible via /admin/audit). */
+export async function stubVenueAction(venueId: string): Promise<ActionResult> {
+  try {
+    const admin = await requireAdmin();
+    const { stubVenueForFlag } = await import("@/lib/audit/flagReview");
+    const res = await stubVenueForFlag(db, { venueId, adminEmail: admin.email });
+    revalidatePath("/admin/flags");
+    revalidatePath("/");
+
+    let warning: string | undefined;
+    const pub = await publishVenueToProd(venueId);
+    if (!pub.ok) warning = `Stubbed locally, but publishing to prod failed: ${pub.error}`;
+    return { ok: true, warning: warning ?? `${res.hiddenCount} window(s) hidden — venue is now a stub.` };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Stub failed" };
+  }
+}
+
 export interface ResolveStubResult extends ActionResult {
   recovered?: boolean;
   windowsLive?: number;
