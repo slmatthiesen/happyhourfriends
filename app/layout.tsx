@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import {
-  Fraunces,
   Inter,
   Geist,
   Bricolage_Grotesque,
@@ -19,40 +18,40 @@ const APPEARANCE_INIT = `try{var t=localStorage.getItem('hhf_theme');if(t&&t!=='
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const bricolage = Bricolage_Grotesque({
-  variable: "--font-bricolage",
-  subsets: ["latin"],
-  display: "swap",
-});
-
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
   subsets: ["latin"],
   display: "swap",
 });
 
+// The alternates below only render when the operator flips the FontSwitcher
+// (data-font attribute), so don't preload their files on every visit.
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  display: "swap",
+  preload: false,
+});
+
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
+  subsets: ["latin"],
+  display: "swap",
+  preload: false,
+});
+
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
   subsets: ["latin"],
   display: "swap",
+  preload: false,
 });
 
 const manrope = Manrope({
   variable: "--font-manrope",
   subsets: ["latin"],
   display: "swap",
+  preload: false,
 });
 
 // Absolute base for every canonical/OG URL. Without it, `alternates.canonical` and the
@@ -78,7 +77,6 @@ export default function RootLayout({
         "h-full",
         "antialiased",
         "font-sans",
-        fraunces.variable,
         inter.variable,
         geist.variable,
         bricolage.variable,
