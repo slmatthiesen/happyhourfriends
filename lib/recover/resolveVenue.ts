@@ -89,6 +89,7 @@ export async function persistExtractedWindows(
     endTime: hh.endTime,
     allDay: hh.allDay,
     offeringsKey: hhOfferingsKey(hh),
+    location: hh.locationWithinVenue,
   }));
   const reconResults = reconcileWindows(reconWindows, venueRow?.hoursJson ?? null);
   // Align reconcile verdicts back to source rows by identity index. reconcileWindows
