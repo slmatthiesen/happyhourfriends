@@ -59,6 +59,7 @@ TESTS=(
   test:hh-golden
   test:resolve-city
   test:offering-sanity
+  test:adjudicate-flag
   test:neighborhood-name
 )
 

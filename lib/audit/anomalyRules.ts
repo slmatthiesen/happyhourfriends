@@ -11,7 +11,16 @@
  */
 import { reconcileWindows, durationMin, type ReconcileWindow } from "@/lib/places/windowReconcile";
 import { scoreHhUrl } from "@/lib/places/hhText";
+import { isFoodTextMislabeledAsDrink, namedDaysIn } from "@/lib/recover/offeringSanity";
 import type { OpenPeriod } from "@/lib/geo/timezone";
+
+/** Offering fields the lexicon rules read (2026-06-10 flag-review additions). */
+export interface AuditOffering {
+  kind: string;
+  name: string | null;
+  description: string | null;
+  priceCents: number | null;
+}
 
 export interface AuditWindow {
   daysOfWeek: number[];
@@ -25,6 +34,8 @@ export interface AuditWindow {
    *  per-day specials, day-subset extensions, and distinct-deal overlaps (PRs #56–#59).
    *  Omitted/null → strict pre-discriminator behavior. */
   offeringsKey?: string | null;
+  /** Full offering rows for the lexicon rules; omitted → those rules are skipped. */
+  offerings?: AuditOffering[];
 }
 
 export interface VenueAuditInput {
@@ -43,7 +54,13 @@ export type AnomalyCode =
   | "overlapping_windows"
   | "duplicate_windows"
   | "operating_hours_active"
-  | "implausible_active";
+  | "implausible_active"
+  // 2026-06-10 operator flag-review additions — each caught a real bad row in that corpus:
+  | "own_subdomain_source" // catering.veroamorepizza.com sourced the Swan HH window
+  | "uniform_cheap_prices" // Wooden Nickel's hallucinated $2-everything offerings
+  | "day_mismatch_offering" // Bistro 44's "…on Sunday" item inside an every-day window
+  | "food_kinded_as_drink" // Backyard's tacos/wings/shareables stored as kind=drink
+  | "monthly_event_window"; // Cook & Her Farmer's "every third Thursday" stored as weekly
 
 export interface AnomalyFlag {
   code: AnomalyCode;
@@ -60,6 +77,11 @@ const SEVERITY: Record<AnomalyCode, AnomalySeverity> = {
   stale_event_source: "report",
   overlapping_windows: "report",
   operating_hours_active: "report",
+  own_subdomain_source: "report",
+  uniform_cheap_prices: "report",
+  day_mismatch_offering: "report",
+  food_kinded_as_drink: "report",
+  monthly_event_window: "report",
 };
 
 function flag(code: AnomalyCode, evidence: string): AnomalyFlag {
@@ -121,9 +143,10 @@ function isThirdPartySource(sourceUrl: string | null, websiteUrl: string | null)
 }
 
 /** One-time-event / seasonal-promo slugs. A recurring weekly window sourced from such a
- *  page is likely a one-off stored as recurring. */
+ *  page is likely a one-off stored as recurring. wedding/banquet/catering added 2026-06-10
+ *  (WOLF Pool's windows came from /group-wedding-event-rooms-scottsdale). */
 const EVENT_PATH_RE =
-  /(event|valentine|hallowe|christmas|nye|new-?year|mothers-?day|fathers-?day|st-?patrick|cinco[-_ ]de[-_ ]mayo|super-?bowl|football|game-?day|festival|limited[-_ ]release)/i;
+  /(event|wedding|banquet|catering|valentine|hallowe|christmas|nye|new-?year|mothers-?day|fathers-?day|st-?patrick|cinco[-_ ]de[-_ ]mayo|super-?bowl|football|game-?day|festival|limited[-_ ]release)/i;
 /** Standalone year tokens in the path (uploads dirs, dated articles, menu filenames). */
 const YEAR_TOKEN_RE = /(?<!\d)20\d{2}(?!\d)/g;
 const STALE_AFTER_YEARS = 2;
@@ -165,6 +188,28 @@ function isImplausibleShape(w: AuditWindow): boolean {
   return d > 6 * 60 && !hhPageSourced;
 }
 
+/** Same registrable domain but a non-www subdomain of the venue's site (catering./events./
+ *  shop.) — first-party, yet usually about a DIFFERENT service than the dining room's
+ *  happy hour. isThirdPartySource deliberately passes these, so they were invisible. */
+function isOwnSubdomainSource(sourceUrl: string | null, websiteUrl: string | null): boolean {
+  if (!sourceUrl || !websiteUrl) return false;
+  try {
+    const src = new URL(sourceUrl).hostname.toLowerCase().replace(/^www\./, "");
+    const own = new URL(websiteUrl).hostname.toLowerCase().replace(/^www\./, "");
+    return src !== own && registrableDomain(src) === registrableDomain(own);
+  } catch {
+    return false;
+  }
+}
+
+/** "every third Thursday" / "first Friday of the month" stored as a weekly window. */
+const MONTHLY_EVENT_RE =
+  /\b(every\s+)?(first|second|third|fourth|fifth|last)\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)s?\b|\bonce\s+a\s+month\b|\bmonthly\b/i;
+
+function offeringText(o: AuditOffering): string {
+  return [o.name, o.description].filter(Boolean).join(" ");
+}
+
 export function auditVenue(input: VenueAuditInput, now: Date = new Date()): AnomalyFlag[] {
   const flags: AnomalyFlag[] = [];
   const active = input.windows.filter((w) => w.active);
@@ -186,6 +231,35 @@ export function auditVenue(input: VenueAuditInput, now: Date = new Date()): Anom
     }
     if (isImplausibleShape(w)) {
       flags.push(flag("implausible_active", `active window ${w.startTime}–${w.endTime} is implausible (>6h or degenerate)`));
+    }
+    if (isOwnSubdomainSource(w.sourceUrl, input.websiteUrl)) {
+      flags.push(flag("own_subdomain_source", `window sourced from an own-site subdomain (often a different service): ${w.sourceUrl}`));
+    }
+    if (MONTHLY_EVENT_RE.test(w.notes ?? "")) {
+      flags.push(flag("monthly_event_window", `window notes describe a monthly pattern stored as weekly: "${w.notes}"`));
+    }
+
+    // --- Offering lexicon rules (skipped when offerings weren't provided) ---
+    const offs = w.offerings ?? [];
+    const priced = offs.map((o) => o.priceCents).filter((c): c is number => c != null);
+    if (priced.length >= 3 && new Set(priced).size === 1 && priced[0] <= 300) {
+      flags.push(flag("uniform_cheap_prices", `all ${priced.length} priced offerings identical at ${priced[0]}¢ — likely hallucinated`));
+    }
+    for (const o of offs) {
+      const text = offeringText(o);
+      if (!text) continue;
+      if (o.kind === "drink" && isFoodTextMislabeledAsDrink(text)) {
+        flags.push(flag("food_kinded_as_drink", `offering "${text.slice(0, 60)}" is kinded drink but reads as food`));
+      }
+      const named = namedDaysIn(text);
+      if (named.length > 0 && MONTHLY_EVENT_RE.test(text)) {
+        flags.push(flag("monthly_event_window", `offering describes a monthly pattern: "${text.slice(0, 80)}"`));
+      } else if (named.length > 0) {
+        const matches = w.daysOfWeek.length === named.length && named.every((d) => w.daysOfWeek.includes(d));
+        if (!matches) {
+          flags.push(flag("day_mismatch_offering", `offering "${text.slice(0, 60)}" names day(s) ${JSON.stringify(named)} but the window runs ${JSON.stringify(w.daysOfWeek)}`));
+        }
+      }
     }
   }
 

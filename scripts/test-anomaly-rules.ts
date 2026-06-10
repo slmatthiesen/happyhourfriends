@@ -419,4 +419,120 @@ check("computeCorrection: a corrected window matching an INACTIVE stored row rea
   assert.equal(plan.updates[0].sourceUrl, "https://x.com/happy-hour");
 });
 
+// ── 2026-06-10 flag-review rules (golden cases from the operator's corpus) ──
+
+check("own_subdomain_source: catering subdomain flags (Vero Amore pattern)", () => {
+  const codes = auditVenue({
+    websiteUrl: "https://veroamorepizza.com/?utm_source=google",
+    hoursJson: null,
+    windows: [{
+      daysOfWeek: [1, 2, 3, 4, 5, 6, 7], startTime: "16:00:00", endTime: "18:00:00", allDay: false,
+      active: true, sourceUrl: "https://catering.veroamorepizza.com/", notes: null,
+    }],
+  }).map((f) => f.code);
+  assert.ok(codes.includes("own_subdomain_source"));
+  assert.ok(!codes.includes("third_party_source"));
+});
+
+check("own_subdomain_source: www vs apex does NOT flag", () => {
+  const codes = auditVenue({
+    websiteUrl: "https://www.eatwoven.com/",
+    hoursJson: null,
+    windows: [{
+      daysOfWeek: [1, 2, 3, 4, 5], startTime: "14:00:00", endTime: "17:00:00", allDay: false,
+      active: true, sourceUrl: "https://eatwoven.com/menus/", notes: null,
+    }],
+  }).map((f) => f.code);
+  assert.ok(!codes.includes("own_subdomain_source"));
+});
+
+check("uniform_cheap_prices: $2-everything flags (Wooden Nickel pattern)", () => {
+  const codes = auditVenue({
+    websiteUrl: "https://www.woodennickeltavern.com/",
+    hoursJson: null,
+    windows: [{
+      daysOfWeek: [1, 2, 3, 4, 5, 6, 7], startTime: "15:00:00", endTime: "18:00:00", allDay: false,
+      active: true, sourceUrl: "https://www.woodennickeltavern.com/happy-hour", notes: null,
+      offerings: [
+        { kind: "drink", name: "Draft beers", description: null, priceCents: 200 },
+        { kind: "drink", name: "Domestic bottles", description: null, priceCents: 200 },
+        { kind: "drink", name: "Well drinks", description: null, priceCents: 200 },
+      ],
+    }],
+  }).map((f) => f.code);
+  assert.ok(codes.includes("uniform_cheap_prices"));
+});
+
+check("uniform_cheap_prices: three distinct prices do NOT flag", () => {
+  const codes = auditVenue({
+    websiteUrl: "https://x.com/",
+    hoursJson: null,
+    windows: [{
+      daysOfWeek: [1, 2, 3], startTime: "15:00:00", endTime: "18:00:00", allDay: false,
+      active: true, sourceUrl: "https://x.com/happy-hour", notes: null,
+      offerings: [
+        { kind: "drink", name: "Drafts", description: null, priceCents: 400 },
+        { kind: "drink", name: "Wells", description: null, priceCents: 500 },
+        { kind: "food", name: "Wings", description: null, priceCents: 800 },
+      ],
+    }],
+  }).map((f) => f.code);
+  assert.ok(!codes.includes("uniform_cheap_prices"));
+});
+
+check("food_kinded_as_drink + day_mismatch_offering (Bistro 44 pattern)", () => {
+  const codes = auditVenue({
+    websiteUrl: "http://www.bistro44tucson.com/",
+    hoursJson: null,
+    windows: [{
+      daysOfWeek: [1, 2, 3, 4, 5, 6, 7], startTime: "15:00:00", endTime: "17:00:00", allDay: false,
+      active: true, sourceUrl: "http://www.bistro44tucson.com/happy-hour", notes: null,
+      offerings: [{ kind: "drink", name: "Half Priced Burgers on Sunday", description: null, priceCents: null }],
+    }],
+  }).map((f) => f.code);
+  assert.ok(codes.includes("food_kinded_as_drink"));
+  assert.ok(codes.includes("day_mismatch_offering"));
+});
+
+check("monthly_event_window: 'every third Thursday' notes flag (Cook & Her Farmer pattern)", () => {
+  const codes = auditVenue({
+    websiteUrl: "http://www.thecookandherfarmer.com/",
+    hoursJson: null,
+    windows: [{
+      daysOfWeek: [4], startTime: "17:00:00", endTime: "19:00:00", allDay: false,
+      active: true, sourceUrl: "http://www.thecookandherfarmer.com/x", notes: "Oyster hour every third Thursday in the garden",
+    }],
+  }).map((f) => f.code);
+  assert.ok(codes.includes("monthly_event_window"));
+});
+
+check("stale_event_source: wedding/banquet path flags (WOLF Pool pattern)", () => {
+  const codes = auditVenue({
+    websiteUrl: "http://www.caesarsrepublicscottsdale.com/wolf-pool",
+    hoursJson: null,
+    windows: [{
+      daysOfWeek: [1, 2, 3, 4, 5, 6, 7], startTime: "15:00:00", endTime: "18:00:00", allDay: false,
+      active: true, sourceUrl: "https://www.caesarsrepublicscottsdale.com/group-wedding-rooms", notes: null,
+    }],
+  }).map((f) => f.code);
+  assert.ok(codes.includes("stale_event_source"));
+});
+
+check("clean venue with sane offerings raises none of the new codes", () => {
+  const NEW_CODES = ["own_subdomain_source", "uniform_cheap_prices", "day_mismatch_offering", "food_kinded_as_drink", "monthly_event_window"] as const;
+  const codes = auditVenue({
+    websiteUrl: "https://goodbar.com/",
+    hoursJson: null,
+    windows: [{
+      daysOfWeek: [1, 2, 3, 4, 5], startTime: "15:00:00", endTime: "18:00:00", allDay: false,
+      active: true, sourceUrl: "https://goodbar.com/happy-hour", notes: null,
+      offerings: [
+        { kind: "drink", name: "Drafts", description: null, priceCents: 500 },
+        { kind: "food", name: "Wings", description: null, priceCents: 800 },
+      ],
+    }],
+  }).map((f) => f.code);
+  assert.ok(NEW_CODES.every((c) => !codes.includes(c)), `unexpected: ${codes.join(",")}`);
+});
+
 console.log(`\n✓ ${passed} anomaly-rule checks passed.`);
