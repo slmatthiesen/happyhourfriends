@@ -101,6 +101,56 @@ check("operating_hours_active fires when window covers most of the venue's openi
   assert.ok(codes.includes("operating_hours_active"), `expected operating_hours_active, got: ${JSON.stringify(codes)}`);
 });
 
+// --- Offerings-aware parity with the reconcile gate (PRs #56–#59) ---
+// The audit passes each window's offerings fingerprint into reconcileWindows so it agrees
+// with the persist gate: per-day specials, day-subset extensions, and distinct-deal
+// overlaps that the gate deliberately keeps must NOT re-flag here.
+
+check("offerings: same-time windows with DIFFERENT deals are per-day specials, not duplicates", () => {
+  const flags = auditVenue({
+    websiteUrl: "https://specials.example.com", hoursJson: null,
+    windows: [
+      { daysOfWeek: [2], startTime: "16:00:00", endTime: "18:00:00", allDay: false, active: true, sourceUrl: "https://specials.example.com/happy-hour", notes: null, offeringsKey: "taco|300" },
+      { daysOfWeek: [3], startTime: "16:00:00", endTime: "18:00:00", allDay: false, active: true, sourceUrl: "https://specials.example.com/happy-hour", notes: null, offeringsKey: "whiskey|600" },
+    ],
+  });
+  assert.deepEqual(flags, [], `expected no flags, got: ${JSON.stringify(flags)}`);
+});
+
+check("offerings: a day-subset extension of the same deal (Tue 4–8 within Mon–Fri 4–6) does not flag overlap", () => {
+  const flags = auditVenue({
+    websiteUrl: "https://extension.example.com", hoursJson: null,
+    windows: [
+      { daysOfWeek: [1, 2, 3, 4, 5], startTime: "16:00:00", endTime: "18:00:00", allDay: false, active: true, sourceUrl: "https://extension.example.com/happy-hour", notes: null, offeringsKey: "well drinks|500" },
+      { daysOfWeek: [2], startTime: "16:00:00", endTime: "20:00:00", allDay: false, active: true, sourceUrl: "https://extension.example.com/happy-hour", notes: null, offeringsKey: "well drinks|500" },
+    ],
+  });
+  assert.deepEqual(flags, [], `expected no flags, got: ${JSON.stringify(flags)}`);
+});
+
+check("offerings: overlapping windows with DISTINCT deal sets coexist (no overlapping_windows)", () => {
+  const flags = auditVenue({
+    websiteUrl: "https://fondi.example.com", hoursJson: null,
+    windows: [
+      { daysOfWeek: [1, 2, 3, 4, 5], startTime: "11:00:00", endTime: "15:00:00", allDay: false, active: true, sourceUrl: "https://fondi.example.com/specials", notes: null, offeringsKey: "lunch menu|1200" },
+      { daysOfWeek: [1, 2, 3, 4, 5], startTime: "11:30:00", endTime: "14:00:00", allDay: false, active: true, sourceUrl: "https://fondi.example.com/specials", notes: null, offeringsKey: "pizza per due|1500" },
+    ],
+  });
+  assert.deepEqual(flags, [], `expected no flags, got: ${JSON.stringify(flags)}`);
+});
+
+check("offerings: an operating-hours-shaped window carrying its OWN deal set stays unflagged (Twisted Fork)", () => {
+  const flags = auditVenue({
+    websiteUrl: "https://twistedfork.example.com",
+    hoursJson: [{ openDay: 1, openMin: 11 * 60, closeDay: 1, closeMin: 21 * 60 }],
+    windows: [{
+      daysOfWeek: [1], startTime: "11:00:00", endTime: null, allDay: false,
+      active: true, sourceUrl: "https://twistedfork.example.com/specials", notes: null, offeringsKey: "monday burger|900",
+    }],
+  });
+  assert.deepEqual(flags, [], `expected no flags, got: ${JSON.stringify(flags)}`);
+});
+
 // hasAutoFixable: true when the venue has an auto_fixable flag (duplicate_windows).
 check("hasAutoFixable returns true when a duplicate_windows flag is present", () => {
   const flags = auditVenue({
