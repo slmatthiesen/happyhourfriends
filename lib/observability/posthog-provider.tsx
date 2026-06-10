@@ -25,6 +25,9 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
         // accepts (PostHog's onboarding snippet suggests dates newer than the SDK).
         defaults: "2026-01-30",
         capture_pageleave: true,
+        // PostHog Error Tracking stands in for Sentry (operator call 2026-06-10).
+        // Client-side only: server errors (API routes, workers) are not captured.
+        capture_exceptions: true,
       });
     });
   }, []);
