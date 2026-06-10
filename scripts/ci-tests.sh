@@ -26,6 +26,7 @@ TESTS=(
   test:window-reconcile
   test:anomaly-rules
   test:flag-eval
+  test:evidence-cleanup
   test:render-escalation
   test:site-triage
   test:format
