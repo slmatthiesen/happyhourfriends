@@ -328,6 +328,15 @@ check("isHighConfidenceCorrection returns false when sourceUrl is a homepage", (
   ]));
 });
 
+// isHighConfidenceCorrection — reject: sourced from a one-time-event page (La Escondida
+// 2026-06-09: the re-extract only re-found a "final-friday" event window; its slug contains
+// "happy-hours" so scoreHhUrl passed it, and the apply deactivated the venue's real Mon–Fri row).
+check("isHighConfidenceCorrection returns false when a corrected window is event-page-sourced", () => {
+  assert.ok(!isHighConfidenceCorrection([
+    { daysOfWeek: [5], startTime: "17:30:00", endTime: "19:30:00", allDay: false, sourceUrl: "https://whiskeydelbac.com/event/final-friday-happy-hours-at-la-escondida-with-joe-pena/", notes: null },
+  ]));
+});
+
 // isHighConfidenceCorrection — reject: empty array.
 check("isHighConfidenceCorrection returns false for an empty corrections array", () => {
   assert.ok(!isHighConfidenceCorrection([]));

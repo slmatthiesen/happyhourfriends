@@ -214,12 +214,16 @@ export function hasAutoFixable(flags: AnomalyFlag[]): boolean {
 }
 
 /** A re-parsed correction is HIGH-CONFIDENCE (safe to auto-apply) when every corrected
- *  window has REAL days, ≥1 is sourced from an HH-specific page, and reconcile keeps all. */
+ *  window has REAL days, ≥1 is sourced from an HH-specific page, NONE is sourced from a
+ *  dated/event page (an event slug containing "happy-hours" passes scoreHhUrl — the
+ *  La Escondida final-friday regression), and reconcile keeps all. */
 export function isHighConfidenceCorrection(
   corrected: Omit<AuditWindow, "active">[],
+  now: Date = new Date(),
 ): boolean {
   if (corrected.length === 0) return false;
   if (corrected.some((w) => isAssumedDays(w.notes))) return false;
+  if (corrected.some((w) => isStaleEventSource(w.sourceUrl, now))) return false;
   if (!corrected.some((w) => (w.sourceUrl ? scoreHhUrl(w.sourceUrl) > 0 : false))) return false;
   const recon = reconcileWindows(
     corrected.map((w) => ({ daysOfWeek: w.daysOfWeek, startTime: w.startTime, endTime: w.endTime, allDay: w.allDay, offeringsKey: w.offeringsKey })),
