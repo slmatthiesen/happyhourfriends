@@ -21,7 +21,9 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
         api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://us.i.posthog.com",
         // The dated defaults bundle turns on history_change pageviews — without it an
         // App Router SPA only captures the initial load, not client-side navigations.
-        defaults: "2026-05-30",
+        // "2026-01-30" is the newest date the pinned posthog-js's ConfigDefaults
+        // accepts (PostHog's onboarding snippet suggests dates newer than the SDK).
+        defaults: "2026-01-30",
         capture_pageleave: true,
       });
     });
