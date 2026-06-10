@@ -10,12 +10,17 @@
 # in the docker image, so CREATE EXTENSION / triggers are fine). pg_restore loads
 # FK constraints after data, so no --disable-triggers is needed.
 #
-# Usage:  PROD_IP=203.0.113.10 npm run pull:data
-# Env:    PROD_IP (required); SSH_USER=root, DB=happyhourfriends.
+# Usage:  npm run pull:data            (PROD_IP from .env)
+#         PROD_IP=203.0.113.10 npm run pull:data
+# Env:    PROD_IP (from .env or inline); SSH_USER=root, DB=happyhourfriends.
 # Tip:    stop your local `npm run dev` first so --clean can drop objects cleanly.
 set -euo pipefail
 
-PROD_IP="${PROD_IP:?Set PROD_IP (droplet IP)}"
+# PROD_IP may come from .env (an inline PROD_IP=... still wins).
+if [ -z "${PROD_IP:-}" ] && [ -f ./.env ]; then
+  PROD_IP="$(sed -n 's/^PROD_IP=//p' ./.env | head -1 | tr -d "'\"")"
+fi
+PROD_IP="${PROD_IP:?Set PROD_IP (droplet IP) in .env or inline}"
 SSH_USER="${SSH_USER:-root}"
 DB="${DB:-happyhourfriends}"
 SSH="ssh ${SSH_USER}@${PROD_IP}"

@@ -15,13 +15,18 @@
 #   4. dump local (--disable-triggers for the circular neighborhoods FK) → scp → restore
 #   5. restart + print counts
 #
-# Usage:  PROD_IP=203.0.113.10 npm run push:data
-# Env:    PROD_IP (required); SSH_USER=root, APP_DIR=/home/happyhourfriends,
+# Usage:  npm run push:data            (PROD_IP from .env)
+#         PROD_IP=203.0.113.10 npm run push:data
+# Env:    PROD_IP (from .env or inline); SSH_USER=root, APP_DIR=/home/happyhourfriends,
 #         BRANCH=main, DB=happyhourfriends, SVC=happyhourfriends,
 #         FORCE=1 (override the post-launch guard — DANGEROUS).
 set -euo pipefail
 
-PROD_IP="${PROD_IP:?Set PROD_IP (droplet IP)}"
+# PROD_IP may come from .env (an inline PROD_IP=... still wins).
+if [ -z "${PROD_IP:-}" ] && [ -f ./.env ]; then
+  PROD_IP="$(sed -n 's/^PROD_IP=//p' ./.env | head -1 | tr -d "'\"")"
+fi
+PROD_IP="${PROD_IP:?Set PROD_IP (droplet IP) in .env or inline}"
 SSH_USER="${SSH_USER:-root}"
 APP_DIR="${APP_DIR:-/home/happyhourfriends}"
 BRANCH="${BRANCH:-main}"
