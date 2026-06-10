@@ -216,6 +216,10 @@ export function VenueTableClient({
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
   // Stubs are folded into an opt-in disclosure (collapsed by default).
   const [showStubs, setShowStubs] = useState(false);
+  // On phones the chip rows (Day/Area/Type/Tags) collapse behind a "Filters" toggle
+  // so the sticky bar stays slim and the venue list keeps the viewport. md+ always
+  // shows them; this state only matters below that breakpoint.
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const geo = useGeolocation();
   // Carry over a "Use my location" click from the landing page: consume the one-shot
@@ -561,6 +565,15 @@ export function VenueTableClient({
     search !== "" ||
     sortKey !== "now";
 
+  // Badge count for the mobile "Filters" toggle — only the selections that live in
+  // the collapsible chip rows (search and sort stay visible, so they don't count).
+  const chipFilterCount =
+    selectedNeighborhoods.size +
+    selectedDays.size +
+    selectedTypes.size +
+    selectedTags.size +
+    (happeningNow ? 1 : 0);
+
   const withHours = filtered.filter((v) => v.happyHours.length > 0);
   const stubs = filtered.filter((v) => v.happyHours.length === 0);
 
@@ -652,118 +665,141 @@ export function VenueTableClient({
           </label>
         </div>
 
-        {/* Row 2: day pills */}
-        <div className="mt-2 flex flex-wrap items-center gap-1.5">
-          <span className="text-xs font-semibold" style={{ color: "var(--filter-day)" }}>
-            Day:
+        {/* Mobile-only disclosure for the chip rows below. */}
+        <button
+          onClick={() => setFiltersOpen((o) => !o)}
+          aria-expanded={filtersOpen}
+          className="mt-2 flex w-full items-center justify-between rounded border border-border bg-bg-elevated px-3 py-1.5 text-sm text-text-muted transition-colors hover:text-text-primary md:hidden"
+        >
+          <span className="flex items-center gap-1.5">
+            Filters
+            {chipFilterCount > 0 && (
+              <span className="rounded-full bg-accent-cool px-1.5 text-xs font-semibold text-white">
+                {chipFilterCount}
+              </span>
+            )}
           </span>
-          <button
-            onClick={toggleToday}
-            aria-pressed={selectedDays.has(todayISO)}
-            className="pill pill-day rounded-full border px-2.5 py-0.5 text-xs font-medium"
-          >
-            Today
-          </button>
-          {ISO_DAYS.map((day) => (
+          <span aria-hidden="true" className="text-xs">
+            {filtersOpen ? "▲" : "▼"}
+          </span>
+        </button>
+
+        {/* Chip rows — always visible on md+, behind the toggle on phones. */}
+        <div className={`${filtersOpen ? "block" : "hidden"} md:block`}>
+
+          {/* Row 2: day pills */}
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+            <span className="text-xs font-semibold" style={{ color: "var(--filter-day)" }}>
+              Day:
+            </span>
             <button
-              key={day}
-              onClick={() => toggleDay(day)}
-              aria-pressed={selectedDays.has(day)}
+              onClick={toggleToday}
+              aria-pressed={selectedDays.has(todayISO)}
               className="pill pill-day rounded-full border px-2.5 py-0.5 text-xs font-medium"
             >
-              {DAY_LABELS[day]}
+              Today
             </button>
-          ))}
-          <button
-            onClick={() => setHappeningNow((v) => !v)}
-            aria-pressed={happeningNow}
-            className="pill pill-live ml-2 rounded-full border px-2.5 py-0.5 text-xs font-medium"
-          >
-            Happening now
-          </button>
-          {geo.status === "granted" ? (
-            <span className="pill pill-live pill-on ml-2 inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium">
-              <span aria-hidden="true">📍</span> Near you
+            {ISO_DAYS.map((day) => (
               <button
-                onClick={clearLocation}
-                aria-label="Clear location"
-                className="ml-0.5 leading-none hover:opacity-80"
+                key={day}
+                onClick={() => toggleDay(day)}
+                aria-pressed={selectedDays.has(day)}
+                className="pill pill-day rounded-full border px-2.5 py-0.5 text-xs font-medium"
               >
-                ✕
+                {DAY_LABELS[day]}
               </button>
-            </span>
-          ) : (
+            ))}
             <button
-              onClick={() => geo.request(() => setSortKey("distance"))}
-              disabled={geo.status === "prompting"}
-              className="pill pill-live ml-2 rounded-full border px-2.5 py-0.5 text-xs font-medium disabled:opacity-60"
+              onClick={() => setHappeningNow((v) => !v)}
+              aria-pressed={happeningNow}
+              className="pill pill-live ml-2 rounded-full border px-2.5 py-0.5 text-xs font-medium"
             >
-              {geo.status === "prompting" ? "Locating…" : "📍 Use my location"}
+              Happening now
             </button>
+            {geo.status === "granted" ? (
+              <span className="pill pill-live pill-on ml-2 inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium">
+                <span aria-hidden="true">📍</span> Near you
+                <button
+                  onClick={clearLocation}
+                  aria-label="Clear location"
+                  className="ml-0.5 leading-none hover:opacity-80"
+                >
+                  ✕
+                </button>
+              </span>
+            ) : (
+              <button
+                onClick={() => geo.request(() => setSortKey("distance"))}
+                disabled={geo.status === "prompting"}
+                className="pill pill-live ml-2 rounded-full border px-2.5 py-0.5 text-xs font-medium disabled:opacity-60"
+              >
+                {geo.status === "prompting" ? "Locating…" : "📍 Use my location"}
+              </button>
+            )}
+            {(geo.status === "denied" || geo.status === "unavailable") && (
+              <span className="ml-1 text-xs text-text-muted">
+                Location unavailable — check browser permissions
+              </span>
+            )}
+          </div>
+
+          {/* Row 3: neighborhood chips (only if showNeighborhood and there are neighborhoods) */}
+          {showNeighborhood && neighborhoods.length > 0 && (
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              <span className="text-xs font-semibold" style={{ color: "var(--filter-area)" }}>
+                Area:
+              </span>
+              {neighborhoods.map((name) => (
+                <button
+                  key={name}
+                  onClick={() => toggleNeighborhood(name)}
+                  aria-pressed={selectedNeighborhoods.has(name)}
+                  className="pill pill-area rounded-full border px-2.5 py-0.5 text-xs font-medium"
+                >
+                  {name}
+                </button>
+              ))}
+            </div>
           )}
-          {(geo.status === "denied" || geo.status === "unavailable") && (
-            <span className="ml-1 text-xs text-text-muted">
-              Location unavailable — check browser permissions
-            </span>
+
+          {/* Row 4: type chips */}
+          {types.length > 0 && (
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              <span className="text-xs font-semibold" style={{ color: "var(--filter-type)" }}>
+                Type:
+              </span>
+              {types.map((t) => (
+                <button
+                  key={t}
+                  onClick={() => toggleIn(setSelectedTypes, t)}
+                  aria-pressed={selectedTypes.has(t)}
+                  className="pill pill-type rounded-full border px-2.5 py-0.5 text-xs font-medium"
+                >
+                  {labelForVenueType(t)}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Row 5: tag chips */}
+          {tagList.length > 0 && (
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              <span className="text-xs font-semibold" style={{ color: "var(--filter-tag)" }}>
+                Tags:
+              </span>
+              {tagList.map((t) => (
+                <button
+                  key={t}
+                  onClick={() => toggleIn(setSelectedTags, t)}
+                  aria-pressed={selectedTags.has(t)}
+                  className="pill pill-tag rounded-full border px-2.5 py-0.5 text-xs font-medium"
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
           )}
         </div>
-
-        {/* Row 3: neighborhood chips (only if showNeighborhood and there are neighborhoods) */}
-        {showNeighborhood && neighborhoods.length > 0 && (
-          <div className="mt-2 flex flex-wrap items-center gap-1.5">
-            <span className="text-xs font-semibold" style={{ color: "var(--filter-area)" }}>
-              Area:
-            </span>
-            {neighborhoods.map((name) => (
-              <button
-                key={name}
-                onClick={() => toggleNeighborhood(name)}
-                aria-pressed={selectedNeighborhoods.has(name)}
-                className="pill pill-area rounded-full border px-2.5 py-0.5 text-xs font-medium"
-              >
-                {name}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Row 4: type chips */}
-        {types.length > 0 && (
-          <div className="mt-2 flex flex-wrap items-center gap-1.5">
-            <span className="text-xs font-semibold" style={{ color: "var(--filter-type)" }}>
-              Type:
-            </span>
-            {types.map((t) => (
-              <button
-                key={t}
-                onClick={() => toggleIn(setSelectedTypes, t)}
-                aria-pressed={selectedTypes.has(t)}
-                className="pill pill-type rounded-full border px-2.5 py-0.5 text-xs font-medium"
-              >
-                {labelForVenueType(t)}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Row 5: tag chips */}
-        {tagList.length > 0 && (
-          <div className="mt-2 flex flex-wrap items-center gap-1.5">
-            <span className="text-xs font-semibold" style={{ color: "var(--filter-tag)" }}>
-              Tags:
-            </span>
-            {tagList.map((t) => (
-              <button
-                key={t}
-                onClick={() => toggleIn(setSelectedTags, t)}
-                aria-pressed={selectedTags.has(t)}
-                className="pill pill-tag rounded-full border px-2.5 py-0.5 text-xs font-medium"
-              >
-                {t}
-              </button>
-            ))}
-          </div>
-        )}
 
         {/* Count + clear. Splits filtered results into "with data" vs "stub" so the
             two numbers always read consistently with the city/home headers. */}
