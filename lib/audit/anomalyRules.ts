@@ -21,6 +21,10 @@ export interface AuditWindow {
   active: boolean;
   sourceUrl: string | null;
   notes: string | null;
+  /** offeringsFingerprint of the window's offerings — lets the shared reconcile gate keep
+   *  per-day specials, day-subset extensions, and distinct-deal overlaps (PRs #56–#59).
+   *  Omitted/null → strict pre-discriminator behavior. */
+  offeringsKey?: string | null;
 }
 
 export interface VenueAuditInput {
@@ -109,7 +113,7 @@ export function auditVenue(input: VenueAuditInput): AnomalyFlag[] {
 
   // --- Shape across active windows, via the shared reconcile gate ---
   const recon = reconcileWindows(
-    active.map((w) => ({ daysOfWeek: w.daysOfWeek, startTime: w.startTime, endTime: w.endTime, allDay: w.allDay })),
+    active.map((w) => ({ daysOfWeek: w.daysOfWeek, startTime: w.startTime, endTime: w.endTime, allDay: w.allDay, offeringsKey: w.offeringsKey })),
     input.hoursJson,
   );
   let overlapped = false;
@@ -147,7 +151,7 @@ export function isHighConfidenceCorrection(
   if (corrected.some((w) => isAssumedDays(w.notes))) return false;
   if (!corrected.some((w) => (w.sourceUrl ? scoreHhUrl(w.sourceUrl) > 0 : false))) return false;
   const recon = reconcileWindows(
-    corrected.map((w) => ({ daysOfWeek: w.daysOfWeek, startTime: w.startTime, endTime: w.endTime, allDay: w.allDay })),
+    corrected.map((w) => ({ daysOfWeek: w.daysOfWeek, startTime: w.startTime, endTime: w.endTime, allDay: w.allDay, offeringsKey: w.offeringsKey })),
   );
   return recon.every((r) => r.active);
 }
