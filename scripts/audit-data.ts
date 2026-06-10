@@ -4,7 +4,8 @@
  * no network, no AI — it reads only what's already in the DB.
  *
  * Usage: pnpm tsx scripts/audit-data.ts --city <slug> --state <code> [--recheck] [--emit-batches] [--limit N]
- *   --recheck       re-scan venues already in data_audit
+ *   --recheck       re-scan venues already in data_audit (operator-adjudicated rows are
+ *                   never touched — a human keep/hide verdict outranks a rule re-scan)
  *   --emit-batches  also write docs/audit-batches/<slug>-<n>.md for the in-session agent sniff-test
  */
 import "dotenv/config";
@@ -44,7 +45,9 @@ async function main() {
       WHERE v.city_id = ${city.id}
         AND v.status = 'active'
         AND v.deleted_at IS NULL
-        ${RECHECK ? sql`` : sql`AND NOT EXISTS (SELECT 1 FROM data_audit da WHERE da.venue_id = v.id)`}
+        ${RECHECK
+          ? sql`AND NOT EXISTS (SELECT 1 FROM data_audit da WHERE da.venue_id = v.id AND da.resolution IN ('operator_kept', 'operator_hidden'))`
+          : sql`AND NOT EXISTS (SELECT 1 FROM data_audit da WHERE da.venue_id = v.id)`}
       ORDER BY v.name
       ${LIMIT ? sql`LIMIT ${LIMIT}` : sql``}`;
 
