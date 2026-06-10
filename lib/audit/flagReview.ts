@@ -110,12 +110,45 @@ export async function hideWindowForFlag(
       .where(and(eq(venues.id, win.venueId), eq(venues.dataCompleteness, "complete")))
       .returning({ id: venues.id });
     venueDemoted = demoted.length > 0;
+    // Only settle the audit row when the venue has nothing active left. Settling on the
+    // FIRST hide dropped the venue from the queue with its other flagged windows still
+    // live — the operator couldn't hide a second window (Book Society, 2026-06-10). With
+    // windows remaining, the venue stays in the queue; Keep settles it once what's left
+    // is correct.
+    await dbx
+      .update(dataAudit)
+      .set({ resolution: "operator_hidden" })
+      .where(eq(dataAudit.venueId, win.venueId));
   }
 
-  await dbx
-    .update(dataAudit)
-    .set({ resolution: "operator_hidden" })
-    .where(eq(dataAudit.venueId, win.venueId));
-
   return { venueId: win.venueId, venueDemoted };
+}
+
+/** Operator verdict: the whole venue's HH data is WRONG. Hides every active window
+ *  (audit-logged per window, so each is individually reversible and the eval-corpus
+ *  export still reconstructs them), demotes the venue to stub, settles the audit row. */
+export async function stubVenueForFlag(
+  dbx: Dbx,
+  { venueId, adminEmail, reason }: { venueId: string; adminEmail: string; reason?: string },
+): Promise<{ hiddenCount: number; venueDemoted: boolean }> {
+  const wins = await dbx
+    .select({ id: happyHours.id })
+    .from(happyHours)
+    .where(and(eq(happyHours.venueId, venueId), eq(happyHours.active, true), isNull(happyHours.deletedAt)));
+
+  let venueDemoted = false;
+  for (const [i, w] of wins.entries()) {
+    const res = await hideWindowForFlag(dbx, {
+      happyHourId: w.id,
+      adminEmail,
+      reason: reason ?? `Flag review: venue stubbed — all windows hidden (${i + 1}/${wins.length})`,
+    });
+    venueDemoted = res.venueDemoted;
+  }
+  // No active windows to begin with: still settle the audit row so the venue stops
+  // resurfacing (hideWindowForFlag handles it whenever it hides the last one).
+  if (wins.length === 0) {
+    await dbx.update(dataAudit).set({ resolution: "operator_hidden" }).where(eq(dataAudit.venueId, venueId));
+  }
+  return { hiddenCount: wins.length, venueDemoted };
 }
