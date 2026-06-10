@@ -15,6 +15,7 @@ import { labelForVenueType } from "@/lib/places/venueType";
 import { haversineMiles, formatDistance } from "@/lib/geo/distance";
 import { directionsUrl, isApplePlatform } from "@/lib/geo/mapsLink";
 import { useGeolocation } from "@/lib/geo/useGeolocation";
+import { consumeGeoIntent } from "@/lib/geo/geoIntent";
 import { venuePath } from "@/lib/routes";
 
 // ISO day labels; index 1=Mon … 7=Sun
@@ -217,6 +218,13 @@ export function VenueTableClient({
   const [showStubs, setShowStubs] = useState(false);
 
   const geo = useGeolocation();
+  // Carry over a "Use my location" click from the landing page: consume the one-shot
+  // intent flag and auto-locate. Permission was granted there moments ago, so this
+  // resolves silently instead of re-prompting.
+  useEffect(() => {
+    if (consumeGeoIntent()) geo.request(() => setSortKey("distance"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- geo.request is a stable useCallback; the whole geo object changes per render
+  }, [geo.request]);
   // Platform check reads navigator, so it's stable for the page's lifetime —
   // compute once rather than per distance link per render.
   const isApple = useMemo(() => isApplePlatform(), []);
