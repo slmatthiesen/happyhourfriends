@@ -66,12 +66,38 @@ check("duplicate_windows: same days|start|end, differing source", () => {
   assert.ok(codes.includes("duplicate_windows"));
 });
 
-check("implausible_active: an active >6h window flags", () => {
+check("implausible_active: an active >6h window from a non-HH page flags", () => {
+  const codes = auditVenue({
+    websiteUrl: "https://y.com", hoursJson: null,
+    windows: [{ daysOfWeek: [1], startTime: "10:00:00", endTime: "20:00:00", allDay: false, active: true, sourceUrl: "https://y.com/menu", notes: null }],
+  }).map((f) => f.code);
+  assert.ok(codes.includes("implausible_active"));
+});
+
+check("implausible_active: a >6h window with NO sourceUrl flags", () => {
+  const codes = auditVenue({
+    websiteUrl: "https://y.com", hoursJson: null,
+    windows: [{ daysOfWeek: [1], startTime: "10:00:00", endTime: "20:00:00", allDay: false, active: true, sourceUrl: null, notes: null }],
+  }).map((f) => f.code);
+  assert.ok(codes.includes("implausible_active"), `expected implausible_active, got: ${JSON.stringify(codes)}`);
+});
+
+// Operator policy 2026-06-09: a page that is explicitly a happy-hour page (HH in the URL slug)
+// vouches for its own wide window — "all day happy hour" is real, not a scraper error.
+check("implausible_active: a >6h window sourced from an explicit HH page does NOT flag", () => {
   const codes = auditVenue({
     websiteUrl: "https://y.com", hoursJson: null,
     windows: [{ daysOfWeek: [1], startTime: "10:00:00", endTime: "20:00:00", allDay: false, active: true, sourceUrl: "https://y.com/happy-hour", notes: null }],
   }).map((f) => f.code);
-  assert.ok(codes.includes("implausible_active"));
+  assert.ok(!codes.includes("implausible_active"), `unexpected implausible_active: ${JSON.stringify(codes)}`);
+});
+
+check("implausible_active: a degenerate window (start == end) flags even from an HH page", () => {
+  const codes = auditVenue({
+    websiteUrl: "https://y.com", hoursJson: null,
+    windows: [{ daysOfWeek: [1], startTime: "16:00:00", endTime: "16:00:00", allDay: false, active: true, sourceUrl: "https://y.com/happy-hour", notes: null }],
+  }).map((f) => f.code);
+  assert.ok(codes.includes("implausible_active"), `expected implausible_active, got: ${JSON.stringify(codes)}`);
 });
 
 check("inactive windows are ignored (only audit live data)", () => {
