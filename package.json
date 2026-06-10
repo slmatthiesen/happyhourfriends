@@ -78,6 +78,7 @@
     "test:audit-fix": "tsx scripts/test-audit-fix.ts",
     "test:flag-review": "tsx scripts/test-flag-review.ts",
     "test:safesearch": "tsx scripts/test-safesearch.ts",
+    "test:evidence-relevance": "tsx scripts/test-evidence-relevance.ts",
     "test:cardinal-districts": "tsx scripts/test-cardinal-districts.ts",
     "generate:cardinal-districts": "tsx scripts/generate-cardinal-districts.ts",
     "test:assignment": "tsx scripts/test-neighborhood-assignment.ts",
