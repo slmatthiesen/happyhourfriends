@@ -1,0 +1,884 @@
+[
+  {
+    "venueId": "1f7b4140-7a1b-40c8-aac7-f122fc79d9f6",
+    "name": "alaMar Dominican Kitchen",
+    "hhPage": "https://alamaroakland.com/specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [
+      {
+        "days": [
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": "17:00",
+        "end": "18:30",
+        "offerings": [
+          {
+            "name": "Rum Punch",
+            "price": 1000
+          },
+          {
+            "name": "Mamajuana",
+            "price": 1000
+          },
+          {
+            "name": "Guava Margarita",
+            "price": 1000
+          },
+          {
+            "name": "Spiked Limonada",
+            "price": 1000
+          },
+          {
+            "name": "LAIE Vermouth & Coke",
+            "price": 1000
+          },
+          {
+            "name": "Dominican Rum Shot",
+            "price": 800
+          },
+          {
+            "name": "Well Tequila Shot",
+            "price": 800
+          },
+          {
+            "name": "Mamajuana Shot",
+            "price": 700
+          },
+          {
+            "name": "Braised Oxtail Tacos (2)",
+            "price": 1000
+          },
+          {
+            "name": "Dominican Picadera",
+            "price": 1000
+          },
+          {
+            "name": "Lager",
+            "price": 500
+          },
+          {
+            "name": "House Wine (White or Red)",
+            "price": 800
+          }
+        ],
+        "src": "https://alamaroakland.com/food-menu"
+      }
+    ],
+    "highConfidence": true,
+    "route": "paid",
+    "costCents": 2,
+    "extracted": {
+      "happyHours": [
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "startTime": "17:00",
+          "endTime": "18:30",
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://alamaroakland.com/food-menu",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "cocktail",
+              "name": "Rum Punch",
+              "priceCents": 1000,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://alamaroakland.com/food-menu"
+            },
+            {
+              "kind": "drink",
+              "category": "cocktail",
+              "name": "Mamajuana",
+              "priceCents": 1000,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://alamaroakland.com/food-menu"
+            },
+            {
+              "kind": "drink",
+              "category": "cocktail",
+              "name": "Guava Margarita",
+              "priceCents": 1000,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://alamaroakland.com/food-menu"
+            },
+            {
+              "kind": "drink",
+              "category": "cocktail",
+              "name": "Spiked Limonada",
+              "priceCents": 1000,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://alamaroakland.com/food-menu"
+            },
+            {
+              "kind": "drink",
+              "category": "cocktail",
+              "name": "LAIE Vermouth & Coke",
+              "priceCents": 1000,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://alamaroakland.com/food-menu"
+            },
+            {
+              "kind": "drink",
+              "category": "spirit",
+              "name": "Dominican Rum Shot",
+              "priceCents": 800,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://alamaroakland.com/food-menu"
+            },
+            {
+              "kind": "drink",
+              "category": "spirit",
+              "name": "Well Tequila Shot",
+              "priceCents": 800,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://alamaroakland.com/food-menu"
+            },
+            {
+              "kind": "drink",
+              "category": "spirit",
+              "name": "Mamajuana Shot",
+              "priceCents": 700,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://alamaroakland.com/food-menu"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Braised Oxtail Tacos (2)",
+              "priceCents": 1000,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://alamaroakland.com/food-menu"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Dominican Picadera",
+              "priceCents": 1000,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://alamaroakland.com/food-menu"
+            },
+            {
+              "kind": "drink",
+              "category": "beer",
+              "name": "Lager",
+              "priceCents": 500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://alamaroakland.com/food-menu"
+            },
+            {
+              "kind": "drink",
+              "category": "wine",
+              "name": "House Wine (White or Red)",
+              "priceCents": 800,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://alamaroakland.com/food-menu"
+            }
+          ]
+        }
+      ],
+      "confidence": 0.9,
+      "summary": "alaMar Dominican Kitchen offers Tuesday–Friday happy hour 5:00–6:30 PM with discounted cocktails ($10), shots ($7–$8), beer ($5), house wine ($8), and appetizers ($10).",
+      "venueType": "restaurant",
+      "usage": {
+        "inputTokens": 8700,
+        "outputTokens": 1054
+      },
+      "costCents": 2,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "833421dc-a507-4359-9f16-d94d048746fe",
+    "name": "Asmara Restaurant",
+    "hhPage": "https://asmararestaurantoakland.com/drinks-menu/",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 1,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "No happy hour schedule found. Asmara Restaurant pages show menus and hours but no recurring discounted drink or food specials during specific time windows.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 7865,
+        "outputTokens": 100
+      },
+      "costCents": 1,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "eabdc3e6-b25e-4826-97d2-28443b58c3be",
+    "name": "D.Monaghans On The Hill",
+    "hhPage": "https://dmonaghansoakland.com/oakland-d-monaghans-on-the-hill-happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 2,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 9132,
+        "outputTokens": 887
+      },
+      "costCents": 2,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "b38c86f3-4983-4970-8910-1f6336d60366",
+    "name": "Hidden Spot Emeryville",
+    "hhPage": "https://hiddenspot.online/emeryville-emeryville-hidden-spot-emeryville-happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 2,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "The specials page lists only a one-time \"Happy Hour\" event for Monday June 8th at 4–6 PM, which is a dated, single-occurrence event, not a recurring schedule. No recurring happy-hour windows found.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 10880,
+        "outputTokens": 120
+      },
+      "costCents": 2,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "f8d34a93-8e60-49e2-a81f-93d6de078db9",
+    "name": "LIMEWOOD BAR & RESTAURANT",
+    "hhPage": "https://claremontresortandclub.com/gather/special-offer/",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 4,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "No recurring happy hour schedule found. Pages contain menus, wine lists, floor plans, and group event information, but no published happy hour or daily specials window.",
+      "venueType": "restaurant",
+      "usage": {
+        "inputTokens": 30598,
+        "outputTokens": 121
+      },
+      "costCents": 4,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "1f0f4933-0878-4600-bac4-77dedc05f34d",
+    "name": "Oeste - Bar",
+    "hhPage": "https://www.oesteoakland.com/happy-hour-menu",
+    "reason": "unread_hh_page",
+    "storedActive": [
+      {
+        "days": [
+          2,
+          3
+        ],
+        "start": null,
+        "end": null,
+        "offerings": 10,
+        "src": "https://www.oesteoakland.com/happy-hour-menu"
+      },
+      {
+        "days": [
+          4,
+          5
+        ],
+        "start": "17:00:00",
+        "end": "19:00:00",
+        "offerings": 10,
+        "src": "https://www.oesteoakland.com/happy-hour-menu"
+      },
+      {
+        "days": [
+          2,
+          3
+        ],
+        "start": null,
+        "end": null,
+        "offerings": 10,
+        "src": "https://www.oesteoakland.com/menus"
+      },
+      {
+        "days": [
+          2,
+          3
+        ],
+        "start": null,
+        "end": null,
+        "offerings": 10,
+        "src": "https://www.oesteoakland.com/happy-hour-menu"
+      }
+    ],
+    "found": [
+      {
+        "days": [
+          2,
+          3
+        ],
+        "start": null,
+        "end": null,
+        "offerings": [
+          {
+            "name": "Draft Beers",
+            "price": null
+          },
+          {
+            "name": "House Red & White Wines",
+            "price": 1000
+          },
+          {
+            "name": "House Sparkling Brut & Rosé",
+            "price": 1000
+          },
+          {
+            "name": "Well Spirits",
+            "price": 800
+          },
+          {
+            "name": "Vodka Strawberry Lemonade",
+            "price": 1000
+          },
+          {
+            "name": "Tropical Habanero Margarita",
+            "price": 1000
+          },
+          {
+            "name": "Fried Plantains",
+            "price": 700
+          },
+          {
+            "name": "Fried Brussels Sprouts",
+            "price": 800
+          },
+          {
+            "name": "Hand-Cut French Fries",
+            "price": 400
+          },
+          {
+            "name": "Chicken Wings with Ranch Sauce",
+            "price": 1000
+          }
+        ],
+        "src": "https://www.oesteoakland.com/happy-hour-menu"
+      },
+      {
+        "days": [
+          4,
+          5
+        ],
+        "start": "17:00",
+        "end": "19:00",
+        "offerings": [
+          {
+            "name": "Draft Beers",
+            "price": null
+          },
+          {
+            "name": "House Red & White Wines",
+            "price": 1000
+          },
+          {
+            "name": "House Sparkling Brut & Rosé",
+            "price": 1000
+          },
+          {
+            "name": "Well Spirits",
+            "price": 800
+          },
+          {
+            "name": "Vodka Strawberry Lemonade",
+            "price": 1000
+          },
+          {
+            "name": "Tropical Habanero Margarita",
+            "price": 1000
+          },
+          {
+            "name": "Fried Plantains",
+            "price": 700
+          },
+          {
+            "name": "Fried Brussels Sprouts",
+            "price": 800
+          },
+          {
+            "name": "Hand-Cut French Fries",
+            "price": 400
+          },
+          {
+            "name": "Chicken Wings with Ranch Sauce",
+            "price": 1000
+          }
+        ],
+        "src": "https://www.oesteoakland.com/happy-hour-menu"
+      }
+    ],
+    "highConfidence": true,
+    "route": "paid",
+    "costCents": 3,
+    "extracted": {
+      "happyHours": [
+        {
+          "allDay": true,
+          "timeKnown": true,
+          "daysOfWeek": [
+            2,
+            3
+          ],
+          "startTime": null,
+          "endTime": null,
+          "locationWithinVenue": "all",
+          "notes": "All night happy hour on Tuesday & Wednesday",
+          "sourceUrl": "https://www.oesteoakland.com/happy-hour-menu",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "beer",
+              "name": "Draft Beers",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 200,
+              "description": "$2 off draft beers",
+              "conditions": null,
+              "sourceUrl": "https://www.oesteoakland.com/happy-hour-menu"
+            },
+            {
+              "kind": "drink",
+              "category": "wine",
+              "name": "House Red & White Wines",
+              "priceCents": 1000,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.oesteoakland.com/happy-hour-menu"
+            },
+            {
+              "kind": "drink",
+              "category": "wine",
+              "name": "House Sparkling Brut & Rosé",
+              "priceCents": 1000,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.oesteoakland.com/happy-hour-menu"
+            },
+            {
+              "kind": "drink",
+              "category": "spirit",
+              "name": "Well Spirits",
+              "priceCents": 800,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "With sodas, tonic or ginger beer",
+              "conditions": null,
+              "sourceUrl": "https://www.oesteoakland.com/happy-hour-menu"
+            },
+            {
+              "kind": "drink",
+              "category": "cocktail",
+              "name": "Vodka Strawberry Lemonade",
+              "priceCents": 1000,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.oesteoakland.com/happy-hour-menu"
+            },
+            {
+              "kind": "drink",
+              "category": "cocktail",
+              "name": "Tropical Habanero Margarita",
+              "priceCents": 1000,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.oesteoakland.com/happy-hour-menu"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Fried Plantains",
+              "priceCents": 700,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.oesteoakland.com/happy-hour-menu"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Fried Brussels Sprouts",
+              "priceCents": 800,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Korean dipping sauce; vegan",
+              "conditions": null,
+              "sourceUrl": "https://www.oesteoakland.com/happy-hour-menu"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Hand-Cut French Fries",
+              "priceCents": 400,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Vegan",
+              "conditions": null,
+              "sourceUrl": "https://www.oesteoakland.com/happy-hour-menu"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Chicken Wings with Ranch Sauce",
+              "priceCents": 1000,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Choose one: Buffalo style, Barbecue style, Lemon Pepper seasoning",
+              "conditions": null,
+              "sourceUrl": "https://www.oesteoakland.com/happy-hour-menu"
+            }
+          ]
+        },
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            4,
+            5
+          ],
+          "startTime": "17:00",
+          "endTime": "19:00",
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://www.oesteoakland.com/happy-hour-menu",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "beer",
+              "name": "Draft Beers",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 200,
+              "description": "$2 off draft beers",
+              "conditions": null,
+              "sourceUrl": "https://www.oesteoakland.com/happy-hour-menu"
+            },
+            {
+              "kind": "drink",
+              "category": "wine",
+              "name": "House Red & White Wines",
+              "priceCents": 1000,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.oesteoakland.com/happy-hour-menu"
+            },
+            {
+              "kind": "drink",
+              "category": "wine",
+              "name": "House Sparkling Brut & Rosé",
+              "priceCents": 1000,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.oesteoakland.com/happy-hour-menu"
+            },
+            {
+              "kind": "drink",
+              "category": "spirit",
+              "name": "Well Spirits",
+              "priceCents": 800,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "With sodas, tonic or ginger beer",
+              "conditions": null,
+              "sourceUrl": "https://www.oesteoakland.com/happy-hour-menu"
+            },
+            {
+              "kind": "drink",
+              "category": "cocktail",
+              "name": "Vodka Strawberry Lemonade",
+              "priceCents": 1000,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.oesteoakland.com/happy-hour-menu"
+            },
+            {
+              "kind": "drink",
+              "category": "cocktail",
+              "name": "Tropical Habanero Margarita",
+              "priceCents": 1000,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.oesteoakland.com/happy-hour-menu"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Fried Plantains",
+              "priceCents": 700,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.oesteoakland.com/happy-hour-menu"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Fried Brussels Sprouts",
+              "priceCents": 800,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Korean dipping sauce; vegan",
+              "conditions": null,
+              "sourceUrl": "https://www.oesteoakland.com/happy-hour-menu"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Hand-Cut French Fries",
+              "priceCents": 400,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Vegan",
+              "conditions": null,
+              "sourceUrl": "https://www.oesteoakland.com/happy-hour-menu"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Chicken Wings with Ranch Sauce",
+              "priceCents": 1000,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Choose one: Buffalo style, Barbecue style, Lemon Pepper seasoning",
+              "conditions": null,
+              "sourceUrl": "https://www.oesteoakland.com/happy-hour-menu"
+            }
+          ]
+        }
+      ],
+      "confidence": 0.95,
+      "summary": "Oeste offers happy hour Tues & Wed all night and Thurs & Fri 5–7pm with discounted drinks (draft beers $2 off, house wines $10, well spirits $8, select cocktails $10) and appetizers ($4–$10).",
+      "venueType": "bar",
+      "usage": {
+        "inputTokens": 12770,
+        "outputTokens": 1973
+      },
+      "costCents": 3,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "93fd46f5-4617-4827-8866-7d2f7a9740b2",
+    "name": "Oh G Burger",
+    "hhPage": "https://ohgburger.com/specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 2,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "Oh G Burger's specials page states \"We are updating our specials\" with no recurring happy hour schedule published.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 16325,
+        "outputTokens": 112
+      },
+      "costCents": 2,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "acae6769-a74a-4564-b009-0ea102863fb1",
+    "name": "RnR Sushi & Bowls",
+    "hhPage": "https://www.piedmontrnr.com/sushi-special-1",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 2,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "No recurring happy-hour schedule found. Pages display regular lunch/dinner menu pricing and open hours only.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 10278,
+        "outputTokens": 89
+      },
+      "costCents": 2,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "547675bf-7328-40e4-9fd3-c6cbb8784d08",
+    "name": "Rob Ben’s Restaurant & Lounge",
+    "hhPage": "https://robbensrestaurant.com/happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 1,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "No recurring happy hour schedule found. The specials page states \"We are updating our specials. Please stay tuned.\" Drink menu, food menu, and events pages contain no happy hour or recurring discount windows.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 8694,
+        "outputTokens": 112
+      },
+      "costCents": 1,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "06834158-cae2-48d5-9e3f-546527c7c086",
+    "name": "The Lumpia Company",
+    "hhPage": "https://thelumpiacompany.com/oakland-the-lumpia-company-happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 1,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "No recurring happy hour schedule found. Pages show only one-time national holiday event promotions and a single dated special (June 14th Jambalaya Lumpia), not recurring time-windowed deals.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 7372,
+        "outputTokens": 112
+      },
+      "costCents": 1,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "a32b08d7-1f08-4de0-a940-fe4e46b60684",
+    "name": "Willows & Pine",
+    "hhPage": "https://willowsandpine-restaurant.com/oakland-dimond-district-willows-and-pine-restaurant-and-catering-happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 1,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "No recurring happy hour schedule found on the provided pages. Only one-time national celebration events (National Martini Day, National Rum Day, etc.) and general menu content were present.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 5722,
+        "outputTokens": 107
+      },
+      "costCents": 1,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  }
+]

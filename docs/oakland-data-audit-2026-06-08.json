@@ -1,0 +1,332 @@
+[
+  {
+    "name": "51 and TEL",
+    "slug": "51-and-tel",
+    "website": "https://51andtel.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: https://51andtel.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          3,
+          4,
+          5
+        ],
+        "startTime": "17:00:00",
+        "endTime": "19:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://51andtel.com/",
+        "notes": null
+      }
+    ]
+  },
+  {
+    "name": "9 Julio Empanada Kitchen",
+    "slug": "9-julio-empanada-kitchen",
+    "website": "http://www.9julio.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: http://www.9julio.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "startTime": "16:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "http://www.9julio.com/",
+        "notes": null
+      }
+    ]
+  },
+  {
+    "name": "Bellanico Restaurant and Wine Bar",
+    "slug": "bellanico-restaurant-and-wine-bar",
+    "website": "https://bellanico.net/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: https://bellanico.net/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "17:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://bellanico.net/",
+        "notes": null
+      }
+    ]
+  },
+  {
+    "name": "East End",
+    "slug": "east-end",
+    "website": "http://www.eastendalameda.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: http://www.eastendalameda.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "17:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "http://www.eastendalameda.com/",
+        "notes": null
+      }
+    ]
+  },
+  {
+    "name": "Mitama",
+    "slug": "mitama",
+    "website": "http://www.mitamasushi.com/",
+    "flags": [
+      {
+        "code": "assumed_days_avoidable",
+        "severity": "auto_fixable",
+        "evidence": "http://www.mitamasushi.com/valentines-day-special.html — days assumed Mon–Fri (none stated)"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "startTime": "12:00:00",
+        "endTime": "14:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "http://www.mitamasushi.com/valentines-day-special.html",
+        "notes": "days assumed Mon–Fri (none stated)"
+      }
+    ]
+  },
+  {
+    "name": "Oeste - Bar",
+    "slug": "oeste-bar",
+    "website": "http://www.oesteoakland.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: http://www.oesteoakland.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "17:00:00",
+        "endTime": "19:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "http://www.oesteoakland.com/",
+        "notes": null
+      },
+      {
+        "daysOfWeek": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "11:00:00",
+        "endTime": "15:30:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "http://www.oesteoakland.com/",
+        "notes": null
+      }
+    ]
+  },
+  {
+    "name": "Pizzaiolo",
+    "slug": "pizzaiolo",
+    "website": "http://www.pizzaiolooakland.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: http://www.pizzaiolooakland.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "startTime": "17:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "http://www.pizzaiolooakland.com/",
+        "notes": null
+      }
+    ]
+  },
+  {
+    "name": "Sliver Pizzeria",
+    "slug": "sliver-pizzeria",
+    "website": "http://sliverpizzeria.com/",
+    "flags": [
+      {
+        "code": "assumed_days_avoidable",
+        "severity": "auto_fixable",
+        "evidence": "https://www.sliverpizzeria.com/lunch-deals — days assumed Mon–Fri (none stated)"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "startTime": "14:00:00",
+        "endTime": "16:30:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://www.sliverpizzeria.com/lunch-deals",
+        "notes": "days assumed Mon–Fri (none stated)"
+      }
+    ]
+  },
+  {
+    "name": "The Cook and Her Farmer",
+    "slug": "the-cook-and-her-farmer",
+    "website": "http://www.thecookandherfarmer.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: http://www.thecookandherfarmer.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          4
+        ],
+        "startTime": "17:00:00",
+        "endTime": "19:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "http://www.thecookandherfarmer.com/",
+        "notes": null
+      }
+    ]
+  },
+  {
+    "name": "The Overlook at Tilden",
+    "slug": "the-overlook-at-tilden",
+    "website": "https://overlookattilden.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: https://overlookattilden.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "startTime": "15:00:00",
+        "endTime": "17:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://overlookattilden.com/",
+        "notes": null
+      }
+    ]
+  },
+  {
+    "name": "Todos",
+    "slug": "todos",
+    "website": "https://www.todosbuenos.com/?y_source=1_OTI4NTIyNDMtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+    "flags": [
+      {
+        "code": "assumed_days_avoidable",
+        "severity": "auto_fixable",
+        "evidence": "https://www.instagram.com/p/DQX2JrGAaO4/ — days assumed Mon–Fri (none stated)"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "startTime": "15:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://www.instagram.com/p/DQX2JrGAaO4/",
+        "notes": "days assumed Mon–Fri (none stated)"
+      }
+    ]
+  }
+]
