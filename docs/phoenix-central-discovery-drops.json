@@ -1,0 +1,4875 @@
+{
+  "city": "phoenix-central",
+  "total": 486,
+  "byReason": {
+    "chain": 64,
+    "format": 61,
+    "closed": 46,
+    "place-type": 27,
+    "low-signal": 148,
+    "out-of-area": 80,
+    "airport": 60
+  },
+  "drops": [
+    {
+      "name": "Little Caesars Pizza",
+      "reason": "chain",
+      "address": "1810 W Southern Ave, Phoenix, AZ 85041, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://littlecaesars.com/en-us/store/1355",
+      "lat": 33.3927513,
+      "lng": -112.0971446,
+      "reviews": 1000
+    },
+    {
+      "name": "Carniceria Mexico",
+      "reason": "format",
+      "address": "4450 S 19th Ave, Phoenix, AZ 85041, USA",
+      "primaryType": "butcher_shop",
+      "website": "http://carniceriamexico.square.site/",
+      "lat": 33.4052256,
+      "lng": -112.0998602,
+      "reviews": 658
+    },
+    {
+      "name": "Gómez kitchen",
+      "reason": "closed",
+      "address": "1855 W Corona Ave, Phoenix, AZ 85041, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.4051037,
+      "lng": -112.09911989999999,
+      "reviews": null
+    },
+    {
+      "name": "Que Suave Taco Shop",
+      "reason": "closed",
+      "address": "1855 W Corona Ave #2, Phoenix, AZ 85041, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://www.instagram.com/quesuavetacos",
+      "lat": 33.4051037,
+      "lng": -112.09911989999999,
+      "reviews": 123
+    },
+    {
+      "name": "Dad's Ribs and Mom's Tacos",
+      "reason": "place-type",
+      "address": "1855 W Corona Ave, Phoenix, AZ 85041, USA",
+      "primaryType": "catering_service",
+      "website": "http://www.dadsribsandmomstacos.com/",
+      "lat": 33.4051003,
+      "lng": -112.09908109999999,
+      "reviews": 54
+    },
+    {
+      "name": "Mariscos Y Tacos vizcarra #2",
+      "reason": "low-signal",
+      "address": "2229 W Broadway Rd, Phoenix, AZ 85041, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.40673710000001,
+      "lng": -112.1071453,
+      "reviews": null
+    },
+    {
+      "name": "RESTAURANTE MEXICO",
+      "reason": "low-signal",
+      "address": "4440 S 19th Ave, Phoenix, AZ 85041, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.405721299999996,
+      "lng": -112.0999449,
+      "reviews": 5
+    },
+    {
+      "name": "South Mountain Grill Cleaners",
+      "reason": "low-signal",
+      "address": "2628 W Carson Rd, Phoenix, AZ 85041, USA",
+      "primaryType": "restaurant",
+      "website": "https://southmoutaingrillcleaners.com/",
+      "lat": 33.3825546,
+      "lng": -112.11550749999999,
+      "reviews": null
+    },
+    {
+      "name": "Birrieria Michoacan",
+      "reason": "format",
+      "address": "1711 W Broadway Rd, Phoenix, AZ 85041, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.406408,
+      "lng": -112.09557559999999,
+      "reviews": 458
+    },
+    {
+      "name": "It's Juicy! Juice Bar",
+      "reason": "closed",
+      "address": "2020 W Baseline Rd, Phoenix, AZ 85041, USA",
+      "primaryType": "juice_shop",
+      "website": "http://www.itsjuicyliving.com/",
+      "lat": 33.3789416,
+      "lng": -112.1018036,
+      "reviews": 93
+    },
+    {
+      "name": "Chepas Tacos & Hot Dogs",
+      "reason": "low-signal",
+      "address": "1950 W Baseline Rd, Phoenix, AZ 85041, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.379046599999995,
+      "lng": -112.09935739999999,
+      "reviews": 13
+    },
+    {
+      "name": "Burger King",
+      "reason": "chain",
+      "address": "1970 W Baseline Rd, Phoenix, AZ 85041, USA",
+      "primaryType": "restaurant",
+      "website": "https://burgerking.com/store-locator/store/16209",
+      "lat": 33.3784013,
+      "lng": -112.10165389999999,
+      "reviews": 677
+    },
+    {
+      "name": "Pancho Vila",
+      "reason": "low-signal",
+      "address": "2845 W Broadway Rd, Phoenix, AZ 85041, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4065022,
+      "lng": -112.1203019,
+      "reviews": null
+    },
+    {
+      "name": "Chipotle Mexican Grill",
+      "reason": "chain",
+      "address": "1838 W Baseline Rd, Phoenix, AZ 85041, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://locations.chipotle.com/az/phoenix/1838-w-baseline-rd?utm_source=google&utm_medium=yext&utm_campaign=yext_listings?restaurant=4086",
+      "lat": 33.3781701,
+      "lng": -112.09793900000001,
+      "reviews": 287
+    },
+    {
+      "name": "Kabab King Mediterranean Restaurant",
+      "reason": "out-of-area",
+      "address": "2640 W Baseline Rd #103, Phoenix, AZ 85041, USA",
+      "primaryType": "mediterranean_restaurant",
+      "website": "https://kababking-az.com/",
+      "lat": 33.3781974,
+      "lng": -112.1155453,
+      "reviews": 665
+    },
+    {
+      "name": "Latinos Restaurant 2",
+      "reason": "low-signal",
+      "address": "5819 S Central Ave, Phoenix, AZ 85040, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://orderlatinorestaurant.com/",
+      "lat": 33.3931314,
+      "lng": -112.07194919999999,
+      "reviews": 3
+    },
+    {
+      "name": "Peter Piper Pizza",
+      "reason": "chain",
+      "address": "6040 S Central Ave, Phoenix, AZ 85040, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.peterpiperpizza.com/az/phoenix/6040-s-central-avenue?utm_source=Google&utm_medium=Rio",
+      "lat": 33.390868999999995,
+      "lng": -112.07462699999999,
+      "reviews": 1369
+    },
+    {
+      "name": "Compa Toño Carnitas",
+      "reason": "low-signal",
+      "address": "5204 S Central Ave, Phoenix, AZ 85040, USA",
+      "primaryType": "taco_restaurant",
+      "website": null,
+      "lat": 33.3992449,
+      "lng": -112.0731496,
+      "reviews": 12
+    },
+    {
+      "name": "Tacos Don Cuco LLC.",
+      "reason": "low-signal",
+      "address": "5850 S 7th Ave, Phoenix, AZ 85041, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.392507800000004,
+      "lng": -112.0821912,
+      "reviews": 2
+    },
+    {
+      "name": "Big Papa Pizza",
+      "reason": "closed",
+      "address": "825 W Southern Ave Suite 108, Phoenix, AZ 85041, USA",
+      "primaryType": "pizza_restaurant",
+      "website": null,
+      "lat": 33.391155999999995,
+      "lng": -112.0833249,
+      "reviews": 160
+    },
+    {
+      "name": "Ace of wingz",
+      "reason": "low-signal",
+      "address": "825 W Southern Ave, Phoenix, AZ 85041, USA",
+      "primaryType": "chicken_wings_restaurant",
+      "website": null,
+      "lat": 33.3908085,
+      "lng": -112.08396549999999,
+      "reviews": 1
+    },
+    {
+      "name": "Panda Express",
+      "reason": "chain",
+      "address": "935 W Southern Ave, Phoenix, AZ 85041, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.pandaexpress.com/locations/az/phoenix/3087?utm_source=google_gbp&utm_medium=organic&utm_campaign=websitelink",
+      "lat": 33.3917395,
+      "lng": -112.08466109999999,
+      "reviews": 754
+    },
+    {
+      "name": "Tacos dorados y chimichangas",
+      "reason": "low-signal",
+      "address": "701 W Romley Rd, Phoenix, AZ 85041, USA",
+      "primaryType": "taco_restaurant",
+      "website": null,
+      "lat": 33.401132499999996,
+      "lng": -112.0822773,
+      "reviews": null
+    },
+    {
+      "name": "Mariscos El Samy LM",
+      "reason": "low-signal",
+      "address": "1840 E Sunland Ave, Phoenix, AZ 85040, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.395401299999996,
+      "lng": -112.04060679999999,
+      "reviews": 3
+    },
+    {
+      "name": "Tacos DoubleM",
+      "reason": "low-signal",
+      "address": "5127 S 18th Pl, Phoenix, AZ 85040, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4000887,
+      "lng": -112.0423041,
+      "reviews": null
+    },
+    {
+      "name": "Filiberto’s Mexican Food",
+      "reason": "chain",
+      "address": "6210 S 16th St, Phoenix, AZ 85042, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://filibertos.com/",
+      "lat": 33.390167000000005,
+      "lng": -112.04768109999999,
+      "reviews": 41
+    },
+    {
+      "name": "Hola Cabrito",
+      "reason": "closed",
+      "address": "4835 S 16th St, Phoenix, AZ 85040, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://holacabrito.com/",
+      "lat": 33.402245,
+      "lng": -112.04679770000001,
+      "reviews": 1733
+    },
+    {
+      "name": "Burger King",
+      "reason": "chain",
+      "address": "2337 E Southern Ave, Phoenix, AZ 85040, USA",
+      "primaryType": "restaurant",
+      "website": "https://burgerking.com/store-locator/store/28485",
+      "lat": 33.3927438,
+      "lng": -112.030622,
+      "reviews": 263
+    },
+    {
+      "name": "Marely's Mexican Kitchen",
+      "reason": "closed",
+      "address": "5037 S 24th St, Phoenix, AZ 85040, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.3999887,
+      "lng": -112.02940269999999,
+      "reviews": 183
+    },
+    {
+      "name": "All About Food AZ-cafe eden",
+      "reason": "closed",
+      "address": "2350 E School Dr, Phoenix, AZ 85040, USA",
+      "primaryType": "soul_food_restaurant",
+      "website": "http://www.theprodigiouschef.com/",
+      "lat": 33.4020991,
+      "lng": -112.0302644,
+      "reviews": 417
+    },
+    {
+      "name": "Thermy Therm's Cafe",
+      "reason": "low-signal",
+      "address": "2017 E Broadway Rd, Phoenix, AZ 85040, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.thermythermscafe.com/",
+      "lat": 33.406636999999996,
+      "lng": -112.037774,
+      "reviews": 1
+    },
+    {
+      "name": "Smoke Somethin' BBQ",
+      "reason": "low-signal",
+      "address": "1930 E Broadway Rd, Phoenix, AZ 85040, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.ssbbqphx.com/",
+      "lat": 33.4070203,
+      "lng": -112.0396372,
+      "reviews": 14
+    },
+    {
+      "name": "Fusion Explosion BBQ",
+      "reason": "low-signal",
+      "address": "1712 E Broadway Rd #3, Phoenix, AZ 85040, USA",
+      "primaryType": "fusion_restaurant",
+      "website": "http://www.jlsmokehouse.com/",
+      "lat": 33.4070968,
+      "lng": -112.04449319999999,
+      "reviews": null
+    },
+    {
+      "name": "Habanero XL",
+      "reason": "low-signal",
+      "address": "2010 E Broadway Rd Suite A, Phoenix, AZ 85040, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.habaneroxl.com/",
+      "lat": 33.4070604,
+      "lng": -112.03797259999999,
+      "reviews": 1
+    },
+    {
+      "name": "Church's Texas Chicken",
+      "reason": "chain",
+      "address": "2242 E Broadway Rd, Phoenix, AZ 85040, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://locations.churchs.com/az/phoenix/2242-e.-broadway-road",
+      "lat": 33.407160499999996,
+      "lng": -112.03246139999999,
+      "reviews": 1122
+    },
+    {
+      "name": "Villa del mar",
+      "reason": "low-signal",
+      "address": "3116 W Mohave St, Phoenix, AZ 85009, USA",
+      "primaryType": "seafood_restaurant",
+      "website": null,
+      "lat": 33.431678,
+      "lng": -112.1269014,
+      "reviews": null
+    },
+    {
+      "name": "carniceria los 3 potrillos",
+      "reason": "format",
+      "address": "3202 W Buckeye Rd, Phoenix, AZ 85009, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.4371361,
+      "lng": -112.1301479,
+      "reviews": 11
+    },
+    {
+      "name": "Let Me Taco Bout It",
+      "reason": "low-signal",
+      "address": "3158 W Buckeye Rd, Phoenix, AZ 85009, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4372105,
+      "lng": -112.12960249999999,
+      "reviews": 16
+    },
+    {
+      "name": "El Rincón Casero",
+      "reason": "low-signal",
+      "address": "1433 S 30th Ave, Phoenix, AZ 85009, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.4337246,
+      "lng": -112.1235404,
+      "reviews": 1
+    },
+    {
+      "name": "Santo Burrito (Inside The Smoked Jalapeno)",
+      "reason": "low-signal",
+      "address": "3497 W Lincoln St, Phoenix, AZ 85009, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.doordash.com/store/santo-burrito-phoenix-2839615/",
+      "lat": 33.4421387,
+      "lng": -112.13420529999999,
+      "reviews": null
+    },
+    {
+      "name": "Tacos ️",
+      "reason": "low-signal",
+      "address": "35th Ave &, W Lincoln St, Phoenix, AZ 85009, USA",
+      "primaryType": "american_restaurant",
+      "website": null,
+      "lat": 33.442264,
+      "lng": -112.1346208,
+      "reviews": 3
+    },
+    {
+      "name": "Taqueria Lucy",
+      "reason": "format",
+      "address": "2712 W Buckeye Rd, Phoenix, AZ 85009, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.436977299999995,
+      "lng": -112.1175121,
+      "reviews": 210
+    },
+    {
+      "name": "Los Pitufines Sonoran Hot Dogs",
+      "reason": "low-signal",
+      "address": "2322 W Buckeye Rd, Phoenix, AZ 85009, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.4370516,
+      "lng": -112.1096513,
+      "reviews": null
+    },
+    {
+      "name": "Saddle Horn Parking Lot",
+      "reason": "closed",
+      "address": "2332 W Buckeye Rd, Phoenix, AZ 85009, USA",
+      "primaryType": "bar",
+      "website": null,
+      "lat": 33.437042,
+      "lng": -112.109904,
+      "reviews": null
+    },
+    {
+      "name": "CASA BUENDIA",
+      "reason": "closed",
+      "address": "1825 W Buckeye Rd #3522, Phoenix, AZ 85007, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.4363216,
+      "lng": -112.09832899999999,
+      "reviews": 3
+    },
+    {
+      "name": "A-1 Restaurant Service",
+      "reason": "low-signal",
+      "address": "1095 W Magnolia St, Phoenix, AZ 85007, USA",
+      "primaryType": "restaurant",
+      "website": "http://www.a1restaurantservice.com/",
+      "lat": 33.4240425,
+      "lng": -112.08655040000001,
+      "reviews": 1
+    },
+    {
+      "name": "Titos tacos y birria",
+      "reason": "low-signal",
+      "address": "1725 W Buckeye Rd, Phoenix, AZ 85007, USA",
+      "primaryType": "taco_restaurant",
+      "website": null,
+      "lat": 33.436243,
+      "lng": -112.0968186,
+      "reviews": 8
+    },
+    {
+      "name": "Chichis cabaret",
+      "reason": "format",
+      "address": "3420 S Central Ave, Phoenix, AZ 85040, USA",
+      "primaryType": "bar",
+      "website": null,
+      "lat": 33.4152976,
+      "lng": -112.0736883,
+      "reviews": 26
+    },
+    {
+      "name": "Hint of Soul",
+      "reason": "closed",
+      "address": "3801 S Central Ave, Phoenix, AZ 85040, USA",
+      "primaryType": "soul_food_restaurant",
+      "website": "https://form.jotform.com/233097278133156",
+      "lat": 33.412250799999995,
+      "lng": -112.0732432,
+      "reviews": 43
+    },
+    {
+      "name": "Truth Soul Food Factory Az",
+      "reason": "closed",
+      "address": "1710 S Central Ave, Phoenix, AZ 85003, USA",
+      "primaryType": "soul_food_restaurant",
+      "website": "https://instagram.com/truthsoulfoodfactoryaz?igshid=OGQ5ZDc2ODk2ZA==",
+      "lat": 33.4309419,
+      "lng": -112.07470509999999,
+      "reviews": 72
+    },
+    {
+      "name": "Pharoahs Chicken And Seafood",
+      "reason": "closed",
+      "address": "1701 S Central Ave, Phoenix, AZ 85004, USA",
+      "primaryType": "soul_food_restaurant",
+      "website": null,
+      "lat": 33.4311613,
+      "lng": -112.0734044,
+      "reviews": null
+    },
+    {
+      "name": "Natty World Plant Based Soul Food",
+      "reason": "low-signal",
+      "address": "1701 S Central Ave, Phoenix, AZ 85004, USA",
+      "primaryType": "vegan_restaurant",
+      "website": "https://www.nattyworldpbsf.com/",
+      "lat": 33.4311613,
+      "lng": -112.0734044,
+      "reviews": 15
+    },
+    {
+      "name": "Pete's Fish & Chips",
+      "reason": "chain",
+      "address": "3920 S Central Ave, Phoenix, AZ 85040, USA",
+      "primaryType": "seafood_restaurant",
+      "website": "http://www.petesfishandchips.com/",
+      "lat": 33.4108063,
+      "lng": -112.073633,
+      "reviews": 2057
+    },
+    {
+      "name": "Tacos Rodriguez - Food Truck",
+      "reason": "format",
+      "address": "326 E Broadway Rd, Phoenix, AZ 85040, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.406851599999996,
+      "lng": -112.0687938,
+      "reviews": 342
+    },
+    {
+      "name": "Mariscos Obson",
+      "reason": "low-signal",
+      "address": "4215 S 7th St, Phoenix, AZ 85040, USA",
+      "primaryType": "seafood_restaurant",
+      "website": null,
+      "lat": 33.4080668,
+      "lng": -112.0642728,
+      "reviews": 5
+    },
+    {
+      "name": "In-N-Out Burger Distribution Center",
+      "reason": "chain",
+      "address": "1750 E Riverview Dr, Phoenix, AZ 85034, USA",
+      "primaryType": "storage",
+      "website": "https://www.in-n-out.com/",
+      "lat": 33.419444399999996,
+      "lng": -112.045,
+      "reviews": 87
+    },
+    {
+      "name": "Sub Shop",
+      "reason": "closed",
+      "address": "2810 S 24th St #116, Phoenix, AZ 85034, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.422035799999996,
+      "lng": -112.0315267,
+      "reviews": 160
+    },
+    {
+      "name": "Comidas",
+      "reason": "low-signal",
+      "address": "3609 S 16th St, Phoenix, AZ 85040, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4134518,
+      "lng": -112.0467809,
+      "reviews": null
+    },
+    {
+      "name": "Tacos & Burritos",
+      "reason": "low-signal",
+      "address": "3825 S 16th St, Phoenix, AZ 85040, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4113427,
+      "lng": -112.04685149999999,
+      "reviews": 7
+    },
+    {
+      "name": "Meno's Mexican Food",
+      "reason": "low-signal",
+      "address": "3821 S 16th St, Phoenix, AZ 85040, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.4113123,
+      "lng": -112.04685169999999,
+      "reviews": 10
+    },
+    {
+      "name": "MC Squared",
+      "reason": "low-signal",
+      "address": "1620 S 16th St, Phoenix, AZ 85034, USA",
+      "primaryType": "pizza_restaurant",
+      "website": null,
+      "lat": 33.432069,
+      "lng": -112.0481712,
+      "reviews": null
+    },
+    {
+      "name": "Milk of Life",
+      "reason": "place-type",
+      "address": "1620 S 16th St, Phoenix, AZ 85034, USA",
+      "primaryType": "food_delivery",
+      "website": null,
+      "lat": 33.4320849,
+      "lng": -112.0481487,
+      "reviews": 2
+    },
+    {
+      "name": "Waffle House",
+      "reason": "chain",
+      "address": "3363 E University Dr, Phoenix, AZ 85034, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://locations.wafflehouse.com/phoenix-az-1489",
+      "lat": 33.4155873,
+      "lng": -112.0079823,
+      "reviews": 3060
+    },
+    {
+      "name": "Garden Grille Bar & Grille @ Hilton Garden Inn Phoenix Airport",
+      "reason": "low-signal",
+      "address": "3422 E Elwood St, Phoenix, AZ 85040, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.hilton.com/en/hotels/phxaggi-hilton-garden-inn-phoenix-airport/dining/",
+      "lat": 33.4151094,
+      "lng": -112.0075888,
+      "reviews": 9
+    },
+    {
+      "name": "The Original La Canasta Burrito Shoppe",
+      "reason": "out-of-area",
+      "address": "3202 S 40th St, Phoenix, AZ 85040, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://linktr.ee/LaCanastaBurritoShoppe",
+      "lat": 33.417937,
+      "lng": -111.995711,
+      "reviews": 591
+    },
+    {
+      "name": "Chelly’s Kitchen",
+      "reason": "low-signal",
+      "address": "Wood st, S 34th St and, Phoenix, AZ 85040, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.408834899999995,
+      "lng": -112.0084316,
+      "reviews": 15
+    },
+    {
+      "name": "San Tan Brewing Company",
+      "reason": "airport",
+      "address": "3400 E Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": "bar",
+      "website": null,
+      "lat": 33.434227199999995,
+      "lng": -112.0102653,
+      "reviews": 11
+    },
+    {
+      "name": "The Roadie",
+      "reason": "airport",
+      "address": "3400 E Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.434218099999995,
+      "lng": -112.0104531,
+      "reviews": null
+    },
+    {
+      "name": "SanTan Brewery & Pub (PHX Airport)",
+      "reason": "airport",
+      "address": "Terminal 3, 3400 Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": "brewpub",
+      "website": "https://santanbrewing.com/",
+      "lat": 33.4342393,
+      "lng": -112.01025849999999,
+      "reviews": 497
+    },
+    {
+      "name": "Cookin' On Wood",
+      "reason": "closed",
+      "address": "3401 E Wood St, Phoenix, AZ 85040, USA",
+      "primaryType": "barbecue_restaurant",
+      "website": "http://www.cookinonwood.com/",
+      "lat": 33.4085655,
+      "lng": -112.0080795,
+      "reviews": 123
+    },
+    {
+      "name": "The Tavern Grill",
+      "reason": "airport",
+      "address": "3400 E Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": "american_restaurant",
+      "website": null,
+      "lat": 33.434463799999996,
+      "lng": -112.008686,
+      "reviews": 29
+    },
+    {
+      "name": "Humble Torta & Taco",
+      "reason": "airport",
+      "address": "Terminal 3, 3400 Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": "taco_restaurant",
+      "website": "http://humbletorta.com/",
+      "lat": 33.4344037,
+      "lng": -112.01144130000002,
+      "reviews": 90
+    },
+    {
+      "name": "SSP Tavern at the Airport",
+      "reason": "airport",
+      "address": "3200 Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.skyharbor.com/at-the-airport/food-drinks/the-tavern-897/",
+      "lat": 33.4345728,
+      "lng": -112.00873399999999,
+      "reviews": 256
+    },
+    {
+      "name": "Farmers Market",
+      "reason": "closed",
+      "address": "3400 East Sky Harbor Boulevard Post, Sec - Term 3, Phoenix, AZ 85034, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.435475,
+      "lng": -112.00865739999999,
+      "reviews": 9
+    },
+    {
+      "name": "Sir Vezas",
+      "reason": "airport",
+      "address": "3400 Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.sirvezas.com/locations/sir-vezas-sky-harbor-international-airport/",
+      "lat": 33.4353732,
+      "lng": -112.0065992,
+      "reviews": 8
+    },
+    {
+      "name": "The Peppersauce Cafe",
+      "reason": "out-of-area",
+      "address": "3937 E Anne St, Phoenix, AZ 85040, USA",
+      "primaryType": "american_restaurant",
+      "website": "http://www.peppersaucecafe.com/",
+      "lat": 33.4125442,
+      "lng": -111.99605559999999,
+      "reviews": 1482
+    },
+    {
+      "name": "Berry Divine Acai Bowls",
+      "reason": "format",
+      "address": "Terminal 4, 3400 Sky Hbr Blvd Level 3, Phoenix, AZ 85034, USA",
+      "primaryType": "restaurant",
+      "website": "https://berrydivineacai.com/",
+      "lat": 33.4346327,
+      "lng": -112.0015705,
+      "reviews": 61
+    },
+    {
+      "name": "Bobby's Burgers",
+      "reason": "airport",
+      "address": "Terminal 4, 3400 Sky Hbr Blvd Level 3, Phoenix, AZ 85034, USA",
+      "primaryType": "restaurant",
+      "website": "http://bobbysburgers.com/",
+      "lat": 33.4346696,
+      "lng": -112.0015265,
+      "reviews": 351
+    },
+    {
+      "name": "Chase Sapphire Lounge by The Club PHX",
+      "reason": "airport",
+      "address": "Phoenix Sky Harbor International Airport, Maricopa County, Terminal 4, Phoenix, AZ 85034, USA",
+      "primaryType": "restaurant",
+      "website": "http://chase.com/sapphireairportlounge?y_source=1_MTA4NjYwNDMwMi03MTUtbG9jYXRpb24ud2Vic2l0ZQ%3D%3D",
+      "lat": 33.4345451,
+      "lng": -112.0011541,
+      "reviews": 787
+    },
+    {
+      "name": "Pedal Haus Brewery",
+      "reason": "airport",
+      "address": "Terminal 4, 3400 Sky Hbr Blvd Level 3, Phoenix, AZ 85034, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.pedalhausbrewery.com/",
+      "lat": 33.4346095,
+      "lng": -112.0012821,
+      "reviews": 122
+    },
+    {
+      "name": "eegee's",
+      "reason": "airport",
+      "address": "3300 Sky Hbr Blvd Terminal 4, Phoenix, AZ 85034, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.434689,
+      "lng": -112.0014152,
+      "reviews": 44
+    },
+    {
+      "name": "Little Caesars Pizza",
+      "reason": "chain",
+      "address": "3555 W Van Buren St Suite 109, Phoenix, AZ 85009, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://littlecaesars.com/en-us/store/1352",
+      "lat": 33.4508358,
+      "lng": -112.1364546,
+      "reviews": 811
+    },
+    {
+      "name": "Pure Juice & Salads",
+      "reason": "place-type",
+      "address": "3828 W Van Buren St, Phoenix, AZ 85009, USA",
+      "primaryType": "salad_shop",
+      "website": "https://www.purejuiceandsaladsaz.com/",
+      "lat": 33.4517609,
+      "lng": -112.1419487,
+      "reviews": 138
+    },
+    {
+      "name": "Tacos dorados",
+      "reason": "low-signal",
+      "address": "Bashas, 3442 W Van Buren St, Phoenix, AZ 85009, USA",
+      "primaryType": "taco_restaurant",
+      "website": null,
+      "lat": 33.4516609,
+      "lng": -112.1338607,
+      "reviews": null
+    },
+    {
+      "name": "Tacos Y Mariscos Chinola",
+      "reason": "low-signal",
+      "address": "3501 W Polk St, Phoenix, AZ 85009, USA",
+      "primaryType": "seafood_restaurant",
+      "website": null,
+      "lat": 33.4528457,
+      "lng": -112.1347591,
+      "reviews": 22
+    },
+    {
+      "name": "Sun Star Buffet",
+      "reason": "format",
+      "address": "3420 W Van Buren St, Phoenix, AZ 85009, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://sunstarbuffet.shop/",
+      "lat": 33.451795,
+      "lng": -112.133308,
+      "reviews": 885
+    },
+    {
+      "name": "Church's Texas Chicken",
+      "reason": "chain",
+      "address": "3350 W Van Buren St, Phoenix, AZ 85009, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://locations.churchs.com/az/phoenix/3350-w.-van-buren-street",
+      "lat": 33.451823499999996,
+      "lng": -112.13185329999999,
+      "reviews": 483
+    },
+    {
+      "name": "El Taco Taco",
+      "reason": "low-signal",
+      "address": "602 N 35th Ave, Phoenix, AZ 85009, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.facebook.com/Eltacotacooficial/",
+      "lat": 33.4553443,
+      "lng": -112.1348376,
+      "reviews": 9
+    },
+    {
+      "name": "Taqueria El Fundador",
+      "reason": "format",
+      "address": "3245 W Van Buren St, Phoenix, AZ 85009, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.taqueriaelfundador.com/",
+      "lat": 33.451073,
+      "lng": -112.12995760000001,
+      "reviews": 2006
+    },
+    {
+      "name": "Karepaku chettu",
+      "reason": "low-signal",
+      "address": "2120 W Van Buren St, Phoenix, AZ 85009, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4515923,
+      "lng": -112.1052628,
+      "reviews": null
+    },
+    {
+      "name": "Los almendros sv food truck",
+      "reason": "format",
+      "address": "2001 W Van Buren St, Phoenix, AZ 85009, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4508963,
+      "lng": -112.10261860000001,
+      "reviews": 29
+    },
+    {
+      "name": "The Fillmore",
+      "reason": "low-signal",
+      "address": "2130 W Fillmore St, Phoenix, AZ 85009, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.455261899999996,
+      "lng": -112.10577359999999,
+      "reviews": 11
+    },
+    {
+      "name": "Service Brass Fittings",
+      "reason": "low-signal",
+      "address": "2501 W Jackson St, Phoenix, AZ 85009, USA",
+      "primaryType": "building_materials_store",
+      "website": "http://www.servicebrass.com/",
+      "lat": 33.4445198,
+      "lng": -112.1135108,
+      "reviews": null
+    },
+    {
+      "name": "Emilio's Catering",
+      "reason": "low-signal",
+      "address": "2526 W Van Buren St, Phoenix, AZ 85009, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4513737,
+      "lng": -112.1144377,
+      "reviews": 7
+    },
+    {
+      "name": "Taco Hub",
+      "reason": "low-signal",
+      "address": "1746 W Van Buren St, Phoenix, AZ 85007, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.aztacohub.com/",
+      "lat": 33.4514828,
+      "lng": -112.0976848,
+      "reviews": 6
+    },
+    {
+      "name": "Imelda Happy Tamales",
+      "reason": "low-signal",
+      "address": "1740 W Van Buren St, Phoenix, AZ 85007, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://imeldahappytamalesaz.com/",
+      "lat": 33.4515191,
+      "lng": -112.09761189999999,
+      "reviews": 22
+    },
+    {
+      "name": "Sweet Dulce Barrio",
+      "reason": "closed",
+      "address": "1708 W Van Buren St, Phoenix, AZ 85007, USA",
+      "primaryType": "dessert_shop",
+      "website": null,
+      "lat": 33.4516169,
+      "lng": -112.0961842,
+      "reviews": 14
+    },
+    {
+      "name": "OLLA OLLA CREPES",
+      "reason": "place-type",
+      "address": "1708 W Van Buren St, Phoenix, AZ 85007, USA",
+      "primaryType": "dessert_shop",
+      "website": "https://ollaollacrepes.net/",
+      "lat": 33.4516169,
+      "lng": -112.0961842,
+      "reviews": 371
+    },
+    {
+      "name": "Pete's Fish & Chips",
+      "reason": "chain",
+      "address": "2628 W Van Buren St, Phoenix, AZ 85009, USA",
+      "primaryType": "seafood_restaurant",
+      "website": "http://www.petesfishandchips.com/",
+      "lat": 33.451394799999996,
+      "lng": -112.11656029999999,
+      "reviews": 1320
+    },
+    {
+      "name": "Hot Bamboo Steamed bun dumplings “the original character bao”",
+      "reason": "low-signal",
+      "address": "Phoenix, AZ 85004, USA",
+      "primaryType": "japanese_restaurant",
+      "website": null,
+      "lat": 33.4483939,
+      "lng": -112.0740374,
+      "reviews": 8
+    },
+    {
+      "name": "Takoyaki food truck",
+      "reason": "format",
+      "address": "Phoenix, AZ 85004, USA",
+      "primaryType": "japanese_restaurant",
+      "website": "https://usabizory.top/details/takoyaki-food-truck-ChIJJwN",
+      "lat": 33.4483939,
+      "lng": -112.0740374,
+      "reviews": null
+    },
+    {
+      "name": "Jasperz island fusion cuisine - food truck",
+      "reason": "format",
+      "address": "Phoenix, AZ 85004, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4483939,
+      "lng": -112.0740374,
+      "reviews": 3
+    },
+    {
+      "name": "Top of the Rock",
+      "reason": "low-signal",
+      "address": "Phoenix, AZ 85004, USA",
+      "primaryType": "american_restaurant",
+      "website": null,
+      "lat": 33.4483938,
+      "lng": -112.0740374,
+      "reviews": 3
+    },
+    {
+      "name": "Chipotle Mexican Grill",
+      "reason": "chain",
+      "address": "11 W Washington St Suite 140, Phoenix, AZ 85003, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://locations.chipotle.com/az/phoenix/11-w-washington-st?utm_source=google&utm_medium=yext&utm_campaign=yext_listings?restaurant=1684",
+      "lat": 33.4481,
+      "lng": -112.0745089,
+      "reviews": 878
+    },
+    {
+      "name": "Bad-Ass Breakfast Burrito",
+      "reason": "format",
+      "address": "1 E Washington St #120, Phoenix, AZ 85004, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.4481067,
+      "lng": -112.07350079999999,
+      "reviews": null
+    },
+    {
+      "name": "Breakfast Club",
+      "reason": "format",
+      "address": "2 E Jefferson St #22-213, Phoenix, AZ 85004, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "http://breakfastclub.us/",
+      "lat": 33.447559999999996,
+      "lng": -112.073259,
+      "reviews": 1529
+    },
+    {
+      "name": "Taqueria obson #2",
+      "reason": "format",
+      "address": "1601 E Jefferson St, Phoenix, AZ 85034, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.4468087,
+      "lng": -112.0475206,
+      "reviews": 3
+    },
+    {
+      "name": "Menuderia Guanajuato",
+      "reason": "format",
+      "address": "124 S 24th St, Phoenix, AZ 85034, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.446332399999996,
+      "lng": -112.03059010000001,
+      "reviews": 1052
+    },
+    {
+      "name": "Mariscos Playa Hermosa",
+      "reason": "airport",
+      "address": "1605 E Garfield St, Phoenix, AZ 85006, USA",
+      "primaryType": "seafood_restaurant",
+      "website": "http://www.mariscosplayahermosa.com/",
+      "lat": 33.457577199999996,
+      "lng": -112.0472984,
+      "reviews": 3383
+    },
+    {
+      "name": "Boozy Bar Trailers",
+      "reason": "place-type",
+      "address": "2429 E Washington St, Phoenix, AZ 85034, USA",
+      "primaryType": "service",
+      "website": "https://boozybartrailersaz.com/?utm_source=google&utm_medium=wix_google_business_profile&utm_campaign=13513065985853848269",
+      "lat": 33.447963200000004,
+      "lng": -112.02868079999999,
+      "reviews": 66
+    },
+    {
+      "name": "Little Caesars Pizza",
+      "reason": "chain",
+      "address": "933 N 16th St, Phoenix, AZ 85006, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://littlecaesars.com/en-us/store/1350",
+      "lat": 33.458391,
+      "lng": -112.04704799999999,
+      "reviews": 1104
+    },
+    {
+      "name": "Salsitas Mexican Food",
+      "reason": "airport",
+      "address": "1541 E Roosevelt St, Phoenix, AZ 85006, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://salsitasmexicanfood.shop/",
+      "lat": 33.4584013,
+      "lng": -112.0479141,
+      "reviews": 914
+    },
+    {
+      "name": "Las Potencias Africanas",
+      "reason": "low-signal",
+      "address": "1221 E Van Buren St, Phoenix, AZ 85006, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4512335,
+      "lng": -112.0553911,
+      "reviews": 3
+    },
+    {
+      "name": "Church's Texas Chicken",
+      "reason": "chain",
+      "address": "1546 E Roosevelt St, Phoenix, AZ 85006, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://locations.churchs.com/az/phoenix/1546-e.-roosevelt-street",
+      "lat": 33.4589934,
+      "lng": -112.0479556,
+      "reviews": 943
+    },
+    {
+      "name": "Leo's Cuisine",
+      "reason": "low-signal",
+      "address": "1153 E Jefferson St, Phoenix, AZ 85034, USA",
+      "primaryType": "family_restaurant",
+      "website": "https://www.leoscooking.com/",
+      "lat": 33.4468841,
+      "lng": -112.0567184,
+      "reviews": null
+    },
+    {
+      "name": "Mane-lan Kitchen",
+      "reason": "low-signal",
+      "address": "1153 E Jefferson St, Phoenix, AZ 85034, USA",
+      "primaryType": "restaurant",
+      "website": "https://manelankitchen.com/",
+      "lat": 33.4468841,
+      "lng": -112.0567184,
+      "reviews": 13
+    },
+    {
+      "name": "Add On Smoothies",
+      "reason": "closed",
+      "address": "1145 E Washington St #200, Phoenix, AZ 85034, USA",
+      "primaryType": "juice_shop",
+      "website": "https://www.addonsmoothies.com/",
+      "lat": 33.4480748,
+      "lng": -112.0568716,
+      "reviews": 342
+    },
+    {
+      "name": "Rito's Mexican Food",
+      "reason": "airport",
+      "address": "907 N 14th St, Phoenix, AZ 85006, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.ritosmexicanfood.com/",
+      "lat": 33.458008299999996,
+      "lng": -112.05190739999999,
+      "reviews": 2644
+    },
+    {
+      "name": "Burger King",
+      "reason": "chain",
+      "address": "1545 E Buckeye Rd, Phoenix, AZ 85034, USA",
+      "primaryType": "restaurant",
+      "website": "https://burgerking.com/store-locator/store/2051",
+      "lat": 33.4365147,
+      "lng": -112.0481607,
+      "reviews": 1337
+    },
+    {
+      "name": "Knock Kneed Lobster",
+      "reason": "airport",
+      "address": "3202 E Washington St, Phoenix, AZ 85034, USA",
+      "primaryType": "seafood_restaurant",
+      "website": "http://knockkneedlobster.menutoeat.com/",
+      "lat": 33.4484332,
+      "lng": -112.0127157,
+      "reviews": 2832
+    },
+    {
+      "name": "Christie's Cabaret Phoenix",
+      "reason": "closed",
+      "address": "44 N 32nd St, Phoenix, AZ 85034, USA",
+      "primaryType": "night_club",
+      "website": "https://www.facebook.com/PlatinumPlusPhoenix/",
+      "lat": 33.4491357,
+      "lng": -112.01386970000001,
+      "reviews": 152
+    },
+    {
+      "name": "Tacos el potrillo",
+      "reason": "low-signal",
+      "address": "Cerca de, 3202 E Van Buren St, Phoenix, AZ 85008, USA",
+      "primaryType": "taco_restaurant",
+      "website": null,
+      "lat": 33.4517549,
+      "lng": -112.0127218,
+      "reviews": 20
+    },
+    {
+      "name": "Celebrity Theatre",
+      "reason": "format",
+      "address": "440 N 32nd St, Phoenix, AZ 85008, USA",
+      "primaryType": "live_music_venue",
+      "website": "https://www.celebritytheatre.com/",
+      "lat": 33.454426399999996,
+      "lng": -112.0147786,
+      "reviews": 4411
+    },
+    {
+      "name": "La Leonada Munchies, LLC",
+      "reason": "low-signal",
+      "address": "3801 E Washington St, Phoenix, AZ 85034, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4468156,
+      "lng": -111.9978941,
+      "reviews": 6
+    },
+    {
+      "name": "Pozoleria Mexican Food",
+      "reason": "format",
+      "address": "2801 E Van Buren St, Phoenix, AZ 85008, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://pozoleriamexican.com/",
+      "lat": 33.450914499999996,
+      "lng": -112.0213062,
+      "reviews": 942
+    },
+    {
+      "name": "Garden Grill",
+      "reason": "low-signal",
+      "address": "3838 E Van Buren St, Phoenix, AZ 85008, USA",
+      "primaryType": "restaurant",
+      "website": "http://hilton.com/",
+      "lat": 33.4515549,
+      "lng": -111.9975522,
+      "reviews": null
+    },
+    {
+      "name": "Ajo Al’s",
+      "reason": "airport",
+      "address": "3400 Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.437231,
+      "lng": -112.00894749999999,
+      "reviews": 163
+    },
+    {
+      "name": "Scramble",
+      "reason": "airport",
+      "address": "Terminal 3, 3400 Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4371473,
+      "lng": -112.00897099999999,
+      "reviews": 162
+    },
+    {
+      "name": "United Club",
+      "reason": "airport",
+      "address": "Terminal 3, Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": null,
+      "website": "https://www.united.com/en/us/fly/travel/airport/united-club-and-lounges.html",
+      "lat": 33.437070399999996,
+      "lng": -112.0085759,
+      "reviews": 440
+    },
+    {
+      "name": "Mesquite Fresh Street Mex",
+      "reason": "chain",
+      "address": "4002 E Washington St, Phoenix, AZ 85034, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://eatmesquite.com/",
+      "lat": 33.4484488,
+      "lng": -111.9949778,
+      "reviews": 3207
+    },
+    {
+      "name": "Tammie Coe To Go",
+      "reason": "airport",
+      "address": "3400 Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4375846,
+      "lng": -112.0017747,
+      "reviews": 4
+    },
+    {
+      "name": "Pei Wei Asian Kitchen",
+      "reason": "airport",
+      "address": "3964 Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.peiwei.com/",
+      "lat": 33.4372768,
+      "lng": -112.00195169999999,
+      "reviews": 266
+    },
+    {
+      "name": "Humble Pie",
+      "reason": "airport",
+      "address": "3964 Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": "pizza_restaurant",
+      "website": null,
+      "lat": 33.4371977,
+      "lng": -112.0019516,
+      "reviews": 37
+    },
+    {
+      "name": "Four Peaks Brewing Company Airport",
+      "reason": "airport",
+      "address": "3964 Sky Hbr Blvd #3588, Phoenix, AZ 85034, USA",
+      "primaryType": "bar",
+      "website": "https://www.fourpeaks.com/",
+      "lat": 33.437077599999995,
+      "lng": -112.00195049999999,
+      "reviews": 1611
+    },
+    {
+      "name": "American Airlines Admirals Club between Gates A19 & A21",
+      "reason": "airport",
+      "address": "3400 Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": null,
+      "website": "https://www.american-airlines.co.kr/i18n/travel-info/clubs/admirals-club-locations.jsp",
+      "lat": 33.4369788,
+      "lng": -112.001701,
+      "reviews": 1042
+    },
+    {
+      "name": "Wildflower",
+      "reason": "airport",
+      "address": "3400 Sky Hbr Blvd, American airlines, 85034 concourse 4 Gate A9, Phoenix, AZ 85034, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://wildflowerbread.com/location/sky-harbor-airport-main-concourse/",
+      "lat": 33.4376823,
+      "lng": -111.99920259999999,
+      "reviews": 508
+    },
+    {
+      "name": "Hungry Sea Shrimp Authentic Seafood",
+      "reason": "low-signal",
+      "address": "3631 W Encanto Blvd, Phoenix, AZ 85009, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4729615,
+      "lng": -112.1379427,
+      "reviews": null
+    },
+    {
+      "name": "Birrieria Obregon",
+      "reason": "format",
+      "address": "2500 N 35th Ave, Phoenix, AZ 85009, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://birrieriaobregon2az.com/",
+      "lat": 33.475328,
+      "lng": -112.134783,
+      "reviews": 1785
+    },
+    {
+      "name": "Chicas Cabaret",
+      "reason": "format",
+      "address": "2802 N 35th Ave, Phoenix, AZ 85009, USA",
+      "primaryType": null,
+      "website": "http://clubsphoenix.com/",
+      "lat": 33.47870030000001,
+      "lng": -112.1348563,
+      "reviews": 106
+    },
+    {
+      "name": "the Well Folded GF Empanadas",
+      "reason": "low-signal",
+      "address": "3631 W Thomas Rd, Phoenix, AZ 85019, USA",
+      "primaryType": "restaurant",
+      "website": "https://prepwork.io/menu/-thewellfoldedgfempanadas",
+      "lat": 33.479996899999996,
+      "lng": -112.13824969999999,
+      "reviews": 20
+    },
+    {
+      "name": "Carniceria Michoacan",
+      "reason": "format",
+      "address": "3549 W Thomas Rd #104, Phoenix, AZ 85019, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://carniceriamichoacan.shop/",
+      "lat": 33.4799471,
+      "lng": -112.1359129,
+      "reviews": 948
+    },
+    {
+      "name": "Mi Sazon Sinaloense",
+      "reason": "low-signal",
+      "address": "1844 N 38th Dr, Phoenix, AZ 85009, USA",
+      "primaryType": "restaurant",
+      "website": "https://linktr.ee/misazonsinaloense?utm_source=linktree_profile_share",
+      "lat": 33.469248,
+      "lng": -112.1415043,
+      "reviews": null
+    },
+    {
+      "name": "Carniceria y Taquería Sinaloa",
+      "reason": "format",
+      "address": "1834 N 35th Ave, Phoenix, AZ 85009, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.4693377,
+      "lng": -112.13469549999999,
+      "reviews": 67
+    },
+    {
+      "name": "Nana Pancha Breakfast & Lunch",
+      "reason": "format",
+      "address": "2928 N 35th Ave #6, Phoenix, AZ 85017, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://nanapanchasaz.com/",
+      "lat": 33.4818098,
+      "lng": -112.1350574,
+      "reviews": 318
+    },
+    {
+      "name": "Playing with fire bbq & Wings",
+      "reason": "closed",
+      "address": "1804 N 35th Ave, Phoenix, AZ 85009, USA",
+      "primaryType": "barbecue_restaurant",
+      "website": "https://playingwithfirebbq.com/",
+      "lat": 33.467999999999996,
+      "lng": -112.1346828,
+      "reviews": 34
+    },
+    {
+      "name": "Carniceria Guasave",
+      "reason": "format",
+      "address": "Town House Park, 3632 W McDowell Rd, Phoenix, AZ 85009, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.466237,
+      "lng": -112.13797249999999,
+      "reviews": 168
+    },
+    {
+      "name": "ACR Elotes",
+      "reason": "low-signal",
+      "address": "4143 W Cypress St, Phoenix, AZ 85009, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.47220170000001,
+      "lng": -112.1492104,
+      "reviews": 1
+    },
+    {
+      "name": "Denny's Restaurant",
+      "reason": "chain",
+      "address": "2801 N Black Cyn Hwy, Phoenix, AZ 85009, USA",
+      "primaryType": "restaurant",
+      "website": "https://locations.dennys.com/AZ/PHOENIX/248550?utm_source=G&utm_medium=organic&utm_campaign=DAC",
+      "lat": 33.4797521,
+      "lng": -112.11219949999999,
+      "reviews": 4172
+    },
+    {
+      "name": "The Burger Den",
+      "reason": "low-signal",
+      "address": "2801 N Black Cyn Hwy, Phoenix, AZ 85009, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.theburgerden.com/?utm_source=G&utm_medium=organic&utm_campaign=DAC",
+      "lat": 33.479760299999995,
+      "lng": -112.1122456,
+      "reviews": 15
+    },
+    {
+      "name": "Sushi y mariscos los plebes",
+      "reason": "closed",
+      "address": "1902 Grand Ave, Phoenix, AZ 85009, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.instagram.com/sushiymariscoslosplebes602?igsh=Zm9yMzh4eHJpc2Zi&utm_source=qr",
+      "lat": 33.4666797,
+      "lng": -112.1002664,
+      "reviews": 9
+    },
+    {
+      "name": "El Lic",
+      "reason": "low-signal",
+      "address": "2052 N 27th Ave, Phoenix, AZ 85009, USA",
+      "primaryType": "taco_restaurant",
+      "website": null,
+      "lat": 33.4712807,
+      "lng": -112.1174427,
+      "reviews": 11
+    },
+    {
+      "name": "Taqueria El Vaporcito",
+      "reason": "format",
+      "address": "2775 W Thomas Rd, Phoenix, AZ 85017, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.479811,
+      "lng": -112.118854,
+      "reviews": 1358
+    },
+    {
+      "name": "Valley´s Best Subs & Sandwiches",
+      "reason": "closed",
+      "address": "Phoenix, AZ 85009, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4656798,
+      "lng": -112.11373929999999,
+      "reviews": 2
+    },
+    {
+      "name": "Hot Dogs Estilo Sonora",
+      "reason": "low-signal",
+      "address": "2712 W Thomas Rd, Phoenix, AZ 85017, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.480807399999996,
+      "lng": -112.118868,
+      "reviews": null
+    },
+    {
+      "name": "Hope’s Brunch House",
+      "reason": "format",
+      "address": "2508 N Central Ave, Phoenix, AZ 85004, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.hopesbrunchhouse.com/",
+      "lat": 33.4755484,
+      "lng": -112.0741383,
+      "reviews": 543
+    },
+    {
+      "name": "celia's kitchen",
+      "reason": "low-signal",
+      "address": "2700 N Central Ave #8500, Phoenix, AZ 85004, USA",
+      "primaryType": "american_restaurant",
+      "website": null,
+      "lat": 33.4780449,
+      "lng": -112.0742547,
+      "reviews": null
+    },
+    {
+      "name": "The Courtyard Cafe at the Heard Museum",
+      "reason": "format",
+      "address": "2301 N Central Ave, Phoenix, AZ 85004, USA",
+      "primaryType": "restaurant",
+      "website": "https://heard.org/courtyard-cafe/",
+      "lat": 33.4724737,
+      "lng": -112.0722009,
+      "reviews": 77
+    },
+    {
+      "name": "Cajun Breakfast Joint",
+      "reason": "closed",
+      "address": "2800 N Central Ave A100, Phoenix, AZ 85004, USA",
+      "primaryType": "cajun_restaurant",
+      "website": "https://www.cajunbreakfastjoint.com/",
+      "lat": 33.478766,
+      "lng": -112.07419379999999,
+      "reviews": 173
+    },
+    {
+      "name": "CC's on Central",
+      "reason": "closed",
+      "address": "2800 N Central Ave A100, Phoenix, AZ 85004, USA",
+      "primaryType": "soul_food_restaurant",
+      "website": "http://www.ccsoncentral.com/",
+      "lat": 33.478766,
+      "lng": -112.07419379999999,
+      "reviews": 268
+    },
+    {
+      "name": "Noriya",
+      "reason": "low-signal",
+      "address": "2801 N Central Ave Unit A, Phoenix, AZ 85004, USA",
+      "primaryType": "restaurant",
+      "website": "http://www.noriyaaz.com/",
+      "lat": 33.479036199999996,
+      "lng": -112.0733602,
+      "reviews": null
+    },
+    {
+      "name": "Smoothie King",
+      "reason": "place-type",
+      "address": "2833 N Central Ave, Phoenix, AZ 85004, USA",
+      "primaryType": "juice_shop",
+      "website": "https://locations.smoothieking.com/ll/us/az/phoenix/2833-n-central-ave/?utm_source=google&utm_medium=organic&utm_content=SOCi",
+      "lat": 33.479749,
+      "lng": -112.073252,
+      "reviews": 358
+    },
+    {
+      "name": "Gila Boba",
+      "reason": "low-signal",
+      "address": "2020 N Central Ave, Phoenix, AZ 85004, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.470326799999995,
+      "lng": -112.0746674,
+      "reviews": null
+    },
+    {
+      "name": "First Watch",
+      "reason": "chain",
+      "address": "61 W Thomas Rd, Phoenix, AZ 85013, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://www.firstwatch.com/locations/w-thomas-road/?utm_source=gbp-listing&utm_medium=organic&utm_campaign=gbp-listing&utm_content=w-thomas-road",
+      "lat": 33.4799468,
+      "lng": -112.07719200000001,
+      "reviews": 2439
+    },
+    {
+      "name": "Mariscos Altata",
+      "reason": "low-signal",
+      "address": "2407 N 16th St, Phoenix, AZ 85006, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4744902,
+      "lng": -112.047494,
+      "reviews": null
+    },
+    {
+      "name": "Royale Lounge",
+      "reason": "airport",
+      "address": "2310 N 16th St, Phoenix, AZ 85006, USA",
+      "primaryType": "bar",
+      "website": null,
+      "lat": 33.4731884,
+      "lng": -112.0480377,
+      "reviews": 245
+    },
+    {
+      "name": "La Gran Papota",
+      "reason": "airport",
+      "address": "N 16th St, Phoenix, AZ 85006, USA",
+      "primaryType": "restaurant",
+      "website": "https://lagranpapota.square.site/",
+      "lat": 33.472614799999995,
+      "lng": -112.0480432,
+      "reviews": 12
+    },
+    {
+      "name": "Berry Divine Acai Bowls",
+      "reason": "format",
+      "address": "2816 N 16th St Ste A, Phoenix, AZ 85006, USA",
+      "primaryType": "restaurant",
+      "website": "http://berrydivineacai.com/",
+      "lat": 33.4789162,
+      "lng": -112.04796710000001,
+      "reviews": 375
+    },
+    {
+      "name": "Lupe",
+      "reason": "low-signal",
+      "address": "2814 N 16th St, Phoenix, AZ 85006, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4790138,
+      "lng": -112.047963,
+      "reviews": 1
+    },
+    {
+      "name": "Burger King",
+      "reason": "chain",
+      "address": "1611 E Thomas Rd, Phoenix, AZ 85016, USA",
+      "primaryType": "restaurant",
+      "website": "https://burgerking.com/store-locator/store/4105",
+      "lat": 33.479878,
+      "lng": -112.04725359999999,
+      "reviews": 1755
+    },
+    {
+      "name": "Taqueria Esperanza",
+      "reason": "format",
+      "address": "2208 N 16th St, Phoenix, AZ 85006, USA",
+      "primaryType": "taco_restaurant",
+      "website": null,
+      "lat": 33.47157200000001,
+      "lng": -112.04813999999999,
+      "reviews": null
+    },
+    {
+      "name": "Taqueria de Esparanza",
+      "reason": "format",
+      "address": "2038 N 16th St, Phoenix, AZ 85006, USA",
+      "primaryType": "taco_restaurant",
+      "website": "https://www.facebook.com/profile.php?id=100078736133909&mibextid=ZbWKwL",
+      "lat": 33.470537,
+      "lng": -112.0481028,
+      "reviews": 18
+    },
+    {
+      "name": "Krispy Krunchy Chicken",
+      "reason": "low-signal",
+      "address": "2902 N 16th St, Phoenix, AZ 85016, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://locations.krispykrunchy.com/az/phoenix/2902-n-16th-st",
+      "lat": 33.4806616,
+      "lng": -112.04805619999999,
+      "reviews": 20
+    },
+    {
+      "name": "Cielo Rojo",
+      "reason": "airport",
+      "address": "Open for Walk in, 1919 N 16th St, Phoenix, AZ 85006, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.cielorojo.restaurant/",
+      "lat": 33.4691982,
+      "lng": -112.0474168,
+      "reviews": 301
+    },
+    {
+      "name": "Jjs Tacos",
+      "reason": "low-signal",
+      "address": "3001 N 16th St, Phoenix, AZ 85016, USA",
+      "primaryType": "taco_restaurant",
+      "website": "https://instagram.com/jjs.tacos.az?igshid=MzRlODBiNWFlZA==",
+      "lat": 33.48209,
+      "lng": -112.0474274,
+      "reviews": 21
+    },
+    {
+      "name": "Tacos Chava #4",
+      "reason": "low-signal",
+      "address": "1830 E McDowell Rd, Phoenix, AZ 85006, USA",
+      "primaryType": "taco_restaurant",
+      "website": "https://tacoschavaphx.com/",
+      "lat": 33.4661556,
+      "lng": -112.04214839999999,
+      "reviews": 14
+    },
+    {
+      "name": "Dima's Tacos",
+      "reason": "closed",
+      "address": "1802 E McDowell Rd, Phoenix, AZ 85006, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.4660948,
+      "lng": -112.04311919999999,
+      "reviews": 233
+    },
+    {
+      "name": "Random AF Taqueria",
+      "reason": "format",
+      "address": "2527 N 32nd St, Phoenix, AZ 85008, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.4760924,
+      "lng": -112.01263739999999,
+      "reviews": 199
+    },
+    {
+      "name": "Titino's grill",
+      "reason": "low-signal",
+      "address": "2527 N 32nd St, Phoenix, AZ 85008, USA",
+      "primaryType": "restaurant",
+      "website": "https://usmapol.org/details/titino-s-grill-ChIJoWZ",
+      "lat": 33.4761188,
+      "lng": -112.01268879999999,
+      "reviews": 5
+    },
+    {
+      "name": "Neveria y taqueria yesi",
+      "reason": "format",
+      "address": "2541 N 32nd St, Phoenix, AZ 85008, USA",
+      "primaryType": "restaurant",
+      "website": "https://neveriaytaqueriayesi.com/",
+      "lat": 33.476552399999996,
+      "lng": -112.0125039,
+      "reviews": 48
+    },
+    {
+      "name": "Los Kikis Birrieria y Taqueria",
+      "reason": "format",
+      "address": "3201 E Oak St, Phoenix, AZ 85008, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.4728159,
+      "lng": -112.0125726,
+      "reviews": 74
+    },
+    {
+      "name": "Carniceria Panaderia Guerrero En Phoenix",
+      "reason": "format",
+      "address": "2829 N 32nd St, Phoenix, AZ 85008, USA",
+      "primaryType": "restaurant",
+      "website": "https://panaderiacarniceriaguerrero.com/",
+      "lat": 33.4795539,
+      "lng": -112.0123548,
+      "reviews": 1243
+    },
+    {
+      "name": "Antojo Tropical",
+      "reason": "low-signal",
+      "address": "3221 E Thomas Rd, Phoenix, AZ 85018, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4802669,
+      "lng": -112.0115951,
+      "reviews": null
+    },
+    {
+      "name": "La cruda mariscos y clamat.",
+      "reason": "low-signal",
+      "address": "2822 N 32nd St, Phoenix, AZ 85008, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.acrudamariscosyclamatos.com/",
+      "lat": 33.4796198,
+      "lng": -112.0134039,
+      "reviews": 7
+    },
+    {
+      "name": "2Raicesllc",
+      "reason": "low-signal",
+      "address": "3026 E Yale St, Phoenix, AZ 85008, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.476113999999995,
+      "lng": -112.015991,
+      "reviews": 1
+    },
+    {
+      "name": "Red Wok Buffet",
+      "reason": "format",
+      "address": "3434 E Thomas Rd, Phoenix, AZ 85018, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "http://www.redwokbuffet.com/",
+      "lat": 33.4806696,
+      "lng": -112.0069633,
+      "reviews": 3362
+    },
+    {
+      "name": "Golden Coin Chinese Buffet",
+      "reason": "format",
+      "address": "3224 E Thomas Rd, Phoenix, AZ 85018, USA",
+      "primaryType": "chinese_restaurant",
+      "website": null,
+      "lat": 33.48077810000001,
+      "lng": -112.0116826,
+      "reviews": 723
+    },
+    {
+      "name": "Church's Texas Chicken",
+      "reason": "chain",
+      "address": "3150 E Thomas Rd, Phoenix, AZ 85016, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://locations.churchs.com/az/phoenix/3150-e.-thomas-road",
+      "lat": 33.4807414,
+      "lng": -112.0133426,
+      "reviews": 855
+    },
+    {
+      "name": "Gyros",
+      "reason": "low-signal",
+      "address": "4522 N 19th Ave, Phoenix, AZ 85015, USA",
+      "primaryType": "gyro_restaurant",
+      "website": null,
+      "lat": 33.5033813,
+      "lng": -112.1003568,
+      "reviews": 3
+    },
+    {
+      "name": "Donna farnsworth",
+      "reason": "low-signal",
+      "address": "2211 W Camelback Rd, Phoenix, AZ 85015, USA",
+      "primaryType": "italian_restaurant",
+      "website": null,
+      "lat": 33.508390299999995,
+      "lng": -112.1070665,
+      "reviews": null
+    },
+    {
+      "name": "YOYOPOLLO",
+      "reason": "low-signal",
+      "address": "4238 N. 19* Avenue, Phoenix, AZ 85015, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4980445,
+      "lng": -112.10023029999999,
+      "reviews": 5
+    },
+    {
+      "name": "Popeyes Louisiana Kitchen",
+      "reason": "chain",
+      "address": "2203 W Camelback Rd, Phoenix, AZ 85015, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://www.popeyes.com/store-locator/store/restaurant_86646",
+      "lat": 33.5092812,
+      "lng": -112.1066872,
+      "reviews": 2114
+    },
+    {
+      "name": "Luke's Diner",
+      "reason": "format",
+      "address": "2425 W Camelback Rd, Phoenix, AZ 85015, USA",
+      "primaryType": "diner",
+      "website": "https://www.billluke.com/lukes/",
+      "lat": 33.508130099999995,
+      "lng": -112.11092359999999,
+      "reviews": 214
+    },
+    {
+      "name": "Island restaurant llc",
+      "reason": "low-signal",
+      "address": "Phoenix, AZ 85015, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.507994,
+      "lng": -112.10129239999999,
+      "reviews": null
+    },
+    {
+      "name": "Filiberto's Mexican Food",
+      "reason": "chain",
+      "address": "2320 W Camelback Rd, Phoenix, AZ 85015, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://filibertos.com/",
+      "lat": 33.509751,
+      "lng": -112.1089358,
+      "reviews": 2025
+    },
+    {
+      "name": "El Puerto",
+      "reason": "low-signal",
+      "address": "Phoenix, AZ 85015, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.509895,
+      "lng": -112.1040664,
+      "reviews": null
+    },
+    {
+      "name": "ADS Subs & Salads",
+      "reason": "closed",
+      "address": "2040 W Camelback Rd, Phoenix, AZ 85015, USA",
+      "primaryType": "restaurant",
+      "website": "http://azdevservices.org/",
+      "lat": 33.5098165,
+      "lng": -112.10366649999999,
+      "reviews": 5
+    },
+    {
+      "name": "Carniceria Mi Casita",
+      "reason": "format",
+      "address": "4203 N 19th Ave, Phoenix, AZ 85015, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://carniceriamicasitaaz.com/",
+      "lat": 33.496845199999996,
+      "lng": -112.0995717,
+      "reviews": 257
+    },
+    {
+      "name": "Eagle's Parker Az",
+      "reason": "closed",
+      "address": "4700 N Central Ave #102, Phoenix, AZ 85012, USA",
+      "primaryType": "bar",
+      "website": null,
+      "lat": 33.5058487,
+      "lng": -112.07420889999999,
+      "reviews": null
+    },
+    {
+      "name": "Yama Sushi House - Premium AYCE Sushi",
+      "reason": "format",
+      "address": "4750 N Central Ave #150, Phoenix, AZ 85012, USA",
+      "primaryType": "sushi_restaurant",
+      "website": "https://www.yamasushiphoenix.com/",
+      "lat": 33.5071756,
+      "lng": -112.0741068,
+      "reviews": 955
+    },
+    {
+      "name": "Joe's Diner",
+      "reason": "format",
+      "address": "4515 N 7th Ave, Phoenix, AZ 85013, USA",
+      "primaryType": "diner",
+      "website": "https://www.joesdineraz.com/",
+      "lat": 33.5027034,
+      "lng": -112.082056,
+      "reviews": 2420
+    },
+    {
+      "name": "Broken Yolk Cafe",
+      "reason": "place-type",
+      "address": "1928 E Highland Ave SF01, Phoenix, AZ 85016, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://www.thebrokenyolkcafe.com/location/camelback/",
+      "lat": 33.5059153,
+      "lng": -112.04144679999999,
+      "reviews": 1507
+    },
+    {
+      "name": "Graze Craze Charcuterie Boards & Boxes - North East Phoenix, AZ",
+      "reason": "place-type",
+      "address": "4515 N 16th St suite 110, Phoenix, AZ 85016, USA",
+      "primaryType": "food_store",
+      "website": "https://www.grazecraze.com/phoenix-az-northeast",
+      "lat": 33.5027944,
+      "lng": -112.0472178,
+      "reviews": 5
+    },
+    {
+      "name": "Miracle Mile Deli",
+      "reason": "place-type",
+      "address": "4433 N 16th St, Phoenix, AZ 85016, USA",
+      "primaryType": "deli",
+      "website": "http://www.miraclemiledeli.com/",
+      "lat": 33.501743399999995,
+      "lng": -112.0472145,
+      "reviews": 3302
+    },
+    {
+      "name": "Iya Oaxaca!",
+      "reason": "low-signal",
+      "address": "Whole Foods Market, 4701 N 20th St, Phoenix, AZ 85016, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://yaoaxaca.com/",
+      "lat": 33.506346,
+      "lng": -112.037763,
+      "reviews": null
+    },
+    {
+      "name": "Pan-Asian Dishes",
+      "reason": "low-signal",
+      "address": "4701 N 20th St, Phoenix, AZ 85016, USA",
+      "primaryType": "asian_restaurant",
+      "website": null,
+      "lat": 33.506346,
+      "lng": -112.037763,
+      "reviews": null
+    },
+    {
+      "name": "Kura Revolving Sushi Bar",
+      "reason": "chain",
+      "address": "1949 E Camelback Rd #164, Phoenix, AZ 85016, USA",
+      "primaryType": "sushi_restaurant",
+      "website": "https://www.kurasushi.com/locations/phoenix-az-camelback/",
+      "lat": 33.5077995,
+      "lng": -112.03982350000001,
+      "reviews": 1038
+    },
+    {
+      "name": "Duck and Decanter",
+      "reason": "place-type",
+      "address": "1651 E Camelback Rd, Phoenix, AZ 85016, USA",
+      "primaryType": "deli",
+      "website": "https://www.duckanddecanter.com/",
+      "lat": 33.5075806,
+      "lng": -112.0449333,
+      "reviews": 935
+    },
+    {
+      "name": "Greka Pita",
+      "reason": "closed",
+      "address": "1747 E Camelback Rd, Phoenix, AZ 85016, USA",
+      "primaryType": "greek_restaurant",
+      "website": "https://grekapita.com/",
+      "lat": 33.5082172,
+      "lng": -112.0437213,
+      "reviews": 233
+    },
+    {
+      "name": "Nrgize",
+      "reason": "closed",
+      "address": "2077 E Camelback Rd, Phoenix, AZ 85016, USA",
+      "primaryType": "juice_shop",
+      "website": "https://www.nrgizejuice.com/",
+      "lat": 33.5073412,
+      "lng": -112.0370303,
+      "reviews": 2
+    },
+    {
+      "name": "BreezyBerry",
+      "reason": "closed",
+      "address": "2077 E Camelback Rd, Phoenix, AZ 85016, USA",
+      "primaryType": "restaurant",
+      "website": "https://breezyberryllc.com/",
+      "lat": 33.5073973,
+      "lng": -112.0369805,
+      "reviews": 1
+    },
+    {
+      "name": "Tamales HERMAN",
+      "reason": "low-signal",
+      "address": "737 W Broadway Rd, Phoenix, AZ 85041, USA",
+      "primaryType": "restaurant",
+      "website": "https://tamales-de-elote-y-chile-rojo.negocio.site/?utm_source=gmb&utm_medium=referral",
+      "lat": 33.406324,
+      "lng": -112.0835231,
+      "reviews": 3
+    },
+    {
+      "name": "Wings Theory",
+      "reason": "low-signal",
+      "address": "1112 W Maldonado Rd, Phoenix, AZ 85041, USA",
+      "primaryType": "chicken_wings_restaurant",
+      "website": null,
+      "lat": 33.3829633,
+      "lng": -112.0868733,
+      "reviews": 8
+    },
+    {
+      "name": "Lacarretita Hot Dogs",
+      "reason": "low-signal",
+      "address": "695 W Baseline Rd, Phoenix, AZ 85041, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.3773361,
+      "lng": -112.08213289999999,
+      "reviews": null
+    },
+    {
+      "name": "Rancho La Candelaria Mexican Food And Oaxacan Food",
+      "reason": "out-of-area",
+      "address": "3303 W Baseline Rd, Laveen Village, AZ 85339, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://rancholacandelariaaz.com/",
+      "lat": 33.377243,
+      "lng": -112.1312179,
+      "reviews": 385
+    },
+    {
+      "name": "Federico's Mexican Food",
+      "reason": "out-of-area",
+      "address": "7410 S 35th Ave, Laveen Village, AZ 85339, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://www.federicosmexicanfood.com/",
+      "lat": 33.3789745,
+      "lng": -112.1343545,
+      "reviews": 793
+    },
+    {
+      "name": "Bahama Buck's - Laveen",
+      "reason": "place-type",
+      "address": "7450 S 35th Ave, Laveen Village, AZ 85339, USA",
+      "primaryType": "dessert_shop",
+      "website": "https://bahamabucks.com/shop/laveen/",
+      "lat": 33.378595,
+      "lng": -112.13433549999999,
+      "reviews": 861
+    },
+    {
+      "name": "Salad and Go",
+      "reason": "chain",
+      "address": "3505 W Baseline Rd, Laveen Village, AZ 85339, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.saladandgo.com/?olonwp=JjBtp_vMLk25gkYh_bnoiQ",
+      "lat": 33.3772216,
+      "lng": -112.1341277,
+      "reviews": 289
+    },
+    {
+      "name": "Popeyes Louisiana Kitchen",
+      "reason": "chain",
+      "address": "3510 W Baseline Rd, Laveen Village, AZ 85339, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://www.popeyes.com/store-locator/store/restaurant_85128",
+      "lat": 33.378236199999996,
+      "lng": -112.13508929999999,
+      "reviews": 1750
+    },
+    {
+      "name": "Dos Gordos Grill",
+      "reason": "out-of-area",
+      "address": "3552 W Baseline Rd #144, Laveen Village, AZ 85339, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://dosgordosgrill.com/",
+      "lat": 33.3789266,
+      "lng": -112.1355991,
+      "reviews": 788
+    },
+    {
+      "name": "Domino's Pizza",
+      "reason": "chain",
+      "address": "3556 W Baseline Rd Suite D158, Laveen Village, AZ 85339, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://www.dominos.com/en/?utm_source=google&utm_medium=loclist&utm_campaign=localmaps",
+      "lat": 33.379013,
+      "lng": -112.1358825,
+      "reviews": 4
+    },
+    {
+      "name": "Black Bear Diner Laveen",
+      "reason": "format",
+      "address": "3530 W Baseline Rd Laveen, Laveen Village, AZ 85339, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://blackbeardiner.com/location/laveen/",
+      "lat": 33.3782394,
+      "lng": -112.13628849999999,
+      "reviews": 3716
+    },
+    {
+      "name": "Mimi Forno Italiano",
+      "reason": "out-of-area",
+      "address": "3624 W Baseline Rd #174, Laveen Village, AZ 85339, USA",
+      "primaryType": "italian_restaurant",
+      "website": "https://mimifornoitaliano.com/?utm_source=google",
+      "lat": 33.378971799999995,
+      "lng": -112.13693479999999,
+      "reviews": 1403
+    },
+    {
+      "name": "Angry Crab Shack (Laveen)",
+      "reason": "out-of-area",
+      "address": "6360 S 35th Ave #160, Phoenix, AZ 85041, USA",
+      "primaryType": "seafood_restaurant",
+      "website": "https://www.angrycrabshack.com/southern-ave-laveen-az",
+      "lat": 33.3888254,
+      "lng": -112.1343397,
+      "reviews": 521
+    },
+    {
+      "name": "Long Wongs Of Laveen",
+      "reason": "out-of-area",
+      "address": "6260 S 35th Ave, Phoenix, AZ 85041, USA",
+      "primaryType": "chicken_wings_restaurant",
+      "website": "https://www.eatlongwongs.com/",
+      "lat": 33.3893434,
+      "lng": -112.13415289999999,
+      "reviews": 1007
+    },
+    {
+      "name": "Li's Bowl",
+      "reason": "out-of-area",
+      "address": "6260 S 35th Ave #174, Phoenix, AZ 85041, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "http://www.lisbowl.com/",
+      "lat": 33.389415,
+      "lng": -112.13425249999999,
+      "reviews": 417
+    },
+    {
+      "name": "Church's Texas Chicken",
+      "reason": "chain",
+      "address": "6260 S 35th Ave, Phoenix, AZ 85041, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://locations.churchs.com/az/phoenix/6260-s.-35th-avenue",
+      "lat": 33.389403,
+      "lng": -112.13442180000001,
+      "reviews": 404
+    },
+    {
+      "name": "Turkey Leg Krazy",
+      "reason": "out-of-area",
+      "address": "3340 W Southern Ave Suite 131, Phoenix, AZ 85041, USA",
+      "primaryType": "restaurant",
+      "website": "http://turkeylegkrazy.com/",
+      "lat": 33.392431699999996,
+      "lng": -112.1304563,
+      "reviews": 53
+    },
+    {
+      "name": "Brunch House",
+      "reason": "format",
+      "address": "3340 W Southern Ave Suite 131, Phoenix, AZ 85041, USA",
+      "primaryType": "brunch_restaurant",
+      "website": "https://www.brunchhousephx.com/",
+      "lat": 33.392431699999996,
+      "lng": -112.1304563,
+      "reviews": 926
+    },
+    {
+      "name": "Mil amores Mexican Kitchen",
+      "reason": "low-signal",
+      "address": "S 7th St Broadway, Phoenix, AZ 85040, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4069301,
+      "lng": -112.0614516,
+      "reviews": 1
+    },
+    {
+      "name": "Nueva La Bamba Bar & Dancing",
+      "reason": "closed",
+      "address": "1248 E Broadway Rd, Phoenix, AZ 85040, USA",
+      "primaryType": "bar",
+      "website": null,
+      "lat": 33.407137899999995,
+      "lng": -112.05385419999999,
+      "reviews": 41
+    },
+    {
+      "name": "PHILLS 808 AUTO & A/C",
+      "reason": "low-signal",
+      "address": "808 E Broadway Rd, Phoenix, AZ 85040, USA",
+      "primaryType": "car_repair",
+      "website": null,
+      "lat": 33.4068859,
+      "lng": -112.0620211,
+      "reviews": 5
+    },
+    {
+      "name": "Burger King",
+      "reason": "chain",
+      "address": "709 E Broadway Rd R, Phoenix, AZ 85040, USA",
+      "primaryType": "restaurant",
+      "website": "https://burgerking.com/store-locator/store/14737",
+      "lat": 33.4064233,
+      "lng": -112.06407259999999,
+      "reviews": 1182
+    },
+    {
+      "name": "Burger King",
+      "reason": "chain",
+      "address": "665 E Baseline Rd, Phoenix, AZ 85042, USA",
+      "primaryType": "restaurant",
+      "website": "https://burgerking.com/store-locator/store/9867",
+      "lat": 33.3772769,
+      "lng": -112.06628339999999,
+      "reviews": 820
+    },
+    {
+      "name": "Tacos y Antojitos las Güeras",
+      "reason": "low-signal",
+      "address": "330 E Baseline Rd, Phoenix, AZ 85042, USA",
+      "primaryType": "taco_restaurant",
+      "website": null,
+      "lat": 33.3782177,
+      "lng": -112.068632,
+      "reviews": 17
+    },
+    {
+      "name": "The Taco Spot",
+      "reason": "out-of-area",
+      "address": "1635 E Baseline Rd #107, Phoenix, AZ 85042, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://tacospotaz.order.online/store/the-taco-spot-baseline-16th-st-32068598",
+      "lat": 33.3771567,
+      "lng": -112.0456343,
+      "reviews": 233
+    },
+    {
+      "name": "KFC",
+      "reason": "chain",
+      "address": "20 E Baseline Rd, Phoenix, AZ 85042, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://locations.kfc.com/az/phoenix/20-e-baseline-road",
+      "lat": 33.3781786,
+      "lng": -112.07295069999999,
+      "reviews": 927
+    },
+    {
+      "name": "Little Caesars Pizza",
+      "reason": "chain",
+      "address": "6815 S Central Ave, Phoenix, AZ 85042, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://littlecaesars.com/en-us/store/1347",
+      "lat": 33.384326,
+      "lng": -112.072873,
+      "reviews": 900
+    },
+    {
+      "name": "Birrieria La Cawita",
+      "reason": "format",
+      "address": "5643 S 9th St, Phoenix, AZ 85040, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.3940896,
+      "lng": -112.06009809999999,
+      "reviews": 2
+    },
+    {
+      "name": "Panda Express",
+      "reason": "chain",
+      "address": "2434 E Baseline Rd #101, Phoenix, AZ 85042, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.pandaexpress.com/locations/az/phoenix/1002?utm_source=google_gbp&utm_medium=organic&utm_campaign=websitelink",
+      "lat": 33.3784644,
+      "lng": -112.0286751,
+      "reviews": 883
+    },
+    {
+      "name": "Barro's Pizza",
+      "reason": "out-of-area",
+      "address": "2485 E Baseline Rd #158, Phoenix, AZ 85042, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://barrospizza.com/",
+      "lat": 33.3771671,
+      "lng": -112.02791769999999,
+      "reviews": 1927
+    },
+    {
+      "name": "Little Caesars Pizza",
+      "reason": "chain",
+      "address": "2434 E Baseline Rd, Phoenix, AZ 85042, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://littlecaesars.com/en-us/store/1340",
+      "lat": 33.377804999999995,
+      "lng": -112.02963299999999,
+      "reviews": 612
+    },
+    {
+      "name": "Rosati's Pizza",
+      "reason": "out-of-area",
+      "address": "2320 E Baseline Rd, Phoenix, AZ 85042, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://myrosatis.com/baseline/",
+      "lat": 33.3797267,
+      "lng": -112.0309746,
+      "reviews": 509
+    },
+    {
+      "name": "Robeks Fresh Juices & Smoothies",
+      "reason": "place-type",
+      "address": "2320 E Baseline Rd #156, Phoenix, AZ 85042, USA",
+      "primaryType": "juice_shop",
+      "website": "https://robeks.com/locations/az/phoenix/2320-e-baseline-rd/",
+      "lat": 33.379626099999996,
+      "lng": -112.0309637,
+      "reviews": 110
+    },
+    {
+      "name": "Wingstop",
+      "reason": "chain",
+      "address": "2320 E Baseline Rd Ste 152, Phoenix, AZ 85042, USA",
+      "primaryType": "chicken_wings_restaurant",
+      "website": "https://www.wingstop.com/location/wingstop-779-phoenix-az-85042/menu?y_source=1_NTUyMDY3ODQtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 33.379517799999995,
+      "lng": -112.03094469999999,
+      "reviews": 476
+    },
+    {
+      "name": "Chipotle Mexican Grill",
+      "reason": "chain",
+      "address": "2415 E Baseline Rd, Phoenix, AZ 85042, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://locations.chipotle.com/az/phoenix/2415-e-baseline-rd?utm_source=google&utm_medium=yext&utm_campaign=yext_listings?restaurant=1079",
+      "lat": 33.3772407,
+      "lng": -112.02990179999999,
+      "reviews": 942
+    },
+    {
+      "name": "Zoyo Neighborhood Yogurt",
+      "reason": "place-type",
+      "address": "2415 E Baseline Rd, Phoenix, AZ 85042, USA",
+      "primaryType": "dessert_shop",
+      "website": "http://www.zoyogurt.com/",
+      "lat": 33.3771412,
+      "lng": -112.0299475,
+      "reviews": 158
+    },
+    {
+      "name": "Ono Hawaiian BBQ",
+      "reason": "out-of-area",
+      "address": "2415 E Baseline Rd #121, Phoenix, AZ 85042, USA",
+      "primaryType": "hawaiian_restaurant",
+      "website": "http://www.onohawaiianbbq.com/",
+      "lat": 33.3769871,
+      "lng": -112.02994319999999,
+      "reviews": 1343
+    },
+    {
+      "name": "Princess Pita Mediterranean Restaurant -South Phoenix",
+      "reason": "out-of-area",
+      "address": "2170 E Baseline Rd, Phoenix, AZ 85042, USA",
+      "primaryType": "restaurant",
+      "website": "https://princesspitaaz.com/",
+      "lat": 33.3793599,
+      "lng": -112.03257839999999,
+      "reviews": 195
+    },
+    {
+      "name": "Spice Spirit (Phoenix) | Modern Chinese Kitchen",
+      "reason": "out-of-area",
+      "address": "2160 E Baseline Rd Suite 128, Phoenix, AZ 85042, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://spicespiritphoenix.com/?",
+      "lat": 33.379346399999996,
+      "lng": -112.03299469999999,
+      "reviews": 60
+    },
+    {
+      "name": "Phở Noodles Az",
+      "reason": "out-of-area",
+      "address": "2160 E Baseline Rd Ste 120, Phoenix, AZ 85042, USA",
+      "primaryType": "vietnamese_restaurant",
+      "website": "http://phonoodleseastbaseline.com/",
+      "lat": 33.379345,
+      "lng": -112.0332237,
+      "reviews": 218
+    },
+    {
+      "name": "Yogis Grill",
+      "reason": "out-of-area",
+      "address": "2156 E Baseline Rd, Phoenix, AZ 85042, USA",
+      "primaryType": "restaurant",
+      "website": "http://yogisgrill.com/",
+      "lat": 33.3792428,
+      "lng": -112.03333839999999,
+      "reviews": 626
+    },
+    {
+      "name": "Applebee's Grill + Bar",
+      "reason": "out-of-area",
+      "address": "2180 E Baseline Rd, Phoenix, AZ 85042, USA",
+      "primaryType": "restaurant",
+      "website": "https://restaurants.applebees.com/en-us/az/phoenix/2180-e.-baseline-road-98063?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=98063&utm_content=website",
+      "lat": 33.3783527,
+      "lng": -112.0331099,
+      "reviews": 2710
+    },
+    {
+      "name": "Trails End Bar & Grill",
+      "reason": "out-of-area",
+      "address": "6808 S 32nd St, Phoenix, AZ 85042, USA",
+      "primaryType": "bar_and_grill",
+      "website": "http://www.golflegacyresort.com/",
+      "lat": 33.3854044,
+      "lng": -112.0190708,
+      "reviews": 91
+    },
+    {
+      "name": "Plant Stand of Arizona",
+      "reason": "out-of-area",
+      "address": "6420 S 28th St, Phoenix, AZ 85042, USA",
+      "primaryType": "farm",
+      "website": "https://www.plantstandaz.com/",
+      "lat": 33.3883438,
+      "lng": -112.0226105,
+      "reviews": 629
+    },
+    {
+      "name": "TenderFix by Noah Schnapp",
+      "reason": "low-signal",
+      "address": "2090 E Baseline Rd, Phoenix, AZ 85042, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://www.tenderfix.com/info/faq",
+      "lat": 33.3782117,
+      "lng": -112.0354808,
+      "reviews": 2
+    },
+    {
+      "name": "IHOP",
+      "reason": "chain",
+      "address": "2090 E Baseline Rd, Phoenix, AZ 85042, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://restaurants.ihop.com/en-us/az/phoenix/breakfast-2090-east-baseline-rd-3039?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=3039&utm_content=website",
+      "lat": 33.3782117,
+      "lng": -112.0354808,
+      "reviews": 3955
+    },
+    {
+      "name": "Sun Asian Kitchen",
+      "reason": "out-of-area",
+      "address": "2070 E Baseline Rd #112, Phoenix, AZ 85042, USA",
+      "primaryType": "asian_restaurant",
+      "website": "http://www.sunasiankitchen.com/",
+      "lat": 33.378485,
+      "lng": -112.03689480000001,
+      "reviews": 1655
+    },
+    {
+      "name": "Heart N Soul Food Kitchen",
+      "reason": "out-of-area",
+      "address": "2070 E Baseline Rd Suite 110, Phoenix, AZ 85042, USA",
+      "primaryType": "soul_food_restaurant",
+      "website": null,
+      "lat": 33.3783513,
+      "lng": -112.0369712,
+      "reviews": 27
+    },
+    {
+      "name": "Gorditas Durango",
+      "reason": "low-signal",
+      "address": "1618 W Buckeye Rd, Phoenix, AZ 85007, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.437044199999995,
+      "lng": -112.09431359999999,
+      "reviews": 22
+    },
+    {
+      "name": "Soirée Sushi",
+      "reason": "low-signal",
+      "address": "1533 W Grant St, Phoenix, AZ 85007, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4411305,
+      "lng": -112.0930476,
+      "reviews": null
+    },
+    {
+      "name": "Ramos Golden Cafe",
+      "reason": "closed",
+      "address": "515 W Buckeye Rd, Phoenix, AZ 85003, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4367108,
+      "lng": -112.08103129999999,
+      "reviews": 12
+    },
+    {
+      "name": "The Moya’s Best Food Truck",
+      "reason": "format",
+      "address": "515 W Buckeye Rd, Phoenix, AZ 85003, USA",
+      "primaryType": "family_restaurant",
+      "website": null,
+      "lat": 33.4367266,
+      "lng": -112.08102170000001,
+      "reviews": 5
+    },
+    {
+      "name": "Diner 50",
+      "reason": "format",
+      "address": "1002 S 19th Ave, Phoenix, AZ 85009, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": null,
+      "lat": 33.4382217,
+      "lng": -112.10037229999999,
+      "reviews": 1509
+    },
+    {
+      "name": "Pete's Fish & Chips",
+      "reason": "chain",
+      "address": "1111 E Buckeye Rd, Phoenix, AZ 85034, USA",
+      "primaryType": "seafood_restaurant",
+      "website": "http://www.petesfishandchips.com/",
+      "lat": 33.4364984,
+      "lng": -112.0584386,
+      "reviews": 1791
+    },
+    {
+      "name": "Mariscos el pájaro",
+      "reason": "low-signal",
+      "address": "12 street and buckeye, Phoenix, AZ 85034, USA",
+      "primaryType": "seafood_restaurant",
+      "website": null,
+      "lat": 33.4368176,
+      "lng": -112.05651309999999,
+      "reviews": null
+    },
+    {
+      "name": "Gyro Wrap",
+      "reason": "low-signal",
+      "address": "1034 E Buckeye Rd, Phoenix, AZ 85034, USA",
+      "primaryType": "gyro_restaurant",
+      "website": "https://gyrowrap.orderwtfexp.com/",
+      "lat": 33.4371958,
+      "lng": -112.05919010000001,
+      "reviews": 12
+    },
+    {
+      "name": "Wing It",
+      "reason": "low-signal",
+      "address": "Phoenix, AZ 85034, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.437204099999995,
+      "lng": -112.0591934,
+      "reviews": null
+    },
+    {
+      "name": "Maryln's Fish & Chips",
+      "reason": "low-signal",
+      "address": "1024 E Buckeye Rd suite 185, Phoenix, AZ 85034, USA",
+      "primaryType": "restaurant",
+      "website": "https://wtfexp.com/",
+      "lat": 33.4373226,
+      "lng": -112.0595692,
+      "reviews": 7
+    },
+    {
+      "name": "OMG Salad",
+      "reason": "low-signal",
+      "address": "1024 E Buckeye Rd, Phoenix, AZ 85034, USA",
+      "primaryType": "restaurant",
+      "website": "https://omgsalad.orderwtfexp.com/",
+      "lat": 33.4373226,
+      "lng": -112.0595692,
+      "reviews": 3
+    },
+    {
+      "name": "El chaka",
+      "reason": "low-signal",
+      "address": "519 E Buckeye Rd, Phoenix, AZ 85004, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4366141,
+      "lng": -112.0664767,
+      "reviews": 17
+    },
+    {
+      "name": "Kaizen PHX",
+      "reason": "closed",
+      "address": "515 E Grant St #100, Phoenix, AZ 85004, USA",
+      "primaryType": "sushi_restaurant",
+      "website": "https://www.kaizenphx.com/",
+      "lat": 33.439986,
+      "lng": -112.066839,
+      "reviews": 368
+    },
+    {
+      "name": "Zinc Brasserie",
+      "reason": "airport",
+      "address": "4553 Sky Hbr Blvd #4493, Phoenix, AZ 85034, USA",
+      "primaryType": "american_restaurant",
+      "website": null,
+      "lat": 33.4347152,
+      "lng": -111.99417799999999,
+      "reviews": 574
+    },
+    {
+      "name": "Sir Veza's",
+      "reason": "airport",
+      "address": "Phoenix, AZ 85034, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4341992,
+      "lng": -111.9944269,
+      "reviews": 182
+    },
+    {
+      "name": "Cowboy Ciao",
+      "reason": "airport",
+      "address": "3400 Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4372062,
+      "lng": -111.9944292,
+      "reviews": 897
+    },
+    {
+      "name": "The Express by Mark Tarbell",
+      "reason": "airport",
+      "address": "3400 Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4344989,
+      "lng": -111.99671029999999,
+      "reviews": 1
+    },
+    {
+      "name": "Los Taquitos",
+      "reason": "airport",
+      "address": "3603-3965 Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": "tex_mex_restaurant",
+      "website": null,
+      "lat": 33.4342547,
+      "lng": -111.9969333,
+      "reviews": 416
+    },
+    {
+      "name": "The Goods by Mark Tarbell",
+      "reason": "airport",
+      "address": "3400 Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": "american_restaurant",
+      "website": null,
+      "lat": 33.4341996,
+      "lng": -111.9969328,
+      "reviews": 61
+    },
+    {
+      "name": "Humble Pie",
+      "reason": "airport",
+      "address": "3400 Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://www.humblepieusa.com/",
+      "lat": 33.434114099999995,
+      "lng": -111.9969326,
+      "reviews": 697
+    },
+    {
+      "name": "En Route",
+      "reason": "airport",
+      "address": "3400 Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.435698699999996,
+      "lng": -111.9973555,
+      "reviews": 1
+    },
+    {
+      "name": "Tacos Chiwas",
+      "reason": "airport",
+      "address": "3400 Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4369453,
+      "lng": -111.996703,
+      "reviews": 79
+    },
+    {
+      "name": "Matt's Big Breakfast",
+      "reason": "format",
+      "address": "next to, Terminal 4, 4 Sky Hbr Blvd Gate B5, Phoenix, AZ 85034, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "http://mattsbigbreakfast.com/",
+      "lat": 33.4370658,
+      "lng": -111.9967033,
+      "reviews": 1814
+    },
+    {
+      "name": "American Airlines Admirals Club above Gates B5 & B7",
+      "reason": "airport",
+      "address": "gates B5 and B7, Phoenix Sky Harbor International Airport, 3400 Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": "lounge_bar",
+      "website": "https://www.aa.com/i18n/travelInformation/airportAmenities/phx-club.jsp",
+      "lat": 33.4370828,
+      "lng": -111.99670599999999,
+      "reviews": 54
+    },
+    {
+      "name": "USO Phoenix",
+      "reason": "airport",
+      "address": "3800 Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": "lounge_bar",
+      "website": "http://us.uso.org/arizona/",
+      "lat": 33.4352284,
+      "lng": -111.9978273,
+      "reviews": 572
+    },
+    {
+      "name": "El Bravo Sky Harbor",
+      "reason": "airport",
+      "address": "Terminal 4, 3800 Sky Hbr Blvd Concourse B1, Phoenix, AZ 85034, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.4352284,
+      "lng": -111.9978273,
+      "reviews": 30
+    },
+    {
+      "name": "Wildflower",
+      "reason": "airport",
+      "address": "3400 E. Sky Harbor Blvd., Terminal 4, Concourse N2 Space F-30, Phoenix, AZ 85034, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://wildflowerbread.com/location/sky-harbor-airport/",
+      "lat": 33.4354002,
+      "lng": -111.99782689999999,
+      "reviews": 373
+    },
+    {
+      "name": "Focaccia Fiorentina",
+      "reason": "airport",
+      "address": "Terminal 4, 3400 Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4374957,
+      "lng": -111.9967599,
+      "reviews": 11
+    },
+    {
+      "name": "Red Rock Burger",
+      "reason": "airport",
+      "address": "3400 Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": "american_restaurant",
+      "website": null,
+      "lat": 33.4353501,
+      "lng": -111.9979228,
+      "reviews": 54
+    },
+    {
+      "name": "PZA",
+      "reason": "airport",
+      "address": "3400 Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.435748499999995,
+      "lng": -111.99789949999999,
+      "reviews": 6
+    },
+    {
+      "name": "Fazoli's",
+      "reason": "airport",
+      "address": "3400 E Sky Hbr Blvd Terminal 4, Phoenix, AZ 85034, USA",
+      "primaryType": "restaurant",
+      "website": "https://fazolis.com/locations/?utm_source=yext+GMB&utm_medium=local&utm_campaign=website&y_source=1_NTY1MDQ0MzEtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 33.4354519,
+      "lng": -111.99796699999999,
+      "reviews": 112
+    },
+    {
+      "name": "Blue Mesa Taco",
+      "reason": "airport",
+      "address": "3400 Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4353512,
+      "lng": -111.9980102,
+      "reviews": 96
+    },
+    {
+      "name": "Chelsea's Kitchen",
+      "reason": "airport",
+      "address": "4 Sky Hbr Blvd, Phoenix, AZ 85034, USA",
+      "primaryType": "american_restaurant",
+      "website": "http://www.chelseaskitchenaz.com/",
+      "lat": 33.4357463,
+      "lng": -111.99817399999999,
+      "reviews": 767
+    },
+    {
+      "name": "Jimmy's Hot Dogs",
+      "reason": "out-of-area",
+      "address": "4022 E Broadway Rd #101, Phoenix, AZ 85040, USA",
+      "primaryType": "hot_dog_restaurant",
+      "website": null,
+      "lat": 33.407596399999996,
+      "lng": -111.9936755,
+      "reviews": 827
+    },
+    {
+      "name": "Burger King",
+      "reason": "chain",
+      "address": "4002 E Broadway Rd, Phoenix, AZ 85040, USA",
+      "primaryType": "restaurant",
+      "website": "https://burgerking.com/store-locator/store/5241",
+      "lat": 33.4077197,
+      "lng": -111.9949005,
+      "reviews": 895
+    },
+    {
+      "name": "Karate Shop Arizona",
+      "reason": "closed",
+      "address": "4487 E Pueblo Ave, Phoenix, AZ 85040, USA",
+      "primaryType": "sports_school",
+      "website": "https://www.facebook.com/travelle.hobley.31",
+      "lat": 33.407699,
+      "lng": -111.983857,
+      "reviews": null
+    },
+    {
+      "name": "Papa Johns Pizza",
+      "reason": "chain",
+      "address": "4645 E Broadway Rd, Phoenix, AZ 85040, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.papajohns.com/united-states/az/85040/phoenix/4645-e-broadway-rd?utm_source=gmb&utm_medium=organic&y_source=1_MTA2OTIxNjYtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 33.407054099999996,
+      "lng": -111.9811982,
+      "reviews": 304
+    },
+    {
+      "name": "Chipotle Mexican Grill",
+      "reason": "chain",
+      "address": "4705 E Broadway Rd, Phoenix, AZ 85040, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://locations.chipotle.com/az/phoenix/4705-e-broadway-rd?utm_source=google&utm_medium=yext&utm_campaign=yext_listings?restaurant=3170",
+      "lat": 33.4070338,
+      "lng": -111.97966740000001,
+      "reviews": 870
+    },
+    {
+      "name": "ATL Wings",
+      "reason": "out-of-area",
+      "address": "4750 E Broadway Rd Ste 103, Phoenix, AZ 85040, USA",
+      "primaryType": "chicken_wings_restaurant",
+      "website": "http://atlwings.com/",
+      "lat": 33.4077074,
+      "lng": -111.9793468,
+      "reviews": 255
+    },
+    {
+      "name": "Dos Primos Coal Fired Tortas & Tacos",
+      "reason": "out-of-area",
+      "address": "4740 S 48th St Suite 109, Phoenix, AZ 85040, USA",
+      "primaryType": "restaurant",
+      "website": "http://www.dosprimostaco.com/",
+      "lat": 33.4046018,
+      "lng": -111.9791273,
+      "reviews": 134
+    },
+    {
+      "name": "Pita Bistro Mediterranean Kitchen",
+      "reason": "place-type",
+      "address": "4740 S 48th St #111, Phoenix, AZ 85040, USA",
+      "primaryType": "mediterranean_restaurant",
+      "website": "http://eatpb.com/",
+      "lat": 33.404527,
+      "lng": -111.97912330000001,
+      "reviews": 982
+    },
+    {
+      "name": "The Burger Bar, Phoenix",
+      "reason": "out-of-area",
+      "address": "4750 S 48th St Suite 107, Phoenix, AZ 85040, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.toasttab.com/local/order/the-burger-bar-phoenix-4750-south-48th-street-107",
+      "lat": 33.4041943,
+      "lng": -111.9790302,
+      "reviews": 38
+    },
+    {
+      "name": "Tropical Smoothie Cafe",
+      "reason": "place-type",
+      "address": "4750 S 48th St Suite 109, Phoenix, AZ 85040, USA",
+      "primaryType": "restaurant",
+      "website": "https://locations.tropicalsmoothiecafe.com/az/phoenix/4750-south-48th-st?y_source=1_OTMxMjcyOTUtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 33.404135,
+      "lng": -111.97892859999999,
+      "reviews": 99
+    },
+    {
+      "name": "Panda Express",
+      "reason": "chain",
+      "address": "4750 S 48th St SUITE 121, Phoenix, AZ 85040, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.pandaexpress.com/locations/az/phoenix/1553?utm_source=google_gbp&utm_medium=organic&utm_campaign=websitelink",
+      "lat": 33.4041317,
+      "lng": -111.9788792,
+      "reviews": 1255
+    },
+    {
+      "name": "Rodriguez services",
+      "reason": "low-signal",
+      "address": "1103 N 30th Ave, Phoenix, AZ 85009, USA",
+      "primaryType": "taco_restaurant",
+      "website": null,
+      "lat": 33.460151499999995,
+      "lng": -112.12311849999999,
+      "reviews": 1
+    },
+    {
+      "name": "Jefe's Kitchen",
+      "reason": "low-signal",
+      "address": "2948 W McDowell Rd, Phoenix, AZ 85009, USA",
+      "primaryType": "taco_restaurant",
+      "website": null,
+      "lat": 33.4661314,
+      "lng": -112.12341029999999,
+      "reviews": 3
+    },
+    {
+      "name": "Nana’s Tacos",
+      "reason": "low-signal",
+      "address": "3048 W McDowell Rd, Phoenix, AZ 85009, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.466242199999996,
+      "lng": -112.1256262,
+      "reviews": 4
+    },
+    {
+      "name": "Tacos y Mariscos Topolobampo",
+      "reason": "closed",
+      "address": "3108 W McDowell Rd, Phoenix, AZ 85009, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.466242199999996,
+      "lng": -112.1262251,
+      "reviews": 96
+    },
+    {
+      "name": "Birrieria la Birrionda",
+      "reason": "format",
+      "address": "3357 W McDowell Rd, Phoenix, AZ 85009, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.4656643,
+      "lng": -112.13105209999999,
+      "reviews": 9
+    },
+    {
+      "name": "Dos Munchis LLC",
+      "reason": "place-type",
+      "address": "2914 W Polk St, Phoenix, AZ 85009, USA",
+      "primaryType": "dessert_shop",
+      "website": "https://bakesy.shop/b/dos-munchis-llc",
+      "lat": 33.4532703,
+      "lng": -112.12250089999999,
+      "reviews": 23
+    },
+    {
+      "name": "Taconmadres Tacos Y Birria",
+      "reason": "low-signal",
+      "address": "2902 W Van Buren St, Phoenix, AZ 85009, USA",
+      "primaryType": "taco_restaurant",
+      "website": null,
+      "lat": 33.4519879,
+      "lng": -112.1223072,
+      "reviews": 11
+    },
+    {
+      "name": "Lonchera la sabrosita",
+      "reason": "low-signal",
+      "address": "3038 W Van Buren St, Phoenix, AZ 85009, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.451901899999996,
+      "lng": -112.12562059999999,
+      "reviews": 2
+    },
+    {
+      "name": "Wing Street",
+      "reason": "low-signal",
+      "address": "Phoenix, AZ 85035, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4647698,
+      "lng": -112.1523612,
+      "reviews": 2
+    },
+    {
+      "name": "KFC",
+      "reason": "chain",
+      "address": "1525 N 43rd Ave, Phoenix, AZ 85009, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://locations.kfc.com/az/phoenix/1525-n-43rd-ave",
+      "lat": 33.4652338,
+      "lng": -112.1514717,
+      "reviews": 792
+    },
+    {
+      "name": "Wingstop",
+      "reason": "chain",
+      "address": "4239 W McDowell Rd #5, Phoenix, AZ 85009, USA",
+      "primaryType": "chicken_wings_restaurant",
+      "website": "https://www.wingstop.com/location/wingstop-1332-phoenix-az-85009/menu?y_source=1_NTUyMDc3MjctNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 33.4649503,
+      "lng": -112.15081939999999,
+      "reviews": 395
+    },
+    {
+      "name": "Little Caesars Pizza",
+      "reason": "chain",
+      "address": "4340 W McDowell Rd STE 6, Phoenix, AZ 85035, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://littlecaesars.com/en-us/store/1344",
+      "lat": 33.466367999999996,
+      "lng": -112.153596,
+      "reviews": 1083
+    },
+    {
+      "name": "Filiberto's Mexican Food",
+      "reason": "chain",
+      "address": "4326 W McDowell Rd, Phoenix, AZ 85009, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://filibertos.com/",
+      "lat": 33.4663179,
+      "lng": -112.15290739999999,
+      "reviews": 1332
+    },
+    {
+      "name": "NY Slicers Deli",
+      "reason": "place-type",
+      "address": "835 N 43rd Ave, Phoenix, AZ 85009, USA",
+      "primaryType": "deli",
+      "website": "https://nyslicersaz.com/?utm_source=google",
+      "lat": 33.4570778,
+      "lng": -112.1511833,
+      "reviews": 441
+    },
+    {
+      "name": "Tacos Los Primos",
+      "reason": "low-signal",
+      "address": "1902 N 41st Dr, Phoenix, AZ 85009, USA",
+      "primaryType": "family_restaurant",
+      "website": null,
+      "lat": 33.4689067,
+      "lng": -112.1476677,
+      "reviews": null
+    },
+    {
+      "name": "Pepe's Tacos Con Sabor",
+      "reason": "low-signal",
+      "address": "3946 W McDowell Rd, Phoenix, AZ 85009, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4664795,
+      "lng": -112.14506279999999,
+      "reviews": 3
+    },
+    {
+      "name": "Carniceria Mi Guadalajara On the GO llc",
+      "reason": "format",
+      "address": "4234 W Van Buren St, Phoenix, AZ 85009, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.4516646,
+      "lng": -112.1507061,
+      "reviews": null
+    },
+    {
+      "name": "Tacos y Munchies CLN",
+      "reason": "closed",
+      "address": "4228 W Van Buren St, Phoenix, AZ 85009, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4516646,
+      "lng": -112.1507061,
+      "reviews": null
+    },
+    {
+      "name": "Tacos y Mariscos Dos Compas",
+      "reason": "low-signal",
+      "address": "4230W W Van Buren St, Phoenix, AZ 85009, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4516644,
+      "lng": -112.150702,
+      "reviews": 1
+    },
+    {
+      "name": "AzHanna Hibachi",
+      "reason": "out-of-area",
+      "address": "5010 W McDowell Rd, Phoenix, AZ 85035, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.azhannahibachi.org/",
+      "lat": 33.4663748,
+      "lng": -112.166704,
+      "reviews": 61
+    },
+    {
+      "name": "El Pollo Loco",
+      "reason": "out-of-area",
+      "address": "5009 W McDowell Rd, Phoenix, AZ 85035, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://restaurants.elpolloloco.com/az/phoenix/5009-w-mcdowell-rd?utm_source=gmb&utm_medium=yext",
+      "lat": 33.4655644,
+      "lng": -112.1673244,
+      "reviews": 1564
+    },
+    {
+      "name": "Poliberto's",
+      "reason": "out-of-area",
+      "address": "5021 W McDowell Rd, Phoenix, AZ 85035, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://polibertosts.wixsite.com/polibertos",
+      "lat": 33.465498499999995,
+      "lng": -112.1679381,
+      "reviews": 168
+    },
+    {
+      "name": "Famous Burritos",
+      "reason": "out-of-area",
+      "address": "51st Ave, Phoenix, AZ 85043, USA",
+      "primaryType": "burrito_restaurant",
+      "website": null,
+      "lat": 33.436498799999995,
+      "lng": -112.1696348,
+      "reviews": 69
+    },
+    {
+      "name": "SoLuna Eats",
+      "reason": "low-signal",
+      "address": "1325 Grand Ave #6, Phoenix, AZ 85007, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.457493299999996,
+      "lng": -112.0902698,
+      "reviews": 1
+    },
+    {
+      "name": "Mel's Diner",
+      "reason": "format",
+      "address": "1747 Grand Ave, Phoenix, AZ 85007, USA",
+      "primaryType": "diner",
+      "website": "https://mels-diner.shop/",
+      "lat": 33.463374699999996,
+      "lng": -112.0975795,
+      "reviews": 2043
+    },
+    {
+      "name": "Shaka Dogs",
+      "reason": "low-signal",
+      "address": "1028 Grand Ave #5, Phoenix, AZ 85007, USA",
+      "primaryType": "restaurant",
+      "website": "http://www.therimington.com/",
+      "lat": 33.455265,
+      "lng": -112.0867521,
+      "reviews": 14
+    },
+    {
+      "name": "MAD Greens - 7th Ave & McDowell",
+      "reason": "place-type",
+      "address": "1515 N 7th Ave #100, Phoenix, AZ 85007, USA",
+      "primaryType": "restaurant",
+      "website": "http://www.madgreens.com/",
+      "lat": 33.4653618,
+      "lng": -112.08233489999999,
+      "reviews": 778
+    },
+    {
+      "name": "Chipotle Mexican Grill",
+      "reason": "chain",
+      "address": "1515 N 7th Ave, Phoenix, AZ 85007, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://locations.chipotle.com/az/phoenix/1515-n-7th-ave?utm_source=google&utm_medium=yext&utm_campaign=yext_listings?restaurant=1726",
+      "lat": 33.465548399999996,
+      "lng": -112.08238499999999,
+      "reviews": 1263
+    },
+    {
+      "name": "Zoyo Neighborhood Yogurt",
+      "reason": "place-type",
+      "address": "1515 N 7th Ave UNIT 130, Phoenix, AZ 85007, USA",
+      "primaryType": "dessert_shop",
+      "website": "https://www.zoyogurt.com/",
+      "lat": 33.465598299999996,
+      "lng": -112.08238109999999,
+      "reviews": 318
+    },
+    {
+      "name": "Sidewinder",
+      "reason": "airport",
+      "address": "924 E Roosevelt St, Phoenix, AZ 85006, USA",
+      "primaryType": "restaurant",
+      "website": "https://sidewinderphx.com/",
+      "lat": 33.4588612,
+      "lng": -112.0609925,
+      "reviews": 113
+    },
+    {
+      "name": "DOS PINK",
+      "reason": "closed",
+      "address": "719 E Roosevelt St, Phoenix, AZ 85006, USA",
+      "primaryType": "vegan_restaurant",
+      "website": "http://dospink.com/?utm_source=google&utm_medium=wix_google_business_profile&utm_campaign=47394255343757107",
+      "lat": 33.4585733,
+      "lng": -112.0643174,
+      "reviews": 135
+    },
+    {
+      "name": "Big Bacon's",
+      "reason": "airport",
+      "address": "719 E Roosevelt St, Phoenix, AZ 85006, USA",
+      "primaryType": "soul_food_restaurant",
+      "website": "http://www.bigbacons.com/",
+      "lat": 33.4585602,
+      "lng": -112.0643161,
+      "reviews": 219
+    },
+    {
+      "name": "Gallo Blanco",
+      "reason": "airport",
+      "address": "928 E Pierce St, Phoenix, AZ 85006, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://galloblancocafe.com/",
+      "lat": 33.456020599999995,
+      "lng": -112.0608286,
+      "reviews": 1929
+    },
+    {
+      "name": "Coronado Smokehaus",
+      "reason": "place-type",
+      "address": "1809 N 10th St, Phoenix, AZ 85006, USA",
+      "primaryType": "catering_service",
+      "website": "https://coronado-smokehaus.square.site/",
+      "lat": 33.4679698,
+      "lng": -112.06047819999999,
+      "reviews": 2
+    },
+    {
+      "name": "Welcome Diner",
+      "reason": "format",
+      "address": "929 E Pierce St, Phoenix, AZ 85006, USA",
+      "primaryType": "diner",
+      "website": "http://www.welcomediner.net/",
+      "lat": 33.4555423,
+      "lng": -112.0607333,
+      "reviews": 2743
+    },
+    {
+      "name": "Taco Boy's",
+      "reason": "airport",
+      "address": "620 E Roosevelt St, Phoenix, AZ 85004, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://taco-boys.shop/",
+      "lat": 33.458964699999996,
+      "lng": -112.0654835,
+      "reviews": 4060
+    },
+    {
+      "name": "Arizona Wilderness Miracle Mile",
+      "reason": "airport",
+      "address": "1418 E McDowell Rd, Phoenix, AZ 85006, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://azwbeer.com/location/miracle-mile",
+      "lat": 33.465952,
+      "lng": -112.051037,
+      "reviews": 130
+    },
+    {
+      "name": "Tacos Calafia Downtown",
+      "reason": "airport",
+      "address": "825 N 7th St #102, Phoenix, AZ 85006, USA",
+      "primaryType": "taco_restaurant",
+      "website": "https://tacoscalafia.com/",
+      "lat": 33.457306599999995,
+      "lng": -112.06484289999999,
+      "reviews": 2451
+    },
+    {
+      "name": "Guanaquito Restaurant",
+      "reason": "airport",
+      "address": "1438 E McDowell Rd, Phoenix, AZ 85006, USA",
+      "primaryType": "restaurant",
+      "website": "http://www.restauranteelguanaquito.net/",
+      "lat": 33.466012,
+      "lng": -112.050319,
+      "reviews": 1131
+    },
+    {
+      "name": "Killer Whale Sex Club",
+      "reason": "airport",
+      "address": "922 N 6th St, Phoenix, AZ 85004, USA",
+      "primaryType": "bar",
+      "website": "https://www.thosepourbastards.com/killerwhalesexclub/",
+      "lat": 33.4584742,
+      "lng": -112.06653209999999,
+      "reviews": 567
+    },
+    {
+      "name": "RoRo Dogs",
+      "reason": "airport",
+      "address": "610 E Roosevelt St #140, Phoenix, AZ 85004, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.rorodogs.com/",
+      "lat": 33.4588323,
+      "lng": -112.0669597,
+      "reviews": 106
+    },
+    {
+      "name": "Culinary Gangster",
+      "reason": "airport",
+      "address": "513 E Roosevelt St, Phoenix, AZ 85004, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.culinarygangstercity.com/",
+      "lat": 33.4585471,
+      "lng": -112.06695099999999,
+      "reviews": 108
+    },
+    {
+      "name": "Full Speed Chicken & Ribs",
+      "reason": "closed",
+      "address": "513 E Roosevelt St, Phoenix, AZ 85004, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://eatfullspeed.com/",
+      "lat": 33.4585114,
+      "lng": -112.06700459999999,
+      "reviews": 122
+    },
+    {
+      "name": "Pretty Penny",
+      "reason": "airport",
+      "address": "509 E Roosevelt St, Phoenix, AZ 85004, USA",
+      "primaryType": "restaurant",
+      "website": "http://www.intastewetrust.com/",
+      "lat": 33.45853160000001,
+      "lng": -112.0670687,
+      "reviews": 190
+    },
+    {
+      "name": "Turquoise Wine Bar, Roosevelt",
+      "reason": "airport",
+      "address": "504 E Roosevelt St, Phoenix, AZ 85004, USA",
+      "primaryType": "wine_bar",
+      "website": "https://www.turquoisewinebar.com/",
+      "lat": 33.458818,
+      "lng": -112.0672118,
+      "reviews": 50
+    },
+    {
+      "name": "Trapp Haus BBQ",
+      "reason": "closed",
+      "address": "511 E Roosevelt St, Phoenix, AZ 85004, USA",
+      "primaryType": "barbecue_restaurant",
+      "website": "https://trapphausbbq.com/",
+      "lat": 33.4584994,
+      "lng": -112.0670605,
+      "reviews": 1336
+    },
+    {
+      "name": "Legends Never Die",
+      "reason": "airport",
+      "address": "509 E Roosevelt St, Phoenix, AZ 85004, USA",
+      "primaryType": "cocktail_bar",
+      "website": "http://heroesgetremembered.com/",
+      "lat": 33.4584549,
+      "lng": -112.06728149999999,
+      "reviews": 100
+    },
+    {
+      "name": "Taco Chelo Phoenix",
+      "reason": "airport",
+      "address": "501 E Roosevelt St, Phoenix, AZ 85004, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://tacochelo.com/",
+      "lat": 33.4584967,
+      "lng": -112.0673216,
+      "reviews": 2593
+    },
+    {
+      "name": "Aguas Frescas Y Fruitas",
+      "reason": "low-signal",
+      "address": "2622 E McDowell Rd, Phoenix, AZ 85008, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4659309,
+      "lng": -112.02508809999999,
+      "reviews": 3
+    },
+    {
+      "name": "Lika lik’s place",
+      "reason": "low-signal",
+      "address": "N 24th St, Phoenix, AZ 85008, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4651607,
+      "lng": -112.0292626,
+      "reviews": null
+    },
+    {
+      "name": "Lunch 07",
+      "reason": "low-signal",
+      "address": "1420 N 24th St, Phoenix, AZ 85008, USA",
+      "primaryType": "brunch_restaurant",
+      "website": null,
+      "lat": 33.4647362,
+      "lng": -112.0304537,
+      "reviews": null
+    },
+    {
+      "name": "Tamales Sabor Morelos",
+      "reason": "low-signal",
+      "address": "2383 E Brill St, Phoenix, AZ 85006, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.46474750000001,
+      "lng": -112.03056249999999,
+      "reviews": null
+    },
+    {
+      "name": "Rancho Tempe",
+      "reason": "low-signal",
+      "address": "2238 E Willetta St, Phoenix, AZ 85006, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4642409,
+      "lng": -112.0329824,
+      "reviews": null
+    },
+    {
+      "name": "Tortas El Rey",
+      "reason": "place-type",
+      "address": "1811 N 24th St C, Phoenix, AZ 85008, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://tortaselreyphoenix.com/",
+      "lat": 33.4678615,
+      "lng": -112.02965019999999,
+      "reviews": 1569
+    },
+    {
+      "name": "Ricos Raspados Cuernavaca",
+      "reason": "closed",
+      "address": "2929 E McDowell Rd, Phoenix, AZ 85008, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.4655449,
+      "lng": -112.01816989999999,
+      "reviews": 81
+    },
+    {
+      "name": "Warsan Restaurant & Coffee",
+      "reason": "low-signal",
+      "address": "2935 E McDowell Rd, Phoenix, AZ 85008, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.465552599999995,
+      "lng": -112.0180061,
+      "reviews": 18
+    },
+    {
+      "name": "Tacos Sahuayo",
+      "reason": "closed",
+      "address": "2922 E McDowell Rd, Phoenix, AZ 85008, USA",
+      "primaryType": "taco_restaurant",
+      "website": "https://tacossahuayo.com/",
+      "lat": 33.4663927,
+      "lng": -112.0184807,
+      "reviews": 47
+    },
+    {
+      "name": "Authentic Taco Eatery",
+      "reason": "low-signal",
+      "address": "12519005, Phoenix, AZ 85008, USA",
+      "primaryType": "taco_restaurant",
+      "website": null,
+      "lat": 33.465424299999995,
+      "lng": -111.992431,
+      "reviews": 1
+    },
+    {
+      "name": "Taco del valle Lalocura",
+      "reason": "low-signal",
+      "address": "4310 E McDowell Rd, Phoenix, AZ 85008, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.465882799999996,
+      "lng": -111.98938299999999,
+      "reviews": 21
+    },
+    {
+      "name": "Pampanga’s Cuisine",
+      "reason": "low-signal",
+      "address": "4310 E McDowell Rd, Phoenix, AZ 85008, USA",
+      "primaryType": "asian_restaurant",
+      "website": null,
+      "lat": 33.4659056,
+      "lng": -111.9893287,
+      "reviews": 2
+    },
+    {
+      "name": "Sweet Georgia BBQ",
+      "reason": "low-signal",
+      "address": "4310 E McDowell Rd, Phoenix, AZ 85008, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.sweetgeorgiabbq.com/",
+      "lat": 33.4659056,
+      "lng": -111.9893287,
+      "reviews": null
+    },
+    {
+      "name": "Pollo A La Brasa",
+      "reason": "low-signal",
+      "address": "4310 E McDowell Rd, Phoenix, AZ 85008, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4659056,
+      "lng": -111.9893287,
+      "reviews": 13
+    },
+    {
+      "name": "Speedy’s Fish & Chips",
+      "reason": "low-signal",
+      "address": "3860 E McDowell Rd, Phoenix, AZ 85008, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4659282,
+      "lng": -111.9971794,
+      "reviews": 15
+    },
+    {
+      "name": "Red Rim Bistro and Lounge",
+      "reason": "low-signal",
+      "address": "1101 N 44th St, Phoenix, AZ 85008, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://www.marriott.com/en-us/dining/restaurant-bar/phxap-marriott-phoenix-airport/6711065-red-rim-bistro-and-lounge.mi",
+      "lat": 33.460298,
+      "lng": -111.9857394,
+      "reviews": 7
+    },
+    {
+      "name": "Burger Theory Phoenix",
+      "reason": "out-of-area",
+      "address": "4401 E McDowell Rd, Phoenix, AZ 85008, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://burgertheoryphx.com/",
+      "lat": 33.4652157,
+      "lng": -111.986388,
+      "reviews": 1524
+    },
+    {
+      "name": "the van buren",
+      "reason": "out-of-area",
+      "address": "800 N 44th St, Phoenix, AZ 85008, USA",
+      "primaryType": "bar",
+      "website": null,
+      "lat": 33.4564889,
+      "lng": -111.98816699999999,
+      "reviews": null
+    },
+    {
+      "name": "Little Caesars Pizza",
+      "reason": "chain",
+      "address": "4450 E McDowell Rd SUITE 130, Phoenix, AZ 85008, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://littlecaesars.com/en-us/store/10250",
+      "lat": 33.466346,
+      "lng": -111.98480699999999,
+      "reviews": 860
+    },
+    {
+      "name": "RBG Bar and Grill",
+      "reason": "out-of-area",
+      "address": "427 N 44th St, Phoenix, AZ 85008, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://www.choicehotels.com/arizona/phoenix/radisson-hotels/az606/dining?mc=llgoxxpx",
+      "lat": 33.453192099999995,
+      "lng": -111.9864772,
+      "reviews": 257
+    },
+    {
+      "name": "Golden corral",
+      "reason": "chain",
+      "address": "320 N 44th St, Phoenix, AZ 85008, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.451871,
+      "lng": -111.98825699999999,
+      "reviews": 4
+    },
+    {
+      "name": "Kare Ethiopian Restaurant",
+      "reason": "out-of-area",
+      "address": "4729 E McDowell Rd, Phoenix, AZ 85008, USA",
+      "primaryType": "ethiopian_restaurant",
+      "website": "https://kareethiopianrestaurant.com/",
+      "lat": 33.465277199999996,
+      "lng": -111.9793334,
+      "reviews": 438
+    },
+    {
+      "name": "The King of Wings",
+      "reason": "low-signal",
+      "address": "3401 E McDowell Rd, Phoenix, AZ 85008, USA",
+      "primaryType": "american_restaurant",
+      "website": null,
+      "lat": 33.4652959,
+      "lng": -112.0076467,
+      "reviews": 14
+    },
+    {
+      "name": "Taqueria Obregon 34th",
+      "reason": "format",
+      "address": "3401 E McDowell Rd Unit 1, Phoenix, AZ 85008, USA",
+      "primaryType": "taco_restaurant",
+      "website": "http://taqueriaobregonaz.com/",
+      "lat": 33.4652965,
+      "lng": -112.0076467,
+      "reviews": 546
+    },
+    {
+      "name": "THE OTHER BAR",
+      "reason": "closed",
+      "address": "W Weldon Ave, Phoenix, AZ 85017, USA",
+      "primaryType": "bar",
+      "website": null,
+      "lat": 33.4911671,
+      "lng": -112.11775829999999,
+      "reviews": null
+    },
+    {
+      "name": "Taqueria El Chino Arizona",
+      "reason": "format",
+      "address": "2340 Grand Ave, Phoenix, AZ 85017, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://taqueriaelchinoaz.com/",
+      "lat": 33.4900138,
+      "lng": -112.12794339999999,
+      "reviews": 3
+    },
+    {
+      "name": "George Yang's Chinese Cusine",
+      "reason": "low-signal",
+      "address": "Phoenix, AZ 85017, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.49362260000001,
+      "lng": -112.1247858,
+      "reviews": null
+    },
+    {
+      "name": "Hay mi Madre ( cuban food )",
+      "reason": "low-signal",
+      "address": "3039 W Indian School Rd, Phoenix, AZ 85017, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4945221,
+      "lng": -112.1249976,
+      "reviews": 5
+    },
+    {
+      "name": "Wingstop",
+      "reason": "chain",
+      "address": "3155 W Indian School Rd Suite B, Phoenix, AZ 85017, USA",
+      "primaryType": "chicken_wings_restaurant",
+      "website": "https://www.wingstop.com/location/wingstop-1090-phoenix-az-85017/menu?y_source=1_NTUyMDc2NTAtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 33.4943609,
+      "lng": -112.12730909999999,
+      "reviews": 329
+    },
+    {
+      "name": "Asadero",
+      "reason": "low-signal",
+      "address": "Phoenix, AZ 85017, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4930936,
+      "lng": -112.1289256,
+      "reviews": null
+    },
+    {
+      "name": "La Cocina Tortilleria",
+      "reason": "low-signal",
+      "address": "Phoenix, AZ 85017, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.4931864,
+      "lng": -112.1289729,
+      "reviews": 8
+    },
+    {
+      "name": "El Chaka Restaurante",
+      "reason": "low-signal",
+      "address": "3126 W Indian School Rd, Phoenix, AZ 85017, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://elchakarestaurantphx.com/",
+      "lat": 33.4952483,
+      "lng": -112.12716359999999,
+      "reviews": 14
+    },
+    {
+      "name": "El Pitallon #1",
+      "reason": "low-signal",
+      "address": "3940 N 33rd Ave, Phoenix, AZ 85017, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4926615,
+      "lng": -112.1303368,
+      "reviews": 6
+    },
+    {
+      "name": "Dirty's Topless Sports Bar & Grill",
+      "reason": "format",
+      "address": "3308 Grand Ave, Phoenix, AZ 85017, USA",
+      "primaryType": null,
+      "website": "http://dirtystopless.com/",
+      "lat": 33.4922821,
+      "lng": -112.13066289999999,
+      "reviews": 312
+    },
+    {
+      "name": "Little Caesars Pizza",
+      "reason": "chain",
+      "address": "4041 N 33rd Ave, Phoenix, AZ 85017, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://littlecaesars.com/en-us/store/1338",
+      "lat": 33.494375,
+      "lng": -112.129953,
+      "reviews": 700
+    },
+    {
+      "name": "Pito Pizza Rico",
+      "reason": "low-signal",
+      "address": "4339 W Crittenden Ln, Phoenix, AZ 85031, USA",
+      "primaryType": "cuban_restaurant",
+      "website": "https://www.doordash.com/store/40097247?utm_source=mx_share&aw=FAXMY6liIm-BAQjk",
+      "lat": 33.4888267,
+      "lng": -112.1537152,
+      "reviews": 13
+    },
+    {
+      "name": "Barbacoa Hidalgo Los Chefsitos y Mas LLC",
+      "reason": "low-signal",
+      "address": "4547 W Crittenden Ln, Phoenix, AZ 85031, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.489123899999996,
+      "lng": -112.157986,
+      "reviews": 7
+    },
+    {
+      "name": "La Chamba/Office Lounge",
+      "reason": "out-of-area",
+      "address": "3501 N 43rd Ave, Phoenix, AZ 85031, USA",
+      "primaryType": "lounge_bar",
+      "website": null,
+      "lat": 33.4891565,
+      "lng": -112.1513655,
+      "reviews": 187
+    },
+    {
+      "name": "Las gorditas",
+      "reason": "low-signal",
+      "address": "3701 N 43rd Ave, Phoenix, AZ 85031, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.491023399999996,
+      "lng": -112.1512882,
+      "reviews": 3
+    },
+    {
+      "name": "La Pasadita Hot Dogs",
+      "reason": "out-of-area",
+      "address": "3801 N 43rd Ave, Phoenix, AZ 85031, USA",
+      "primaryType": "hot_dog_restaurant",
+      "website": "https://lapasaditahotdogs.com/",
+      "lat": 33.4914174,
+      "lng": -112.1512398,
+      "reviews": 547
+    },
+    {
+      "name": "Buenos Tacos LLC",
+      "reason": "out-of-area",
+      "address": "3821 N 43rd Ave, Phoenix, AZ 85031, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://orderbuenostacosllc.mobile-webview7.com/",
+      "lat": 33.4919969,
+      "lng": -112.1510873,
+      "reviews": 40
+    },
+    {
+      "name": "Salsitas Mexican Food",
+      "reason": "out-of-area",
+      "address": "3827 N 43rd Ave, Phoenix, AZ 85031, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://www.salsitas-mexican.com/",
+      "lat": 33.4923652,
+      "lng": -112.15143119999999,
+      "reviews": 2160
+    },
+    {
+      "name": "Birrieria la poderosa",
+      "reason": "format",
+      "address": "4241 W Cheery Lynn Rd, Phoenix, AZ 85019, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.484804,
+      "lng": -112.1511306,
+      "reviews": 107
+    },
+    {
+      "name": "EcuaPeru LLC",
+      "reason": "low-signal",
+      "address": "4010 N 45th Ave, Phoenix, AZ 85031, USA",
+      "primaryType": "restaurant",
+      "website": "http://www.ecuaperu.com/",
+      "lat": 33.4939508,
+      "lng": -112.15617519999999,
+      "reviews": null
+    },
+    {
+      "name": "Federico's Mexican Food",
+      "reason": "out-of-area",
+      "address": "4014 N 43rd Ave, Phoenix, AZ 85031, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://federicosmexicanfood.com/",
+      "lat": 33.4937732,
+      "lng": -112.15197739999999,
+      "reviews": 606
+    },
+    {
+      "name": "Cayomango",
+      "reason": "low-signal",
+      "address": "4363 W Indian School Rd, Phoenix, AZ 85031, USA",
+      "primaryType": "seafood_restaurant",
+      "website": null,
+      "lat": 33.4945825,
+      "lng": -112.154271,
+      "reviews": 10
+    },
+    {
+      "name": "Antojitos la Rosita Fresita",
+      "reason": "low-signal",
+      "address": "4355 W Indian School Rd unit 4, Phoenix, AZ 85031, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.facebook.com/Antojitos-Rosita-Fresita-Phx-103748255612663",
+      "lat": 33.4945922,
+      "lng": -112.15422240000001,
+      "reviews": 12
+    },
+    {
+      "name": "Cayomango, Seafood & Drinks",
+      "reason": "out-of-area",
+      "address": "4333 W Indian School Rd, Phoenix, AZ 85031, USA",
+      "primaryType": "restaurant",
+      "website": "https://cayomangoaz.com/",
+      "lat": 33.4945026,
+      "lng": -112.1529005,
+      "reviews": 1354
+    },
+    {
+      "name": "Sushilonn",
+      "reason": "low-signal",
+      "address": "4517 W Catalina Dr, Phoenix, AZ 85031, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.sushilonn.com/",
+      "lat": 33.4830809,
+      "lng": -112.1565976,
+      "reviews": 1
+    },
+    {
+      "name": "Taqueria Obregón",
+      "reason": "format",
+      "address": "4225 W Indian School Rd, Phoenix, AZ 85019, USA",
+      "primaryType": "taco_restaurant",
+      "website": "http://taqueriaobregonaz.com/",
+      "lat": 33.4936447,
+      "lng": -112.1502869,
+      "reviews": 31
+    },
+    {
+      "name": "Raspados Eskimo",
+      "reason": "low-signal",
+      "address": "4627 W Indian School Rd, Phoenix, AZ 85031, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4944658,
+      "lng": -112.1592764,
+      "reviews": 10
+    },
+    {
+      "name": "P O J's",
+      "reason": "out-of-area",
+      "address": "4617 W Indian School Rd, Phoenix, AZ 85031, USA",
+      "primaryType": "sports_bar",
+      "website": "http://elpiojobar.com/",
+      "lat": 33.4946408,
+      "lng": -112.15899689999999,
+      "reviews": 212
+    },
+    {
+      "name": "Sushis,mariscos y tacos”LOS PLEBES”",
+      "reason": "low-signal",
+      "address": "4617 W Indian School Rd, Phoenix, AZ 85031, USA",
+      "primaryType": "sushi_restaurant",
+      "website": "https://www.tiktok.com/@tacos.y.suhislos?_r=1&_t=ZT-922yW0BWOGT",
+      "lat": 33.4947349,
+      "lng": -112.15893620000001,
+      "reviews": 2
+    },
+    {
+      "name": "Long Wongs Hot Wings & Pizza",
+      "reason": "out-of-area",
+      "address": "4344 W Indian School Rd #39, Phoenix, AZ 85031, USA",
+      "primaryType": "american_restaurant",
+      "website": "http://www.longwongsphoenix.net/",
+      "lat": 33.4957053,
+      "lng": -112.1541179,
+      "reviews": 954
+    },
+    {
+      "name": "Burger King",
+      "reason": "chain",
+      "address": "4302 W Indian School Rd, Phoenix, AZ 85031, USA",
+      "primaryType": "restaurant",
+      "website": "https://burgerking.com/store-locator/store/5749",
+      "lat": 33.4956123,
+      "lng": -112.1522912,
+      "reviews": 1024
+    },
+    {
+      "name": "MOD Pizza",
+      "reason": "chain",
+      "address": "3350 N 7th Ave Suite 110, Phoenix, AZ 85013, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.modpizza.com/usa/az/phoenix/3350-north-7th-ave?utm_source=google&utm_medium=yext",
+      "lat": 33.4870656,
+      "lng": -112.0843233,
+      "reviews": 421
+    },
+    {
+      "name": "Peter Piper Pizza",
+      "reason": "chain",
+      "address": "3403 N 7th Ave, Phoenix, AZ 85013, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.peterpiperpizza.com/az/phoenix/3403-n-7th-ave?utm_source=Google&utm_medium=Rio",
+      "lat": 33.4884124,
+      "lng": -112.08235309999999,
+      "reviews": 1625
+    },
+    {
+      "name": "Salad and Go",
+      "reason": "chain",
+      "address": "777 W Indian School Rd, Phoenix, AZ 85013, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.saladandgo.com/?olonwp=JjBtp_vMLk25gkYh_bnoiQ",
+      "lat": 33.494583399999996,
+      "lng": -112.08556159999999,
+      "reviews": 737
+    },
+    {
+      "name": "ZENSHI Handcrafted Sushi",
+      "reason": "low-signal",
+      "address": "520 W Osborn Rd, Phoenix, AZ 85013, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.zenshisushi.com/",
+      "lat": 33.4882373,
+      "lng": -112.0815648,
+      "reviews": null
+    },
+    {
+      "name": "Que Huong Dich Vu Tong Hop",
+      "reason": "low-signal",
+      "address": "3424 N 19th Ave #3, Phoenix, AZ 85015, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.488407599999995,
+      "lng": -112.10039569999999,
+      "reviews": 21
+    },
+    {
+      "name": "401 W Clarendon Avenue",
+      "reason": "low-signal",
+      "address": "401 W Clarendon Ave #1, Phoenix, AZ 85013, USA",
+      "primaryType": "american_restaurant",
+      "website": null,
+      "lat": 33.491116,
+      "lng": -112.0795435,
+      "reviews": 1
+    },
+    {
+      "name": "Gogo",
+      "reason": "low-signal",
+      "address": "401 W Clarendon Ave #1, Phoenix, AZ 85013, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.491116,
+      "lng": -112.0795435,
+      "reviews": 1
+    },
+    {
+      "name": "Panda Express",
+      "reason": "chain",
+      "address": "998 E Indian School Rd, Phoenix, AZ 85014, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.pandaexpress.com/locations/az/phoenix/1928?utm_source=google_gbp&utm_medium=organic&utm_campaign=websitelink",
+      "lat": 33.4950952,
+      "lng": -112.06128869999999,
+      "reviews": 2495
+    },
+    {
+      "name": "Reathrey Sekong",
+      "reason": "closed",
+      "address": "1312 E Indian School Rd, Phoenix, AZ 85014, USA",
+      "primaryType": "cambodian_restaurant",
+      "website": null,
+      "lat": 33.4948778,
+      "lng": -112.05358609999999,
+      "reviews": 455
+    },
+    {
+      "name": "Cheetahs Gentlemen's Club",
+      "reason": "format",
+      "address": "4125 N 7th St, Phoenix, AZ 85014, USA",
+      "primaryType": null,
+      "website": "https://www.cheetahsphx.com/",
+      "lat": 33.4957156,
+      "lng": -112.06467169999999,
+      "reviews": 620
+    },
+    {
+      "name": "Orale MI Tacos",
+      "reason": "low-signal",
+      "address": "3345 N 16th St, Phoenix, AZ 85016, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.4870651,
+      "lng": -112.0472337,
+      "reviews": 1
+    },
+    {
+      "name": "Smokin' Amigos Food Truck",
+      "reason": "format",
+      "address": "3345 N 16th St, Phoenix, AZ 85016, USA",
+      "primaryType": "restaurant",
+      "website": "https://smokinamigos.com/",
+      "lat": 33.4871371,
+      "lng": -112.04714799999999,
+      "reviews": 33
+    },
+    {
+      "name": "Shape Nutrition",
+      "reason": "place-type",
+      "address": "3025 N 24th St, Phoenix, AZ 85016, USA",
+      "primaryType": "juice_shop",
+      "website": "https://boards.com/a/i7KwbQ.kcgJqz",
+      "lat": 33.4833131,
+      "lng": -112.0297997,
+      "reviews": 62
+    },
+    {
+      "name": "Burger King",
+      "reason": "chain",
+      "address": "2436 E Indian School Rd, Phoenix, AZ 85016, USA",
+      "primaryType": "restaurant",
+      "website": "https://burgerking.com/store-locator/store/26142",
+      "lat": 33.4951157,
+      "lng": -112.02898169999999,
+      "reviews": 328
+    },
+    {
+      "name": "Charlie Mae's Southern Bistro",
+      "reason": "low-signal",
+      "address": "2319 E Indian School Rd, Phoenix, AZ 85016, USA",
+      "primaryType": "restaurant",
+      "website": "http://charliemaessouthernbistro.com/",
+      "lat": 33.494615599999996,
+      "lng": -112.0313589,
+      "reviews": 24
+    },
+    {
+      "name": "Smoked In Soul BBQ",
+      "reason": "low-signal",
+      "address": "2317 E Indian School Rd, Phoenix, AZ 85016, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.4945982,
+      "lng": -112.031452,
+      "reviews": 17
+    },
+    {
+      "name": "Pizza On 40th",
+      "reason": "out-of-area",
+      "address": "3937 E Indian School Rd, Phoenix, AZ 85015, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "http://www.pizzaon40th.com/?utm_source=local&utm_medium=organic&utm_campaign=gmb",
+      "lat": 33.4940421,
+      "lng": -111.99572719999999,
+      "reviews": 625
+    },
+    {
+      "name": "The Vig",
+      "reason": "out-of-area",
+      "address": "4041 N 40th St, Phoenix, AZ 85018, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.thevig.us/arcadia",
+      "lat": 33.4944067,
+      "lng": -111.9950064,
+      "reviews": 1730
+    },
+    {
+      "name": "The Porch",
+      "reason": "out-of-area",
+      "address": "4017 E Indian School Rd, Phoenix, AZ 85018, USA",
+      "primaryType": "restaurant",
+      "website": "http://www.porchrestaurants.com/",
+      "lat": 33.4947838,
+      "lng": -111.9946483,
+      "reviews": 2024
+    },
+    {
+      "name": "Eat Up Drive In",
+      "reason": "out-of-area",
+      "address": "4001 E Indian School Rd, Phoenix, AZ 85018, USA",
+      "primaryType": "restaurant",
+      "website": "http://www.eatupdrivein.com/",
+      "lat": 33.494845,
+      "lng": -111.99502369999999,
+      "reviews": 435
+    },
+    {
+      "name": "Nook Kitchen Arcadia",
+      "reason": "out-of-area",
+      "address": "4231 E Indian School Rd, Phoenix, AZ 85018, USA",
+      "primaryType": "italian_restaurant",
+      "website": "http://nookkitchen.com/",
+      "lat": 33.4945988,
+      "lng": -111.9898609,
+      "reviews": 544
+    },
+    {
+      "name": "Tee Pee Mexican Food",
+      "reason": "out-of-area",
+      "address": "4144 E Indian School Rd, Phoenix, AZ 85018, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://teepeemexicanfoodaz.com/",
+      "lat": 33.495245499999996,
+      "lng": -111.991597,
+      "reviews": 2429
+    },
+    {
+      "name": "The Attic Ale House",
+      "reason": "out-of-area",
+      "address": "4247 E Indian School Rd #102, Phoenix, AZ 85018, USA",
+      "primaryType": "gastropub",
+      "website": "http://www.theatticalehouseaz.com/",
+      "lat": 33.494645999999996,
+      "lng": -111.9895335,
+      "reviews": 1021
+    },
+    {
+      "name": "Z's Greek",
+      "reason": "out-of-area",
+      "address": "4026 E Indian School Rd, Phoenix, AZ 85018, USA",
+      "primaryType": "greek_restaurant",
+      "website": "http://zsgreek.com/",
+      "lat": 33.495402399999996,
+      "lng": -111.9940599,
+      "reviews": 1593
+    },
+    {
+      "name": "Hash Kitchen",
+      "reason": "place-type",
+      "address": "4315 E Indian School Rd, Phoenix, AZ 85018, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "http://hashkitchen.com/",
+      "lat": 33.494667899999996,
+      "lng": -111.9888833,
+      "reviews": 2120
+    },
+    {
+      "name": "Sogno Toscano Wine Bar & Market",
+      "reason": "out-of-area",
+      "address": "3950 E Indian School Rd, Phoenix, AZ 85018, USA",
+      "primaryType": "wine_bar",
+      "website": "https://sognotoscano.com/st-arcadia-phoenix/",
+      "lat": 33.4953723,
+      "lng": -111.99589739999999,
+      "reviews": 223
+    },
+    {
+      "name": "The Original Arcadia Tavern",
+      "reason": "out-of-area",
+      "address": "3950 E Indian School Rd suite 150, Phoenix, AZ 85018, USA",
+      "primaryType": "bar",
+      "website": "https://arcadiatavernaz.com/",
+      "lat": 33.4953723,
+      "lng": -111.99589739999999,
+      "reviews": 55
+    },
+    {
+      "name": "The Little Woody",
+      "reason": "out-of-area",
+      "address": "4228 E Indian School Rd, Phoenix, AZ 85018, USA",
+      "primaryType": "bar",
+      "website": "https://www.littlewoodyaz.com/",
+      "lat": 33.495161599999996,
+      "lng": -111.98989449999999,
+      "reviews": 898
+    },
+    {
+      "name": "CAVA",
+      "reason": "out-of-area",
+      "address": "4355 E Indian School Rd, Phoenix, AZ 85018, USA",
+      "primaryType": "mediterranean_restaurant",
+      "website": "http://cava.com/",
+      "lat": 33.4946519,
+      "lng": -111.9880979,
+      "reviews": 1232
+    },
+    {
+      "name": "Koibito Poke - Arcadia",
+      "reason": "out-of-area",
+      "address": "4280 E Indian School Rd #108, Phoenix, AZ 85018, USA",
+      "primaryType": "hawaiian_restaurant",
+      "website": "https://koibitopoke.com/locations/arizona-arcadia/",
+      "lat": 33.495567,
+      "lng": -111.98943249999999,
+      "reviews": 292
+    },
+    {
+      "name": "Rubio's Coastal Grill",
+      "reason": "out-of-area",
+      "address": "4340 E Indian School Rd STE 1, Phoenix, AZ 85018, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.rubios.com/restaurant-locations/arizona/phoenix-indian-school-rd",
+      "lat": 33.49518,
+      "lng": -111.98832999999999,
+      "reviews": 649
+    },
+    {
+      "name": "Doughbird",
+      "reason": "out-of-area",
+      "address": "4385 E Indian School Rd, Phoenix, AZ 85018, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://www.eatdoughbird.com/locations/phoenix-az/?utm_source=Google&utm_medium=Organic&utm_campaign=Maps",
+      "lat": 33.494557500000006,
+      "lng": -111.98723299999999,
+      "reviews": 2609
+    },
+    {
+      "name": "sneakybird",
+      "reason": "out-of-area",
+      "address": "4340 E Indian School Rd STE 3, Phoenix, AZ 85018, USA",
+      "primaryType": "restaurant",
+      "website": "https://sneakybird.com/",
+      "lat": 33.4952827,
+      "lng": -111.98829719999999,
+      "reviews": 92
+    },
+    {
+      "name": "Pita Jungle",
+      "reason": "out-of-area",
+      "address": "4340 E Indian School Rd #17, Phoenix, AZ 85018, USA",
+      "primaryType": "mediterranean_restaurant",
+      "website": "https://pitajungle.com/locations/arcadia/?utm_source=google&utm_medium=organic&utm_campaign=Arcadia&utm_content=WebsiteLink",
+      "lat": 33.4957413,
+      "lng": -111.988232,
+      "reviews": 813
+    },
+    {
+      "name": "El Pollo Loco",
+      "reason": "out-of-area",
+      "address": "4102 E Thomas Rd, Phoenix, AZ 85018, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://restaurants.elpolloloco.com/az/phoenix/4102-e-thomas-rd?utm_source=gmb&utm_medium=yext",
+      "lat": 33.4807655,
+      "lng": -111.992684,
+      "reviews": 1258
+    },
+    {
+      "name": "Nekter Juice Bar",
+      "reason": "place-type",
+      "address": "4340 E Indian School Rd, Phoenix, AZ 85018, USA",
+      "primaryType": "juice_shop",
+      "website": "https://locations.nekterjuicebar.com/ll/us/az/phoenix/4340-indian-school-rd-ste-19/",
+      "lat": 33.4957262,
+      "lng": -111.98813399999999,
+      "reviews": 185
+    },
+    {
+      "name": "d'Lite Healthy On The Go",
+      "reason": "place-type",
+      "address": "5502 N 7th Ave, Phoenix, AZ 85013, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://dlitehealthyonthego.com/locations/7th-ave/",
+      "lat": 33.5169253,
+      "lng": -112.0829023,
+      "reviews": 273
+    },
+    {
+      "name": "Chester’s Chicken",
+      "reason": "low-signal",
+      "address": "1607 W Bethany Home Rd, Phoenix, AZ 85015, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://locations.chesterschicken.com/az/phoenix/1607-w-bethany-home-rd",
+      "lat": 33.522007699999996,
+      "lng": -112.09292549999999,
+      "reviews": 12
+    },
+    {
+      "name": "Champagne cafe and lounge",
+      "reason": "low-signal",
+      "address": "4835 N 15th Ave, Phoenix, AZ 85015, USA",
+      "primaryType": "caribbean_restaurant",
+      "website": null,
+      "lat": 33.5088983,
+      "lng": -112.0909437,
+      "reviews": 13
+    },
+    {
+      "name": "Pizza Hut Express",
+      "reason": "chain",
+      "address": "5715 N 19th Ave, Phoenix, AZ 85015, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.pizzahut.com/az/phoenix/5715-n-19th-avenue?utm_medium=organic&utm_source=local&utm_campaign=googlelistings&utm_content=website&utm_term=304712",
+      "lat": 33.5209032,
+      "lng": -112.09737349999999,
+      "reviews": 161
+    },
+    {
+      "name": "Little Caesars Pizza",
+      "reason": "chain",
+      "address": "1615 W Camelback Rd, Phoenix, AZ 85015, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://littlecaesars.com/en-us/store/2837",
+      "lat": 33.508561,
+      "lng": -112.094321,
+      "reviews": 924
+    },
+    {
+      "name": "The Taco Spot - Christown",
+      "reason": "out-of-area",
+      "address": "1703 W Bethany Home Rd E03, Phoenix, AZ 85015, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.522626599999995,
+      "lng": -112.0951638,
+      "reviews": 365
+    },
+    {
+      "name": "Mandarin Super Buffet",
+      "reason": "format",
+      "address": "1501 W Bethany Home Rd, Phoenix, AZ 85015, USA",
+      "primaryType": "buffet_restaurant",
+      "website": "http://www.mandarinsuperbuffet.com/",
+      "lat": 33.5237305,
+      "lng": -112.0916819,
+      "reviews": 4378
+    },
+    {
+      "name": "Ono Hawaiian BBQ",
+      "reason": "out-of-area",
+      "address": "1818 W Montebello Ave #110, Phoenix, AZ 85015, USA",
+      "primaryType": "hawaiian_restaurant",
+      "website": "http://www.onobbq.com/",
+      "lat": 33.52017,
+      "lng": -112.0984541,
+      "reviews": 1280
+    },
+    {
+      "name": "Bamboo Asian Kitchen",
+      "reason": "out-of-area",
+      "address": "1818 W Montebello Ave ste 106 108, Phoenix, AZ 85015, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.bambooasiankitchenaz.com/",
+      "lat": 33.5201588,
+      "lng": -112.0986365,
+      "reviews": 353
+    },
+    {
+      "name": "Naughty Tacos",
+      "reason": "closed",
+      "address": "1818 W Montebello Ave #102, Phoenix, AZ 85015, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://eatnaughtytacos.com/?utm_source=google",
+      "lat": 33.5201637,
+      "lng": -112.0988009,
+      "reviews": 1222
+    },
+    {
+      "name": "Olive Garden Italian Restaurant",
+      "reason": "chain",
+      "address": "1617 W Bethany Home Rd, Phoenix, AZ 85015, USA",
+      "primaryType": "italian_restaurant",
+      "website": "https://www.olivegarden.com/locations/az/phoenix/phoenix-christown-spectrum/6421?cmpid=br:og_ag:ie_ch:loc_ca:OGGMB_sn:gmb_gt:phoenix-az-6421_pl:locurl_rd:1851",
+      "lat": 33.523692800000006,
+      "lng": -112.09414,
+      "reviews": 3407
+    },
+    {
+      "name": "Panda Express",
+      "reason": "chain",
+      "address": "Grand Canyon University, 3300 W Camelback Rd, Phoenix, AZ 85017, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.pandaexpress.com/locations/az/phoenix/2592?utm_source=google_gbp&utm_medium=organic&utm_campaign=websitelink",
+      "lat": 33.5126397,
+      "lng": -112.12709179999999,
+      "reviews": 162
+    },
+    {
+      "name": "Kaminari",
+      "reason": "low-signal",
+      "address": "37 32nd Ave, Phoenix, AZ 85017, USA",
+      "primaryType": "hawaiian_restaurant",
+      "website": null,
+      "lat": 33.512641099999996,
+      "lng": -112.1271689,
+      "reviews": null
+    },
+    {
+      "name": "Long Wong's",
+      "reason": "out-of-area",
+      "address": "5642 N 27th Ave, Phoenix, AZ 85017, USA",
+      "primaryType": "chicken_wings_restaurant",
+      "website": "https://longwongsarizona.com/",
+      "lat": 33.519542,
+      "lng": -112.1173846,
+      "reviews": 636
+    },
+    {
+      "name": "Pita Jungle - GCU",
+      "reason": "out-of-area",
+      "address": "3300 W Camelback Rd, Phoenix, AZ 85017, USA",
+      "primaryType": "mediterranean_restaurant",
+      "website": "https://pitajungle.com/locations/grand-canyon-university/?utm_source=google&utm_medium=organic&utm_campaign=GCU",
+      "lat": 33.512614899999996,
+      "lng": -112.1286786,
+      "reviews": 59
+    },
+    {
+      "name": "Malik Market",
+      "reason": "out-of-area",
+      "address": "5704 N 27th Ave, Phoenix, AZ 85017, USA",
+      "primaryType": "halal_restaurant",
+      "website": "https://asafiir-market-and-restaurant.jimdosite.com/",
+      "lat": 33.5206399,
+      "lng": -112.1172828,
+      "reviews": 106
+    },
+    {
+      "name": "Tacos de Cabeza \"El Chaca\"",
+      "reason": "low-signal",
+      "address": "2746 W Camelback Rd, Phoenix, AZ 85017, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.5098525,
+      "lng": -112.1187511,
+      "reviews": 1
+    },
+    {
+      "name": "Canyon Pizza Co. (GCU ONLY)",
+      "reason": "out-of-area",
+      "address": "3300 W Camelback Rd, Phoenix, AZ 85017, USA",
+      "primaryType": "pizza_restaurant",
+      "website": null,
+      "lat": 33.5131047,
+      "lng": -112.1298769,
+      "reviews": 28
+    },
+    {
+      "name": "Quad Kitchen",
+      "reason": "low-signal",
+      "address": "Phoenix, AZ 85017, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.5112764,
+      "lng": -112.1288235,
+      "reviews": 1
+    },
+    {
+      "name": "Qdoba (GCU ONLY)",
+      "reason": "chain",
+      "address": "3300 W Camelback Rd Building 29, Phoenix, AZ 85017, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 33.5131705,
+      "lng": -112.13027590000002,
+      "reviews": 4
+    },
+    {
+      "name": "Dogos y tacos lupita",
+      "reason": "low-signal",
+      "address": "W Camelback Rd &, N 27th Ave, Phoenix, AZ 85017, USA",
+      "primaryType": "family_restaurant",
+      "website": null,
+      "lat": 33.5094615,
+      "lng": -112.1169894,
+      "reviews": null
+    },
+    {
+      "name": "Obregon Hotdogs & Hamburguesas",
+      "reason": "low-signal",
+      "address": "Phoenix, AZ 85017, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.52322,
+      "lng": -112.116427,
+      "reviews": 2
+    },
+    {
+      "name": "RockStar Hibachi - 5835 N 27th Ave",
+      "reason": "out-of-area",
+      "address": "5835 N 27th Ave, Phoenix, AZ 85017, USA",
+      "primaryType": "japanese_restaurant",
+      "website": "https://rockstarhibachi.com/food-truck",
+      "lat": 33.523532599999996,
+      "lng": -112.11647389999999,
+      "reviews": 52
+    },
+    {
+      "name": "Taqueria y hot dogs lupita´s #2",
+      "reason": "format",
+      "address": "4813 N 27th Ave, Phoenix, AZ 85017, USA",
+      "primaryType": "hot_dog_restaurant",
+      "website": null,
+      "lat": 33.507928199999995,
+      "lng": -112.1165443,
+      "reviews": 12
+    },
+    {
+      "name": "Krispy Krunchy Chicken",
+      "reason": "low-signal",
+      "address": "1201 E Missouri Ave, Phoenix, AZ 85014, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://locations.krispykrunchy.com/az/phoenix/1201-e-missouri-ave",
+      "lat": 33.5161152,
+      "lng": -112.05587469999999,
+      "reviews": 5
+    },
+    {
+      "name": "PROVISION",
+      "reason": "place-type",
+      "address": "711 E Missouri Ave Ste 115, Phoenix, AZ 85014, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://provisioncoffee.com/pages/7th-street-location",
+      "lat": 33.516093999999995,
+      "lng": -112.06422149999999,
+      "reviews": 515
+    },
+    {
+      "name": "Brunch Snob",
+      "reason": "format",
+      "address": "5555 N 7th St STE 108, Phoenix, AZ 85014, USA",
+      "primaryType": "brunch_restaurant",
+      "website": "https://brunchsnobrestaurant.com/brunchsnob-nom6cq?utm_source=google",
+      "lat": 33.5182983,
+      "lng": -112.0636009,
+      "reviews": 487
+    },
+    {
+      "name": "Narahara",
+      "reason": "closed",
+      "address": "5651 N 7th St, Phoenix, AZ 85014, USA",
+      "primaryType": "sushi_restaurant",
+      "website": null,
+      "lat": 33.5198736,
+      "lng": -112.06461519999999,
+      "reviews": null
+    },
+    {
+      "name": "Beef Share",
+      "reason": "closed",
+      "address": "2502 E Camelback Rd, Phoenix, AZ 85016, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.5118643,
+      "lng": -112.0267945,
+      "reviews": null
+    },
+    {
+      "name": "TASTE Phoenix Biltmore",
+      "reason": "low-signal",
+      "address": "2630 E Camelback Rd, Phoenix, AZ 85016, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.5110483,
+      "lng": -112.0248889,
+      "reviews": 3
+    },
+    {
+      "name": "Atrium Bar & Grille",
+      "reason": "low-signal",
+      "address": "2630 E Camelback Rd, Phoenix, AZ 85016, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.hilton.com/en/hotels/phxcbes-embassy-suites-phoenix-biltmore/dining/?SEO_id=GMB--R-PHXCBES-1&y_source=1_MjY1ODk0MDktNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 33.5110052,
+      "lng": -112.024815,
+      "reviews": 1
+    },
+    {
+      "name": "Life Cafe",
+      "reason": "low-signal",
+      "address": "Phoenix, AZ 85016, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 33.5109794,
+      "lng": -112.0261359,
+      "reviews": 1
+    },
+    {
+      "name": "Pomo Pizzeria - Biltmore",
+      "reason": "out-of-area",
+      "address": "2502 E Camelback Rd STE A&B, Phoenix, AZ 85016, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "http://www.pomopizzeria.com/",
+      "lat": 33.5106533,
+      "lng": -112.0265655,
+      "reviews": 625
+    },
+    {
+      "name": "Biltmore Fashion Park",
+      "reason": "place-type",
+      "address": "2502 E Camelback Rd, Phoenix, AZ 85016, USA",
+      "primaryType": "shopping_mall",
+      "website": "https://www.shopbiltmore.com/?utm_source=google&utm_medium=onlinesearch&utm_content=gmp_website_button&utm_campaign=yext",
+      "lat": 33.510873499999995,
+      "lng": -112.0279366,
+      "reviews": 4414
+    },
+    {
+      "name": "Breakfast Club",
+      "reason": "format",
+      "address": "2502 E Camelback Rd, Phoenix, AZ 85016, USA",
+      "primaryType": "restaurant",
+      "website": "http://www.breakfastclub.us/",
+      "lat": 33.5104317,
+      "lng": -112.0262496,
+      "reviews": 655
+    },
+    {
+      "name": "The Capital Grille",
+      "reason": "out-of-area",
+      "address": "2502 E Camelback Rd, Phoenix, AZ 85016, USA",
+      "primaryType": "fine_dining_restaurant",
+      "website": "https://www.thecapitalgrille.com/locations/az/phoenix/phoenix/8017?cmpid=br:tcg_ag:ie_ch:loc_ca:TCGGMB_sn:gmb_gt:phoenix-az-8017_pl:locurl_rd:1013",
+      "lat": 33.510225999999996,
+      "lng": -112.02707199999999,
+      "reviews": 1963
+    },
+    {
+      "name": "True Food Kitchen",
+      "reason": "out-of-area",
+      "address": "2502 E Camelback Rd Suite 135, Phoenix, AZ 85016, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.truefoodkitchen.com/locations/phoenix/",
+      "lat": 33.5103589,
+      "lng": -112.02768999999999,
+      "reviews": 2784
+    },
+    {
+      "name": "Hillstone Restaurant",
+      "reason": "out-of-area",
+      "address": "2650 E Camelback Rd, Phoenix, AZ 85016, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://hillstone.com/",
+      "lat": 33.5101041,
+      "lng": -112.0243096,
+      "reviews": 2733
+    },
+    {
+      "name": "Zinburger",
+      "reason": "out-of-area",
+      "address": "2502 E Camelback Rd #127, Phoenix, AZ 85016, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://www.zinburgeraz.com/locations/phoenix-az/?utm_source=Google&utm_medium=Organic&utm_campaign=Maps",
+      "lat": 33.5103477,
+      "lng": -112.02812189999999,
+      "reviews": 1481
+    },
+    {
+      "name": "Blanco Cocina + Cantina",
+      "reason": "out-of-area",
+      "address": "2502 E Camelback Rd #122, Phoenix, AZ 85016, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.blancotacostequila.com/locations/phoenix-az-biltmore-fashion-park/?utm_source=Google&utm_medium=Organic&utm_campaign=Maps",
+      "lat": 33.5103867,
+      "lng": -112.0284712,
+      "reviews": 2260
+    },
+    {
+      "name": "BISUTORO Sushi Bar Grill",
+      "reason": "out-of-area",
+      "address": "2502 E Camelback Rd #119, Phoenix, AZ 85016, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.bisutorosushi.com/",
+      "lat": 33.510238699999995,
+      "lng": -112.0289739,
+      "reviews": 276
+    },
+    {
+      "name": "Adobe Bar & Grille",
+      "reason": "out-of-area",
+      "address": "2400 Biltmore Estates Dr, Phoenix, AZ 85016, USA",
+      "primaryType": "restaurant",
+      "website": "https://azbiltmoregc.com/adobe-bar-grille/",
+      "lat": 33.5217974,
+      "lng": -112.0231829,
+      "reviews": 165
+    },
+    {
+      "name": "The Cheesecake Factory",
+      "reason": "out-of-area",
+      "address": "2402 E Camelback Rd Space #101, Phoenix, AZ 85016, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://locations.thecheesecakefactory.com/az/phoenix-42.html?utm_source=Google&utm_medium=Maps&utm_campaign=Google+Places",
+      "lat": 33.5103199,
+      "lng": -112.0296123,
+      "reviews": 4873
+    },
+    {
+      "name": "Christopher’s at Wrigley Mansion",
+      "reason": "out-of-area",
+      "address": "2501 E Telawa Trail, Phoenix, AZ 85016, USA",
+      "primaryType": "restaurant",
+      "website": "http://wrigleymansion.com/christophers/",
+      "lat": 33.5227086,
+      "lng": -112.0266779,
+      "reviews": 207
+    },
+    {
+      "name": "Upstairs At Flint",
+      "reason": "closed",
+      "address": "2425 E Camelback Rd, Phoenix, AZ 85016, USA",
+      "primaryType": "bar",
+      "website": "https://www.flintbybaltaire.com/upstairs-at-flint",
+      "lat": 33.5089276,
+      "lng": -112.0280164,
+      "reviews": 53
+    }
+  ]
+}
