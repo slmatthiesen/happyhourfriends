@@ -35,6 +35,17 @@ const DAY_TOKENS: Array<{ iso: number; re: RegExp }> = [
   { iso: 7, re: /\bsundays?\b/i },
 ];
 
+/** Shared lexicon predicates — also consumed by the audit anomaly rules so persist-time
+ *  cleanup and stored-data auditing agree on what "looks like food" / "names a day" means. */
+export function isFoodTextMislabeledAsDrink(text: string): boolean {
+  return FOOD_TOKENS.test(text) && !DRINK_TOKENS.test(text);
+}
+
+/** ISO day numbers (1=Mon…7=Sun) explicitly named in the text. */
+export function namedDaysIn(text: string): number[] {
+  return DAY_TOKENS.filter((d) => d.re.test(text)).map((d) => d.iso);
+}
+
 export interface SanitizeResult {
   offerings: ExtractedOffering[];
   /** Human-readable notes about what was changed or looks off — for audit/report output. */
@@ -68,7 +79,7 @@ export function sanitizeOfferings(
 
     // 2. Re-kind obvious food mislabeled as drink.
     const text = offeringText(o);
-    if (o.kind === "drink" && FOOD_TOKENS.test(text) && !DRINK_TOKENS.test(text)) {
+    if (o.kind === "drink" && isFoodTextMislabeledAsDrink(text)) {
       next = {
         ...o,
         kind: "food",
@@ -78,7 +89,7 @@ export function sanitizeOfferings(
     }
 
     // 3. Day-specific item whose named day(s) don't equal the window's days — warn only.
-    const namedDays = DAY_TOKENS.filter((d) => d.re.test(text)).map((d) => d.iso);
+    const namedDays = namedDaysIn(text);
     if (namedDays.length > 0) {
       const windowMatchesNamed =
         windowDays.length === namedDays.length && namedDays.every((d) => windowDays.includes(d));
