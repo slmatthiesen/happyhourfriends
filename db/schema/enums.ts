@@ -147,6 +147,8 @@ export const aiStage = pgEnum("ai_stage", [
   "reverify_cron",
   "seed",
   "interpret",
+  // Vision relevance gate on uploaded evidence images (post-SafeSearch).
+  "evidence_check",
 ]);
 
 // ── Community flags ───────────────────────────────────────────────────────────
