@@ -1,0 +1,441 @@
+[
+  {
+    "name": "Crazy Train Eatery",
+    "slug": "crazy-train-eatery",
+    "website": "https://www.thegrainshed.coop/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: https://www.thegrainshed.coop/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "13:00:00",
+        "endTime": "15:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://www.thegrainshed.coop/",
+        "notes": null,
+        "offeringsKey": ""
+      }
+    ]
+  },
+  {
+    "name": "Française Spokane | French",
+    "slug": "francaise-spokane-french",
+    "website": "http://francaisespokane.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: http://francaisespokane.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "15:00:00",
+        "endTime": "17:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "http://francaisespokane.com/",
+        "notes": null,
+        "offeringsKey": ""
+      }
+    ]
+  },
+  {
+    "name": "Happiness Chinese Restaurant",
+    "slug": "happiness-chinese-restaurant",
+    "website": "https://happinesswatogo.com/",
+    "flags": [
+      {
+        "code": "assumed_days_avoidable",
+        "severity": "auto_fixable",
+        "evidence": "https://www.happinesswatogo.com/07am5tla/happiness-chinese-restaurant-spokane-99202/menu — days assumed Mon–Fri (none stated)"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "startTime": "11:00:00",
+        "endTime": "14:30:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://www.happinesswatogo.com/07am5tla/happiness-chinese-restaurant-spokane-99202/menu",
+        "notes": "days assumed Mon–Fri (none stated)",
+        "offeringsKey": "$10.95 fried won ton wrappers|1095;$12.95|1295;$12.95|1295;$7.55 fried shrimp|755;$8.55 fried buns|855;$8.55|855;$8.95|895;$9.95 fried dumpling|995"
+      }
+    ]
+  },
+  {
+    "name": "Heritage Bar & Kitchen",
+    "slug": "heritage-bar-kitchen",
+    "website": "https://www.heritagebarandkitchen.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: https://www.heritagebarandkitchen.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "startTime": "15:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://www.heritagebarandkitchen.com/",
+        "notes": null,
+        "offeringsKey": ""
+      }
+    ]
+  },
+  {
+    "name": "Indicana | Flavors of India X Mexico",
+    "slug": "indicana-flavors-of-india-x-mexico",
+    "website": "https://indicanaeats.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: https://indicanaeats.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "11:00:00",
+        "endTime": "14:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://indicanaeats.com/",
+        "notes": null,
+        "offeringsKey": ""
+      }
+    ]
+  },
+  {
+    "name": "Jack & Dan's Bar & Grill",
+    "slug": "jack-dan-s-bar-grill",
+    "website": "http://www.jackanddans.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: http://www.jackanddans.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "10:00:00",
+        "endTime": null,
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "http://www.jackanddans.com/",
+        "notes": null,
+        "offeringsKey": ""
+      }
+    ]
+  },
+  {
+    "name": "Nectar Wine and Beer",
+    "slug": "nectar-wine-and-beer",
+    "website": "http://nectarwineandbeer.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: http://nectarwineandbeer.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "startTime": null,
+        "endTime": "17:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "http://nectarwineandbeer.com/",
+        "notes": null,
+        "offeringsKey": "$1 off all appetizers|"
+      }
+    ]
+  },
+  {
+    "name": "Pacific to Palouse Wine Bar",
+    "slug": "pacific-to-palouse-wine-bar",
+    "website": "http://pacifictopalouse.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: http://pacifictopalouse.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "15:00:00",
+        "endTime": "17:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "http://pacifictopalouse.com/",
+        "notes": null,
+        "offeringsKey": ""
+      }
+    ]
+  },
+  {
+    "name": "PJ’s Pub",
+    "slug": "pj-s-pub",
+    "website": "https://www.pjspubspokane.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: https://www.pjspubspokane.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "startTime": "15:00:00",
+        "endTime": "19:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://www.pjspubspokane.com/",
+        "notes": null,
+        "offeringsKey": ""
+      }
+    ]
+  },
+  {
+    "name": "Pure Northwest",
+    "slug": "pure-northwest",
+    "website": "https://purepacificnorthwest.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: https://purepacificnorthwest.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "15:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://purepacificnorthwest.com/",
+        "notes": null,
+        "offeringsKey": ""
+      }
+    ]
+  },
+  {
+    "name": "Republic Pi",
+    "slug": "republic-pi",
+    "website": "http://republicpi.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: http://republicpi.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "14:00:00",
+        "endTime": "17:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "http://republicpi.com/",
+        "notes": null,
+        "offeringsKey": ""
+      }
+    ]
+  },
+  {
+    "name": "South Perry Lantern",
+    "slug": "south-perry-lantern",
+    "website": "https://www.lanternspokane.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: https://www.lanternspokane.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "14:00:00",
+        "endTime": "17:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://www.lanternspokane.com/",
+        "notes": null,
+        "offeringsKey": "$1 off drafts|;$4 tall boys|400;$5 wells|500"
+      }
+    ]
+  },
+  {
+    "name": "The Backyard Public House",
+    "slug": "the-backyard-public-house",
+    "website": "https://backyardspokane.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: https://backyardspokane.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "14:00:00",
+        "endTime": "17:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://backyardspokane.com/",
+        "notes": null,
+        "offeringsKey": "$1 off draft beers|;$10 all shareables happy hour|1000;$10 backyard burger tuesday happy|1000;$12 riverside tacos|1200;$14 wing central|1400;$2 off tequila pours|;$2 off whiskey pours and cocktails|;$5 wells|500"
+      }
+    ]
+  },
+  {
+    "name": "ZOLA",
+    "slug": "zola",
+    "website": "http://www.zolainspokane.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: http://www.zolainspokane.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "startTime": "16:00:00",
+        "endTime": "19:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "http://www.zolainspokane.com/",
+        "notes": null,
+        "offeringsKey": ""
+      }
+    ]
+  }
+]

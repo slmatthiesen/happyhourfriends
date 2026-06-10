@@ -1,0 +1,127 @@
+[
+  {
+    "venueId": "22ee8fa5-b15d-4df0-85d6-175f44f3447f",
+    "name": "Giuseppe's Cucina Italiana",
+    "hhPage": "https://www.giuseppesrestaurant.com/special-announcement",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 2,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "No happy hour schedule found on Giuseppe's Cucina Italiana's provided pages (special announcement, menus, about, and homepage). Pages contain menu items with regular pricing, restaurant hours, and company history, but no recurring discounted offers or happy hour windows.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 9978,
+        "outputTokens": 122
+      },
+      "costCents": 2,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "e825c7f9-2e6c-4a6b-9c04-8eba0fa036ad",
+    "name": "Giuseppe’s Express",
+    "hhPage": "https://www.giuseppesrestaurant.com/special-announcement",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 2,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "No happy hour or recurring discounted drink/food specials found on Giuseppe's Express website pages.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 9974,
+        "outputTokens": 88
+      },
+      "costCents": 2,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "11bd09f8-58c0-4eeb-b807-dc39f6a52a27",
+    "name": "Marisol at The Cliffs",
+    "hhPage": "https://cliffshotelandspa.com/specials/",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 3,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "No recurring happy hour schedule found on Marisol at The Cliffs website. Pages reviewed include specials page (hotel packages only), dinner menu, bar menu, and dessert menu—none contain recurring day+time-based drink/food discounts or happy hour windows.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 29332,
+        "outputTokens": 126
+      },
+      "costCents": 3,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "627cedc6-3831-4a92-8bcd-2651ff036d94",
+    "name": "Mason Bar & Kitchen",
+    "hhPage": "https://www.masonbarag.com/cocktails/barrel-aged-cocktails/",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 3,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "No recurring happy hour or time-limited discount window found. All pages show regular menu pricing with no advertised happy hour, early-bird special, or day-specific discount window.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 25595,
+        "outputTokens": 105
+      },
+      "costCents": 3,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "249f45c1-a13d-4875-8a5b-9c3fecf5e841",
+    "name": "Zorro's Cafe & Cantina",
+    "hhPage": "https://zorroscafe.com/wp-content/uploads/2023/05/drinks-wide.jpg",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 3,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "No happy hour schedule found on any provided pages (homepage, breakfast/lunch menu, dinner menu, doggie menu, catering menu, or drink images).",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 23804,
+        "outputTokens": 101
+      },
+      "costCents": 3,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  }
+]

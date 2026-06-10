@@ -1,0 +1,283 @@
+[
+  {
+    "venueId": "050b7800-dc37-4ff5-b32e-ce692cd67d51",
+    "name": "7 Seas Brewery and Taproom",
+    "hhPage": "https://www.7seasbrewing.com/4th-of-july-2025-special-hours/",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 2,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "No recurring happy hour schedule found. Pages contain event announcements, beer descriptions, and one-time special holiday hours for 4th of July 2025, but no recurring discounted happy hour windows.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 12296,
+        "outputTokens": 110
+      },
+      "costCents": 2,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "517abc8e-293d-4aef-ae8f-998b0ef3aa89",
+    "name": "BJ's Restaurant & Brewhouse",
+    "hhPage": "https://www.bjsrestaurants.com/catering-menu/boxed-variety/specialty-entree-box",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "skip",
+    "costCents": 1,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "render-escalation: no readable content on the confirmed HH page",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 4111,
+        "outputTokens": 92
+      },
+      "costCents": 1,
+      "promptHash": "a5e339e67b91c717",
+      "model": "render-escalation-skip"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "ec8dd737-3038-48a6-8253-398551456eba",
+    "name": "Cooper's Food and Drink",
+    "hhPage": "https://coopersfoodanddrink.com/menu/hemingway-special/",
+    "reason": "unread_hh_page",
+    "storedActive": [
+      {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": "11:00:00",
+        "end": "17:00:00",
+        "offerings": 7,
+        "src": "https://coopersfoodanddrink.com/"
+      },
+      {
+        "days": [
+          6,
+          7
+        ],
+        "start": "11:00:00",
+        "end": "17:00:00",
+        "offerings": 4,
+        "src": "https://coopersfoodanddrink.com/"
+      }
+    ],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 2,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "No happy hour schedule found. Pages provided contain individual menu item details and food photography only; no recurring discount windows or specials are documented.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 11117,
+        "outputTokens": 96
+      },
+      "costCents": 2,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": [
+      "9537b830-2a91-4adf-af42-88c1d49b0a67",
+      "794876c9-922d-49ed-bf37-502133abb49a"
+    ]
+  },
+  {
+    "venueId": "83599c19-4eac-4c09-a938-8ac34c83051e",
+    "name": "Hans's Place",
+    "hhPage": "https://hanssplacetacoma.com/wp-content/uploads/2025/06/Drink_Menu_July2025.pdf",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 2,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "No happy hour schedule found. Website and drink menu image show signature cocktails and food offerings, but no recurring happy hour window, times, or discounted pricing structure.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 9961,
+        "outputTokens": 102
+      },
+      "costCents": 2,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "f9d4388c-ba51-4466-a68c-987e7115aa09",
+    "name": "Lechon Loco",
+    "hhPage": "https://lechonlocorestaurant.com/specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 1,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "Specials page lists only past/historical happy hour dates (June 10–12), not recurring weekly schedule; no current recurring happy hour identified.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 7443,
+        "outputTokens": 99
+      },
+      "costCents": 1,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "921c83c1-c1ad-4e1d-97c0-06e283ddb59e",
+    "name": "Peaks & Pints Tacoma Craft Beer Bar, Bottle Shop & Restaurant",
+    "hhPage": "https://www.peaksandpints.com/specials/beer-flight/",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 2,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "No recurring happy-hour schedule found. Pages show beer flights, events, and specials but no time-windowed recurring discounts.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 14355,
+        "outputTokens": 96
+      },
+      "costCents": 2,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "e3a8f8f6-a5f1-42a1-a884-2d37e03a01b2",
+    "name": "Sapp Sapp Thai Noodle House",
+    "hhPage": "https://sappsapptacoma.com/specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "skip",
+    "costCents": 1,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "render-escalation: no readable content on the confirmed HH page",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 2069,
+        "outputTokens": 86
+      },
+      "costCents": 1,
+      "promptHash": "a5e339e67b91c717",
+      "model": "render-escalation-skip"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "36fccf79-e2a8-4d10-bba9-853a6fb993c5",
+    "name": "Twisted Fork Saloon",
+    "hhPage": "https://twistedfs.com/tacoma-point-ruston-copperline-building-suite-131-twisted-fork-saloon-happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [
+      {
+        "days": [
+          1
+        ],
+        "start": "14:00:00",
+        "end": "22:00:00",
+        "offerings": 8,
+        "src": "https://twistedfs.com/tacoma-point-ruston-copperline-building-suite-131-twisted-fork-saloon-happy-hours-specials"
+      },
+      {
+        "days": [
+          2
+        ],
+        "start": "14:00:00",
+        "end": "23:00:00",
+        "offerings": 8,
+        "src": "https://twistedfs.com/tacoma-point-ruston-copperline-building-suite-131-twisted-fork-saloon-happy-hours-specials"
+      },
+      {
+        "days": [
+          6
+        ],
+        "start": "12:00:00",
+        "end": "23:00:00",
+        "offerings": 7,
+        "src": "https://twistedfs.com/tacoma-point-ruston-copperline-building-suite-131-twisted-fork-saloon-happy-hours-specials"
+      },
+      {
+        "days": [
+          7
+        ],
+        "start": "12:00:00",
+        "end": "22:00:00",
+        "offerings": 7,
+        "src": "https://twistedfs.com/tacoma-point-ruston-copperline-building-suite-131-twisted-fork-saloon-happy-hours-specials"
+      },
+      {
+        "days": [
+          3,
+          4,
+          5
+        ],
+        "start": "14:00:00",
+        "end": "23:00:00",
+        "offerings": 7,
+        "src": "https://twistedfs.com/tacoma-point-ruston-copperline-building-suite-131-twisted-fork-saloon-happy-hours-specials"
+      }
+    ],
+    "found": [],
+    "highConfidence": false,
+    "route": "skip",
+    "costCents": 0,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "render-escalation: no readable content on the confirmed HH page",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      },
+      "costCents": 0,
+      "promptHash": "a5e339e67b91c717",
+      "model": "render-escalation-skip"
+    },
+    "deactivateIds": [
+      "d1c28b9d-fed2-4117-90a4-f74fc8ab9bf5",
+      "50959e25-9c01-4ee9-a7ff-69b44a727f5a",
+      "c637f35a-6b93-4ac5-b430-320743447805",
+      "8d86a994-369a-4b64-9f4e-1cca6e2365d2",
+      "9b4b9a43-83ff-4d05-89a7-4fbb47a6f6ca"
+    ]
+  }
+]
