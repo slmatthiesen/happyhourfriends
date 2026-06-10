@@ -33,11 +33,11 @@ async function main() {
         venue_id: string; name: string; slug: string; city_slug: string;
         website_url: string | null; hours_json: VenueAuditInput["hoursJson"];
         resolution: string; flags: AnomalyFlag[]; agent_verdict: string | null;
-        audit_input: VenueAuditInput | null;
+        operator_note: string | null; audit_input: VenueAuditInput | null;
       }[]
     >`
       SELECT da.venue_id, v.name, v.slug, c.slug AS city_slug, v.website_url, v.hours_json,
-             da.resolution, da.flags, da.agent_verdict, da.audit_input
+             da.resolution, da.flags, da.agent_verdict, da.operator_note, da.audit_input
       FROM data_audit da
       JOIN venues v ON v.id = da.venue_id
       JOIN cities c ON c.id = v.city_id
@@ -88,7 +88,9 @@ async function main() {
         venue: r.name,
         slug: r.slug,
         label: r.resolution === "operator_kept" ? "kept" : "hidden",
-        note: r.agent_verdict,
+        // The further-review sourcing note (how we got/missed this info) outranks the
+        // in-session agent verdict — it's the operator's codify-this observation.
+        note: r.operator_note ?? r.agent_verdict,
         flagsAtVerdict: r.flags ?? [],
         hiddenWindows,
         input,
