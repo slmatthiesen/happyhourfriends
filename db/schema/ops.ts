@@ -120,6 +120,9 @@ export const dataAudit = pgTable(
     flags: jsonb("flags").notNull().default([]),
     agentVerdict: text("agent_verdict"),
     resolution: text("resolution").notNull().default("scanned"),
+    /** Operator's free-text note when parking a venue in the /admin/flags "Further
+     *  review" lane; kept after resolution as the dig-in record. */
+    operatorNote: text("operator_note"),
     fixApplied: boolean("fix_applied").notNull().default(false),
     /** The exact rule inputs ({websiteUrl, hoursJson, windows}) at scan time. Operator
      *  keep/hide verdicts label THESE inputs — a hide then mutates the live rows, so
