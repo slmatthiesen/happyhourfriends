@@ -105,11 +105,12 @@ non-stubs-only — **529 venues named across ~558 scanned, ~$2.79** (scottsdale 
 phoenix-central 130, tacoma 52, five-cities 8, daly-city 4). Names reach prod via the normal
 `push:data` / data-sync channel at deploy (see "Data sync" above) — no separate prod run needed.
 
-**Still pending:** `spokane` is discovery-status (47 non-stub venues, ~$0.24) — backfill it
-when it goes live:
-```bash
-pnpm tsx scripts/backfill-google-neighborhoods.ts --city spokane --state wa
-```
+✅ **Spokane done (2026-06-09):** backfilled (34 non-stub scanned, 31 named, 25 venues
+re-assigned) and flipped `status='live'` on the LOCAL DB — city #7. Coverage gate PASS
+99.5% (204/205). Reaches prod via the normal `push:data` channel at deploy. Known data
+caveat: Red Wheel's genuine 3–5pm HH is still hidden by the reconcile gate (the start-only
+morning-window fix from `docs/spokane-handoff-2026-06-08.md` §1 was never implemented);
+fix the gate, then `reconcile:windows --city spokane --state wa --apply`.
 The script skips stubs by default (cost control); pass `--include-stubs` to also cover the
 help-wanted placeholders (~1,484 / ~$7.50 across the 6 live cities) if you ever want
 neighborhood filters to span stub listings. Verify a city with
