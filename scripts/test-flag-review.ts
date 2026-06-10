@@ -134,6 +134,22 @@ async function main() {
       assert.equal(da2After.resolution, "operator_hidden");
       check("stubVenueForFlag hides remaining windows, demotes to stub, settles the audit row");
 
+      // --- verified venue: hiding its last window must demote it too (not just 'complete') ---
+      const [venue3] = await tx
+        .insert(venues)
+        .values({ cityId: city.id, name: "Verified Venue", slug: "verified-venue", websiteUrl: "https://example.com", dataCompleteness: "verified" })
+        .returning({ id: venues.id });
+      const [w3] = await tx
+        .insert(happyHours)
+        .values({ venueId: venue3.id, daysOfWeek: [1, 2, 3, 4, 5], startTime: "14:00", endTime: "18:00", allDay: false, locationWithinVenue: "all", active: true, timeKnown: true })
+        .returning({ id: happyHours.id });
+      await tx.insert(dataAudit).values({ venueId: venue3.id, flags: [{ code: "homepage_sourced_hh", severity: "report", evidence: "x" }], resolution: "scanned" });
+      const res3 = await hideWindowForFlag(tx, { happyHourId: w3.id, adminEmail: "test@example.com" });
+      assert.equal(res3.venueDemoted, true);
+      const [v3After] = await tx.select({ dc: venues.dataCompleteness }).from(venues).where(eq(venues.id, venue3.id));
+      assert.equal(v3After.dc, "stub");
+      check("hiding the last window of a 'verified' venue demotes it to stub");
+
       throw ROLLBACK;
     })
     .catch((e) => {
