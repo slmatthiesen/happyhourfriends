@@ -147,15 +147,22 @@ function isStaleEventSource(sourceUrl: string | null, now: Date): boolean {
 /**
  * Retroactive plausibility check from STORED shape (mirrors parseHhText's plausible=false
  * cases we can see post-hoc): duration > 6h, or degenerate (both times known, duration ≤ 0).
+ * Operator policy (2026-06-09): an explicit happy-hour page (HH in the source URL) vouches
+ * for its own wide window — "all day happy hour" is real, not a scraper error — so the >6h
+ * branch is skipped for HH-URL sources. Degenerate stays flagged regardless of source.
  * Note: a long window (e.g. 10:00–20:00) can ALSO trip `operating_hours_active` via reconcile —
  * both are distinct codes and both are intentionally kept.
  */
 function isImplausibleShape(w: AuditWindow): boolean {
   if (w.allDay) return false; // all-day handled by realness gate, not here
+  // durationMin is cross-midnight aware, so start==end folds into 1440 min — catch the
+  // degenerate shape on raw equality instead. No source can justify it.
+  if (w.startTime && w.endTime && w.startTime.slice(0, 5) === w.endTime.slice(0, 5)) return true;
   const rw: ReconcileWindow = { daysOfWeek: w.daysOfWeek, startTime: w.startTime, endTime: w.endTime, allDay: w.allDay };
   const d = durationMin(rw);
   if (d === null) return false; // open-ended start/end — not a shape we can judge
-  return d > 6 * 60 || d <= 0;
+  const hhPageSourced = w.sourceUrl ? scoreHhUrl(w.sourceUrl) >= 100 : false;
+  return d > 6 * 60 && !hhPageSourced;
 }
 
 export function auditVenue(input: VenueAuditInput, now: Date = new Date()): AnomalyFlag[] {
