@@ -14,19 +14,30 @@ live, then let's do the highest-leverage item."** Each item links to its section
 - [x] CI: typecheck → lint → 24-suite test → build, + fork-safe gitleaks scan (PR #21).
 - [x] DB connection-pool leak fixed (commit `e428583`).
 
+**Done (verified against prod 2026-06-09):**
+- [x] **Prod env vars:** `NEXT_PUBLIC_SITE_URL` correct (canonical on `/wa/tacoma` resolves
+      to the prod host), `HCAPTCHA_SECRET_KEY` set (captcha confirmed working),
+      `ANTHROPIC_API_KEY` + `RESEND_API_KEY` + `RESEND_FROM` set. **`ADMIN_EMAIL` was
+      missing** — added 2026-06-09 + service restarted (without it every operator email
+      silently skipped: empty recipient list).
+- [x] **Nightly backup cron live on the droplet:** 3:15am daily, dumps in
+      `/var/backups/happyhourfriends/` (14d retention), log healthy.
+- [x] Prod serving 6 live cities with `llms.txt` + sitemap `<lastmod>`.
+
 **Still to do (operator):**
 - [ ] **Deploy current `main` to prod** (CODE channel: git pull → `npm ci` → `db:migrate`
-      → build → restart). Ships everything in the "Done" list above.
-- [ ] **Prod env vars set at BUILD time:** `NEXT_PUBLIC_SITE_URL=https://happyhourfriends.com`
-      (build-time inlined) and `HCAPTCHA_SECRET_KEY` (submissions fail closed without it).
-      Verify: `curl -s https://happyhourfriends.com/wa/tacoma | grep canonical`.
-- [ ] **Data loaded + safe:** initial `npm run push:data` if prod isn't seeded yet
-      (see "Data sync" below) + install the **nightly backup cron** on the droplet.
+      → build → restart) + re-push data (prod's data predates the 2026-06-09 audit fixes
+      and the Google-neighborhood backfill).
 - [ ] **All-day / hours backfills:** `backfill:timezones` → `backfill:hours` →
       `reverify:all-day` (see "All-day happy-hour cleanup" below).
 - [ ] **After live with data:** submit `sitemap.xml` to Google Search Console + Bing
-      Webmaster (see "Search rankings" below).
+      Webmaster — **once each**; they recrawl automatically off `<lastmod>` (see "Search
+      rankings" below).
 - [ ] *(optional)* per-city intro paragraph — the one remaining cheap SEO item.
+
+**Adding cities after launch:** follow **`docs/new-city-runbook.md`** end to end
+(register → discover → enrich → gate → neighborhoods → audit → QA → flip live →
+`push:data:additive`).
 
 ## Data sync — local ⇄ prod (canonical runbook: `docs/data-sync-runbook.md`)
 
