@@ -1,0 +1,185 @@
+city,venue,start,end,all_day,source,reason,website_url
+phoenix-central,32 SHEA,,,t,(legacy),all_day ,https://www.32shea.com/
+phoenix-central,Arizona American Italian Club,,,t,reextract,all_day ,http://azaiclub.com/
+phoenix-central,Arizona American Italian Club,,,t,reextract,all_day ,http://azaiclub.com/
+phoenix-central,Babbo Italian Eatery,,,t,(legacy),all_day ,http://www.babboitalian.com/
+phoenix-central,Barro's Pizza,10:30:00,15:00:00,f,(legacy),early_start,https://barrospizza.com/
+phoenix-central,Base Pizzeria,,,t,(legacy),all_day ,http://www.basepizzeria.com/
+phoenix-central,Base Pizzeria,,,t,(legacy),all_day ,http://www.basepizzeria.com/
+phoenix-central,Casa Corazon Restaurant,,,t,(legacy),all_day ,https://casacorazonrestaurant.com/
+phoenix-central,Dilla Libre Uno,,,t,harvest-recovery,all_day ,https://www.dillalibre.com/
+phoenix-central,Dog Haus Biergarten,,,t,(legacy),all_day ,https://downtownphoenix.doghaus.com/
+phoenix-central,Dubliner Irish Pub,,,t,(legacy),all_day ,https://www.dublineririshpubaz.com/
+phoenix-central,Dubliner Irish Pub,,,t,(legacy),all_day ,https://www.dublineririshpubaz.com/
+phoenix-central,Dubliner Irish Pub,,,t,(legacy),all_day ,https://www.dublineririshpubaz.com/
+phoenix-central,Dubliner Irish Pub,,,t,(legacy),all_day ,https://www.dublineririshpubaz.com/
+phoenix-central,Gallo Blanco,,,t,(legacy),all_day ,http://galloblancocafe.com/
+phoenix-central,Geordie's at Wrigley Mansion,,,t,(legacy),all_day ,http://www.wrigleymansion.com/
+phoenix-central,Hearsay,,,t,(legacy),all_day ,https://www.hearsay-phx.com/?y_source=1_MTA5Mzc3OTI0OC03MTUtbG9jYXRpb24ud2Vic2l0ZQ%3D%3D
+phoenix-central,Linger Longer Lounge,,,t,(legacy),all_day ,https://www.lingerlongerlounge.com/
+phoenix-central,Ojos Locos Sports Cantina (Metro - Phoenix  AZ),,,t,(legacy),all_day ,http://www.ojoslocos.com/
+phoenix-central,Ojos Locos Sports Cantina (Metro - Phoenix  AZ),,,t,(legacy),all_day ,http://www.ojoslocos.com/
+phoenix-central,Ojos Locos Sports Cantina (Metro - Phoenix  AZ),,,t,(legacy),all_day ,http://www.ojoslocos.com/
+phoenix-central,Ojos Locos Sports Cantina (Metro - Phoenix  AZ),,,t,(legacy),all_day ,http://www.ojoslocos.com/
+phoenix-central,Ojos Locos Sports Cantina (Metro - Phoenix  AZ),,,t,(legacy),all_day ,http://www.ojoslocos.com/
+phoenix-central,Ojos Locos Sports Cantina (Metro - Phoenix  AZ),,,t,(legacy),all_day ,http://www.ojoslocos.com/
+phoenix-central,Ojos Locos Sports Cantina (Metro - Phoenix  AZ),,,t,(legacy),all_day ,http://www.ojoslocos.com/
+phoenix-central,Picazzo's Healthy Italian Kitchen,,,t,(legacy),all_day ,https://picazzos.com/
+phoenix-central,Pizza By Napoli,10:30:00,15:00:00,f,(legacy),early_start,https://pizzabynapoliphoenix.com/?utm_source=gbp
+phoenix-central,Pizza By Napoli,10:00:00,15:00:00,f,(legacy),early_start,https://pizzabynapoliphoenix.com/?utm_source=gbp
+phoenix-central,Postino Arcadia,10:00:00,17:00:00,f,(legacy),early_start,https://www.postino.com/locations/postino-arcadia
+phoenix-central,Seamus McCaffrey's Irish Pub,,,t,(legacy),all_day ,http://www.seamusmccaffreys.com/
+phoenix-central,Seamus McCaffrey's Irish Pub,,,t,(legacy),all_day ,http://www.seamusmccaffreys.com/
+phoenix-central,Seamus McCaffrey's Irish Pub,,,t,(legacy),all_day ,http://www.seamusmccaffreys.com/
+phoenix-central,Seamus McCaffrey's Irish Pub,,,t,(legacy),all_day ,http://www.seamusmccaffreys.com/
+phoenix-central,Seamus McCaffrey's Irish Pub,,,t,(legacy),all_day ,http://www.seamusmccaffreys.com/
+phoenix-central,Seamus McCaffrey's Irish Pub,,,t,(legacy),all_day ,http://www.seamusmccaffreys.com/
+phoenix-central,The Macintosh,09:30:00,15:00:00,f,(legacy),early_start,http://www.themacintoshaz.com/
+phoenix-central,The Playa II,,,t,(legacy),all_day ,https://theplayabarandgrill.com/
+phoenix-central,The Playa II,,,t,(legacy),all_day ,https://theplayabarandgrill.com/
+phoenix-central,The Playa II,,,t,(legacy),all_day ,https://theplayabarandgrill.com/
+phoenix-central,The Playa II,,,t,(legacy),all_day ,https://theplayabarandgrill.com/
+phoenix-central,The Playa II,,,t,(legacy),all_day ,https://theplayabarandgrill.com/
+phoenix-central,The Playa II,,,t,(legacy),all_day ,https://theplayabarandgrill.com/
+phoenix-central,The Porch,,,t,harvest-recovery,all_day ,http://www.porchrestaurants.com/
+phoenix-central,The Porch,,,t,harvest-recovery,all_day ,http://www.porchrestaurants.com/
+phoenix-central,The Porch,,,t,harvest-recovery,all_day ,http://www.porchrestaurants.com/
+phoenix-central,The Porch,,,t,harvest-recovery,all_day ,http://www.porchrestaurants.com/
+phoenix-central,The Porch,,,t,harvest-recovery,all_day ,http://www.porchrestaurants.com/
+phoenix-central,The Porch,10:00:00,14:00:00,f,harvest-recovery,early_start,http://www.porchrestaurants.com/
+phoenix-central,The Sicilian Butcher,,,t,(legacy),all_day ,https://locations.thesicilianbutcher.com/az/phoenix/phoenix/
+phoenix-central,The Xtra Frame Craft Cocktail Lounge,,,t,(legacy),all_day ,http://810bowling.com/
+phoenix-central,Valentine,00:00:00,17:00:00,f,(legacy),early_start,http://www.valentinephx.com/
+phoenix-central,Valle Luna,,,t,(legacy),all_day ,https://valleluna.com/
+phoenix-central,Xolo,,,t,(legacy),all_day ,https://www.xolophx.com/
+phoenix-central,Ziggys Magic Pizza Shop,10:30:00,15:00:00,f,(legacy),early_start,http://www.ziggyspizzaphx.com/
+scottsdale,50 Shades of Rosé,,,t,(legacy),all_day ,https://50shadesofroseaz.com/
+scottsdale,50 Shades of Rosé,,,t,(legacy),all_day ,https://50shadesofroseaz.com/
+scottsdale,50 Shades of Rosé,,,t,(legacy),all_day ,https://50shadesofroseaz.com/
+scottsdale,50 Shades of Rosé,,,t,(legacy),all_day ,https://50shadesofroseaz.com/
+scottsdale,Ajo Al's Mexican Cafe,,,t,(legacy),all_day ,http://www.ajoals.com/
+scottsdale,Ajo Al's Mexican Cafe,,,t,reextract,all_day ,https://ajoals.com/?y_source=1_MTAwMTM3MDE1Mi03MTUtbG9jYXRpb24ud2Vic2l0ZQ%3D%3D
+scottsdale,Bei Sushi  Bar  Asian Cuisine,,,t,(legacy),all_day ,http://beisushi.com/
+scottsdale,Chula Seafood Grayhawk,,,t,(legacy),all_day ,https://www.chulaseafood.com/grayhawk
+scottsdale,Chula Seafood South Scottsdale,,,t,(legacy),all_day ,https://www.chulaseafood.com/scottsdale.html
+scottsdale,Cien Agaves Tacos & Tequila,,,t,(legacy),all_day ,https://www.cienagaves.com/
+scottsdale,Crust Brothers Pizza,,,t,(legacy),all_day ,http://www.crustbrotherspizza.com/
+scottsdale,Crust Simply Italian Scottsdale,,,t,(legacy),all_day ,https://www.crustrestaurants.com/
+scottsdale,Diego Pops,,,t,(legacy),all_day ,http://www.diegopops.com/
+scottsdale,Dilla Libre Dos,,,t,(legacy),all_day ,http://www.dillalibre.com/
+scottsdale,Dirty Dogg Saloon,,,t,(legacy),all_day ,http://dirtydoggsaloon.com/
+scottsdale,DraftKings Sportsbook at TPC Scottsdale,08:00:00,13:00:00,f,reextract-free,early_start,https://draftkingssportsbook.tpc.com/scottsdale
+scottsdale,Grimaldi's Pizzeria,,,t,(legacy),all_day ,https://www.grimaldispizzeria.com/locations/old-town/
+scottsdale,Heritage Kitchen + Cocktails,,,t,(legacy),all_day ,http://heritagescottsdale.com/
+scottsdale,HULA'S Modern Tiki Scottsdale,10:30:00,15:30:00,f,(legacy),early_start,http://hulasmoderntiki.com/
+scottsdale,HULA'S Modern Tiki Scottsdale,10:30:00,15:30:00,f,(legacy),early_start,http://hulasmoderntiki.com/
+scottsdale,Loco Patron Brewery,,,t,(legacy),all_day ,https://locopatron.com/
+scottsdale,Manuel's Mexican Restaurant & Cantina | Scottsdale,,,t,(legacy),all_day ,https://manuelsaz.com/
+scottsdale,Manuel's Mexican Restaurant & Cantina | Scottsdale,,,t,(legacy),all_day ,https://manuelsaz.com/
+scottsdale,Manuel's Mexican Restaurant & Cantina | Scottsdale,,,t,(legacy),all_day ,https://manuelsaz.com/
+scottsdale,Manuel's Mexican Restaurant & Cantina | Scottsdale,,,t,(legacy),all_day ,https://manuelsaz.com/
+scottsdale,North Italia,,,t,(legacy),all_day ,https://www.northitalia.com/locations/scottsdale-az-kierland-commons/
+scottsdale,Octane Raceway,,,t,(legacy),all_day ,https://www.octaneraceway.com/?utm_source=gbp&utm_medium=organic&utm_campaign=yext_listings
+scottsdale,Orangedale Lounge,,,t,(legacy),all_day ,http://www.orangedalelounge.com/
+scottsdale,Pattie's First Avenue Lounge,,,t,(legacy),all_day ,https://pattiesfirstavenuelounge.cfd/
+scottsdale,Picazzo's Healthy Italian Kitchen,,,t,(legacy),all_day ,https://picazzos.com/
+scottsdale,Prep & Pastry,07:00:00,09:00:00,f,(legacy),early_start,https://www.prepandpastry.com/scottsdale
+scottsdale,Raven Gastropub,,,t,(legacy),all_day ,http://www.ravengp.com/
+scottsdale,Salt and Lime Shea,,,t,(legacy),all_day ,https://www.saltandlimeaz.com/shea
+scottsdale,SOL Mexican Cocina,,,t,(legacy),all_day ,https://solcocina.com/
+scottsdale,Taco Papi,,,t,(legacy),all_day ,https://www.tacopapi.com/
+scottsdale,Tavern Grille Scottsdale,,,t,(legacy),all_day ,http://www.taverngrillescottsdale.com/
+scottsdale,The Greene House,,,t,(legacy),all_day ,https://www.thegreenehouseaz.com/?utm_source=Google&utm_medium=Organic&utm_campaign=Maps
+scottsdale,The Italiano by Chef Joey,,,t,(legacy),all_day ,https://www.theitaliano.com/
+scottsdale,The Mexicano by Chef Joey,,,t,(legacy),all_day ,https://www.themexicano.com/
+scottsdale,The Mexicano by Chef Joey,,,t,(legacy),all_day ,https://www.themexicano.com/
+scottsdale,The Parlay Kitchen + Cocktails,,,t,(legacy),all_day ,https://www.theparlayaz.com/
+scottsdale,The Well Bar,10:00:00,11:00:00,f,(legacy),early_start,http://www.thewellbar.com/
+scottsdale,The Well Bar,06:00:00,02:00:00,f,(legacy),early_start,http://www.thewellbar.com/
+scottsdale,The Well Bar,10:00:00,11:00:00,f,(legacy),early_start,http://www.thewellbar.com/
+scottsdale,T T Roadhouse,,,t,(legacy),all_day ,http://www.ttroadhouse.com/
+tacoma,Cooks Tavern,08:00:00,11:00:00,f,(legacy),early_start,http://www.cookstavern.com/
+tacoma,Fondi Pizzeria Proctor,,,t,(legacy),all_day ,https://fondi.com/locations/fondi-pizzeria-proctor/
+tacoma,Happy Teriyaki #4,10:00:00,14:00:00,f,(legacy),early_start,https://happyteriyaki4tacoma.com/
+tacoma,Ram Restaurant & Brewery,00:00:00,,f,(legacy),early_start,https://theram.com/
+tacoma,Steel Creek Tacoma,00:00:00,,f,(legacy),early_start,http://steelcreekcountry.com/
+tacoma,Tacoma Comedy Club,00:00:00,,f,(legacy),early_start,http://www.tacomacomedyclub.com/
+tacoma,Tacoma Comedy Club,00:00:00,,f,(legacy),early_start,http://www.tacomacomedyclub.com/
+tacoma,The Red Hot,,,t,(legacy),all_day ,http://www.redhottacoma.com/
+tacoma,The Red Hot,,,t,(legacy),all_day ,http://www.redhottacoma.com/
+tacoma,The Red Hot,,,t,(legacy),all_day ,http://www.redhottacoma.com/
+tacoma,Trapper’s Sushi Co.,,,t,(legacy),all_day ,https://www.trapperssushi.com/tacoma
+tucson,Baja Cafe on Broadway,06:00:00,08:00:00,f,(legacy),early_start,https://www.bajacafetucson.com/
+tucson,Baja Cafe on Campbell,06:00:00,08:00:00,f,(legacy),early_start,http://bajacafetucson.com/
+tucson,Brother John's Beer Bourbon & BBQ,,,t,(legacy),all_day ,https://brotherjohns.com/
+tucson,Copal Contemporary Mexican Cuisine,10:00:00,15:00:00,f,(legacy),early_start,https://www.copaltucson.com/
+tucson,Copal Contemporary Mexican Cuisine,,,t,(legacy),all_day ,https://www.copaltucson.com/
+tucson,El Charro Café Downtown,10:00:00,14:00:00,f,(legacy),early_start,https://www.elcharrocafe.com/
+tucson,El Charro Café Oro Valley,10:00:00,14:00:00,f,(legacy),early_start,http://www.elcharrocafe.com/
+tucson,El Charro Cafe Ventana,10:00:00,14:00:00,f,(legacy),early_start,http://www.elcharrocafe.com/
+tucson,Empire Pizza & Pub,,,t,(legacy),all_day ,http://www.empire.pizza/
+tucson,Fat Willy's Kolb Rd & I-10,,,t,reextract,all_day ,https://www.fatwillysaz.com/
+tucson,Fat Willy's Kolb Rd & I-10,,,t,reextract,all_day ,https://www.fatwillysaz.com/
+tucson,Fat Willy's Kolb Rd & I-10,,,t,reextract,all_day ,https://www.fatwillysaz.com/
+tucson,Fat Willy's Kolb Rd & I-10,,,t,reextract,all_day ,https://www.fatwillysaz.com/
+tucson,Fat Willy's Kolb Rd & I-10,,,t,reextract,all_day ,https://www.fatwillysaz.com/
+tucson,Fat Willy's Kolb Rd & I-10,,,t,reextract,all_day ,https://www.fatwillysaz.com/
+tucson,Fat Willy's Kolb Rd & I-10,,,t,reextract,all_day ,https://www.fatwillysaz.com/
+tucson,Fat Willy's Kolb Rd & I-10,,,t,reextract,all_day ,https://www.fatwillysaz.com/
+tucson,Fat Willy's Kolb Rd & I-10,,,t,reextract,all_day ,https://www.fatwillysaz.com/
+tucson,Fat Willy's Kolb Rd & I-10,,,t,reextract,all_day ,https://www.fatwillysaz.com/
+tucson,Ghini's French Caffe,,,t,(legacy),all_day ,https://ghiniscafe.com/
+tucson,La Herradura Mexican Grill & Seafood,07:00:00,12:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Mexican Grill & Seafood,07:00:00,22:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Mexican Grill & Seafood,07:00:00,12:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Mexican Grill & Seafood,10:00:00,14:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Mexican Grill & Seafood,07:00:00,12:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Mexican Grill & Seafood,10:00:00,14:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Mexican Grill & Seafood,07:30:00,12:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Mexican Grill & Seafood,10:00:00,14:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Mexican Grill & Seafood,07:00:00,22:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Mexican Grill & Seafood,07:00:00,12:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Mexican Grill & Seafood,07:00:00,12:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Mexican Grill & Seafood,07:00:00,11:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Mexican Grill & Seafood,10:00:00,14:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Mexican Grill & Seafood,07:00:00,12:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Mexican Grill & Seafood,10:00:00,14:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Mexican Grill & Seafood,07:30:00,12:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Mexican Grill & Seafood,10:00:00,14:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Mexican Grill & Seafood,07:00:00,22:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Mexican Grill & Seafood,07:00:00,12:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Mexican Grill & Seafood,07:00:00,11:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Street Tacos & Bar,10:00:00,14:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Street Tacos & Bar,07:00:00,12:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Street Tacos & Bar,07:00:00,22:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Street Tacos & Bar,07:30:00,12:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Street Tacos & Bar,07:00:00,12:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Street Tacos & Bar,10:00:00,14:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Street Tacos & Bar,07:00:00,12:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Street Tacos & Bar,10:00:00,14:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Street Tacos & Bar,07:00:00,11:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Herradura Street Tacos & Bar,07:00:00,12:00:00,f,(legacy),early_start,https://laherradurakitchen.com/
+tucson,La Indita Restaurant,,,t,(legacy),all_day ,https://lainditaaz.com/
+tucson,Monterey Court,,,t,(legacy),all_day ,http://www.montereycourtaz.com/
+tucson,Ojos Locos Sports Cantina (Tucson  AZ),,,t,(legacy),all_day ,http://www.ojoslocos.com/
+tucson,Ojos Locos Sports Cantina (Tucson  AZ),,,t,(legacy),all_day ,http://www.ojoslocos.com/
+tucson,Ojos Locos Sports Cantina (Tucson  AZ),,,t,(legacy),all_day ,http://www.ojoslocos.com/
+tucson,Ojos Locos Sports Cantina (Tucson  AZ),,,t,(legacy),all_day ,http://www.ojoslocos.com/
+tucson,Ojos Locos Sports Cantina (Tucson  AZ),,,t,(legacy),all_day ,http://www.ojoslocos.com/
+tucson,Ojos Locos Sports Cantina (Tucson  AZ),,,t,(legacy),all_day ,http://www.ojoslocos.com/
+tucson,Ojos Locos Sports Cantina (Tucson  AZ),,,t,(legacy),all_day ,http://www.ojoslocos.com/
+tucson,P.F. Chang's,,,t,(legacy),all_day ,https://locations.pfchangs.com/az/tucson/1805-e-river-rd-suite-100.html?utm_source=google_gbp&utm_medium=organic
+tucson,Postino Grant,10:00:00,17:00:00,f,(legacy),early_start,https://www.postino.com/locations/postino-grant
+tucson,Prep & Pastry,07:00:00,09:00:00,f,(legacy),early_start,http://www.prepandpastry.com/
+tucson,Prep & Pastry,07:00:00,09:00:00,f,(legacy),early_start,http://prepandpastry.com/
+tucson,St Cruz at The Leo Kent,,,t,reextract,all_day ,https://www.theleokenthotel.com/restaurants-downtown-tucson?utm_source=google&utm_medium=organic&utm_campaign=gbp
+tucson,St Cruz at The Leo Kent,,,t,reextract,all_day ,https://www.theleokenthotel.com/restaurants-downtown-tucson?utm_source=google&utm_medium=organic&utm_campaign=gbp
+tucson,Tap & Bottle,,,t,(legacy),all_day ,http://www.thetapandbottle.com/
+tucson,Teresa's Mosaic Cafe,,,t,(legacy),all_day ,https://teresasmosaic.com/
+tucson,The Horseshoe Grill,,,t,(legacy),all_day ,https://www.thehorseshoetucson.com/
+tucson,Theresa's Mosaic,,,t,(legacy),all_day ,https://teresasmosaic.com/
+tucson,Westbound,,,t,(legacy),all_day ,http://www.thetapandbottle.com/
+tucson,Wildflower,,,t,(legacy),all_day ,https://www.wildflowertucson.com/locations/tucson-az/?utm_source=Google&utm_medium=Organic&utm_campaign=Maps
+tucson,Wing Factory,,,t,(legacy),all_day ,http://www.wingfactorytucson.com/
+tucson,Wing Factory,,,t,(legacy),all_day ,http://www.wingfactorytucson.com/
+tucson,Wing Factory,,,t,(legacy),all_day ,http://www.wingfactorytucson.com/

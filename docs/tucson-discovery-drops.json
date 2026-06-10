@@ -1,0 +1,5985 @@
+{
+  "city": "tucson",
+  "total": 597,
+  "byReason": {
+    "out-of-area": 116,
+    "low-signal": 139,
+    "closed": 59,
+    "format": 61,
+    "chain": 145,
+    "place-type": 57,
+    "airport": 20
+  },
+  "drops": [
+    {
+      "name": "El Checo Mexican Food",
+      "reason": "out-of-area",
+      "address": "1625 E Sahuarita Rd, Sahuarita, AZ 85629, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.facebook.com/elchecomexicanfood/",
+      "lat": 31.957762799999998,
+      "lng": -110.9515162,
+      "reviews": 161
+    },
+    {
+      "name": "La Azadura Mexican Food",
+      "reason": "low-signal",
+      "address": "16087 S Wilmot Rd, Sahuarita, AZ 85629, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 31.964948699999997,
+      "lng": -110.85795800000001,
+      "reviews": null
+    },
+    {
+      "name": "Argenziano's",
+      "reason": "out-of-area",
+      "address": "16251 S Houghton Rd, Vail, AZ 85641, USA",
+      "primaryType": "italian_restaurant",
+      "website": "https://argenzianos.shop/",
+      "lat": 31.960245299999997,
+      "lng": -110.7718811,
+      "reviews": 1280
+    },
+    {
+      "name": "Charquitas Mexican Food",
+      "reason": "out-of-area",
+      "address": "16333 S Houghton Rd, Vail, AZ 85641, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 31.958466,
+      "lng": -110.7719382,
+      "reviews": 308
+    },
+    {
+      "name": "USCREAM LLC.",
+      "reason": "low-signal",
+      "address": "462 S Adanirom Judson Ave, Corona De Tucson, AZ 85641, USA",
+      "primaryType": "restaurant",
+      "website": "http://www.uscream4icecream.com/",
+      "lat": 31.9544703,
+      "lng": -110.7777856,
+      "reviews": null
+    },
+    {
+      "name": "Blackhawk BBQ",
+      "reason": "closed",
+      "address": "16461 S Houghton Rd suite b, Corona De Tucson, AZ 85641, USA",
+      "primaryType": "barbecue_restaurant",
+      "website": null,
+      "lat": 31.956728599999998,
+      "lng": -110.7718869,
+      "reviews": 147
+    },
+    {
+      "name": "La Herradura Street Tacos & Bar",
+      "reason": "out-of-area",
+      "address": "16441 S Houghton Rd, Corona De Tucson, AZ 85641, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://laherradurakitchen.com/",
+      "lat": 31.9567672,
+      "lng": -110.7717718,
+      "reviews": 135
+    },
+    {
+      "name": "El Taquito Feliz",
+      "reason": "low-signal",
+      "address": "189-183 W Pima Mine Rd, Sahuarita, AZ 85629, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.0011355,
+      "lng": -110.97047769999999,
+      "reviews": 13
+    },
+    {
+      "name": "Agave Restaurant now located inside the Casino",
+      "reason": "closed",
+      "address": "1100 W Pima Mine Rd, Sahuarita, AZ 85629, USA",
+      "primaryType": "restaurant",
+      "website": "http://www.ddcaz.com/",
+      "lat": 32.005453599999996,
+      "lng": -110.9880386,
+      "reviews": 208
+    },
+    {
+      "name": "Wingman Pizza",
+      "reason": "low-signal",
+      "address": "Vail, AZ 85641, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.0440837,
+      "lng": -110.71373969999999,
+      "reviews": 1
+    },
+    {
+      "name": "Hot Stuff Pizza",
+      "reason": "closed",
+      "address": "13142 E Colossal Cave Rd, Vail, AZ 85641, USA",
+      "primaryType": "pizza_restaurant",
+      "website": null,
+      "lat": 32.044064399999996,
+      "lng": -110.7136907,
+      "reviews": null
+    },
+    {
+      "name": "Flavor Fuzion",
+      "reason": "closed",
+      "address": "13105 E Colossal Cave Rd, Vail, AZ 85641, USA",
+      "primaryType": "dessert_shop",
+      "website": null,
+      "lat": 32.0476265,
+      "lng": -110.7129217,
+      "reviews": 6
+    },
+    {
+      "name": "ZENSHI Handcrafted Sushi",
+      "reason": "low-signal",
+      "address": "13380 E Mary Ann Cleveland Way, Vail, AZ 85641, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.zenshisushi.com/",
+      "lat": 32.050062499999996,
+      "lng": -110.7087079,
+      "reviews": 1
+    },
+    {
+      "name": "Makin' & Doin'",
+      "reason": "low-signal",
+      "address": "11172 S Lava Peak Rd, Vail, AZ 85641, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.0500092,
+      "lng": -110.6841024,
+      "reviews": null
+    },
+    {
+      "name": "Hacienda del Lago Bar and Grill",
+      "reason": "out-of-area",
+      "address": "14155 E Vía Rancho Del Lago, Vail, AZ 85641, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.dellagogolf.net/restaurant",
+      "lat": 32.054749,
+      "lng": -110.6924641,
+      "reviews": 4
+    },
+    {
+      "name": "Carnitas Michoacan",
+      "reason": "low-signal",
+      "address": "10256 S Nogales Hwy, Tucson, AZ 85756, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://usmapiqs.org/details/carnitas-michoacan-ChIJRW5",
+      "lat": 32.064504,
+      "lng": -110.95773969999999,
+      "reviews": 4
+    },
+    {
+      "name": "El Gallo de Sinaloa #2",
+      "reason": "low-signal",
+      "address": "9850 S Nogales Hwy, Tucson, AZ 85756, USA",
+      "primaryType": "restaurant",
+      "website": "http://orderelgallodesinaloa2.mobile-webview8.com/",
+      "lat": 32.073037299999996,
+      "lng": -110.958761,
+      "reviews": 9
+    },
+    {
+      "name": "Taqueria La Pasadita",
+      "reason": "format",
+      "address": "1250 E Old Vail Connection Rd, Tucson, AZ 85756, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.0750678,
+      "lng": -110.956394,
+      "reviews": 4
+    },
+    {
+      "name": "MJ's Tacos El Rey",
+      "reason": "low-signal",
+      "address": "1915 E Summit St, Tucson, AZ 85756, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.067154300000006,
+      "lng": -110.9445624,
+      "reviews": 9
+    },
+    {
+      "name": "Taqueria El Sonorense",
+      "reason": "format",
+      "address": "9430 S Nogales Hwy, Tucson, AZ 85756, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.0808684,
+      "lng": -110.9591926,
+      "reviews": 3
+    },
+    {
+      "name": "Gabbrey's Kitchen",
+      "reason": "low-signal",
+      "address": "6506 E Brushback Loop, Tucson, AZ 85756, USA",
+      "primaryType": "african_restaurant",
+      "website": null,
+      "lat": 32.1054145,
+      "lng": -110.8540579,
+      "reviews": 4
+    },
+    {
+      "name": "Salad and Go",
+      "reason": "chain",
+      "address": "10071 E Old Vail Rd, Tucson, AZ 85747, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.saladandgo.com/?olonwp=JjBtp_vMLk25gkYh_bnoiQ",
+      "lat": 32.089963,
+      "lng": -110.777423,
+      "reviews": 100
+    },
+    {
+      "name": "Filiberto's Mexican Food",
+      "reason": "chain",
+      "address": "10224 E Old Vail Rd, Tucson, AZ 85747, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://filibertos.com/",
+      "lat": 32.0867205,
+      "lng": -110.7754107,
+      "reviews": 613
+    },
+    {
+      "name": "MOD Pizza",
+      "reason": "chain",
+      "address": "9210 S Houghton Rd Suite 100, Tucson, AZ 85747, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.modpizza.com/usa/az/tucson/9210-s-houghton-rd?utm_source=google&utm_medium=yext",
+      "lat": 32.085119299999995,
+      "lng": -110.7738778,
+      "reviews": 393
+    },
+    {
+      "name": "Tropical Smoothie Cafe",
+      "reason": "place-type",
+      "address": "10230 E Old Vail Rd, Tucson, AZ 85747, USA",
+      "primaryType": "juice_shop",
+      "website": "https://locations.tropicalsmoothiecafe.com/az/tucson/10230-east-old-vail-rd.?y_source=1_MTUxNDg2ODgtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 32.0879399,
+      "lng": -110.7743771,
+      "reviews": 157
+    },
+    {
+      "name": "Panda Express",
+      "reason": "chain",
+      "address": "9130 S Houghton Rd, Tucson, AZ 85747, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.pandaexpress.com/locations/az/tucson/2319?utm_source=google_gbp&utm_medium=organic&utm_campaign=websitelink",
+      "lat": 32.0857198,
+      "lng": -110.77346059999999,
+      "reviews": 965
+    },
+    {
+      "name": "Denny's Restaurant",
+      "reason": "chain",
+      "address": "9220 S Houghton Rd, Tucson, AZ 85747, USA",
+      "primaryType": "restaurant",
+      "website": "https://locations.dennys.com/AZ/TUCSON/249370?utm_source=G&utm_medium=organic&utm_campaign=DAC",
+      "lat": 32.085043399999996,
+      "lng": -110.7733908,
+      "reviews": 1739
+    },
+    {
+      "name": "Popeyes Louisiana Kitchen",
+      "reason": "chain",
+      "address": "9230 S Houghton Rd, Tucson, AZ 85747, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://www.popeyes.com/store-locator/store/restaurant_85481",
+      "lat": 32.0846526,
+      "lng": -110.77326749999999,
+      "reviews": 1325
+    },
+    {
+      "name": "Taqueria 2 Hermanos",
+      "reason": "format",
+      "address": "8270 S Houghton Rd #140, Tucson, AZ 85747, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.2hermanostaqueria.com/",
+      "lat": 32.101555399999995,
+      "lng": -110.7736784,
+      "reviews": 1211
+    },
+    {
+      "name": "Papa Johns Pizza",
+      "reason": "chain",
+      "address": "8270 S Houghton Rd #110, Tucson, AZ 85747, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.papajohns.com/united-states/az/85747/tucson/8270-s-houghton-road?utm_source=gmb&utm_medium=organic&y_source=1_MTA2OTIwNDItNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 32.1016529,
+      "lng": -110.77373039999999,
+      "reviews": 230
+    },
+    {
+      "name": "Pizza Hut / Wing Street",
+      "reason": "chain",
+      "address": "8160 S Suite # 102, S Houghton Rd, Tucson, AZ 85747, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://www.pizzahut.com/c/content/wingstreet",
+      "lat": 32.1035351,
+      "lng": -110.7746131,
+      "reviews": 245
+    },
+    {
+      "name": "Che Cafe Empanadas Argentinas",
+      "reason": "low-signal",
+      "address": "10940 E Mary Ann Cleveland Way, Tucson, AZ 85747, USA",
+      "primaryType": "family_restaurant",
+      "website": "https://checafeusa.com/",
+      "lat": 32.0848985,
+      "lng": -110.7590019,
+      "reviews": 8
+    },
+    {
+      "name": "Sun Flower Cafe",
+      "reason": "place-type",
+      "address": "7406 S Camino De Oeste, Tucson, AZ 85757, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://www.casinodelsol.com/dining/sunflower-cafe",
+      "lat": 32.1173782,
+      "lng": -111.0645141,
+      "reviews": 123
+    },
+    {
+      "name": "El Bebo's | Street Tacos & Hot Dogs",
+      "reason": "out-of-area",
+      "address": "4012 W Valencia Rd, Tucson, AZ 85746, USA",
+      "primaryType": "taco_restaurant",
+      "website": null,
+      "lat": 32.132926,
+      "lng": -111.0512219,
+      "reviews": 96
+    },
+    {
+      "name": "Hacienda Azul",
+      "reason": "place-type",
+      "address": "3220 W Valencia Rd, Tucson, AZ 85746, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": null,
+      "lat": 32.134169899999996,
+      "lng": -111.0358184,
+      "reviews": 160
+    },
+    {
+      "name": "KFC",
+      "reason": "chain",
+      "address": "2970 W Valencia Rd, Tucson, AZ 85746, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://locations.kfc.com/az/tucson/2970-w-valencia-rd",
+      "lat": 32.1341418,
+      "lng": -111.03048749999999,
+      "reviews": 799
+    },
+    {
+      "name": "Famous Sam's Sports Grill #11",
+      "reason": "out-of-area",
+      "address": "3010 W Valencia Rd, Tucson, AZ 85746, USA",
+      "primaryType": "american_restaurant",
+      "website": "http://famoussamsarizona.com/",
+      "lat": 32.134957,
+      "lng": -111.031449,
+      "reviews": 550
+    },
+    {
+      "name": "El Perro Loco Hot Dogs",
+      "reason": "low-signal",
+      "address": "2770 W Valencia Rd, Tucson, AZ 85746, USA",
+      "primaryType": "hot_dog_restaurant",
+      "website": null,
+      "lat": 32.134445299999996,
+      "lng": -111.0261893,
+      "reviews": 18
+    },
+    {
+      "name": "Tacos El Gonza",
+      "reason": "low-signal",
+      "address": "2750 W Valencia Rd b, Tucson, AZ 85746, USA",
+      "primaryType": "taco_restaurant",
+      "website": null,
+      "lat": 32.1344132,
+      "lng": -111.0256125,
+      "reviews": 1
+    },
+    {
+      "name": "La Esperanza Taco Truck",
+      "reason": "format",
+      "address": "4531 W Valencia Rd, Tucson, AZ 85746, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://sites.google.com/view/laesperanzamexicanfoodtruck/home",
+      "lat": 32.1328323,
+      "lng": -111.0616757,
+      "reviews": 3
+    },
+    {
+      "name": "IHOP",
+      "reason": "chain",
+      "address": "1963 W Valencia Rd, Tucson, AZ 85746, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://restaurants.ihop.com/en-us/az/tucson/breakfast-1963-w.-valencia-rd-3603?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=3603&utm_content=website",
+      "lat": 32.1332502,
+      "lng": -111.00843409999999,
+      "reviews": 5420
+    },
+    {
+      "name": "Culver’s",
+      "reason": "chain",
+      "address": "1955 W Valencia Rd, Tucson, AZ 85746, USA",
+      "primaryType": "american_restaurant",
+      "website": "http://www.culvers.com/restaurants/tucson-az-w-valencia-drive/?utm_source=Google&utm_medium=Maps&utm_campaign=Google+Places",
+      "lat": 32.1333179,
+      "lng": -111.0079904,
+      "reviews": 972
+    },
+    {
+      "name": "Little Caesars Pizza",
+      "reason": "chain",
+      "address": "1625 W Valencia Rd, Tucson, AZ 85746, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://littlecaesars.com/en-us/store/1663",
+      "lat": 32.132278,
+      "lng": -110.999382,
+      "reviews": 785
+    },
+    {
+      "name": "Wingstop",
+      "reason": "chain",
+      "address": "1710 W Valencia Rd Ste 500, Tucson, AZ 85746, USA",
+      "primaryType": "chicken_wings_restaurant",
+      "website": "https://www.wingstop.com/location/wingstop-373-tucson-az-85746/menu?y_source=1_NTUyMDY3NzgtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 32.1343366,
+      "lng": -111.0022429,
+      "reviews": 716
+    },
+    {
+      "name": "Panda Express",
+      "reason": "chain",
+      "address": "1606 W Valencia Rd, Tucson, AZ 85746, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.pandaexpress.com/locations/az/tucson/2500?utm_source=google_gbp&utm_medium=organic&utm_campaign=websitelink",
+      "lat": 32.1342676,
+      "lng": -110.9998502,
+      "reviews": 1413
+    },
+    {
+      "name": "Grand Buffet",
+      "reason": "format",
+      "address": "1690 W Valencia Rd, Tucson, AZ 85746, USA",
+      "primaryType": "buffet_restaurant",
+      "website": null,
+      "lat": 32.135048999999995,
+      "lng": -111.00249699999999,
+      "reviews": 1151
+    },
+    {
+      "name": "Papa Johns Pizza",
+      "reason": "chain",
+      "address": "1610 W Valencia Rd, Tucson, AZ 85746, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.papajohns.com/united-states/az/85746/tucson/1610-w-valencia-rd?utm_source=gmb&utm_medium=organic&y_source=1_MTA2OTIwMzktNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 32.1344247,
+      "lng": -111.00016810000001,
+      "reviews": 241
+    },
+    {
+      "name": "AMERICA'S DINER",
+      "reason": "closed",
+      "address": "1540 W Valencia Rd, Tucson, AZ 85746, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.1343281,
+      "lng": -110.9976504,
+      "reviews": null
+    },
+    {
+      "name": "Denny's Restaurant",
+      "reason": "chain",
+      "address": "1510 W Valencia Rd, Tucson, AZ 85706, USA",
+      "primaryType": "restaurant",
+      "website": "https://locations.dennys.com/AZ/TUCSON/247249?utm_source=G&utm_medium=organic&utm_campaign=DAC",
+      "lat": 32.1343335,
+      "lng": -110.9968021,
+      "reviews": 2817
+    },
+    {
+      "name": "The Meltdown",
+      "reason": "low-signal",
+      "address": "1510 W Valencia Rd, Tucson, AZ 85706, USA",
+      "primaryType": "restaurant",
+      "website": "https://themeltdown.com/?utm_source=G&utm_medium=organic&utm_campaign=DAC",
+      "lat": 32.134426,
+      "lng": -110.9967786,
+      "reviews": 3
+    },
+    {
+      "name": "Diamond Cafe",
+      "reason": "place-type",
+      "address": "7350 S Nogales Hwy, Tucson, AZ 85756, USA",
+      "primaryType": "steak_house",
+      "website": "http://www.ddcaz.com/tucson/dining-nightlife/diamond-cafe/",
+      "lat": 32.117644999999996,
+      "lng": -110.96399799999999,
+      "reviews": 445
+    },
+    {
+      "name": "Ko: Sin Ki: Buffet",
+      "reason": "format",
+      "address": "7350 S Old Nogales Hwy, Tucson, AZ 85756, USA",
+      "primaryType": "buffet_restaurant",
+      "website": "http://www.ddcaz.com/tucson/dining-nightlife/ko-sin-ki-buffet/",
+      "lat": 32.1180338,
+      "lng": -110.9639739,
+      "reviews": 84
+    },
+    {
+      "name": "Little Caesars Pizza",
+      "reason": "chain",
+      "address": "659 W Valencia Rd, Tucson, AZ 85706, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://littlecaesars.com/en-us/store/1654",
+      "lat": 32.132978,
+      "lng": -110.979226,
+      "reviews": 575
+    },
+    {
+      "name": "Sazón El Cebo-yon",
+      "reason": "closed",
+      "address": "265 W Valencia Rd, Tucson, AZ 85706, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.instagram.com/p/CIJiiBPBqfs/?igshid=1nkis5n2iocxa",
+      "lat": 32.1329129,
+      "lng": -110.97250489999999,
+      "reviews": 33
+    },
+    {
+      "name": "Church's Texas Chicken",
+      "reason": "chain",
+      "address": "402 W Valencia Rd, Tucson, AZ 85706, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://locations.churchs.com/az/tucson/402-w.-valencia-road",
+      "lat": 32.134271,
+      "lng": -110.97580080000002,
+      "reviews": 868
+    },
+    {
+      "name": "El Mono Bandido",
+      "reason": "closed",
+      "address": "6444 S 12th Ave, Tucson, AZ 85706, USA",
+      "primaryType": "restaurant",
+      "website": "https://order.online/business/el-mono-bandido-11706295",
+      "lat": 32.1346884,
+      "lng": -110.97798850000001,
+      "reviews": null
+    },
+    {
+      "name": "Peter Piper Pizza",
+      "reason": "chain",
+      "address": "432 W Valencia Rd, Tucson, AZ 85706, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.peterpiperpizza.com/az/tucson/432-w-valencia-rd?utm_source=Google&utm_medium=Rio",
+      "lat": 32.134982799999996,
+      "lng": -110.976779,
+      "reviews": 758
+    },
+    {
+      "name": "Sir Veza's",
+      "reason": "airport",
+      "address": "7250 S Tucson Blvd, Tucson, AZ 85756, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.flytucson.com/vendors/sir-vezas-kitchen-kantina/",
+      "lat": 32.1193862,
+      "lng": -110.93727829999999,
+      "reviews": 570
+    },
+    {
+      "name": "Empire Pizza",
+      "reason": "airport",
+      "address": "Tucson International Airport, 7250 S Tucson Blvd Concourse A, Tucson, AZ 85756, USA",
+      "primaryType": "pizza_restaurant",
+      "website": null,
+      "lat": 32.119468,
+      "lng": -110.9372914,
+      "reviews": 32
+    },
+    {
+      "name": "Thunder Canyon BrewStillery",
+      "reason": "airport",
+      "address": "7250 S Tucson Blvd, Tucson, AZ 85756, USA",
+      "primaryType": "bar",
+      "website": "https://www.flytucson.com/vendors/thunder-canyon-brewstillery-now-open/",
+      "lat": 32.1210958,
+      "lng": -110.9394861,
+      "reviews": 104
+    },
+    {
+      "name": "The Maverick",
+      "reason": "airport",
+      "address": "7250 S Tucson Blvd Concourse A, Tucson, AZ 85756, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://us.areas.com/",
+      "lat": 32.1202544,
+      "lng": -110.937308,
+      "reviews": null
+    },
+    {
+      "name": "El Charro Cafe",
+      "reason": "airport",
+      "address": "7250 S Tucson Blvd Concourse B, Tucson, AZ 85756, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.1202544,
+      "lng": -110.937308,
+      "reviews": 413
+    },
+    {
+      "name": "Barrio Brewing Co. - Tucson International Airport",
+      "reason": "airport",
+      "address": "2600 E Los Reales Rd, Tucson, AZ 85756, USA",
+      "primaryType": "brewpub",
+      "website": null,
+      "lat": 32.1205356,
+      "lng": -110.937578,
+      "reviews": 75
+    },
+    {
+      "name": "SOL Bar & Grill",
+      "reason": "airport",
+      "address": "Located inside Four Points by Sheraton Tucson Airport, 7060 S Tucson Blvd Suite B, Tucson, AZ 85756, USA",
+      "primaryType": "restaurant",
+      "website": "http://www.solbarandgrilltucson.com/",
+      "lat": 32.1237002,
+      "lng": -110.9353725,
+      "reviews": 90
+    },
+    {
+      "name": "Finnegan's Pub",
+      "reason": "airport",
+      "address": "7051 S Tucson Blvd, Tucson, AZ 85756, USA",
+      "primaryType": "restaurant",
+      "website": "http://doubletree3.hilton.com/en/hotels/arizona/doubletree-suites-by-hilton-hotel-tucson-airport-TUSTADT/dining/index.html",
+      "lat": 32.124020699999996,
+      "lng": -110.93418670000001,
+      "reviews": 504
+    },
+    {
+      "name": "The Localist Kitchen",
+      "reason": "closed",
+      "address": "2403 E Aragon Rd, Tucson, AZ 85756, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.1288012,
+      "lng": -110.93607349999999,
+      "reviews": 7
+    },
+    {
+      "name": "Christie's Cabaret Tucson",
+      "reason": "format",
+      "address": "6608 S Tucson Blvd, Tucson, AZ 85756, USA",
+      "primaryType": null,
+      "website": "https://christiescabaret.com/tucson/",
+      "lat": 32.1315804,
+      "lng": -110.9362333,
+      "reviews": 112
+    },
+    {
+      "name": "The Meltdown",
+      "reason": "low-signal",
+      "address": "2630 E Valencia Rd, Tucson, AZ 85706, USA",
+      "primaryType": "restaurant",
+      "website": "https://themeltdown.com/?utm_source=G&utm_medium=organic&utm_campaign=DAC",
+      "lat": 32.1336376,
+      "lng": -110.9329207,
+      "reviews": 4
+    },
+    {
+      "name": "Denny's Restaurant",
+      "reason": "chain",
+      "address": "2630 E Valencia Rd, Tucson, AZ 85706, USA",
+      "primaryType": "restaurant",
+      "website": "https://locations.dennys.com/AZ/TUCSON/246614?utm_source=G&utm_medium=organic&utm_campaign=DAC",
+      "lat": 32.1336674,
+      "lng": -110.9329006,
+      "reviews": 4816
+    },
+    {
+      "name": "Sluggers",
+      "reason": "low-signal",
+      "address": "3210 E Valencia Rd, Tucson, AZ 85706, USA",
+      "primaryType": "pizza_restaurant",
+      "website": null,
+      "lat": 32.133723,
+      "lng": -110.92344390000001,
+      "reviews": 8
+    },
+    {
+      "name": "Tropical Smoothie Cafe",
+      "reason": "place-type",
+      "address": "3200 E Valencia Rd, Tucson, AZ 85706, USA",
+      "primaryType": "juice_shop",
+      "website": "https://locations.tropicalsmoothiecafe.com/az/tucson/3200-east-valencia-rd.?y_source=1_NzM2NjI5NTYtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 32.1336125,
+      "lng": -110.9244197,
+      "reviews": 124
+    },
+    {
+      "name": "Açaí Paradise",
+      "reason": "place-type",
+      "address": "3253 E Valencia Rd, Tucson, AZ 85706, USA",
+      "primaryType": "restaurant",
+      "website": "https://acaiparadiseaz.com/",
+      "lat": 32.134523900000005,
+      "lng": -110.92325340000001,
+      "reviews": 146
+    },
+    {
+      "name": "Taqueria Rosita's Mexican Food Truck",
+      "reason": "format",
+      "address": "2733-2801 E Valencia Rd, Tucson, AZ 85706, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.1344782,
+      "lng": -110.93036889999999,
+      "reviews": 511
+    },
+    {
+      "name": "Triple T Truck Stop",
+      "reason": "format",
+      "address": "5451 E Benson Hwy, Tucson, AZ 85756, USA",
+      "primaryType": "truck_stop",
+      "website": "http://tucsontruckterminal.com/",
+      "lat": 32.12711410000001,
+      "lng": -110.8760645,
+      "reviews": 3631
+    },
+    {
+      "name": "Birrieria Guasave #2",
+      "reason": "format",
+      "address": "6894 S Craycroft Rd, Tucson, AZ 85756, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.1273112,
+      "lng": -110.8753273,
+      "reviews": null
+    },
+    {
+      "name": "Birrieria Guasave 2",
+      "reason": "format",
+      "address": "6849 S Craycroft Rd, Tucson, AZ 85756, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.127476,
+      "lng": -110.87481340000001,
+      "reviews": 29
+    },
+    {
+      "name": "LA herradura food truck",
+      "reason": "format",
+      "address": "Tucson, AZ 85756, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://usmaperx.org/details/la-herradura-food-truck-ChIJhwU",
+      "lat": 32.1336246,
+      "lng": -110.8921666,
+      "reviews": 5
+    },
+    {
+      "name": "McDonald’s",
+      "reason": "chain",
+      "address": "5205 E Valencia Rd, Tucson, AZ 85706, USA",
+      "primaryType": "american_restaurant",
+      "website": null,
+      "lat": 32.1361851,
+      "lng": -110.88167039999999,
+      "reviews": 98
+    },
+    {
+      "name": "Little Caesars Pizza",
+      "reason": "chain",
+      "address": "9136 E Valencia Rd, Tucson, AZ 85747, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://littlecaesars.com/en-us/store/9563",
+      "lat": 32.118458,
+      "lng": -110.79776,
+      "reviews": 302
+    },
+    {
+      "name": "Epic Palate Modern Diner",
+      "reason": "format",
+      "address": "12660 E Old Spanish Trail, Tucson, AZ 85747, USA",
+      "primaryType": "american_restaurant",
+      "website": null,
+      "lat": 32.1277682,
+      "lng": -110.72204780000001,
+      "reviews": null
+    },
+    {
+      "name": "Loaded By CARBS",
+      "reason": "closed",
+      "address": "12500 E Old Spanish Trail, Tucson, AZ 85747, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.1281745,
+      "lng": -110.7233981,
+      "reviews": 1
+    },
+    {
+      "name": "El Mismo",
+      "reason": "low-signal",
+      "address": "W Drexel Rd &, S Cardinal Ave, Tucson, AZ 85746, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.1483097,
+      "lng": -111.0286069,
+      "reviews": 8
+    },
+    {
+      "name": "Federico Salsa Company",
+      "reason": "place-type",
+      "address": "2911 W Holladay St, Tucson, AZ 85746, USA",
+      "primaryType": "salad_shop",
+      "website": null,
+      "lat": 32.1505394,
+      "lng": -111.02931749999999,
+      "reviews": 1
+    },
+    {
+      "name": "Chapo’s Cocina",
+      "reason": "out-of-area",
+      "address": "Just the corner Vahalla, W Valencia Rd, Tucson, AZ 85746, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.1334985,
+      "lng": -111.06290279999999,
+      "reviews": 734
+    },
+    {
+      "name": "Taquería el Cheke",
+      "reason": "out-of-area",
+      "address": "6530 S Camino De Oeste, Tucson, AZ 85718, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.1323925,
+      "lng": -111.0631576,
+      "reviews": 166
+    },
+    {
+      "name": "Las Vasquitas Tacos",
+      "reason": "low-signal",
+      "address": "6530 S Camino De Oeste, Tucson, AZ 85746, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.1325856,
+      "lng": -111.06335229999999,
+      "reviews": null
+    },
+    {
+      "name": "Birrieria \"Los Toros\"",
+      "reason": "format",
+      "address": "2195 W Drexel Rd, Tucson, AZ 85746, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.1480683,
+      "lng": -111.0138096,
+      "reviews": 117
+    },
+    {
+      "name": "JC SUSHI",
+      "reason": "low-signal",
+      "address": "2202 W Drexel Rd, Tucson, AZ 85746, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.149003,
+      "lng": -111.0141829,
+      "reviews": 3
+    },
+    {
+      "name": "Hot Dogs El Chipilon",
+      "reason": "low-signal",
+      "address": "Tucson, AZ 85746, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.1491349,
+      "lng": -111.0132062,
+      "reviews": 7
+    },
+    {
+      "name": "El Teo Hot Dogs",
+      "reason": "low-signal",
+      "address": "5681 S 12th Ave, Tucson, AZ 85706, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.149240899999995,
+      "lng": -110.9774216,
+      "reviews": 2
+    },
+    {
+      "name": "TostiFiesta Mariscos & Tacos",
+      "reason": "low-signal",
+      "address": "5681 S 12th Ave, Tucson, AZ 85706, USA",
+      "primaryType": "seafood_restaurant",
+      "website": null,
+      "lat": 32.1492599,
+      "lng": -110.97742230000001,
+      "reviews": 16
+    },
+    {
+      "name": "Tortas El Guero",
+      "reason": "low-signal",
+      "address": "5681 S 12th Ave, Tucson, AZ 85706, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.1492599,
+      "lng": -110.97742230000001,
+      "reviews": 8
+    },
+    {
+      "name": "Sr. Taco Taqueria",
+      "reason": "format",
+      "address": "5681 S 12th Ave, Tucson, AZ 85706, USA",
+      "primaryType": "taco_restaurant",
+      "website": null,
+      "lat": 32.1492599,
+      "lng": -110.97742230000001,
+      "reviews": 59
+    },
+    {
+      "name": "Mariskito Tucson",
+      "reason": "low-signal",
+      "address": "5650 S 12th Ave Suite 172B, Tucson, AZ 85706, USA",
+      "primaryType": "seafood_restaurant",
+      "website": null,
+      "lat": 32.1500318,
+      "lng": -110.97813989999999,
+      "reviews": null
+    },
+    {
+      "name": "Classic Donut and Wings",
+      "reason": "format",
+      "address": "5650 S 12th Ave Suite 180, Tucson, AZ 85706, USA",
+      "primaryType": "chicken_wings_restaurant",
+      "website": null,
+      "lat": 32.150050799999995,
+      "lng": -110.9781337,
+      "reviews": null
+    },
+    {
+      "name": "Tropilandia",
+      "reason": "low-signal",
+      "address": "5550 S 12th Ave #172, Tucson, AZ 85706, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.1507664,
+      "lng": -110.97813320000002,
+      "reviews": 12
+    },
+    {
+      "name": "Taquería El Tío Tin",
+      "reason": "low-signal",
+      "address": "856 E Bilby Rd, Tucson, AZ 85706, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.1411529,
+      "lng": -110.958529,
+      "reviews": 8
+    },
+    {
+      "name": "Casa Bonita",
+      "reason": "closed",
+      "address": "1050 E Milton Rd, Tucson, AZ 85706, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.146440999999996,
+      "lng": -110.95506549999999,
+      "reviews": null
+    },
+    {
+      "name": "Lindo México taqueria y Raspaderia",
+      "reason": "format",
+      "address": "5835 S Park Ave, Tucson, AZ 85706, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.facebook.com/share/1GRSvvcXcR/?mibextid=wwXIfr",
+      "lat": 32.1458991,
+      "lng": -110.95581999999999,
+      "reviews": 4
+    },
+    {
+      "name": "Taqueria Alamos",
+      "reason": "format",
+      "address": "5610 S Campbell Ave, Tucson, AZ 85706, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.taqueriaalamos.com/?utm_source=GBP.website&utm_medium=GBP&utm_campaign=fd4909-website",
+      "lat": 32.149944999999995,
+      "lng": -110.9441016,
+      "reviews": 240
+    },
+    {
+      "name": "Santo Antojo",
+      "reason": "low-signal",
+      "address": "5650 S White Rock Ave, Tucson, AZ 85706, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.1489118,
+      "lng": -110.95523899999999,
+      "reviews": null
+    },
+    {
+      "name": "Chevychon",
+      "reason": "low-signal",
+      "address": "E Drexel Rd, S Park Ave, Tucson, AZ 85706, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.1487828,
+      "lng": -110.955705,
+      "reviews": null
+    },
+    {
+      "name": "Waffle House",
+      "reason": "chain",
+      "address": "2701 E Valencia Rd, Tucson, AZ 85706, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://www.wafflehouse.com/?olonwp=JjBtp_vMLk25gkYh_bnoiQ",
+      "lat": 32.1345058,
+      "lng": -110.93196089999999,
+      "reviews": 1453
+    },
+    {
+      "name": "JV Tacos Y Hot Dogs",
+      "reason": "low-signal",
+      "address": "6308 S Nogales Hwy, Tucson, AZ 85706, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.1374266,
+      "lng": -110.96278799999999,
+      "reviews": 10
+    },
+    {
+      "name": "El Mezquite Taqueria",
+      "reason": "format",
+      "address": "5900 S Palo Verde Rd, Tucson, AZ 85706, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.1448374,
+      "lng": -110.918461,
+      "reviews": 51
+    },
+    {
+      "name": "Bites on wheels",
+      "reason": "low-signal",
+      "address": "138 E Mossman Rd, Tucson, AZ 85706, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.1431325,
+      "lng": -110.92521359999999,
+      "reviews": null
+    },
+    {
+      "name": "Juaritoz",
+      "reason": "low-signal",
+      "address": "3691 E Earp Blvd, Tucson, AZ 85706, USA",
+      "primaryType": "taco_restaurant",
+      "website": null,
+      "lat": 32.148486999999996,
+      "lng": -110.913235,
+      "reviews": null
+    },
+    {
+      "name": "Riqiusimo Mexico",
+      "reason": "closed",
+      "address": "5890 S Bonney Ave, Tucson, AZ 85706, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.145670599999995,
+      "lng": -110.9243017,
+      "reviews": null
+    },
+    {
+      "name": "La Paloma Mexican Food",
+      "reason": "closed",
+      "address": "5801 S Country Club Rd, Tucson, AZ 85706, USA",
+      "primaryType": "diner",
+      "website": null,
+      "lat": 32.1466154,
+      "lng": -110.92591490000001,
+      "reviews": 4
+    },
+    {
+      "name": "Substance Diner",
+      "reason": "format",
+      "address": "3445 E Benson Hwy, Tucson, AZ 85706, USA",
+      "primaryType": "restaurant",
+      "website": "http://www.karlsdiner.com/",
+      "lat": 32.1535371,
+      "lng": -110.91892449999999,
+      "reviews": 175
+    },
+    {
+      "name": "Tiny's Family Restaurant",
+      "reason": "out-of-area",
+      "address": "4900 W Ajo Hwy, Tucson, AZ 85757, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.172238199999995,
+      "lng": -111.0702196,
+      "reviews": 1572
+    },
+    {
+      "name": "Bisbee Breakfast Club",
+      "reason": "format",
+      "address": "4633 W Ajo Hwy Suite 163, Tucson, AZ 85757, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://www.bisbeebreakfastclub.com/",
+      "lat": 32.1727661,
+      "lng": -111.0641634,
+      "reviews": 255
+    },
+    {
+      "name": "Burros Percherones y Tacos El Tekas",
+      "reason": "out-of-area",
+      "address": "4601 W Ajo Hwy, Tucson, AZ 85757, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.1728732,
+      "lng": -111.06336859999999,
+      "reviews": 30
+    },
+    {
+      "name": "Hustle Bustle Cafe",
+      "reason": "out-of-area",
+      "address": "5975 W Western Way Cir SUITE 106, Tucson, AZ 85713, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.1859981,
+      "lng": -111.091449,
+      "reviews": 348
+    },
+    {
+      "name": "House of Cheng",
+      "reason": "place-type",
+      "address": "5975 W Western Way Cir #115, Tucson, AZ 85713, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://newhouseofcheng.com/",
+      "lat": 32.1859204,
+      "lng": -111.09169639999999,
+      "reviews": 464
+    },
+    {
+      "name": "Brucedog",
+      "reason": "out-of-area",
+      "address": "5975 W Western Way Cir #109, Tucson, AZ 85713, USA",
+      "primaryType": "hot_dog_restaurant",
+      "website": null,
+      "lat": 32.1861688,
+      "lng": -111.09150290000001,
+      "reviews": 128
+    },
+    {
+      "name": "Texano’s Taco Rico",
+      "reason": "low-signal",
+      "address": "3085 S Kinney Rd, Tucson, AZ 85713, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.1861619,
+      "lng": -111.09281109999999,
+      "reviews": 16
+    },
+    {
+      "name": "La Herradura Mexican Grill & Seafood",
+      "reason": "out-of-area",
+      "address": "3051 S Kinney Rd, Tucson, AZ 85713, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://laherradurakitchen.com/",
+      "lat": 32.186557300000004,
+      "lng": -111.09236329999999,
+      "reviews": 415
+    },
+    {
+      "name": "Brunch Bistro Mexican Grill",
+      "reason": "format",
+      "address": "3053 S Kinney Rd, Tucson, AZ 85713, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://brunchbistromexicangrillaz.com/",
+      "lat": 32.187070999999996,
+      "lng": -111.09221749999999,
+      "reviews": 125
+    },
+    {
+      "name": "Church's Texas Chicken",
+      "reason": "chain",
+      "address": "1704 W Ajo Wy, Tucson, AZ 85713, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://locations.churchs.com/az/tucson/1704-w.-ajo-way",
+      "lat": 32.178310599999996,
+      "lng": -111.001717,
+      "reviews": 707
+    },
+    {
+      "name": "Little Caesars Pizza",
+      "reason": "chain",
+      "address": "1748 W Ajo Wy, Tucson, AZ 85713, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://littlecaesars.com/en-us/store/1659",
+      "lat": 32.179354,
+      "lng": -111.002494,
+      "reviews": 396
+    },
+    {
+      "name": "Olive Garden Italian Restaurant",
+      "reason": "chain",
+      "address": "1213 W Irvington Rd U-127, Tucson, AZ 85714, USA",
+      "primaryType": "italian_restaurant",
+      "website": "https://www.olivegarden.com/locations/az/tucson/tucson-irvington/1622?cmpid=br:og_ag:ie_ch:loc_ca:OGGMB_sn:gmb_gt:tucson-az-1622_pl:locurl_rd:1482",
+      "lat": 32.162582,
+      "lng": -110.991074,
+      "reviews": 3685
+    },
+    {
+      "name": "MOD Pizza",
+      "reason": "chain",
+      "address": "1218 W Irvington Rd Suite 190, Tucson, AZ 85714, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.modpizza.com/usa/az/tucson/1218-w-irvington-rd?utm_source=google&utm_medium=yext",
+      "lat": 32.163984,
+      "lng": -110.9906853,
+      "reviews": 851
+    },
+    {
+      "name": "Panda Express",
+      "reason": "chain",
+      "address": "1209 W Irvington Rd #100, Tucson, AZ 85706, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.pandaexpress.com/locations/az/tucson/989?utm_source=google_gbp&utm_medium=organic&utm_campaign=websitelink",
+      "lat": 32.1624687,
+      "lng": -110.9901318,
+      "reviews": 568
+    },
+    {
+      "name": "Chipotle Mexican Grill",
+      "reason": "chain",
+      "address": "1202 W Irvington Rd, Tucson, AZ 85714, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://locations.chipotle.com/az/tucson/1202-w-irvington-rd?utm_source=google&utm_medium=yext&utm_campaign=yext_listings?restaurant=3043",
+      "lat": 32.1639543,
+      "lng": -110.98961249999999,
+      "reviews": 1304
+    },
+    {
+      "name": "El Tapatio",
+      "reason": "low-signal",
+      "address": "4762 S 12th Ave, Tucson, AZ 85714, USA",
+      "primaryType": "taco_restaurant",
+      "website": "https://www.facebook.com/profile.php?id=100083691427678",
+      "lat": 32.1657369,
+      "lng": -110.97777889999999,
+      "reviews": 4
+    },
+    {
+      "name": "Masa Para Tamales",
+      "reason": "place-type",
+      "address": "12th W Oklahoma St, Tucson, AZ 85714, USA",
+      "primaryType": "food_store",
+      "website": null,
+      "lat": 32.1653477,
+      "lng": -110.977603,
+      "reviews": 4
+    },
+    {
+      "name": "SonoHana Teppan",
+      "reason": "low-signal",
+      "address": "772 W Irvington Rd, Tucson, AZ 85714, USA",
+      "primaryType": "restaurant",
+      "website": "https://instagram.com/sonohanateppan?utm_medium=copy_link",
+      "lat": 32.163516,
+      "lng": -110.98037599999999,
+      "reviews": null
+    },
+    {
+      "name": "Antojitos La Chapis",
+      "reason": "low-signal",
+      "address": "786 W Irvington Rd, Tucson, AZ 85714, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.instagram.com/la_chapis1301?igsh=MWxyc2dwemlkOGUyOA==&utm_source=qr",
+      "lat": 32.163461,
+      "lng": -110.9808946,
+      "reviews": null
+    },
+    {
+      "name": "Tacos Mexicali",
+      "reason": "low-signal",
+      "address": "786 W Irvington Rd, Tucson, AZ 85714, USA",
+      "primaryType": "taco_restaurant",
+      "website": null,
+      "lat": 32.1634616,
+      "lng": -110.980896,
+      "reviews": 18
+    },
+    {
+      "name": "La Jauz",
+      "reason": "low-signal",
+      "address": "786 W Irvington Rd, Tucson, AZ 85714, USA",
+      "primaryType": "fusion_restaurant",
+      "website": null,
+      "lat": 32.1634617,
+      "lng": -110.9808963,
+      "reviews": 1
+    },
+    {
+      "name": "Taquería Tutuli",
+      "reason": "low-signal",
+      "address": "4920 S 12th Ave, Tucson, AZ 85706, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.1625142,
+      "lng": -110.9780162,
+      "reviews": 11
+    },
+    {
+      "name": "Peter Piper Pizza Express",
+      "reason": "chain",
+      "address": "1770 E Irvington Rd #100, Tucson, AZ 85714, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.peterpiperpizza.com/az/tucson/1770-east-irvington-rd.?utm_source=Google&utm_medium=Rio",
+      "lat": 32.1625663,
+      "lng": -110.9451687,
+      "reviews": 85
+    },
+    {
+      "name": "Taqueria El Chacho",
+      "reason": "format",
+      "address": "2001 E Irvington Rd, Tucson, AZ 85714, USA",
+      "primaryType": "taco_restaurant",
+      "website": null,
+      "lat": 32.1633743,
+      "lng": -110.94215990000001,
+      "reviews": null
+    },
+    {
+      "name": "Filiberto's Mexican Food",
+      "reason": "chain",
+      "address": "5010 S Campbell Ave, Tucson, AZ 85706, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.1611902,
+      "lng": -110.94383739999999,
+      "reviews": 434
+    },
+    {
+      "name": "Papa Johns Pizza",
+      "reason": "chain",
+      "address": "2071 E Irvington Rd Ste 117, Tucson, AZ 85714, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.papajohns.com/united-states/az/85714/tucson/2071-e-irvington-rd?utm_source=gmb&utm_medium=organic&y_source=1_MTA2OTIwNDYtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 32.164692699999996,
+      "lng": -110.9406391,
+      "reviews": 238
+    },
+    {
+      "name": "Little Caesars Pizza",
+      "reason": "chain",
+      "address": "2175 E Irvington Rd, Tucson, AZ 85714, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://littlecaesars.com/en-us/store/1667",
+      "lat": 32.163782999999995,
+      "lng": -110.939745,
+      "reviews": 841
+    },
+    {
+      "name": "Mei Hon Chinese Restaurant",
+      "reason": "place-type",
+      "address": "1030 E Irvington Rd, Tucson, AZ 85714, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "http://meihontucsonaz.com/",
+      "lat": 32.1629965,
+      "lng": -110.9553835,
+      "reviews": 849
+    },
+    {
+      "name": "El 501",
+      "reason": "low-signal",
+      "address": "4855 S Park Ave, Tucson, AZ 85714, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.164093099999995,
+      "lng": -110.9558335,
+      "reviews": 21
+    },
+    {
+      "name": "Tacontento",
+      "reason": "low-signal",
+      "address": "860 E Irvington Rd, Tucson, AZ 85714, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.facebook.com/TacontentoLLC",
+      "lat": 32.1623677,
+      "lng": -110.95760399999999,
+      "reviews": null
+    },
+    {
+      "name": "Mr. Taco",
+      "reason": "closed",
+      "address": "5302 S Park Ave, Tucson, AZ 85706, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.canva.com/design/DAE7kjxhc5w/yd_nYa-Y_-tUbGGkGv2zpg/view?utm_content=DAE7kjxhc5w&utm_campaign=designshare&utm_medium=link&utm_source=shareyourdesignpanel",
+      "lat": 32.1556822,
+      "lng": -110.9563929,
+      "reviews": 23
+    },
+    {
+      "name": "Crispy Fried Chicken",
+      "reason": "closed",
+      "address": "1999 W Ajo Way, Tucson, AZ 85713, USA",
+      "primaryType": "chicken_restaurant",
+      "website": null,
+      "lat": 32.1785346,
+      "lng": -110.9422821,
+      "reviews": 3
+    },
+    {
+      "name": "Waffle House",
+      "reason": "chain",
+      "address": "3565 E Irvington Rd, Tucson, AZ 85714, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://www.wafflehouse.com/?olonwp=JjBtp_vMLk25gkYh_bnoiQ",
+      "lat": 32.1636303,
+      "lng": -110.91619080000001,
+      "reviews": 2032
+    },
+    {
+      "name": "Hotel las palmas",
+      "reason": "low-signal",
+      "address": "Tucson, AZ 85706, USA",
+      "primaryType": "chicken_restaurant",
+      "website": null,
+      "lat": 32.1600615,
+      "lng": -110.91891989999999,
+      "reviews": null
+    },
+    {
+      "name": "Banhdicted",
+      "reason": "closed",
+      "address": "4100 S Palo Verde Rd #01, Tucson, AZ 85714, USA",
+      "primaryType": "vietnamese_restaurant",
+      "website": "http://banhdicted.com/",
+      "lat": 32.172793399999996,
+      "lng": -110.9178371,
+      "reviews": 17
+    },
+    {
+      "name": "The Birria Munchies Truck",
+      "reason": "format",
+      "address": "4100 S Palo Verde Rd, Tucson, AZ 85714, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://the-birria-munchies-truck.square.site/",
+      "lat": 32.173685899999995,
+      "lng": -110.91951449999999,
+      "reviews": 55
+    },
+    {
+      "name": "Muncheez",
+      "reason": "low-signal",
+      "address": "4100 S Palo Verde Rd, Tucson, AZ 85714, USA",
+      "primaryType": "restaurant",
+      "website": "http://muncheezxxii.com/",
+      "lat": 32.174417,
+      "lng": -110.91854959999999,
+      "reviews": 21
+    },
+    {
+      "name": "Los Cuates Taqueria",
+      "reason": "format",
+      "address": "4100 S Palo Verde Rd, Tucson, AZ 85714, USA",
+      "primaryType": "taco_restaurant",
+      "website": null,
+      "lat": 32.174417,
+      "lng": -110.91854959999999,
+      "reviews": null
+    },
+    {
+      "name": "Don Ribs BBQ",
+      "reason": "low-signal",
+      "address": "4100 S Palo Verde Rd, 11 S 6th Ave, Tucson, AZ 85714, USA",
+      "primaryType": "barbecue_restaurant",
+      "website": "https://www.donribsbbq.com/",
+      "lat": 32.17445,
+      "lng": -110.918624,
+      "reviews": 7
+    },
+    {
+      "name": "Pinnacle Concessions",
+      "reason": "closed",
+      "address": "4100 S Palo Verde Rd, Tucson, AZ 85714, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.1747435,
+      "lng": -110.9187558,
+      "reviews": 3
+    },
+    {
+      "name": "Sonora grill & sweets",
+      "reason": "low-signal",
+      "address": "4100 S Palo Verde Rd, Tucson, AZ 85714, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.1744554,
+      "lng": -110.9204984,
+      "reviews": null
+    },
+    {
+      "name": "El Encanto Mexican Food",
+      "reason": "low-signal",
+      "address": "4100 S Palo Verde Rd, Tucson, AZ 85714, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.facebook.com/Elencantomexicanfood",
+      "lat": 32.1744554,
+      "lng": -110.9204984,
+      "reviews": 2
+    },
+    {
+      "name": "Doobie's Brunch Joint LLC",
+      "reason": "format",
+      "address": "4100 S Palo Verde Rd, Tucson, AZ 85714, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.1744641,
+      "lng": -110.92049279999999,
+      "reviews": 2
+    },
+    {
+      "name": "Chopstix Asian Diner",
+      "reason": "format",
+      "address": "3820 S Palo Verde Rd #101, Tucson, AZ 85714, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "http://chopstixasiandineraz.com/",
+      "lat": 32.1774317,
+      "lng": -110.9185309,
+      "reviews": 600
+    },
+    {
+      "name": "Taqueria El Rapido",
+      "reason": "format",
+      "address": "3110 E Benson Hwy, Tucson, AZ 85706, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.facebook.com/TaqueriasElRapido/",
+      "lat": 32.156731799999996,
+      "lng": -110.925586,
+      "reviews": 325
+    },
+    {
+      "name": "QDOBA Mexican Eats",
+      "reason": "chain",
+      "address": "5405 Granite St Bldg 2527, Tucson, AZ 85707, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://locations.qdoba.com/us/az/davis-monthan-afb/5405-e-granite-st?utm_medium=organic&utm_source=google&utm_campaign=google_maps&utm_content=website&utm_term=1795",
+      "lat": 32.18333,
+      "lng": -110.877028,
+      "reviews": 41
+    },
+    {
+      "name": "Popeyes Louisiana Kitchen",
+      "reason": "chain",
+      "address": "military Post Access Required, 5404 Granite St Bldg 2527, Tucson, AZ 85707, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://www.popeyes.com/store-locator/store/restaurant_82838",
+      "lat": 32.1834142,
+      "lng": -110.8766108,
+      "reviews": 60
+    },
+    {
+      "name": "ZENSHI Handcrafted Sushi",
+      "reason": "low-signal",
+      "address": "5455 E Comanche St, DM AFB, AZ 85707, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.zenshisushi.com/",
+      "lat": 32.1867148,
+      "lng": -110.876791,
+      "reviews": 1
+    },
+    {
+      "name": "Little Caesars Pizza",
+      "reason": "chain",
+      "address": "7076 E Golf Links Rd, Tucson, AZ 85730, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://littlecaesars.com/en-us/store/1652",
+      "lat": 32.190387,
+      "lng": -110.841911,
+      "reviews": 749
+    },
+    {
+      "name": "Panda Express",
+      "reason": "chain",
+      "address": "6370 E Golf Links Rd, Tucson, AZ 85730, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.pandaexpress.com/locations/az/tucson/1155?utm_source=google_gbp&utm_medium=organic&utm_campaign=websitelink",
+      "lat": 32.191547799999995,
+      "lng": -110.8561639,
+      "reviews": 1020
+    },
+    {
+      "name": "Jerry Bob's Family Restaurant",
+      "reason": "place-type",
+      "address": "7066 E Golf Links Rd, Tucson, AZ 85730, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": null,
+      "lat": 32.191078,
+      "lng": -110.8418054,
+      "reviews": 515
+    },
+    {
+      "name": "YaMamas Soul Food Restaurant",
+      "reason": "closed",
+      "address": "10265 E Irvington Rd, Tucson, AZ 85730, USA",
+      "primaryType": "soul_food_restaurant",
+      "website": null,
+      "lat": 32.163050399999996,
+      "lng": -110.7732671,
+      "reviews": 28
+    },
+    {
+      "name": "ZENSHI Handcrafted Sushi",
+      "reason": "low-signal",
+      "address": "9460 E Golf Links Rd, Tucson, AZ 85730, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.zenshisushi.com/",
+      "lat": 32.1901903,
+      "lng": -110.79093820000001,
+      "reviews": 1
+    },
+    {
+      "name": "Tacos y Antojitos Sol",
+      "reason": "closed",
+      "address": "Start Pass and Greasewood Rd, Tucson, AZ 85745, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.2068745,
+      "lng": -111.0205495,
+      "reviews": null
+    },
+    {
+      "name": "Arizona's Most Famos Chili",
+      "reason": "low-signal",
+      "address": "3000 S Mission Rd, Tucson, AZ 85713, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.18735600000001,
+      "lng": -111.00184349999999,
+      "reviews": 4
+    },
+    {
+      "name": "Doña Angelita Tortillas",
+      "reason": "place-type",
+      "address": "1898 S Mission Rd Suite 120, Tucson, AZ 85713, USA",
+      "primaryType": "food_store",
+      "website": null,
+      "lat": 32.1998527,
+      "lng": -110.997219,
+      "reviews": 14
+    },
+    {
+      "name": "Power Up Nutrition",
+      "reason": "closed",
+      "address": "3742 S 16th Ave, Tucson, AZ 85713, USA",
+      "primaryType": "juice_shop",
+      "website": null,
+      "lat": 32.1787479,
+      "lng": -110.9845993,
+      "reviews": 24
+    },
+    {
+      "name": "Tran’s Fats Truck",
+      "reason": "closed",
+      "address": "720 W Silverlake Rd #302, Tucson, AZ 85713, USA",
+      "primaryType": "vietnamese_restaurant",
+      "website": "https://www.transfatstucson.com/",
+      "lat": 32.19975,
+      "lng": -110.9805444,
+      "reviews": 43
+    },
+    {
+      "name": "El Coco Loco",
+      "reason": "closed",
+      "address": "2980 S 6th Ave #130, Tucson, AZ 85713, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.1888782,
+      "lng": -110.96960589999999,
+      "reviews": 5
+    },
+    {
+      "name": "Little Caesars Pizza",
+      "reason": "chain",
+      "address": "2980 S 6th Ave, Tucson, AZ 85713, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://littlecaesars.com/en-us/store/7826",
+      "lat": 32.1889494,
+      "lng": -110.9695453,
+      "reviews": 529
+    },
+    {
+      "name": "Taqueria Pico de Gallo",
+      "reason": "format",
+      "address": "2618 S 6th Ave, Tucson, AZ 85713, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://taqueriapicodegallo.shop/",
+      "lat": 32.191990499999996,
+      "lng": -110.9685969,
+      "reviews": 1877
+    },
+    {
+      "name": "Wingstop",
+      "reason": "chain",
+      "address": "2980 S 6th Ave Ste 150, Tucson, AZ 85713, USA",
+      "primaryType": "chicken_wings_restaurant",
+      "website": "https://www.wingstop.com/location/wingstop-1199-tucson-az-85713/menu?y_source=1_NTUyMDc3NTktNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 32.1888809,
+      "lng": -110.969332,
+      "reviews": 644
+    },
+    {
+      "name": "Burger King",
+      "reason": "chain",
+      "address": "3002 S 6th Ave, Tucson, AZ 85713, USA",
+      "primaryType": "restaurant",
+      "website": "https://burgerking.com/store-locator/store/24335",
+      "lat": 32.1882956,
+      "lng": -110.9688674,
+      "reviews": 637
+    },
+    {
+      "name": "Flory’s Events",
+      "reason": "low-signal",
+      "address": "2114 S 6th Ave, Tucson, AZ 85713, USA",
+      "primaryType": "restaurant",
+      "website": "https://florysevents.com/",
+      "lat": 32.1971221,
+      "lng": -110.9687832,
+      "reviews": null
+    },
+    {
+      "name": "Taqueria Porfis",
+      "reason": "format",
+      "address": "3553 S 12th Ave #117, Tucson, AZ 85713, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://taqueriaporfisaz.com/",
+      "lat": 32.1818866,
+      "lng": -110.97706319999999,
+      "reviews": 811
+    },
+    {
+      "name": "Toco Toco Tacos",
+      "reason": "closed",
+      "address": "1555 S 10th Ave, Tucson, AZ 85713, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.facebook.com/people/Marys-Lucky/100010903965852",
+      "lat": 32.2027679,
+      "lng": -110.9744113,
+      "reviews": 11
+    },
+    {
+      "name": "Panda Express",
+      "reason": "chain",
+      "address": "3398 S 6th Ave, Tucson, AZ 85713, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.pandaexpress.com/locations/az/tucson/1837?utm_source=google_gbp&utm_medium=organic&utm_campaign=websitelink",
+      "lat": 32.185372199999996,
+      "lng": -110.96861120000001,
+      "reviews": 1153
+    },
+    {
+      "name": "Los Mezquites Restauran Sonorense",
+      "reason": "place-type",
+      "address": "2527 S 4th Ave, Tucson, AZ 85713, USA",
+      "primaryType": "buffet_restaurant",
+      "website": null,
+      "lat": 32.1928237,
+      "lng": -110.9651413,
+      "reviews": 174
+    },
+    {
+      "name": "Sierrita Operations Snack Bar",
+      "reason": "low-signal",
+      "address": "Silverlake Park, 2420 South Kino Pkwy, Tucson, AZ 85713, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.1945823,
+      "lng": -110.94995039999999,
+      "reviews": 1
+    },
+    {
+      "name": "KFC",
+      "reason": "chain",
+      "address": "2985 South Kino Pkwy, Tucson, AZ 85713, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://locations.kfc.com/az/tucson/2985-south-kino-parkway",
+      "lat": 32.1876558,
+      "lng": -110.9442567,
+      "reviews": 687
+    },
+    {
+      "name": "Culver’s",
+      "reason": "chain",
+      "address": "3070 S Campbell Ave, Tucson, AZ 85713, USA",
+      "primaryType": "american_restaurant",
+      "website": "http://www.culvers.com/restaurants/tucson-az-campbell/?utm_source=Google&utm_medium=Maps&utm_campaign=Google+Places",
+      "lat": 32.1859678,
+      "lng": -110.94389799999999,
+      "reviews": 3183
+    },
+    {
+      "name": "Salad and Go",
+      "reason": "chain",
+      "address": "1730 E Tucson Marketplace Blvd, Tucson, AZ 85713, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.saladandgo.com/?olonwp=JjBtp_vMLk25gkYh_bnoiQ",
+      "lat": 32.1849019,
+      "lng": -110.9464622,
+      "reviews": 403
+    },
+    {
+      "name": "MOD Pizza",
+      "reason": "chain",
+      "address": "3460 South Kino Pkwy Suite 110, Tucson, AZ 85713, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.modpizza.com/usa/az/tucson/3460-south-kino-pkwy?utm_source=google&utm_medium=yext",
+      "lat": 32.184767199999996,
+      "lng": -110.94496749999999,
+      "reviews": 144
+    },
+    {
+      "name": "Panda Express",
+      "reason": "chain",
+      "address": "3466 South Kino Pkwy, Tucson, AZ 85713, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.pandaexpress.com/locations/az/tucson/3525?utm_source=google_gbp&utm_medium=organic&utm_campaign=websitelink",
+      "lat": 32.184433500000004,
+      "lng": -110.9461534,
+      "reviews": 184
+    },
+    {
+      "name": "First Watch",
+      "reason": "chain",
+      "address": "3460 South Kino Pkwy #160, Tucson, AZ 85713, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://www.firstwatch.com/locations/the-bridges/?utm_source=gbp-listing&utm_medium=organic&utm_campaign=gbp-listing&utm_content=the-bridges",
+      "lat": 32.1845786,
+      "lng": -110.94481689999999,
+      "reviews": 968
+    },
+    {
+      "name": "Chipotle Mexican Grill",
+      "reason": "chain",
+      "address": "3510 South Kino Pkwy, Tucson, AZ 85713, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://locations.chipotle.com/az/tucson/3510-s-kino-pkwy?utm_source=google&utm_medium=yext&utm_campaign=yext_listings?restaurant=3837",
+      "lat": 32.1839315,
+      "lng": -110.94504080000002,
+      "reviews": 552
+    },
+    {
+      "name": "Smoothie King",
+      "reason": "place-type",
+      "address": "1070 E Tucson Marketplace Blvd Suite 100, Tucson, AZ 85713, USA",
+      "primaryType": "juice_shop",
+      "website": "https://locations.smoothieking.com/ll/us/az/tucson/1070-e-tucson-marketplace-blvd-suite-100/?utm_source=google&utm_medium=organic&utm_content=SOCi",
+      "lat": 32.1867885,
+      "lng": -110.9547926,
+      "reviews": 320
+    },
+    {
+      "name": "Popeyes Louisiana Kitchen",
+      "reason": "chain",
+      "address": "1058 E Tucson Marketplace Blvd, Tucson, AZ 85713, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://www.popeyes.com/store-locator/store/restaurant_86513",
+      "lat": 32.1863551,
+      "lng": -110.9555791,
+      "reviews": 2315
+    },
+    {
+      "name": "Filibertos Mexican Food",
+      "reason": "chain",
+      "address": "1610 E Tucson Marketplace Blvd, Tucson, AZ 85713, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.1825849,
+      "lng": -110.94736739999999,
+      "reviews": 7
+    },
+    {
+      "name": "Lin's Grand Buffet",
+      "reason": "format",
+      "address": "1068 E Tucson Marketplace Blvd, Tucson, AZ 85713, USA",
+      "primaryType": "buffet_restaurant",
+      "website": "http://www.linsrestaurant.com/",
+      "lat": 32.185651799999995,
+      "lng": -110.955551,
+      "reviews": 5868
+    },
+    {
+      "name": "Yoly's Mexico Grande Restaurant",
+      "reason": "low-signal",
+      "address": "E Benson Hwy, Tucson, AZ 85713, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.181331199999995,
+      "lng": -110.955181,
+      "reviews": null
+    },
+    {
+      "name": "Imad Habibi Food",
+      "reason": "low-signal",
+      "address": "3050 E 36th St, Tucson, AZ 85713, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.imadhabibifood.com/",
+      "lat": 32.1906003,
+      "lng": -110.92686119999999,
+      "reviews": 23
+    },
+    {
+      "name": "RealGood Brunch Co.",
+      "reason": "format",
+      "address": "1310 S Alvernon Way, Tucson, AZ 85711, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.realgoodbrunch.com/",
+      "lat": 32.205875899999995,
+      "lng": -110.909939,
+      "reviews": 273
+    },
+    {
+      "name": "Burger King",
+      "reason": "chain",
+      "address": "3485 E Ajo Way, Tucson, AZ 85713, USA",
+      "primaryType": "restaurant",
+      "website": "https://burgerking.com/store-locator/store/9644",
+      "lat": 32.178405999999995,
+      "lng": -110.91815729999999,
+      "reviews": 880
+    },
+    {
+      "name": "Peter Piper Pizza",
+      "reason": "chain",
+      "address": "4112 E 22nd St, Tucson, AZ 85711, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.peterpiperpizza.com/az/tucson/4112-e-22nd-st?utm_source=Google&utm_medium=Rio",
+      "lat": 32.2052287,
+      "lng": -110.90501,
+      "reviews": 826
+    },
+    {
+      "name": "Church's Texas Chicken",
+      "reason": "chain",
+      "address": "3970 E 22nd St, Tucson, AZ 85711, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://locations.churchs.com/az/tucson/3970-e.-22nd-street",
+      "lat": 32.206649,
+      "lng": -110.9075235,
+      "reviews": 1068
+    },
+    {
+      "name": "Taqueria Wild West",
+      "reason": "format",
+      "address": "2023 S Craycroft Rd, Tucson, AZ 85711, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.1983751,
+      "lng": -110.8745337,
+      "reviews": 30
+    },
+    {
+      "name": "BobaKingandWings",
+      "reason": "low-signal",
+      "address": "2001 S Craycroft Rd, Tucson, AZ 85711, USA",
+      "primaryType": "filipino_restaurant",
+      "website": null,
+      "lat": 32.1986201,
+      "lng": -110.8746077,
+      "reviews": 2
+    },
+    {
+      "name": "Los Ale's Mexican Street Food",
+      "reason": "low-signal",
+      "address": "5441 E 22nd St, Tucson, AZ 85711, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.2079956,
+      "lng": -110.8763402,
+      "reviews": 2
+    },
+    {
+      "name": "Little Caesars Pizza",
+      "reason": "chain",
+      "address": "5447 E 22nd St, Tucson, AZ 85711, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://littlecaesars.com/en-us/store/1658",
+      "lat": 32.207848999999996,
+      "lng": -110.875681,
+      "reviews": 1340
+    },
+    {
+      "name": "Third Base Bar & Grill",
+      "reason": "closed",
+      "address": "6255 E Golf Links Rd, Tucson, AZ 85711, USA",
+      "primaryType": "bar",
+      "website": null,
+      "lat": 32.192713,
+      "lng": -110.859173,
+      "reviews": 4
+    },
+    {
+      "name": "Dankfire Fare",
+      "reason": "closed",
+      "address": "6255 E Golf Links Rd, Tucson, AZ 85711, USA",
+      "primaryType": "bar_and_grill",
+      "website": null,
+      "lat": 32.192695799999996,
+      "lng": -110.8591845,
+      "reviews": 28
+    },
+    {
+      "name": "Church's Texas Chicken",
+      "reason": "chain",
+      "address": "7090 E Golf Links Rd, Tucson, AZ 85730, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://locations.churchs.com/az/tucson/7090-e.-golf-links-road",
+      "lat": 32.1914043,
+      "lng": -110.841543,
+      "reviews": 590
+    },
+    {
+      "name": "Joe's Pancake House",
+      "reason": "place-type",
+      "address": "2532 S Kolb Rd, Tucson, AZ 85710, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "http://www.joespancakehousetucson.com/",
+      "lat": 32.1935465,
+      "lng": -110.8413937,
+      "reviews": 1208
+    },
+    {
+      "name": "KFC",
+      "reason": "chain",
+      "address": "7245 E Golf Links Rd, Tucson, AZ 85730, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://locations.kfc.com/az/tucson/7245-e-golf-links-road",
+      "lat": 32.1924158,
+      "lng": -110.83811379999999,
+      "reviews": 1371
+    },
+    {
+      "name": "Raspados el Paraíso",
+      "reason": "place-type",
+      "address": "7701 E Golf Links Rd, Tucson, AZ 85730, USA",
+      "primaryType": "dessert_shop",
+      "website": "https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://raspadostucson.com/&ved=2ahUKEwixqNGy4ZWOAxWFPUQIHZy0FpgQFnoECBYQAQ&usg=AOvVaw3kNy2iB83ZBJR2-q79oE1r",
+      "lat": 32.1923236,
+      "lng": -110.827912,
+      "reviews": 208
+    },
+    {
+      "name": "Filiberto's Mexican Food",
+      "reason": "chain",
+      "address": "8601 E Golf Links Rd, Tucson, AZ 85730, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://filibertos.com/",
+      "lat": 32.1925094,
+      "lng": -110.8086828,
+      "reviews": 302
+    },
+    {
+      "name": "Big Dawgs Italian Beef 22nd",
+      "reason": "low-signal",
+      "address": "Pantano Parkview Shopping Center, 8060 E 22nd St, Tucson, AZ 85710, USA",
+      "primaryType": "american_restaurant",
+      "website": null,
+      "lat": 32.2059043,
+      "lng": -110.82110069999999,
+      "reviews": null
+    },
+    {
+      "name": "Tacos y Hot Dogs Los Muñecos",
+      "reason": "low-signal",
+      "address": "7889 E 22nd St, Tucson, AZ 85710, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.2067979,
+      "lng": -110.8243067,
+      "reviews": null
+    },
+    {
+      "name": "La Herradura Mexican food truck",
+      "reason": "format",
+      "address": "7889 E 22nd St, Tucson, AZ 85710, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.2068015,
+      "lng": -110.8243083,
+      "reviews": 5
+    },
+    {
+      "name": "Biggie Boy BBQ",
+      "reason": "low-signal",
+      "address": "7889 E 22nd St, Tucson, AZ 85710, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.2069216,
+      "lng": -110.8242525,
+      "reviews": 19
+    },
+    {
+      "name": "Village Inn",
+      "reason": "place-type",
+      "address": "9560 E 22nd St, Tucson, AZ 85716, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://www.villageinn.com/tucson-az-22nd-and-harrison/",
+      "lat": 32.205908,
+      "lng": -110.788675,
+      "reviews": 2020
+    },
+    {
+      "name": "Chipotle Mexican Grill",
+      "reason": "chain",
+      "address": "9484 E 22nd St, Tucson, AZ 85710, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://locations.chipotle.com/az/tucson/9484-e-22nd-st?utm_source=google&utm_medium=yext&utm_campaign=yext_listings?restaurant=2118",
+      "lat": 32.2059615,
+      "lng": -110.7901435,
+      "reviews": 1398
+    },
+    {
+      "name": "Panda Express",
+      "reason": "chain",
+      "address": "9565 E 22nd St SUITE 155, Tucson, AZ 85748, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.pandaexpress.com/locations/az/tucson/924?utm_source=google_gbp&utm_medium=organic&utm_campaign=websitelink",
+      "lat": 32.2068456,
+      "lng": -110.7884703,
+      "reviews": 831
+    },
+    {
+      "name": "Margie's Kitchen",
+      "reason": "place-type",
+      "address": "9431 E 22nd St, Tucson, AZ 85710, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "http://www.margieskitchenaz.com/",
+      "lat": 32.2074515,
+      "lng": -110.7909004,
+      "reviews": 1016
+    },
+    {
+      "name": "Pizza Hut Express",
+      "reason": "chain",
+      "address": "9615 E Old Spanish Trail, Tucson, AZ 85748, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.pizzahut.com/az/tucson/9615-e-old-spanish-trail?utm_medium=organic&utm_source=local&utm_campaign=googlelistings&utm_content=website&utm_term=280931",
+      "lat": 32.2077123,
+      "lng": -110.7861697,
+      "reviews": 9
+    },
+    {
+      "name": "Peter Piper Pizza",
+      "reason": "chain",
+      "address": "9545 E Old Spanish Trail, Tucson, AZ 85748, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.peterpiperpizza.com/az/tucson/9545-e-old-spanish-trail?utm_source=Google&utm_medium=Rio",
+      "lat": 32.208280099999996,
+      "lng": -110.7885627,
+      "reviews": 899
+    },
+    {
+      "name": "Harmon Hospitality Group",
+      "reason": "low-signal",
+      "address": "2800 W Broadway Blvd apt 5111, Tucson, AZ 85745, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.2224534,
+      "lng": -111.02703939999999,
+      "reviews": null
+    },
+    {
+      "name": "Church's Texas Chicken",
+      "reason": "chain",
+      "address": "1450 W St Marys Rd, Tucson, AZ 85745, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://locations.churchs.com/az/tucson/1450-w.-st.-marys-road",
+      "lat": 32.229346,
+      "lng": -110.99625999999999,
+      "reviews": 15
+    },
+    {
+      "name": "Panda Express",
+      "reason": "chain",
+      "address": "1055 N Silverbell Rd, Tucson, AZ 85745, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.pandaexpress.com/locations/az/tucson/1494?utm_source=google_gbp&utm_medium=organic&utm_campaign=websitelink",
+      "lat": 32.235071999999995,
+      "lng": -111.00448259999999,
+      "reviews": 928
+    },
+    {
+      "name": "Watadogo",
+      "reason": "low-signal",
+      "address": "1235 W St Marys Rd, Tucson, AZ 85745, USA",
+      "primaryType": "hot_dog_restaurant",
+      "website": null,
+      "lat": 32.2289946,
+      "lng": -110.99197129999999,
+      "reviews": 14
+    },
+    {
+      "name": "Whatadogo",
+      "reason": "low-signal",
+      "address": "1211 W St Marys Rd, Tucson, AZ 85745, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.22920680000001,
+      "lng": -110.9910515,
+      "reviews": 21
+    },
+    {
+      "name": "Taqueria Valle Del Yaqui",
+      "reason": "format",
+      "address": "921 W Congress St, Tucson, AZ 85745, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.220376699999996,
+      "lng": -110.98766959999999,
+      "reviews": 28
+    },
+    {
+      "name": "Little Caesars Pizza",
+      "reason": "chain",
+      "address": "1201 W St Marys Rd, Tucson, AZ 85745, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://littlecaesars.com/en-us/store/7869",
+      "lat": 32.229183,
+      "lng": -110.98987699999999,
+      "reviews": 534
+    },
+    {
+      "name": "Zeolites India",
+      "reason": "closed",
+      "address": "222 S Freeway #3234, Tucson, AZ 85745, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.219166099999995,
+      "lng": -110.9805535,
+      "reviews": null
+    },
+    {
+      "name": "El Mezquite Grill & Taqueria",
+      "reason": "format",
+      "address": "280 S Church Ave, Tucson, AZ 85701, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.elmezquitetucson.com/",
+      "lat": 32.2173807,
+      "lng": -110.97316509999999,
+      "reviews": 115
+    },
+    {
+      "name": "3MARGARITAS KITCHEN (FOOD TRUCK)",
+      "reason": "format",
+      "address": "1540 E Broadway Blvd, Tucson, AZ 85719, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://3margaritaskitchen.blogspot.com/",
+      "lat": 32.2210254,
+      "lng": -110.94835010000001,
+      "reviews": 30
+    },
+    {
+      "name": "Ciscos Locos Tacos",
+      "reason": "low-signal",
+      "address": "1402 E Manlove St, Tucson, AZ 85719, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.2176423,
+      "lng": -110.94877749999999,
+      "reviews": null
+    },
+    {
+      "name": "ZENSHI Handcrafted Sushi",
+      "reason": "low-signal",
+      "address": "1940 E Broadway Blvd, Tucson, AZ 85719, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.zenshisushi.com/",
+      "lat": 32.220132899999996,
+      "lng": -110.943009,
+      "reviews": null
+    },
+    {
+      "name": "Ahmads Kabobs & Shawarma",
+      "reason": "low-signal",
+      "address": "1148 E Broadway Blvd, Tucson, AZ 85719, USA",
+      "primaryType": "mediterranean_restaurant",
+      "website": null,
+      "lat": 32.2211438,
+      "lng": -110.9534666,
+      "reviews": 17
+    },
+    {
+      "name": "Shake Smart",
+      "reason": "place-type",
+      "address": "1400 E 6th St, Tucson, AZ 85721, USA",
+      "primaryType": "restaurant",
+      "website": "http://www.shakesmart.com/",
+      "lat": 32.2275619,
+      "lng": -110.95034779999999,
+      "reviews": 26
+    },
+    {
+      "name": "Sprouts House",
+      "reason": "low-signal",
+      "address": "415 N Mountain Ave, Tucson, AZ 85719, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.2269539,
+      "lng": -110.9525498,
+      "reviews": null
+    },
+    {
+      "name": "Bear Down Kitchen",
+      "reason": "place-type",
+      "address": "565 N Cherry Ave Floor 4, Tucson, AZ 85721, USA",
+      "primaryType": "buffet_restaurant",
+      "website": null,
+      "lat": 32.229638,
+      "lng": -110.9482769,
+      "reviews": 38
+    },
+    {
+      "name": "Panda Express",
+      "reason": "chain",
+      "address": "3587 E Broadway Blvd Suite A125, Tucson, AZ 85716, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.pandaexpress.com/locations/az/tucson/1673?utm_source=google_gbp&utm_medium=organic&utm_campaign=websitelink",
+      "lat": 32.2219894,
+      "lng": -110.9163421,
+      "reviews": 998
+    },
+    {
+      "name": "Bisbee Breakfast Club",
+      "reason": "format",
+      "address": "2936 E Broadway Blvd, Tucson, AZ 85716, USA",
+      "primaryType": "restaurant",
+      "website": "http://bisbeebreakfastclub.com/",
+      "lat": 32.2212487,
+      "lng": -110.9279768,
+      "reviews": 1087
+    },
+    {
+      "name": "Craft Culinary Concepts at Reid Park Zoo",
+      "reason": "low-signal",
+      "address": "3400 E Zoo Ct, Tucson, AZ 85716, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.208792599999995,
+      "lng": -110.9213774,
+      "reviews": null
+    },
+    {
+      "name": "Burgerrito Food Truck",
+      "reason": "format",
+      "address": "5151 E Broadway Blvd, Tucson, AZ 85711, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.2227561,
+      "lng": -110.88250049999999,
+      "reviews": 3
+    },
+    {
+      "name": "First Watch",
+      "reason": "chain",
+      "address": "5350 E Broadway Blvd #103, Tucson, AZ 85711, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://www.firstwatch.com/locations/williams/?utm_source=gbp-listing&utm_medium=organic&utm_campaign=gbp-listing&utm_content=williams",
+      "lat": 32.2209491,
+      "lng": -110.87859979999999,
+      "reviews": 1599
+    },
+    {
+      "name": "Guadalajara Mexican Grill",
+      "reason": "place-type",
+      "address": "4901 E Broadway Blvd, Tucson, AZ 85711, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://www.ggrill.com/",
+      "lat": 32.2220904,
+      "lng": -110.88753799999999,
+      "reviews": 24258
+    },
+    {
+      "name": "Fruit Shack Smoothies, Bowls & Juices",
+      "reason": "place-type",
+      "address": "5420 E Broadway Blvd #234, Tucson, AZ 85711, USA",
+      "primaryType": "juice_shop",
+      "website": "http://www.fruitshacksmoothies.com/",
+      "lat": 32.2208348,
+      "lng": -110.87685619999999,
+      "reviews": 203
+    },
+    {
+      "name": "Olive Garden Italian Restaurant",
+      "reason": "chain",
+      "address": "5410 E Broadway Blvd, Tucson, AZ 85711, USA",
+      "primaryType": "italian_restaurant",
+      "website": "https://www.olivegarden.com/locations/az/tucson/tucson-broadway/1219?cmpid=br:og_ag:ie_ch:loc_ca:OGGMB_sn:gmb_gt:tucson-az-1219_pl:locurl_rd:1161",
+      "lat": 32.221232,
+      "lng": -110.876798,
+      "reviews": 4685
+    },
+    {
+      "name": "Chipotle Mexican Grill",
+      "reason": "chain",
+      "address": "5353 E Broadway Blvd, Tucson, AZ 85711, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://locations.chipotle.com/az/tucson/5353-e-broadway-blvd?utm_source=google&utm_medium=yext&utm_campaign=yext_listings?restaurant=4562",
+      "lat": 32.221997699999996,
+      "lng": -110.87638109999999,
+      "reviews": 237
+    },
+    {
+      "name": "Denny's Restaurant",
+      "reason": "chain",
+      "address": "6484 E Broadway Blvd, Tucson, AZ 85710, USA",
+      "primaryType": "restaurant",
+      "website": "https://locations.dennys.com/AZ/TUCSON/246914?utm_source=G&utm_medium=organic&utm_campaign=DAC",
+      "lat": 32.220567599999995,
+      "lng": -110.85532979999999,
+      "reviews": 3843
+    },
+    {
+      "name": "MOD Pizza",
+      "reason": "chain",
+      "address": "6351 E Broadway Blvd Suite 129, Tucson, AZ 85710, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.modpizza.com/usa/az/tucson/6351-e-broadway-blvd?utm_source=google&utm_medium=yext",
+      "lat": 32.2216472,
+      "lng": -110.8559557,
+      "reviews": 1430
+    },
+    {
+      "name": "Texas Roadhouse",
+      "reason": "chain",
+      "address": "170 S Wilmot Rd, Tucson, AZ 85711, USA",
+      "primaryType": "steak_house",
+      "website": "https://www.texasroadhouse.com/locations/arizona/tucson-s-wilmot-rd?utm_source=listing&utm_medium=search",
+      "lat": 32.219480499999996,
+      "lng": -110.8583999,
+      "reviews": 6760
+    },
+    {
+      "name": "Little Anthony's Diner",
+      "reason": "format",
+      "address": "7010 E Broadway Blvd, Tucson, AZ 85710, USA",
+      "primaryType": "diner",
+      "website": "http://littleanthonysdiner.com/",
+      "lat": 32.220227799999996,
+      "lng": -110.84316899999999,
+      "reviews": 4617
+    },
+    {
+      "name": "Biscuits Country Cafe",
+      "reason": "place-type",
+      "address": "7026 E Broadway Blvd, Tucson, AZ 85710, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://www.biscuitscountrycafe.com/",
+      "lat": 32.2197323,
+      "lng": -110.8429953,
+      "reviews": 1709
+    },
+    {
+      "name": "Sweet Tomatoes",
+      "reason": "place-type",
+      "address": "6202 E Broadway Blvd, Tucson, AZ 85711, USA",
+      "primaryType": "buffet_restaurant",
+      "website": "http://www.sweettomatoes.com/",
+      "lat": 32.221103899999996,
+      "lng": -110.8598287,
+      "reviews": 4065
+    },
+    {
+      "name": "Bisbee Breakfast Club",
+      "reason": "format",
+      "address": "410 N Wilmot Rd #110, Tucson, AZ 85711, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "http://www.bisbeebreakfastclub.com/",
+      "lat": 32.2258876,
+      "lng": -110.8574659,
+      "reviews": 1421
+    },
+    {
+      "name": "Taco Sabrozon",
+      "reason": "low-signal",
+      "address": "150 S Kolb Rd, Tucson, AZ 85710, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.2194879,
+      "lng": -110.8413918,
+      "reviews": null
+    },
+    {
+      "name": "Church's Texas Chicken",
+      "reason": "chain",
+      "address": "7980 E Broadway Blvd, Tucson, AZ 85710, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://locations.churchs.com/az/tucson/7980-e.-broadway-boulevard",
+      "lat": 32.2205602,
+      "lng": -110.8212786,
+      "reviews": 798
+    },
+    {
+      "name": "Wingstop",
+      "reason": "chain",
+      "address": "7942 E Broadway Blvd, Tucson, AZ 85710, USA",
+      "primaryType": "chicken_wings_restaurant",
+      "website": "https://www.wingstop.com/location/wingstop-88-tucson-az-85710/menu?y_source=1_NTUyMDc2OTItNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 32.220512,
+      "lng": -110.8225899,
+      "reviews": 1117
+    },
+    {
+      "name": "Dickman's Meat & Deli",
+      "reason": "place-type",
+      "address": "7955 E Broadway Blvd, Tucson, AZ 85710, USA",
+      "primaryType": "deli",
+      "website": "https://www.facebook.com/dickmansmeat/?_rdr",
+      "lat": 32.2214734,
+      "lng": -110.82206110000001,
+      "reviews": 878
+    },
+    {
+      "name": "IHOP",
+      "reason": "chain",
+      "address": "7945 E Broadway Blvd, Tucson, AZ 85710, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://restaurants.ihop.com/en-us/az/tucson/breakfast-7945-e-broadway-blvd-1515?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=1515&utm_content=website",
+      "lat": 32.221554999999995,
+      "lng": -110.823301,
+      "reviews": 3824
+    },
+    {
+      "name": "Filiberto's Mexican Food",
+      "reason": "chain",
+      "address": "8555 E Broadway Blvd, Tucson, AZ 85710, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://order.online/business/filibertos-11233219",
+      "lat": 32.221353,
+      "lng": -110.80942909999999,
+      "reviews": 476
+    },
+    {
+      "name": "Bahama Buck's - Tucson",
+      "reason": "place-type",
+      "address": "8585 E Broadway Blvd, Tucson, AZ 85710, USA",
+      "primaryType": "dessert_shop",
+      "website": "https://bahamabucks.com/shop/tucson/",
+      "lat": 32.2213547,
+      "lng": -110.8091592,
+      "reviews": 926
+    },
+    {
+      "name": "Culver’s",
+      "reason": "chain",
+      "address": "40 S Broadway Pl, Tucson, AZ 85710, USA",
+      "primaryType": "american_restaurant",
+      "website": "http://www.culvers.com/restaurants/tucson-broadway/?utm_source=Google&utm_medium=Maps&utm_campaign=Google+Places",
+      "lat": 32.2205304,
+      "lng": -110.83196240000001,
+      "reviews": 3582
+    },
+    {
+      "name": "Papa Johns Pizza",
+      "reason": "chain",
+      "address": "9505 E Broadway Blvd, Tucson, AZ 85748, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.papajohns.com/united-states/az/85748/tucson/9505-e-broadway-blvd?utm_source=gmb&utm_medium=organic&y_source=1_MTA2OTIwMzEtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 32.2213687,
+      "lng": -110.78909309999999,
+      "reviews": 239
+    },
+    {
+      "name": "Little Caesars Pizza",
+      "reason": "chain",
+      "address": "64 N Harrison Rd, Tucson, AZ 85748, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://littlecaesars.com/en-us/store/9575",
+      "lat": 32.222412,
+      "lng": -110.788271,
+      "reviews": 460
+    },
+    {
+      "name": "Robeks Fresh Juices & Smoothies",
+      "reason": "place-type",
+      "address": "50 S Houghton Rd #160, Tucson, AZ 85748, USA",
+      "primaryType": "juice_shop",
+      "website": "https://robeks.com/locations/az/tucson/50-s-houghton-rd/",
+      "lat": 32.220464299999996,
+      "lng": -110.7742758,
+      "reviews": 148
+    },
+    {
+      "name": "ZENSHI Handcrafted Sushi",
+      "reason": "low-signal",
+      "address": "10380 E Broadway Blvd, Tucson, AZ 85748, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.zenshisushi.com/",
+      "lat": 32.2195714,
+      "lng": -110.7712653,
+      "reviews": null
+    },
+    {
+      "name": "Theresa's Mosaic",
+      "reason": "low-signal",
+      "address": "2456 N Silver Mosaic Dr, Tucson, AZ 85745, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://teresasmosaic.com/",
+      "lat": 32.2515514,
+      "lng": -111.0151423,
+      "reviews": 15
+    },
+    {
+      "name": "Biergarten",
+      "reason": "closed",
+      "address": "2320 N Silverbell Rd, Tucson, AZ 85745, USA",
+      "primaryType": "german_restaurant",
+      "website": "https://www.biergarten-tucson.com/",
+      "lat": 32.2495184,
+      "lng": -111.0122111,
+      "reviews": null
+    },
+    {
+      "name": "Filiberto's Mexican Food",
+      "reason": "chain",
+      "address": "2320 N Silverbell Rd, Tucson, AZ 85745, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.2495184,
+      "lng": -111.0122111,
+      "reviews": 90
+    },
+    {
+      "name": "Biergarten Tucson",
+      "reason": "closed",
+      "address": "2320 N Silverbell Rd Suite 110, Tucson, AZ 85745, USA",
+      "primaryType": "restaurant",
+      "website": "http://www.biergarten-tucson.com/",
+      "lat": 32.249434,
+      "lng": -111.01218709999999,
+      "reviews": 15
+    },
+    {
+      "name": "Wingstop",
+      "reason": "chain",
+      "address": "2106 W Grant Rd, Tucson, AZ 85745, USA",
+      "primaryType": "chicken_wings_restaurant",
+      "website": "https://www.wingstop.com/location/wingstop-199-tucson-az-85745/menu?y_source=1_NTUyMDY3OTItNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 32.251489899999996,
+      "lng": -111.01227929999999,
+      "reviews": 412
+    },
+    {
+      "name": "Peter Piper Pizza",
+      "reason": "chain",
+      "address": "1380 N Silverbell Rd, Tucson, AZ 85745, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.peterpiperpizza.com/az/tucson/1380-n-silverbell-road?utm_source=Google&utm_medium=Rio",
+      "lat": 32.2392596,
+      "lng": -111.0054162,
+      "reviews": 826
+    },
+    {
+      "name": "MLB Ballpark Bites - CLOSED",
+      "reason": "low-signal",
+      "address": "1500 W Grant Rd, Tucson, AZ 85745, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://www.mlb.com/fans/mlb-life/ballpark-bites",
+      "lat": 32.251082,
+      "lng": -110.9988638,
+      "reviews": 9
+    },
+    {
+      "name": "IHOP",
+      "reason": "chain",
+      "address": "1500 W Grant Rd, Tucson, AZ 85745, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://restaurants.ihop.com/en-us/az/tucson/breakfast-1500-w-grant-rd-1517?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=1517&utm_content=website",
+      "lat": 32.251082,
+      "lng": -110.9988638,
+      "reviews": 3554
+    },
+    {
+      "name": "Pardon My Cheesesteak",
+      "reason": "low-signal",
+      "address": "1500 W Grant Rd, Tucson, AZ 85745, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://pardonmycheesesteak.com/",
+      "lat": 32.2510689,
+      "lng": -110.99884259999999,
+      "reviews": 1
+    },
+    {
+      "name": "Curves Cabaret",
+      "reason": "format",
+      "address": "2130 N Oracle Rd, Tucson, AZ 85705, USA",
+      "primaryType": null,
+      "website": "http://www.curvescabaret.com/",
+      "lat": 32.247841,
+      "lng": -110.9777604,
+      "reviews": 227
+    },
+    {
+      "name": "​Rock Bottom Eatery",
+      "reason": "low-signal",
+      "address": "301 W Alturas St, Tucson, AZ 85705, USA",
+      "primaryType": "japanese_restaurant",
+      "website": null,
+      "lat": 32.251972099999996,
+      "lng": -110.9764866,
+      "reviews": 2
+    },
+    {
+      "name": "Cook Alchemy LLC",
+      "reason": "low-signal",
+      "address": "1702 N Stone Ave, Tucson, AZ 85705, USA",
+      "primaryType": "restaurant",
+      "website": "http://cookalchemy.com/",
+      "lat": 32.2429243,
+      "lng": -110.9715123,
+      "reviews": null
+    },
+    {
+      "name": "La Freida",
+      "reason": "low-signal",
+      "address": "Tucson, AZ 85705, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.2539787,
+      "lng": -110.97417689999999,
+      "reviews": 2
+    },
+    {
+      "name": "Bailey's Artisan Pizza Company",
+      "reason": "low-signal",
+      "address": "Tucson, AZ 85705, USA",
+      "primaryType": "pizza_restaurant",
+      "website": null,
+      "lat": 32.2539787,
+      "lng": -110.97417689999999,
+      "reviews": 4
+    },
+    {
+      "name": "Marc's Blue Smoke BBQ",
+      "reason": "low-signal",
+      "address": "Tucson, AZ 85705, USA",
+      "primaryType": "barbecue_restaurant",
+      "website": null,
+      "lat": 32.2539787,
+      "lng": -110.97417689999999,
+      "reviews": 6
+    },
+    {
+      "name": "El Golden Taco",
+      "reason": "low-signal",
+      "address": "Tucson, AZ 85705, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.2539787,
+      "lng": -110.97417689999999,
+      "reviews": 17
+    },
+    {
+      "name": "Filiberto’s Mexican Food",
+      "reason": "chain",
+      "address": "1400 N Stone Ave, Tucson, AZ 85705, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://filibertosmexicanfoodbaselinerd.dine.online/?utm_source=website",
+      "lat": 32.2397882,
+      "lng": -110.9715502,
+      "reviews": 115
+    },
+    {
+      "name": "La Parrilla Suiza",
+      "reason": "closed",
+      "address": "2720 N Oracle Rd, Tucson, AZ 85705, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://laparrillasuiza.com/",
+      "lat": 32.256309,
+      "lng": -110.97769799999999,
+      "reviews": 1251
+    },
+    {
+      "name": "Tropical Smoothie Cafe",
+      "reason": "place-type",
+      "address": "2470 N Campbell Ave, Tucson, AZ 85719, USA",
+      "primaryType": "juice_shop",
+      "website": "https://locations.tropicalsmoothiecafe.com/az/tucson/2470-n.-campbell-ave.?y_source=1_MjAwODc2NzExOS03MTUtbG9jYXRpb24ud2Vic2l0ZQ%3D%3D",
+      "lat": 32.2518112,
+      "lng": -110.9435876,
+      "reviews": 37
+    },
+    {
+      "name": "Chipotle Mexican Grill",
+      "reason": "chain",
+      "address": "1903 E Speedway Blvd, Tucson, AZ 85719, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://locations.chipotle.com/az/tucson/1903-e-speedway-blvd?utm_source=google&utm_medium=yext&utm_campaign=yext_listings?restaurant=3843",
+      "lat": 32.2365279,
+      "lng": -110.9434589,
+      "reviews": 361
+    },
+    {
+      "name": "Berry Divine Açaí Bowls",
+      "reason": "place-type",
+      "address": "1927 E Speedway Blvd #109, Tucson, AZ 85719, USA",
+      "primaryType": "restaurant",
+      "website": "http://berrydivineacai.com/",
+      "lat": 32.2365405,
+      "lng": -110.9428758,
+      "reviews": 377
+    },
+    {
+      "name": "Shake Smart",
+      "reason": "place-type",
+      "address": "1051 E Mabel St, Tucson, AZ 85719, USA",
+      "primaryType": "restaurant",
+      "website": "http://www.shakesmart.com/",
+      "lat": 32.238761,
+      "lng": -110.9554366,
+      "reviews": 21
+    },
+    {
+      "name": "Frank's Restaurant-Tucson",
+      "reason": "place-type",
+      "address": "3843 E Pima St, Tucson, AZ 85716, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://www.franksrestaurant.com/",
+      "lat": 32.243628099999995,
+      "lng": -110.91040450000001,
+      "reviews": 1947
+    },
+    {
+      "name": "Edna's Eatery",
+      "reason": "low-signal",
+      "address": "2150 N Alvernon Way, Tucson, AZ 85712, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://tucsonbotanical.org/visit/cafe/",
+      "lat": 32.2482331,
+      "lng": -110.9080226,
+      "reviews": 8
+    },
+    {
+      "name": "Little Caesars Pizza",
+      "reason": "chain",
+      "address": "3901 E Grant Rd, Tucson, AZ 85712, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://littlecaesars.com/en-us/store/10594",
+      "lat": 32.252235999999996,
+      "lng": -110.90938500000001,
+      "reviews": 979
+    },
+    {
+      "name": "Filiberto's Mexican Food",
+      "reason": "chain",
+      "address": "4011 E Grant Rd, Tucson, AZ 85712, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.doordash.com/store/filibertos-mexican-food-tucson-420124/1206182/?preview=1",
+      "lat": 32.2509414,
+      "lng": -110.9074199,
+      "reviews": 1535
+    },
+    {
+      "name": "Gee's Garden",
+      "reason": "closed",
+      "address": "1145 N Alvernon Way, Tucson, AZ 85716, USA",
+      "primaryType": "bar",
+      "website": null,
+      "lat": 32.2375373,
+      "lng": -110.9101486,
+      "reviews": 3
+    },
+    {
+      "name": "Taqueria el Chikitin",
+      "reason": "format",
+      "address": "3040 E Grant Rd, Tucson, AZ 85716, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.2501854,
+      "lng": -110.9271041,
+      "reviews": 190
+    },
+    {
+      "name": "Bobo's Restaurant",
+      "reason": "place-type",
+      "address": "2938 E Grant Rd, Tucson, AZ 85716, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": null,
+      "lat": 32.2501575,
+      "lng": -110.92795459999999,
+      "reviews": 3329
+    },
+    {
+      "name": "Special Eats Restaurant",
+      "reason": "closed",
+      "address": "5224 E Pima St, Tucson, AZ 85712, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://specialeats.org/",
+      "lat": 32.2431469,
+      "lng": -110.8810436,
+      "reviews": 78
+    },
+    {
+      "name": "IHOP",
+      "reason": "chain",
+      "address": "5101 E Grant Rd, Tucson, AZ 85712, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://restaurants.ihop.com/en-us/az/tucson/breakfast-5101-e-grant-rd-1514?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=1514&utm_content=website",
+      "lat": 32.2511513,
+      "lng": -110.88374449999999,
+      "reviews": 3288
+    },
+    {
+      "name": "Chipotle Mexican Grill",
+      "reason": "chain",
+      "address": "4857 E Grant Rd, Tucson, AZ 85712, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://locations.chipotle.com/az/tucson/4857-e-grant-rd?utm_source=google&utm_medium=yext&utm_campaign=yext_listings?restaurant=4015",
+      "lat": 32.2510398,
+      "lng": -110.8894357,
+      "reviews": 598
+    },
+    {
+      "name": "TMC Cafeteria",
+      "reason": "low-signal",
+      "address": "Tucson, AZ 85712, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://www.tmcaz.com/about-my-visit-to-tmc/patient-and-visitor-information/cafeteria-services",
+      "lat": 32.2529974,
+      "lng": -110.878671,
+      "reviews": 10
+    },
+    {
+      "name": "Derrick's Soul And Grill",
+      "reason": "closed",
+      "address": "4765 E Joslyn Heights Pl, Tucson, AZ 85712, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.242872,
+      "lng": -110.8914267,
+      "reviews": 1
+    },
+    {
+      "name": "First Watch",
+      "reason": "chain",
+      "address": "4775 E Grant Rd, Tucson, AZ 85712, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://www.firstwatch.com/locations/crossroads/?utm_source=gbp-listing&utm_medium=organic&utm_campaign=gbp-listing&utm_content=crossroads",
+      "lat": 32.250958000000004,
+      "lng": -110.89083799999999,
+      "reviews": 1568
+    },
+    {
+      "name": "Bollywood Pizza Company",
+      "reason": "low-signal",
+      "address": "6612 E Tanque Verde Rd, Tucson, AZ 85715, USA",
+      "primaryType": "restaurant",
+      "website": "https://bollywoodpizzacompany.com/",
+      "lat": 32.246605100000004,
+      "lng": -110.8513752,
+      "reviews": null
+    },
+    {
+      "name": "Pizza Sonora",
+      "reason": "low-signal",
+      "address": "Food Trailer In Front of Scented Leaf, 6612 E Tanque Verde Rd, Tucson, AZ 85715, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.pizzasonora.com/",
+      "lat": 32.246605100000004,
+      "lng": -110.8513752,
+      "reviews": null
+    },
+    {
+      "name": "Millie's Pancake Haus",
+      "reason": "place-type",
+      "address": "Inside Trail Dust Town, 6541 E Tanque Verde Rd, Tucson, AZ 85715, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://millieshaus.com/home",
+      "lat": 32.2469296,
+      "lng": -110.85345059999999,
+      "reviews": 1020
+    },
+    {
+      "name": "Mountain Mike's Pizza",
+      "reason": "place-type",
+      "address": "6601 E Grant Rd UNIT 101, Tucson, AZ 85715, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://www.mountainmikespizza.com/locations/tucson-e-grant-rd/",
+      "lat": 32.2497036,
+      "lng": -110.85060229999999,
+      "reviews": 189
+    },
+    {
+      "name": "Popeyes Louisiana Kitchen",
+      "reason": "chain",
+      "address": "6565 E Grant Rd, Tucson, AZ 85715, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://www.popeyes.com/store-locator/store/restaurant_241257",
+      "lat": 32.2499772,
+      "lng": -110.8510247,
+      "reviews": 233
+    },
+    {
+      "name": "Chipotle Mexican Grill",
+      "reason": "chain",
+      "address": "6501 E Grant Rd #141, Tucson, AZ 85715, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://locations.chipotle.com/az/tucson/6501-e-grant-rd?utm_source=google&utm_medium=yext&utm_campaign=yext_listings?restaurant=2400",
+      "lat": 32.250264099999995,
+      "lng": -110.85154299999999,
+      "reviews": 577
+    },
+    {
+      "name": "Tucson AZ Seniors",
+      "reason": "closed",
+      "address": "6460 E Grant Rd #30383, Tucson, AZ 85751, USA",
+      "primaryType": "gift_shop",
+      "website": null,
+      "lat": 32.2495663,
+      "lng": -110.85426109999999,
+      "reviews": null
+    },
+    {
+      "name": "Salad and Go",
+      "reason": "chain",
+      "address": "7980 E Speedway Blvd, Tucson, AZ 85710, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.saladandgo.com/?olonwp=JjBtp_vMLk25gkYh_bnoiQ",
+      "lat": 32.2351852,
+      "lng": -110.8224954,
+      "reviews": 93
+    },
+    {
+      "name": "Jerry Bob's",
+      "reason": "place-type",
+      "address": "7699 E Speedway Blvd, Tucson, AZ 85710, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": null,
+      "lat": 32.2358604,
+      "lng": -110.8283833,
+      "reviews": 605
+    },
+    {
+      "name": "ZENSHI Handcrafted Sushi",
+      "reason": "low-signal",
+      "address": "7177 E Tanque Verde Rd, Tucson, AZ 85715, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.zenshisushi.com/",
+      "lat": 32.2519449,
+      "lng": -110.83899369999999,
+      "reviews": null
+    },
+    {
+      "name": "HarkensAuto",
+      "reason": "low-signal",
+      "address": "9225 E Tanque Verde Rd, Tucson, AZ 85749, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.2599502,
+      "lng": -110.7939866,
+      "reviews": null
+    },
+    {
+      "name": "ZENSHI Handcrafted Sushi",
+      "reason": "low-signal",
+      "address": "9125 E Tanque Verde Rd, Tucson, AZ 85749, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.zenshisushi.com/",
+      "lat": 32.258967399999996,
+      "lng": -110.7970848,
+      "reviews": null
+    },
+    {
+      "name": "Solana Guest Ranch",
+      "reason": "low-signal",
+      "address": "2200 N Kimberlee Rd, Tucson, AZ 85749, USA",
+      "primaryType": "event_venue",
+      "website": "https://www.solanaguestranch.com/",
+      "lat": 32.2487735,
+      "lng": -110.7631933,
+      "reviews": 3
+    },
+    {
+      "name": "Forty Niner",
+      "reason": "out-of-area",
+      "address": "12000 E Tanque Verde Rd, Tucson, AZ 85749, USA",
+      "primaryType": "association_or_organization",
+      "website": "http://www.fortyninercc.com/",
+      "lat": 32.2502778,
+      "lng": -110.73527779999999,
+      "reviews": 545
+    },
+    {
+      "name": "Forty Niner - Rincon Mountain Grill",
+      "reason": "out-of-area",
+      "address": "12000 E Tanque Verde Rd, Tucson, AZ 85749, USA",
+      "primaryType": "american_restaurant",
+      "website": "http://www.fortyninercc.com/",
+      "lat": 32.250164,
+      "lng": -110.7350082,
+      "reviews": 196
+    },
+    {
+      "name": "Effe Food Truck",
+      "reason": "format",
+      "address": "4817 N Plane Ave, Tucson, AZ 85705, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.295077899999995,
+      "lng": -111.0234754,
+      "reviews": null
+    },
+    {
+      "name": "Emma's Nigerian Kitchen",
+      "reason": "closed",
+      "address": "3810 N Romero Rd Lot 105, Tucson, AZ 85705, USA",
+      "primaryType": "african_restaurant",
+      "website": "http://emmas-nigerian-kitchen-102313.square.site/",
+      "lat": 32.276990999999995,
+      "lng": -111.001938,
+      "reviews": null
+    },
+    {
+      "name": "Emma's Nigerian Kitchen",
+      "reason": "closed",
+      "address": "3810 N Romero Rd Lot 105, Tucson, AZ 85705, USA",
+      "primaryType": "african_restaurant",
+      "website": null,
+      "lat": 32.276990999999995,
+      "lng": -111.001938,
+      "reviews": null
+    },
+    {
+      "name": "Tu Rollo Sushi Tucson",
+      "reason": "airport",
+      "address": "1625 W Fort Lowell Rd, Tucson, AZ 85705, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.facebook.com/share/18FZfcwjza/?mibextid=wwXIfr",
+      "lat": 32.2643485,
+      "lng": -111.00021430000001,
+      "reviews": null
+    },
+    {
+      "name": "El Potosino Mexican food",
+      "reason": "airport",
+      "address": "1400 W Prince Rd, Tucson, AZ 85705, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.2724416,
+      "lng": -110.99547360000001,
+      "reviews": 1613
+    },
+    {
+      "name": "Rangel Food",
+      "reason": "closed",
+      "address": "4365 N Romero Rd, Tucson, AZ 85705, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.286288,
+      "lng": -111.003897,
+      "reviews": 6
+    },
+    {
+      "name": "Chariot Pizza",
+      "reason": "airport",
+      "address": "3930 N Flowing Wells Rd, Tucson, AZ 85705, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "http://www.chariotpizza.com/",
+      "lat": 32.278735999999995,
+      "lng": -110.99449070000001,
+      "reviews": 1120
+    },
+    {
+      "name": "Primos Mexican Food",
+      "reason": "airport",
+      "address": "1300 W Prince Rd, Tucson, AZ 85705, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.facebook.com/share/17W7f8BV3q/?mibextid=wwXIfr",
+      "lat": 32.272903899999996,
+      "lng": -110.99308900000001,
+      "reviews": 280
+    },
+    {
+      "name": "Krispy's Fish & Chicken",
+      "reason": "airport",
+      "address": "1300 W Prince Rd, Tucson, AZ 85705, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.krispysfishandchickentucson.com/",
+      "lat": 32.272903899999996,
+      "lng": -110.99308900000001,
+      "reviews": 8
+    },
+    {
+      "name": "Birriería Guasave",
+      "reason": "airport",
+      "address": "3235 N Flowing Wells Rd, Tucson, AZ 85705, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.2657831,
+      "lng": -110.9954863,
+      "reviews": 26
+    },
+    {
+      "name": "Michoacan Taqueria",
+      "reason": "closed",
+      "address": "3235 N Flowing Wells Rd, Tucson, AZ 85705, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.2657831,
+      "lng": -110.9954863,
+      "reviews": 124
+    },
+    {
+      "name": "I Love Tacos",
+      "reason": "airport",
+      "address": "Tucson, AZ 85705, USA",
+      "primaryType": "taco_restaurant",
+      "website": null,
+      "lat": 32.2727697,
+      "lng": -110.9929817,
+      "reviews": 3
+    },
+    {
+      "name": "Mi amor bendiciones",
+      "reason": "airport",
+      "address": "1305 W Prince Rd, Tucson, AZ 85705, USA",
+      "primaryType": "bar",
+      "website": null,
+      "lat": 32.2714621,
+      "lng": -110.99305989999999,
+      "reviews": null
+    },
+    {
+      "name": "Wings y Mas",
+      "reason": "airport",
+      "address": "1145 W Prince Rd, Tucson, AZ 85705, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.271831,
+      "lng": -110.9923206,
+      "reviews": 348
+    },
+    {
+      "name": "The Outlaw Bar & Grill",
+      "reason": "airport",
+      "address": "1302 W Roger Rd, Tucson, AZ 85705, USA",
+      "primaryType": "bar_and_grill",
+      "website": "https://www.facebook.com/theoutlawarizona/",
+      "lat": 32.279615,
+      "lng": -110.993197,
+      "reviews": 754
+    },
+    {
+      "name": "La Vaquita Tacos",
+      "reason": "airport",
+      "address": "1140 W Prince Rd, Tucson, AZ 85705, USA",
+      "primaryType": "taco_restaurant",
+      "website": "https://www.facebook.com/quesabirrias520",
+      "lat": 32.2725146,
+      "lng": -110.9915012,
+      "reviews": 103
+    },
+    {
+      "name": "Tacos la Baja",
+      "reason": "closed",
+      "address": "1103 W Prince Rd, Tucson, AZ 85705, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://m.facebook.com/bajatacostucson/?ref=bookmarks",
+      "lat": 32.2718422,
+      "lng": -110.9913072,
+      "reviews": 184
+    },
+    {
+      "name": "El Charly Tacos y Carnitas",
+      "reason": "low-signal",
+      "address": "1415 W Miracle Mile, Tucson, AZ 85705, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.facebook.com/profile.php?id=61559828245621&mibextid=kFxxJD",
+      "lat": 32.2608768,
+      "lng": -110.99548469999999,
+      "reviews": 1
+    },
+    {
+      "name": "Charquitas Mexican Food Restaurant",
+      "reason": "airport",
+      "address": "1020 W Prince Rd, Tucson, AZ 85705, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://charquitasmexicanfoodaz.com/",
+      "lat": 32.2725107,
+      "lng": -110.989466,
+      "reviews": 378
+    },
+    {
+      "name": "Kai Nutrition Bar",
+      "reason": "low-signal",
+      "address": "1015 W Prince Rd, Tucson, AZ 85705, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.instagram.com/kainutrition_?igsh=MTRmbms1aTV5OTRuMw==",
+      "lat": 32.271567399999995,
+      "lng": -110.98909119999999,
+      "reviews": 4
+    },
+    {
+      "name": "Outlaw Kitchen LLC",
+      "reason": "low-signal",
+      "address": "3655 N Oracle Rd Ste 101-5211, Tucson, AZ 85705, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.2730501,
+      "lng": -110.97887089999999,
+      "reviews": 4
+    },
+    {
+      "name": "Sweet Inspirational Delicacy",
+      "reason": "low-signal",
+      "address": "Tucson, AZ 85705, USA",
+      "primaryType": "african_restaurant",
+      "website": "https://www.hotplate.com/sweetinspirationaldeli",
+      "lat": 32.271890899999995,
+      "lng": -110.97545389999999,
+      "reviews": 13
+    },
+    {
+      "name": "Little Caesars Pizza",
+      "reason": "chain",
+      "address": "4022 N Oracle Rd, Tucson, AZ 85705, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://littlecaesars.com/en-us/store/1649",
+      "lat": 32.279737,
+      "lng": -110.977679,
+      "reviews": 881
+    },
+    {
+      "name": "El Sabor Cubano",
+      "reason": "low-signal",
+      "address": "4025 N Oracle Rd, Tucson, AZ 85705, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.279798,
+      "lng": -110.9788151,
+      "reviews": 16
+    },
+    {
+      "name": "Pizza Hut Express",
+      "reason": "chain",
+      "address": "4040 N Oracle Rd, Tucson, AZ 85705, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.pizzahut.com/az/tucson/4040-n-oracle-road?utm_medium=organic&utm_source=local&utm_campaign=googlelistings&utm_content=website&utm_term=306783",
+      "lat": 32.2801213,
+      "lng": -110.97605999999999,
+      "reviews": 26
+    },
+    {
+      "name": "Cappy's Breakfast Cafe",
+      "reason": "format",
+      "address": "917 W Prince Rd, Tucson, AZ 85705, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://rebrand.ly/cappy-cafe",
+      "lat": 32.2714782,
+      "lng": -110.987264,
+      "reviews": 1226
+    },
+    {
+      "name": "Peter Piper Pizza",
+      "reason": "chain",
+      "address": "4120 N Oracle Rd, Tucson, AZ 85705, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.peterpiperpizza.com/az/tucson/4120-n-oracle-rd?utm_source=Google&utm_medium=Rio",
+      "lat": 32.2817167,
+      "lng": -110.9775485,
+      "reviews": 1283
+    },
+    {
+      "name": "Nate’s Italian Kitchen on Campbell",
+      "reason": "closed",
+      "address": "3699 N Campbell Ave, Tucson, AZ 85719, USA",
+      "primaryType": "restaurant",
+      "website": "https://natesmetrodeli.com/",
+      "lat": 32.2738979,
+      "lng": -110.9443414,
+      "reviews": null
+    },
+    {
+      "name": "Salad and Go",
+      "reason": "chain",
+      "address": "3220 N Campbell Ave, Tucson, AZ 85719, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.saladandgo.com/?olonwp=JjBtp_vMLk25gkYh_bnoiQ",
+      "lat": 32.2653944,
+      "lng": -110.9433341,
+      "reviews": 217
+    },
+    {
+      "name": "Teppan Kings",
+      "reason": "closed",
+      "address": "1901 E Fort Lowell Rd, Tucson, AZ 85719, USA",
+      "primaryType": "asian_restaurant",
+      "website": "https://www.facebook.com/Teppan-Kings-105921414985820/",
+      "lat": 32.2652436,
+      "lng": -110.94362079999999,
+      "reviews": 32
+    },
+    {
+      "name": "Wingstop",
+      "reason": "chain",
+      "address": "3122 N Campbell Ave Ste 130, Tucson, AZ 85719, USA",
+      "primaryType": "chicken_wings_restaurant",
+      "website": "https://www.wingstop.com/location/wingstop-219-tucson-az-85719/menu?y_source=1_NTUyMDY3ODEtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 32.263732,
+      "lng": -110.9431623,
+      "reviews": 436
+    },
+    {
+      "name": "Popeyes Louisiana Kitchen",
+      "reason": "chain",
+      "address": "3060 N Campbell Ave, Tucson, AZ 85719, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://www.popeyes.com/store-locator/store/restaurant_85448",
+      "lat": 32.2626961,
+      "lng": -110.94352339999999,
+      "reviews": 2383
+    },
+    {
+      "name": "Chipotle Mexican Grill",
+      "reason": "chain",
+      "address": "3055 N Campbell Ave, Tucson, AZ 85719, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://locations.chipotle.com/az/tucson/3055-n-campbell-ave?utm_source=google&utm_medium=yext&utm_campaign=yext_listings?restaurant=421",
+      "lat": 32.26238,
+      "lng": -110.9440937,
+      "reviews": 838
+    },
+    {
+      "name": "The Egg Connection",
+      "reason": "place-type",
+      "address": "3114 E Fort Lowell Rd, Tucson, AZ 85716, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "http://www.theeggconnection.com/",
+      "lat": 32.264485799999996,
+      "lng": -110.9260885,
+      "reviews": 1037
+    },
+    {
+      "name": "Courtside Kitchen",
+      "reason": "low-signal",
+      "address": "4001 N Country Club Rd, Tucson, AZ 85716, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.centercourtbarandgrill.com/",
+      "lat": 32.2804444,
+      "lng": -110.92801929999999,
+      "reviews": 1
+    },
+    {
+      "name": "The Original El Taco",
+      "reason": "low-signal",
+      "address": "Tucson, AZ 85716, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.facebook.com/people/The-Original-El-Taco/100057576672965/",
+      "lat": 32.264754599999996,
+      "lng": -110.92856549999999,
+      "reviews": 13
+    },
+    {
+      "name": "Gallery of Food Bodega",
+      "reason": "place-type",
+      "address": "2522 E Fort Lowell Rd, Tucson, AZ 85716, USA",
+      "primaryType": "catering_service",
+      "website": "https://galleryoffood.com/",
+      "lat": 32.264626199999995,
+      "lng": -110.9344287,
+      "reviews": 98
+    },
+    {
+      "name": "BZ's Bistro",
+      "reason": "closed",
+      "address": "3225 N Swan Rd Suite 105A, Tucson, AZ 85712, USA",
+      "primaryType": "italian_restaurant",
+      "website": "https://www.bzsbistro.com/",
+      "lat": 32.2656479,
+      "lng": -110.89371489999999,
+      "reviews": 715
+    },
+    {
+      "name": "Vitality Bowls",
+      "reason": "place-type",
+      "address": "2959 N Swan Rd, Tucson, AZ 85712, USA",
+      "primaryType": "restaurant",
+      "website": "https://vitalitybowls.com/locations/tucson/?utm_source=google&utm_medium=gmb&utm_campaign=gmbweblink",
+      "lat": 32.2611464,
+      "lng": -110.8930487,
+      "reviews": 98
+    },
+    {
+      "name": "The Bistro",
+      "reason": "low-signal",
+      "address": "Tucson, AZ 85715, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.250524999999996,
+      "lng": -110.84663330000001,
+      "reviews": 7
+    },
+    {
+      "name": "Filiberto's Mexican Food",
+      "reason": "chain",
+      "address": "7031 E Tanque Verde Rd, Tucson, AZ 85715, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://filibertos.com/",
+      "lat": 32.2512567,
+      "lng": -110.8421369,
+      "reviews": 382
+    },
+    {
+      "name": "Que Chulada! Mexican Grill",
+      "reason": "closed",
+      "address": "6910 E Tanque Verde Rd, Tucson, AZ 85715, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.250230099999996,
+      "lng": -110.8448483,
+      "reviews": 73
+    },
+    {
+      "name": "Panda Express",
+      "reason": "chain",
+      "address": "7111 E Tanque Verde Rd Suite #101, Tucson, AZ 85715, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.pandaexpress.com/locations/az/tucson/1898?utm_source=google_gbp&utm_medium=organic&utm_campaign=websitelink",
+      "lat": 32.2513649,
+      "lng": -110.840196,
+      "reviews": 631
+    },
+    {
+      "name": "Nico's Mexican Food",
+      "reason": "out-of-area",
+      "address": "4960 N Sabino Canyon Rd, Tucson, AZ 85750, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://nicosmexfood.com/listing/dine-in-take-away-delivery/",
+      "lat": 32.297138,
+      "lng": -110.82353289999999,
+      "reviews": 271
+    },
+    {
+      "name": "Wing Factory",
+      "reason": "closed",
+      "address": "4955 N Sabino Canyon Rd, Tucson, AZ 85750, USA",
+      "primaryType": "chicken_wings_restaurant",
+      "website": "http://wingfactorysabino.com/",
+      "lat": 32.2971611,
+      "lng": -110.82453149999999,
+      "reviews": 163
+    },
+    {
+      "name": "Arizona Pizza Company",
+      "reason": "out-of-area",
+      "address": "4955 N Sabino Canyon Rd, Tucson, AZ 85750, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://azpizzacompany.com/",
+      "lat": 32.2972447,
+      "lng": -110.8245798,
+      "reviews": 591
+    },
+    {
+      "name": "Three Canyon Beer and Wine Garden",
+      "reason": "out-of-area",
+      "address": "4999 N Sabino Canyon Rd, Tucson, AZ 85750, USA",
+      "primaryType": "beer_garden",
+      "website": "http://www.threecanyon.com/",
+      "lat": 32.2977483,
+      "lng": -110.8246367,
+      "reviews": 684
+    },
+    {
+      "name": "Original Gino's cafe",
+      "reason": "low-signal",
+      "address": "2760 W Curtis Rd, Tucson, AZ 85705, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.3020682,
+      "lng": -111.0267726,
+      "reviews": null
+    },
+    {
+      "name": "Popeyes Louisiana Kitchen",
+      "reason": "chain",
+      "address": "3814 W River Rd, Tucson, AZ 85741, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://www.popeyes.com/store-locator/store/restaurant_86494",
+      "lat": 32.3205522,
+      "lng": -111.0451344,
+      "reviews": 1524
+    },
+    {
+      "name": "Smoothie King",
+      "reason": "place-type",
+      "address": "3820 W River Rd, Tucson, AZ 85741, USA",
+      "primaryType": "juice_shop",
+      "website": "https://locations.smoothieking.com/ll/us/az/tucson/3820-river-road/?utm_source=google&utm_medium=organic&utm_content=SOCi",
+      "lat": 32.32129210000001,
+      "lng": -111.0453778,
+      "reviews": 378
+    },
+    {
+      "name": "Salad and Go",
+      "reason": "chain",
+      "address": "2080 W River Rd, Tucson, AZ 85704, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.saladandgo.com/?olonwp=JjBtp_vMLk25gkYh_bnoiQ",
+      "lat": 32.3057497,
+      "lng": -111.0114279,
+      "reviews": 286
+    },
+    {
+      "name": "Viva Burrito Co.",
+      "reason": "out-of-area",
+      "address": "2060 W River Rd, Tucson, AZ 85704, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://vivaburritoco.com/",
+      "lat": 32.3064294,
+      "lng": -111.01141469999999,
+      "reviews": 769
+    },
+    {
+      "name": "Cocina Del Cielo",
+      "reason": "low-signal",
+      "address": "1925 W River Rd, Tucson, AZ 85704, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.302733499999995,
+      "lng": -111.00695449999999,
+      "reviews": null
+    },
+    {
+      "name": "Filiberto’s Mexican Food",
+      "reason": "chain",
+      "address": "1987 W River Rd, Tucson, AZ 85704, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.filibertos.com/",
+      "lat": 32.3043598,
+      "lng": -111.00899749999999,
+      "reviews": 78
+    },
+    {
+      "name": "Panda Express",
+      "reason": "chain",
+      "address": "1990 W River Rd, Tucson, AZ 85704, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.pandaexpress.com/locations/az/tucson/1033?utm_source=google_gbp&utm_medium=organic&utm_campaign=websitelink",
+      "lat": 32.3058018,
+      "lng": -111.009761,
+      "reviews": 617
+    },
+    {
+      "name": "Famous Sam's",
+      "reason": "out-of-area",
+      "address": "1970 W River Rd, Tucson, AZ 85704, USA",
+      "primaryType": "american_restaurant",
+      "website": "http://famoussamsatriver.com/",
+      "lat": 32.3064475,
+      "lng": -111.00934799999999,
+      "reviews": 1222
+    },
+    {
+      "name": "Jerry Bob's River",
+      "reason": "out-of-area",
+      "address": "2040 W River Rd, Tucson, AZ 85704, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://www.facebook.com/JerrybRiver/",
+      "lat": 32.307032,
+      "lng": -111.0113708,
+      "reviews": 899
+    },
+    {
+      "name": "LA CANTINA DE CARBÓ",
+      "reason": "out-of-area",
+      "address": "5725 N La Cholla Blvd, Tucson, AZ 85741, USA",
+      "primaryType": "bar",
+      "website": null,
+      "lat": 32.3108891,
+      "lng": -111.0125271,
+      "reviews": null
+    },
+    {
+      "name": "Papa Johns Pizza",
+      "reason": "chain",
+      "address": "5095 N La Cañada Dr, Tucson, AZ 85704, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.papajohns.com/united-states/az/85704/tucson/5095-n-la-canada-dr?utm_source=gmb&utm_medium=organic&y_source=1_MTA2OTIwMzAtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 32.2990725,
+      "lng": -110.9958691,
+      "reviews": 232
+    },
+    {
+      "name": "asain 1 buffett",
+      "reason": "low-signal",
+      "address": "5860 N La Cholla Blvd, Tucson, AZ 85704, USA",
+      "primaryType": "chinese_restaurant",
+      "website": null,
+      "lat": 32.313619599999996,
+      "lng": -111.01154369999999,
+      "reviews": null
+    },
+    {
+      "name": "Taqueria Aqui Con El Nene",
+      "reason": "format",
+      "address": "4415 N Flowing Wells Rd, Tucson, AZ 85705, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.aquiconelnene.com/menu",
+      "lat": 32.2873733,
+      "lng": -110.9954728,
+      "reviews": 2619
+    },
+    {
+      "name": "Chinese Combo Thai Cuisine",
+      "reason": "out-of-area",
+      "address": "1980 W Orange Grove Rd, Tucson, AZ 85704, USA",
+      "primaryType": "restaurant",
+      "website": "https://chinesecombonthaic.wixsite.com/mysite",
+      "lat": 32.323717699999996,
+      "lng": -111.01000859999999,
+      "reviews": 285
+    },
+    {
+      "name": "Banhdicted",
+      "reason": "place-type",
+      "address": "1980 W Orange Grove Rd #180, Tucson, AZ 85704, USA",
+      "primaryType": "vietnamese_restaurant",
+      "website": "http://www.banhdicted.com/",
+      "lat": 32.3237227,
+      "lng": -111.0101177,
+      "reviews": 530
+    },
+    {
+      "name": "Nan Tian BBQ Gourmet",
+      "reason": "out-of-area",
+      "address": "1990 W Orange Grove Rd Ste D, Tucson, AZ 85704, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.324167599999996,
+      "lng": -111.0101892,
+      "reviews": 31
+    },
+    {
+      "name": "Com Tam Thuan Kieu Restaurant",
+      "reason": "out-of-area",
+      "address": "1990 W Orange Grove Rd, Tucson, AZ 85704, USA",
+      "primaryType": "vietnamese_restaurant",
+      "website": "https://www.photucson.com/",
+      "lat": 32.324369499999996,
+      "lng": -111.0101818,
+      "reviews": 539
+    },
+    {
+      "name": "Red Lobster",
+      "reason": "chain",
+      "address": "Oracle and River, 5061 N Oracle Rd #369, Tucson, AZ 85704, USA",
+      "primaryType": "seafood_restaurant",
+      "website": "https://www.redlobster.com/seafood-restaurants/locations/az/tucson/5061-north-oracle-road",
+      "lat": 32.298001,
+      "lng": -110.979231,
+      "reviews": 3136
+    },
+    {
+      "name": "The Meltdown",
+      "reason": "low-signal",
+      "address": "5000 N Oracle Rd, Tucson, AZ 85704, USA",
+      "primaryType": "restaurant",
+      "website": "https://themeltdown.com/?utm_source=G&utm_medium=organic&utm_campaign=DAC",
+      "lat": 32.297822599999996,
+      "lng": -110.97772069999999,
+      "reviews": 11
+    },
+    {
+      "name": "Denny's Restaurant",
+      "reason": "chain",
+      "address": "5000 N Oracle Rd, Tucson, AZ 85704, USA",
+      "primaryType": "restaurant",
+      "website": "https://locations.dennys.com/AZ/TUCSON/246915?utm_source=G&utm_medium=organic&utm_campaign=DAC",
+      "lat": 32.2977989,
+      "lng": -110.9776904,
+      "reviews": 5394
+    },
+    {
+      "name": "First Watch",
+      "reason": "chain",
+      "address": "5055 N Oracle Rd, Tucson, AZ 85704, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://www.firstwatch.com/locations/fiesta/?utm_source=gbp-listing&utm_medium=organic&utm_campaign=gbp-listing&utm_content=fiesta",
+      "lat": 32.297815799999995,
+      "lng": -110.9796746,
+      "reviews": 2839
+    },
+    {
+      "name": "Pizzano's Pizza",
+      "reason": "closed",
+      "address": "501 W River Rd, Tucson, AZ 85704, USA",
+      "primaryType": "pizza_restaurant",
+      "website": null,
+      "lat": 32.2965138,
+      "lng": -110.98020009999999,
+      "reviews": 8
+    },
+    {
+      "name": "Asia 1 Buffet",
+      "reason": "format",
+      "address": "75 W River Rd #181, Tucson, AZ 85704, USA",
+      "primaryType": "buffet_restaurant",
+      "website": null,
+      "lat": 32.295881699999995,
+      "lng": -110.9732047,
+      "reviews": 484
+    },
+    {
+      "name": "Warfuel Kitchen",
+      "reason": "low-signal",
+      "address": "4695 N Oracle Rd suite 105, Tucson, AZ 85705, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.warfuelkitchen.com/",
+      "lat": 32.291727099999996,
+      "lng": -110.9792478,
+      "reviews": 13
+    },
+    {
+      "name": "Rofle Rofle Croiffle Specialty Store",
+      "reason": "place-type",
+      "address": "4500 N Oracle Rd Suite FC08, Tucson, AZ 85705, USA",
+      "primaryType": "dessert_shop",
+      "website": null,
+      "lat": 32.2890716,
+      "lng": -110.97384819999999,
+      "reviews": 101
+    },
+    {
+      "name": "Nori Japan",
+      "reason": "low-signal",
+      "address": "4500 N Oracle Rd Suite FC02, Tucson, AZ 85705, USA",
+      "primaryType": "japanese_restaurant",
+      "website": "https://www.tucsonmall.com/en/directory/13030/",
+      "lat": 32.288888799999995,
+      "lng": -110.97395619999999,
+      "reviews": 15
+    },
+    {
+      "name": "Panda Express",
+      "reason": "chain",
+      "address": "4500 N Oracle Rd Box 454, Tucson, AZ 85705, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.pandaexpress.com/locations/az/tucson/191?utm_source=google_gbp&utm_medium=organic&utm_campaign=websitelink",
+      "lat": 32.2885001,
+      "lng": -110.9741348,
+      "reviews": 547
+    },
+    {
+      "name": "Pin+Flour",
+      "reason": "low-signal",
+      "address": "4626 N Campbell Ave, Tucson, AZ 85718, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.2910326,
+      "lng": -110.9421629,
+      "reviews": 21
+    },
+    {
+      "name": "Eatgypt",
+      "reason": "low-signal",
+      "address": "4502 N 1st Ave, Tucson, AZ 85718, USA",
+      "primaryType": "vegan_restaurant",
+      "website": "http://www.eatgypt.com/",
+      "lat": 32.2889121,
+      "lng": -110.95284489999999,
+      "reviews": 7
+    },
+    {
+      "name": "Culver’s",
+      "reason": "chain",
+      "address": "4810 N 1st Ave, Tucson, AZ 85718, USA",
+      "primaryType": "american_restaurant",
+      "website": "http://www.culvers.com/restaurants/tucson-az-first-ave/?utm_source=Google&utm_medium=Maps&utm_campaign=Google+Places",
+      "lat": 32.2943061,
+      "lng": -110.9605131,
+      "reviews": 2531
+    },
+    {
+      "name": "Pure Love Juice",
+      "reason": "place-type",
+      "address": "1980 E River Rd, Tucson, AZ 85718, USA",
+      "primaryType": "juice_shop",
+      "website": "https://purelovejuicebar.com/",
+      "lat": 32.2866397,
+      "lng": -110.94250430000001,
+      "reviews": 200
+    },
+    {
+      "name": "Alaine's Green Heart Bakery",
+      "reason": "low-signal",
+      "address": "4502 N 1st Ave Pavilion 1, Sunday Farmers Market, 4570 N 1st Ave ste 120, Tucson, AZ 85718, USA",
+      "primaryType": "vegan_restaurant",
+      "website": "https://greenheartbakery.com/",
+      "lat": 32.2896036,
+      "lng": -110.9602113,
+      "reviews": 9
+    },
+    {
+      "name": "KFC",
+      "reason": "chain",
+      "address": "735 E Wetmore Rd, Tucson, AZ 85719, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://www.kfc.com/",
+      "lat": 32.2871617,
+      "lng": -110.9604336,
+      "reviews": 238
+    },
+    {
+      "name": "Nomico Healthy Dessert",
+      "reason": "place-type",
+      "address": "595 E Wetmore Rd, Tucson, AZ 85705, USA",
+      "primaryType": "dessert_restaurant",
+      "website": "https://m.facebook.com/pages/Nomico-Healthy-Dessert/978399345593537",
+      "lat": 32.2881109,
+      "lng": -110.96248419999999,
+      "reviews": 293
+    },
+    {
+      "name": "Filiberto’s Mexican Food",
+      "reason": "chain",
+      "address": "635 E Wetmore Rd, Tucson, AZ 85705, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.doordash.com/store/filibertos-mexican-food-tucson-674307/1206180/?preview=1",
+      "lat": 32.2870096,
+      "lng": -110.96245320000001,
+      "reviews": 698
+    },
+    {
+      "name": "Church's Texas Chicken",
+      "reason": "chain",
+      "address": "565 E Wetmore Rd, Tucson, AZ 85705, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://locations.churchs.com/az/tucson/565-e.-wetmore-road",
+      "lat": 32.287091000000004,
+      "lng": -110.9635849,
+      "reviews": 275
+    },
+    {
+      "name": "The Grill at Hacienda del Sol",
+      "reason": "out-of-area",
+      "address": "5501 N Hacienda Del Sol Rd, Tucson, AZ 85718, USA",
+      "primaryType": "fine_dining_restaurant",
+      "website": "https://www.haciendadelsol.com/dining",
+      "lat": 32.3076065,
+      "lng": -110.914526,
+      "reviews": 718
+    },
+    {
+      "name": "Hacienda del Sol Guest Ranch Resort",
+      "reason": "place-type",
+      "address": "5501 N Hacienda Del Sol Rd, Tucson, AZ 85718, USA",
+      "primaryType": "resort_hotel",
+      "website": "https://www.haciendadelsol.com/?utm_source=google&utm_medium=organic&utm_campaign=gbp_listing",
+      "lat": 32.308016,
+      "lng": -110.91444399999999,
+      "reviews": 2110
+    },
+    {
+      "name": "Terraza Garden Patio & Lounge",
+      "reason": "out-of-area",
+      "address": "5501 N Hacienda Del Sol Rd, Tucson, AZ 85718, USA",
+      "primaryType": "restaurant",
+      "website": "http://www.haciendadelsol.com/dining",
+      "lat": 32.3081308,
+      "lng": -110.91440109999999,
+      "reviews": 360
+    },
+    {
+      "name": "Contigo Latin Kitchen",
+      "reason": "out-of-area",
+      "address": "3770 E Sunrise Dr, Tucson, AZ 85718, USA",
+      "primaryType": "latin_american_restaurant",
+      "website": "http://www.eatatcontigo.com/",
+      "lat": 32.3140297,
+      "lng": -110.9172735,
+      "reviews": 979
+    },
+    {
+      "name": "La Luz Restaurant",
+      "reason": "out-of-area",
+      "address": "3800 E Sunrise Dr, Tucson, AZ 85718, USA",
+      "primaryType": "restaurant",
+      "website": "https://laluztucson.com/",
+      "lat": 32.3145867,
+      "lng": -110.91637809999999,
+      "reviews": 33
+    },
+    {
+      "name": "Casa 71 Tequila Lounge",
+      "reason": "out-of-area",
+      "address": "3800 E Sunrise Dr, Tucson, AZ 85718, USA",
+      "primaryType": "bar",
+      "website": "https://www.marriott.com/en-us/hotels/tuswi-the-westin-la-paloma-resort-and-spa/dining/",
+      "lat": 32.3147649,
+      "lng": -110.9161238,
+      "reviews": 4
+    },
+    {
+      "name": "Trattoria Pina",
+      "reason": "out-of-area",
+      "address": "5541 N Swan Rd, Tucson, AZ 85718, USA",
+      "primaryType": "italian_restaurant",
+      "website": "http://www.trattoriapina.com/",
+      "lat": 32.3072666,
+      "lng": -110.89305809999999,
+      "reviews": 658
+    },
+    {
+      "name": "Golden Dragon Chinese Restaurant",
+      "reason": "out-of-area",
+      "address": "4704 E Sunrise Dr, Tucson, AZ 85718, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "http://goldendragontucson.com/",
+      "lat": 32.306599,
+      "lng": -110.8920356,
+      "reviews": 256
+    },
+    {
+      "name": "Fiamme Pizza",
+      "reason": "out-of-area",
+      "address": "4706 E Sunrise Dr, Tucson, AZ 85718, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "http://fiammepizzatucson.com/",
+      "lat": 32.3066525,
+      "lng": -110.89197039999999,
+      "reviews": 928
+    },
+    {
+      "name": "Fini's Landing",
+      "reason": "out-of-area",
+      "address": "5689 N Swan Rd, Tucson, AZ 85718, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://finislanding.com/?utm_source=google",
+      "lat": 32.3102112,
+      "lng": -110.89317439999999,
+      "reviews": 1220
+    },
+    {
+      "name": "ZENSHI Handcrafted Sushi",
+      "reason": "low-signal",
+      "address": "4752 E Sunrise Dr, Tucson, AZ 85718, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.zenshisushi.com/",
+      "lat": 32.3071215,
+      "lng": -110.891335,
+      "reviews": null
+    },
+    {
+      "name": "El Cisne Restaurant",
+      "reason": "out-of-area",
+      "address": "4717 E Sunrise Dr, Tucson, AZ 85718, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://elcisnerestaurant.com/",
+      "lat": 32.3099124,
+      "lng": -110.89193519999999,
+      "reviews": 620
+    },
+    {
+      "name": "Bazil's",
+      "reason": "out-of-area",
+      "address": "4777 E Sunrise Dr, Tucson, AZ 85718, USA",
+      "primaryType": "italian_restaurant",
+      "website": "http://bazilstucson.com/",
+      "lat": 32.308975,
+      "lng": -110.890699,
+      "reviews": 433
+    },
+    {
+      "name": "Bisbee Breakfast Club",
+      "reason": "format",
+      "address": "4811 E Sunrise Dr Suite 165, Tucson, AZ 85718, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.bisbeebreakfastclub.com/",
+      "lat": 32.308958499999996,
+      "lng": -110.8904055,
+      "reviews": 1096
+    },
+    {
+      "name": "Fleming’s Prime Steakhouse & Wine Bar",
+      "reason": "out-of-area",
+      "address": "6360 N Campbell Ave Suite 180, Tucson, AZ 85718, USA",
+      "primaryType": "steak_house",
+      "website": "https://www.flemingssteakhouse.com/Locations/AZ/Tucson?y_source=1_MTU1MDMxODctNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 32.3220792,
+      "lng": -110.9275211,
+      "reviews": 1871
+    },
+    {
+      "name": "Wild Garlic Grill",
+      "reason": "out-of-area",
+      "address": "2870 E Skyline Dr #120, Tucson, AZ 85718, USA",
+      "primaryType": "bar_and_grill",
+      "website": "http://www.wildgarlicgrill.com/",
+      "lat": 32.321548299999996,
+      "lng": -110.9306321,
+      "reviews": 1911
+    },
+    {
+      "name": "Ginza Sushi & Izakaya",
+      "reason": "out-of-area",
+      "address": "5425 N Kolb Rd #115, Tucson, AZ 85750, USA",
+      "primaryType": "sushi_restaurant",
+      "website": "http://ginzatucson.com/",
+      "lat": 32.3053869,
+      "lng": -110.8442929,
+      "reviews": 517
+    },
+    {
+      "name": "Terra Alta Bistro",
+      "reason": "low-signal",
+      "address": "Catalina Foothills, AZ 85750, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.305438599999995,
+      "lng": -110.84412809999999,
+      "reviews": 1
+    },
+    {
+      "name": "Piazza Gavi",
+      "reason": "out-of-area",
+      "address": "5415 N Kolb Rd, Tucson, AZ 85750, USA",
+      "primaryType": "italian_restaurant",
+      "website": "http://www.gavicucina.com/",
+      "lat": 32.305383299999995,
+      "lng": -110.8439183,
+      "reviews": 1648
+    },
+    {
+      "name": "Inca's Peruvian Cuisine",
+      "reason": "out-of-area",
+      "address": "6878 E Sunrise Dr #130, Tucson, AZ 85750, USA",
+      "primaryType": "peruvian_restaurant",
+      "website": "http://incasperuviancuisine.com/",
+      "lat": 32.3073611,
+      "lng": -110.84583889999999,
+      "reviews": 912
+    },
+    {
+      "name": "Jizo",
+      "reason": "low-signal",
+      "address": "6878 E Sunrise Dr Suite 150, Tucson, AZ 85750, USA",
+      "primaryType": "ramen_restaurant",
+      "website": null,
+      "lat": 32.3074113,
+      "lng": -110.8458665,
+      "reviews": 2
+    },
+    {
+      "name": "Noy’S TukTukThai On Sunrise",
+      "reason": "out-of-area",
+      "address": "6878 E Sunrise Dr #160, Tucson, AZ 85750, USA",
+      "primaryType": "asian_restaurant",
+      "website": "https://tuktukthai2990.com/",
+      "lat": 32.3074417,
+      "lng": -110.8457945,
+      "reviews": 149
+    },
+    {
+      "name": "El Charro Cafe Ventana",
+      "reason": "out-of-area",
+      "address": "6910 E Sunrise Dr, Tucson, AZ 85750, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://www.elcharrocafe.com/",
+      "lat": 32.3078163,
+      "lng": -110.8449366,
+      "reviews": 1817
+    },
+    {
+      "name": "Tinajas Wine & Beer",
+      "reason": "out-of-area",
+      "address": "6960 E Sunrise Dr, Tucson, AZ 85750, USA",
+      "primaryType": "wine_bar",
+      "website": "https://tinajaswine.com/",
+      "lat": 32.308071,
+      "lng": -110.84379,
+      "reviews": 44
+    },
+    {
+      "name": "The Hills Tucson",
+      "reason": "out-of-area",
+      "address": "6960 E Sunrise Dr, Tucson, AZ 85750, USA",
+      "primaryType": "restaurant",
+      "website": "https://thehillstucson.com/",
+      "lat": 32.3082796,
+      "lng": -110.8439052,
+      "reviews": 44
+    },
+    {
+      "name": "Flying V",
+      "reason": "out-of-area",
+      "address": "7000 N Resort Dr, Tucson, AZ 85750, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://www.flyingvrestaurant.com/",
+      "lat": 32.3270714,
+      "lng": -110.8496449,
+      "reviews": 438
+    },
+    {
+      "name": "Ventana Room at Loews Ventana Canyon (CLOSED)",
+      "reason": "low-signal",
+      "address": "7000 N Resort Dr #210, Tucson, AZ 85750, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.loewshotels.com/ventana-canyon/dining",
+      "lat": 32.32723,
+      "lng": -110.85080599999999,
+      "reviews": 12
+    },
+    {
+      "name": "Cascade at Loews Ventana Canyon",
+      "reason": "out-of-area",
+      "address": "7000 N Resort Dr #220, Tucson, AZ 85750, USA",
+      "primaryType": "live_music_venue",
+      "website": "https://www.loewshotels.com/ventana-canyon/dining/lounge",
+      "lat": 32.32723,
+      "lng": -110.85080599999999,
+      "reviews": 121
+    },
+    {
+      "name": "Arizona National Golf Club",
+      "reason": "out-of-area",
+      "address": "9777 E Sabino Greens Dr, Tucson, AZ 85749, USA",
+      "primaryType": "sports_club",
+      "website": "https://www.arizonanationalgolfclub.com/?utm_source=extnet&utm_medium=yext",
+      "lat": 32.3014971,
+      "lng": -110.78356029999999,
+      "reviews": 499
+    },
+    {
+      "name": "Denny's Restaurant",
+      "reason": "chain",
+      "address": "4920 W Ina Rd, Tucson, AZ 85741, USA",
+      "primaryType": "restaurant",
+      "website": "https://locations.dennys.com/AZ/TUCSON/246716?utm_source=G&utm_medium=organic&utm_campaign=DAC",
+      "lat": 32.338060899999995,
+      "lng": -111.06965029999999,
+      "reviews": 2522
+    },
+    {
+      "name": "The Meltdown",
+      "reason": "low-signal",
+      "address": "4920 W Ina Rd, Tucson, AZ 85741, USA",
+      "primaryType": "restaurant",
+      "website": "https://themeltdown.com/?utm_source=G&utm_medium=organic&utm_campaign=DAC",
+      "lat": 32.3381834,
+      "lng": -111.0696789,
+      "reviews": 6
+    },
+    {
+      "name": "La Bufadora",
+      "reason": "out-of-area",
+      "address": "4535 W Ina Rd, Tucson, AZ 85741, USA",
+      "primaryType": "taco_restaurant",
+      "website": "https://labufadoratucsonaz.com/",
+      "lat": 32.3368858,
+      "lng": -111.0624675,
+      "reviews": 75
+    },
+    {
+      "name": "Taco Rico",
+      "reason": "out-of-area",
+      "address": "4500 W Ina Rd, Tucson, AZ 85741, USA",
+      "primaryType": "restaurant",
+      "website": "https://tacoricoaz.com/",
+      "lat": 32.338129699999996,
+      "lng": -111.0614258,
+      "reviews": 208
+    },
+    {
+      "name": "Eggroll Masters LLC.",
+      "reason": "low-signal",
+      "address": "6918 N Camino Martin, Tucson, AZ 85741, USA",
+      "primaryType": "restaurant",
+      "website": "http://linktr.ee/eggrollmasters",
+      "lat": 32.3323982,
+      "lng": -111.05679889999999,
+      "reviews": null
+    },
+    {
+      "name": "Tucson Soccer Center",
+      "reason": "out-of-area",
+      "address": "7061 N Camino Martin #120, Tucson, AZ 85741, USA",
+      "primaryType": "sports_complex",
+      "website": "https://www.tucsonsoccercenter.com/",
+      "lat": 32.3360874,
+      "lng": -111.05850380000001,
+      "reviews": 53
+    },
+    {
+      "name": "Chickenuevo",
+      "reason": "out-of-area",
+      "address": "4299 W Ina Rd, Tucson, AZ 85741, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://www.chickenuevo.com/",
+      "lat": 32.3370855,
+      "lng": -111.05709519999999,
+      "reviews": 325
+    },
+    {
+      "name": "La Parrilla Suiza",
+      "reason": "out-of-area",
+      "address": "4250 W Ina Rd, Tucson, AZ 85741, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://laparrillasuiza.com/",
+      "lat": 32.338133,
+      "lng": -111.056631,
+      "reviews": 1269
+    },
+    {
+      "name": "Nico's Mexican Food",
+      "reason": "out-of-area",
+      "address": "4231 W Ina Rd #141, Tucson, AZ 85741, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.3371506,
+      "lng": -111.05570399999999,
+      "reviews": 866
+    },
+    {
+      "name": "Mariscos Chihuahua Ina Rd",
+      "reason": "out-of-area",
+      "address": "4185 W Ina Rd, Tucson, AZ 85741, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.337013,
+      "lng": -111.05421400000002,
+      "reviews": 672
+    },
+    {
+      "name": "Bisbee Breakfast Club",
+      "reason": "format",
+      "address": "4131 W Ina Rd, Tucson, AZ 85741, USA",
+      "primaryType": "restaurant",
+      "website": "http://bisbeebreakfastclub.com/",
+      "lat": 32.3371582,
+      "lng": -111.05356169999999,
+      "reviews": 2369
+    },
+    {
+      "name": "Old Father Inn",
+      "reason": "out-of-area",
+      "address": "4080 W Ina Rd, Tucson, AZ 85741, USA",
+      "primaryType": "bar",
+      "website": "https://m.facebook.com/Oldfatherinn/",
+      "lat": 32.3380575,
+      "lng": -111.05311719999999,
+      "reviews": 691
+    },
+    {
+      "name": "Little Caesars Pizza",
+      "reason": "chain",
+      "address": "6741 N Thornydale Rd, Tucson, AZ 85741, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://littlecaesars.com/en-us/store/6782",
+      "lat": 32.328902,
+      "lng": -111.046727,
+      "reviews": 569
+    },
+    {
+      "name": "Ciao Down Kitchen",
+      "reason": "low-signal",
+      "address": "6781 N Thornydale Rd #261, Tucson, AZ 85741, USA",
+      "primaryType": "pizza_restaurant",
+      "website": null,
+      "lat": 32.330303199999996,
+      "lng": -111.04689019999999,
+      "reviews": 9
+    },
+    {
+      "name": "Linh Nam Chinese Restaurant",
+      "reason": "out-of-area",
+      "address": "3936 W Ina Rd Ste 362, Tucson, AZ 85741, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://linhnamchineseaz.com/",
+      "lat": 32.3380773,
+      "lng": -111.0496733,
+      "reviews": 468
+    },
+    {
+      "name": "Golden Corral Buffet & Grill",
+      "reason": "chain",
+      "address": "6865 N Thornydale Rd, Tucson, AZ 85741, USA",
+      "primaryType": "buffet_restaurant",
+      "website": "https://www.goldencorral.com/locations/location-detail/932/golden-corral-n-thornydale-road/?utm_source=google&utm_medium=local&utm_campaign=localmaps&utm_content=932",
+      "lat": 32.331468799999996,
+      "lng": -111.0469468,
+      "reviews": 4101
+    },
+    {
+      "name": "Culver’s",
+      "reason": "chain",
+      "address": "6905 N Thornydale Rd, Tucson, AZ 85741, USA",
+      "primaryType": "american_restaurant",
+      "website": "http://www.culvers.com/restaurants/tucson-thornydale/?utm_source=Google&utm_medium=Maps&utm_campaign=Google+Places",
+      "lat": 32.332190600000004,
+      "lng": -111.0467515,
+      "reviews": 2165
+    },
+    {
+      "name": "Peter Piper Pizza",
+      "reason": "chain",
+      "address": "3741 W Ina Rd, Tucson, AZ 85741, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.peterpiperpizza.com/az/tucson/3741-w-ina-rd?utm_source=Google&utm_medium=Rio",
+      "lat": 32.3357684,
+      "lng": -111.04464340000001,
+      "reviews": 1584
+    },
+    {
+      "name": "Panda House Stir-Fry Mongolian Grill",
+      "reason": "place-type",
+      "address": "3725 W Ina Rd #110, Tucson, AZ 85741, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.facebook.com/pandahousestirfry/",
+      "lat": 32.3361884,
+      "lng": -111.0437587,
+      "reviews": 276
+    },
+    {
+      "name": "Dickey's Barbecue Pit",
+      "reason": "out-of-area",
+      "address": "7077 N Thornydale Rd, Tucson, AZ 85741, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.dickeys.com/locations/arizona/tucson/marana?utm_source=google&utm_campaign=gmb&utm_medium=organic&utm_content=button-website",
+      "lat": 32.3354214,
+      "lng": -111.0474364,
+      "reviews": 1271
+    },
+    {
+      "name": "Papa Johns Pizza",
+      "reason": "chain",
+      "address": "7089 N Thornydale Rd, Tucson, AZ 85741, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.papajohns.com/united-states/az/85741/tucson/7089-n-thornydale-rd?utm_source=gmb&utm_medium=organic&y_source=1_MTA2OTIwNDQtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 32.3358158,
+      "lng": -111.047494,
+      "reviews": 262
+    },
+    {
+      "name": "El Molinito",
+      "reason": "out-of-area",
+      "address": "3675 W Ina Rd, Tucson, AZ 85741, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://el-molinito.com/",
+      "lat": 32.3371109,
+      "lng": -111.04377869999999,
+      "reviews": 2313
+    },
+    {
+      "name": "El Pollo Loco",
+      "reason": "out-of-area",
+      "address": "3781 W Ina Rd, Tucson, AZ 85741, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://restaurants.elpolloloco.com/az/tucson/3781-ina-rd?utm_source=gmb&utm_medium=yext",
+      "lat": 32.3370391,
+      "lng": -111.04557199999999,
+      "reviews": 1070
+    },
+    {
+      "name": "Wingstop",
+      "reason": "chain",
+      "address": "3662 W Ina Rd Ste 110, Tucson, AZ 85741, USA",
+      "primaryType": "chicken_wings_restaurant",
+      "website": "https://www.wingstop.com/location/wingstop-301-tucson-az-85741/menu?y_source=1_NTUyMDY3ODUtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 32.338048,
+      "lng": -111.0437182,
+      "reviews": 700
+    },
+    {
+      "name": "Ikkyu",
+      "reason": "out-of-area",
+      "address": "2040 W Orange Grove Rd #180, Tucson, AZ 85704, USA",
+      "primaryType": "japanese_restaurant",
+      "website": "https://ikkyutucson.square.site/",
+      "lat": 32.3246178,
+      "lng": -111.0109432,
+      "reviews": 1030
+    },
+    {
+      "name": "Ole' Mexican Grill",
+      "reason": "out-of-area",
+      "address": "2080 W Orange Grove Rd Suite #1131, Tucson, AZ 85704, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.olemexicangrill.com/",
+      "lat": 32.324476499999996,
+      "lng": -111.0113078,
+      "reviews": 1701
+    },
+    {
+      "name": "Applebee's Grill + Bar",
+      "reason": "out-of-area",
+      "address": "2230 W Ina Rd, Tucson, AZ 85741, USA",
+      "primaryType": "restaurant",
+      "website": "https://restaurants.applebees.com/en-us/az/tucson/2230-w.-ina-road-92050?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=92050&utm_content=website",
+      "lat": 32.337826299999996,
+      "lng": -111.01535,
+      "reviews": 2029
+    },
+    {
+      "name": "Casa Vera",
+      "reason": "low-signal",
+      "address": "7265 N La Cholla Blvd, Tucson, AZ 85741, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.3385246,
+      "lng": -111.01334010000001,
+      "reviews": null
+    },
+    {
+      "name": "Papa Murphy's | Take 'N' Bake Pizza",
+      "reason": "out-of-area",
+      "address": "7250 N La Cholla Blvd Suite 186, Tucson, AZ 85741, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.papamurphys.com/az/tucson/7250-north-la-cholla?utm_source=organic&utm_medium=gmb&utm_campaign=yext&y_source=1_MTU0MzAwNjktNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 32.3389848,
+      "lng": -111.0110304,
+      "reviews": 396
+    },
+    {
+      "name": "Whiskey Roads",
+      "reason": "out-of-area",
+      "address": "2290 W Ina Rd, Tucson, AZ 85741, USA",
+      "primaryType": "bar_and_grill",
+      "website": "http://www.whiskeyroadstucson.com/",
+      "lat": 32.339386,
+      "lng": -111.0153283,
+      "reviews": 967
+    },
+    {
+      "name": "AZ Nightlife Vending",
+      "reason": "out-of-area",
+      "address": "2290 W Ina Rd, Tucson, AZ 85741, USA",
+      "primaryType": "bar_and_grill",
+      "website": null,
+      "lat": 32.3394998,
+      "lng": -111.0152102,
+      "reviews": null
+    },
+    {
+      "name": "Mosaic Cafe Dos",
+      "reason": "out-of-area",
+      "address": "7350 N La Cholla Blvd #108, Tucson, AZ 85741, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://mosaiccafedos.com/",
+      "lat": 32.3402837,
+      "lng": -111.01219409999999,
+      "reviews": 685
+    },
+    {
+      "name": "Pappoule's",
+      "reason": "out-of-area",
+      "address": "7475 N La Cholla Blvd, Tucson, AZ 85741, USA",
+      "primaryType": "greek_restaurant",
+      "website": "http://www.pappoules.com/",
+      "lat": 32.3424939,
+      "lng": -111.01373319999999,
+      "reviews": 1772
+    },
+    {
+      "name": "Sushi Garden",
+      "reason": "out-of-area",
+      "address": "7475 N La Cholla Blvd Suite 422, Tucson, AZ 85741, USA",
+      "primaryType": "sushi_restaurant",
+      "website": "https://sushigarden.com/",
+      "lat": 32.3429889,
+      "lng": -111.0142324,
+      "reviews": 889
+    },
+    {
+      "name": "The Ramen Bar",
+      "reason": "out-of-area",
+      "address": "7555 N La Cholla Blvd Suite #135, Tucson, AZ 85741, USA",
+      "primaryType": "ramen_restaurant",
+      "website": "https://www.ramenbartucson.com/",
+      "lat": 32.3434804,
+      "lng": -111.0132589,
+      "reviews": 97
+    },
+    {
+      "name": "Chipotle Mexican Grill",
+      "reason": "chain",
+      "address": "7555 N La Cholla Blvd, Tucson, AZ 85741, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://locations.chipotle.com/az/tucson/7555-n-la-cholla-blvd?utm_source=google&utm_medium=yext&utm_campaign=yext_listings?restaurant=372",
+      "lat": 32.3435777,
+      "lng": -111.0133044,
+      "reviews": 825
+    },
+    {
+      "name": "Ni's Asian Bistro & Sushi Bar",
+      "reason": "out-of-area",
+      "address": "7665 N La Cholla Blvd, Tucson, AZ 85741, USA",
+      "primaryType": "asian_restaurant",
+      "website": "http://www.nisasianbistro.com/",
+      "lat": 32.3454937,
+      "lng": -111.0131935,
+      "reviews": 296
+    },
+    {
+      "name": "Villa Mexican Food",
+      "reason": "out-of-area",
+      "address": "2840 W Ina Rd Ste 104, Tucson, AZ 85741, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://villamexicanfoodaz.com/",
+      "lat": 32.338255,
+      "lng": -111.028477,
+      "reviews": 458
+    },
+    {
+      "name": "The Parish",
+      "reason": "out-of-area",
+      "address": "6453 N Oracle Rd, Tucson, AZ 85704, USA",
+      "primaryType": "american_restaurant",
+      "website": "http://www.theparishtucson.com/",
+      "lat": 32.324512999999996,
+      "lng": -110.9758765,
+      "reviews": 3063
+    },
+    {
+      "name": "Sushi on Oracle",
+      "reason": "out-of-area",
+      "address": "6449 N Oracle Rd, Tucson, AZ 85704, USA",
+      "primaryType": "sushi_restaurant",
+      "website": "https://www.sushionoracletucson.com/",
+      "lat": 32.3243951,
+      "lng": -110.97580769999999,
+      "reviews": 711
+    },
+    {
+      "name": "HiFalutin Rapid Western Grill",
+      "reason": "out-of-area",
+      "address": "6780 N Oracle Rd, Tucson, AZ 85704, USA",
+      "primaryType": "steak_house",
+      "website": "http://www.hifalutinaz.com/",
+      "lat": 32.3302135,
+      "lng": -110.9760282,
+      "reviews": 1318
+    },
+    {
+      "name": "Salad Nation",
+      "reason": "closed",
+      "address": "6425 N Oracle Rd, Tucson, AZ 85704, USA",
+      "primaryType": "salad_shop",
+      "website": "http://www.eatsaladnation.com/",
+      "lat": 32.3237857,
+      "lng": -110.9756482,
+      "reviews": 571
+    },
+    {
+      "name": "Tacos del Rancho",
+      "reason": "out-of-area",
+      "address": "6421 N Oracle Rd, Tucson, AZ 85704, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.tacosdelrancho.com/",
+      "lat": 32.3236683,
+      "lng": -110.9756372,
+      "reviews": 574
+    },
+    {
+      "name": "Dickman's Meat & Deli",
+      "reason": "out-of-area",
+      "address": "6472 N Oracle Rd, Tucson, AZ 85704, USA",
+      "primaryType": "butcher_shop",
+      "website": "https://m.facebook.com/dickmansmeat/",
+      "lat": 32.3241657,
+      "lng": -110.9733248,
+      "reviews": 456
+    },
+    {
+      "name": "Seoul+Shi",
+      "reason": "out-of-area",
+      "address": "6462 N Oracle Rd, Tucson, AZ 85704, USA",
+      "primaryType": "korean_restaurant",
+      "website": "http://seoul-shi.com/",
+      "lat": 32.3238288,
+      "lng": -110.9732987,
+      "reviews": 83
+    },
+    {
+      "name": "Kampai Sushi",
+      "reason": "closed",
+      "address": "6462 N Oracle Rd, Tucson, AZ 85704, USA",
+      "primaryType": "sushi_restaurant",
+      "website": "http://www.kampaiaz.com/",
+      "lat": 32.3238288,
+      "lng": -110.9732987,
+      "reviews": 167
+    },
+    {
+      "name": "Oregano's",
+      "reason": "out-of-area",
+      "address": "100 W Orange Grove Rd, Tucson, AZ 85704, USA",
+      "primaryType": "italian_restaurant",
+      "website": "https://oreganos.com/",
+      "lat": 32.3231605,
+      "lng": -110.9736441,
+      "reviews": 2248
+    },
+    {
+      "name": "Redbird Scratch Kitchen + Bar",
+      "reason": "out-of-area",
+      "address": "6444 N Oracle Rd, Tucson, AZ 85704, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.redbirdrestaurants.com/",
+      "lat": 32.323118799999996,
+      "lng": -110.97317699999999,
+      "reviews": 832
+    },
+    {
+      "name": "Magpies Gourmet Pizza",
+      "reason": "out-of-area",
+      "address": "6342 N Oracle Rd b403, Tucson, AZ 85704, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://magpiespizza.com/",
+      "lat": 32.3221488,
+      "lng": -110.97380509999999,
+      "reviews": 320
+    },
+    {
+      "name": "Sammy's Mexican Food & Cafe",
+      "reason": "low-signal",
+      "address": "6251 N Oracle Rd, Tucson, AZ 85704, USA",
+      "primaryType": "american_restaurant",
+      "website": null,
+      "lat": 32.3197696,
+      "lng": -110.9755785,
+      "reviews": null
+    },
+    {
+      "name": "Wildflower",
+      "reason": "out-of-area",
+      "address": "7037 N Oracle Rd, Tucson, AZ 85704, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://www.wildflowertucson.com/locations/tucson-az/?utm_source=Google&utm_medium=Organic&utm_campaign=Maps",
+      "lat": 32.3354533,
+      "lng": -110.978152,
+      "reviews": 1889
+    },
+    {
+      "name": "The Honey Baked Ham Company",
+      "reason": "out-of-area",
+      "address": "7090 N Oracle Rd Suite 100, Tucson, AZ 85704, USA",
+      "primaryType": "restaurant",
+      "website": "https://honeybaked.com/stores/8705?utm_source=gmb&utm_medium=google&utm_campaign=honeybakedham_soci&utm_id=SOCi",
+      "lat": 32.3353411,
+      "lng": -110.9762038,
+      "reviews": 159
+    },
+    {
+      "name": "Vitality Bowls",
+      "reason": "out-of-area",
+      "address": "7090 N Oracle Rd #120, Tucson, AZ 85704, USA",
+      "primaryType": "restaurant",
+      "website": "https://vitalitybowls.com/locations/tucson-oracle-acai-bowls/?utm_source=google&utm_medium=gmb&utm_campaign=gmbweblink",
+      "lat": 32.335436699999995,
+      "lng": -110.9760981,
+      "reviews": 37
+    },
+    {
+      "name": "Teaspoon",
+      "reason": "out-of-area",
+      "address": "7053 N Oracle Rd, Tucson, AZ 85704, USA",
+      "primaryType": "brunch_restaurant",
+      "website": "http://teaspoontucson.com/",
+      "lat": 32.3357168,
+      "lng": -110.978298,
+      "reviews": 1220
+    },
+    {
+      "name": "Personal Chef Maggie LLC",
+      "reason": "place-type",
+      "address": "7090 N Oracle Rd #178, Tucson, AZ 85704, USA",
+      "primaryType": "catering_service",
+      "website": "http://tucsonchefmaggie.com/",
+      "lat": 32.335441,
+      "lng": -110.9759,
+      "reviews": 1
+    },
+    {
+      "name": "Pita Jungle",
+      "reason": "out-of-area",
+      "address": "7090 N Oracle Rd #128, Tucson, AZ 85704, USA",
+      "primaryType": "mediterranean_restaurant",
+      "website": "https://pitajungle.com/locations/tucson-oracle-ina/?utm_source=google&utm_medium=organic&utm_campaign=TucsonOracle&utm_content=WebsiteLink",
+      "lat": 32.3354652,
+      "lng": -110.97598289999999,
+      "reviews": 1141
+    },
+    {
+      "name": "Victoria Cocina Mexicana",
+      "reason": "place-type",
+      "address": "7090 N Oracle Rd #172, Tucson, AZ 85704, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://www.victoriacocinamexicana.com/",
+      "lat": 32.3353367,
+      "lng": -110.9754609,
+      "reviews": 312
+    },
+    {
+      "name": "Charro Steak North",
+      "reason": "out-of-area",
+      "address": "7109 N Oracle Rd, Tucson, AZ 85704, USA",
+      "primaryType": "restaurant",
+      "website": "https://charrosteak.com/",
+      "lat": 32.3359082,
+      "lng": -110.97811379999999,
+      "reviews": 109
+    },
+    {
+      "name": "La Encantada",
+      "reason": "place-type",
+      "address": "2905 E Skyline Dr, Tucson, AZ 85718, USA",
+      "primaryType": "shopping_mall",
+      "website": "https://www.laencantadashoppingcenter.com/?utm_source=google&utm_medium=onlinesearch&utm_content=gmp_website_button&utm_campaign=yext",
+      "lat": 32.3248317,
+      "lng": -110.9296576,
+      "reviews": 4741
+    },
+    {
+      "name": "Blanco Cocina + Cantina",
+      "reason": "out-of-area",
+      "address": "2905 E Skyline Dr #246, Tucson, AZ 85718, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.blancotacostequila.com/locations/tucson-az/?utm_source=Google&utm_medium=Organic&utm_campaign=Maps",
+      "lat": 32.324844299999995,
+      "lng": -110.9294978,
+      "reviews": 1695
+    },
+    {
+      "name": "Tavolino Ristorante Italiano",
+      "reason": "out-of-area",
+      "address": "2890 E Skyline Dr, Tucson, AZ 85718, USA",
+      "primaryType": "italian_restaurant",
+      "website": "http://www.tavolinoristorante.com/",
+      "lat": 32.3219953,
+      "lng": -110.9301153,
+      "reviews": 806
+    },
+    {
+      "name": "RA Sushi - Tucson",
+      "reason": "out-of-area",
+      "address": "2905 E Skyline Dr, Tucson, AZ 85718, USA",
+      "primaryType": "sushi_restaurant",
+      "website": "https://rasushi.com/",
+      "lat": 32.325488199999995,
+      "lng": -110.92893559999999,
+      "reviews": 2398
+    },
+    {
+      "name": "True Food Kitchen",
+      "reason": "out-of-area",
+      "address": "2905 E Skyline Dr #298, Tucson, AZ 85718, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.truefoodkitchen.com/locations/tucson/",
+      "lat": 32.325,
+      "lng": -110.92888889999999,
+      "reviews": 621
+    },
+    {
+      "name": "North Italia",
+      "reason": "out-of-area",
+      "address": "2995 E Skyline Dr, Tucson, AZ 85718, USA",
+      "primaryType": "italian_restaurant",
+      "website": "https://www.northitalia.com/locations/tucson-az-la-encantada/",
+      "lat": 32.3250808,
+      "lng": -110.92840489999999,
+      "reviews": 2210
+    },
+    {
+      "name": "Firebirds Wood Fired Grill",
+      "reason": "out-of-area",
+      "address": "2985 E Skyline Dr, Tucson, AZ 85718, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://firebirdsrestaurants.com/tucson",
+      "lat": 32.3253828,
+      "lng": -110.92834959999999,
+      "reviews": 2107
+    },
+    {
+      "name": "Vivace Restaurant",
+      "reason": "out-of-area",
+      "address": "6440 N Campbell Ave, Tucson, AZ 85718, USA",
+      "primaryType": "italian_restaurant",
+      "website": "https://www.vivacetucson.com/?utm_source=google&utm_medium=organic&utm_campaign=gmb",
+      "lat": 32.323959099999996,
+      "lng": -110.9273826,
+      "reviews": 2379
+    },
+    {
+      "name": "Lookout Bar and Grill",
+      "reason": "out-of-area",
+      "address": "245 E Ina Rd, Tucson, AZ 85704, USA",
+      "primaryType": "bar_and_grill",
+      "website": "https://www.westwardlook.com/dining/palm",
+      "lat": 32.3426408,
+      "lng": -110.964895,
+      "reviews": 182
+    },
+    {
+      "name": "Dominick's Dinning Room",
+      "reason": "low-signal",
+      "address": "8330 N Thornydale Rd #150, Tucson, AZ 85741, USA",
+      "primaryType": "pizza_restaurant",
+      "website": null,
+      "lat": 32.3576276,
+      "lng": -111.04487789999999,
+      "reviews": 3
+    },
+    {
+      "name": "Dominick's Real Italian",
+      "reason": "out-of-area",
+      "address": "8330 N Thornydale Rd #170, Tucson, AZ 85741, USA",
+      "primaryType": "italian_restaurant",
+      "website": "http://www.dominicksrealitalian.com/",
+      "lat": 32.357628,
+      "lng": -111.0448881,
+      "reviews": 1288
+    },
+    {
+      "name": "Barnfire Mesquite Grill",
+      "reason": "out-of-area",
+      "address": "8310 N Thornydale Rd, Tucson, AZ 85741, USA",
+      "primaryType": "steak_house",
+      "website": "http://barnfiremesquitegrill.com/",
+      "lat": 32.357628999999996,
+      "lng": -111.045795,
+      "reviews": 1199
+    },
+    {
+      "name": "The Blacktop Grill (Award-Winning Street Food)",
+      "reason": "out-of-area",
+      "address": "8300 N Thornydale Rd #120, Tucson, AZ 85741, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://theblacktopgrill.com/?utm_source=google",
+      "lat": 32.357594999999996,
+      "lng": -111.04630990000001,
+      "reviews": 480
+    },
+    {
+      "name": "Jerry Bob's Family Restaurant",
+      "reason": "place-type",
+      "address": "8300 N Thornydale Rd #100, Tucson, AZ 85741, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://www.jerrybobsaz.com/",
+      "lat": 32.3575808,
+      "lng": -111.0464574,
+      "reviews": 605
+    },
+    {
+      "name": "Legends Bar & Grill",
+      "reason": "out-of-area",
+      "address": "2727 W Club Dr, Tucson, AZ 85742, USA",
+      "primaryType": "bar_and_grill",
+      "website": "https://www.omnihotels.com/hotels/tucson-national/dining/legends?utm_source=gmblisting&utm_medium=organic",
+      "lat": 32.3579929,
+      "lng": -111.0258999,
+      "reviews": 150
+    },
+    {
+      "name": "Bob's Steak & Chop House",
+      "reason": "out-of-area",
+      "address": "2727 W Club Dr, Tucson, AZ 85742, USA",
+      "primaryType": "steak_house",
+      "website": "https://bobs-steakandchop.com/tucson/?utm_source=gmblisting&utm_medium=organic",
+      "lat": 32.3579399,
+      "lng": -111.0256095,
+      "reviews": 405
+    },
+    {
+      "name": "The Peak",
+      "reason": "out-of-area",
+      "address": "2727 W Club Dr, Tucson, AZ 85742, USA",
+      "primaryType": "bar",
+      "website": "https://www.omnihotels.com/hotels/tucson-national/dining/the-peak?utm_source=gmblisting&utm_medium=organic",
+      "lat": 32.3583604,
+      "lng": -111.0248944,
+      "reviews": 2
+    },
+    {
+      "name": "Desert Farmer",
+      "reason": "low-signal",
+      "address": "2727 W Club Dr, Tucson, AZ 85742, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.omnihotels.com/hotels/tucson-national/dining/desert-farmer?utm_source=gmblisting&utm_medium=organic",
+      "lat": 32.358305699999995,
+      "lng": -111.02485639999999,
+      "reviews": 19
+    },
+    {
+      "name": "Lucky Wishbone",
+      "reason": "out-of-area",
+      "address": "3780 W Ina Rd suite 188, Tucson, AZ 85741, USA",
+      "primaryType": "restaurant",
+      "website": "http://luckywishbone.com/",
+      "lat": 32.3391538,
+      "lng": -111.04639789999999,
+      "reviews": 253
+    },
+    {
+      "name": "Frankie's South Philly Cheesesteaks",
+      "reason": "out-of-area",
+      "address": "3780 W Ina Rd #184, Tucson, AZ 85741, USA",
+      "primaryType": "american_restaurant",
+      "website": "http://frankiescheesesteaks.com/",
+      "lat": 32.338989,
+      "lng": -111.0464008,
+      "reviews": 486
+    },
+    {
+      "name": "MOD Pizza",
+      "reason": "chain",
+      "address": "3780 W Ina Rd Suite 180, Tucson, AZ 85741, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.modpizza.com/usa/az/tucson/3780-w-ina-rd?utm_source=google&utm_medium=yext",
+      "lat": 32.3388651,
+      "lng": -111.0464016,
+      "reviews": 1176
+    },
+    {
+      "name": "Jade Garden Chinese Restaurant",
+      "reason": "out-of-area",
+      "address": "3720 W Ina Rd #106, Tucson, AZ 85741, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.jadegardenaz.com/",
+      "lat": 32.3381597,
+      "lng": -111.0448166,
+      "reviews": 489
+    },
+    {
+      "name": "Two Hands Corn Dog Restaurant On Ina Road",
+      "reason": "out-of-area",
+      "address": "3930 W Ina Rd, Tucson, AZ 85741, USA",
+      "primaryType": "restaurant",
+      "website": "https://order.online/store/TWOHANDSCORNDOGSInaRd-28828474?hideModal=true&pickup=true&utm_source=sdk&visitorId=ca2ee19877ba0f637f9987",
+      "lat": 32.3382827,
+      "lng": -111.0495847,
+      "reviews": 181
+    },
+    {
+      "name": "Toss Fried chicken and Ramen (Ina)",
+      "reason": "out-of-area",
+      "address": "3930 W Ina Rd Suite 322, Tucson, AZ 85741, USA",
+      "primaryType": "restaurant",
+      "website": "https://tucson.tossfriedchickenandramen.com/",
+      "lat": 32.3382384,
+      "lng": -111.049588,
+      "reviews": 73
+    },
+    {
+      "name": "Grumpy's Grill",
+      "reason": "out-of-area",
+      "address": "2960 W Ina Rd, Tucson, AZ 85741, USA",
+      "primaryType": "american_restaurant",
+      "website": "http://www.grumpysgrill.com/",
+      "lat": 32.3387265,
+      "lng": -111.0318015,
+      "reviews": 2191
+    },
+    {
+      "name": "Peter Piper Pizza",
+      "reason": "chain",
+      "address": "5385 S Calle Santa Cruz, Tucson, AZ 85706, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.peterpiperpizza.com/az/tucson/5385-s-calle-santa-cruz?utm_source=Google&utm_medium=Rio",
+      "lat": 32.1537617,
+      "lng": -110.9892024,
+      "reviews": 1246
+    },
+    {
+      "name": "Red Lobster",
+      "reason": "chain",
+      "address": "SPECTRUM MARKETPLACE, 5315 S Calle Santa Cruz, Tucson, AZ 85706, USA",
+      "primaryType": "seafood_restaurant",
+      "website": "https://www.redlobster.com/seafood-restaurants/locations/az/tucson/5315-s-calle-santa-cruz/",
+      "lat": 32.155191,
+      "lng": -110.987138,
+      "reviews": 3342
+    },
+    {
+      "name": "First Watch",
+      "reason": "chain",
+      "address": "1080 W Irvington Rd Ste 180, Tucson, AZ 85714, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://www.firstwatch.com/locations/south-tucson/?utm_source=gbp-listing&utm_medium=organic&utm_campaign=gbp-listing&utm_content=south-tucson",
+      "lat": 32.1636453,
+      "lng": -110.987426,
+      "reviews": 1469
+    },
+    {
+      "name": "El caldero Mexican food",
+      "reason": "low-signal",
+      "address": "5358 S Nogales Hwy, Tucson, AZ 85706, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.1551439,
+      "lng": -110.96551579999999,
+      "reviews": 11
+    },
+    {
+      "name": "TAQUERIA Y HOT DOGS ZAHID",
+      "reason": "format",
+      "address": "727 W Ajo Wy, Tucson, AZ 85713, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.1774639,
+      "lng": -110.9808568,
+      "reviews": 68
+    },
+    {
+      "name": "Filiberto's Mexican Food",
+      "reason": "chain",
+      "address": "708 W Ajo Wy, Tucson, AZ 85713, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.1781352,
+      "lng": -110.9801191,
+      "reviews": 450
+    },
+    {
+      "name": "Wing Street",
+      "reason": "low-signal",
+      "address": "E Ajo Way, Tucson, AZ 85713, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.1776609,
+      "lng": -110.9679091,
+      "reviews": null
+    },
+    {
+      "name": "Church's Texas Chicken",
+      "reason": "chain",
+      "address": "3602 S 6th Ave, Tucson, AZ 85714, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://locations.churchs.com/az/tucson/3602-s.-6th-avenue",
+      "lat": 32.181302699999996,
+      "lng": -110.9686507,
+      "reviews": 1177
+    },
+    {
+      "name": "Juice N Fruit Raspados",
+      "reason": "place-type",
+      "address": "3502 S 6th Ave #100, Tucson, AZ 85713, USA",
+      "primaryType": "juice_shop",
+      "website": "http://facebook.com/juicenfruitraspados",
+      "lat": 32.1834196,
+      "lng": -110.96873219999999,
+      "reviews": 531
+    },
+    {
+      "name": "Mariscos To-Go",
+      "reason": "low-signal",
+      "address": "3420 S 6th Ave, Tucson, AZ 85713, USA",
+      "primaryType": "seafood_restaurant",
+      "website": "https://www.facebook.com/p/MARISCOS-TO-GO-az-100063510905019/",
+      "lat": 32.184149,
+      "lng": -110.96873099999999,
+      "reviews": 16
+    },
+    {
+      "name": "Thiago Tortas",
+      "reason": "low-signal",
+      "address": "4426 S 6th Ave, Tucson, AZ 85714, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.1714644,
+      "lng": -110.968438,
+      "reviews": null
+    },
+    {
+      "name": "Tacos Jayroz",
+      "reason": "low-signal",
+      "address": "4513 S 6th Ave, Tucson, AZ 85714, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.1700351,
+      "lng": -110.9679177,
+      "reviews": 3
+    },
+    {
+      "name": "Birrieria Guadalajara",
+      "reason": "format",
+      "address": "304 E 22nd St, Tucson, AZ 85713, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "http://orderbirrieriaguadalajara.com/",
+      "lat": 32.206674299999996,
+      "lng": -110.9651976,
+      "reviews": 923
+    },
+    {
+      "name": "American Eat Company",
+      "reason": "place-type",
+      "address": "1439 S 4th Ave, Tucson, AZ 85713, USA",
+      "primaryType": "food_court",
+      "website": "https://americaneatco.com/",
+      "lat": 32.2040102,
+      "lng": -110.9650954,
+      "reviews": 3024
+    },
+    {
+      "name": "VivaTokyo",
+      "reason": "low-signal",
+      "address": "1427 S 4th Ave, Tucson, AZ 85713, USA",
+      "primaryType": "asian_restaurant",
+      "website": null,
+      "lat": 32.2038875,
+      "lng": -110.964957,
+      "reviews": 2
+    },
+    {
+      "name": "Asada Patron",
+      "reason": "low-signal",
+      "address": "1439 S 4th Ave, Tucson, AZ 85713, USA",
+      "primaryType": "restaurant",
+      "website": "https://asadapatron.com/",
+      "lat": 32.2039415,
+      "lng": -110.965049,
+      "reviews": 7
+    },
+    {
+      "name": "Opas Express",
+      "reason": "low-signal",
+      "address": "1439 S 4th Ave, Tucson, AZ 85713, USA",
+      "primaryType": "restaurant",
+      "website": "https://opasexpress.com/",
+      "lat": 32.2039415,
+      "lng": -110.965049,
+      "reviews": 6
+    },
+    {
+      "name": "Adis Aguas",
+      "reason": "low-signal",
+      "address": "1439 S 4th Ave, Tucson, AZ 85713, USA",
+      "primaryType": "restaurant",
+      "website": "https://adisaguas.com/menu",
+      "lat": 32.2039082,
+      "lng": -110.9651279,
+      "reviews": 17
+    },
+    {
+      "name": "Luna's Kitchen",
+      "reason": "low-signal",
+      "address": "1519 S 6th Ave, Tucson, AZ 85713, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.2029278,
+      "lng": -110.9678459,
+      "reviews": 9
+    },
+    {
+      "name": "Waffle House",
+      "reason": "chain",
+      "address": "709 W Starr Pass Blvd, Tucson, AZ 85713, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://www.wafflehouse.com/?olonwp=JjBtp_vMLk25gkYh_bnoiQ",
+      "lat": 32.2064416,
+      "lng": -110.9809933,
+      "reviews": 1980
+    },
+    {
+      "name": "Kettle Restaurant",
+      "reason": "place-type",
+      "address": "748 W Starr Pass Blvd, Tucson, AZ 85713, USA",
+      "primaryType": "buffet_restaurant",
+      "website": "https://www.kettlerestaurantaz.com/",
+      "lat": 32.2071803,
+      "lng": -110.9809037,
+      "reviews": 1420
+    },
+    {
+      "name": "Quesabirrias",
+      "reason": "low-signal",
+      "address": "2737 E 22nd St, Tucson, AZ 85713, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.2072067,
+      "lng": -110.9312211,
+      "reviews": null
+    },
+    {
+      "name": "Messylicious",
+      "reason": "closed",
+      "address": "2737 E 22nd St, Tucson, AZ 85713, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.2072516,
+      "lng": -110.9311304,
+      "reviews": 53
+    },
+    {
+      "name": "D'KUTSILYO FILIPINO RESTAURANT",
+      "reason": "low-signal",
+      "address": "2938 E 22nd St, Tucson, AZ 85713, USA",
+      "primaryType": "filipino_restaurant",
+      "website": "https://dkutsilyo-filipino-restaurant.com/",
+      "lat": 32.2064905,
+      "lng": -110.929102,
+      "reviews": 14
+    },
+    {
+      "name": "Taste of jamaica",
+      "reason": "low-signal",
+      "address": "2620 E 22nd St, Tucson, AZ 85713, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.2064726,
+      "lng": -110.9335028,
+      "reviews": 11
+    },
+    {
+      "name": "Obregon Sonoran dogs",
+      "reason": "low-signal",
+      "address": "3038 E 22nd St, Tucson, AZ 85713, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.20674230000001,
+      "lng": -110.9272821,
+      "reviews": null
+    },
+    {
+      "name": "Golden Corral Buffet & Grill",
+      "reason": "chain",
+      "address": "4380 E 22nd St, Tucson, AZ 85711, USA",
+      "primaryType": "buffet_restaurant",
+      "website": "https://www.goldencorral.com/locations/730/golden-corral-east-22nd-street?utm_source=google&utm_medium=local&utm_campaign=localmaps&utm_content=730",
+      "lat": 32.2065599,
+      "lng": -110.899205,
+      "reviews": 5260
+    },
+    {
+      "name": "Filiberto's Mexican Food",
+      "reason": "chain",
+      "address": "4110 E 22nd St, Tucson, AZ 85711, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.206565499999996,
+      "lng": -110.9049527,
+      "reviews": 623
+    },
+    {
+      "name": "IHOP",
+      "reason": "chain",
+      "address": "4040 E 22nd St, Tucson, AZ 85711, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://restaurants.ihop.com/en-us/az/tucson/breakfast-4040-e-22nd-street-3848?utm_source=google&utm_medium=organic&utm_campaign=google_my_business&utm_term=3848&utm_content=website",
+      "lat": 32.2066403,
+      "lng": -110.9057478,
+      "reviews": 604
+    },
+    {
+      "name": "Don Baja Grill",
+      "reason": "closed",
+      "address": "5754 E 22nd St, Tucson, AZ 85711, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://donbajagrillaz.com/",
+      "lat": 32.2065146,
+      "lng": -110.86891580000001,
+      "reviews": 64
+    },
+    {
+      "name": "Taqueria y Raspados Jason",
+      "reason": "format",
+      "address": "6039 E 22nd St, Tucson, AZ 85711, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://taqueriayraspadosjason.shop/",
+      "lat": 32.2072399,
+      "lng": -110.86434919999999,
+      "reviews": 1027
+    },
+    {
+      "name": "Breakfast Stop Family Restaurant",
+      "reason": "format",
+      "address": "6135 E 22nd St, Tucson, AZ 85711, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": null,
+      "lat": 32.207389899999995,
+      "lng": -110.86158169999999,
+      "reviews": 691
+    },
+    {
+      "name": "Apk",
+      "reason": "closed",
+      "address": "1051 S Craycroft Rd, Tucson, AZ 85711, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.2082086,
+      "lng": -110.87449699999999,
+      "reviews": null
+    },
+    {
+      "name": "Hop Street Lounge",
+      "reason": "closed",
+      "address": "7215 E 22nd St #101, Tucson, AZ 85710, USA",
+      "primaryType": "bar",
+      "website": null,
+      "lat": 32.207590200000006,
+      "lng": -110.8383339,
+      "reviews": 151
+    },
+    {
+      "name": "Popeyes Louisiana Kitchen",
+      "reason": "chain",
+      "address": "7111 E 22nd St, Tucson, AZ 85710, USA",
+      "primaryType": "chicken_restaurant",
+      "website": "https://www.popeyes.com/store-locator/store/restaurant_82603",
+      "lat": 32.2068867,
+      "lng": -110.839641,
+      "reviews": 1703
+    },
+    {
+      "name": "Chipotle Mexican Grill",
+      "reason": "chain",
+      "address": "7101 E 22nd St, Tucson, AZ 85710, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.2068842,
+      "lng": -110.84055599999999,
+      "reviews": 13
+    },
+    {
+      "name": "Salad and Go",
+      "reason": "chain",
+      "address": "1302 S Kolb Rd, Tucson, AZ 85710, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.saladandgo.com/?olonwp=JjBtp_vMLk25gkYh_bnoiQ",
+      "lat": 32.205247,
+      "lng": -110.84138990000001,
+      "reviews": 194
+    },
+    {
+      "name": "El Brunch Bistro",
+      "reason": "format",
+      "address": "1060 S Kolb Rd, Tucson, AZ 85710, USA",
+      "primaryType": "restaurant",
+      "website": "https://brunchbistromexicangrillaz.com/",
+      "lat": 32.208002799999996,
+      "lng": -110.84133930000002,
+      "reviews": 108
+    },
+    {
+      "name": "Jerry Bob's Restaurant",
+      "reason": "place-type",
+      "address": "6970 E 22nd St a106, Tucson, AZ 85710, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://www.jerrybobsaz.com/",
+      "lat": 32.205660099999996,
+      "lng": -110.84348949999999,
+      "reviews": 141
+    },
+    {
+      "name": "Pizzano's Pizza",
+      "reason": "low-signal",
+      "address": "7020 E 21st St A, Tucson, AZ 85710, USA",
+      "primaryType": "pizza_restaurant",
+      "website": null,
+      "lat": 32.2078211,
+      "lng": -110.84334039999999,
+      "reviews": 3
+    },
+    {
+      "name": "Barista del Barrio",
+      "reason": "place-type",
+      "address": "1002 N Grande Ave, Tucson, AZ 85745, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "http://baristadelbarrio.square.site/",
+      "lat": 32.234761,
+      "lng": -110.98991939999999,
+      "reviews": 1122
+    },
+    {
+      "name": "The Golden Falafel",
+      "reason": "low-signal",
+      "address": "806 E University Blvd, Tucson, AZ 85719, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.order.store/store/golden-falafel-806-e-university-blvd/iPx_LX8bVGK3xXuNshTZ7Q",
+      "lat": 32.2313056,
+      "lng": -110.9590791,
+      "reviews": 11
+    },
+    {
+      "name": "Saguaro Grill",
+      "reason": "low-signal",
+      "address": "880 E 2nd St, Tucson, AZ 85719, USA",
+      "primaryType": "american_restaurant",
+      "website": "https://www.marriott.com/hotels/hotel-information/restaurant/tusmp-tucson-marriott-university-park/",
+      "lat": 32.2322175,
+      "lng": -110.9584357,
+      "reviews": 20
+    },
+    {
+      "name": "Sahara breeze restaurant Mediterranean",
+      "reason": "low-signal",
+      "address": "810 E University Blvd, Tucson, AZ 85719, USA",
+      "primaryType": "mediterranean_restaurant",
+      "website": null,
+      "lat": 32.2311784,
+      "lng": -110.958846,
+      "reviews": 2
+    },
+    {
+      "name": "Nathan's Famous",
+      "reason": "low-signal",
+      "address": "628 N 4th Ave, Tucson, AZ 85705, USA",
+      "primaryType": "restaurant",
+      "website": "https://nathansfamoustucson.com/",
+      "lat": 32.2297327,
+      "lng": -110.96537049999999,
+      "reviews": 24
+    },
+    {
+      "name": "Mike's Food Co",
+      "reason": "low-signal",
+      "address": "1015 S Park Ave, Tucson, AZ 85719, USA",
+      "primaryType": "restaurant",
+      "website": "https://mikesfood.co/",
+      "lat": 32.2089791,
+      "lng": -110.95589919999999,
+      "reviews": 22
+    },
+    {
+      "name": "Famous Dave's Bar-B-Que",
+      "reason": "chain",
+      "address": "3007 E Speedway Blvd, Tucson, AZ 85716, USA",
+      "primaryType": "barbecue_restaurant",
+      "website": "https://www.famousdaves.com/Tucson",
+      "lat": 32.2364841,
+      "lng": -110.9278291,
+      "reviews": 2045
+    },
+    {
+      "name": "Papa Johns Pizza",
+      "reason": "chain",
+      "address": "2545 E Speedway Blvd #165, Tucson, AZ 85716, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.papajohns.com/united-states/az/85716/tucson/2545-e-speedway-blvd?utm_source=gmb&utm_medium=organic&y_source=1_MTA2OTIwMzUtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "lat": 32.2365231,
+      "lng": -110.934095,
+      "reviews": 194
+    },
+    {
+      "name": "Fronimo's Greek Cafe",
+      "reason": "closed",
+      "address": "3242 E Speedway Blvd, Tucson, AZ 85716, USA",
+      "primaryType": "european_restaurant",
+      "website": "http://www.fronimos.com/",
+      "lat": 32.2358888,
+      "lng": -110.9238482,
+      "reviews": 699
+    },
+    {
+      "name": "Ensenada Seafood",
+      "reason": "low-signal",
+      "address": "999 N Swan Rd, Tucson, AZ 85711, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.234802,
+      "lng": -110.8929037,
+      "reviews": null
+    },
+    {
+      "name": "Pizzano's Pizza",
+      "reason": "low-signal",
+      "address": "4015 E Speedway Blvd, Tucson, AZ 85712, USA",
+      "primaryType": "pizza_restaurant",
+      "website": null,
+      "lat": 32.2364657,
+      "lng": -110.906459,
+      "reviews": 11
+    },
+    {
+      "name": "Midtown Bar & Grill",
+      "reason": "closed",
+      "address": "4915 E Speedway Blvd, Tucson, AZ 85712, USA",
+      "primaryType": "bar",
+      "website": null,
+      "lat": 32.236678999999995,
+      "lng": -110.8877703,
+      "reviews": 48
+    },
+    {
+      "name": "Chuck E. Cheese",
+      "reason": "chain",
+      "address": "6125 E Speedway Blvd, Tucson, AZ 85712, USA",
+      "primaryType": "amusement_center",
+      "website": "https://www.chuckecheese.com/tucson-az",
+      "lat": 32.236692399999995,
+      "lng": -110.8614113,
+      "reviews": 1580
+    },
+    {
+      "name": "Salad and Go",
+      "reason": "chain",
+      "address": "5501 E Speedway Blvd, Tucson, AZ 85712, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.saladandgo.com/?olonwp=JjBtp_vMLk25gkYh_bnoiQ",
+      "lat": 32.2365807,
+      "lng": -110.8751205,
+      "reviews": 770
+    },
+    {
+      "name": "NEW CHINA SUSHI GRILL BUFFET",
+      "reason": "format",
+      "address": "1160 N Wilmot Rd, Tucson, AZ 85712, USA",
+      "primaryType": "asian_fusion_restaurant",
+      "website": "https://www.newchinaarizona.com/",
+      "lat": 32.2369099,
+      "lng": -110.85736849999999,
+      "reviews": 3349
+    },
+    {
+      "name": "Peter Piper Pizza",
+      "reason": "chain",
+      "address": "5925 E Broadway Blvd, Tucson, AZ 85711, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://locations.peterpiperpizza.com/az/tucson/5925-e-broadway-blvd?utm_source=Google&utm_medium=Rio",
+      "lat": 32.222529099999996,
+      "lng": -110.86603819999999,
+      "reviews": 3190
+    },
+    {
+      "name": "First Watch",
+      "reason": "chain",
+      "address": "7189 E Speedway Blvd #102, Tucson, AZ 85710, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://www.firstwatch.com/locations/speedway/?utm_source=gbp-listing&utm_medium=organic&utm_campaign=gbp-listing&utm_content=speedway",
+      "lat": 32.2359364,
+      "lng": -110.83878449999999,
+      "reviews": 2031
+    },
+    {
+      "name": "Firetruck Pizza Company",
+      "reason": "closed",
+      "address": "800 N Kolb Rd, Tucson, AZ 85710, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "https://firetruckbrewing.com/tucson-midtown-firetruck-brewing-company-midtown-location-firetruck-pizza",
+      "lat": 32.2314265,
+      "lng": -110.8405659,
+      "reviews": 116
+    },
+    {
+      "name": "Wing Street",
+      "reason": "low-signal",
+      "address": "Tucson, AZ 85710, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.2351482,
+      "lng": -110.84151159999999,
+      "reviews": 1
+    },
+    {
+      "name": "Waffle House",
+      "reason": "chain",
+      "address": "1380 W Grant Rd, Tucson, AZ 85705, USA",
+      "primaryType": "breakfast_restaurant",
+      "website": "https://www.wafflehouse.com/?olonwp=JjBtp_vMLk25gkYh_bnoiQ",
+      "lat": 32.250727499999996,
+      "lng": -110.99497129999999,
+      "reviews": 2745
+    },
+    {
+      "name": "Govindas Natural Foods Buffet",
+      "reason": "format",
+      "address": "711 E Blacklidge Dr, Tucson, AZ 85719, USA",
+      "primaryType": "vegetarian_restaurant",
+      "website": "http://www.govindasoftucson.com/",
+      "lat": 32.2615434,
+      "lng": -110.9604006,
+      "reviews": 856
+    },
+    {
+      "name": "Taqueria el Pocito",
+      "reason": "format",
+      "address": "2750 N 1st Ave, Tucson, AZ 85719, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.2575131,
+      "lng": -110.9605753,
+      "reviews": 1
+    },
+    {
+      "name": "Stancato's Italiano Sonoran",
+      "reason": "low-signal",
+      "address": "630 E Delano St, Tucson, AZ 85705, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.262901299999996,
+      "lng": -110.9616312,
+      "reviews": 5
+    },
+    {
+      "name": "Tucson Food Hub",
+      "reason": "closed",
+      "address": "613 E Delano St, Tucson, AZ 85705, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.2633066,
+      "lng": -110.96198,
+      "reviews": 5
+    },
+    {
+      "name": "Julie's Guilt-Free Sweet Treats Sweet & Savory Kitchen",
+      "reason": "closed",
+      "address": "613 E Delano St, Tucson, AZ 85705, USA",
+      "primaryType": "vegan_restaurant",
+      "website": null,
+      "lat": 32.2633066,
+      "lng": -110.96198,
+      "reviews": 9
+    },
+    {
+      "name": "Sweet Royalty Grill",
+      "reason": "closed",
+      "address": "613 E Delano St, Tucson, AZ 85705, USA",
+      "primaryType": "restaurant",
+      "website": "https://order.online/business/sweet-royalty-catering-1018665",
+      "lat": 32.2633066,
+      "lng": -110.96198,
+      "reviews": 47
+    },
+    {
+      "name": "Desert Shark",
+      "reason": "closed",
+      "address": "2501 E Grant Rd, Tucson, AZ 85716, USA",
+      "primaryType": "hawaiian_restaurant",
+      "website": "http://desertsharkaz.com/",
+      "lat": 32.250719700000005,
+      "lng": -110.9349498,
+      "reviews": 71
+    },
+    {
+      "name": "Nekter Juice Bar",
+      "reason": "place-type",
+      "address": "2501 E Grant Rd, Tucson, AZ 85716, USA",
+      "primaryType": "juice_shop",
+      "website": "https://locations.nekterjuicebar.com/ll/us/az/tucson/2501-e-grant-rd/",
+      "lat": 32.2506507,
+      "lng": -110.9350296,
+      "reviews": 186
+    },
+    {
+      "name": "ZENSHI Handcrafted Sushi",
+      "reason": "low-signal",
+      "address": "2854 N Campbell Ave, Tucson, AZ 85719, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.zenshisushi.com/",
+      "lat": 32.2590015,
+      "lng": -110.9425605,
+      "reviews": null
+    },
+    {
+      "name": "Sakari Sushi",
+      "reason": "closed",
+      "address": "2962 N Campbell Ave, Tucson, AZ 85719, USA",
+      "primaryType": "sushi_restaurant",
+      "website": "https://sakarisushitucson.com/",
+      "lat": 32.2603755,
+      "lng": -110.94263439999999,
+      "reviews": 245
+    },
+    {
+      "name": "Buendía Breakfast & Lunch Café",
+      "reason": "format",
+      "address": "2530 N 1st Ave, Tucson, AZ 85719, USA",
+      "primaryType": "brunch_restaurant",
+      "website": null,
+      "lat": 32.252989,
+      "lng": -110.960578,
+      "reviews": 903
+    },
+    {
+      "name": "MexEats Economy Kitchen and Meat Market",
+      "reason": "low-signal",
+      "address": "2485 N Swan Rd #111, Tucson, AZ 85712, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.mexeats.com/",
+      "lat": 32.2518532,
+      "lng": -110.8933141,
+      "reviews": null
+    },
+    {
+      "name": "Panda Express",
+      "reason": "chain",
+      "address": "2485 N Swan Rd Space# 101, Tucson, AZ 85712, USA",
+      "primaryType": "chinese_restaurant",
+      "website": "https://www.pandaexpress.com/locations/az/tucson/628?utm_source=google_gbp&utm_medium=organic&utm_campaign=websitelink",
+      "lat": 32.2517956,
+      "lng": -110.8932317,
+      "reviews": 876
+    },
+    {
+      "name": "Cisco's Hot Dogs",
+      "reason": "closed",
+      "address": "910 W Roger Rd, Tucson, AZ 85705, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.2797213,
+      "lng": -110.9870589,
+      "reviews": 10
+    },
+    {
+      "name": "Taqueria Porfis",
+      "reason": "format",
+      "address": "Tucson, AZ 85705, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.2843142,
+      "lng": -110.97954779999999,
+      "reviews": 27
+    },
+    {
+      "name": "Lin's Grand Buffet",
+      "reason": "format",
+      "address": "4420 N Stone Ave, Tucson, AZ 85705, USA",
+      "primaryType": "restaurant",
+      "website": "http://linsrestaurant.com/",
+      "lat": 32.2870712,
+      "lng": -110.9692214,
+      "reviews": 133
+    },
+    {
+      "name": "5 & Diner",
+      "reason": "closed",
+      "address": "4520 N Stone Ave, Tucson, AZ 85705, USA",
+      "primaryType": "restaurant",
+      "website": null,
+      "lat": 32.288441399999996,
+      "lng": -110.96942399999999,
+      "reviews": 1
+    },
+    {
+      "name": "Giuseppe's",
+      "reason": "out-of-area",
+      "address": "6060 N Oracle Rd, Tucson, AZ 85704, USA",
+      "primaryType": "italian_restaurant",
+      "website": "https://giuseppesristorantes.com/guiseppes-noraclerd?utm_source=google",
+      "lat": 32.3167154,
+      "lng": -110.97471759999999,
+      "reviews": 1100
+    },
+    {
+      "name": "EL SEMENTAL TAQUERIA PANADERIA DULCERIA",
+      "reason": "format",
+      "address": "6020 N Oracle Rd, Tucson, AZ 85704, USA",
+      "primaryType": "mexican_restaurant",
+      "website": null,
+      "lat": 32.316100299999995,
+      "lng": -110.97536529999999,
+      "reviews": 3
+    },
+    {
+      "name": "Putney's Pitstop Sports Bar & Grill",
+      "reason": "out-of-area",
+      "address": "6090 N Oracle Rd, Tucson, AZ 85704, USA",
+      "primaryType": "sports_bar",
+      "website": "https://www.putneyspitstop.com/",
+      "lat": 32.3172335,
+      "lng": -110.9752271,
+      "reviews": 1396
+    },
+    {
+      "name": "Mr. An's Teppan Steak & Seafood",
+      "reason": "out-of-area",
+      "address": "6091 N Oracle Rd, Tucson, AZ 85704, USA",
+      "primaryType": "japanese_restaurant",
+      "website": "https://www.mrantucson.com/",
+      "lat": 32.31686,
+      "lng": -110.976669,
+      "reviews": 2816
+    },
+    {
+      "name": "Sunset Nursery",
+      "reason": "out-of-area",
+      "address": "5939 N Oracle Rd, Tucson, AZ 85704, USA",
+      "primaryType": "farm",
+      "website": "https://tedsmercantile.com/",
+      "lat": 32.3150763,
+      "lng": -110.9774841,
+      "reviews": 31
+    },
+    {
+      "name": "Chef Alisah's Restaurant",
+      "reason": "out-of-area",
+      "address": "5931 N Oracle Rd, Tucson, AZ 85704, USA",
+      "primaryType": "european_restaurant",
+      "website": "https://www.alisahrestaurant.com/",
+      "lat": 32.3149386,
+      "lng": -110.9778163,
+      "reviews": 772
+    },
+    {
+      "name": "Gourmet Girls Gluten Free Bakery/Bistro",
+      "reason": "place-type",
+      "address": "5845 N Oracle Rd, Tucson, AZ 85704, USA",
+      "primaryType": "restaurant",
+      "website": "https://www.gourmetgirlsglutenfree.com/?utm_source=google&utm_medium=organic&utm_campaign=gmb",
+      "lat": 32.3132405,
+      "lng": -110.978594,
+      "reviews": 990
+    },
+    {
+      "name": "Issabelle's BD",
+      "reason": "low-signal",
+      "address": "2850 W Ina Rd, Tucson, AZ 85741, USA",
+      "primaryType": "family_restaurant",
+      "website": null,
+      "lat": 32.338993200000004,
+      "lng": -111.0288351,
+      "reviews": null
+    },
+    {
+      "name": "Sgt. Pepperoni's Pizza",
+      "reason": "out-of-area",
+      "address": "2860 W Ina Rd, Tucson, AZ 85741, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "http://sgtpepperonispizzatucson.com/39322",
+      "lat": 32.3390167,
+      "lng": -111.02926289999999,
+      "reviews": 285
+    },
+    {
+      "name": "Rosati's Pizza",
+      "reason": "out-of-area",
+      "address": "2944 W Ina Rd, Tucson, AZ 85741, USA",
+      "primaryType": "pizza_restaurant",
+      "website": "http://myrosatis.com/tucsonina",
+      "lat": 32.33873080000001,
+      "lng": -111.0304158,
+      "reviews": 1021
+    },
+    {
+      "name": "Trident Grill IV",
+      "reason": "out-of-area",
+      "address": "2912 W Ina Rd, Tucson, AZ 85741, USA",
+      "primaryType": "restaurant",
+      "website": "http://www.tridentgrill.com/",
+      "lat": 32.3378224,
+      "lng": -111.03019809999999,
+      "reviews": 917
+    },
+    {
+      "name": "Filiberto's Mexican Food",
+      "reason": "chain",
+      "address": "2980 W Ina Rd, Tucson, AZ 85741, USA",
+      "primaryType": "mexican_restaurant",
+      "website": "https://www.doordash.com/store/filibertos-mexican-food-tucson-1310086/1867689/?preview=1",
+      "lat": 32.337812899999996,
+      "lng": -111.03185959999999,
+      "reviews": 687
+    },
+    {
+      "name": "Wok & Roll",
+      "reason": "place-type",
+      "address": "Heritage Plaza, 3000 W Ina Rd, Tucson, AZ 85741, USA",
+      "primaryType": "buffet_restaurant",
+      "website": "https://www.woknrolltucson.com/",
+      "lat": 32.3378182,
+      "lng": -111.0324038,
+      "reviews": 2084
+    }
+  ]
+}

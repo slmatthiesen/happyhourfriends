@@ -10,16 +10,16 @@ set. **Phases 1–3 are FREE** (no Anthropic/Google API — deterministic over s
 
 ## Cities
 
-| slug | state |
-|---|---|
-| tacoma | wa |
-| tucson | az |
-| phoenix-central | az |
-| scottsdale | az |
-| spokane | wa |
-| daly-city | ca |
-| five-cities | ca |
-| oakland | ca |
+| slug            | state |
+| --------------- | ----- |
+| tacoma          | wa    |
+| tucson          | az    |
+| phoenix-central | az    |
+| scottsdale      | az    |
+| spokane         | wa    |
+| daly-city       | ca    |
+| five-cities     | ca    |
+| oakland         | ca    |
 
 ## Order matters
 
