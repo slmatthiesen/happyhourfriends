@@ -10,7 +10,7 @@ import assert from "node:assert/strict";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { auditLog, cities, dataAudit, happyHours, venues } from "@/db/schema";
-import { hideWindowForFlag, keepFlaggedVenue, markForFurtherReview } from "@/lib/audit/flagReview";
+import { hideWindowForFlag, keepFlaggedVenue, markForFurtherReview, stubVenueForFlag } from "@/lib/audit/flagReview";
 
 const ROLLBACK = new Error("__rollback__");
 let passed = 0;
@@ -103,6 +103,36 @@ async function main() {
       const [daAfterHide] = await tx.select().from(dataAudit).where(eq(dataAudit.venueId, venue.id));
       assert.equal(daAfterHide.resolution, "operator_hidden");
       check("hide sets resolution=operator_hidden (mineable for future gate rules)");
+
+      // --- multi-window venue: hiding ONE window must NOT settle the audit row ---
+      const [venue2] = await tx
+        .insert(venues)
+        .values({ cityId: city.id, name: "Two Window Venue", slug: "two-window-venue", websiteUrl: "https://example.com", dataCompleteness: "complete" })
+        .returning({ id: venues.id });
+      const [w1] = await tx
+        .insert(happyHours)
+        .values({ venueId: venue2.id, daysOfWeek: [1], startTime: "15:00", endTime: "18:00", allDay: false, locationWithinVenue: "all", active: true, timeKnown: true })
+        .returning({ id: happyHours.id });
+      await tx
+        .insert(happyHours)
+        .values({ venueId: venue2.id, daysOfWeek: [2], startTime: "15:00", endTime: "18:00", allDay: false, locationWithinVenue: "all", active: true, timeKnown: true });
+      await tx.insert(dataAudit).values({ venueId: venue2.id, flags: [{ code: "homepage_sourced_hh", severity: "report", evidence: "x" }], resolution: "scanned" });
+
+      const res1 = await hideWindowForFlag(tx, { happyHourId: w1.id, adminEmail: "test@example.com" });
+      assert.equal(res1.venueDemoted, false);
+      const [da2] = await tx.select().from(dataAudit).where(eq(dataAudit.venueId, venue2.id));
+      assert.equal(da2.resolution, "scanned");
+      check("hiding one of several windows leaves the venue unsettled (still in queue)");
+
+      // --- stub venue: hides every remaining window, demotes, settles ---
+      const stubRes = await stubVenueForFlag(tx, { venueId: venue2.id, adminEmail: "test@example.com" });
+      assert.equal(stubRes.hiddenCount, 1); // only the second window was still active
+      assert.equal(stubRes.venueDemoted, true);
+      const [v2After] = await tx.select({ dc: venues.dataCompleteness }).from(venues).where(eq(venues.id, venue2.id));
+      assert.equal(v2After.dc, "stub");
+      const [da2After] = await tx.select().from(dataAudit).where(eq(dataAudit.venueId, venue2.id));
+      assert.equal(da2After.resolution, "operator_hidden");
+      check("stubVenueForFlag hides remaining windows, demotes to stub, settles the audit row");
 
       throw ROLLBACK;
     })
