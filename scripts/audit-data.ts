@@ -60,11 +60,14 @@ async function main() {
       // Offerings ride along so the shared reconcile gate discriminates per-day specials /
       // distinct-deal overlaps the persist gate deliberately keeps (same join as reconcile-windows).
       const rawRows = await sql<
-        (Omit<AuditWindow, "offeringsKey"> & { offs: { name: string | null; price_cents: number | null }[] })[]
+        (Omit<AuditWindow, "offeringsKey" | "offerings"> & {
+          offs: { kind: string; name: string | null; description: string | null; price_cents: number | null }[];
+        })[]
       >`
         SELECT hh.days_of_week AS "daysOfWeek", hh.start_time AS "startTime", hh.end_time AS "endTime",
                hh.all_day AS "allDay", hh.active, hh.source_url AS "sourceUrl", hh.notes,
-               coalesce(json_agg(json_build_object('name', o.name, 'price_cents', o.price_cents))
+               coalesce(json_agg(json_build_object('kind', o.kind, 'name', o.name,
+                                                   'description', o.description, 'price_cents', o.price_cents))
                         FILTER (WHERE o.id IS NOT NULL), '[]') AS offs
         FROM happy_hours hh
         LEFT JOIN offerings o ON o.happy_hour_id = hh.id AND o.deleted_at IS NULL AND o.active = true
@@ -73,6 +76,7 @@ async function main() {
       const hhRows: AuditWindow[] = rawRows.map(({ offs, ...w }) => ({
         ...w,
         offeringsKey: offeringsFingerprint(offs.map((o) => ({ name: o.name, priceCents: o.price_cents }))),
+        offerings: offs.map((o) => ({ kind: o.kind, name: o.name, description: o.description, priceCents: o.price_cents })),
       }));
       const flags = auditVenue({ websiteUrl: v.website_url, hoursJson: v.hours_json, windows: hhRows });
       const resolution = flags.length === 0 ? "clean" : "scanned";
