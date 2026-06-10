@@ -3,7 +3,18 @@
 import { useState, useTransition } from "react";
 import { hideWindowAction, keepFlagAction, type ActionResult } from "@/app/admin/actions";
 import type { AnomalyFlag } from "@/lib/audit/anomalyRules";
-import { formatDays } from "@/lib/format";
+import { formatDays, formatPrice } from "@/lib/format";
+
+export interface FlaggedOffering {
+  kind: string;
+  category: string;
+  name: string | null;
+  priceCents: number | null;
+  originalPriceCents: number | null;
+  currencyCode: string | null;
+  description: string | null;
+  conditions: string | null;
+}
 
 export interface FlaggedWindow {
   id: string;
@@ -12,7 +23,7 @@ export interface FlaggedWindow {
   endTime: string | null;
   allDay: boolean;
   sourceUrl: string | null;
-  offeringCount: number;
+  offerings: FlaggedOffering[];
 }
 
 export interface FlaggedVenue {
@@ -27,6 +38,19 @@ export interface FlaggedVenue {
 function windowLabel(w: FlaggedWindow): string {
   const time = w.allDay ? "all day" : `${w.startTime?.slice(0, 5) ?? "open"}–${w.endTime?.slice(0, 5) ?? "close"}`;
   return `${formatDays(w.daysOfWeek)} ${time}`;
+}
+
+function offeringLabel(o: FlaggedOffering): string {
+  const price = formatPrice(o.priceCents, o.currencyCode ?? "USD");
+  const original = formatPrice(o.originalPriceCents, o.currencyCode ?? "USD");
+  const parts = [
+    [o.name ?? o.description ?? o.category, price && original ? `${price} (reg ${original})` : price]
+      .filter(Boolean)
+      .join(" — "),
+    o.name && o.description ? o.description : null,
+    o.conditions,
+  ].filter(Boolean);
+  return parts.join(" · ");
 }
 
 export function FlagReviewRow({ venue }: { venue: FlaggedVenue }) {
@@ -93,21 +117,33 @@ export function FlagReviewRow({ venue }: { venue: FlaggedVenue }) {
       {venue.windows.length > 0 && (
         <div className="mt-3 space-y-1">
           {venue.windows.map((w) => (
-            <div key={w.id} className="flex flex-wrap items-center gap-2 text-xs">
-              <button
-                onClick={() => hide(w.id)}
-                disabled={pending || done}
-                className="rounded-md border border-border px-2 py-0.5 hover:bg-row-hover disabled:opacity-50"
-                title="This window is wrong — hide it (reversible from /admin/audit)"
-              >
-                Hide
-              </button>
-              <span className="text-text-primary">{windowLabel(w)}</span>
-              <span className="text-text-muted">· {w.offeringCount} offering(s)</span>
-              {w.sourceUrl && (
-                <a href={w.sourceUrl} target="_blank" rel="noreferrer" className="text-accent-cool hover:underline">
-                  source ↗
-                </a>
+            <div key={w.id} className="text-xs">
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={() => hide(w.id)}
+                  disabled={pending || done}
+                  className="rounded-md border border-border px-2 py-0.5 hover:bg-row-hover disabled:opacity-50"
+                  title="This window is wrong — hide it (reversible from /admin/audit)"
+                >
+                  Hide
+                </button>
+                <span className="text-text-primary">{windowLabel(w)}</span>
+                {w.offerings.length === 0 && <span className="text-text-muted">· no offerings captured</span>}
+                {w.sourceUrl && (
+                  <a href={w.sourceUrl} target="_blank" rel="noreferrer" className="text-accent-cool hover:underline">
+                    source ↗
+                  </a>
+                )}
+              </div>
+              {w.offerings.length > 0 && (
+                <ul className="ml-14 mt-0.5 list-disc space-y-0.5 text-text-muted">
+                  {w.offerings.map((o, i) => (
+                    <li key={i}>
+                      <span className="uppercase tracking-wide text-[10px] text-accent-cool">{o.kind}</span>{" "}
+                      {offeringLabel(o)}
+                    </li>
+                  ))}
+                </ul>
               )}
             </div>
           ))}
