@@ -8,7 +8,10 @@ slugs are unique per state, not globally, so a bare slug (e.g. `hollywood`) coul
 cities. Omitting `--state` fails loud instead of guessing.
 
 **Cities (`--city <slug> --state <code>`):**
-`tacoma wa` · `tucson az` · `phoenix-central az` · `scottsdale az` · `daly-city ca` · `five-cities ca`
+`tacoma wa` · `tucson az` · `phoenix-central az` · `scottsdale az` · `daly-city ca` · `five-cities ca` · `spokane wa`
+
+**Onboarding a NEW city:** follow `docs/new-city-runbook.md` (register → discover → enrich →
+gate → neighborhoods → audit → QA → flip live → additive push to prod).
 
 ---
 
