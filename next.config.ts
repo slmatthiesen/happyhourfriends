@@ -2,6 +2,11 @@ import type { NextConfig } from "next";
 import { legacyCityRedirects } from "@/lib/routes";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    // Inline the (small, Tailwind-atomic) stylesheet into the HTML instead of a
+    // render-blocking <link> — removes the CSS request from the critical path.
+    inlineCss: true,
+  },
   async redirects() {
     return legacyCityRedirects([
       { bareSlug: "tacoma", stateSlug: "wa" },
