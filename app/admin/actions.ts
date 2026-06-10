@@ -139,6 +139,38 @@ export async function revertAction(auditId: string): Promise<ActionResult> {
   }
 }
 
+/** Flag review (/admin/flags): the flagged data is correct — stop surfacing this venue. */
+export async function keepFlagAction(venueId: string, note?: string): Promise<ActionResult> {
+  try {
+    const admin = await requireAdmin();
+    const { keepFlaggedVenue } = await import("@/lib/audit/flagReview");
+    await keepFlaggedVenue(db, { venueId, adminEmail: admin.email, note });
+    revalidatePath("/admin/flags");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Keep failed" };
+  }
+}
+
+/** Flag review (/admin/flags): hide one wrong window (reversible via /admin/audit). */
+export async function hideWindowAction(happyHourId: string): Promise<ActionResult> {
+  try {
+    const admin = await requireAdmin();
+    const { hideWindowForFlag } = await import("@/lib/audit/flagReview");
+    const res = await hideWindowForFlag(db, { happyHourId, adminEmail: admin.email });
+    revalidatePath("/admin/flags");
+    revalidatePath("/");
+
+    let warning: string | undefined;
+    const pub = await publishVenueToProd(res.venueId);
+    if (!pub.ok) warning = `Hidden locally, but publishing to prod failed: ${pub.error}`;
+    if (res.venueDemoted) warning = `${warning ? warning + " · " : ""}Venue had no active windows left — demoted to stub.`;
+    return { ok: true, warning };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Hide failed" };
+  }
+}
+
 export interface ResolveStubResult extends ActionResult {
   recovered?: boolean;
   windowsLive?: number;
