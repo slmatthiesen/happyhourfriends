@@ -14,6 +14,8 @@ import { hasHhOrDealSignal } from "@/lib/places/hhText";
 // ~4/2.4MB extracts cleanly. Cap by count AND bytes; text pages are always included.
 const MAX_DOC_PAGES = 5;
 const MAX_DOC_BYTES = 3_000_000;
+/** Statuses bot walls answer plain fetches with — a headless browser usually gets through. */
+const BOT_WALL_STATUSES = new Set([401, 403, 406, 429]);
 
 /** A page we fetched ourselves, ready to drop into the model's content blocks. */
 export interface FetchedPage {
@@ -69,11 +71,15 @@ export async function fetchPages(
   const fetchOne = async (u: string): Promise<FetchResult> => {
     const r = await fetchUrl(u, { maxContent: opts.maxContent });
     // Only fall back to the (slow) browser when it can actually help: a robots-blocked
-    // shortlink the browser would just follow, or a reachable JS-shell that rendered no
-    // text / docs / links. NEVER for a genuine 404/410/dead URL (e.g. a speculative path
-    // guess) — rendering those would launch a browser per miss and stall prep.
+    // shortlink the browser would just follow, a bot-UA wall (401/403/406/429 — a real
+    // browser usually gets through; veroamorepizza.com 403s plain fetch but renders fine),
+    // or a reachable JS-shell that rendered no text / docs / links. NEVER for a genuine
+    // 404/410/dead URL (e.g. a speculative path guess) — rendering those would launch a
+    // browser per miss and stall prep.
+    const botWalled = !r.ok && r.status != null && BOT_WALL_STATUSES.has(r.status);
     const worthRendering =
       r.blockedByRobots === true ||
+      botWalled ||
       (r.ok && !r.contentText && !r.isPdf && !r.isImage && !(r.mediaLinks && r.mediaLinks.length));
     if (worthRendering && opts.render) {
       const rendered = await opts.render(u);
