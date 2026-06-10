@@ -60,9 +60,8 @@ next-env.d.ts
 Thumbs.db
 Desktop.ini
 
-# local Claude Code settings (per-user permissions; not shared)
-.claude/settings.local.json
-.claude/scheduled_tasks.lock
+# local Claude Code state (settings, memory, worktrees — per-user, not shared)
+.claude/
 
 # Project datasets we do NOT redistribute — curated/scraped venue data.
 # Kept out of the repo for anti-scrape + unresolved seed-data licensing
