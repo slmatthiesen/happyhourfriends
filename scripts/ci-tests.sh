@@ -58,6 +58,7 @@ TESTS=(
   test:hh-outcomes
   test:hh-golden
   test:resolve-city
+  test:offering-sanity
   test:neighborhood-name
 )
 

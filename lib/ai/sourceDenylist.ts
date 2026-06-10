@@ -18,6 +18,13 @@ export const SOURCE_DENYLIST = [
   "restaurantji",
   "sirved",
   "singleplatform",
+  // Added 2026-06-10 (operator flag review): aggregators found in stored source_urls.
+  // cheerhop sourced Wooden City Tacoma windows its own site never mentions.
+  "cheerhop",
+  "thehappyhourfinder",
+  "happyhourmaps",
+  "tacotuesday.com",
+  "usmenuguide",
 ];
 
 export function isDenylistedSource(url: string): boolean {
