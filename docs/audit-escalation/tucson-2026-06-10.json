@@ -1,0 +1,2558 @@
+[
+  {
+    "venueId": "12888eab-c5ca-4d6d-8b58-b0f1605fc9c8",
+    "name": "Angry Crab Shack",
+    "hhPage": "https://www.angrycrabshack.com/grant-rd-tucson-az#specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 5,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "Angry Crab Shack North Tucson lists \"Happy Hour Available (call North Tucson location for more information)\" on its location page, but no specific happy hour schedule, times, or pricing details are published on any of the provided pages.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 39891,
+        "outputTokens": 122
+      },
+      "costCents": 5,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "54051c78-1614-4244-8d27-b73d69941c20",
+    "name": "Angry Crab Shack",
+    "hhPage": "https://www.angrycrabshack.com/broadway-blvd-tucson#specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 5,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "No happy hour schedule found on the provided pages for Angry Crab Shack Broadway Blvd Tucson location.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 43333,
+        "outputTokens": 96
+      },
+      "costCents": 5,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "e1715f1c-c827-4698-bb3c-c04c14d3672f",
+    "name": "Anthony's Cigar Emporium",
+    "hhPage": "https://anthonyscigars.com/specials/you-pick/5-star-sampler",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 3,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "Anthony's Cigar Emporium is a retail cigar shop. The provided pages show product listings, pricing, and promotional banners, but contain no recurring happy-hour or time-limited discount schedules.",
+      "venueType": "other",
+      "usage": {
+        "inputTokens": 20868,
+        "outputTokens": 132
+      },
+      "costCents": 3,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "5ab2a202-2a35-4c88-983b-f046e6b5aa8d",
+    "name": "Arizona Wine Collective",
+    "hhPage": "https://www.azwinecollective.com/event/tucson-foodie-happy-hour-week/",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [],
+    "found": [
+      {
+        "days": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "start": null,
+        "end": null,
+        "offerings": [
+          {
+            "name": "Wine refills",
+            "price": null
+          }
+        ],
+        "src": "https://www.azwinecollective.com/event/tucson-foodie-happy-hour-week/"
+      }
+    ],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 2,
+    "extracted": {
+      "happyHours": [
+        {
+          "allDay": true,
+          "timeKnown": false,
+          "daysOfWeek": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "startTime": null,
+          "endTime": null,
+          "locationWithinVenue": "all",
+          "notes": "½ price refills on glasses of wine during Tucson Foodie Happy Hour Week (June 16-21). Recurring day-of-week window not specified; only event dates provided.",
+          "sourceUrl": "https://www.azwinecollective.com/event/tucson-foodie-happy-hour-week/",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "wine",
+              "name": "Wine refills",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "½ price refills on glasses of wine",
+              "conditions": null,
+              "sourceUrl": "https://www.azwinecollective.com/event/tucson-foodie-happy-hour-week/"
+            }
+          ]
+        }
+      ],
+      "confidence": 0.3,
+      "summary": "Arizona Wine Collective: One-time event (June 16-21, 2026) with ½ price wine refills; no recurring happy-hour schedule found.",
+      "venueType": "wine_bar",
+      "usage": {
+        "inputTokens": 11363,
+        "outputTokens": 380
+      },
+      "costCents": 2,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": [],
+    "reviewNote": "operator review 2026-06-09: rejected (contamination/event-page/junk extraction)"
+  },
+  {
+    "venueId": "cc1da597-ee05-49b3-a793-fcd57cffefe6",
+    "name": "Cheddar's Scratch Kitchen",
+    "hhPage": "https://www.cheddars.com/specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [
+      {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": null,
+        "end": "15:00",
+        "offerings": [
+          {
+            "name": "Lunch specials",
+            "price": null
+          }
+        ],
+        "src": "https://www.cheddars.com/lunch"
+      }
+    ],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 2,
+    "extracted": {
+      "happyHours": [
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "startTime": null,
+          "endTime": "15:00",
+          "locationWithinVenue": "all",
+          "notes": "Weekday Lunch Specials available Monday-Friday, Open-3pm",
+          "sourceUrl": "https://www.cheddars.com/lunch",
+          "offerings": [
+            {
+              "kind": "food",
+              "category": "entree",
+              "name": "Lunch specials",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Various lunch items including Classic Cheeseburger, Veggie Philly, Classic Chicken Sandwich (from $8.79), Fish & Chips, Cajun Chicken Bowl, Homemade Chicken Pot Pie (from $9.99), Philly Cheesesteak, Grilled White Fish (from $10.99)",
+              "conditions": null,
+              "sourceUrl": "https://www.cheddars.com/lunch"
+            }
+          ]
+        }
+      ],
+      "confidence": 0.7,
+      "summary": "Cheddar's Scratch Kitchen offers Weekday Lunch Specials Monday-Friday from open until 3 PM, with various entrees starting at $8.79–$10.99. No evening happy hour found on provided pages.",
+      "venueType": "restaurant",
+      "usage": {
+        "inputTokens": 10721,
+        "outputTokens": 407
+      },
+      "costCents": 2,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "a587aec2-19ab-4215-8a38-387762b9de57",
+    "name": "Delicia’s Mexican Grill",
+    "hhPage": "https://deliciasmexicangrilltucson.com/tucson-delicias-mexican-grill-happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "skip",
+    "costCents": 1,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "render-escalation: no readable content on the confirmed HH page",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 4300,
+        "outputTokens": 133
+      },
+      "costCents": 1,
+      "promptHash": "a5e339e67b91c717",
+      "model": "render-escalation-skip"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "d4a53fc0-d09a-4cb6-b520-bcd5aa647d50",
+    "name": "El Antojo Poblano",
+    "hhPage": "https://elantojopoblanoaz.com/tucson-el-antojo-poblano-happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "skip",
+    "costCents": 1,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "render-escalation: no readable content on the confirmed HH page",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 1758,
+        "outputTokens": 92
+      },
+      "costCents": 1,
+      "promptHash": "a5e339e67b91c717",
+      "model": "render-escalation-skip"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "1a2068e2-612f-4065-a2d9-4bacbd8b9271",
+    "name": "Falora Pizza",
+    "hhPage": "https://www.falora.com/speciale",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [],
+    "found": [
+      {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "start": "16:00",
+        "end": "17:00",
+        "offerings": [
+          {
+            "name": "Chianti",
+            "price": null
+          }
+        ],
+        "src": "https://www.falora.com/speciale"
+      }
+    ],
+    "highConfidence": true,
+    "route": "paid",
+    "costCents": 2,
+    "extracted": {
+      "happyHours": [
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "startTime": "16:00",
+          "endTime": "17:00",
+          "locationWithinVenue": "all",
+          "notes": "Bring a record, get a bottle of Chianti",
+          "sourceUrl": "https://www.falora.com/speciale",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "wine",
+              "name": "Chianti",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Complimentary bottle of Chianti with record purchase",
+              "conditions": null,
+              "sourceUrl": "https://www.falora.com/speciale"
+            }
+          ]
+        }
+      ],
+      "confidence": 0.6,
+      "summary": "Daily 4-5pm: complimentary bottle of Chianti with vinyl record purchase",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 5511,
+        "outputTokens": 396
+      },
+      "costCents": 2,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "8ddca315-e6aa-4a44-9f38-34b4881724bf",
+    "name": "Feast",
+    "hhPage": "https://www.eatatfeast.com/wine-cocktails/happy-hour/",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [],
+    "found": [
+      {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "start": null,
+        "end": "18:00",
+        "offerings": [
+          {
+            "name": "2023 Borgo San Daniele \"I'Mauri\" Fruilano",
+            "price": 1400
+          },
+          {
+            "name": "Tomato-chickpea soup shot with greens and prosciutto",
+            "price": null
+          },
+          {
+            "name": "Château de Trinquevedel Rosé",
+            "price": 1000
+          },
+          {
+            "name": "Chicken tagine and rice fritter",
+            "price": null
+          },
+          {
+            "name": "2023 Kobal \"Roots\" Blaufrankisch",
+            "price": 1100
+          },
+          {
+            "name": "Smoked pork tenderloin with chocolate sofrito",
+            "price": null
+          },
+          {
+            "name": "2022 Domaine André Aubert \"Le Devoy\" Syrah/Grenache/Mourvèdre",
+            "price": 1000
+          },
+          {
+            "name": "Pepper-rubbed brisket of beef in its jus",
+            "price": null
+          }
+        ],
+        "src": "https://www.eatatfeast.com/wine-cocktails/happy-hour/"
+      }
+    ],
+    "highConfidence": true,
+    "route": "paid",
+    "costCents": 4,
+    "extracted": {
+      "happyHours": [
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "startTime": null,
+          "endTime": "18:00",
+          "locationWithinVenue": "bar",
+          "notes": "Happy hour runs from opening (11 AM on weekdays) until 6:00 PM daily, beginning June 4. Selected wines at reduced price with complimentary snack.",
+          "sourceUrl": "https://www.eatatfeast.com/wine-cocktails/happy-hour/",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "wine",
+              "name": "2023 Borgo San Daniele \"I'Mauri\" Fruilano",
+              "priceCents": 1400,
+              "originalPriceCents": 1600,
+              "discountCents": 200,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.eatatfeast.com/wine-cocktails/happy-hour/"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Tomato-chickpea soup shot with greens and prosciutto",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Free snack with selected drink purchase",
+              "conditions": null,
+              "sourceUrl": "https://www.eatatfeast.com/wine-cocktails/happy-hour/"
+            },
+            {
+              "kind": "drink",
+              "category": "wine",
+              "name": "Château de Trinquevedel Rosé",
+              "priceCents": 1000,
+              "originalPriceCents": 1200,
+              "discountCents": 200,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.eatatfeast.com/wine-cocktails/happy-hour/"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Chicken tagine and rice fritter",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Free snack with selected drink purchase",
+              "conditions": null,
+              "sourceUrl": "https://www.eatatfeast.com/wine-cocktails/happy-hour/"
+            },
+            {
+              "kind": "drink",
+              "category": "wine",
+              "name": "2023 Kobal \"Roots\" Blaufrankisch",
+              "priceCents": 1100,
+              "originalPriceCents": 1300,
+              "discountCents": 200,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.eatatfeast.com/wine-cocktails/happy-hour/"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Smoked pork tenderloin with chocolate sofrito",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Free snack with selected drink purchase",
+              "conditions": null,
+              "sourceUrl": "https://www.eatatfeast.com/wine-cocktails/happy-hour/"
+            },
+            {
+              "kind": "drink",
+              "category": "wine",
+              "name": "2022 Domaine André Aubert \"Le Devoy\" Syrah/Grenache/Mourvèdre",
+              "priceCents": 1000,
+              "originalPriceCents": 1200,
+              "discountCents": 200,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.eatatfeast.com/wine-cocktails/happy-hour/"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Pepper-rubbed brisket of beef in its jus",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Free snack with selected drink purchase",
+              "conditions": null,
+              "sourceUrl": "https://www.eatatfeast.com/wine-cocktails/happy-hour/"
+            }
+          ]
+        }
+      ],
+      "confidence": 0.75,
+      "summary": "Feast daily happy hour from open until 6 PM featuring selected wines at $2 discount with complimentary food snacks.",
+      "venueType": "restaurant",
+      "usage": {
+        "inputTokens": 35167,
+        "outputTokens": 787
+      },
+      "costCents": 4,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "d4f96801-2690-484a-85ff-f4d51c0115ee",
+    "name": "Frankie's South Philly Cheesesteaks",
+    "hhPage": "https://frankiescheesesteaks.com/tucson-tucson-frankie-s-south-philly-cheesesteaks-happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 2,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "Specials page states \"We are updating our specials Please stay tuned\" — no current happy-hour schedule published.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 10285,
+        "outputTokens": 113
+      },
+      "costCents": 2,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "59a5eb5c-453e-4cb2-a7c6-5f52ebcfca7f",
+    "name": "Golden Dragon Chinese Restaurant",
+    "hhPage": "https://goldendragontucson.com/cctor_coupon/free-house-special-fried-rice/",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "skip",
+    "costCents": 1,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "render-escalation: no readable content on the confirmed HH page",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 3767,
+        "outputTokens": 104
+      },
+      "costCents": 1,
+      "promptHash": "a5e339e67b91c717",
+      "model": "render-escalation-skip"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "0a2b6df0-9f3a-434b-bc6c-952c81f4a60d",
+    "name": "Gourmet Girls Gluten Free Bakery/Bistro",
+    "hhPage": "https://www.gourmetgirlsglutenfree.com/special-holiday-hours/",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 1,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "No happy hour schedule found. Venue is a gluten-free bakery/bistro with regular hours 8am–2pm daily; no recurring discounted drink or food windows published on provided pages.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 9019,
+        "outputTokens": 111
+      },
+      "costCents": 1,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "c2c3ef29-8861-4548-a0d8-250d20a0b563",
+    "name": "HiFalutin Rapid Western Grill",
+    "hhPage": "https://www.hifalutinaz.com/wp-content/uploads/2020/11/our-speciality.jpg",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [
+      {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          7
+        ],
+        "start": "15:00:00",
+        "end": "18:00:00",
+        "offerings": 2,
+        "src": "http://www.hifalutinaz.com/"
+      }
+    ],
+    "found": [
+      {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          7
+        ],
+        "start": "15:00",
+        "end": "18:00",
+        "offerings": [],
+        "src": "https://www.hifalutinaz.com/menu/"
+      }
+    ],
+    "highConfidence": true,
+    "route": "paid",
+    "costCents": 2,
+    "extracted": {
+      "happyHours": [
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            1,
+            2,
+            3,
+            4,
+            7
+          ],
+          "startTime": "15:00",
+          "endTime": "18:00",
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://www.hifalutinaz.com/menu/",
+          "offerings": []
+        }
+      ],
+      "confidence": 0.85,
+      "summary": "HiFalutin Rapid Western Grill has a happy hour Sunday–Thursday, 3 PM–6 PM. No specific drink or food discounts are published on the provided pages.",
+      "venueType": "restaurant",
+      "usage": {
+        "inputTokens": 11103,
+        "outputTokens": 224
+      },
+      "costCents": 2,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "73b35300-8d95-48ff-9605-1b432305907e",
+    "name": "Hops Sports Grill",
+    "hhPage": "https://www.hopssportsgrill.com/cocktails",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [
+      {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "start": "15:00:00",
+        "end": "18:00:00",
+        "offerings": 1,
+        "src": "https://www.hopssportsgrill.com/"
+      }
+    ],
+    "found": [
+      {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "start": "15:00",
+        "end": "18:00",
+        "offerings": [],
+        "src": "https://www.hopssportsgrill.com/"
+      }
+    ],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 2,
+    "extracted": {
+      "happyHours": [
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "startTime": "15:00",
+          "endTime": "18:00",
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://www.hopssportsgrill.com/",
+          "offerings": []
+        }
+      ],
+      "confidence": 0.6,
+      "summary": "Happy Hour Daily 3–6 PM; no itemized discounts published on pages provided.",
+      "venueType": "sports_bar",
+      "usage": {
+        "inputTokens": 11448,
+        "outputTokens": 177
+      },
+      "costCents": 2,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "700439d5-95d1-4118-a27c-140705f8ba7d",
+    "name": "Jimmy's Pizzeria",
+    "hhPage": "https://jimmyspizzaaz.com//wp-content/uploads/2018/03/jimmys-pizzeria-drink-menu.pdf",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [
+      {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "start": null,
+        "end": null,
+        "offerings": [],
+        "src": "https://jimmyspizzaaz.com/"
+      }
+    ],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 3,
+    "extracted": {
+      "happyHours": [
+        {
+          "allDay": true,
+          "timeKnown": true,
+          "daysOfWeek": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "startTime": null,
+          "endTime": null,
+          "locationWithinVenue": "bar",
+          "notes": null,
+          "sourceUrl": "https://jimmyspizzaaz.com/",
+          "offerings": []
+        }
+      ],
+      "confidence": 0.35,
+      "summary": "Jimmy's advertises \"Happy Hour All Day\" on the homepage, but provides no specific discount details, times, or pricing. Low confidence due to vague language and lack of itemized offerings.",
+      "venueType": "pizzeria",
+      "usage": {
+        "inputTokens": 21662,
+        "outputTokens": 228
+      },
+      "costCents": 3,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "4f3c498e-d6d7-4e4b-86cb-2b06a1e613e1",
+    "name": "La Escondida",
+    "hhPage": "https://whiskeydelbac.com/cocktails/",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [
+      {
+        "days": [
+          3,
+          5
+        ],
+        "start": "15:00:00",
+        "end": "16:30:00",
+        "offerings": 0,
+        "src": "https://whiskeydelbac.com/2023/11/kxci-limited-release-barrell-event/"
+      },
+      {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": "17:30:00",
+        "end": "19:30:00",
+        "offerings": 0,
+        "src": "https://whiskeydelbac.com/menu/happy-hour"
+      }
+    ],
+    "found": [
+      {
+        "days": [
+          5
+        ],
+        "start": "17:30",
+        "end": "19:30",
+        "offerings": [],
+        "src": "https://whiskeydelbac.com/event/final-friday-happy-hours-at-la-escondida-with-joe-pena/"
+      }
+    ],
+    "highConfidence": true,
+    "route": "paid",
+    "costCents": 2,
+    "extracted": {
+      "happyHours": [
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            5
+          ],
+          "startTime": "17:30",
+          "endTime": "19:30",
+          "locationWithinVenue": "all",
+          "notes": "Held on the last Friday of every month",
+          "sourceUrl": "https://whiskeydelbac.com/event/final-friday-happy-hours-at-la-escondida-with-joe-pena/",
+          "offerings": []
+        }
+      ],
+      "confidence": 0.6,
+      "summary": "La Escondida (Whiskey Del Bac tasting room) holds Final Friday Happy Hours on the last Friday of each month from 5:30 PM to 7:30 PM. No pricing details published.",
+      "venueType": "bar",
+      "usage": {
+        "inputTokens": 13579,
+        "outputTokens": 264
+      },
+      "costCents": 2,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": [
+      "48c87f6c-1fd2-45ca-a0f1-eae2422f3657",
+      "15b342b4-8f14-46b0-b5e5-523fc094b0fb"
+    ]
+  },
+  {
+    "venueId": "6e8cb63e-0cda-48a4-9bae-f9632785025b",
+    "name": "La Luz Restaurant",
+    "hhPage": "https://laluztucson.com/specials/",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 3,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "No happy hour schedule found. The Specials page (https://laluztucson.com/specials/) contains no published happy hour information, and all other pages (menus, about, private dining, gallery, local area) feature only regular menu pricing and dining information with no recurring discounted offers or time-limited deals.",
+      "venueType": "restaurant",
+      "usage": {
+        "inputTokens": 19694,
+        "outputTokens": 157
+      },
+      "costCents": 3,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "4ab6502a-2f91-4847-aae9-d187e432c35c",
+    "name": "La Parrilla Suiza",
+    "hhPage": "https://laparrillasuiza.com/tucson-la-parrilla-suiza-drink-menu",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 2,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "No recurring happy hour schedule found on La Parrilla Suiza's website. Pages provided include drink menu, food menu, events (one-time national food/drink days), about page, and homepage. No day+time happy hour windows or all-day deals are published.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 12014,
+        "outputTokens": 127
+      },
+      "costCents": 2,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "962c2c5e-0e40-4311-8387-3be1fc867975",
+    "name": "La Parrilla Suiza",
+    "hhPage": "https://laparrillasuiza.com/tucson-la-parrilla-suiza-drink-menu",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 2,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "No recurring happy hour schedule found. The pages provided contain menu items, drink selections, and one-time special event dates (e.g., National Martini Day, Father's Day) but no day-of-week or regular time-windowed happy hour offering.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 10740,
+        "outputTokens": 124
+      },
+      "costCents": 2,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "49c2c9a7-4985-4ff9-a25c-93408b28d3f4",
+    "name": "La Perla Del Pacífico",
+    "hhPage": "https://laperlatucson.com/tucson-la-perla-del-pacifico-restaurant-happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "skip",
+    "costCents": 1,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "render-escalation: no readable content on the confirmed HH page",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 3745,
+        "outputTokens": 112
+      },
+      "costCents": 1,
+      "promptHash": "a5e339e67b91c717",
+      "model": "render-escalation-skip"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "79cf42a8-0613-46ba-a9e9-5a15079cdeeb",
+    "name": "Main Event Tucson",
+    "hhPage": "https://www.mainevent.com/specials/",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [
+      {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": null,
+        "end": "17:00",
+        "offerings": [
+          {
+            "name": "Sips",
+            "price": 500
+          }
+        ],
+        "src": "https://www.mainevent.com/specials/"
+      },
+      {
+        "days": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "start": null,
+        "end": null,
+        "offerings": [
+          {
+            "name": "Sips",
+            "price": 500
+          }
+        ],
+        "src": "https://www.mainevent.com/specials/"
+      }
+    ],
+    "highConfidence": true,
+    "route": "paid",
+    "costCents": 4,
+    "extracted": {
+      "happyHours": [
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "startTime": null,
+          "endTime": "17:00",
+          "locationWithinVenue": "all",
+          "notes": "Afternoon Happy Hour available Monday-Friday during designated timeframes (opening time until stated end)",
+          "sourceUrl": "https://www.mainevent.com/specials/",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "other",
+              "name": "Sips",
+              "priceCents": 500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Starting at just $5",
+              "conditions": null,
+              "sourceUrl": "https://www.mainevent.com/specials/"
+            }
+          ]
+        },
+        {
+          "allDay": true,
+          "timeKnown": false,
+          "daysOfWeek": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "startTime": null,
+          "endTime": null,
+          "locationWithinVenue": "all",
+          "notes": "Late Night Happy Hour available Sunday-Thursday during designated timeframes",
+          "sourceUrl": "https://www.mainevent.com/specials/",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "other",
+              "name": "Sips",
+              "priceCents": 500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Starting at just $5",
+              "conditions": null,
+              "sourceUrl": "https://www.mainevent.com/specials/"
+            }
+          ]
+        }
+      ],
+      "confidence": 0.4,
+      "summary": "Main Event advertises happy hours with drinks starting at $5, with Afternoon Happy Hour Mon-Fri (opening until end time not specified) and Late Night Happy Hour Sun-Thu, but specific times and detailed pricing are not published on provided pages.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 28086,
+        "outputTokens": 583
+      },
+      "costCents": 4,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "e95ec1d7-7c20-4a55-9c72-8cdbb59c666e",
+    "name": "Niblick Restaurant & Lounge",
+    "hhPage": "https://rollinghillsgolftucson.com/masters-lunch-special-4-8-4-14/",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 2,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "No recurring happy hour found. Pages show monthly takeout specials and pizza menu but no scheduled happy hour with day/time windows.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 13047,
+        "outputTokens": 95
+      },
+      "costCents": 2,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "eaf8fc40-837b-44e6-94e1-bfb3ebdb8265",
+    "name": "Rubio's Coastal Grill",
+    "hhPage": "https://rubios.com/tuesday-specials-additions-d401-d302/",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [],
+    "found": [
+      {
+        "days": [
+          2
+        ],
+        "start": null,
+        "end": null,
+        "offerings": [
+          {
+            "name": "Original Fish Taco",
+            "price": 199
+          },
+          {
+            "name": "Fish Taco Especial",
+            "price": 229
+          },
+          {
+            "name": "Classic Chicken Taco",
+            "price": 229
+          },
+          {
+            "name": "Classic Steak Taco",
+            "price": 249
+          },
+          {
+            "name": "Original Fish Taco Two Taco Plate",
+            "price": 799
+          },
+          {
+            "name": "Fish Taco Especial Two Taco Plate",
+            "price": 849
+          },
+          {
+            "name": "Classic Chicken Two Taco Plate",
+            "price": 849
+          },
+          {
+            "name": "Classic Steak Two Taco Plate",
+            "price": 899
+          },
+          {
+            "name": "Shrimp Trio",
+            "price": 899
+          }
+        ],
+        "src": "https://rubios.com/tuesday-specials-additions-d401-d302/"
+      },
+      {
+        "days": [
+          2
+        ],
+        "start": null,
+        "end": null,
+        "offerings": [
+          {
+            "name": "Original Fish Taco",
+            "price": 199
+          },
+          {
+            "name": "Classic Chicken Taco",
+            "price": 199
+          },
+          {
+            "name": "Fish Taco Especial",
+            "price": 229
+          },
+          {
+            "name": "Classic Steak Taco",
+            "price": 229
+          },
+          {
+            "name": "Original Fish Taco Two Taco Plate",
+            "price": 799
+          },
+          {
+            "name": "Classic Chicken Two Taco Plate",
+            "price": 799
+          },
+          {
+            "name": "Fish Taco Especial Two Taco Plate",
+            "price": 849
+          },
+          {
+            "name": "Classic Steak Two Taco Plate",
+            "price": 849
+          },
+          {
+            "name": "Shrimp Trio",
+            "price": 899
+          }
+        ],
+        "src": "https://rubios.com/tuesday-specials-additions-d101-d102-d104/"
+      }
+    ],
+    "highConfidence": true,
+    "route": "paid",
+    "costCents": 8,
+    "extracted": {
+      "happyHours": [
+        {
+          "allDay": true,
+          "timeKnown": true,
+          "daysOfWeek": [
+            2
+          ],
+          "startTime": null,
+          "endTime": null,
+          "locationWithinVenue": "all",
+          "notes": "Tuesday Specials with specific pricing on select tacos, taco plates, and trio items at participating locations",
+          "sourceUrl": "https://rubios.com/tuesday-specials-additions-d401-d302/",
+          "offerings": [
+            {
+              "kind": "food",
+              "category": "other",
+              "name": "Original Fish Taco",
+              "priceCents": 199,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://rubios.com/tuesday-specials-additions-d401-d302/"
+            },
+            {
+              "kind": "food",
+              "category": "other",
+              "name": "Fish Taco Especial",
+              "priceCents": 229,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://rubios.com/tuesday-specials-additions-d401-d302/"
+            },
+            {
+              "kind": "food",
+              "category": "other",
+              "name": "Classic Chicken Taco",
+              "priceCents": 229,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://rubios.com/tuesday-specials-additions-d401-d302/"
+            },
+            {
+              "kind": "food",
+              "category": "other",
+              "name": "Classic Steak Taco",
+              "priceCents": 249,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://rubios.com/tuesday-specials-additions-d401-d302/"
+            },
+            {
+              "kind": "food",
+              "category": "entree",
+              "name": "Original Fish Taco Two Taco Plate",
+              "priceCents": 799,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://rubios.com/tuesday-specials-additions-d401-d302/"
+            },
+            {
+              "kind": "food",
+              "category": "entree",
+              "name": "Fish Taco Especial Two Taco Plate",
+              "priceCents": 849,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://rubios.com/tuesday-specials-additions-d401-d302/"
+            },
+            {
+              "kind": "food",
+              "category": "entree",
+              "name": "Classic Chicken Two Taco Plate",
+              "priceCents": 849,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://rubios.com/tuesday-specials-additions-d401-d302/"
+            },
+            {
+              "kind": "food",
+              "category": "entree",
+              "name": "Classic Steak Two Taco Plate",
+              "priceCents": 899,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://rubios.com/tuesday-specials-additions-d401-d302/"
+            },
+            {
+              "kind": "food",
+              "category": "other",
+              "name": "Shrimp Trio",
+              "priceCents": 899,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://rubios.com/tuesday-specials-additions-d401-d302/"
+            }
+          ]
+        },
+        {
+          "allDay": true,
+          "timeKnown": true,
+          "daysOfWeek": [
+            2
+          ],
+          "startTime": null,
+          "endTime": null,
+          "locationWithinVenue": "all",
+          "notes": "Tuesday Specials with specific pricing on select tacos, taco plates, and trio items at participating locations (alternate regional pricing)",
+          "sourceUrl": "https://rubios.com/tuesday-specials-additions-d101-d102-d104/",
+          "offerings": [
+            {
+              "kind": "food",
+              "category": "other",
+              "name": "Original Fish Taco",
+              "priceCents": 199,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://rubios.com/tuesday-specials-additions-d101-d102-d104/"
+            },
+            {
+              "kind": "food",
+              "category": "other",
+              "name": "Classic Chicken Taco",
+              "priceCents": 199,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://rubios.com/tuesday-specials-additions-d101-d102-d104/"
+            },
+            {
+              "kind": "food",
+              "category": "other",
+              "name": "Fish Taco Especial",
+              "priceCents": 229,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://rubios.com/tuesday-specials-additions-d101-d102-d104/"
+            },
+            {
+              "kind": "food",
+              "category": "other",
+              "name": "Classic Steak Taco",
+              "priceCents": 229,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://rubios.com/tuesday-specials-additions-d101-d102-d104/"
+            },
+            {
+              "kind": "food",
+              "category": "entree",
+              "name": "Original Fish Taco Two Taco Plate",
+              "priceCents": 799,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://rubios.com/tuesday-specials-additions-d101-d102-d104/"
+            },
+            {
+              "kind": "food",
+              "category": "entree",
+              "name": "Classic Chicken Two Taco Plate",
+              "priceCents": 799,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://rubios.com/tuesday-specials-additions-d101-d102-d104/"
+            },
+            {
+              "kind": "food",
+              "category": "entree",
+              "name": "Fish Taco Especial Two Taco Plate",
+              "priceCents": 849,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://rubios.com/tuesday-specials-additions-d101-d102-d104/"
+            },
+            {
+              "kind": "food",
+              "category": "entree",
+              "name": "Classic Steak Two Taco Plate",
+              "priceCents": 849,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://rubios.com/tuesday-specials-additions-d101-d102-d104/"
+            },
+            {
+              "kind": "food",
+              "category": "other",
+              "name": "Shrimp Trio",
+              "priceCents": 899,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://rubios.com/tuesday-specials-additions-d101-d102-d104/"
+            }
+          ]
+        }
+      ],
+      "confidence": 0.75,
+      "summary": "Rubio's Coastal Grill offers recurring Tuesday Specials (all day) with discounted pricing on select tacos, taco plates, and shrimp trio items; pricing varies by region.",
+      "venueType": "restaurant",
+      "usage": {
+        "inputTokens": 65098,
+        "outputTokens": 1771
+      },
+      "costCents": 8,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "7713d3cf-fe2a-4668-868b-1a321e102baa",
+    "name": "SOL Bar & Grill",
+    "hhPage": "https://www.solbarandgrilltucson.com/specials",
+    "reason": "unread_hh_page",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "skip",
+    "costCents": 0,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "render-escalation: no readable content on the confirmed HH page",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      },
+      "costCents": 0,
+      "promptHash": "a5e339e67b91c717",
+      "model": "render-escalation-skip"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "1758fe54-2b91-4a04-a723-ef5b987e6b10",
+    "name": "Sushi-Ten Japanese restaurant",
+    "hhPage": "https://sushitenaz.com/our-menu/?menu=sushi-ten-specials",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 3,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "No recurring happy hour schedule found on Sushi-Ten's website. Pages show menu items and a \"15% OFF\" promotion label but no details on timing, days, or conditions for any discount window.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 28962,
+        "outputTokens": 130
+      },
+      "costCents": 3,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "e40be322-756c-4359-ac72-0a27ffb9c2ad",
+    "name": "Tandem American Eatery",
+    "hhPage": "https://tandemaz.com/daily-specials-%26-events",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [],
+    "found": [
+      {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": "15:00",
+        "end": "18:00",
+        "offerings": [],
+        "src": "http://tandemaz.com/"
+      }
+    ],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 4,
+    "extracted": {
+      "happyHours": [
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "startTime": "15:00",
+          "endTime": "18:00",
+          "locationWithinVenue": "bar",
+          "notes": null,
+          "sourceUrl": "http://tandemaz.com/",
+          "offerings": []
+        }
+      ],
+      "confidence": 0.7,
+      "summary": "Happy hour Mon–Sat 3pm–6pm at bar; no itemized pricing found on provided pages.",
+      "venueType": "restaurant",
+      "usage": {
+        "inputTokens": 29756,
+        "outputTokens": 203
+      },
+      "costCents": 4,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "33b0af0f-f198-4c80-a54d-cdf00ed65545",
+    "name": "Tesoro Latin Kitchen & Cantina",
+    "hhPage": "https://tesorotucson.com/tucson-tesoro-latin-kitchen-and-cantina-happy-hours-specials",
+    "reason": "unread_hh_page",
+    "storedActive": [
+      {
+        "days": [
+          3,
+          4,
+          5
+        ],
+        "start": "16:00:00",
+        "end": "19:00:00",
+        "offerings": 4,
+        "src": "https://tesorotucson.com/tucson-tesoro-latin-kitchen-and-cantina-happy-hours-specials"
+      },
+      {
+        "days": [
+          4
+        ],
+        "start": "11:00:00",
+        "end": "21:00:00",
+        "offerings": 1,
+        "src": "https://tesorotucson.com/tucson-tesoro-latin-kitchen-and-cantina-happy-hours-specials"
+      }
+    ],
+    "found": [
+      {
+        "days": [
+          3
+        ],
+        "start": "16:00",
+        "end": "19:00",
+        "offerings": [
+          {
+            "name": "Titos vodka",
+            "price": 500
+          },
+          {
+            "name": "Select tequilas (Hornitos Reposado, Hornitos Plata, Sauza Silver, Corralejo Blanco, Corralejo Reposado)",
+            "price": 500
+          },
+          {
+            "name": "Chicken & ground beef tacos",
+            "price": 300
+          },
+          {
+            "name": "All appetizers",
+            "price": null
+          }
+        ],
+        "src": "https://tesorotucson.com/tucson-tesoro-latin-kitchen-and-cantina-happy-hours-specials"
+      },
+      {
+        "days": [
+          4
+        ],
+        "start": "11:00",
+        "end": "21:00",
+        "offerings": [
+          {
+            "name": "House margaritas",
+            "price": 300
+          }
+        ],
+        "src": "https://tesorotucson.com/tucson-tesoro-latin-kitchen-and-cantina-happy-hours-specials"
+      },
+      {
+        "days": [
+          4
+        ],
+        "start": "16:00",
+        "end": "19:00",
+        "offerings": [
+          {
+            "name": "Titos vodka",
+            "price": 500
+          },
+          {
+            "name": "Select tequilas (Hornitos Reposado, Hornitos Plata, Sauza Silver, Corralejo Blanco, Corralejo Reposado)",
+            "price": 500
+          },
+          {
+            "name": "Chicken & ground beef tacos",
+            "price": 300
+          },
+          {
+            "name": "All appetizers",
+            "price": null
+          }
+        ],
+        "src": "https://tesorotucson.com/tucson-tesoro-latin-kitchen-and-cantina-happy-hours-specials"
+      },
+      {
+        "days": [
+          5
+        ],
+        "start": "16:00",
+        "end": "19:00",
+        "offerings": [
+          {
+            "name": "Titos vodka",
+            "price": 500
+          },
+          {
+            "name": "Select tequilas (Hornitos Reposado, Hornitos Plata, Sauza Silver, Corralejo Blanco, Corralejo Reposado)",
+            "price": 500
+          },
+          {
+            "name": "Chicken & ground beef tacos",
+            "price": 300
+          },
+          {
+            "name": "All appetizers",
+            "price": null
+          }
+        ],
+        "src": "https://tesorotucson.com/tucson-tesoro-latin-kitchen-and-cantina-happy-hours-specials"
+      }
+    ],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 2,
+    "extracted": {
+      "happyHours": [
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            3
+          ],
+          "startTime": "16:00",
+          "endTime": "19:00",
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://tesorotucson.com/tucson-tesoro-latin-kitchen-and-cantina-happy-hours-specials",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "spirit",
+              "name": "Titos vodka",
+              "priceCents": 500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://tesorotucson.com/tucson-tesoro-latin-kitchen-and-cantina-happy-hours-specials"
+            },
+            {
+              "kind": "drink",
+              "category": "spirit",
+              "name": "Select tequilas (Hornitos Reposado, Hornitos Plata, Sauza Silver, Corralejo Blanco, Corralejo Reposado)",
+              "priceCents": 500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://tesorotucson.com/tucson-tesoro-latin-kitchen-and-cantina-happy-hours-specials"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Chicken & ground beef tacos",
+              "priceCents": 300,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://tesorotucson.com/tucson-tesoro-latin-kitchen-and-cantina-happy-hours-specials"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "All appetizers",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 200,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://tesorotucson.com/tucson-tesoro-latin-kitchen-and-cantina-happy-hours-specials"
+            }
+          ]
+        },
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            4
+          ],
+          "startTime": "11:00",
+          "endTime": "21:00",
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://tesorotucson.com/tucson-tesoro-latin-kitchen-and-cantina-happy-hours-specials",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "cocktail",
+              "name": "House margaritas",
+              "priceCents": 300,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://tesorotucson.com/tucson-tesoro-latin-kitchen-and-cantina-happy-hours-specials"
+            }
+          ]
+        },
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            4
+          ],
+          "startTime": "16:00",
+          "endTime": "19:00",
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://tesorotucson.com/tucson-tesoro-latin-kitchen-and-cantina-happy-hours-specials",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "spirit",
+              "name": "Titos vodka",
+              "priceCents": 500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://tesorotucson.com/tucson-tesoro-latin-kitchen-and-cantina-happy-hours-specials"
+            },
+            {
+              "kind": "drink",
+              "category": "spirit",
+              "name": "Select tequilas (Hornitos Reposado, Hornitos Plata, Sauza Silver, Corralejo Blanco, Corralejo Reposado)",
+              "priceCents": 500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://tesorotucson.com/tucson-tesoro-latin-kitchen-and-cantina-happy-hours-specials"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Chicken & ground beef tacos",
+              "priceCents": 300,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://tesorotucson.com/tucson-tesoro-latin-kitchen-and-cantina-happy-hours-specials"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "All appetizers",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 200,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://tesorotucson.com/tucson-tesoro-latin-kitchen-and-cantina-happy-hours-specials"
+            }
+          ]
+        },
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            5
+          ],
+          "startTime": "16:00",
+          "endTime": "19:00",
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://tesorotucson.com/tucson-tesoro-latin-kitchen-and-cantina-happy-hours-specials",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "spirit",
+              "name": "Titos vodka",
+              "priceCents": 500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://tesorotucson.com/tucson-tesoro-latin-kitchen-and-cantina-happy-hours-specials"
+            },
+            {
+              "kind": "drink",
+              "category": "spirit",
+              "name": "Select tequilas (Hornitos Reposado, Hornitos Plata, Sauza Silver, Corralejo Blanco, Corralejo Reposado)",
+              "priceCents": 500,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://tesorotucson.com/tucson-tesoro-latin-kitchen-and-cantina-happy-hours-specials"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Chicken & ground beef tacos",
+              "priceCents": 300,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://tesorotucson.com/tucson-tesoro-latin-kitchen-and-cantina-happy-hours-specials"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "All appetizers",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 200,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://tesorotucson.com/tucson-tesoro-latin-kitchen-and-cantina-happy-hours-specials"
+            }
+          ]
+        }
+      ],
+      "confidence": 0.7,
+      "summary": "Wednesday–Friday: 4–7 PM happy hour with $5 Titos/select tequilas, $3 tacos, $2 off appetizers. Thursday also has all-day $3 house margaritas. Confidence moderate due to apparent event-specific dates (June 10–12) in the source, though language suggests recurring weekly patterns.",
+      "venueType": "bar",
+      "usage": {
+        "inputTokens": 6680,
+        "outputTokens": 1784
+      },
+      "costCents": 2,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": [
+      "05febbbc-92f6-4546-af2d-742c56747649"
+    ]
+  },
+  {
+    "venueId": "2aa1a721-2dc8-4cf6-868b-dad8cc1954b8",
+    "name": "The Cork Tucson",
+    "hhPage": "https://www.corktucson.com/menus?menu=happy-hour-menu-1",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [
+      {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "start": "15:00:00",
+        "end": "18:30:00",
+        "offerings": 7,
+        "src": "https://corktucson.com/"
+      }
+    ],
+    "found": [
+      {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "start": "15:00",
+        "end": "18:30",
+        "offerings": [
+          {
+            "name": "House Chardonnay (La Terre)",
+            "price": 600
+          },
+          {
+            "name": "House Cabernet (La Terre)",
+            "price": 600
+          },
+          {
+            "name": "Well Cocktails",
+            "price": 700
+          },
+          {
+            "name": "Well Martinis",
+            "price": 900
+          },
+          {
+            "name": "Draft beer",
+            "price": null
+          },
+          {
+            "name": "Sauteed Mushrooms",
+            "price": 900
+          },
+          {
+            "name": "Vegetarian Calamari Steak",
+            "price": 1000
+          },
+          {
+            "name": "Classic Escargot",
+            "price": 1200
+          },
+          {
+            "name": "Jumbo Shrimp Cocktail",
+            "price": 1300
+          },
+          {
+            "name": "Prime Rib Strips",
+            "price": 1300
+          },
+          {
+            "name": "Southwest Deviled Eggs",
+            "price": 800
+          },
+          {
+            "name": "Lollipop Lamb Chops",
+            "price": 1100
+          },
+          {
+            "name": "Cork Charcuterie Board",
+            "price": 1800
+          },
+          {
+            "name": "Prime Rib Dip",
+            "price": 1300
+          },
+          {
+            "name": "Bacon Wrapped Shrimp",
+            "price": 1300
+          }
+        ],
+        "src": "https://www.corktucson.com/menus?menu=happy-hour-menu-1"
+      }
+    ],
+    "highConfidence": true,
+    "route": "paid",
+    "costCents": 4,
+    "extracted": {
+      "happyHours": [
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "startTime": "15:00",
+          "endTime": "18:30",
+          "locationWithinVenue": "bar",
+          "notes": null,
+          "sourceUrl": "https://www.corktucson.com/menus?menu=happy-hour-menu-1",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "wine",
+              "name": "House Chardonnay (La Terre)",
+              "priceCents": 600,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.corktucson.com/menus?menu=happy-hour-menu-1"
+            },
+            {
+              "kind": "drink",
+              "category": "wine",
+              "name": "House Cabernet (La Terre)",
+              "priceCents": 600,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.corktucson.com/menus?menu=happy-hour-menu-1"
+            },
+            {
+              "kind": "drink",
+              "category": "cocktail",
+              "name": "Well Cocktails",
+              "priceCents": 700,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.corktucson.com/menus?menu=happy-hour-menu-1"
+            },
+            {
+              "kind": "drink",
+              "category": "cocktail",
+              "name": "Well Martinis",
+              "priceCents": 900,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://www.corktucson.com/menus?menu=happy-hour-menu-1"
+            },
+            {
+              "kind": "drink",
+              "category": "beer",
+              "name": "Draft beer",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 100,
+              "description": "$1 off during happy hour",
+              "conditions": null,
+              "sourceUrl": "https://www.corktucson.com/menus?menu=happy-hour-menu-1"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Sauteed Mushrooms",
+              "priceCents": 900,
+              "originalPriceCents": 1500,
+              "discountCents": null,
+              "description": "A Cork favorite - sauteed in butter, spices & red wine",
+              "conditions": null,
+              "sourceUrl": "https://www.corktucson.com/menus?menu=happy-hour-menu-1"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Vegetarian Calamari Steak",
+              "priceCents": 1000,
+              "originalPriceCents": 1500,
+              "discountCents": null,
+              "description": "Choice of spices: Blackened or Salt & Pepper, finished with beurre blanc",
+              "conditions": null,
+              "sourceUrl": "https://www.corktucson.com/menus?menu=happy-hour-menu-1"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Classic Escargot",
+              "priceCents": 1200,
+              "originalPriceCents": 1800,
+              "discountCents": null,
+              "description": "Simmered in garlic, shallots and wine, finished with butter",
+              "conditions": null,
+              "sourceUrl": "https://www.corktucson.com/menus?menu=happy-hour-menu-1"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Jumbo Shrimp Cocktail",
+              "priceCents": 1300,
+              "originalPriceCents": 2000,
+              "discountCents": null,
+              "description": "Jumbo Shrimp from Mexico served with house made cocktail sauce",
+              "conditions": null,
+              "sourceUrl": "https://www.corktucson.com/menus?menu=happy-hour-menu-1"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Prime Rib Strips",
+              "priceCents": 1300,
+              "originalPriceCents": 1800,
+              "discountCents": null,
+              "description": "Grilled heart of prime rib with housemade prickly pear BBQ sauce, served over garlic mashed potatoes",
+              "conditions": null,
+              "sourceUrl": "https://www.corktucson.com/menus?menu=happy-hour-menu-1"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Southwest Deviled Eggs",
+              "priceCents": 800,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Deviled eggs with pickled onion + jalapeno (HH only)",
+              "conditions": null,
+              "sourceUrl": "https://www.corktucson.com/menus?menu=happy-hour-menu-1"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Lollipop Lamb Chops",
+              "priceCents": 1100,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Two grilled Australian lamb chops, Cork garlic mash, mint vinaigrette (HH only)",
+              "conditions": null,
+              "sourceUrl": "https://www.corktucson.com/menus?menu=happy-hour-menu-1"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Cork Charcuterie Board",
+              "priceCents": 1800,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Chef's choice of cheeses, cured meats, house made bread & house pickled veggies (HH only)",
+              "conditions": null,
+              "sourceUrl": "https://www.corktucson.com/menus?menu=happy-hour-menu-1"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Prime Rib Dip",
+              "priceCents": 1300,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Slices of Cork Prime Rib & grilled onions on a house made baguette, served with au jus (HH only)",
+              "conditions": null,
+              "sourceUrl": "https://www.corktucson.com/menus?menu=happy-hour-menu-1"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "Bacon Wrapped Shrimp",
+              "priceCents": 1300,
+              "originalPriceCents": null,
+              "discountCents": null,
+              "description": "Mexican shrimp, casero cheese, jalapeño bacon, red chili cream (HH only)",
+              "conditions": null,
+              "sourceUrl": "https://www.corktucson.com/menus?menu=happy-hour-menu-1"
+            }
+          ]
+        }
+      ],
+      "confidence": 0.95,
+      "summary": "The Cork Tucson has a daily happy hour 3pm-6:30pm (bar only, plus patio when available) with discounted appetizers and drinks every day of the week.",
+      "venueType": "restaurant",
+      "usage": {
+        "inputTokens": 27276,
+        "outputTokens": 1795
+      },
+      "costCents": 4,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "aac9d0b6-dfe9-4c79-ac13-5bd83ec29be8",
+    "name": "The Monica",
+    "hhPage": "https://themonicatucson.com/wp-content/uploads/2022/08/happyhour-2-6.png",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [
+      {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": "14:00:00",
+        "end": "18:00:00",
+        "offerings": 1,
+        "src": "https://themonicatucson.com/"
+      }
+    ],
+    "found": [
+      {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": "14:00",
+        "end": "18:00",
+        "offerings": [
+          {
+            "name": "All cocktails",
+            "price": null
+          },
+          {
+            "name": "Mocktails",
+            "price": null
+          },
+          {
+            "name": "Sangrias",
+            "price": null
+          },
+          {
+            "name": "Beers on tap",
+            "price": null
+          },
+          {
+            "name": "Wines & bubbles by the glass",
+            "price": null
+          },
+          {
+            "name": "All shareables",
+            "price": null
+          },
+          {
+            "name": "Pantry puddings",
+            "price": null
+          }
+        ],
+        "src": "https://themonicatucson.com/wp-content/uploads/2022/08/happyhour-2-6.png"
+      }
+    ],
+    "highConfidence": true,
+    "route": "paid",
+    "costCents": 4,
+    "extracted": {
+      "happyHours": [
+        {
+          "allDay": false,
+          "timeKnown": true,
+          "daysOfWeek": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "startTime": "14:00",
+          "endTime": "18:00",
+          "locationWithinVenue": "all",
+          "notes": null,
+          "sourceUrl": "https://themonicatucson.com/wp-content/uploads/2022/08/happyhour-2-6.png",
+          "offerings": [
+            {
+              "kind": "drink",
+              "category": "cocktail",
+              "name": "All cocktails",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 300,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://themonicatucson.com/wp-content/uploads/2022/08/happyhour-2-6.png"
+            },
+            {
+              "kind": "drink",
+              "category": "cocktail",
+              "name": "Mocktails",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 300,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://themonicatucson.com/wp-content/uploads/2022/08/happyhour-2-6.png"
+            },
+            {
+              "kind": "drink",
+              "category": "other",
+              "name": "Sangrias",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 300,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://themonicatucson.com/wp-content/uploads/2022/08/happyhour-2-6.png"
+            },
+            {
+              "kind": "drink",
+              "category": "beer",
+              "name": "Beers on tap",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 300,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://themonicatucson.com/wp-content/uploads/2022/08/happyhour-2-6.png"
+            },
+            {
+              "kind": "drink",
+              "category": "wine",
+              "name": "Wines & bubbles by the glass",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 300,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://themonicatucson.com/wp-content/uploads/2022/08/happyhour-2-6.png"
+            },
+            {
+              "kind": "food",
+              "category": "appetizer",
+              "name": "All shareables",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 300,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://themonicatucson.com/wp-content/uploads/2022/08/happyhour-2-6.png"
+            },
+            {
+              "kind": "food",
+              "category": "dessert",
+              "name": "Pantry puddings",
+              "priceCents": null,
+              "originalPriceCents": null,
+              "discountCents": 300,
+              "description": null,
+              "conditions": null,
+              "sourceUrl": "https://themonicatucson.com/wp-content/uploads/2022/08/happyhour-2-6.png"
+            }
+          ]
+        }
+      ],
+      "confidence": 0.85,
+      "summary": "The Monica offers \"Happier Happy Hours\" Monday–Friday 2–6 PM with $3 off cocktails, mocktails, sangrias, beers on tap, wines & bubbles by the glass, all shareables, and pantry puddings.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 34157,
+        "outputTokens": 835
+      },
+      "costCents": 4,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "a4bb1b05-2c44-40e6-aaf2-aeb7631697ac",
+    "name": "Tohono Chul Botanical Gardens, Galleries, and Bistro",
+    "hhPage": "https://tohonochul.org/sales-and-special-events/",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "paid",
+    "costCents": 1,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "Tohono Chul is a botanical garden, gallery, and bistro venue. The pages describe various special events (Chillin' at the Chul summer program, kids' activities, monsoon market) and operational hours, but do not advertise any recurring discounted happy-hour windows or time-limited drink/food specials typical of bars and restaurants. No happy-hour schedule found.",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 9100,
+        "outputTokens": 152
+      },
+      "costCents": 1,
+      "promptHash": "a5e339e67b91c717",
+      "model": "claude-haiku-4-5"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "b7f136d8-c14f-4751-b6b6-9ea6e4803faf",
+    "name": "Topgolf Tucson",
+    "hhPage": "https://topgolf.com/us/driving-for-good/special-olympics-topgolf/",
+    "reason": "hh_page_no_offerings",
+    "storedActive": [],
+    "found": [],
+    "highConfidence": false,
+    "route": "skip",
+    "costCents": 1,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "render-escalation: no readable content on the confirmed HH page",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 3040,
+        "outputTokens": 90
+      },
+      "costCents": 1,
+      "promptHash": "a5e339e67b91c717",
+      "model": "render-escalation-skip"
+    },
+    "deactivateIds": []
+  },
+  {
+    "venueId": "51152ff2-f507-45a1-958b-e01f3135f43d",
+    "name": "Your Mom's House, Bar & Grill",
+    "hhPage": "https://ymhtucson.com/specials",
+    "reason": "unread_hh_page",
+    "storedActive": [
+      {
+        "days": [
+          1
+        ],
+        "start": "11:00:00",
+        "end": "20:30:00",
+        "offerings": 2,
+        "src": "https://ymhtucson.com/specials"
+      },
+      {
+        "days": [
+          2
+        ],
+        "start": "11:00:00",
+        "end": "20:00:00",
+        "offerings": 3,
+        "src": "https://ymhtucson.com/specials"
+      },
+      {
+        "days": [
+          4
+        ],
+        "start": "11:00:00",
+        "end": "20:00:00",
+        "offerings": 1,
+        "src": "https://ymhtucson.com/specials"
+      },
+      {
+        "days": [
+          5
+        ],
+        "start": "11:00:00",
+        "end": "20:00:00",
+        "offerings": 1,
+        "src": "https://ymhtucson.com/specials"
+      },
+      {
+        "days": [
+          7
+        ],
+        "start": "11:00:00",
+        "end": "20:00:00",
+        "offerings": 1,
+        "src": "https://ymhtucson.com/specials"
+      },
+      {
+        "days": [
+          3,
+          6
+        ],
+        "start": "11:00:00",
+        "end": "20:00:00",
+        "offerings": 1,
+        "src": "https://ymhtucson.com/specials"
+      }
+    ],
+    "found": [],
+    "highConfidence": false,
+    "route": "skip",
+    "costCents": 1,
+    "extracted": {
+      "happyHours": [],
+      "confidence": 0,
+      "summary": "render-escalation: no readable content on the confirmed HH page",
+      "venueType": null,
+      "usage": {
+        "inputTokens": 3349,
+        "outputTokens": 103
+      },
+      "costCents": 1,
+      "promptHash": "a5e339e67b91c717",
+      "model": "render-escalation-skip"
+    },
+    "deactivateIds": [
+      "2532dff5-1073-42ef-a306-178be3cff76f",
+      "9dfbe834-0701-4d19-aa68-94bad0514f27",
+      "441b1094-b92c-44ae-86ab-cdb12b293577",
+      "b8836b98-6872-4503-9708-e69c6b4bdd29",
+      "df5e6db8-c755-4f1d-992a-ad09e2c9e32e",
+      "37893e9a-8777-4c37-95c3-626adf9dc20d"
+    ]
+  }
+]

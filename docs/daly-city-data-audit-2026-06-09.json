@@ -1,0 +1,123 @@
+[
+  {
+    "name": "7 Mile House Sports Bar & Grill",
+    "slug": "7-mile-house-sports-bar-grill",
+    "website": "http://www.7milehouse.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: http://www.7milehouse.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "15:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "http://www.7milehouse.com/",
+        "notes": "Closed Tuesdays, so effectively Mon, Wed-Sun",
+        "offeringsKey": "$7 all draught beer|700;$7 appetizers|700;$7 classic cocktails|700;$7 house wine|700;$7 shots|700"
+      }
+    ]
+  },
+  {
+    "name": "Hula Hoops Restaurant & Tiki Bar",
+    "slug": "hula-hoops-restaurant-tiki-bar",
+    "website": "https://www.myhulahoops.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: https://www.myhulahoops.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          2,
+          3,
+          4,
+          5
+        ],
+        "startTime": "15:00:00",
+        "endTime": "17:30:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://www.myhulahoops.com/",
+        "notes": null,
+        "offeringsKey": ""
+      }
+    ]
+  },
+  {
+    "name": "Nick & Nora",
+    "slug": "nick-nora",
+    "website": "https://thenickandnorabar.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: https://thenickandnorabar.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "startTime": "15:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://thenickandnorabar.com/",
+        "notes": null,
+        "offeringsKey": ""
+      }
+    ]
+  },
+  {
+    "name": "Super Duper Burgers",
+    "slug": "super-duper-burgers",
+    "website": "https://superduperburgers.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: https://superduperburgers.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "startTime": "16:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://superduperburgers.com/",
+        "notes": "Offer available in-store only",
+        "offeringsKey": "french fries|;local bay area beer or wine|;local bay area wine|;spiked shake|"
+      }
+    ]
+  }
+]

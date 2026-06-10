@@ -46,13 +46,13 @@ an API/source we already pay for returns it directly.
 
 Pulled `addressComponents` + `addressDescriptor` for 5 Oakland venues:
 
-| Venue | `addressComponents` neighborhood |
-|---|---|
-| ForTheCulture Oak | Downtown Oakland (also "Old Oakland") |
-| Limón | Northgate - Waverly |
-| Book Society | Elmwood |
+| Venue              | `addressComponents` neighborhood    |
+| ------------------ | ------------------------------------- |
+| ForTheCulture Oak  | Downtown Oakland (also "Old Oakland") |
+| Limón             | Northgate - Waverly                   |
+| Book Society       | Elmwood                               |
 | Dimond Slice Pizza | Upper Dimond (also "Dimond District") |
-| East End | none |
+| East End           | none                                  |
 
 4 of 5 returned a real vernacular neighborhood. `addressComponents` (one clean name) is
 better than `addressDescriptor` (richer but noisy — returned "Parking lot", apartment
@@ -97,16 +97,16 @@ current names; the fallback chain protects against Google's ~20% blanks.
 
 ### Data capture
 
-- **Discovery** (`seed-discover-tacoma.ts`): add `places.addressComponents` to the field
-  mask (no tier bump — already at atmosphere). Parse the component whose `types` include
-  `neighborhood` (preferred) or `sublocality`/`sublocality_level_1` → store on
-  `seed_candidates.google_neighborhood`.
-- **Enrich** (`seed-enrich-candidates.ts`): carry `google_neighborhood` from candidate
-  onto the venue row.
-- **Backfill** (`scripts/backfill-google-neighborhoods.ts`, new): per-city, opt-in
-  (`--city --state`). For each venue with a `google_place_id`, fetch an
-  `addressComponents`-only Place Details (basic tier), parse + store the name, then run
-  assignment. Idempotent; `--dry-run` previews; logs how many resolved.
+1. **Discovery** (`seed-discover-tacoma.ts`): add `places.addressComponents` to the field
+   mask (no tier bump — already at atmosphere). Parse the component whose `types` include
+   `neighborhood` (preferred) or `sublocality`/`sublocality_level_1` → store on
+   `seed_candidates.google_neighborhood`.
+1. **Enrich** (`seed-enrich-candidates.ts`): carry `google_neighborhood` from candidate
+   onto the venue row.
+1. **Backfill** (`scripts/backfill-google-neighborhoods.ts`, new): per-city, opt-in
+   (`--city --state`). For each venue with a `google_place_id`, fetch an
+   `addressComponents`-only Place Details (basic tier), parse + store the name, then run
+   assignment. Idempotent; `--dry-run` previews; logs how many resolved.
 
 ### Neighborhood rows
 
@@ -118,6 +118,7 @@ definition), `source = 'Google Places'`, `slug = slugify(name)` unique per city.
 ### Noise filter
 
 Reject a Google value and fall through to spatial/cardinal when it is:
+
 - the city name itself (e.g. "Oakland", "Tucson"),
 - empty/absent,
 - an obvious non-neighborhood ("Parking lot", and a small denylist we extend as we see
@@ -136,14 +137,14 @@ debuggable, and lets the upsert-name-row step run idempotently.
 
 ### Components / files touched
 
-| File | Change |
-|---|---|
-| `lib/places/placeDetails.ts` | parse neighborhood from `addressComponents` (shared by discovery + backfill) |
-| `scripts/seed-discover-tacoma.ts` | add `addressComponents` to mask; store on candidate |
-| `scripts/seed-enrich-candidates.ts` | carry `google_neighborhood` candidate → venue |
-| `scripts/backfill-google-neighborhoods.ts` (new) | per-city opt-in backfill |
-| `lib/geo/assignNeighborhoods.ts` | name-primary precedence + upsert name-only rows |
-| `db/migrations/` | add the two columns |
+| File                                               | Change                                                                         |
+| -------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `lib/places/placeDetails.ts`                     | parse neighborhood from `addressComponents` (shared by discovery + backfill) |
+| `scripts/seed-discover-tacoma.ts`                | add `addressComponents` to mask; store on candidate                          |
+| `scripts/seed-enrich-candidates.ts`              | carry `google_neighborhood` candidate → venue                               |
+| `scripts/backfill-google-neighborhoods.ts` (new) | per-city opt-in backfill                                                       |
+| `lib/geo/assignNeighborhoods.ts`                 | name-primary precedence + upsert name-only rows                                |
+| `db/migrations/`                                 | add the two columns                                                            |
 
 ## Cost
 

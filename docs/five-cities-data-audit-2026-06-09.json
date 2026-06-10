@@ -1,0 +1,64 @@
+[
+  {
+    "name": "The Quarterdeck Seafood Bar & Grill",
+    "slug": "the-quarterdeck-seafood-bar-grill",
+    "website": "https://www.quarterdeckseafood.com/",
+    "flags": [
+      {
+        "code": "assumed_days_avoidable",
+        "severity": "auto_fixable",
+        "evidence": "https://www.quarterdeckseafood.com/cocktails — days assumed Mon–Fri (none stated)"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "startTime": "15:00:00",
+        "endTime": "17:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://www.quarterdeckseafood.com/cocktails",
+        "notes": "days assumed Mon–Fri (none stated)",
+        "offeringsKey": ""
+      }
+    ]
+  },
+  {
+    "name": "Verdad & Lindquist Family Wine Tasting Room",
+    "slug": "verdad-lindquist-family-wine-tasting-room",
+    "website": "https://www.verdadandlindquistfamilywines.com/",
+    "flags": [
+      {
+        "code": "homepage_sourced_hh",
+        "severity": "report",
+        "evidence": "HH window sourced from homepage: https://www.verdadandlindquistfamilywines.com/"
+      }
+    ],
+    "windows": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "16:00:00",
+        "endTime": "19:00:00",
+        "allDay": false,
+        "active": true,
+        "sourceUrl": "https://www.verdadandlindquistfamilywines.com/",
+        "notes": null,
+        "offeringsKey": ""
+      }
+    ]
+  }
+]
