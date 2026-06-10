@@ -21,11 +21,23 @@ const UA =
   "(KHTML, like Gecko) Chrome/124 Safari/537.36";
 
 let _browser: Browser | null = null;
+// Launch is memoized: fetchPages renders URLs via Promise.all, so concurrent first calls
+// raced chromium.launch() and the loser's browser leaked untracked — closeRenderBrowser
+// only closed the winner, stranding the node process on the orphan's open handles
+// (reextract + adjudicate runs never exited, 2026-06-10).
+let _launching: Promise<Browser> | null = null;
 async function getBrowser(): Promise<Browser> {
   if (_browser && _browser.isConnected()) return _browser;
-  const { chromium } = await import("playwright");
-  _browser = await chromium.launch({ headless: true });
-  return _browser;
+  if (!_launching) {
+    _launching = (async () => {
+      const { chromium } = await import("playwright");
+      const b = await chromium.launch({ headless: true });
+      _browser = b;
+      _launching = null;
+      return b;
+    })();
+  }
+  return _launching;
 }
 
 /** Close the shared browser. Call once at the end of a batch run to free Chromium. */
