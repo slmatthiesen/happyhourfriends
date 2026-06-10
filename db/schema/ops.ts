@@ -121,6 +121,10 @@ export const dataAudit = pgTable(
     agentVerdict: text("agent_verdict"),
     resolution: text("resolution").notNull().default("scanned"),
     fixApplied: boolean("fix_applied").notNull().default(false),
+    /** The exact rule inputs ({websiteUrl, hoursJson, windows}) at scan time. Operator
+     *  keep/hide verdicts label THESE inputs — a hide then mutates the live rows, so
+     *  without the snapshot the labeled example evaporates (eval:flags corpus). */
+    auditInput: jsonb("audit_input"),
   },
   (t) => [index("data_audit_resolution_idx").on(t.resolution)],
 );

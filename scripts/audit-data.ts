@@ -80,11 +80,15 @@ async function main() {
         flagged++;
         report.push({ name: v.name, slug: v.slug, website: v.website_url, flags, windows: hhRows.filter((w) => w.active) });
       }
+      // audit_input pins the rule inputs the flags (and any later operator verdict) refer
+      // to — a hide mutates the live rows, so the labeled example must not read the DB later.
+      const auditInput = { websiteUrl: v.website_url, hoursJson: v.hours_json, windows: hhRows };
       await sql`
-        INSERT INTO data_audit (venue_id, flags, resolution, audited_at)
-        VALUES (${v.id}, ${sql.json(flags as never)}, ${resolution}, now())
+        INSERT INTO data_audit (venue_id, flags, resolution, audited_at, audit_input)
+        VALUES (${v.id}, ${sql.json(flags as never)}, ${resolution}, now(), ${sql.json(auditInput as never)})
         ON CONFLICT (venue_id) DO UPDATE
-          SET flags = EXCLUDED.flags, resolution = EXCLUDED.resolution, audited_at = now()`;
+          SET flags = EXCLUDED.flags, resolution = EXCLUDED.resolution, audited_at = now(),
+              audit_input = EXCLUDED.audit_input`;
     }
 
     console.log(`Scanned ${venuesRows.length}; flagged ${flagged}.`);
