@@ -95,6 +95,8 @@
     "test:routes": "tsx scripts/test-routes.ts",
     "test:resolve-city": "tsx scripts/test-resolve-city.ts",
     "test:offering-sanity": "tsx scripts/test-offering-sanity.ts",
+    "test:adjudicate-flag": "tsx scripts/test-adjudicate-flag.ts",
+    "adjudicate:flags": "tsx scripts/adjudicate-flags.ts",
     "test:parse-hh-text": "tsx scripts/test-parse-hh-text.ts",
     "test:free-extract": "tsx scripts/test-free-extract.ts",
     "test:hh-outcomes": "tsx scripts/test-hh-outcomes.ts",
