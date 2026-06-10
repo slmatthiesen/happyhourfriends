@@ -4,20 +4,20 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Design tokens — default palette is "Warm" (charcoal + warm amber).
-   PRD §6.1's original "Twilight" purple now lives under [data-theme="twilight"]. */
+/* Design tokens — the "Slate" palette (cool charcoal + amber/blue accents), chosen
+   from the candidate set and baked in as the one and only theme. */
 :root {
-  --bg-deep: #15161a;
-  --bg-surface: #1e2024;
-  --bg-elevated: #2a2d33;
-  --accent-warm: #e8a04b; /* prices, primary CTA, "happening now" */
-  --accent-cool: #4bbfb0; /* links, secondary actions */
+  --bg-deep: #0f141a;
+  --bg-surface: #181f27;
+  --bg-elevated: #232b35;
+  --accent-warm: #f0b461; /* prices, primary CTA, "happening now" */
+  --accent-cool: #6b9ee8; /* links, secondary actions */
   --accent-hot: #e0708a; /* flags, warnings, badges */
-  --text-primary: #f4ece0;
-  --text-muted: #9aa0ab;
-  --border: #2f333b;
-  --row-hover: #23262c;
-  --row-promoted: rgba(232, 160, 75, 0.08);
+  --text-primary: #e8edf2;
+  --text-muted: #8fa1b3;
+  --border: #2a3441;
+  --row-hover: #1d242d;
+  --row-promoted: rgba(240, 180, 97, 0.08);
 
   /* Filter-group identity colors. Deliberately theme-INDEPENDENT (they do not
      shift with [data-theme]) so each group is consistently scannable: amber Day,
@@ -66,65 +66,6 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
-/* ── Selectable palettes (set via data-theme on <html>; see ThemeSwitcher) ──────
-   Default :root above is "Warm". These override only the Happy-Hour-Friends palette
-   tokens; everything cascades through @theme inline. */
-[data-theme="twilight"] {
-  --bg-deep: #1a1530;
-  --bg-surface: #2a1f3d;
-  --bg-elevated: #3d2a4a;
-  --accent-warm: #e8a04b;
-  --accent-cool: #8b6dd6;
-  --accent-hot: #d65a7e;
-  --text-primary: #f4ebe0;
-  --text-muted: #a89bc4;
-  --border: #4a3a5e;
-  --row-hover: #3d2a4a;
-  --row-promoted: rgba(232, 160, 75, 0.08);
-}
-
-[data-theme="teal"] {
-  --bg-deep: #11201f;
-  --bg-surface: #16292a;
-  --bg-elevated: #1e3536;
-  --accent-warm: #efa14a;
-  --accent-cool: #36b3a6;
-  --accent-hot: #e0708a;
-  --text-primary: #eef0ea;
-  --text-muted: #8ba6a3;
-  --border: #244241;
-  --row-hover: #1b3231;
-  --row-promoted: rgba(239, 161, 74, 0.08);
-}
-
-[data-theme="sunset"] {
-  --bg-deep: #1f1418;
-  --bg-surface: #2a1a1f;
-  --bg-elevated: #382229;
-  --accent-warm: #ff8a5b;
-  --accent-cool: #e8a04b;
-  --accent-hot: #ff5c8a;
-  --text-primary: #f7e8dc;
-  --text-muted: #c4a39a;
-  --border: #4a2f3a;
-  --row-hover: #382229;
-  --row-promoted: rgba(255, 138, 91, 0.08);
-}
-
-[data-theme="slate"] {
-  --bg-deep: #0f141a;
-  --bg-surface: #181f27;
-  --bg-elevated: #232b35;
-  --accent-warm: #f0b461;
-  --accent-cool: #6b9ee8;
-  --accent-hot: #e0708a;
-  --text-primary: #e8edf2;
-  --text-muted: #8fa1b3;
-  --border: #2a3441;
-  --row-hover: #1d242d;
-  --row-promoted: rgba(240, 180, 97, 0.08);
-}
-
 /* Expose tokens as Tailwind theme colors (bg-bg-deep, text-text-muted, etc.) */
 @theme inline {
   --color-bg-deep: var(--bg-deep);
@@ -139,9 +80,9 @@
   --color-row-hover: var(--row-hover);
   --color-row-promoted: var(--row-promoted);
 
-  --font-body: var(--font-jakarta); /* body / UI — Jakarta is the default */
-  --font-serif: var(--font-jakarta); /* display / headings — default to Jakarta too */
-  --font-sans: var(--font-sans); /* body / UI */ --font-heading: var(--font-sans); --color-sidebar-ring: var(--sidebar-ring); --color-sidebar-border: var(--sidebar-border); --color-sidebar-accent-foreground: var(--sidebar-accent-foreground); --color-sidebar-accent: var(--sidebar-accent); --color-sidebar-primary-foreground: var(--sidebar-primary-foreground); --color-sidebar-primary: var(--sidebar-primary); --color-sidebar-foreground: var(--sidebar-foreground); --color-sidebar: var(--sidebar); --color-chart-5: var(--chart-5); --color-chart-4: var(--chart-4); --color-chart-3: var(--chart-3); --color-chart-2: var(--chart-2); --color-chart-1: var(--chart-1); --color-ring: var(--ring); --color-input: var(--input); --color-destructive: var(--destructive); --color-accent-foreground: var(--accent-foreground); --color-accent: var(--accent); --color-muted-foreground: var(--muted-foreground); --color-muted: var(--muted); --color-secondary-foreground: var(--secondary-foreground); --color-secondary: var(--secondary); --color-primary-foreground: var(--primary-foreground); --color-primary: var(--primary); --color-popover-foreground: var(--popover-foreground); --color-popover: var(--popover); --color-card-foreground: var(--card-foreground); --color-card: var(--card); --color-foreground: var(--foreground); --color-background: var(--background); --radius-sm: calc(var(--radius) * 0.6); --radius-md: calc(var(--radius) * 0.8); --radius-lg: var(--radius); --radius-xl: calc(var(--radius) * 1.4); --radius-2xl: calc(var(--radius) * 1.8); --radius-3xl: calc(var(--radius) * 2.2); --radius-4xl: calc(var(--radius) * 2.6);
+  --font-body: var(--font-jakarta); /* body / UI */
+  --font-serif: var(--font-jakarta); /* display / headings */
+  --font-sans: var(--font-jakarta); --font-heading: var(--font-sans); --color-sidebar-ring: var(--sidebar-ring); --color-sidebar-border: var(--sidebar-border); --color-sidebar-accent-foreground: var(--sidebar-accent-foreground); --color-sidebar-accent: var(--sidebar-accent); --color-sidebar-primary-foreground: var(--sidebar-primary-foreground); --color-sidebar-primary: var(--sidebar-primary); --color-sidebar-foreground: var(--sidebar-foreground); --color-sidebar: var(--sidebar); --color-chart-5: var(--chart-5); --color-chart-4: var(--chart-4); --color-chart-3: var(--chart-3); --color-chart-2: var(--chart-2); --color-chart-1: var(--chart-1); --color-ring: var(--ring); --color-input: var(--input); --color-destructive: var(--destructive); --color-accent-foreground: var(--accent-foreground); --color-accent: var(--accent); --color-muted-foreground: var(--muted-foreground); --color-muted: var(--muted); --color-secondary-foreground: var(--secondary-foreground); --color-secondary: var(--secondary); --color-primary-foreground: var(--primary-foreground); --color-primary: var(--primary); --color-popover-foreground: var(--popover-foreground); --color-popover: var(--popover); --color-card-foreground: var(--card-foreground); --color-card: var(--card); --color-foreground: var(--foreground); --color-background: var(--background); --radius-sm: calc(var(--radius) * 0.6); --radius-md: calc(var(--radius) * 0.8); --radius-lg: var(--radius); --radius-xl: calc(var(--radius) * 1.4); --radius-2xl: calc(var(--radius) * 1.8); --radius-3xl: calc(var(--radius) * 2.2); --radius-4xl: calc(var(--radius) * 2.6);
 }
 
 body {
@@ -163,29 +104,6 @@ body {
   background-repeat: no-repeat;
   color: var(--text-primary);
   font-family: var(--font-body, var(--font-jakarta)), system-ui, sans-serif;
-}
-
-/* When the operator picks a sans font, drive BOTH body AND headings (--font-serif)
-   with it. Default (no data-font) is Jakarta; the explicit options below override it. */
-[data-font="inter"] {
-  --font-body: var(--font-inter);
-  --font-serif: var(--font-inter);
-}
-[data-font="bricolage"] {
-  --font-body: var(--font-bricolage);
-  --font-serif: var(--font-bricolage);
-}
-[data-font="jakarta"] {
-  --font-body: var(--font-jakarta);
-  --font-serif: var(--font-jakarta);
-}
-[data-font="space-grotesk"] {
-  --font-body: var(--font-space-grotesk);
-  --font-serif: var(--font-space-grotesk);
-}
-[data-font="manrope"] {
-  --font-body: var(--font-manrope);
-  --font-serif: var(--font-manrope);
 }
 
 /* Subtle SVG grain overlay — just enough to avoid flat-color sterility (§6.1). */
