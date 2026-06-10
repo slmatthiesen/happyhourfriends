@@ -43,7 +43,7 @@ export default async function NewVenuePage({
       key: "websiteUrl",
       label: "Website",
       type: "url",
-      placeholder: "https://",
+      placeholder: "e.g. theofficebar.com",
       required: true,
     },
     { key: "type", label: "Type", type: "select", options: TYPE_OPTIONS },

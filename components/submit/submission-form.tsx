@@ -131,7 +131,16 @@ export function SubmissionForm({
       const cur = toInputValue(f).trim();
       const changed = newRecord ? raw !== "" : raw !== cur;
       if (changed) {
-        after[f.key] = parseField(f, raw);
+        if (f.type === "url" && raw !== "") {
+          const normalized = normalizeUrl(raw);
+          if (!normalized) {
+            setError(`${f.label} doesn't look like a link — try e.g. example.com`);
+            return;
+          }
+          after[f.key] = normalized;
+        } else {
+          after[f.key] = parseField(f, raw);
+        }
         if (!newRecord) before[f.key] = f.current ?? null;
       }
     }
@@ -303,10 +312,11 @@ export function SubmissionForm({
                   ? "time"
                   : f.type === "price" || f.type === "number"
                     ? "number"
-                    : f.type === "url"
-                      ? "url"
-                      : "text"
+                    : "text"
               }
+              // url fields stay type="text": native type="url" validation rejects
+              // scheme-less input ("www.site.com") that normalizeUrl accepts.
+              inputMode={f.type === "url" ? "url" : undefined}
               step={f.type === "price" ? "0.01" : undefined}
               placeholder={f.placeholder}
               value={values[f.key] ?? ""}
