@@ -1,57 +1,13 @@
 import type { Metadata } from "next";
-import {
-  Inter,
-  Geist,
-  Bricolage_Grotesque,
-  Plus_Jakarta_Sans,
-  Space_Grotesk,
-  Manrope,
-} from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import { PostHogProvider } from "@/lib/observability/posthog-provider";
-import { ThemeSwitcher } from "@/components/theme-switcher";
-import { FontSwitcher } from "@/components/font-switcher";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-
-// Applies the saved palette + font before first paint (no flash).
-const APPEARANCE_INIT = `try{var t=localStorage.getItem('hhf_theme');if(t&&t!=='warm')document.documentElement.setAttribute('data-theme',t);var f=localStorage.getItem('hhf_font');if(f&&f!=='jakarta')document.documentElement.setAttribute('data-font',f);}catch(e){}`;
-
-const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
   subsets: ["latin"],
   display: "swap",
-});
-
-// The alternates below only render when the operator flips the FontSwitcher
-// (data-font attribute), so don't preload their files on every visit.
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-  preload: false,
-});
-
-const bricolage = Bricolage_Grotesque({
-  variable: "--font-bricolage",
-  subsets: ["latin"],
-  display: "swap",
-  preload: false,
-});
-
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
-  subsets: ["latin"],
-  display: "swap",
-  preload: false,
-});
-
-const manrope = Manrope({
-  variable: "--font-manrope",
-  subsets: ["latin"],
-  display: "swap",
-  preload: false,
 });
 
 // Absolute base for every canonical/OG URL. Without it, `alternates.canonical` and the
@@ -73,25 +29,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn(
-        "h-full",
-        "antialiased",
-        "font-sans",
-        inter.variable,
-        geist.variable,
-        bricolage.variable,
-        jakarta.variable,
-        spaceGrotesk.variable,
-        manrope.variable,
-      )}
+      className={cn("h-full", "antialiased", "font-sans", jakarta.variable)}
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: APPEARANCE_INIT }} />
-      </head>
       <body className="min-h-full flex flex-col">
         <PostHogProvider>{children}</PostHogProvider>
-        <FontSwitcher />
-        <ThemeSwitcher />
       </body>
     </html>
   );
