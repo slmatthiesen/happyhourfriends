@@ -35,6 +35,8 @@ const argOf = (f: string) => {
 };
 const VENUE = argOf("--venue");
 const LIMIT = argOf("--limit") ? parseInt(argOf("--limit")!, 10) : null;
+// Queue paging (name-ordered): skip venues an earlier sample already adjudicated.
+const OFFSET = argOf("--offset") ? parseInt(argOf("--offset")!, 10) : 0;
 
 interface FlaggedVenueRow {
   venue_id: string;
@@ -91,6 +93,7 @@ async function main() {
         }
       ORDER BY v.name
       ${LIMIT ? sql`LIMIT ${LIMIT}` : sql``}
+      ${OFFSET > 0 ? sql`OFFSET ${OFFSET}` : sql``}
     `;
     console.log(`${rows.length} flagged venue(s) to adjudicate (${EVAL ? "eval" : QUEUE ? "queue" : "single"} mode).\n`);
 
@@ -178,7 +181,7 @@ async function main() {
     }
 
     mkdirSync("docs/audits", { recursive: true });
-    const out = `docs/audits/flag-adjudication-${EVAL ? "eval" : "queue"}-${new Date().toISOString().slice(0, 10)}.json`;
+    const out = `docs/audits/flag-adjudication-${EVAL ? "eval" : "queue"}-${new Date().toISOString().slice(0, 10)}${OFFSET > 0 ? `-offset${OFFSET}` : ""}.json`;
     writeFileSync(out, JSON.stringify(report, null, 2));
     console.log(`── done ── ${rows.length} venue(s), spend $${(spentCents / 100).toFixed(2)}, report → ${out}`);
   } finally {
