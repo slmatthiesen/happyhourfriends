@@ -17,6 +17,9 @@
  *   pnpm tsx scripts/apply-adjudications.ts --report <file> --apply --treat-corrected <venueId> …
  *     (--treat-corrected reclassifies a 'confirmed' row as corrected — operator override,
  *      e.g. 7 Mile House confirmed despite "closed Tuesdays" in the site evidence)
+ *   --treat-confirmed <venueId> … is the reverse override: keep a row the judge wrongly
+ *     'corrected' (Mi Patio: judge corrected over unverifiable prices while its own
+ *     reason said the schedule matched; The Italian Daughter: '$7 vs $7.00' nitpick).
  */
 import "dotenv/config";
 import { readFileSync } from "node:fs";
@@ -51,11 +54,12 @@ function args() {
     report: get("--report"),
     apply: a.includes("--apply"),
     treatCorrected: new Set(getAll("--treat-corrected")),
+    treatConfirmed: new Set(getAll("--treat-confirmed")),
   };
 }
 
 async function main() {
-  const { report, apply, treatCorrected } = args();
+  const { report, apply, treatCorrected, treatConfirmed } = args();
   if (!report) throw new Error("--report <path to adjudication report json> is required");
   if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is not set");
   const rows: ReportRow[] = JSON.parse(readFileSync(report, "utf8"));
@@ -69,7 +73,11 @@ async function main() {
 
   try {
     for (const r of rows) {
-      const verdict = treatCorrected.has(r.venueId) ? "corrected" : r.verdict;
+      const verdict = treatConfirmed.has(r.venueId)
+        ? "confirmed"
+        : treatCorrected.has(r.venueId)
+          ? "corrected"
+          : r.verdict;
       if (verdict === "unclear") {
         unclear++;
         continue;
