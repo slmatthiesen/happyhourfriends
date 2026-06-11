@@ -42,6 +42,11 @@ async function main() {
       const [vB] = await tx<{ id: string }[]>`
         INSERT INTO venues (city_id, name, slug, lat, lng)
         VALUES (${city.id}, 'Venue B', 'venue-b', 32.5, -110.5) RETURNING id`;
+      // Venue C: second 'Temescal' venue — the name needs MIN_VENUES_PER_NEIGHBORHOOD
+      // venues (critical mass) before stage 0 honors it over the containing polygon.
+      await tx`
+        INSERT INTO venues (city_id, name, slug, lat, lng, google_neighborhood)
+        VALUES (${city.id}, 'Venue C', 'venue-c', 32.5, -110.5, 'Temescal')`;
 
       await assignNeighborhoods(tx as unknown as typeof sql, city.id);
 

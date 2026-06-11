@@ -8,6 +8,7 @@
 #   - test:email                 (needs RESEND_API_KEY)
 #   - test:assignment            (needs a live Postgres/PostGIS)
 #   - test:name-primary          (needs a live Postgres/PostGIS)
+#   - test:dedup-assignment      (needs a live Postgres/PostGIS)
 #   - test:db-sync               (needs a live Postgres; creates scratch DBs)
 #   - test:contribution-pipeline (needs a live DB + ANTHROPIC_API_KEY)
 #   - test:discovery-coverage    (makes live outbound fetches)
@@ -19,6 +20,7 @@ set -uo pipefail
 
 TESTS=(
   test:venue-type
+  test:neighborhood-canonical
   test:first-party
   test:harvest
   test:hidden-review

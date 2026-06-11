@@ -6,6 +6,7 @@
  *   npm run generate:cardinal-districts -- --city tucson --state az
  *   npm run generate:cardinal-districts -- --city tucson --state az --boundary ./data/tucson-boundary.geojson
  *   npm run generate:cardinal-districts -- --city tucson --state az --downtown 32.2226,-110.9747
+ *   npm run generate:cardinal-districts -- --city oakland --state ca --downtown 37.8049,-122.2712 --redo-downtown
  *
  * Boundary source order: --boundary file → data/<city>-boundary.geojson. The bbox of that
  * boundary feeds cardinalRects(); each rectangle is intersected with the boundary so zones
@@ -13,7 +14,9 @@
  * "lat,lng", else the boundary centroid), clipped to the boundary, layered on top. Zone
  * names can be overridden via data/<city>-cardinal-aliases.json
  * (e.g. {"Central":"Midtown","North":"Foothills"}). Idempotent: skips slugs already
- * present. Re-runs assignment at the end.
+ * present. --redo-downtown re-cuts an existing GENERATED Downtown polygon around the new
+ * anchor (the centroid default lands far from the real CBD in elongated cities — Oakland's
+ * centroid is 5.5km southeast of downtown). Re-runs assignment at the end.
  */
 import "dotenv/config";
 import { readFileSync, existsSync } from "node:fs";
@@ -129,6 +132,14 @@ async function main() {
     if (dtArg && (Number.isNaN(anchorLat) || Number.isNaN(anchorLng))) {
       throw new Error(`Bad --downtown "${dtArg}" — expected "lat,lng".`);
     }
+    if (!dtArg) {
+      console.warn(
+        `WARNING: no --downtown anchor given — Downtown defaults to the boundary centroid ` +
+          `(${b.clat.toFixed(4)},${b.clng.toFixed(4)}), which is NOT the CBD in elongated ` +
+          `cities (Oakland's centroid is 5.5km from downtown). Pass --downtown lat,lng.`,
+      );
+    }
+    const redoDowntown = process.argv.includes("--redo-downtown");
 
     // The boundary as a reusable SQL expression from its WKT.
     const boundarySql = sql`ST_SetSRID(ST_GeomFromText(${b.boundaryWkt}), 4326)`;
@@ -163,6 +174,26 @@ async function main() {
 
     // Downtown = anchor buffer clipped to boundary.
     const dtSlug = "downtown";
+    if (redoDowntown) {
+      // Re-cut ONLY a generated Downtown around the new anchor; a GIS/OSM-sourced
+      // Downtown polygon is authoritative and never overwritten.
+      const redo = await sql<{ id: string }[]>`
+        UPDATE neighborhoods SET polygon =
+          ST_Multi(ST_CollectionExtract(
+            ST_Intersection(
+              ${boundarySql},
+              ST_Buffer(ST_SetSRID(ST_MakePoint(${anchorLng}, ${anchorLat}), 4326)::geography, ${DOWNTOWN_RADIUS_M})::geometry
+            ), 3))
+        WHERE city_id = ${c.id} AND slug = ${dtSlug}
+          AND source = 'Generated cardinal district'
+        RETURNING id
+      `;
+      if (redo.length) console.log(`  Downtown: polygon re-cut around ${anchorLat},${anchorLng}`);
+      else
+        console.warn(
+          "  Downtown: --redo-downtown matched no generated Downtown row (missing, or non-generated source) — leaving as-is",
+        );
+    }
     const dtRes = await sql<{ id: string }[]>`
       INSERT INTO neighborhoods (city_id, name, slug, polygon, source, source_url, is_fallback, tier, recognizability)
       SELECT ${c.id}, 'Downtown', ${dtSlug},
