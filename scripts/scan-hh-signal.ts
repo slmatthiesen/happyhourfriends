@@ -103,7 +103,9 @@ async function main() {
       if (r.snippet) console.log(`        …${r.snippet}…`);
     }
 
-    const path = `docs/${city.slug}-hh-signal-scan-2026-06-01.json`;
+    // Real run date — a fixed stamp made re-runs silently clobber the prior report
+    // (the Scottsdale 2026-06-01 scan was overwritten by a 2026-06-11 re-run).
+    const path = `docs/${city.slug}-hh-signal-scan-${new Date().toISOString().slice(0, 10)}.json`;
     await writeFile(path, JSON.stringify(rows, null, 2), "utf8");
     console.log(`\nFull detail → ${path}`);
   } finally {
