@@ -4,22 +4,36 @@
  *
  * The realness/reconcile gates hide suspect windows (active=false) instead of deleting
  * them ([[capture-everything-realness-filter]]); on a stub venue those windows are the
- * venue's ONLY extracted data, invisible to users and to every admin surface. This
- * module suggests a per-window action for the operator to confirm or override:
+ * venue's ONLY extracted data, invisible to users and to every admin surface.
  *
- *   promote      window is HH-shaped (timed, 1–5h, starts 11:00+, not all-day) —
- *                likely a real happy hour the gate over-hid
- *   keep_hidden  all-day / open-to-close spans, unknown times — the gate was right
+ * Suggestion policy (operator-set 2026-06-11): NEVER suggest `promote`. Going live
+ * requires operator verification or a fresh re-extraction — a shape guess is not
+ * evidence (the original shape rule promoted Mason Bar's "Dinner Served Daily
+ * 5–10pm" because 5h-starting-after-11am looks like a happy hour). `delete` is
+ * suggested only on hard evidence the window is service hours, not a deal:
  *
- * Suggestions are deliberately conservative: nothing is promoted without the operator
- * flipping (or keeping) the action in the report JSON.
+ *   - it matches the venue's Google operating hours (windowReconcile.isOperatingHours —
+ *     the same authoritative test the reconcile gate uses), or
+ *   - it was extracted from a meal-service menu page (lunch/dinner/brunch/breakfast in
+ *     the source URL) and carries ZERO offerings — hours prose, no actual deals.
+ *
+ * Everything else stays `keep_hidden` (eligible for the paid re-extract sweep, which
+ * can reactivate a window when a fresh read of the site confirms it).
  */
 
+import { isOperatingHours } from "@/lib/places/windowReconcile";
+import type { OpenPeriod } from "@/lib/geo/timezone";
+
 export interface HiddenWindowShape {
+  daysOfWeek: number[];
   startTime: string | null; // "HH:MM:SS"
   endTime: string | null;
   allDay: boolean;
   timeKnown: boolean;
+  /** Page the window was extracted from (happy_hours.source_url). */
+  sourceUrl: string | null;
+  /** Count of active offerings attached to the window. */
+  offerings: number;
 }
 
 export type HiddenAction = "promote" | "keep_hidden" | "delete";
@@ -37,17 +51,25 @@ export function durationHours(startTime: string | null, endTime: string | null):
   return end - start;
 }
 
-/** True when the window looks like a deliberate happy hour rather than operating hours:
- *  a stated 1–5h span starting 11:00 or later. Open-to-close spans, unknown times and
- *  all-day windows stay hidden (those are exactly what the gate exists to catch). */
-export function isHhShaped(w: HiddenWindowShape): boolean {
-  if (w.allDay || !w.timeKnown) return false;
-  const dur = durationHours(w.startTime, w.endTime);
-  if (dur === null) return false;
-  const startHour = Number(w.startTime!.split(":")[0]);
-  return dur >= 1 && dur <= 5 && startHour >= 11;
+const MEAL_MENU_RE = /lunch|dinner|brunch|breakfast/i;
+
+/** The evidence behind a `delete` suggestion, or null when there is none.
+ *  Surfaced verbatim in the report so the operator sees WHY before nuking. */
+export function deleteEvidence(w: HiddenWindowShape, hoursJson: OpenPeriod[] | null): string | null {
+  if (
+    isOperatingHours(
+      { daysOfWeek: w.daysOfWeek, startTime: w.startTime, endTime: w.endTime, allDay: w.allDay },
+      hoursJson,
+    )
+  ) {
+    return "matches venue operating hours";
+  }
+  if (w.offerings === 0 && w.sourceUrl != null && MEAL_MENU_RE.test(w.sourceUrl)) {
+    return "meal-service menu page, no deals attached";
+  }
+  return null;
 }
 
-export function suggestAction(w: HiddenWindowShape): HiddenAction {
-  return isHhShaped(w) ? "promote" : "keep_hidden";
+export function suggestAction(w: HiddenWindowShape, hoursJson: OpenPeriod[] | null): HiddenAction {
+  return deleteEvidence(w, hoursJson) ? "delete" : "keep_hidden";
 }
