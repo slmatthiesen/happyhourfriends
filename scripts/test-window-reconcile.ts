@@ -398,4 +398,28 @@ check("unset location behaves as 'all' (pre-location behavior unchanged)", () =>
   assert.equal(active(rs).length, 0);
 });
 
+check("GOLDEN 7 Mile House: closed-day clip drops Tuesday from an 'everyday' window", () => {
+  // Google hours: open every day EXCEPT Tuesday (day 2 has no period).
+  const hours = [1, 3, 4, 5, 6, 7].map((d) => ({ openDay: d, openMin: 690, closeDay: d, closeMin: 1260 }));
+  const rs = reconcileWindows([w([1, 2, 3, 4, 5, 6, 7], "15:00:00", "18:00:00")], hours);
+  assert.equal(rs.length, 1);
+  assert.deepEqual(rs[0].window.daysOfWeek, [1, 3, 4, 5, 6, 7]);
+  assert.equal(rs[0].active, true);
+  assert.ok(rs[0].reasons.includes("closed_day_clip"));
+});
+
+check("closed-day clip: window entirely on closed days goes inactive", () => {
+  const hours = [5, 6].map((d) => ({ openDay: d, openMin: 690, closeDay: d, closeMin: 1260 }));
+  const rs = reconcileWindows([w([1, 2], "15:00:00", "18:00:00")], hours);
+  assert.equal(rs[0].active, false);
+  assert.ok(rs[0].reasons.includes("closed_day_clip"));
+});
+
+check("closed-day clip: unknown hours (null/empty) never clips", () => {
+  const a = reconcileWindows([w([1, 2, 3, 4, 5, 6, 7], "15:00:00", "18:00:00")], null);
+  assert.deepEqual(a[0].window.daysOfWeek, [1, 2, 3, 4, 5, 6, 7]);
+  const b = reconcileWindows([w([1, 2, 3, 4, 5, 6, 7], "15:00:00", "18:00:00")], []);
+  assert.deepEqual(b[0].window.daysOfWeek, [1, 2, 3, 4, 5, 6, 7]);
+});
+
 console.log(`\n${passed} checks passed.`);
