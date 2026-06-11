@@ -580,9 +580,9 @@ export function VenueTableClient({
   if (venues.length === 0) {
     return (
       <div className="mt-12 rounded-lg border border-border bg-bg-surface p-10 text-center">
-        <p className="text-lg text-text-primary">No venues listed yet.</p>
+        <p className="text-lg text-text-primary">Nothing on the tap list yet.</p>
         <p className="mt-2 text-text-muted">
-          We add venues only with a verifiable source — no guesses.
+          We only list what we can verify — no guesses, no stale specials.
         </p>
       </div>
     );
