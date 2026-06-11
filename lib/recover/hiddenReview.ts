@@ -22,6 +22,7 @@
  */
 
 import { isOperatingHours } from "@/lib/places/windowReconcile";
+import { HH_RE } from "@/lib/places/hhText";
 import type { OpenPeriod } from "@/lib/geo/timezone";
 
 export interface HiddenWindowShape {
@@ -34,6 +35,8 @@ export interface HiddenWindowShape {
   sourceUrl: string | null;
   /** Count of active offerings attached to the window. */
   offerings: number;
+  /** Extractor notes on the window (happy_hours.notes). */
+  notes?: string | null;
 }
 
 export type HiddenAction = "promote" | "keep_hidden" | "delete";
@@ -56,6 +59,11 @@ const MEAL_MENU_RE = /lunch|dinner|brunch|breakfast/i;
 /** The evidence behind a `delete` suggestion, or null when there is none.
  *  Surfaced verbatim in the report so the operator sees WHY before nuking. */
 export function deleteEvidence(w: HiddenWindowShape, hoursJson: OpenPeriod[] | null): string | null {
+  // ANY happy-hour hint vetoes a delete suggestion (operator 2026-06-11: lean
+  // keep_hidden — crowdsourcing fills stubs, and delete is permanent). D.Monaghans'
+  // op-hours-shaped window came from its own ".../happy-hours-specials" page: that
+  // page is evidence HH exists at the venue, so the window stays reviewable.
+  if (HH_RE.test(w.sourceUrl ?? "") || HH_RE.test(w.notes ?? "")) return null;
   if (
     isOperatingHours(
       { daysOfWeek: w.daysOfWeek, startTime: w.startTime, endTime: w.endTime, allDay: w.allDay },
@@ -72,4 +80,53 @@ export function deleteEvidence(w: HiddenWindowShape, hoursJson: OpenPeriod[] | n
 
 export function suggestAction(w: HiddenWindowShape, hoursJson: OpenPeriod[] | null): HiddenAction {
   return deleteEvidence(w, hoursJson) ? "delete" : "keep_hidden";
+}
+
+// ── CSV (the operator sorts/filters the report in a spreadsheet, edits the action
+//    column, and feeds the .csv straight back to --apply) ─────────────────────────
+
+export function csvEscape(v: unknown): string {
+  const s = v == null ? "" : String(v).replace(/\r?\n/g, " ");
+  return /[",]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+export function toCsv(rows: Array<Record<string, unknown>>, columns: string[]): string {
+  return [columns.join(","), ...rows.map((r) => columns.map((c) => csvEscape(r[c])).join(","))].join("\n");
+}
+
+/** Parse a CSV (quoted fields, doubled quotes) into header-keyed records. */
+export function parseCsv(text: string): Array<Record<string, string>> {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let field = "";
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (text[i + 1] === '"') {
+          field += '"';
+          i++;
+        } else inQuotes = false;
+      } else field += ch;
+    } else if (ch === '"') inQuotes = true;
+    else if (ch === ",") {
+      row.push(field);
+      field = "";
+    } else if (ch === "\n" || ch === "\r") {
+      if (ch === "\r" && text[i + 1] === "\n") i++;
+      row.push(field);
+      field = "";
+      rows.push(row);
+      row = [];
+    } else field += ch;
+  }
+  if (field.length > 0 || row.length > 0) {
+    row.push(field);
+    rows.push(row);
+  }
+  const header = rows.shift() ?? [];
+  return rows
+    .filter((r) => r.some((f) => f !== ""))
+    .map((r) => Object.fromEntries(header.map((h, idx) => [h, r[idx] ?? ""])));
 }
