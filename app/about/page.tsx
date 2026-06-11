@@ -63,7 +63,7 @@ export default function AboutPage() {
               list. It started as the way my friends and I kept track of where
               to eat and drink for cheap, so we were all working from the same
               list. People loved it, and I never stopped thinking about why:
-              nobody wants to dig through ten menus to find the $5 margarita.
+              nobody wants to dig through ten menus to find deals on tacos, happening right now, nearby.
               Friends just tell each other.
             </p>
             <p>
