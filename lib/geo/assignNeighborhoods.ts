@@ -1,5 +1,12 @@
 import type { Sql } from "postgres";
 import { RECOGNIZABLE_BAR } from "@/lib/geo/recognizability";
+import {
+  planNameClusters,
+  canonicalNeighborhoodKey,
+  type DistrictRow,
+  type PlannedCluster,
+} from "@/lib/geo/neighborhoodCanonical";
+import { neighborhoodOverridesFor } from "@/lib/geo/neighborhoodOverrides";
 
 /**
  * Snap distance (meters): a venue not contained by any polygon is still assigned to the
@@ -31,17 +38,164 @@ const AMBIGUITY_GAP_METERS = 500;
  * isn't a useful label or filter). Shared by two enforcement points that MUST agree:
  *   - the UI, which suppresses below-threshold neighborhoods (lib/queries/venues.ts), and
  *   - stage 0 here, where a venue's Google neighborhood name only wins over polygon
- *     assignment when at least this many venues in the city share the name. A lone
- *     micro-name ("Motel District") would create a neighborhood the UI hides — leaving the
- *     venue rendering blank despite being assigned — so it falls through to polygons instead.
+ *     assignment when at least this many venues in the city share the name (summed across
+ *     spelling variants of the same canonical name). A lone micro-name ("Motel District")
+ *     would create a neighborhood the UI hides — leaving the venue rendering blank despite
+ *     being assigned — so it falls through to polygons instead.
  */
 export const MIN_VENUES_PER_NEIGHBORHOOD = 2;
 
 /**
+ * An inferred synonym merge ("Camelback East Village" → coarse "Camelback East",
+ * "Downtown Oakland" → "Downtown") only fires when at least this fraction of the
+ * cluster's geocoded venues actually sit inside (within SNAP_METERS of) the target
+ * district polygon. The gate is what keeps name-only lookalikes apart: Tucson's
+ * "Catalina Village" (a Campbell Ave shopping area) name-matches the coarse "Catalina"
+ * CDP 15 miles north — 0% containment, no merge, it stays its own area.
+ */
+const SYNONYM_CONTAINMENT_MIN = 0.8;
+
+export interface CityRef {
+  id: string;
+  name: string;
+  slug: string;
+  state: string;
+}
+
+/** A planned cluster enriched with the containment-gate result for synonym candidates. */
+export interface GatedCluster extends PlannedCluster {
+  /** Fraction of geocoded venues within the synonym target polygon (synonym clusters only). */
+  containment?: number;
+  /** True when the cluster will NOT get its own row (synonym confirmed or curated merge). */
+  mergesAway: boolean;
+}
+
+/**
+ * Build the stage-0 plan for one city: cluster the city's Google neighborhood names by
+ * canonical key (spelling variants fold together), propose synonym/curated merges, and
+ * run the containment gate on inferred synonyms. Pure read — shared by assignNeighborhoods
+ * and the $0 report script (scripts/report-neighborhood-merges.ts).
+ */
+export async function planCityNeighborhoods(sql: Sql, city: CityRef): Promise<GatedCluster[]> {
+  const googleNames = await sql<{ name: string; venues: number }[]>`
+    SELECT google_neighborhood AS name, count(*)::int AS venues
+    FROM venues
+    WHERE city_id = ${city.id} AND deleted_at IS NULL AND google_neighborhood IS NOT NULL
+    GROUP BY 1
+  `;
+  const districts = await sql<DistrictRow[]>`
+    SELECT id, name, slug, tier, (polygon IS NOT NULL) AS "hasPolygon", source
+    FROM neighborhoods
+    WHERE city_id = ${city.id}
+  `;
+  const clusters = planNameClusters({
+    cityName: city.name,
+    minVenues: MIN_VENUES_PER_NEIGHBORHOOD,
+    googleNames,
+    districts,
+    overrides: neighborhoodOverridesFor(city.state, city.slug),
+  });
+
+  const gated: GatedCluster[] = [];
+  for (const c of clusters) {
+    if (c.curatedInto) {
+      gated.push({ ...c, mergesAway: true });
+      continue;
+    }
+    if (c.synonymOf) {
+      // An EXACT-name match (the "South Scottsdale" rule) always falls through to the
+      // polygon stages, regardless of containment: it can't relabel anything (the name
+      // already IS the district's), a containing fine polygon should still win, and a
+      // same-slug row of our own is impossible anyway. The containment gate below only
+      // guards AFFIX synonyms (trailing "Village", city-name token), where a false
+      // merge would visibly relabel venues (Catalina Village → Catalina).
+      const exact = canonicalNeighborhoodKey(c.synonymOf.name) === c.key;
+      const [{ frac }] = await sql<{ frac: number | null }[]>`
+        SELECT (count(*) FILTER (WHERE ST_DWithin(
+                 n.polygon::geography,
+                 ST_SetSRID(ST_MakePoint(v.lng::float8, v.lat::float8), 4326)::geography,
+                 ${SNAP_METERS})))::float / NULLIF(count(*), 0) AS frac
+        FROM venues v, neighborhoods n
+        WHERE n.id = ${c.synonymOf.id}
+          AND v.city_id = ${city.id}
+          AND v.deleted_at IS NULL
+          AND v.lat IS NOT NULL AND v.lng IS NOT NULL
+          AND v.google_neighborhood = ANY(${c.names})
+      `;
+      const containment = frac ?? 0;
+      gated.push({
+        ...c,
+        containment,
+        mergesAway: exact || containment >= SYNONYM_CONTAINMENT_MIN,
+      });
+      continue;
+    }
+    gated.push({ ...c, mergesAway: false });
+  }
+  return gated;
+}
+
+/** Same slug shape the legacy SQL produced: runs of non-alphanumerics → '-'. */
+function slugify(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+}
+
+/**
+ * Find or create the neighborhood row a cluster's venues should point at. Reuses the
+ * planner's attachTo row when present; a polygon-less Google row is renamed to the
+ * cluster's display name (so a curated "St. Philip's Plaza" replaces the misspelled
+ * variant) unless the target slug is already taken by another row. Imported rows
+ * (GIS/OSM, or anything with a polygon) are never renamed.
+ */
+async function ensureClusterRow(sql: Sql, cityId: string, c: PlannedCluster): Promise<string> {
+  const slug = slugify(c.displayName);
+  if (c.attachTo) {
+    if (
+      !c.attachTo.hasPolygon &&
+      c.attachTo.source === "Google Places" &&
+      c.attachTo.name !== c.displayName
+    ) {
+      await sql`
+        UPDATE neighborhoods SET name = ${c.displayName}, slug = ${slug}
+        WHERE id = ${c.attachTo.id}
+          AND NOT EXISTS (
+            SELECT 1 FROM neighborhoods
+            WHERE city_id = ${cityId} AND slug = ${slug} AND id <> ${c.attachTo.id}
+          )
+      `;
+    }
+    return c.attachTo.id;
+  }
+  const inserted = await sql<{ id: string }[]>`
+    INSERT INTO neighborhoods (city_id, name, slug, polygon, source, tier, recognizability, is_fallback, in_scope)
+    VALUES (${cityId}, ${c.displayName}, ${slug}, NULL, 'Google Places', 'fine', ${RECOGNIZABLE_BAR}::smallint, false, true)
+    ON CONFLICT (city_id, slug) DO NOTHING
+    RETURNING id
+  `;
+  if (inserted.length) return inserted[0].id;
+  const [existing] = await sql<{ id: string }[]>`
+    SELECT id FROM neighborhoods WHERE city_id = ${cityId} AND slug = ${slug}
+  `;
+  return existing.id;
+}
+
+/**
  * Assign venues to a neighborhood (PRD §3 — venues.neighborhood_id is derived, not stored
- * by hand). Stage 0 assigns by the venue's Google neighborhood name when that name has
- * critical mass (>= MIN_VENUES_PER_NEIGHBORHOOD venues sharing it). Everyone else gets a
- * spatial match: we pick the best neighborhood polygon within SNAP_METERS, ranked:
+ * by hand). Runs per city (all cities when cityId is null).
+ *
+ * Stage 0 — name-primary, canonical: the city's Google neighborhood names are clustered
+ * by canonicalNeighborhoodKey (case/punctuation/abbreviation/diacritic-insensitive, plus
+ * a levenshtein-1 fold), so spelling variants of one area share one row and critical mass
+ * is judged on the cluster total. A cluster that is a synonym of a coarse polygon
+ * district — exact match (the "South Scottsdale" rule), trailing "Village" ("Camelback
+ * East Village"), or a city-name affix ("Downtown Oakland") — and whose venues actually
+ * sit inside that polygon (SYNONYM_CONTAINMENT_MIN) gets NO row of its own: its venues
+ * fall through to the polygon stages, where a containing recognizable fine beats the
+ * coarse district, exactly as for venues without a Google name. Curated merges
+ * (lib/geo/neighborhoodOverrides.ts) assign straight to the target district row.
+ *
+ * Everyone else gets a spatial match: we pick the best neighborhood polygon within
+ * SNAP_METERS, ranked:
  *   1. Eligible candidates first: a recognizable fine neighborhood (tier='fine' AND
  *      recognizability >= RECOGNIZABLE_BAR), OR any coarse district. A fine neighborhood
  *      below the recognizability bar is ineligible (shadowed) and only wins when no
@@ -55,7 +209,7 @@ export const MIN_VENUES_PER_NEIGHBORHOOD = 2;
  *      distance 0 and key 3 breaks toward fine.)
  *   4. Higher recognizability wins.
  *   5. Tie-break: smallest polygon by area.
- * Outside SNAP_METERS, neighborhood_id stays NULL.
+ * Outside SNAP_METERS, neighborhood_id stays NULL (until stage 2's unambiguous wide snap).
  *
  * Idempotent and safe to re-run: only venues whose computed neighborhood differs from
  * what's stored are updated. Returns the number of rows changed. Until venues are
@@ -67,65 +221,54 @@ export async function assignNeighborhoods(
   sql: Sql,
   cityId?: string | null,
 ): Promise<number> {
-  // Stage 0 — name-primary: a venue's Google neighborhood name wins over any polygon,
-  // but ONLY when the name has critical mass (>= MIN_VENUES_PER_NEIGHBORHOOD venues in
-  // the city share it — the UI suppresses smaller neighborhoods, so honoring a lone
-  // micro-name would leave the venue rendering blank). Upsert a polygon-less neighborhood
-  // row per qualifying name, then assign by name. The stored google_neighborhood is
-  // already noise-filtered (pickNeighborhood at capture time). Sub-threshold names fall
-  // through to polygon assignment (stages 1–2), and start winning automatically once a
-  // second venue with the name appears.
-  await sql`
-    INSERT INTO neighborhoods (city_id, name, slug, polygon, source, tier, recognizability, is_fallback, in_scope)
-    SELECT DISTINCT vv.city_id, vv.google_neighborhood,
-           lower(regexp_replace(vv.google_neighborhood, '[^a-zA-Z0-9]+', '-', 'g')),
-           NULL, 'Google Places', 'fine', ${RECOGNIZABLE_BAR}::smallint, false, true
-    FROM venues vv
-    JOIN (
-      SELECT city_id, google_neighborhood, count(*) AS cnt
-      FROM venues
-      WHERE deleted_at IS NULL AND google_neighborhood IS NOT NULL
-      GROUP BY city_id, google_neighborhood
-    ) nc ON nc.city_id = vv.city_id AND nc.google_neighborhood = vv.google_neighborhood
-    WHERE vv.google_neighborhood IS NOT NULL
-      AND vv.deleted_at IS NULL
-      AND nc.cnt >= ${MIN_VENUES_PER_NEIGHBORHOOD}
-      ${cityId ? sql`AND vv.city_id = ${cityId}` : sql``}
-    ON CONFLICT (city_id, slug) DO NOTHING
+  const cities = await sql<CityRef[]>`
+    SELECT id, name, slug, state FROM cities
+    ${cityId ? sql`WHERE id = ${cityId}` : sql``}
+    ORDER BY slug
   `;
-  // Match the neighborhood row by (city_id, slug) for any FINE row, regardless of source:
-  // when the city already has a fine row for the name (GIS/OSM import), the critical-mass
-  // Google name must win onto THAT row — even one below the recognizability bar (Google
-  // usage with critical mass IS the vernacular signal). Filtering to source='Google
-  // Places' here silently lost every name that collided with an imported row (Tucson:
-  // West University, Sam Hughes, Downtown… stuck on cardinal districts). COARSE rows are
-  // deliberately excluded: a Google name that equals a coarse district ("South
-  // Scottsdale") adds no specificity, and a containing fine polygon is the better label
-  // (McCormick Ranch venues carry google_neighborhood='South Scottsdale') — those venues
-  // fall through to polygon assignment below.
-  const named = await sql<{ id: string }[]>`
-    UPDATE venues v
-    SET neighborhood_id = n.id, updated_at = now()
-    FROM neighborhoods n,
-         (
-           SELECT city_id, google_neighborhood, count(*) AS cnt
-           FROM venues
-           WHERE deleted_at IS NULL AND google_neighborhood IS NOT NULL
-           GROUP BY city_id, google_neighborhood
-         ) nc
-    WHERE n.city_id = v.city_id
-      AND n.tier = 'fine'
-      AND lower(regexp_replace(v.google_neighborhood, '[^a-zA-Z0-9]+', '-', 'g')) = n.slug
-      AND v.google_neighborhood IS NOT NULL
-      AND v.deleted_at IS NULL
-      AND nc.city_id = v.city_id
-      AND nc.google_neighborhood = v.google_neighborhood
-      AND nc.cnt >= ${MIN_VENUES_PER_NEIGHBORHOOD}
-      AND v.neighborhood_id IS DISTINCT FROM n.id
-      ${cityId ? sql`AND v.city_id = ${cityId}` : sql``}
-    RETURNING v.id
-  `;
+  let changed = 0;
+  for (const city of cities) changed += await assignCity(sql, city);
+  return changed;
+}
 
+async function assignCity(sql: Sql, city: CityRef): Promise<number> {
+  const plan = await planCityNeighborhoods(sql, city);
+
+  // Stage 0 — apply the plan. ownedNames = google names stage 0 assigns directly; the
+  // polygon stages must leave those venues alone. Confirmed-synonym names are NOT owned:
+  // their venues go through polygon assignment (a containing fine may beat the district).
+  const ownedNames: string[] = [];
+  let changed = 0;
+  for (const c of plan) {
+    let rowId: string | null = null;
+    if (c.curatedInto) {
+      rowId = c.curatedInto.id;
+    } else if (!c.mergesAway) {
+      rowId = await ensureClusterRow(sql, city.id, c);
+    } else {
+      continue; // confirmed synonym → polygon stages
+    }
+    ownedNames.push(...c.names);
+    const rows = await sql<{ id: string }[]>`
+      UPDATE venues v
+      SET neighborhood_id = ${rowId}, updated_at = now()
+      WHERE v.city_id = ${city.id}
+        AND v.deleted_at IS NULL
+        AND v.google_neighborhood = ANY(${c.names})
+        AND v.neighborhood_id IS DISTINCT FROM ${rowId}
+      RETURNING v.id
+    `;
+    changed += rows.length;
+  }
+
+  // Polygon stages skip every venue stage 0 owns; everyone else — no google name, a
+  // below-critical-mass one, or a confirmed synonym of a district — gets spatial matching.
+  const notOwned =
+    ownedNames.length > 0
+      ? sql`AND (vv.google_neighborhood IS NULL OR vv.google_neighborhood <> ALL(${ownedNames}))`
+      : sql``;
+
+  // Stage 1 — tight snap, ranked (see the function doc for the full ranking rationale).
   const rows = await sql<{ id: string }[]>`
     UPDATE venues v
     SET neighborhood_id = sub.nid,
@@ -144,25 +287,8 @@ export async function assignNeighborhoods(
       WHERE vv.lat IS NOT NULL
         AND vv.lng IS NOT NULL
         AND vv.deleted_at IS NULL
-        -- Name-primary venues (critical-mass google name resolving to a FINE row) are
-        -- stage 0's; everyone else — no google name, a sub-threshold one, or a name that
-        -- collides with a COARSE district (stage 0 skips those) — gets polygon assignment.
-        AND (
-          vv.google_neighborhood IS NULL
-          OR (
-            SELECT count(*) FROM venues v2
-            WHERE v2.city_id = vv.city_id
-              AND v2.google_neighborhood = vv.google_neighborhood
-              AND v2.deleted_at IS NULL
-          ) < ${MIN_VENUES_PER_NEIGHBORHOOD}
-          OR NOT EXISTS (
-            SELECT 1 FROM neighborhoods nf
-            WHERE nf.city_id = vv.city_id
-              AND nf.tier = 'fine'
-              AND nf.slug = lower(regexp_replace(vv.google_neighborhood, '[^a-zA-Z0-9]+', '-', 'g'))
-          )
-        )
-        ${cityId ? sql`AND vv.city_id = ${cityId}` : sql``}
+        AND vv.city_id = ${city.id}
+        ${notOwned}
       ORDER BY vv.id,
                -- 1. Eligible candidates first: a recognizable fine neighborhood, OR any
                --    coarse district. A fine neighborhood below the recognizability bar is
@@ -229,7 +355,7 @@ export async function assignNeighborhoods(
           AND vv.lng IS NOT NULL
           AND vv.deleted_at IS NULL
           AND vv.neighborhood_id IS NULL
-          ${cityId ? sql`AND vv.city_id = ${cityId}` : sql``}
+          AND vv.city_id = ${city.id}
         GROUP BY vv.id
       ) t
       -- unambiguous: only one neighborhood within range, or the nearest clearly beats the next
@@ -242,18 +368,20 @@ export async function assignNeighborhoods(
     RETURNING v.id
   `;
 
-  // Tidy: drop polygon-less Google-name rows no venue points at anymore (e.g. a name that
-  // lost critical mass, or pre-gate micro-name rows like a lone "Motel District"). They're
-  // invisible in the UI but would accumulate forever across cities. Recreated by stage 0
-  // if the name ever reaches critical mass again.
+  // Tidy: drop polygon-less Google-name rows no venue points at anymore — orphaned
+  // spelling-variant rows after a canonical fold, names that lost critical mass, or
+  // pre-gate micro-name rows. They're invisible in the UI but would accumulate forever.
+  // Recreated by stage 0 if the name ever reaches critical mass again.
   await sql`
     DELETE FROM neighborhoods n
     WHERE n.source = 'Google Places'
       AND n.polygon IS NULL
+      AND n.city_id = ${city.id}
       AND NOT EXISTS (SELECT 1 FROM venues v WHERE v.neighborhood_id = n.id)
       AND NOT EXISTS (SELECT 1 FROM neighborhoods ch WHERE ch.parent_id = n.id)
-      ${cityId ? sql`AND n.city_id = ${cityId}` : sql``}
   `;
 
-  return named.length + rows.length + wide.length;
+  return changed + rows.length + wide.length;
 }
+
+export { canonicalNeighborhoodKey };

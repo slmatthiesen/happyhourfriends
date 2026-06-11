@@ -106,7 +106,7 @@ polygons are the fallback for venues without one. Build the fallback layers, the
 
 ```bash
 pnpm run import:osm-neighborhoods -- --city <slug> --state <code>   # vernacular polygons (may be 0 — fine)
-pnpm run generate:cardinal-districts -- --city <slug> --state <code> # gap-free floor from the boundary file
+pnpm run generate:cardinal-districts -- --city <slug> --state <code> --downtown <lat,lng> # gap-free floor from the boundary file; ALWAYS pass the real CBD as --downtown (the centroid default lands far from downtown in elongated cities — Oakland was 5.5km off; --redo-downtown re-cuts it)
 pnpm run backfill:neighborhoods -- --city <slug> --state <code>     # assign venues
 pnpm run analyze:neighborhood-coverage -- --city <slug> --state <code>
 ```
