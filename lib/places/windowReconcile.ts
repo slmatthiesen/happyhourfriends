@@ -35,7 +35,11 @@ export function offeringsFingerprint(
     .join(";");
 }
 
-export type ReconcileReason = "operating_hours" | "overlap_conflict" | "merged_duplicate";
+export type ReconcileReason =
+  | "operating_hours"
+  | "overlap_conflict"
+  | "merged_duplicate"
+  | "closed_day_clip";
 
 export interface ReconcileResult {
   window: ReconcileWindow; // possibly merged (days unioned)
@@ -217,6 +221,24 @@ export function reconcileWindows(
 ): ReconcileResult[] {
   const results = mergeDuplicates(windows);
   const key = (r: ReconcileResult) => r.window.offeringsKey ?? "";
+
+  // Pass 1.5: closed-day clip. A happy hour cannot run on a day the venue is closed —
+  // extractors keep recording "everyday 3-6pm (closed Tuesdays)" as all 7 days
+  // (7 Mile House, 2026-06-11), and a prose parenthetical is exactly what a
+  // deterministic gate should catch. hours_json (Google opening periods, captured at
+  // discovery) is the day authority: days with NO open period drop from the window;
+  // a window left with zero days goes inactive. Skipped entirely when hours are
+  // unknown (null/empty) — never clip on missing data.
+  const openDays = hoursJson && hoursJson.length > 0 ? new Set(hoursJson.map((p) => p.openDay)) : null;
+  if (openDays) {
+    for (const r of results) {
+      const kept = r.window.daysOfWeek.filter((d) => openDays.has(d));
+      if (kept.length === r.window.daysOfWeek.length) continue;
+      r.reasons.push("closed_day_clip");
+      r.window.daysOfWeek = kept;
+      if (kept.length === 0) r.active = false;
+    }
+  }
 
   // Pass 2: operating-hours shape, hidden only when bare or a copy of a real window.
   const shapeFlagged = results.map((r) => isOperatingHours(r.window, hoursJson));
