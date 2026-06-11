@@ -24,6 +24,21 @@ const BOT_WALL_STATUSES = new Set([401, 403, 406, 429]);
  * (Cala's route slugs, Ciao Grazie's telemetry JSON, 2026-06-10). Real menu/HH prose has
  * normal word spacing; code/JSON/slug dumps don't.
  */
+/** Path carries year tokens and ALL of them are ≥2 years old — a dated menu doc that
+ *  likely outlived its schedule (The Monica's happyhour-2-6.png under /uploads/2022/
+ *  beat the homepage's current "3-6 PM" three extracts in a row). Mirrors the audit
+ *  rule's stale-year logic; a path with no year tokens is never judged stale. */
+export function isStaleDatedDocPath(url: string, now: Date = new Date()): boolean {
+  try {
+    const path = decodeURIComponent(new URL(url).pathname);
+    const years = [...path.matchAll(/(?<!\d)20\d{2}(?!\d)/g)].map((m) => Number(m[0]));
+    if (years.length === 0) return false;
+    return Math.max(...years) <= now.getFullYear() - 2;
+  } catch {
+    return false;
+  }
+}
+
 export function looksLikeMachineText(text: string): boolean {
   const sample = text.slice(0, 3_000);
   if (sample.length < 200) return false; // tiny texts are judged by the empty-check instead
@@ -133,9 +148,14 @@ export async function fetchPages(
   }
 
   // Add docs under a bounded budget (too many / too-large docs overwhelm the model).
+  // Fresh page text outranks stale documents: when the HTML pages already carry an
+  // extractable HH/deal signal, skip docs whose path is dated ≥2 years old — the model
+  // otherwise trusts a full (stale) menu image over the current page text.
+  const htmlHasSignal = pagesHaveExtractableSignal(pages);
   let docCount = 0;
   let docBytes = 0;
   for (const r of docs) {
+    if (htmlHasSignal && isStaleDatedDocPath(r.url)) continue;
     const bytes = (r.pdfBase64?.length ?? r.imageBase64?.length ?? 0) * 0.75;
     if (docCount >= MAX_DOC_PAGES || docBytes + bytes > MAX_DOC_BYTES) continue;
     if (r.isPdf && r.pdfBase64) pages.push({ url: r.url, pdfBase64: r.pdfBase64 });
