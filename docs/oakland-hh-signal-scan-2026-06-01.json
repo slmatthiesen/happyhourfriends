@@ -1,0 +1,695 @@
+[
+  {
+    "name": "MENSHO",
+    "primaryType": "ramen_restaurant",
+    "website": "https://www.menshopiedmont.com/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Cholita Linda",
+    "primaryType": "latin_american_restaurant",
+    "website": "https://www.cholitalinda.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "NIDO's BackYard",
+    "primaryType": "mexican_restaurant",
+    "website": "http://www.backyardoakland.com/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Mua",
+    "primaryType": "american_restaurant",
+    "website": "https://muaoakland.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Hong Kong East Ocean Seafood Restaurant",
+    "primaryType": "chinese_restaurant",
+    "website": "https://www.hkeo.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Trader Vic's",
+    "primaryType": "bar",
+    "website": "http://tradervicsemeryville.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "The Starry Plough Pub",
+    "primaryType": "pub",
+    "website": "http://www.thestarryplough.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Philomena",
+    "primaryType": "pizza_restaurant",
+    "website": "https://www.philomenapizza.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Kingfish Pub & Cafe",
+    "primaryType": "pub",
+    "website": "http://www.kingfishpub.com/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Rob Ben’s Restaurant & Lounge",
+    "primaryType": "soul_food_restaurant",
+    "website": "http://robbensrestaurant.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Smellys Creole Catering LLC.",
+    "primaryType": "restaurant",
+    "website": "https://www.order.store/store/chef-smellys/Qmf4xMiSXCeH2577-QRJLw",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Square Pie Guys",
+    "primaryType": "pizza_restaurant",
+    "website": "https://squarepieguys.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "The Italian Homemade Company",
+    "primaryType": "italian_restaurant",
+    "website": "http://www.italianhomemadecompany.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "alaMar Dominican Kitchen",
+    "primaryType": "restaurant",
+    "website": "http://alamaroakland.com/",
+    "bucket": "says_happy_hour",
+    "snippet": "ering Jobs Specials Wednesday June 10th Happy Hour 05:00 PM - 06:30 PM Thursday June 11th"
+  },
+  {
+    "name": "Lanesplitter Pizza & Pub",
+    "primaryType": "pizza_restaurant",
+    "website": "https://www.lanesplitterpizzapub.com/?utm_source=gbp",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Shimizu Cuisine",
+    "primaryType": "japanese_restaurant",
+    "website": "http://shimizu.menu11.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Bombera",
+    "primaryType": "mexican_restaurant",
+    "website": "https://www.bomberaoakland.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Huangcheng Noodle House 山西刀削面",
+    "primaryType": "chinese_noodle_restaurant",
+    "website": "http://www.huangchengnoodleca.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Top Hatters Kitchen and Bar",
+    "primaryType": "restaurant",
+    "website": "http://www.tophatterskitchen.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Crogan's Montclair",
+    "primaryType": "american_restaurant",
+    "website": "http://www.crogans.com/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Degrees Plato Tap Room Bottle Shop & Kitchen",
+    "primaryType": "brewpub",
+    "website": "https://www.degreesplato.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "La casa de Maria",
+    "primaryType": "mexican_restaurant",
+    "website": "http://lacasamaria.net/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "FOB Kitchen",
+    "primaryType": "filipino_restaurant",
+    "website": "http://fobkitchen.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "The Landing Café",
+    "primaryType": "american_restaurant",
+    "website": "https://www.oaklandzoo.org/dining",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "June's Pizza",
+    "primaryType": "pizza_restaurant",
+    "website": "https://www.instagram.com/junes_pizza/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "World Champion Smokehouse & Market",
+    "primaryType": "barbecue_restaurant",
+    "website": "http://worldchampionsmokehouse.com/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Manpuku",
+    "primaryType": "japanese_restaurant",
+    "website": "https://manpukuorder.com/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "The Lumpia Company",
+    "primaryType": "filipino_restaurant",
+    "website": "http://thelumpiacompany.com/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Italian Colors Restaurant",
+    "primaryType": "italian_restaurant",
+    "website": "https://italiancolorsrestaurant.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Oriental Tea House 碧贵园/碧桂园",
+    "primaryType": "chinese_restaurant",
+    "website": "http://orientalteahouse.us/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "AU Lounge",
+    "primaryType": "bar",
+    "website": "http://www.auoakland.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Z Cafe & Bar",
+    "primaryType": "american_restaurant",
+    "website": "https://zcafeandbar.com/?utm_source=google",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "JAVI’S COOKING \"Empanadas Argentinas\"",
+    "primaryType": "argentinian_restaurant",
+    "website": "https://javiscooking.com/?utm_source=google",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "The Park Street Tavern",
+    "primaryType": "restaurant",
+    "website": "http://theparkstreettavern.com/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Phnom Penh",
+    "primaryType": "cambodian_restaurant",
+    "website": "http://www.phnompenhhouse.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Monkey King At The Brewery",
+    "primaryType": "brewpub",
+    "website": "http://monkeykingtogo.com/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Marzano",
+    "primaryType": "italian_restaurant",
+    "website": "http://www.marzanorestaurant.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Graffiti Pizza",
+    "primaryType": "pizza_restaurant",
+    "website": "https://graffitipizza.square.site/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "North Light",
+    "primaryType": "bar",
+    "website": "http://northlight.bar/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Red Sea Ethiopian & Eritrean Cuisine Restaurant",
+    "primaryType": "restaurant",
+    "website": "https://eatredsea.com/?utm_source=google",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Lo Coco's",
+    "primaryType": "italian_restaurant",
+    "website": "http://www.lococospiedmont.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Persian Nights",
+    "primaryType": "persian_restaurant",
+    "website": "http://www.persiannights.co/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Los Olivos Restaurant",
+    "primaryType": "restaurant",
+    "website": "http://losolivos-restaurant.com/menu",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Lemat Ethiopian Restaurant",
+    "primaryType": "ethiopian_restaurant",
+    "website": "http://www.lemateats.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "811 Oakland Event Venue",
+    "primaryType": "event_venue",
+    "website": "https://www.811parliament.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Lovely’s",
+    "primaryType": "restaurant",
+    "website": "https://www.lovelysburgers.com/",
+    "bucket": "says_happy_hour",
+    "snippet": "space is ideal for company gatherings, happy hours, engagement parties, and birthday cele"
+  },
+  {
+    "name": "Obelisco Restaurant",
+    "primaryType": "mexican_restaurant",
+    "website": "http://obeliscorestaurant.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Blackberry Bistro",
+    "primaryType": "bistro",
+    "website": "https://www.blackberrybistrocafe.com/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Creekwood Restaurant",
+    "primaryType": "italian_restaurant",
+    "website": "https://www.creekwoodrestaurant.com/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Lin Jia Asian Kitchen",
+    "primaryType": "asian_restaurant",
+    "website": "https://www.linjiakitchen.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Pho Anh Dao",
+    "primaryType": "vietnamese_restaurant",
+    "website": "https://phoanhdaooakland.com/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Hidden Spot Emeryville",
+    "primaryType": "sports_bar",
+    "website": "http://hiddenspot.online/",
+    "bucket": "says_happy_hour",
+    "snippet": "obs Locations Specials Monday June 15th Happy Hour only at the Emeryville location 04:00 P"
+  },
+  {
+    "name": "Continental Club",
+    "primaryType": "event_venue",
+    "website": "http://www.oaklandcontinentalclub.com/",
+    "bucket": "says_happy_hour",
+    "snippet": "to worry about a rival brand hosting a happy hour in the next room. Zero Distractions: Yo"
+  },
+  {
+    "name": "T'chaka a Taste of Haiti",
+    "primaryType": "caribbean_restaurant",
+    "website": "http://www.tchakaoak.online/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Pizza Ponte",
+    "primaryType": "pizza_restaurant",
+    "website": "http://ponte.pizza/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Leaning Tower",
+    "primaryType": "pizza_restaurant",
+    "website": "http://www.leaningtowertogo.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Montclair Golf Enterprises",
+    "primaryType": "sports_club",
+    "website": "https://montclairgc.com/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Ly-Luck",
+    "primaryType": "chinese_restaurant",
+    "website": "https://www.lyluckrestaurantonline.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "King Yen",
+    "primaryType": "chinese_restaurant",
+    "website": "https://www.kingyenrestaurant.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Perle Bar",
+    "primaryType": "bar",
+    "website": "https://barperle.com/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Joodooboo",
+    "primaryType": "korean_restaurant",
+    "website": "http://www.joodooboo.co/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "The Saap Avenue",
+    "primaryType": "restaurant",
+    "website": "https://thesaapavenue.com/?utm_source=google",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Pizzeria Violetta, Piedmont Ave",
+    "primaryType": "pizza_restaurant",
+    "website": "http://www.pizzeria-violetta.com/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Willows & Pine",
+    "primaryType": "restaurant",
+    "website": "https://www.willowsandpine-restaurant.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Hanami",
+    "primaryType": "japanese_restaurant",
+    "website": "http://www.hanami377.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Fire Wings Oakland",
+    "primaryType": "chicken_wings_restaurant",
+    "website": "http://firewings.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Red Boy Pizza Redwood Road",
+    "primaryType": "pizza_restaurant",
+    "website": "http://www.redboypizza.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Hashi Gawa",
+    "primaryType": "japanese_restaurant",
+    "website": "http://5102275187.com/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Yeti Sports Bar and Restaurant",
+    "primaryType": "bar_and_grill",
+    "website": "http://www.yetisportbar.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Kakui Sushi",
+    "primaryType": "sushi_restaurant",
+    "website": "https://gokakuisushi.com/?utm_source=google",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "TGI Oni Sushi",
+    "primaryType": "japanese_restaurant",
+    "website": "https://tgioni.menu11.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Kotobuki Japanese Restaurant",
+    "primaryType": "japanese_restaurant",
+    "website": "https://www.clover.com/online-ordering/kotobuki-new-oakland",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Two Pitchers Brewing Company",
+    "primaryType": "brewery",
+    "website": "http://www.twopitchers.com/oakland",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Messob Ethiopian Restaurant",
+    "primaryType": "ethiopian_restaurant",
+    "website": "http://ordermessobethiopianrestaurant.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Apt C Bar Lounge & Restaurant",
+    "primaryType": "bar",
+    "website": "https://www.facebook.com/profile.php?id=100063722613269&mibextid=kFxxJD",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Parkway Lounge",
+    "primaryType": "lounge_bar",
+    "website": "https://www.thenewparkway.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Red Boy Pizza on Leimert",
+    "primaryType": "pizza_restaurant",
+    "website": "http://www.redboypizza.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "State Flour Pizza Company",
+    "primaryType": "pizza_restaurant",
+    "website": "https://stateflourpizza.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Slice Pizza & Krunchy Chicken",
+    "primaryType": "pizza_restaurant",
+    "website": "https://spandkc.com/?utm_source=google",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Bistro 4293",
+    "primaryType": "mediterranean_restaurant",
+    "website": "https://bistro4293.com/",
+    "bucket": "says_happy_hour",
+    "snippet": "1:30 AM · 2:30 PM · 5:00 PM · 9:00 PM · HappyHourFriendsBot/1.0 (+https://happyhourfriend"
+  },
+  {
+    "name": "Bacogai",
+    "primaryType": "hot_pot_restaurant",
+    "website": "http://bacogai.com/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Terrace Café - Oakland Hills",
+    "primaryType": "restaurant",
+    "website": "http://www.terracegiftsandcoffee.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "La Loulou",
+    "primaryType": "wine_bar",
+    "website": "https://www.laloulouwinebar.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Kerry House",
+    "primaryType": "bar",
+    "website": "http://kerry-house.edan.io/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Cafe Jolie Petit",
+    "primaryType": "restaurant",
+    "website": "http://www.cafejolies.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Calabash",
+    "primaryType": "restaurant",
+    "website": "https://calabasheats.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Oh G Burger",
+    "primaryType": "restaurant",
+    "website": "http://ohgburger.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Pizzeria Violetta, Prescott Market Hall",
+    "primaryType": "pizza_restaurant",
+    "website": "http://www.pizzeria-violetta.com/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Sun Moon Studio",
+    "primaryType": "restaurant",
+    "website": "http://sunmoonstudio.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Tea Shop",
+    "primaryType": "restaurant",
+    "website": "https://nudining.com/dining/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Woo Can Cook",
+    "primaryType": "restaurant",
+    "website": "https://woocancook.com/eats",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Ashby Eatery",
+    "primaryType": "restaurant",
+    "website": "http://www.ashbyeatery.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Lanesplitter Pizza & Pub",
+    "primaryType": "restaurant",
+    "website": "http://lanesplitterpizzaoakland.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "East Bay Provisions",
+    "primaryType": "restaurant",
+    "website": "https://www.eastbay-provisions.com/?utm_source=google+Maps&utm_medium=seo+maps&utm_campaign=seo+maps",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Almanac West Oakland Clubhouse",
+    "primaryType": "brewpub",
+    "website": "https://almanacbeer.com/pages/west-oakland-hours",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Cask Taproom",
+    "primaryType": "bar",
+    "website": "https://caskstore.com/pages/cask-taproom",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Merritt House Cocktail Bar",
+    "primaryType": "cocktail_bar",
+    "website": "http://merritthouseoak.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Sinwise",
+    "primaryType": "bar",
+    "website": "http://www.sinwisefarms.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "The Food Mill Cookie Bars",
+    "primaryType": "bar",
+    "website": "http://www.thefoodmill.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  }
+]
