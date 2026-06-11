@@ -7,7 +7,7 @@
  */
 import type { ContentBlockParam } from "@anthropic-ai/sdk/resources/messages";
 import { fetchUrl, type FetchResult, type ImageMediaType } from "@/lib/verification/fetchUrl";
-import { hasHhOrDealSignal } from "@/lib/places/hhText";
+import { hasHhOrDealSignal, TIME_RANGE_RE } from "@/lib/places/hhText";
 
 // Bound the document (PDF/image) payload fed to the model. A venue with many menu
 // PDFs (Bottega has 6) overwhelms the extractor — 6/4.5MB returned nothing, while
@@ -148,14 +148,19 @@ export async function fetchPages(
   }
 
   // Add docs under a bounded budget (too many / too-large docs overwhelm the model).
-  // Fresh page text outranks stale documents: when the HTML pages already carry an
-  // extractable HH/deal signal, skip docs whose path is dated ≥2 years old — the model
-  // otherwise trusts a full (stale) menu image over the current page text.
-  const htmlHasSignal = pagesHaveExtractableSignal(pages);
+  // Fresh page text outranks stale documents: when the page TEXT already states an
+  // actual time-range schedule, skip docs whose path is dated ≥2 years old — the model
+  // otherwise trusts a full (stale) menu image over the current text (The Monica's 2022
+  // PNG vs the homepage's "3-6 PM"). A mere HH MENTION isn't enough to skip: a nav link
+  // saying "Happy Hour" with no schedule means the doc IS the only schedule source
+  // (Linger Longer's 2024 flyer is the venue's entire published schedule).
+  const htmlStatesSchedule = pages.some(
+    (p) => typeof p.text === "string" && TIME_RANGE_RE.test(p.text),
+  );
   let docCount = 0;
   let docBytes = 0;
   for (const r of docs) {
-    if (htmlHasSignal && isStaleDatedDocPath(r.url)) continue;
+    if (htmlStatesSchedule && isStaleDatedDocPath(r.url)) continue;
     const bytes = (r.pdfBase64?.length ?? r.imageBase64?.length ?? 0) * 0.75;
     if (docCount >= MAX_DOC_PAGES || docBytes + bytes > MAX_DOC_BYTES) continue;
     if (r.isPdf && r.pdfBase64) pages.push({ url: r.url, pdfBase64: r.pdfBase64 });
