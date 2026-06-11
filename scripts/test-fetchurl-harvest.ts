@@ -54,6 +54,17 @@ check("skips bare tokens / keys / ids (no menu signal)", () => {
   assert.equal(t, "");
 });
 
+// Wix echoes the request's User-Agent into warmup JSON; our bot name contains
+// "HappyHour" and was false-firing the HH-signal gate + scan-hh-signal on zero-HH
+// pages (Blast & Brew Pismo, Blast 825, Bistro 4293 — all labeled "REAL MISS").
+check("skips strings echoing our own bot UA (Wix userAgent echo)", () => {
+  const t = harvestScriptText(
+    `<script>{"deviceInfo":{"appVersion":"2.5033.0","userAgent":"HappyHourFriendsBot/1.0 (+https://happyhourfriends.com)"},"b":{"text":"Open daily 11am"}}</script>`,
+  );
+  assert.ok(!/HappyHourFriendsBot/.test(t), "harvested our own UA echo");
+  assert.match(t, /Open daily 11am/i);
+});
+
 check("ignores external <script src> bundles (no inline body mined)", () => {
   const t = harvestScriptText(`<script src="https://cdn/lodash.js">"Happy Hour 4-6pm"</script>`);
   // The body of a src= script is not real page content; must not be harvested.
