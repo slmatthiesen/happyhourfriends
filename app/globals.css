@@ -266,3 +266,31 @@ body.aurora-on::after {
   --pill: var(--filter-live);
   --pill-fg: var(--filter-live-fg);
 }
+/* ── Floating doodles (personality round) ───────────────────────────────────
+   Rendered by components/ui/floating-doodles.tsx; uiFlags.doodles kills it. */
+.doodle-field {
+  position: fixed;
+  inset: 0;
+  z-index: -1; /* above the aurora (-2), behind all content */
+  pointer-events: none;
+  overflow: hidden;
+}
+.doodle-field span {
+  position: absolute;
+  bottom: -40px;
+  opacity: 0.4;
+  animation: doodle-float linear infinite;
+}
+@keyframes doodle-float {
+  from {
+    transform: translateY(0) rotate(0deg);
+  }
+  to {
+    transform: translateY(calc(-100vh - 80px)) rotate(25deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .doodle-field {
+    display: none;
+  }
+}
