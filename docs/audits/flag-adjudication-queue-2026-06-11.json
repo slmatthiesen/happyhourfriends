@@ -1,24 +1,305 @@
 [
   {
-    "venueId": "687ff341-acc3-45c1-8456-09ba2e2d485a",
-    "venue": "Diego Pops",
-    "verdict": "corrected",
-    "recommendedAction": "reextract",
-    "siteSchedule": "1-7: 15:00-18:00",
-    "evidence": "7 days a week from 3pm-6pm / $2 off beers / $6 Diego Margaritas / $6 wine + sangria / 1/2 off appetizers / *Dine-in only.",
-    "reason": "The site states happy hour 7 days a week, 3pm–6pm (15:00–18:00), dine-in only, with $2 beers, $6 margaritas, $6 wine/sangria, and 1/2 off appetizers. The stored drink prices differ: stored shows beers at $4.00, margaritas at $5.00, and wine at $6.00. The stored food offering lists specific appetizers at no stated discount; the site states \"1/2 off appetizers\" generally. The stored Monday all-day taco deal is not mentioned on the site.",
+    "venueId": "6bb0e273-3067-4294-b11e-642fb02b5b6e",
+    "venue": "18 Degrees",
+    "verdict": "unclear",
+    "recommendedAction": "operator_review",
+    "siteSchedule": null,
+    "evidence": "No happy hour details found. Homepage mentions \"Beer, Wings, & Pizza Specials\" but provides no times, prices, or recurring schedule.",
+    "reason": "The fetched excerpt is the venue's homepage, which mentions beer, wings, and pizza specials but contains no recurring happy-hour schedule, times, or prices. The text is too thin to confirm or contradict the stored data.",
     "screens": {
       "findings": [
-        "window sourced from an event/group page: https://www.diegopops.com/events/taco-monday"
+        "window sourced from denylisted aggregator: https://thehappyhourfinder.com/us_az/scottsdale/18-degrees/",
+        "window sourced from denylisted aggregator: https://thehappyhourfinder.com/us_az/scottsdale/18-degrees/"
       ],
       "policyHits": []
     },
     "pagesJudged": [
-      "https://www.diegopops.com/",
-      "https://www.diegopops.com/happy-hour",
-      "https://www.diegopops.com/happyhour",
-      "https://www.diegopops.com/happy-hour-menu",
-      "https://www.diegopops.com/menu"
+      "https://18-degrees.com/"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "startTime": "15:00:00",
+        "endTime": "19:00:00",
+        "allDay": false,
+        "sourceUrl": "https://thehappyhourfinder.com/us_az/scottsdale/18-degrees/",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "Domestic beer",
+            "priceCents": 250,
+            "description": "$2.50 domestic beers (available 3-7pm)"
+          },
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "Import beer",
+            "priceCents": 325,
+            "description": "$3.25 imported beers (available 4-7pm)"
+          },
+          {
+            "kind": "drink",
+            "category": "cocktail",
+            "name": "House margarita (small)",
+            "priceCents": 300,
+            "description": "$3 small house margaritas (available 4-7pm)"
+          },
+          {
+            "kind": "drink",
+            "category": "cocktail",
+            "name": "House margarita (large)",
+            "priceCents": 500,
+            "description": "$5 large house margaritas (available 4-7pm)"
+          },
+          {
+            "kind": "drink",
+            "category": "wine",
+            "name": "House wine",
+            "priceCents": 400,
+            "description": "$4 house wine, well drinks (available 4-7pm)"
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Pizza slices",
+            "priceCents": 150,
+            "description": "$1.50 pizza slices with $0.50 per topping (available 3-7pm)"
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Wings and appetizers",
+            "priceCents": 500,
+            "description": "$5 wings by the dozen, buffalo chicken skewers (available 3-7pm)"
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "startTime": "21:00:00",
+        "endTime": "23:00:00",
+        "allDay": false,
+        "sourceUrl": "https://thehappyhourfinder.com/us_az/scottsdale/18-degrees/",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "cocktail",
+            "name": "Margaritas and mixed drinks",
+            "priceCents": 500,
+            "description": "$5 margaritas and mixed drinks"
+          },
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "Bud Light",
+            "priceCents": 375,
+            "description": "$3.75 Bud Light"
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Appetizers",
+            "priceCents": null,
+            "description": "1/2 price appetizers"
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "96b5cccb-a6f7-4ab5-9c4f-bb5199348502",
+    "venue": "1919 Wine Cellar",
+    "verdict": "no_mention",
+    "recommendedAction": "hide",
+    "siteSchedule": null,
+    "evidence": "Monday 4-9pm Tuesday 4-9pm Wednesday 4-9pm Thursday 2-10pm Friday 2-11pm Saturday 2-11pm Sunday 12-8pm",
+    "reason": "The stored data lists happy hour on Tuesday and Sunday, 12:00–15:00 (noon–3pm). However, the venue's homepage shows operating hours only—no happy hour schedule is mentioned. The Special Events page mentions a one-time \"all day happy hour\" on June 9th (a specific dated event, not recurring). The excerpts contain no recurring weekly happy hour times or drinks specials.",
+    "screens": {
+      "findings": [],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "https://www.1919winecellar.com/",
+      "https://www.1919winecellar.com/special-events",
+      "https://www.1919winecellar.com/menu-1",
+      "https://www.1919winecellar.com/menu",
+      "https://www.1919winecellar.com/about"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          2,
+          7
+        ],
+        "startTime": "12:00:00",
+        "endTime": "15:00:00",
+        "allDay": false,
+        "sourceUrl": "https://www.1919winecellar.com/special-events",
+        "notes": null,
+        "offerings": []
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "46dace01-455e-4f81-9081-0cc655780e20",
+    "venue": "51 and TEL",
+    "verdict": "confirmed",
+    "recommendedAction": "keep",
+    "siteSchedule": "3-5 17:00-19:00",
+    "evidence": "HAPPY HOUR: WEDNESDAY-FRIDAY 5PM – 7PM",
+    "reason": "The site consistently states happy hour is Wednesday–Friday, 5PM–7PM across all readable excerpts. This exactly matches the stored data (Wed, Thu, Fri; 17:00–19:00).",
+    "screens": {
+      "findings": [],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "https://51andtel.com/",
+      "https://51andtel.com/progress-bar/",
+      "https://51andtel.com/left-menu-portfolio/",
+      "https://51andtel.com/fullscreen-menu/",
+      "https://51andtel.com/left-menu-home/"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          3,
+          4,
+          5
+        ],
+        "startTime": "17:00:00",
+        "endTime": "19:00:00",
+        "allDay": false,
+        "sourceUrl": "https://51andtel.com/",
+        "notes": null,
+        "offerings": []
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "b3365dfe-a76f-477f-a1d8-199276da7bb4",
+    "venue": "5 Points",
+    "verdict": "no_mention",
+    "recommendedAction": "hide",
+    "siteSchedule": null,
+    "evidence": "The excerpts describe a \"DAY DRINKS\" menu available \"THURSDAY - MONDAY, 9AM - 2PM\" with coffee, tea, and brunch cocktails, but no happy-hour drink specials or discounts.",
+    "reason": "The site offers \"DAY DRINKS\" (a daytime beverage menu with set prices) but does not mention any happy hour with time-bounded discounts, wine-by-the-glass specials, or the food items listed in the stored data. The stored happy-hour window (Mon–Sun, 3–5 PM) and all its offerings do not appear on the venue's pages.",
+    "screens": {
+      "findings": [
+        "window sourced from a third-party domain: https://thisistucson.com/eat/you-can-get-a-full-dinner-out-of-these-tucson-happy-hour-deals/article_f21d7db4-0573-11ee-9391-5f3c278db49b.html"
+      ],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "http://www.5pointstucson.com/",
+      "https://www.5pointstucson.com/day-drink-menu",
+      "https://www.5pointstucson.com/menu"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "15:00:00",
+        "endTime": "17:00:00",
+        "allDay": false,
+        "sourceUrl": "https://thisistucson.com/eat/you-can-get-a-full-dinner-out-of-these-tucson-happy-hour-deals/article_f21d7db4-0573-11ee-9391-5f3c278db49b.html",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "wine",
+            "name": "Wine by the glass",
+            "priceCents": null,
+            "description": "$2 off"
+          },
+          {
+            "kind": "drink",
+            "category": "wine",
+            "name": "Wine bottles",
+            "priceCents": null,
+            "description": "Half-priced"
+          },
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "Staff-picked cans",
+            "priceCents": null,
+            "description": "$1 off"
+          },
+          {
+            "kind": "food",
+            "category": "entree",
+            "name": "Neopolitan-style pizza",
+            "priceCents": null,
+            "description": "Exclusive to happy hour"
+          },
+          {
+            "kind": "food",
+            "category": "entree",
+            "name": "Niçoise salad",
+            "priceCents": null,
+            "description": "Exclusive to happy hour"
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Smashed Jerusalem Artichoke (smaller version)",
+            "priceCents": null,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Bread and cheese plate with Castelvetrano olives",
+            "priceCents": null,
+            "description": null
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "55a4db42-6cf8-47d8-8223-14b5e5930bbf",
+    "venue": "7 Mile House Sports Bar & Grill",
+    "verdict": "confirmed",
+    "recommendedAction": "keep",
+    "siteSchedule": "1,3,4,5,6,7 15:00-18:00",
+    "evidence": "$7 Happy Hour 3-6pm Enjoy happy hour everyday from 3-6pm (closed Tuesdays) with these specials: $7 Shots $7 Classic Cocktails $7 All Draught Beer $7 House Wine $7 Appetizers",
+    "reason": "The venue's homepage confirms the exact schedule (3–6pm daily except Tuesdays) and lists all five offerings ($7 Shots, Cocktails, Draught Beer, House Wine, and Appetizers) with matching prices. The stored data is fully supported.",
+    "screens": {
+      "findings": [],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "http://www.7milehouse.com/",
+      "https://7milehouse.com/blog/2022/5/2/cinco-de-mayo-specials",
+      "https://7milehouse.com/menu",
+      "https://7milehouse.com/blog/2024/3/28/peninsula-restaurant-week-menu-2024",
+      "https://7milehouse.com/blog/2021/9/15/brunch-is-back-at-7-mile-house"
     ],
     "stored": [
       {
@@ -34,36 +315,1677 @@
         "startTime": "15:00:00",
         "endTime": "18:00:00",
         "allDay": false,
-        "sourceUrl": "https://www.diegopops.com/menus/happy-hour?location=scottsdale",
-        "notes": "Dine-in only",
+        "sourceUrl": "http://www.7milehouse.com/",
+        "notes": "Closed Tuesdays, so effectively Mon, Wed-Sun",
         "offerings": [
           {
             "kind": "drink",
-            "category": "beer",
-            "name": "Beers",
-            "priceCents": 400,
+            "category": "spirit",
+            "name": "$7 Shots",
+            "priceCents": 700,
             "description": null
           },
           {
             "kind": "drink",
             "category": "cocktail",
-            "name": "Diego Margaritas",
-            "priceCents": 500,
-            "description": "Made with 1800 Blanco Tequila"
+            "name": "$7 Classic Cocktails",
+            "priceCents": 700,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "$7 All Draught Beer",
+            "priceCents": 700,
+            "description": null
           },
           {
             "kind": "drink",
             "category": "wine",
-            "name": "Wine & Sangria",
+            "name": "$7 House Wine",
+            "priceCents": 700,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "$7 Appetizers",
+            "priceCents": 700,
+            "description": null
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "decf0a19-2a07-410a-a722-f4f97458843b",
+    "venue": "92 Drinks + Eats (aka 92nd Street Cafe & Bar)",
+    "verdict": "confirmed",
+    "recommendedAction": "keep",
+    "siteSchedule": "1-5 15:00 18:00",
+    "evidence": "HAPPY HOUR MONDAY – FRIDAY 3PM – 6PM DRAFT BEER 1.00 OFF BOTTLED + CANNED BEER .50 OFF WELL LIQUOR 5.00 HOUSE WINES 6.00",
+    "reason": "The site's happy-hour page confirms Mon–Fri 3PM–6PM (15:00–18:00), matching the stored days and times. All drink specials align: Draft Beer $1 off, Bottled + Canned Beer $0.50 off, Well Liquor $5.00, House Wines $6.00. All food items listed match the stored offerings.",
+    "screens": {
+      "findings": [
+        "window sourced from a third-party domain: http://92ndstreetcafe.com/92-happy-hour-menu/"
+      ],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "http://www.letsdo92.com/",
+      "http://92ndstreetcafe.com/92-happy-hour-menu/",
+      "https://92ndstreetcafe.com/specials-and-events-at-92ndstreetcafe/",
+      "http://92ndstreetcafe.com/specials-and-events-at-92ndstreetcafe/",
+      "http://92ndstreetcafe.com/calendar/specials-2/"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "startTime": "15:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "sourceUrl": "http://92ndstreetcafe.com/92-happy-hour-menu/",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "Draft Beer",
+            "priceCents": null,
+            "description": "$1.00 off"
+          },
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "Bottled + Canned Beer",
+            "priceCents": null,
+            "description": "$0.50 off"
+          },
+          {
+            "kind": "drink",
+            "category": "spirit",
+            "name": "Well Liquor",
+            "priceCents": 500,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "wine",
+            "name": "House Wines",
             "priceCents": 600,
             "description": null
           },
           {
             "kind": "food",
             "category": "appetizer",
-            "name": "Most appetizers",
+            "name": "Select appetizers",
             "priceCents": null,
-            "description": "Includes Chips & Salsa, Grilled Street Corn, Cheese Quesadilla, Chicken Tortilla Soup, Street Corn Queso, Guacamole, Taquitos, Brussels Sprout Nachos"
+            "description": "Potato Skins, Cheese Crisp, Wings, Pretzel + Beer Cheese, Meatballs + Marinara, Shrimp Cocktail, Crispy Zucchini, Chips + Salsa, Burger Sliders, Vegetable Spring Rolls"
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "f6c1f82e-403c-46fe-ac7c-2932ebfc3f25",
+    "venue": "9 Julio Empanada Kitchen",
+    "verdict": "confirmed",
+    "recommendedAction": "keep",
+    "siteSchedule": "1-5 16:00-18:00",
+    "evidence": "Join us for Happy Hour weekdays 4-6pm for discounts on beer & wine",
+    "reason": "The site confirms a happy hour on weekdays (Monday–Friday) from 4–6 PM with discounts on beer and wine, matching the stored schedule exactly.",
+    "screens": {
+      "findings": [],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "http://www.9julio.com/",
+      "http://www.9julio.com/market-menu",
+      "http://www.9julio.com/food-shots",
+      "http://www.9julio.com/catering-menu"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "startTime": "16:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "sourceUrl": "http://www.9julio.com/",
+        "notes": null,
+        "offerings": []
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "ab76e992-6499-4593-8954-7963cc7e5d9f",
+    "venue": "Airport Tavern Music Hall",
+    "verdict": "no_mention",
+    "recommendedAction": "hide",
+    "siteSchedule": null,
+    "evidence": "The pages list upcoming events (concerts, trivia nights, karaoke) with door and show times, and describe the venue as \"a beloved live music venue, bar, and community gathering space,\" but do not mention happy hour or drink specials.",
+    "reason": "The excerpts from Airport Tavern's website contain event listings, venue description, and subscription forms, but contain no reference to happy hour, drink specials, or any time-bounded alcoholic beverage discount.",
+    "screens": {
+      "findings": [],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "https://www.airporttavern.com/",
+      "https://airporttavern.com/past-events/"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "16:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "sourceUrl": "https://www.airporttavern.com/",
+        "notes": null,
+        "offerings": []
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "a468ff28-6820-4b46-aa9d-e1b0097d9280",
+    "venue": "AMELIAS MEXICAN KITCHEN",
+    "verdict": "no_mention",
+    "recommendedAction": "hide",
+    "siteSchedule": null,
+    "evidence": "The happy-hour URLs (happy-hour, happyhour, happy-hour-menu) all return 404 errors. The menu page at /menu/happy-hour lists only a \"WEEKDAY10\" discount (10% off Mon-Thu), with no time window specified and no mention of margaritas or drink specials.",
+    "reason": "Three dedicated happy-hour pages are not found (404 errors). The menu page accessed under /menu/happy-hour shows only a weekday food discount with no time-bound drink specials, half-priced margaritas, or the stored happy-hour offerings. The venue's own pages do not support the stored happy-hour schedule.",
+    "screens": {
+      "findings": [
+        "window sourced from a third-party domain: https://www.yelp.com/biz/amelias-mexican-kitchen-tucson",
+        "window sourced from a third-party domain: https://tucsonfoodie.com/2024/03/20/amelias-mexican-kitchen/"
+      ],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "https://ameliastucson.com/ameliasmexicankitchengrant?utm_source=google",
+      "https://ameliastucson.com/happy-hour",
+      "https://ameliastucson.com/happyhour",
+      "https://ameliastucson.com/happy-hour-menu",
+      "https://ameliastucson.com/menu/happy-hour"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "14:00:00",
+        "endTime": "17:00:00",
+        "allDay": false,
+        "sourceUrl": "https://www.yelp.com/biz/amelias-mexican-kitchen-tucson",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "cocktail",
+            "name": "Margaritas",
+            "priceCents": null,
+            "description": "Half-priced margaritas"
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          2
+        ],
+        "startTime": "14:00:00",
+        "endTime": "17:00:00",
+        "allDay": false,
+        "sourceUrl": "https://tucsonfoodie.com/2024/03/20/amelias-mexican-kitchen/",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "food",
+            "category": "other",
+            "name": "Tacos",
+            "priceCents": 200,
+            "description": "$2 tacos (fish and shrimp tacos excluded)"
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "e9a87e37-ec3d-4582-8785-e68b192d49af",
+    "venue": "AMELIAS MEXICAN KITCHEN",
+    "verdict": "no_mention",
+    "recommendedAction": "hide",
+    "siteSchedule": null,
+    "evidence": "The page at https://ameliastucson.com/menu/happy-hour contains a menu with discounts section showing \"WEEKDAY10: 10% off any order Monday-Thursday\" but no happy hour schedule with specific times or drink/food specials is stated.",
+    "reason": "The venue's pages do not describe a recurring happy hour with specific times (14:00–17:00) or the stored offerings ($2 tacos on Tue, half-priced margaritas daily). The happy-hour dedicated URLs return 404 errors, and the menu page lists only a weekday discount code with no time window or drink specials matching the stored data.",
+    "screens": {
+      "findings": [
+        "window sourced from a third-party domain: https://tucsonfoodie.com/2024/03/20/amelias-mexican-kitchen/",
+        "window sourced from a third-party domain: https://www.yelp.com/biz/amelias-mexican-kitchen-tucson"
+      ],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "https://ameliastucson.com/ameliasmexicankitchenoracle?utm_source=google",
+      "https://ameliastucson.com/happy-hour",
+      "https://ameliastucson.com/happyhour",
+      "https://ameliastucson.com/happy-hour-menu",
+      "https://ameliastucson.com/menu/happy-hour"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          2
+        ],
+        "startTime": "14:00:00",
+        "endTime": "17:00:00",
+        "allDay": false,
+        "sourceUrl": "https://tucsonfoodie.com/2024/03/20/amelias-mexican-kitchen/",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "food",
+            "category": "other",
+            "name": "Tacos",
+            "priceCents": 200,
+            "description": "$2 tacos (fish and shrimp tacos excluded)"
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "14:00:00",
+        "endTime": "17:00:00",
+        "allDay": false,
+        "sourceUrl": "https://www.yelp.com/biz/amelias-mexican-kitchen-tucson",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "cocktail",
+            "name": "Margaritas",
+            "priceCents": null,
+            "description": "Half-priced margaritas"
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "b5855173-f8ac-4331-bd68-c4f48f6155f7",
+    "venue": "Bob Dobb's Bar & Grill",
+    "verdict": "unclear",
+    "recommendedAction": "operator_review",
+    "siteSchedule": null,
+    "evidence": "MONDAY Margaritas $4.25 Landshark $3.50 Red Stripe $3.50 TUESDAY Blue Moon Pints $4.25 WEDNESDAY Kiltlifter PINTS $4.25 Guinness PINTS $4.25 THURSDAY Stone Face PintS $3.00 FRIDAY Mexican Bottles $3.50",
+    "reason": "The site lists daily drink specials by day of week (Monday–Friday) with specific prices, but does NOT state specific happy-hour times (start/end). Without explicit time windows stated on the page, we cannot confirm the stored 15:00–19:00 schedule. The offerings are present but times are missing.",
+    "screens": {
+      "findings": [],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "http://www.bobdobbs-tucson.com/"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "startTime": "15:00:00",
+        "endTime": "19:00:00",
+        "allDay": false,
+        "sourceUrl": "http://www.bobdobbs-tucson.com/BD_MainMenu_9-2022.pdf",
+        "notes": null,
+        "offerings": []
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "72330ad3-24c8-410c-a61e-9fd355480256",
+    "venue": "Ciao Grazie",
+    "verdict": "unclear",
+    "recommendedAction": "operator_review",
+    "siteSchedule": null,
+    "evidence": null,
+    "reason": "The excerpt is a Cloudflare security verification page with no readable venue content. It is too thin to assess whether happy-hour information exists on the actual page.",
+    "screens": {
+      "findings": [
+        "window sourced from a third-party domain: https://ciaograzie.us/happy-hour/"
+      ],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "https://order.online/store/33571109?utm_campaign=gmb&utm_medium=local&utm_source=google&pickup=true&redirected=true"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "15:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "sourceUrl": "https://ciaograzie.us/happy-hour/",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "cocktail",
+            "name": "Featured Signature Cocktails",
+            "priceCents": 800,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Meat Sauce Bruschetta",
+            "priceCents": 800,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Margherita Flatbread",
+            "priceCents": 800,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Italian Chicken Flatbread",
+            "priceCents": 800,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Caesar Salad",
+            "priceCents": 800,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Caprese Salad",
+            "priceCents": 800,
+            "description": null
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "342962f3-148e-4a1b-95c6-19e04f062cc4",
+    "venue": "Dirty Oscar's Annex",
+    "verdict": "no_mention",
+    "recommendedAction": "hide",
+    "siteSchedule": null,
+    "evidence": null,
+    "reason": "The excerpts are readable venue content (homepage and menu page) but contain no happy hour schedule, drink specials, or time-bounded discounts. While the homepage mentions \"handcrafted moonshine cocktails\" and links to a happy hour reservations page, the actual schedule and offerings are not stated in the provided text.",
+    "screens": {
+      "findings": [
+        "window sourced from social media: https://www.dirtyoscarsannex.com/menu/weekday-drink-specials/",
+        "window sourced from social media: https://www.dirtyoscarsannex.com/menu/weekday-drink-specials/",
+        "window sourced from social media: https://www.dirtyoscarsannex.com/menu/weekday-drink-specials/",
+        "window sourced from social media: https://www.dirtyoscarsannex.com/menu/weekday-drink-specials/",
+        "window sourced from social media: https://www.dirtyoscarsannex.com/menu/weekday-drink-specials/"
+      ],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "https://www.dirtyoscarsannex.com/",
+      "https://www.dirtyoscarsannex.com/menu"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1
+        ],
+        "startTime": "11:00:00",
+        "endTime": "19:00:00",
+        "allDay": false,
+        "sourceUrl": "https://www.dirtyoscarsannex.com/menu/weekday-drink-specials/",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "spirit",
+            "name": "Any Moonshine Drink",
+            "priceCents": 700,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "entree",
+            "name": "Chicken and Waffles",
+            "priceCents": null,
+            "description": "10% off"
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          2
+        ],
+        "startTime": "11:00:00",
+        "endTime": "19:00:00",
+        "allDay": false,
+        "sourceUrl": "https://www.dirtyoscarsannex.com/menu/weekday-drink-specials/",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "spirit",
+            "name": "Tequila Drinks",
+            "priceCents": 500,
+            "description": "Well"
+          },
+          {
+            "kind": "drink",
+            "category": "spirit",
+            "name": "Tequila Drinks",
+            "priceCents": 800,
+            "description": "Mid-shelf"
+          },
+          {
+            "kind": "food",
+            "category": "entree",
+            "name": "Tacos",
+            "priceCents": null,
+            "description": "10% off"
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          3
+        ],
+        "startTime": "11:00:00",
+        "endTime": "19:00:00",
+        "allDay": false,
+        "sourceUrl": "https://www.dirtyoscarsannex.com/menu/weekday-drink-specials/",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "spirit",
+            "name": "Whiskey Drinks",
+            "priceCents": 500,
+            "description": "Well"
+          },
+          {
+            "kind": "drink",
+            "category": "spirit",
+            "name": "Whiskey Drinks",
+            "priceCents": 800,
+            "description": "Mid-shelf"
+          },
+          {
+            "kind": "food",
+            "category": "entree",
+            "name": "Down and Dirty Burger",
+            "priceCents": null,
+            "description": "10% off"
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          4
+        ],
+        "startTime": "11:00:00",
+        "endTime": "19:00:00",
+        "allDay": false,
+        "sourceUrl": "https://www.dirtyoscarsannex.com/menu/weekday-drink-specials/",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "cocktail",
+            "name": "Moscow Mules",
+            "priceCents": 500,
+            "description": "Well"
+          },
+          {
+            "kind": "drink",
+            "category": "cocktail",
+            "name": "Moscow Mules",
+            "priceCents": 800,
+            "description": "Mid-shelf"
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Appetizers",
+            "priceCents": null,
+            "description": "10% off"
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          5,
+          6,
+          7
+        ],
+        "startTime": "18:00:00",
+        "endTime": "23:00:00",
+        "allDay": false,
+        "sourceUrl": "https://www.dirtyoscarsannex.com/menu/weekday-drink-specials/",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "All Beers & Ciders on Tap",
+            "priceCents": 500,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "entree",
+            "name": "Entrees",
+            "priceCents": null,
+            "description": "Buy an Entree, Get a Second for 30% off"
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "7f1191f7-c277-4a14-8e8a-bd9d3d26ab49",
+    "venue": "Dodo Bird Kitchen and Cocktails",
+    "verdict": "no_mention",
+    "recommendedAction": "hide",
+    "siteSchedule": null,
+    "evidence": "Wing Wednesday\nWednesday, June 10, 2026 3-11 PM, repeats",
+    "reason": "The main site mentions \"Wing Wednesdays\" and the menu page includes a \"Wing Wednesday\" section, but no happy-hour prices or drink specials are stated—only food pricing. The stored data lists 50¢ wings as a food-only deal, which is not a true happy hour (no alcohol component). The site contains no happy-hour schedule or drink specials for Wednesday or Sunday as stored.",
+    "screens": {
+      "findings": [
+        "window sourced from a third-party domain: https://www.azfamily.com/2025/09/10/50-cent-wings-other-great-deals-under-10-this-scottsdale-happy-hour/",
+        "window sourced from a third-party domain: https://www.azfamily.com/2025/09/10/50-cent-wings-other-great-deals-under-10-this-scottsdale-happy-hour/"
+      ],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "https://dodobirdscottsdale.com/?utm_source=google",
+      "https://dodobirdscottsdale.com/happy-hour",
+      "https://dodobirdscottsdale.com/happyhour",
+      "https://dodobirdscottsdale.com/happy-hour-menu",
+      "https://dodobirdscottsdale.com/menu/happy-hour"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          3
+        ],
+        "startTime": "15:00:00",
+        "endTime": null,
+        "allDay": false,
+        "sourceUrl": "https://www.azfamily.com/2025/09/10/50-cent-wings-other-great-deals-under-10-this-scottsdale-happy-hour/",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Wings",
+            "priceCents": 50,
+            "description": "50¢ wings (6pc or 12pc) with any beverage purchase: Buffalo, Thai Chili, Lemon Pepper or BBQ (+$1 add ranch or bleu cheese, +$1 add carrot and celery). Dine-in only, no doggie bags to go."
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          7
+        ],
+        "startTime": "15:00:00",
+        "endTime": null,
+        "allDay": false,
+        "sourceUrl": "https://www.azfamily.com/2025/09/10/50-cent-wings-other-great-deals-under-10-this-scottsdale-happy-hour/",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "food",
+            "category": "other",
+            "name": "Reverse Happy Hour",
+            "priceCents": null,
+            "description": "Reverse happy hour on Sunday from 3pm to close"
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "b559aff3-39c9-4d04-966a-e9b69ab99f45",
+    "venue": "Dominick's Steakhouse",
+    "verdict": "no_mention",
+    "recommendedAction": "hide",
+    "siteSchedule": null,
+    "evidence": null,
+    "reason": "The excerpts from Dominick's Steakhouse website contain restaurant information, menus, dress code, and hours, but make no mention of happy hour, drink specials, or any time-bounded discount on cocktails or food.",
+    "screens": {
+      "findings": [
+        "window sourced from a third-party domain: https://www.experiencescottsdale.com/listing/dominicks-steakhouse/45191/"
+      ],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "https://www.dominickssteakhouse.com/?utm_source=google&utm_medium=organic&utm_campaign=gmb",
+      "https://www.dominickssteakhouse.com/menus/"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "16:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "sourceUrl": "https://www.experiencescottsdale.com/listing/dominicks-steakhouse/45191/",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "cocktail",
+            "name": "Signature cocktails",
+            "priceCents": null,
+            "description": "Discounted cocktails during happy hour"
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Small plates and appetizers",
+            "priceCents": null,
+            "description": "Discounted small plates and appetizers"
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "4a47416f-17c1-4340-b06c-70e7c21c65c4",
+    "venue": "Dubliner Irish Pub",
+    "verdict": "no_mention",
+    "recommendedAction": "hide",
+    "siteSchedule": null,
+    "evidence": "Multiple happy-hour URLs return 404 errors. Main site mentions \"Events & Entertainment\" with \"live music to karaoke\" but no happy-hour schedule or pricing details.",
+    "reason": "The venue's site contains no readable happy-hour information. All dedicated happy-hour pages (happy-hour, happyhour, happy-hour-menu, menu/happy-hour) return 404 errors, and the main page only references entertainment events without specifying times, days, or drink/food specials.",
+    "screens": {
+      "findings": [
+        "window sourced from denylisted aggregator: https://www.happyhourmaps.com/bar_infos/729",
+        "all 3 priced offerings are identical and ≤$3 (250¢) — verify",
+        "window sourced from denylisted aggregator: https://www.happyhourmaps.com/bar_infos/729",
+        "window sourced from denylisted aggregator: https://www.happyhourmaps.com/bar_infos/729",
+        "window sourced from denylisted aggregator: https://www.happyhourmaps.com/bar_infos/729",
+        "window sourced from denylisted aggregator: https://www.happyhourmaps.com/bar_infos/729",
+        "window sourced from denylisted aggregator: https://www.happyhourmaps.com/bar_infos/729",
+        "window sourced from denylisted aggregator: https://www.happyhourmaps.com/bar_infos/729",
+        "window sourced from denylisted aggregator: https://www.happyhourmaps.com/bar_infos/729",
+        "window sourced from denylisted aggregator: https://www.happyhourmaps.com/bar_infos/729"
+      ],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "https://dublineririshpubaz.com/",
+      "https://dublineririshpubaz.com/happy-hour",
+      "https://dublineririshpubaz.com/happyhour",
+      "https://dublineririshpubaz.com/happy-hour-menu",
+      "https://dublineririshpubaz.com/menu/happy-hour"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "startTime": "16:00:00",
+        "endTime": "19:00:00",
+        "allDay": false,
+        "sourceUrl": "https://www.happyhourmaps.com/bar_infos/729",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "Draft beers",
+            "priceCents": 250,
+            "description": "$2.50–$3.25 draft beers, domestic bottled beers, well drinks, and house wine"
+          },
+          {
+            "kind": "drink",
+            "category": "spirit",
+            "name": "Well drinks",
+            "priceCents": 250,
+            "description": "$2.50–$3.25 draft beers, domestic bottled beers, well drinks, and house wine"
+          },
+          {
+            "kind": "drink",
+            "category": "wine",
+            "name": "House wine",
+            "priceCents": 250,
+            "description": "$2.50–$3.25 draft beers, domestic bottled beers, well drinks, and house wine"
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Select appetizers",
+            "priceCents": null,
+            "description": "$2.50–$5.95 select appetizers"
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          2
+        ],
+        "startTime": "20:00:00",
+        "endTime": "23:00:00",
+        "allDay": false,
+        "sourceUrl": "https://www.happyhourmaps.com/bar_infos/729",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "other",
+            "category": "other",
+            "name": "Team trivia",
+            "priceCents": 0,
+            "description": "Free team trivia, free-to-play, win house cash"
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          3
+        ],
+        "startTime": "20:00:00",
+        "endTime": "23:00:00",
+        "allDay": false,
+        "sourceUrl": "https://www.happyhourmaps.com/bar_infos/729",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "other",
+            "category": "other",
+            "name": "Live Music",
+            "priceCents": null,
+            "description": "Live Music (price varies)"
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          4
+        ],
+        "startTime": "21:00:00",
+        "endTime": "02:00:00",
+        "allDay": false,
+        "sourceUrl": "https://www.happyhourmaps.com/bar_infos/729",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "other",
+            "category": "other",
+            "name": "Ladies' night - DJ at 9pm",
+            "priceCents": null,
+            "description": "Ladies' night - DJ at 9pm (price varies)"
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "startTime": "23:00:00",
+        "endTime": null,
+        "allDay": false,
+        "sourceUrl": "https://www.happyhourmaps.com/bar_infos/729",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "spirit",
+            "name": "Wells, domestics, and well wines",
+            "priceCents": null,
+            "description": "Wells, domestics, and well wines (price varies)"
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          6
+        ],
+        "startTime": null,
+        "endTime": null,
+        "allDay": true,
+        "sourceUrl": "https://www.happyhourmaps.com/bar_infos/729",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "food",
+            "category": "entree",
+            "name": "All you can eat fish and chips (fresh cod)",
+            "priceCents": null,
+            "description": "All you can eat fish and chips (fresh cod)"
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          3
+        ],
+        "startTime": null,
+        "endTime": null,
+        "allDay": true,
+        "sourceUrl": "https://www.happyhourmaps.com/bar_infos/729",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "other",
+            "category": "other",
+            "name": "Free pool all day",
+            "priceCents": 0,
+            "description": "Free pool all day"
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          7
+        ],
+        "startTime": null,
+        "endTime": null,
+        "allDay": true,
+        "sourceUrl": "https://www.happyhourmaps.com/bar_infos/729",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "other",
+            "category": "other",
+            "name": "Open mic",
+            "priceCents": 0,
+            "description": "Free open mic"
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          5
+        ],
+        "startTime": null,
+        "endTime": null,
+        "allDay": true,
+        "sourceUrl": "https://www.happyhourmaps.com/bar_infos/729",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "food",
+            "category": "entree",
+            "name": "Half-pound build-your-own burger + fries",
+            "priceCents": 700,
+            "description": "$7 half-pound build-your-own burger + fries"
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "b2b11247-0b2e-4b8c-bc59-1b59bcc060b7",
+    "venue": "Dynamite Grille",
+    "verdict": "no_mention",
+    "recommendedAction": "hide",
+    "siteSchedule": null,
+    "evidence": "Opens Monday-Sunday 6:00am – 6:00pm. No happy hour schedule, drink specials, or time-bounded discounts mentioned.",
+    "reason": "The fetched pages describe the Dynamite Grille's location, general dining information, and operating hours (6am–6pm daily), but contain no mention of happy hour, drink specials, or any time-bounded discount. The stored data claims a daily 4–6pm happy hour; the site does not support this.",
+    "screens": {
+      "findings": [],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "https://troonnorthgolf.com/dynamite_grille/",
+      "https://www.troonnorthgolf.com/dynamite-grille-special-events/",
+      "https://www.troonnorthgolf.com/dg-menu/"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "16:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "sourceUrl": "https://www.troonnorthgolf.com/wp-content/uploads/sites/8934/2023/06/2021-Happy-Hour-1.jpg",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "appetizer",
+            "name": "Favorite Bites",
+            "priceCents": null,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "Domestic Beer",
+            "priceCents": null,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "wine",
+            "name": "House Wine",
+            "priceCents": null,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "cocktail",
+            "name": "Well Mixed Drinks",
+            "priceCents": null,
+            "description": null
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "b44c7914-9136-43df-951e-0556a1c11f98",
+    "venue": "East End",
+    "verdict": "confirmed",
+    "recommendedAction": "keep",
+    "siteSchedule": "Mon–Sun 17:00–18:00",
+    "evidence": "HAPPY HOUR DAILY 5:00 - 6:00",
+    "reason": "The site confirms a 7-day happy hour from 5:00–6:00 PM (17:00–18:00 in 24h), matching the stored window. The stored offerings ($1 off original cocktails and $12 oysters) appear consistently across multiple pages and match the site's language (\"$1 OFF ORIGINAL COCKTAILS\" and \"12 FOR $12\"). All day coverage and times align.",
+    "screens": {
+      "findings": [],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "http://www.eastendalameda.com/",
+      "https://www.eastendalameda.com/happy-hour-alameda",
+      "https://www.eastendalameda.com/happy-hour-east-bay",
+      "https://www.eastendalameda.com/drink",
+      "https://www.eastendalameda.com/food"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "17:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "sourceUrl": "http://www.eastendalameda.com/",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "$1 OFF ORIGINAL COCKTAILS",
+            "priceCents": null,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "$12",
+            "priceCents": 1200,
+            "description": null
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "f5bfa69c-e9b3-47ee-be82-d48186534d3e",
+    "venue": "Eddie V's Prime Seafood",
+    "verdict": "unclear",
+    "recommendedAction": "operator_review",
+    "siteSchedule": null,
+    "evidence": "No happy-hour schedule, times, or drink/food specials found in excerpts",
+    "reason": "The fetched excerpts from the venue's own pages contain only navigation shells, reservation widgets, and marketing copy about cocktails—no recurring happy-hour schedule, discounted drink prices, or appetizer specials. The happy-hour URL exists but its content was not provided.",
+    "screens": {
+      "findings": [
+        "window sourced from a third-party domain: https://www.yelp.com/biz/eddie-vs-prime-seafood-scottsdale-7"
+      ],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "https://www.eddiev.com/happy-hour",
+      "https://www.eddiev.com/cocktails-with-attitude",
+      "https://www.eddiev.com/menu"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "16:00:00",
+        "endTime": null,
+        "allDay": false,
+        "sourceUrl": "https://www.yelp.com/biz/eddie-vs-prime-seafood-scottsdale-7",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "cocktail",
+            "name": "Signature cocktails",
+            "priceCents": null,
+            "description": "Specially priced signature cocktails"
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Fresh seafood appetizers",
+            "priceCents": null,
+            "description": "Selection of fresh seafood appetizers"
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "1561a8af-07b4-4118-b0fc-b6adbc144c41",
+    "venue": "el CARBÓN Mexican Eatery",
+    "verdict": "confirmed",
+    "recommendedAction": "keep",
+    "siteSchedule": "1-7 16:00-18:00",
+    "evidence": "Happy Hour Every Day | Join us from 4 - 6pm",
+    "reason": "The venue's website explicitly states \"Happy Hour Every Day\" from 4–6pm, which matches the stored data (16:00–18:00, all seven days). The wording and times align.",
+    "screens": {
+      "findings": [],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "https://www.elcarbonmexicaneatery.com/",
+      "https://www.elcarbonmexicaneatery.com/menu"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "16:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "sourceUrl": "https://www.elcarbonmexicaneatery.com/",
+        "notes": null,
+        "offerings": []
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "a9399542-5adc-46bb-b145-9f898998c2e8",
+    "venue": "Élephante Scottsdale",
+    "verdict": "no_mention",
+    "recommendedAction": "hide",
+    "siteSchedule": null,
+    "evidence": null,
+    "reason": "The site excerpts contain hours of operation, general menus (lunch, brunch, dinner, beverages, desserts), but make no mention of happy hour, drink specials, time-bounded discounts, or promotional pricing. The stored data describes a specific 4:00–6:00 PM happy hour Mon–Thu with martini specials and discounted food items, which does not appear anywhere in the fetched content.",
+    "screens": {
+      "findings": [
+        "window sourced from an event/group page: https://www.elephanterestaurants.com/event/aperitivo-nights/"
+      ],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "https://www.elephanterestaurants.com/location/scottsdale/",
+      "https://www.elephanterestaurants.com/menus/",
+      "https://www.elephanterestaurants.com/menus-scottdale/",
+      "https://www.elephanterestaurants.com/menus-scottdale",
+      "https://www.elephanterestaurants.com/about-us/"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "startTime": "16:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "sourceUrl": "https://www.elephanterestaurants.com/event/aperitivo-nights/",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "cocktail",
+            "name": "Traditional Martinis",
+            "priceCents": null,
+            "description": "Tito's vodka or Hendrick's gin, dry/wet/dirty variations"
+          },
+          {
+            "kind": "drink",
+            "category": "cocktail",
+            "name": "Espresso Martinis",
+            "priceCents": null,
+            "description": "Tito's vodka or Patrón reposado tequila, espresso, vanilla"
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Aperitivo Board",
+            "priceCents": 2200,
+            "description": "Burrata, prosciutto, marinated olives, sea salt & oregano piadina"
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Mascarpone & Prosecco Arancini",
+            "priceCents": 1400,
+            "description": "Caciocavallo, melon passato"
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Bambino Burger",
+            "priceCents": 1600,
+            "description": "White cheddar, caramelized onion jam, horseradish aioli, garlic butter"
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "5a15c8b6-5335-458c-8c2c-82b4d44df5bd",
+    "venue": "El Sur Mexican Restaurant",
+    "verdict": "confirmed",
+    "recommendedAction": "keep",
+    "siteSchedule": "1-4 16:00, 1-4 18:00",
+    "evidence": "Happy HOur monday - thursday 4PM-6pm",
+    "reason": "The site states the same happy-hour schedule as the stored data: Monday–Thursday, 4 PM–6 PM. Days and times match exactly.",
+    "screens": {
+      "findings": [],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "http://www.elsurmexicanrestaurant.com/",
+      "https://elsurmexicanrestaurant.com/catering-menu"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "startTime": "16:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "sourceUrl": "http://www.elsurmexicanrestaurant.com/",
+        "notes": "Happy Hour Monday–Thursday 4–6PM.",
+        "offerings": []
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "99b1f187-752e-4713-8439-df4b92b66f2a",
+    "venue": "Empire Pizza & Pub",
+    "verdict": "confirmed",
+    "recommendedAction": "keep",
+    "siteSchedule": "1-6: 16:00-19:00; 7: 00:00-23:59",
+    "evidence": "Join Us for Happy Hour 4pm – 7pm Daily and All Day Sunday Daily Drink Specials!",
+    "reason": "The site confirms happy hour 4pm–7pm (16:00–19:00) daily with Daily Drink Specials, matching the stored Mon–Fri and Sat window and offerings. It also confirms all-day Sunday with the same specials. The stored data accurately reflects the venue's current schedule.",
+    "screens": {
+      "findings": [],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "http://www.empire.pizza/",
+      "https://www.empire.pizza/menu/"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "startTime": "16:00:00",
+        "endTime": "19:00:00",
+        "allDay": false,
+        "sourceUrl": "http://www.empire.pizza/",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "other",
+            "name": null,
+            "priceCents": null,
+            "description": "Daily Drink Specials"
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          7
+        ],
+        "startTime": null,
+        "endTime": null,
+        "allDay": true,
+        "sourceUrl": "http://www.empire.pizza/",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "other",
+            "name": null,
+            "priceCents": null,
+            "description": "Daily Drink Specials"
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "b7c32bc9-9d15-475a-9907-b8cf91b83982",
+    "venue": "Ernie's",
+    "verdict": "unclear",
+    "recommendedAction": "operator_review",
+    "siteSchedule": null,
+    "evidence": null,
+    "reason": "no readable page text fetched from the venue's own site",
+    "screens": {
+      "findings": [
+        "window sourced from denylisted aggregator: https://thehappyhourfinder.com/us_az/scottsdale/ernies/"
+      ],
+      "policyHits": []
+    },
+    "pagesJudged": [],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "14:00:00",
+        "endTime": "19:00:00",
+        "allDay": false,
+        "sourceUrl": "https://thehappyhourfinder.com/us_az/scottsdale/ernies/",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "Draft beers and domestic bottles",
+            "priceCents": 300,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "spirit",
+            "name": "Well drinks",
+            "priceCents": 375,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Happy hour food menu",
+            "priceCents": null,
+            "description": "$3.95–$8.95"
+          }
+        ]
+      }
+    ],
+    "costCents": 0
+  },
+  {
+    "venueId": "454f9ee1-bf65-49a4-803a-882a6610d567",
+    "venue": "Ezbachi Japanese Grill",
+    "verdict": "unclear",
+    "recommendedAction": "operator_review",
+    "siteSchedule": null,
+    "evidence": "The locations-hours page shows \"SELECT A LOCATION FOR LOCATION DETAILS, HOURS, AND ONLINE ORDERING\" but provides no actual details.",
+    "reason": "The excerpts provided are navigation shells and general content pages (home, menu, about us, locations-hours) with no substantive happy-hour information. The locations-hours page appears to be a location selector rather than a page displaying the actual schedule. No recurring happy-hour schedule, times, or drink/food specials are stated in any excerpt.",
+    "screens": {
+      "findings": [
+        "window sourced from a third-party domain: https://static.wixstatic.com/media/37ef22_0268b2607a234d6aaf888205da9c9bab~mv2.png/v1/crop/x_25,y_0,w_3550,h_5400/fill/w_988,h_1503,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/MAY%202026%20PART%202%20EZBACHI%20DINNER%20MENU.png",
+        "window sourced from a third-party domain: https://static.wixstatic.com/media/37ef22_0268b2607a234d6aaf888205da9c9bab~mv2.png/v1/crop/x_25,y_0,w_3550,h_5400/fill/w_988,h_1503,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/MAY%202026%20PART%202%20EZBACHI%20DINNER%20MENU.png"
+      ],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "http://ezbachi.com/",
+      "https://www.ezbachi.com/menu",
+      "https://www.ezbachi.com/catering-menu",
+      "https://www.ezbachi.com/aboutus",
+      "https://www.ezbachi.com/locations-hours"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3
+        ],
+        "startTime": "15:00:00",
+        "endTime": "19:00:00",
+        "allDay": false,
+        "sourceUrl": "https://static.wixstatic.com/media/37ef22_0268b2607a234d6aaf888205da9c9bab~mv2.png/v1/crop/x_25,y_0,w_3550,h_5400/fill/w_988,h_1503,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/MAY%202026%20PART%202%20EZBACHI%20DINNER%20MENU.png",
+        "notes": "Appetizer Drinks and Beers",
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "cocktail",
+            "name": "Cocktails",
+            "priceCents": null,
+            "description": "Purple Reign, Paloma de Reyes, Japanese Sniper, Iza Blossom, Mezcalini, Jolly Grasshopper, Ez-Margarita, Cosmopolitan The Ez Way, Strawberry Whisk"
+          },
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "Beer selection",
+            "priceCents": null,
+            "description": "Michelob Ultra, Dos XX Lager, Modelo, Sapporo, Kirin, Blue Moon, Sake Bomb, Choice of Kirin"
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Appetizers",
+            "priceCents": null,
+            "description": "Dumplings, Edamame, EZ Skewers Trio, EZ Chicken Skewers, EZ Shrimp Skewers, EZ Filet Mignon Skewers, EZ Shrimp Tempura, EZ Fried Zucchini Sticks, EZ Katsu O-Rings, EZ Bang-Bang Shrimp, EZ Honey Sriracha Wings"
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "15:00:00",
+        "endTime": "22:00:00",
+        "allDay": false,
+        "sourceUrl": "https://static.wixstatic.com/media/37ef22_0268b2607a234d6aaf888205da9c9bab~mv2.png/v1/crop/x_25,y_0,w_3550,h_5400/fill/w_988,h_1503,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/MAY%202026%20PART%202%20EZBACHI%20DINNER%20MENU.png",
+        "notes": "Appetizer Drinks and Beers",
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "cocktail",
+            "name": "Cocktails",
+            "priceCents": null,
+            "description": "Purple Reign, Paloma de Reyes, Japanese Sniper, Iza Blossom, Mezcalini, Jolly Grasshopper, Ez-Margarita, Cosmopolitan The Ez Way, Strawberry Whisk"
+          },
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "Beer selection",
+            "priceCents": null,
+            "description": "Michelob Ultra, Dos XX Lager, Modelo, Sapporo, Kirin, Blue Moon, Sake Bomb, Choice of Kirin"
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Appetizers",
+            "priceCents": null,
+            "description": "Dumplings, Edamame, EZ Skewers Trio, EZ Chicken Skewers, EZ Shrimp Skewers, EZ Filet Mignon Skewers, EZ Shrimp Tempura, EZ Fried Zucchini Sticks, EZ Katsu O-Rings, EZ Bang-Bang Shrimp, EZ Honey Sriracha Wings"
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "ff9658b2-3fd5-4653-928f-8ba9dc90e5ce",
+    "venue": "Farrelli's Pizza",
+    "verdict": "unclear",
+    "recommendedAction": "operator_review",
+    "siteSchedule": null,
+    "evidence": "Happy Hour and Specials pages loaded only: \"Skip to main content Toggle navigation\" and \"Web Design by Flowstate Creatives\" with no schedule or offering details.",
+    "reason": "The excerpts include navigation shells, page headers, and event listings (Team Trivia Tuesday), but no actual happy-hour schedule, pricing, or drink specials content. The dedicated happy-hour and specials pages appear to have loaded only navigation and footer elements without the main content body, making it impossible to compare against the stored data.",
+    "screens": {
+      "findings": [
+        "window sourced from a third-party domain: https://www.yelp.com/questions/farrellis-pizza-happy-hour-what-time-does-it-star/Q5B3sPkpUS8GowtICc9R-A",
+        "window sourced from a third-party domain: https://www.yelp.com/questions/farrellis-pizza-happy-hour-what-time-does-it-star/Q5B3sPkpUS8GowtICc9R-A"
+      ],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "https://farrellispizza.com/locations/farrellis-ruston-wa/",
+      "https://farrellispizza.com/happy-hour/",
+      "https://farrellispizza.com/specials/",
+      "https://farrellispizza.com/drink-menu/",
+      "https://farrellispizza.com/food-menu/"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "14:00:00",
+        "endTime": "17:00:00",
+        "allDay": false,
+        "sourceUrl": "https://www.yelp.com/questions/farrellis-pizza-happy-hour-what-time-does-it-star/Q5B3sPkpUS8GowtICc9R-A",
+        "notes": "Company staff confirmed 2pm-5pm happy hour 7 days a week",
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "other",
+            "name": null,
+            "priceCents": null,
+            "description": "Happy Hour drinks and appetizers - see menu for details"
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "21:00:00",
+        "endTime": null,
+        "allDay": false,
+        "sourceUrl": "https://www.yelp.com/questions/farrellis-pizza-happy-hour-what-time-does-it-star/Q5B3sPkpUS8GowtICc9R-A",
+        "notes": "Company staff confirmed 9pm to close happy hour 7 days a week",
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "other",
+            "name": null,
+            "priceCents": null,
+            "description": "Happy Hour drinks and appetizers - see menu for details"
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "15ec31b7-d9b3-41a3-bcb9-c35c60e92a99",
+    "venue": "Fat Willy's Kolb Rd & I-10",
+    "verdict": "unclear",
+    "recommendedAction": "operator_review",
+    "siteSchedule": null,
+    "evidence": "The excerpts are navigation shells, location listings, and hours-only pages. No happy hour, drink special, or time-bounded discount is mentioned for any location.",
+    "reason": "The fetched pages show location directories, general branding, and hours of operation but contain no happy-hour schedule, drink specials, or food/beverage deals. The excerpts are too thin to verify the stored daily specials (Fish Fry Friday, Burger Monday, WINsday, etc.).",
+    "screens": {
+      "findings": [],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "https://www.fatwillysaz.com/",
+      "https://fatwillysaz.com/menus/",
+      "https://fatwillysaz.com/locations/",
+      "https://fatwillysaz.com/crismon/",
+      "https://fatwillysaz.com/gilbert/"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          5
+        ],
+        "startTime": "11:00:00",
+        "endTime": "21:00:00",
+        "allDay": false,
+        "sourceUrl": "https://fatwillysaz.com/wp-content/uploads/2025/11/fw_football_cr.pdf",
+        "notes": "Fish Fry Friday 11AM-9PM",
+        "offerings": [
+          {
+            "kind": "food",
+            "category": "other",
+            "name": "Fish Basket Special",
+            "priceCents": null,
+            "description": "2, 3, or 5 piece Fish Basket Special"
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          2
+        ],
+        "startTime": null,
+        "endTime": null,
+        "allDay": true,
+        "sourceUrl": "https://fatwillysaz.com/wp-content/uploads/2025/11/fw_football_cr.pdf",
+        "notes": "Kids Eat Free with any adult entrée, all day",
+        "offerings": [
+          {
+            "kind": "food",
+            "category": "other",
+            "name": "Kids meals",
+            "priceCents": null,
+            "description": "Free with adult entrée purchase"
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          3
+        ],
+        "startTime": null,
+        "endTime": null,
+        "allDay": true,
+        "sourceUrl": "https://fatwillysaz.com/wp-content/uploads/2025/11/fw_football_cr.pdf",
+        "notes": "WINsdays: $2 off all wines, all day",
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "wine",
+            "name": "All wines",
+            "priceCents": null,
+            "description": null
           }
         ]
       },
@@ -74,17 +1996,1125 @@
         "startTime": null,
         "endTime": null,
         "allDay": true,
-        "sourceUrl": "https://www.diegopops.com/events/taco-monday",
-        "notes": "All day & all night, any taco of your choice",
+        "sourceUrl": "https://fatwillysaz.com/wp-content/uploads/2025/11/fw_football_cr.pdf",
+        "notes": "Burger Monday: $5 off any burger with beverage purchase, all day",
         "offerings": [
           {
             "kind": "food",
             "category": "entree",
-            "name": "Tacos",
-            "priceCents": 300,
-            "description": "Any taco of your choice"
+            "name": "Any burger",
+            "priceCents": null,
+            "description": null
           }
         ]
+      },
+      {
+        "daysOfWeek": [
+          6
+        ],
+        "startTime": null,
+        "endTime": null,
+        "allDay": true,
+        "sourceUrl": "https://fatwillysaz.com/wp-content/uploads/2025/11/fw_football_cr.pdf",
+        "notes": "Football Seasonal Specials: $13 Brat Basket, $7 ASU Desert Halo beer",
+        "offerings": [
+          {
+            "kind": "food",
+            "category": "entree",
+            "name": "Brat Basket",
+            "priceCents": 1300,
+            "description": "Beer Brat with toppings and choice of side"
+          },
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "ASU Desert Halo",
+            "priceCents": 700,
+            "description": "16oz"
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          7
+        ],
+        "startTime": null,
+        "endTime": null,
+        "allDay": true,
+        "sourceUrl": "https://fatwillysaz.com/wp-content/uploads/2025/11/fw_football_cr.pdf",
+        "notes": "Sunday Funday Football Seasonal Specials: Boneless Wings $8 all day, $12 Chili Cheese Dog, $10 Smirnoff Breakfast Bloody Mary, $6 Bloody Mary/Mimosa, $27 Nutrl Buckets, $5 Coors Light 25oz",
+        "offerings": [
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Boneless Wings",
+            "priceCents": 800,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "entree",
+            "name": "Chili Cheese Dog",
+            "priceCents": 1200,
+            "description": "Two chili cheese hot dogs with red onion and choice of side"
+          },
+          {
+            "kind": "drink",
+            "category": "cocktail",
+            "name": "Smirnoff Breakfast Bloody Mary",
+            "priceCents": 1000,
+            "description": "With bacon, salted rim, piece of bacon, sausage link, mini pancake, tater tot"
+          },
+          {
+            "kind": "drink",
+            "category": "cocktail",
+            "name": "Bloody Mary or Mimosa",
+            "priceCents": 600,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "Coors Light",
+            "priceCents": 500,
+            "description": "25oz"
+          },
+          {
+            "kind": "drink",
+            "category": "other",
+            "name": "Nutrl Buckets",
+            "priceCents": 2700,
+            "description": "Must have 2 or more 21 and older"
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          4
+        ],
+        "startTime": null,
+        "endTime": null,
+        "allDay": true,
+        "sourceUrl": "https://fatwillysaz.com/wp-content/uploads/2025/11/fw_football_cr.pdf",
+        "notes": "Tasty Thursdays: $36 MVP Pizza Combo",
+        "offerings": [
+          {
+            "kind": "food",
+            "category": "other",
+            "name": "MVP Pizza Combo",
+            "priceCents": 3600,
+            "description": "Large 2 topping pizza and 16 wings"
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "546d4836-fd75-49a7-8b80-e8d98fa4ea66",
+    "venue": "Française Spokane | French",
+    "verdict": "confirmed",
+    "recommendedAction": "keep",
+    "siteSchedule": "1-7: 15:00-17:00",
+    "evidence": "Daily | 3–5pm",
+    "reason": "The stored data shows happy hour 15:00–17:00 (3–5pm) daily (Mon–Sun). The site confirms \"Daily | 3–5pm\", matching both days and times exactly.",
+    "screens": {
+      "findings": [
+        "window sourced from a third-party domain: https://eatgoodgroup.com/wp-content/uploads/2025/05/fran-happy-hour-1.pdf"
+      ],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "http://francaisespokane.com/",
+      "https://eatgoodgroup.com/happy-hour/"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "15:00:00",
+        "endTime": "17:00:00",
+        "allDay": false,
+        "sourceUrl": "https://eatgoodgroup.com/wp-content/uploads/2025/05/fran-happy-hour-1.pdf",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "wine",
+            "name": "Glass of Rosé",
+            "priceCents": 500,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "cocktail",
+            "name": "Well Cocktails",
+            "priceCents": 500,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "cocktail",
+            "name": "Featured Cocktail",
+            "priceCents": 500,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "Select Draft Beer",
+            "priceCents": 500,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "wine",
+            "name": "Select White or Red Wine",
+            "priceCents": 700,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "cocktail",
+            "name": "House Cocktails",
+            "priceCents": null,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "House Bread",
+            "priceCents": 500,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Pate de Campagne",
+            "priceCents": 500,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Œufs Farcis au Caviar (2)",
+            "priceCents": 500,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Petite Soupe à l'Oignon",
+            "priceCents": 500,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Salad Lyonnaise",
+            "priceCents": 500,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Pommes Frites",
+            "priceCents": 500,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Champignons Sautés",
+            "priceCents": 500,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Roasted Carrots",
+            "priceCents": 500,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Escargot",
+            "priceCents": 1500,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "entree",
+            "name": "Le Burger",
+            "priceCents": 1700,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "entree",
+            "name": "Steak Frites",
+            "priceCents": 2500,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Charcuterie and Cheese Plate",
+            "priceCents": 2500,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "dessert",
+            "name": "Beignets",
+            "priceCents": 500,
+            "description": null
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "3817c2d8-96a8-408c-a08c-da760b0df61c",
+    "venue": "Geordie's at Wrigley Mansion",
+    "verdict": "no_mention",
+    "recommendedAction": "hide",
+    "siteSchedule": null,
+    "evidence": "No mention of happy hour, drink specials, or time-bounded discounts in the excerpts.",
+    "reason": "The excerpts include navigation menus, dining descriptions, Christopher's special décor details, and general menu/wine list information, but contain no happy hour schedule, discounted drink prices, or food specials. The summer hours listed mention operational times (e.g., \"Thurs & Sun 5-9 PM\") but no happy hour or discount offerings.",
+    "screens": {
+      "findings": [
+        "window sourced from a third-party domain: https://whereshouldweeat.com/ingredients/geordies-wrigley-mansion/",
+        "window sourced from a third-party domain: https://www.postcard.inc/places/geordies-at-wrigley-mansion-phoenix-6GoQNLVOeEJ"
+      ],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "http://www.wrigleymansion.com/",
+      "https://wrigleymansion.com/christophers-special-touches",
+      "https://wrigleymansion.com/menus",
+      "https://wrigleymansion.com/menus-c144",
+      "https://wrigleymansion.com/menu-files"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          3,
+          4,
+          5,
+          6
+        ],
+        "startTime": "15:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "sourceUrl": "https://whereshouldweeat.com/ingredients/geordies-wrigley-mansion/",
+        "notes": "50% off select lounge menu items; discounts on wine and cocktails",
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "cocktail",
+            "name": "Cocktails",
+            "priceCents": null,
+            "description": "Discounted cocktails during happy hour"
+          },
+          {
+            "kind": "drink",
+            "category": "wine",
+            "name": "Wine",
+            "priceCents": null,
+            "description": "Wine discounts available during happy hour"
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Lounge menu items",
+            "priceCents": null,
+            "description": "50% off select lounge menu items"
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          3
+        ],
+        "startTime": null,
+        "endTime": null,
+        "allDay": true,
+        "sourceUrl": "https://www.postcard.inc/places/geordies-at-wrigley-mansion-phoenix-6GoQNLVOeEJ",
+        "notes": "All day Wednesday: 50% off select lounge menu items; discounts on wine and cocktails",
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "cocktail",
+            "name": "Cocktails",
+            "priceCents": null,
+            "description": "Discounted cocktails all day Wednesday"
+          },
+          {
+            "kind": "drink",
+            "category": "wine",
+            "name": "Wine",
+            "priceCents": null,
+            "description": "Wine discounts all day Wednesday"
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Lounge menu items",
+            "priceCents": null,
+            "description": "50% off select lounge menu items"
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "729d6b93-b3c6-40c9-ae41-f0532fb2c923",
+    "venue": "Gracie's Tax Bar",
+    "verdict": "confirmed",
+    "recommendedAction": "keep",
+    "siteSchedule": "1-7, 16:00–19:00",
+    "evidence": "Happy Hour 4-7PM Everyday * $7/$9 Mini Pitchers ($6 Gracie's Tax Beer) & $5 Wells",
+    "reason": "The site states the same happy hour schedule (4–7 PM every day) and lists the same drink specials with matching prices ($6 Gracie's Tax Beer mini pitchers, $7/$9 mini pitchers, $5 wells).",
+    "screens": {
+      "findings": [
+        "window sourced from social media: http://www.graciesphx.com/"
+      ],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "http://www.graciesphx.com/",
+      "https://docs.google.com/document/d/1kuz6nUGHNodz5hIvEqNkt0Ewf6A1cxAEp0XkkdpAF3s/edit?tab=t.0#heading=h.it2ndnexy7o0"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "16:00:00",
+        "endTime": "19:00:00",
+        "allDay": false,
+        "sourceUrl": "http://www.graciesphx.com/",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "Mini Pitchers - Gracie's Tax Beer",
+            "priceCents": 600,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "Mini Pitchers - Various",
+            "priceCents": 700,
+            "description": "$7/$9 Mini Pitchers"
+          },
+          {
+            "kind": "drink",
+            "category": "spirit",
+            "name": "Wells",
+            "priceCents": 500,
+            "description": null
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "c3701974-18c4-4c57-8d2a-a5f8473d2cd2",
+    "venue": "Grumpy's Grill",
+    "verdict": "confirmed",
+    "recommendedAction": "keep",
+    "siteSchedule": "1-7: 14:00-18:00",
+    "evidence": "Happy Hour Every Day $1 off all appetizers and alcoholic drinks 2:00 PM to 6:00 PM",
+    "reason": "The stored data shows 14:00–18:00 (2–6 PM) happy hour all 7 days with $1 off appetizers and alcoholic drinks. The site confirms \"Every Day\" happy hour \"2:00 PM to 6:00 PM\" with \"$1 off all appetizers and alcoholic drinks,\" matching the stored schedule and offerings exactly.",
+    "screens": {
+      "findings": [
+        "stored offering: re-kinded drink→food: All appetizers"
+      ],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "http://www.grumpysgrill.com/",
+      "https://www.grumpysgrill.com/menu",
+      "https://www.grumpysgrill.com/",
+      "https://www.grumpysgrill.com/breakfast-menu",
+      "https://www.grumpysgrill.com/lunch-dinner-menu"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "14:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "sourceUrl": "https://www.grumpysgrill.com/",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "appetizer",
+            "name": "All appetizers",
+            "priceCents": null,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "other",
+            "name": "All alcoholic drinks",
+            "priceCents": null,
+            "description": null
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "b66b3071-2cc2-4d33-b7be-5e42fd77c00f",
+    "venue": "Guillermo's Double L",
+    "verdict": "unclear",
+    "recommendedAction": "operator_review",
+    "siteSchedule": null,
+    "evidence": "The excerpts mention \"Happy hour drinks\" and \"Happy hour food\" in the amenities list, but do not state any specific days, times, or pricing for happy hour.",
+    "reason": "The venue's own pages acknowledge that happy hour exists (listed as an amenity), but provide no schedule, days, or times to verify against the stored data (Mon–Fri 15:00–18:00 with Bud/Bud Light draft at $0.99 and house margaritas at $2.50). The excerpts are too thin to confirm or contradict the specific stored details.",
+    "screens": {
+      "findings": [
+        "window sourced from denylisted aggregator: https://thehappyhourfinder.com/us_az/south-tucson/guillermos-double-l-restaurant/"
+      ],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "https://guillermos-double-l.shop/",
+      "https://guillermos-double-l.placejoys.com/menu"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "startTime": "15:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "sourceUrl": "https://thehappyhourfinder.com/us_az/south-tucson/guillermos-double-l-restaurant/",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "Bud, Bud Light draft",
+            "priceCents": 99,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "cocktail",
+            "name": "House margaritas",
+            "priceCents": 250,
+            "description": null
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "79b4cfc4-9952-4ce1-9be9-80b3d53cf127",
+    "venue": "Handlebar J",
+    "verdict": "corrected",
+    "recommendedAction": "reextract",
+    "siteSchedule": "5–7 (Friday and Saturday only)",
+    "evidence": "Friday & Saturday, open at 5pm. Also we will be open on Select Sundays for events. Closed Sunday-Thursday.",
+    "reason": "The venue's pages state it is \"Closed Sunday-Thursday\" and open only \"Friday & Saturday\". The stored data shows a Mon-Fri 3pm-6pm happy hour, which contradicts the venue's stated hours of operation. The venue does not operate on the days the stored happy hour claims to exist.",
+    "screens": {
+      "findings": [
+        "window sourced from denylisted aggregator: https://thehappyhourfinder.com/us_az/scottsdale/handlebar-j-restaurant-and-bar/"
+      ],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "https://www.handlebarj.com/",
+      "https://www.handlebarj.com/happy-hour",
+      "https://www.handlebarj.com/happy-hour"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "startTime": "15:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "sourceUrl": "https://thehappyhourfinder.com/us_az/scottsdale/handlebar-j-restaurant-and-bar/",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "spirit",
+            "name": "Well drinks",
+            "priceCents": 300,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "Domestic beers",
+            "priceCents": 300,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "wine",
+            "name": "Wine",
+            "priceCents": 400,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Chips and salsa",
+            "priceCents": null,
+            "description": "Free"
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "77d54e9b-7a50-4374-ac13-e67f658d1e30",
+    "venue": "Heritage Bar & Kitchen",
+    "verdict": "confirmed",
+    "recommendedAction": "keep",
+    "siteSchedule": "1-4 (Mon-Thu) 15:00-18:00",
+    "evidence": "Happy Hour pricing from 3pm until 6pm Mon - Thurs. Enjoy $2 off all appetizers, $1 off all sides, $5 well drinks, $5 tap beer, and $6 house wine! every day from 3pm until 6pm!",
+    "reason": "The site clearly states happy hour runs \"3pm until 6pm Mon - Thurs,\" which matches the stored 15:00-18:00 (3pm-6pm) window and days (Mon-Thu). The offerings match what is listed on the site.",
+    "screens": {
+      "findings": [],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "https://www.heritagebarandkitchen.com/",
+      "https://checkout.square.site/merchant/FNPG27RW3B3NJ/checkout/MNCWZB7JATOMCL2YOVDHC4YF",
+      "https://www.heritagebarandkitchen.com/about-us"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "startTime": "15:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "sourceUrl": "https://www.heritagebarandkitchen.com/",
+        "notes": null,
+        "offerings": []
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "e952153b-9815-4a20-8e0c-0ca52d67d67d",
+    "venue": "Heritage Kitchen + Cocktails",
+    "verdict": "unclear",
+    "recommendedAction": "operator_review",
+    "siteSchedule": null,
+    "evidence": "Source pages show \"Happy Hour Menu\" and \"Wine Down Wednesday\" navigation links, but the excerpts display only \"© 2026 Heritage Kitchen + Cocktails. All rights reserved.\" with no schedule or pricing details.",
+    "reason": "The excerpts include a \"Happy Hour Menu\" page link and \"Wine Down Wednesday\" page link, but the actual content of those pages is not provided—only navigation shells appear. The readable content shows the venue's overall menu and description but contains no specific happy-hour times, pricing, or offerings. The fetched pages are too thin to confirm or correct the stored schedule.",
+    "screens": {
+      "findings": [],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "http://heritagescottsdale.com/",
+      "http://heritagescottsdale.com/happy-hour-menu/",
+      "http://heritagescottsdale.com/specials/",
+      "http://heritagescottsdale.com/drink-menu/",
+      "https://heritagescottsdale.com/drink-menu/"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "15:00:00",
+        "endTime": "17:00:00",
+        "allDay": false,
+        "sourceUrl": "http://heritagescottsdale.com/",
+        "notes": "Social Hour",
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "All Beers",
+            "priceCents": 500,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "other",
+            "name": "All Oysters",
+            "priceCents": 300,
+            "description": null
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          3
+        ],
+        "startTime": null,
+        "endTime": null,
+        "allDay": true,
+        "sourceUrl": "http://heritagescottsdale.com/",
+        "notes": "Wine Down Wednesday",
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "wine",
+            "name": "All wine (glasses and bottles)",
+            "priceCents": null,
+            "description": "Half-off all glasses and bottles of wine"
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "0e910a35-a168-4330-b407-5390b818d648",
+    "venue": "Hideout: The Original",
+    "verdict": "no_mention",
+    "recommendedAction": "hide",
+    "siteSchedule": null,
+    "evidence": "The page lists opening hours (Monday–Sunday 8:00 pm–2:00 am, Friday 2:00 pm–2:00 am, Saturday and Sunday 12:00 pm–2:00 am) but contains no mention of happy hour, drink specials, or time-bounded discounts.",
+    "reason": "The venue's own page is readable and provides detailed operating hours and business information, but does not mention any happy hour schedule, drink specials, or discounts during specific times. The stored data claims a Mon–Fri 16:00–18:00 happy hour, which is not supported by the site.",
+    "screens": {
+      "findings": [
+        "window sourced from a third-party domain: https://tucson.com/entertainment/music/the-original-hideout/article_2355cc1f-e6d2-52f2-ae62-7157851e85d1.html"
+      ],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "https://acrossanddown.net/hideout-the-original"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "startTime": "16:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "sourceUrl": "https://tucson.com/entertainment/music/the-original-hideout/article_2355cc1f-e6d2-52f2-ae62-7157851e85d1.html",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "other",
+            "name": null,
+            "priceCents": null,
+            "description": "Happy hour specials (specific items and prices not detailed in available sources)"
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "73b35300-8d95-48ff-9605-1b432305907e",
+    "venue": "Hops Sports Grill",
+    "verdict": "confirmed",
+    "recommendedAction": "keep",
+    "siteSchedule": "1-7 15:00-18:00",
+    "evidence": "Happy Hour Daily 3 to 6 PM",
+    "reason": "The site explicitly states \"Happy Hour Daily 3 to 6 PM,\" which matches the stored schedule of 15:00–18:00 (3–6 PM) on all seven days of the week. The day/time window is confirmed, though no specific drink offerings are detailed on the site.",
+    "screens": {
+      "findings": [],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "http://hopssportsgrill.com/",
+      "https://www.hopssportsgrill.com/cocktails",
+      "https://www.hopssportsgrill.com/food-menu",
+      "https://www.hopssportsgrill.com/menus"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "15:00:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "sourceUrl": "https://www.hopssportsgrill.com/",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "other",
+            "name": "Happy Hour",
+            "priceCents": null,
+            "description": "Unspecified drink specials"
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "b8c11ca5-62c9-404f-843b-11a2558904d2",
+    "venue": "Hula Hoops Restaurant & Tiki Bar",
+    "verdict": "confirmed",
+    "recommendedAction": "keep",
+    "siteSchedule": "1-5: 15:00-17:30",
+    "evidence": "Happy Hour Tue-Fri: 3:00pm-5:30pm",
+    "reason": "The site clearly states the happy hour schedule. The stored days (Tue-Fri) match exactly, and the times match (3:00pm = 15:00, 5:30pm = 17:30).",
+    "screens": {
+      "findings": [],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "https://www.myhulahoops.com/",
+      "https://www.myhulahoops.com/private-event",
+      "https://www.myhulahoops.com/location-and-hours",
+      "https://www.myhulahoops.com/events-page",
+      "https://www.myhulahoops.com/event-calendar"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          2,
+          3,
+          4,
+          5
+        ],
+        "startTime": "15:00:00",
+        "endTime": "17:30:00",
+        "allDay": false,
+        "sourceUrl": "https://www.myhulahoops.com/",
+        "notes": null,
+        "offerings": []
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "952035d9-41e8-417b-961a-8affabe58dbf",
+    "venue": "HULA'S Modern Tiki Scottsdale",
+    "verdict": "unclear",
+    "recommendedAction": "operator_review",
+    "siteSchedule": null,
+    "evidence": null,
+    "reason": "The excerpt is the homepage and navigation shell of the venue's website. While it mentions \"happy hour\" in the navigation menu and welcome text, it does not contain any actual happy hour schedule, times, days, prices, or drink/food offerings. The content is too thin to verify the stored data.",
+    "screens": {
+      "findings": [],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "http://hulasmoderntiki.com/"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          4,
+          5
+        ],
+        "startTime": "15:30:00",
+        "endTime": "18:00:00",
+        "allDay": false,
+        "sourceUrl": "https://www.hulasmoderntiki.com/s/HULAS-DRINKS-WEB-01_20_26-t86y.pdf",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "cocktail",
+            "name": "Signature Cocktails (Mai Tai, Painkiller, Hurricane, etc.)",
+            "priceCents": 800,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "wine",
+            "name": "Wine by the Glass",
+            "priceCents": null,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "spirit",
+            "name": "Well Drinks",
+            "priceCents": 700,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "Draft Beer (16oz)",
+            "priceCents": null,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Happy Hour Apps (Sliders, Ceviche, Thai Fish Cakes, Edamame, Fish Bites, Sweet Potato Fries, etc.)",
+            "priceCents": 800,
+            "description": "Mon-Fri only, various appetizers $5–$9"
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          3
+        ],
+        "startTime": "15:30:00",
+        "endTime": "22:00:00",
+        "allDay": false,
+        "sourceUrl": "https://www.hulasmoderntiki.com/s/HULAS-DRINKS-WEB-01_20_26-t86y.pdf",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "cocktail",
+            "name": "Signature Cocktails",
+            "priceCents": 800,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "wine",
+            "name": "Wine by the Glass",
+            "priceCents": null,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "spirit",
+            "name": "Well Drinks",
+            "priceCents": 700,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "Draft Beer (16oz)",
+            "priceCents": null,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Happy Hour Apps",
+            "priceCents": 800,
+            "description": "All regular happy hour pricing all night long"
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          5,
+          6
+        ],
+        "startTime": "22:00:00",
+        "endTime": "00:00:00",
+        "allDay": false,
+        "sourceUrl": "https://www.hulasmoderntiki.com/s/HULAS-DRINKS-WEB-01_20_26-t86y.pdf",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "cocktail",
+            "name": "Happy Hour Drink Specials",
+            "priceCents": null,
+            "description": null
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "9b85eb48-9d55-4a26-8222-50f0aa007626",
+    "venue": "Il Bosco - North Scottsdale",
+    "verdict": "confirmed",
+    "recommendedAction": "keep",
+    "siteSchedule": "1-5 16:00-17:30",
+    "evidence": "Happy Hour Mon-Fri 4pm-5:30pm (Scottsdale Becker Lane location)",
+    "reason": "The site confirms happy hour on Mon-Fri from 4pm-5:30pm, matching the stored days and times. However, the site excerpt does not specify the discount details (25% off all drinks, appetizers, salads), so those offerings cannot be verified. The core schedule is confirmed.",
+    "screens": {
+      "findings": [],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "https://www.ilboscopizza.com/",
+      "https://www.ilboscopizza.com/our-menu"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "startTime": "16:00:00",
+        "endTime": "17:30:00",
+        "allDay": false,
+        "sourceUrl": "https://www.ilboscopizza.com/",
+        "notes": null,
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "other",
+            "name": "All drinks",
+            "priceCents": null,
+            "description": "25% off all drinks"
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Appetizers",
+            "priceCents": null,
+            "description": "25% off appetizers"
+          },
+          {
+            "kind": "food",
+            "category": "other",
+            "name": "Fresh house salads",
+            "priceCents": null,
+            "description": "25% off fresh house salads"
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "da74ec78-06ca-4e28-ab39-fbd81dc49c1c",
+    "venue": "IL Bosco Pizza",
+    "verdict": "corrected",
+    "recommendedAction": "reextract",
+    "siteSchedule": "Varies by location: Scottsdale Becker Lane: 1-5 16:00-17:30; Tempe McClintock Dr: 1-5 16:00-17:30; Phoenix Roosevelt Row: 1-4 16:00-17:30; Scottsdale Ancala Village: 1-5 16:00-17:30",
+    "evidence": "Happy Hour Mon-Fri 4pm-5:30pm (Scottsdale Becker Lane); Happy Hour Mon-Fri 4pm-5:30pm (Tempe); Happy Hour Mon-Thurs 4:00pm-5:30pm (Phoenix); Happy Hour Mon-Fri 4pm-5:30pm (Ancala Village)",
+    "reason": "The stored data shows Mon-Sat 16:00-17:30, but the venue's pages show multiple locations with different schedules. Most locations list Mon-Fri happy hour, while Phoenix location lists Mon-Thurs. The stored data includes Saturday, which is not listed for any location. Additionally, the Phoenix location differs from others.",
+    "screens": {
+      "findings": [],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "http://www.ilboscopizza.com/",
+      "https://www.ilboscopizza.com/our-menu"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "startTime": "16:00:00",
+        "endTime": "17:30:00",
+        "allDay": false,
+        "sourceUrl": "http://www.ilboscopizza.com/",
+        "notes": null,
+        "offerings": []
+      }
+    ],
+    "costCents": 1
+  },
+  {
+    "venueId": "5fdda766-8677-4361-84bd-5c1e3e4a395b",
+    "venue": "Indicana | Flavors of India X Mexico",
+    "verdict": "corrected",
+    "recommendedAction": "reextract",
+    "siteSchedule": "1-7: 15:00-17:00",
+    "evidence": "HAPPY HOUR EVERYDAY! 3:00pm-5:00pm",
+    "reason": "The site clearly states happy hour runs 3:00pm–5:00pm every day, which differs from the stored 11:00am–2:00pm schedule. The stored times do not match the venue's current offering.",
+    "screens": {
+      "findings": [],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "https://indicanaeats.com/",
+      "https://www.indicanaeats.com/menu"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "startTime": "11:00:00",
+        "endTime": "14:00:00",
+        "allDay": false,
+        "sourceUrl": "https://indicanaeats.com/",
+        "notes": null,
+        "offerings": []
       }
     ],
     "costCents": 1
