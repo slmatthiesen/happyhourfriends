@@ -6,6 +6,7 @@ import { recordUsage } from "@/lib/ai/ledger";
 import { applySubmission } from "@/lib/apply/engine";
 import type { SubmissionDiff } from "@/lib/apply/types";
 import { enqueueVerify } from "@/lib/jobs/queue";
+import { queueForReview } from "@/lib/jobs/queueForReview";
 
 type Submission = typeof editSubmissions.$inferSelect;
 
@@ -90,7 +91,7 @@ export async function handleClassify(submissionId: string): Promise<void> {
     });
   } catch (e) {
     // No API key, parse failure, etc. — fail safe to the admin queue.
-    await setStatus(submissionId, {
+    await queueForReview(sub, {
       status: "queued_admin",
       aiClassifierReasoning: `Classifier unavailable: ${errMsg(e)}`,
     });
@@ -122,14 +123,18 @@ export async function handleClassify(submissionId: string): Promise<void> {
   // short-circuits to the queue with no AI spend.
   if (sub.parentSubmissionId != null) {
     if (banned) {
-      await setStatus(submissionId, { status: "queued_admin" });
+      await queueForReview(
+        sub,
+        { status: "queued_admin" },
+        { reason: "Submitter is banned — stored, never applied (PRD §5.1.4)." },
+      );
       return;
     }
     await setStatus(submissionId, { status: "verifying" });
     try {
       await enqueueVerify(submissionId);
     } catch (e) {
-      await setStatus(submissionId, {
+      await queueForReview(sub, {
         status: "queued_admin",
         aiClassifierReasoning: `${result.reasoning} (verify enqueue failed: ${errMsg(e)})`,
       });
@@ -149,7 +154,15 @@ export async function handleClassify(submissionId: string): Promise<void> {
   // Banned submitters: stored, never applied (PRD §5.1.4). Critical: always a human
   // (PRD §4.2/§4.4) — no Stage 2 spend.
   if (banned || result.riskLevel === "critical") {
-    await setStatus(submissionId, { status: "queued_admin" });
+    await queueForReview(
+      sub,
+      { status: "queued_admin" },
+      {
+        reason: banned
+          ? "Submitter is banned — stored, never applied (PRD §5.1.4)."
+          : `Critical-risk change — always a human call. ${result.reasoning}`,
+      },
+    );
     return;
   }
 
@@ -159,7 +172,7 @@ export async function handleClassify(submissionId: string): Promise<void> {
       await applySubmission(submissionId, { actor: "ai", reason: result.reasoning });
     } catch (e) {
       // e.g. missing source_url on a happy-hour change → human decides.
-      await setStatus(submissionId, {
+      await queueForReview(sub, {
         status: "queued_admin",
         aiClassifierReasoning: `${result.reasoning} (auto-apply blocked: ${errMsg(e)})`,
       });
@@ -172,7 +185,7 @@ export async function handleClassify(submissionId: string): Promise<void> {
   try {
     await enqueueVerify(submissionId);
   } catch (e) {
-    await setStatus(submissionId, {
+    await queueForReview(sub, {
       status: "queued_admin",
       aiClassifierReasoning: `${result.reasoning} (verify enqueue failed: ${errMsg(e)})`,
     });
