@@ -117,6 +117,51 @@ body::before {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
+/* ── Aurora mesh background (personality round) ─────────────────────────────
+   Animated replacement for the static glows, gated by .aurora-on on <body>
+   (set from uiFlags.aurora in app/layout.tsx — flag off restores the static
+   gradients above). transform-only animation; no blur filters (perf). */
+body.aurora-on {
+  background-image: none;
+}
+body.aurora-on::after {
+  content: "";
+  position: fixed;
+  inset: -40%;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      40% 40% at 30% 30%,
+      color-mix(in oklab, var(--accent-warm) 18%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      35% 35% at 70% 40%,
+      color-mix(in oklab, var(--accent-cool) 16%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      30% 30% at 50% 70%,
+      color-mix(in oklab, var(--accent-hot) 10%, transparent),
+      transparent 70%
+    );
+  animation: aurora-drift 16s ease-in-out infinite alternate;
+}
+@keyframes aurora-drift {
+  from {
+    transform: rotate(0deg) scale(1);
+  }
+  to {
+    transform: rotate(12deg) scale(1.2);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.aurora-on::after {
+    animation: none; /* freezes as a static mesh — still layered, no motion */
+  }
+}
+
 /* Tabular numerals for the data table (§6.1). */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
