@@ -16,8 +16,8 @@
 
 import { extractMediaLinks } from "@/lib/places/siteTriage";
 
-const USER_AGENT =
-  "HappyHourFriendsBot/1.0 (+https://happyhourfriends.com)";
+const BOT_NAME = "HappyHourFriendsBot";
+const USER_AGENT = `${BOT_NAME}/1.0 (+https://happyhourfriends.com)`;
 
 const TIMEOUT_MS = 10_000;
 const MAX_CONTENT = 8_000; // default (verifier tool loop); extractor overrides higher.
@@ -99,6 +99,9 @@ export function harvestScriptText(html: string, cap = 8000): string {
         .trim();
       if (v.length < 4) continue;
       if (/^[\w.\-]+$/.test(v)) continue; // bare token — a JSON key / id / slug, not prose
+      // Wix/SSR sites echo the request's User-Agent into their warmup JSON; our own bot
+      // name contains "HappyHour", which false-fires every downstream HH-signal regex.
+      if (v.includes(BOT_NAME)) continue;
       if (!HARVEST_SIGNAL.test(v)) continue;
       if (seen.has(v)) continue;
       seen.add(v);
@@ -245,7 +248,7 @@ export async function fetchUrl(url: string, opts: FetchOpts = {}): Promise<Fetch
         if (
           isBlockedByRobots(
             robotsTxt,
-            "HappyHourFriendsBot",
+            BOT_NAME,
             targetPath,
           )
         ) {

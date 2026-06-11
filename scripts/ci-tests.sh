@@ -20,6 +20,7 @@ set -uo pipefail
 TESTS=(
   test:venue-type
   test:first-party
+  test:harvest
   test:stub-rank
   test:extract
   test:realness-gate
