@@ -30,6 +30,7 @@
     "export:candidates": "tsx scripts/export-candidates.ts",
     "test:venue-type": "tsx scripts/test-venue-type.ts",
     "test:first-party": "tsx scripts/test-first-party.ts",
+    "test:harvest": "tsx scripts/test-fetchurl-harvest.ts",
     "backfill:venue-types": "tsx scripts/backfill-venue-types.ts",
     "backfill:neighborhood-tiers": "tsx scripts/backfill-neighborhood-tiers.ts",
     "backfill:google-neighborhoods": "tsx scripts/backfill-google-neighborhoods.ts",
