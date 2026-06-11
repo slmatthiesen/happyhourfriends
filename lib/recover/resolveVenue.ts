@@ -118,6 +118,26 @@ export async function persistExtractedWindows(
       timeKnown: hh.timeKnown,
       confidence: extracted.confidence,
     });
+    // An operator-deleted window must NEVER come back: the natural-key unique index is
+    // partial (deleted_at IS NULL), so a re-extraction of the same page would re-insert
+    // the same service-hours window as a fresh row and it would reappear in every
+    // hidden-window review. Soft-deleted = the operator ruled "not a happy hour" — final.
+    const loc = (hh.locationWithinVenue ?? "all") as string;
+    const [nuked] = await db
+      .select({ id: happyHours.id })
+      .from(happyHours)
+      .where(
+        and(
+          eq(happyHours.venueId, venueId),
+          sql`${happyHours.deletedAt} IS NOT NULL`,
+          eq(happyHours.daysOfWeek, days),
+          sql`${happyHours.startTime} IS NOT DISTINCT FROM ${hh.startTime}::time`,
+          sql`${happyHours.endTime} IS NOT DISTINCT FROM ${hh.endTime}::time`,
+          sql`${happyHours.locationWithinVenue}::text = ${loc}`,
+        ),
+      )
+      .limit(1);
+    if (nuked) continue;
     // Hidden if the realness gate is suspicious OR the free parser flagged the window
     // implausible OR the reconcile gate marked it inactive (operating-hours / overlap).
     // Used for the insert, the live/hidden tally, AND the audit row so all three agree.

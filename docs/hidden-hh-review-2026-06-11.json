@@ -23,7 +23,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://anzios.com/phoenix-north-phoenix-anzio-s-italian-restaurant-happy-hours-specials",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "1b10c1dd-35f3-4f3a-9740-ff0a1619147e",
@@ -43,6 +44,7 @@
       "extractConfidence": "0.6",
       "sourceUrl": "http://azaiclub.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -63,6 +65,7 @@
       "extractConfidence": "0.6",
       "sourceUrl": "http://azaiclub.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -89,7 +92,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.bacanoraphx.com/menu",
       "notes": null,
-      "action": "promote"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "948db97d-1cd6-471b-8012-4719c1600884",
@@ -115,6 +119,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/menus/general-menu",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -141,6 +146,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/menus/general-menu",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -167,6 +173,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/menus/general-menu",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -193,7 +200,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "36c0d98f-15c1-4401-853f-aeee38230845",
@@ -219,7 +227,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "abda2013-8dd1-46f1-88f4-5da1803f9603",
@@ -245,7 +254,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "f2f991f1-6b3c-4a7f-bbdc-692bbb3b17b3",
@@ -271,6 +281,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -297,6 +308,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -323,6 +335,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -349,6 +362,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -375,6 +389,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -401,6 +416,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -425,7 +441,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.blancococinacantina.com/locations/paradise-valley/?menu=happy-hour-menu",
       "notes": "Happy Hour Monday–Friday 2–5PM, in the bar.",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "be52ed93-6628-4fb0-bd9b-45651a25a8c0",
@@ -451,6 +468,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.instagram.com/brigetts_last_laugh/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -477,7 +495,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://chase.com/sapphireairportlounge?y_source=1_MTA4NjYwNDMwMi03MTUtbG9jYXRpb24ud2Vic2l0ZQ%3D%3D",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "5a84fa69-15c9-40c6-9b55-a9d0bc858df3",
@@ -503,7 +522,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://chase.com/sapphireairportlounge?y_source=1_MTA4NjYwNDMwMi03MTUtbG9jYXRpb24ud2Vic2l0ZQ%3D%3D",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "91bbc489-8ad6-4557-9a83-b92ab0884c50",
@@ -529,7 +549,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://chase.com/sapphireairportlounge?y_source=1_MTA4NjYwNDMwMi03MTUtbG9jYXRpb24ud2Vic2l0ZQ%3D%3D",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "3a4cea85-fd7d-415f-bc47-957b3fbe5a31",
@@ -555,7 +576,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://chase.com/sapphireairportlounge?y_source=1_MTA4NjYwNDMwMi03MTUtbG9jYXRpb24ud2Vic2l0ZQ%3D%3D",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "5414d5f9-260c-4177-aa25-c40cb3b75113",
@@ -581,7 +603,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://chase.com/sapphireairportlounge?y_source=1_MTA4NjYwNDMwMi03MTUtbG9jYXRpb24ud2Vic2l0ZQ%3D%3D",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "c55c27ab-7e42-419f-a262-1832e37599da",
@@ -607,7 +630,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://chase.com/sapphireairportlounge?y_source=1_MTA4NjYwNDMwMi03MTUtbG9jYXRpb24ud2Vic2l0ZQ%3D%3D",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "df6dc94f-214a-4134-8cda-552788b1780c",
@@ -633,7 +657,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://cruisin7th.com/about-us/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "7ab545d4-6c3e-413a-9a04-ebb902da2d67",
@@ -659,6 +684,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://tapatiocliffshilton.com/dining/in-room-dining/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -685,6 +711,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://tapatiocliffshilton.com/dining/in-room-dining/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -711,7 +738,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://tapatiocliffshilton.com/dining/in-room-dining/",
       "notes": null,
-      "action": "promote"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "41d8f615-f277-47ba-8bac-ff4437d283b7",
@@ -737,7 +765,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.tapatiocliffshilton.com/dining/different-pointe-of-view/",
       "notes": null,
-      "action": "promote"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "a0449596-d771-4f9d-a133-a3d05804d137",
@@ -762,7 +791,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.happyhourmaps.com/bar_infos/729",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "cb090240-ef6e-4e58-bbb1-5062029e8f3f",
@@ -782,7 +812,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.happyhourmaps.com/bar_infos/729",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "786cd41b-5463-4e41-9ed6-0cc1bd2b1e33",
@@ -802,7 +833,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.happyhourmaps.com/bar_infos/729",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "3d91ab57-6e47-45e6-bb18-27f9f294d3bd",
@@ -822,7 +854,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.happyhourmaps.com/bar_infos/729",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "52c1332a-9105-43e9-b49b-1514518afb9d",
@@ -847,6 +880,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.happyhourmaps.com/bar_infos/729",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -867,6 +901,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.happyhourmaps.com/bar_infos/729",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -887,6 +922,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.happyhourmaps.com/bar_infos/729",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -907,6 +943,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.happyhourmaps.com/bar_infos/729",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -927,6 +964,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.happyhourmaps.com/bar_infos/729",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -950,6 +988,7 @@
       "extractConfidence": "0.6",
       "sourceUrl": "https://static.wixstatic.com/media/37ef22_0268b2607a234d6aaf888205da9c9bab~mv2.png/v1/crop/x_25,y_0,w_3550,h_5400/fill/w_988,h_1503,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/MAY%202026%20PART%202%20EZBACHI%20DINNER%20MENU.png",
       "notes": "Appetizer Drinks and Beers",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -972,7 +1011,8 @@
       "extractConfidence": "0.6",
       "sourceUrl": "https://static.wixstatic.com/media/37ef22_0268b2607a234d6aaf888205da9c9bab~mv2.png/v1/crop/x_25,y_0,w_3550,h_5400/fill/w_988,h_1503,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/MAY%202026%20PART%202%20EZBACHI%20DINNER%20MENU.png",
       "notes": "Appetizer Drinks and Beers",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "0d41b475-cc5e-450d-abf4-0e416c0611c1",
@@ -992,7 +1032,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.flintbybaltaire.com/the-latest/mothers-day-brunch-buffet",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "meal-service menu page, no deals attached",
+      "action": "delete"
     },
     {
       "happyHourId": "4f9edf72-9bc0-460d-9987-2db5bee0f86f",
@@ -1018,6 +1059,7 @@
       "extractConfidence": "0.35",
       "sourceUrl": "https://www.flintbybaltaire.com/happy-hour",
       "notes": "Happy hour menu published with cocktails, snacks, wines by the glass, and draft beer at discounted prices, but no specific time window stated on the happy hour page.",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -1044,7 +1086,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.iamaflowerchild.com/locations/phoenix-az-arcadia/?utm_source=Google&utm_medium=Organic&utm_campaign=Maps",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "4a47cfde-7f85-4157-b2e7-b12bcd5185d3",
@@ -1070,7 +1113,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.iamaflowerchild.com/locations/flower-child-paradise-valley/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "ec3845ff-0b8d-49a5-98b0-029e750e506b",
@@ -1096,7 +1140,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://flybyetogo.com/locations/phoenix-az-arcadia/?utm_source=Google&utm_medium=Organic&utm_campaign=Maps",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "af7c13a9-ec6d-401e-888b-1e24790020ea",
@@ -1119,7 +1164,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://whereshouldweeat.com/ingredients/geordies-wrigley-mansion/",
       "notes": "50% off select lounge menu items; discounts on wine and cocktails",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "6b793c1f-dbeb-4abf-950a-22514692ddcb",
@@ -1139,6 +1185,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.postcard.inc/places/geordies-at-wrigley-mansion-phoenix-6GoQNLVOeEJ",
       "notes": "All day Wednesday: 50% off select lounge menu items; discounts on wine and cocktails",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -1159,7 +1206,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://greenvegetarian.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "8876ee66-a8f7-4c5c-9eea-5db5f44b848c",
@@ -1185,7 +1233,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.jewelsbakeryandcafe.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "6dd5a48d-65d2-4596-86db-d5abc66ca643",
@@ -1211,6 +1260,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.alignable.com/phoenix-az/kimmyz-tatum-point-2/happy-hour",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -1231,6 +1281,7 @@
       "extractConfidence": "0.4",
       "sourceUrl": "https://kingsbeerwine.com/#",
       "notes": "Monday all day happy hour",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -1255,7 +1306,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://brewerybible.com/breweries/united-states/arizona/phoenix/kitsune-brewing-company/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "c310cede-0b89-4a35-8a2f-b6e3c0b27c9f",
@@ -1281,7 +1333,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.lucisgoodness.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "5d0cafbe-cc65-4f98-880e-3559aa992a1a",
@@ -1307,7 +1360,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.lucisgoodness.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "2b789c50-c6b0-4671-9835-71fe9a5b30a0",
@@ -1333,7 +1387,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.lucisgoodness.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "7b40500c-ba07-432e-9da6-8d68751c6c1e",
@@ -1359,6 +1414,7 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.lucisgoodness.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -1385,6 +1441,7 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.lucisgoodness.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -1411,6 +1468,7 @@
       "extractConfidence": "0.35",
       "sourceUrl": "https://www.lucisgoodness.com/newpagec4d1771d",
       "notes": "Happy hour (HH) on all draft beer and all house wine and all specialty cocktails—no times or days specified",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -1437,7 +1495,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://manuelsaz.com/specials/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "fd9c26e4-777a-43f8-84db-993a47d86cee",
@@ -1463,7 +1522,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://manuelsaz.com/specials/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "5ef92ca9-2284-4d1b-b7e6-0bfe2a1d989b",
@@ -1489,7 +1549,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://manuelsaz.com/specials/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "a2cd7945-0447-404a-890e-335da75d8fd7",
@@ -1510,6 +1571,7 @@
       "extractConfidence": "0.65",
       "sourceUrl": "https://manuelsaz.com/wp-content/uploads/2025/09/DAILY-SPECIALS.pdf",
       "notes": "Monday & Tuesday special: Beef Taco, Cheese Enchilada, Rice & Beans for $12.25. Time window not specified.",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -1530,6 +1592,7 @@
       "extractConfidence": "0.65",
       "sourceUrl": "https://manuelsaz.com/wp-content/uploads/2025/09/DAILY-SPECIALS.pdf",
       "notes": "Margarita Mondays; time window not specified",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -1550,6 +1613,7 @@
       "extractConfidence": "0.65",
       "sourceUrl": "https://manuelsaz.com/wp-content/uploads/2025/09/DAILY-SPECIALS.pdf",
       "notes": "Wednesday Kids Eat Free with purchase of adult entrée $11 or more (Kids 12 and under only, one meal per child, dine in only). Time window not specified.",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -1570,6 +1634,7 @@
       "extractConfidence": "0.65",
       "sourceUrl": "https://manuelsaz.com/wp-content/uploads/2025/09/DAILY-SPECIALS.pdf",
       "notes": "Thursday special: Carnitas for $12.25. Time window not specified.",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -1590,6 +1655,7 @@
       "extractConfidence": "0.65",
       "sourceUrl": "https://manuelsaz.com/wp-content/uploads/2025/09/DAILY-SPECIALS.pdf",
       "notes": "Kids eat free with purchase of adult entree $11 or more; kids 12 and under, one meal per child, dine in only",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -1614,7 +1680,8 @@
       "extractConfidence": null,
       "sourceUrl": "http://losarbolitosusa.com/events",
       "notes": "Specials banner: '$5 margarita' and '$5 draft beer', 3–7PM. Days not specified on site; assumed Mon–Fri per default.",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "670bf116-e0db-4827-a8cd-013460617557",
@@ -1640,7 +1707,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.mariscosplayahermosa.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "3c74988c-bf6f-4195-856e-c7dfe10c1f1a",
@@ -1666,7 +1734,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.mariscosplayahermosa.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "cc63f9af-7866-479c-9a3c-06a7ce844a2a",
@@ -1686,6 +1755,7 @@
       "extractConfidence": "0.7",
       "sourceUrl": "https://metrosportzbar.com/wp-content/uploads/2024/12/IMG_3219-scaled.jpeg",
       "notes": "Drink specials on Monday (times not specified on sign)",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -1706,6 +1776,7 @@
       "extractConfidence": "0.7",
       "sourceUrl": "https://metrosportzbar.com/wp-content/uploads/2024/12/IMG_3219-scaled.jpeg",
       "notes": "Friday drink specials until 9 PM",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -1726,6 +1797,7 @@
       "extractConfidence": "0.7",
       "sourceUrl": "https://metrosportzbar.com/wp-content/uploads/2024/12/IMG_3219-scaled.jpeg",
       "notes": "Three Olives Thursday drink specials until 9 PM",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -1746,6 +1818,7 @@
       "extractConfidence": "0.7",
       "sourceUrl": "https://metrosportzbar.com/wp-content/uploads/2024/12/IMG_3219-scaled.jpeg",
       "notes": "Saturday drink specials (times not specified on sign)",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -1766,6 +1839,7 @@
       "extractConfidence": "0.7",
       "sourceUrl": "https://metrosportzbar.com/wp-content/uploads/2024/12/IMG_3219-scaled.jpeg",
       "notes": "Whiskey Wednesday drink specials (times not specified on sign)",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -1786,6 +1860,7 @@
       "extractConfidence": "0.7",
       "sourceUrl": "https://metrosportzbar.com/wp-content/uploads/2024/12/IMG_3219-scaled.jpeg",
       "notes": "Drink specials on Sunday (times not specified on sign)",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -1806,6 +1881,7 @@
       "extractConfidence": "0.7",
       "sourceUrl": "https://metrosportzbar.com/wp-content/uploads/2024/12/IMG_3219-scaled.jpeg",
       "notes": "Tequila Tuesday drink specials (times not specified on sign)",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -1832,6 +1908,7 @@
       "extractConfidence": "0.4",
       "sourceUrl": "https://nami-koreankitchenaz.com/food-menu",
       "notes": "Happy Hour Combos available all day: Sashimi OR Sushi Combo (Chef's Choice) with add-on drinks and appetizer options listed",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -1852,7 +1929,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://ochoriosjerkspot.com/ocho-rios-jerk-spot-events",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "4170def3-e08c-4e39-8aa5-7ea549477e8c",
@@ -1878,6 +1956,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://originalchopshop.com/press-releases/original-chopshop-unwraps-new-menu-items-and-in-app-rewards/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -1904,7 +1983,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://pitajungle.com/locations/uptown-phoenix/?utm_source=google&utm_medium=organic&utm_campaign=UptownPhoenix&utm_content=WebsiteLink",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "fba9c506-1e95-477d-92e2-bf116732463b",
@@ -1930,7 +2010,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://pitajungle.com/locations/uptown-phoenix/?utm_source=google&utm_medium=organic&utm_campaign=UptownPhoenix&utm_content=WebsiteLink",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "26e20f2f-5265-4c7f-9f99-2bfdfbef78ad",
@@ -1956,7 +2037,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://pitajungle.com/locations/uptown-phoenix/?utm_source=google&utm_medium=organic&utm_campaign=UptownPhoenix&utm_content=WebsiteLink",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "a1e8cb51-cf18-4a86-b920-ee355e31bfca",
@@ -1982,7 +2064,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://pitajungle.com/locations/uptown-phoenix/?utm_source=google&utm_medium=organic&utm_campaign=UptownPhoenix&utm_content=WebsiteLink",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "f76a78b0-a5bb-4185-9be9-3af5c4efc1d9",
@@ -2006,7 +2089,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://pitajungle.com/blog/enjoy-happy-hour-at-pita-jungle-with-tapas-in-newport-beach/",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "4c2bbec7-85f0-4ad2-8558-1dbb26aea4cc",
@@ -2030,6 +2114,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://pitajungle.com/locations/uptown-phoenix/?utm_source=google&utm_medium=organic&utm_campaign=UptownPhoenix&utm_content=WebsiteLink",
       "notes": "days assumed Mon–Fri (none stated)",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -2056,6 +2141,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://pitajungle.com/locations/uptown-phoenix/?utm_source=google&utm_medium=organic&utm_campaign=UptownPhoenix&utm_content=WebsiteLink",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -2078,7 +2164,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.yelp.com/biz/platform-18-at-century-grand-phoenix-3",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "4fadae28-4ba3-4e3a-9f82-99235beb98e9",
@@ -2104,6 +2191,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://tapatiocliffshilton.com/dining/pointe-in-tyme/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -2130,6 +2218,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://tapatiocliffshilton.com/dining/in-room-dining/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -2156,6 +2245,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://tapatiocliffshilton.com/dining/pointe-in-tyme/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -2182,7 +2272,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://tapatiocliffshilton.com/dining/in-room-dining/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "b367551b-c235-49ef-a30f-cb25d21c871d",
@@ -2202,6 +2293,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://rubios.com/tuesday-specials-additions-d401-d302/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -2222,7 +2314,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.phoenixnewtimes.com/best-of/2022/nightlife/best-gay-bar-14556539",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "42765777-8268-4de8-b935-90ba73892615",
@@ -2247,6 +2340,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.phoenixnewtimes.com/restaurants/sushiholic-happy-hour-report-card-9554712/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -2272,6 +2366,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.phoenixnewtimes.com/restaurants/sushiholic-happy-hour-report-card-9554712/",
       "notes": "Reverse happy hour",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -2296,7 +2391,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.szechwan-kitchen.com/s7z8g6jl/szechwan-kitchen-phoenix-85013/order-online#menu-section",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "9443a344-e90a-4c0e-947d-c952061f7490",
@@ -2320,7 +2416,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.opentable.com/the-capital-grille-phoenix",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "b67d7fac-f497-4ba7-8e8a-f1aec58f0bf6",
@@ -2344,7 +2441,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.thedirtydrummer.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "13f0fc60-c0d1-4b7c-ba74-28bc75991a64",
@@ -2364,7 +2462,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.thepemberton.com/events-listing/sunday-recurring-events-b4c8h-b55hp",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "0611d985-4f6c-47e4-8927-92cd365d94bf",
@@ -2384,6 +2483,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://the-playa-ii.weeblyte.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -2404,6 +2504,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://the-playa-ii.weeblyte.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -2424,6 +2525,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://the-playa-ii.weeblyte.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -2444,6 +2546,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://the-playa-ii.weeblyte.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -2464,6 +2567,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://the-playa-ii.weeblyte.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -2484,6 +2588,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://the-playa-ii.weeblyte.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -2508,7 +2613,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.ihg.com/crowneplaza/hotels/us/en/phoenix/phxea/hoteldetail/dining",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "cabb86bc-78b7-4fc1-9739-dfc51df479ee",
@@ -2532,6 +2638,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.arizonafoothillsmagazine.com/taste/restaurants-phoenix/the-sicilian-butcher-brings-the-flavors-of-sicily-to-the-valley",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -2556,6 +2663,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.thetamalestore.com/events/2025/10/25/arrowhead-farmers-market-9am-1pm-special-halloween-market",
       "notes": "days assumed Mon–Fri (none stated)",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -2582,7 +2690,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.wholefoodsmarket.com/stores/camelback?utm_source=google&utm_medium=organic&utm_campaign=listings",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "cbba3a4a-ac2b-4d48-b9ff-b6e129cf91d9",
@@ -2606,7 +2715,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.phoenixnewtimes.com/restaurants/valley-bar-in-downtown-phoenix-happy-hour-report-card-7612586",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "115eab11-4f2f-46cf-a6ca-369c9053686c",
@@ -2626,7 +2736,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.phoenixnewtimes.com/restaurants/valley-bar-in-downtown-phoenix-happy-hour-report-card-7612586",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "e57a1613-31d0-4c40-a1c5-e511b0577134",
@@ -2649,7 +2760,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.phoenixmag.com/2024/11/04/happy-hour-spotlight-new-hhs-on-the-block-2/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "0e4a60ac-b9ff-4cc3-84f6-a9fe423b9c91",
@@ -2673,7 +2785,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://fabulousarizona.com/food-drink/wren-wolf-phoenix/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "bd2b9115-0d03-4bd0-b09c-8877a585745c",
@@ -2695,6 +2808,7 @@
       "extractConfidence": "0.4",
       "sourceUrl": "https://creativeideascateringcafe.com/mexican-menu",
       "notes": "Cinco de Mayo happy hour Wed–Fri, time not specified, minimum 24 orders of each item",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -2715,7 +2829,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://koipalace.com/opening-hours",
       "notes": null,
-      "action": "promote"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "8b222a75-c2c9-44c7-bb22-8236d34e7033",
@@ -2740,7 +2855,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://mrpollodalycity.wixsite.com/mrpollo",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "428a6c5b-91c4-4fc4-857b-691d9088272a",
@@ -2765,6 +2881,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://mrpollodalycity.wixsite.com/mrpollo",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -2791,6 +2908,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.originaljoes.com/westlake/menu",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -2812,6 +2930,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.originaljoes.com/northbeach/menu",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -2837,7 +2956,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://spiraljapanesecuisine.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "e6c01b65-990f-4549-908b-f4d5868d43d0",
@@ -2861,7 +2981,8 @@
       "extractConfidence": "0.95",
       "sourceUrl": "https://www.superduperburgers.com/#seasonal-specials",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "abac4343-fe46-49cb-9642-f49d4cf8a923",
@@ -2887,7 +3008,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://tomosushiteriyaki.shop/menu",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "43c705a5-2433-4626-9bdb-3ebdb3163bea",
@@ -2913,7 +3035,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://tomosushiteriyaki.shop/menu",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "b0cecde5-6783-44c6-a183-5bb25c9b1f16",
@@ -2939,7 +3062,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://tomosushiteriyaki.shop/menu",
       "notes": null,
-      "action": "promote"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "d17cd1e4-eba3-484c-b9c8-94e5629f2e00",
@@ -2965,6 +3089,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://tomosushiteriyaki.shop/menu",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -2991,7 +3116,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://tomosushiteriyaki.shop/menu",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "161be1a4-7443-4609-a070-411d9cb0eb89",
@@ -3017,7 +3143,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://usmenuguide.com/places/united-states/california/san-francisco/uni-pizzeria-and-grill-san-francisco/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "15f54add-bb2e-45e5-b931-1c2320a993f7",
@@ -3043,7 +3170,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://usmenuguide.com/places/united-states/california/san-francisco/uni-pizzeria-and-grill-san-francisco/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "de996b80-f087-440a-9bed-220115efd325",
@@ -3069,7 +3197,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://usmenuguide.com/places/united-states/california/san-francisco/uni-pizzeria-and-grill-san-francisco/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "a68d834f-cd7b-40a8-b3eb-a1a710fad1bc",
@@ -3095,7 +3224,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://usmenuguide.com/places/united-states/california/san-francisco/uni-pizzeria-and-grill-san-francisco/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "ea850882-387c-4f2b-a40f-534662f7454e",
@@ -3121,7 +3251,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.giuseppesrestaurant.com/about",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "baac9716-b0d8-46a9-b6fa-c65c4e0d0ef5",
@@ -3147,7 +3278,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.giuseppesrestaurant.com/about",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "57dc7e22-6f92-450c-91a0-47c1bbefee3c",
@@ -3173,7 +3305,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.giuseppesrestaurant.com/about",
       "notes": null,
-      "action": "promote"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "6b30f7a4-5b63-477b-a309-a1de36026e96",
@@ -3199,7 +3332,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.giuseppesrestaurant.com/about",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "d8f74087-d98f-46f0-96bc-75b9b72bb7eb",
@@ -3225,7 +3359,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.giuseppesrestaurant.com/about",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "7cedbddc-074d-4148-8846-101733df95c3",
@@ -3251,6 +3386,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.giuseppesrestaurant.com/about",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -3275,7 +3411,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://cliffshotelandspa.com/specials/",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "5425a5a1-bbce-49c2-80c1-f2cf2f83d38e",
@@ -3299,7 +3436,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://cliffshotelandspa.com/specials/",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "c5bd4018-a1cc-4ac5-82bc-84d2921ff0cd",
@@ -3325,7 +3463,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.masonbarag.com/menus/lunch/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "meal-service menu page, no deals attached",
+      "action": "delete"
     },
     {
       "happyHourId": "81bd44c8-d661-4d51-a34c-80decf9ec19d",
@@ -3351,7 +3490,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.masonbarag.com/menus/dinner/",
       "notes": null,
-      "action": "promote"
+      "evidence": "meal-service menu page, no deals attached",
+      "action": "delete"
     },
     {
       "happyHourId": "85b9a706-bbca-4a18-a140-5b380a1b90ab",
@@ -3377,7 +3517,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.roostercreektavern.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "9cabbdc8-2df9-4a16-a4a0-317c8c667fe4",
@@ -3401,7 +3542,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://sidewalkcafeag.smartonlineorder.com/",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "d03d7be7-9b1c-4d3a-83eb-24762bf3e9e7",
@@ -3427,6 +3569,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.splashcafe.com/catering/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -3453,7 +3596,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.splashcafe.com/catering/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "ab9e8be4-47b2-4ff4-8b27-957855175ad4",
@@ -3473,6 +3617,7 @@
       "extractConfidence": "0.6",
       "sourceUrl": "https://www.splashcafe.com/menu-2/",
       "notes": "Thursday specials on Morning Munchie Bowl ($9.95), Chicken Avocado Wrap ($11.95), and Fully Loaded Clam Chowder Bread Bowl ($16.95); specific times not published",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -3493,6 +3638,7 @@
       "extractConfidence": "0.6",
       "sourceUrl": "https://www.splashcafe.com/menu-2/",
       "notes": "Wednesday specials on Veggie Burger ($9.95), Ahi Sandwich ($12.95), and Fish & Chips ($16.95); specific times not published",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -3513,6 +3659,7 @@
       "extractConfidence": "0.6",
       "sourceUrl": "https://www.splashcafe.com/menu-2/",
       "notes": "Tuesday specials on Salmon Sandwich ($15.50), Raucous Western Burger ($13.95), and Ahi Tacos ($12.95); specific times not published",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -3533,6 +3680,7 @@
       "extractConfidence": "0.6",
       "sourceUrl": "https://www.splashcafe.com/menu-2/",
       "notes": "Monday specials on Splash Seafood Salad ($12.95), Chicken Sandwich ($11.95), and Lobster Roll ($16.95); specific times not published",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -3557,7 +3705,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.quarterdeckseafood.com/cocktails",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "dca6e59b-eb74-4c9c-b5b0-63994f384e57",
@@ -3582,7 +3731,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.verdadandlindquistfamilywines.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "4d1c45ba-7ede-4476-b268-53347c7ff4c4",
@@ -3608,7 +3758,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.verdadandlindquistfamilywines.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "6bd47b0d-df0d-4315-97b9-579df654d4e8",
@@ -3634,7 +3785,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.verdadandlindquistfamilywines.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "865b096c-315a-4db1-99fb-bf2c417ff1e8",
@@ -3660,7 +3812,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.verdadandlindquistfamilywines.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "46f52e61-2570-46d6-80e5-ee30b6f8c668",
@@ -3686,7 +3839,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.verdadandlindquistfamilywines.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "c8b39763-b7e3-4ccc-b573-893fe690c3e7",
@@ -3712,7 +3866,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.villadelmarmexican.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "f91f7fc8-948d-4cb2-96bb-04dddd07ea45",
@@ -3738,7 +3893,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.zorroscafe.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "9b64d81f-4ce0-4321-8760-1cd82486e6fd",
@@ -3763,7 +3919,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://asmararestaurantoakland.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "091fec02-312e-43d9-b81a-4502024411a1",
@@ -3789,7 +3946,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://boathousealameda.net/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "6df55214-9f3d-4b63-a94c-9f9a455f6bc4",
@@ -3809,6 +3967,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.booksociety.social/event-details",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -3835,7 +3994,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.booksociety.social/menu/happy-hour",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "ec65c301-44f3-450c-92c5-21d37cfb18fe",
@@ -3861,7 +4021,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.booksociety.social/menu/happy-hour",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "a60ee0eb-00b8-4d3d-a66f-a9e9fabcf364",
@@ -3887,7 +4048,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.booksociety.social/menu/happy-hour",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "8f57cd33-bb92-4d66-8852-b54ffc1f7312",
@@ -3908,7 +4070,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.booksociety.social/event-proposals",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "f879831c-ba86-4349-9699-3fb7209a3f5d",
@@ -3932,7 +4095,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://dmonaghansoakland.com/oakland-d-monaghans-on-the-hill-happy-hours-specials",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "60c81beb-2933-4e98-bacd-24aadffffcf3",
@@ -3956,7 +4120,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://dmonaghansoakland.com/oakland-d-monaghans-on-the-hill-happy-hours-specials",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "1cd8f95f-7c75-4a09-b72a-0bcfdd14105b",
@@ -3977,7 +4142,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://dmonaghansoakland.com/oakland-d-monaghans-on-the-hill-happy-hours-specials",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "b48d57fd-3c5f-4282-a37f-22c7e2acbbe8",
@@ -4003,7 +4169,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://elagavero.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "4006dd32-00b8-4d3d-9651-c6920d70235f",
@@ -4029,7 +4196,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://forthecultureoak.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "c3b58bf2-9046-416d-bd48-775caeadf7f3",
@@ -4055,7 +4223,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://forthecultureoak.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "2a1df2e4-3da8-4dad-9f3f-733e991ea128",
@@ -4075,6 +4244,7 @@
       "extractConfidence": "0.6",
       "sourceUrl": "https://golondrinasgrill.com/menu",
       "notes": "Taco Tuesday and Drink Tuesday specials listed on menu with no specific times published",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -4101,7 +4271,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://claremontresortandclub.com/dine/in-room-dining/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "984f10bb-7261-487a-a668-a804708144ca",
@@ -4127,6 +4298,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://claremontresortandclub.com/dine/in-room-dining/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -4149,7 +4321,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://lapena.org/los-cilantros-restaurant/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "186e3efe-4ed2-4f11-9e2b-f052d5cb212e",
@@ -4171,7 +4344,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://lapena.org/los-cilantros-restaurant/",
       "notes": null,
-      "action": "promote"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "ee4cb7b0-a539-4faa-b3ef-48db63a8f3c5",
@@ -4193,7 +4367,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://lapena.org/los-cilantros-restaurant/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "e86a2011-7720-4bbb-adfb-d92d3e1123ef",
@@ -4217,7 +4392,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.mitamasushi.com/valentines-day-special.html",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "e091fac1-5fc7-4c7f-9510-75c795b638d6",
@@ -4241,7 +4417,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.pacificlighthouse88.com/dim_sum_menu",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "205a6182-c114-4096-994f-831264a17544",
@@ -4267,7 +4444,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.parkburgeroakland.com/menu",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "8e618ebe-547b-4957-bf66-37ea63af9d2f",
@@ -4293,7 +4471,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.piedmontrnr.com/sushi-special-1",
       "notes": null,
-      "action": "promote"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "37da1ec5-8e33-4ced-a72e-54ab78885e3c",
@@ -4317,7 +4496,8 @@
       "extractConfidence": "0.6",
       "sourceUrl": "https://www.piedmontrnr.com/sushi-special-1",
       "notes": "Daily lunch sushi specials Monday through Friday until 3pm",
-      "action": "promote"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "c5004f2d-4cc0-4797-90cc-b40d570162e0",
@@ -4343,7 +4523,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.piedmontrnr.com/sushi-special-1",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "f7cda62a-366d-4b50-9450-ec9fc552774b",
@@ -4364,7 +4545,8 @@
       "extractConfidence": "0.75",
       "sourceUrl": "http://www.saucyoakland.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "595683e7-da15-46b7-a58e-829d829fc1eb",
@@ -4385,7 +4567,8 @@
       "extractConfidence": "0.75",
       "sourceUrl": "http://www.saucyoakland.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "8210975c-41c3-46bb-816b-a1aa9a9f4588",
@@ -4405,7 +4588,8 @@
       "extractConfidence": "0.75",
       "sourceUrl": "http://www.saucyoakland.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "42046e5d-1af0-47c2-96c9-f3af65c74279",
@@ -4429,7 +4613,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.sliverpizzeria.com/lunch-deals",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": "meal-service menu page, no deals attached",
+      "action": "delete"
     },
     {
       "happyHourId": "625d823d-6f33-4ff2-ad37-2fe9d87192f9",
@@ -4449,7 +4634,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.thecookandherfarmer.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "49ff37ef-8f96-4ce4-9e9d-4c32ec347c6a",
@@ -4473,7 +4659,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://thehappyhourfinder.com/us_az/scottsdale/18-degrees/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "b9467ac0-0fe6-494f-9479-e094b61501a3",
@@ -4497,7 +4684,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://thehappyhourfinder.com/us_az/scottsdale/18-degrees/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "44d21f2e-641b-48f0-b426-fc341a281b45",
@@ -4523,7 +4711,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.angrycrabshack.com/talking-stick-way-scottsdale",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "e95a3275-8b82-4ad9-a90c-1d6d82e2d4a4",
@@ -4549,7 +4738,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.arrivederci.restaurant/menu",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "72df6c09-af5e-4178-83ef-a3b6be135634",
@@ -4575,7 +4765,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.arrivederci.restaurant/menu",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "cb8001a1-b676-436f-a9d1-e8a6c1aaf169",
@@ -4601,6 +4792,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.artezaniakitchen.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -4627,7 +4819,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.artezaniakitchen.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "2d13d1b3-4401-4eb6-8c6c-c085d6d77430",
@@ -4647,6 +4840,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://authenticethioafrican.com/about",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -4667,7 +4861,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://authenticethioafrican.com/about",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "b966c781-6b51-4f91-bf78-c85f47515986",
@@ -4687,7 +4882,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://authenticethioafrican.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "29e51b95-64c1-46fa-9b18-aa0635ebc9d8",
@@ -4707,6 +4903,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://authenticethioafrican.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -4733,6 +4930,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/menus/general-menu",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -4759,6 +4957,7 @@
       "extractConfidence": "0.4",
       "sourceUrl": "https://barrospizza.com/menus/general-menu",
       "notes": "Lunch Specials available daily during lunch hours 10:30am–3pm",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -4785,6 +4984,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/menus/general-menu",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -4811,6 +5011,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/menus/general-menu",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -4837,7 +5038,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "48e95e2b-1497-4cbd-b5bb-d0f9cf544129",
@@ -4863,7 +5065,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "da33357d-3c44-4969-bba0-3ee151d55b05",
@@ -4889,7 +5092,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "1f54c912-a3ac-475e-93ed-c9f65242a86e",
@@ -4915,7 +5119,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "672d31a9-5c41-449f-8e9e-e371e2e8d469",
@@ -4941,6 +5146,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -4967,6 +5173,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -4993,6 +5200,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -5019,6 +5227,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -5045,6 +5254,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -5071,6 +5281,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -5097,6 +5308,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -5123,6 +5335,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -5149,6 +5362,7 @@
       "extractConfidence": "0.4",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": "Daily Specials available all day, every day",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -5173,7 +5387,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://scottsdale.bornandbredarizona.com/scottsdale-born-and-bred-scottsdale-events",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "0dded6be-5a52-48b0-bbf3-2b639abf7708",
@@ -5199,7 +5414,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://cedarroomcigars.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "bbb5b428-1746-4901-bfd4-a375ac109fea",
@@ -5225,7 +5441,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://cedarroomcigars.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "bb4734dc-47be-497f-a8e3-515b11138dd6",
@@ -5251,7 +5468,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://churchillsaz.com/scottsdale/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "43576b4b-33c1-4f4d-93e6-b15fc663d0c3",
@@ -5277,7 +5495,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://churchillsaz.com/scottsdale/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "50817758-0f42-466d-a9d6-b60b2bac1965",
@@ -5303,6 +5522,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://churchillsaz.com/scottsdale/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -5329,7 +5549,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://churchillsaz.com/scottsdale/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "3608148d-6ee5-4fa9-a042-554168e599d4",
@@ -5355,7 +5576,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://churchillsaz.com/scottsdale/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "c6b7d7ba-7cee-4485-a73a-7c2aa5cafc1b",
@@ -5381,7 +5603,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://churchillsaz.com/scottsdale/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "7fffe675-c394-47d1-a50b-94f5abf7e211",
@@ -5407,7 +5630,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://ciaograzie.us/happy-hour/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "4e923c68-0263-4a79-9292-0f253e578a7b",
@@ -5427,6 +5651,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.azfamily.com/2025/09/10/50-cent-wings-other-great-deals-under-10-this-scottsdale-happy-hour/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -5447,7 +5672,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.azfamily.com/2025/09/10/50-cent-wings-other-great-deals-under-10-this-scottsdale-happy-hour/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "2cda2cd1-99fd-4201-be46-124d86d5eec8",
@@ -5473,7 +5699,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.experiencescottsdale.com/listing/dominicks-steakhouse/45191/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "06eeb2ce-478c-4fbc-8d21-43c91d3fcbc9",
@@ -5493,6 +5720,7 @@
       "extractConfidence": "0.65",
       "sourceUrl": "https://dukessportsbar.com/menu/specials/",
       "notes": "$5 off pizza with beverage purchase - time not specified",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -5513,6 +5741,7 @@
       "extractConfidence": "0.7",
       "sourceUrl": "https://dukessportsbar.com/menu/specials/",
       "notes": "Prime Rib - time not specified",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -5533,6 +5762,7 @@
       "extractConfidence": "0.7",
       "sourceUrl": "https://dukessportsbar.com/menu/specials/",
       "notes": "Healthy Green Wednesday - $5 off any regular salad with beverage purchase - time not specified",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -5553,6 +5783,7 @@
       "extractConfidence": "0.7",
       "sourceUrl": "https://dukessportsbar.com/menu/specials/",
       "notes": "Ribs, Ribs, Ribs - time not specified",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -5573,6 +5804,7 @@
       "extractConfidence": "0.45",
       "sourceUrl": "https://dukessportsbar.com/menu/specials/",
       "notes": "Burger & A Beer special ($15) - time not specified",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -5594,6 +5826,7 @@
       "extractConfidence": "0.7",
       "sourceUrl": "https://dukessportsbar.com/menu/specials/",
       "notes": "Jack Daniels Steak - time not specified",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -5620,7 +5853,8 @@
       "extractConfidence": "0.65",
       "sourceUrl": "https://www.troonnorthgolf.com/wp-content/uploads/sites/8934/2023/06/2021-Happy-Hour-1.jpg",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "cd4ff35c-d7a0-4624-8ee1-51c4e0c8b8b6",
@@ -5646,7 +5880,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.yelp.com/biz/eddie-vs-prime-seafood-scottsdale-7",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "54e09727-a0bd-4611-9127-de0c43c2e516",
@@ -5666,6 +5901,7 @@
       "extractConfidence": "0.45",
       "sourceUrl": "http://www.eldorado-bar-grill.com/menu/",
       "notes": "Fish Fry Special - Fish & Chips with 3 pieces of beer battered Cod, french fries and tartar sauce",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -5686,6 +5922,7 @@
       "extractConfidence": "0.45",
       "sourceUrl": "http://www.eldorado-bar-grill.com/menu/",
       "notes": "El Dorado Cheese Steak with beef, mushrooms, sauteed onions, swiss cheese, au jus and choice of one side",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -5706,6 +5943,7 @@
       "extractConfidence": "0.45",
       "sourceUrl": "http://www.eldorado-bar-grill.com/menu/",
       "notes": "Steak Dinner with baked potato and salad",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -5726,6 +5964,7 @@
       "extractConfidence": "0.4",
       "sourceUrl": "http://www.eldorado-bar-grill.com/menu/",
       "notes": "Monday special with no time window published",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -5746,6 +5985,7 @@
       "extractConfidence": "0.4",
       "sourceUrl": "http://www.eldorado-bar-grill.com/menu/",
       "notes": "Tuesday special with no time window published",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -5769,7 +6009,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.elephanterestaurants.com/event/aperitivo-nights/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "6b29bfd4-fe4d-42e7-92a0-c377b02f72e2",
@@ -5795,7 +6036,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://thehappyhourfinder.com/us_az/scottsdale/ernies/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "7cf592f5-3915-40dd-bee3-fc01c3029469",
@@ -5821,7 +6063,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.iamaflowerchild.com/locations/scottsdale-az/?utm_source=Google&utm_medium=Organic&utm_campaign=Maps",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "eed391a6-99be-4f7b-a13c-2ce6ff22e1b9",
@@ -5844,7 +6087,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://fogodechao.com/location/scottsdale/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "ab996fb6-ea91-48e5-b378-d063f3f62b53",
@@ -5867,7 +6111,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://fogodechao.com/location/scottsdale/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "7993dd45-1a06-4ad0-aeea-7b57b684545b",
@@ -5890,7 +6135,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://fogodechao.com/location/scottsdale/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "1d2eca59-9086-4d61-9fcf-f6e5a7189d6e",
@@ -5913,7 +6159,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://fogodechao.com/location/scottsdale/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "bdc6bb29-0bf6-456b-906c-f65c7d4c0e2f",
@@ -5936,7 +6183,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://fogodechao.com/location/scottsdale/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "edae5674-545c-4f00-961e-534f4427cab3",
@@ -5959,7 +6207,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://fogodechao.com/location/scottsdale/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "9058d49b-0043-4761-b66f-49c535f34682",
@@ -5982,7 +6231,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://fogodechao.com/location/scottsdale/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "73a81b05-d837-4554-8a34-129577e2c223",
@@ -6005,6 +6255,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://fogodechao.com/location/scottsdale/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -6028,6 +6279,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://fogodechao.com/location/scottsdale/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -6051,6 +6303,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://fogodechao.com/location/scottsdale/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -6074,6 +6327,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://fogodechao.com/location/scottsdale/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -6100,6 +6354,7 @@
       "extractConfidence": "0.95",
       "sourceUrl": "https://fogodechao.com/location/scottsdale/",
       "notes": "Also mentions half-price South American wine bottles under $130",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -6126,7 +6381,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://dbg.org/visit/dining/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "57a79a84-6cf0-475d-b706-b02aa8fe4f7c",
@@ -6152,7 +6408,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://dbg.org/visit/dining/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "c3fa82b8-d95a-4bb5-93de-1685548afb7b",
@@ -6178,6 +6435,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://slicelife.com/restaurants/az/scottsdale/85258/giovanna-s-pizza-scottsdale/menu?utm_campaign=order_now_button&amp;utm_medium=referral&amp;utm_source=giovannapizza.wixsite.com/giovanna&amp;utm_content=custom_link",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -6198,7 +6456,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://greenvegetarian.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "d5fa7d61-0e9d-4bd2-806a-1498bddb7777",
@@ -6222,7 +6481,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://thehappyhourfinder.com/us_az/scottsdale/handlebar-j-restaurant-and-bar/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "b7f6abab-66a2-4d52-a02e-61cec7859f0f",
@@ -6248,7 +6508,8 @@
       "extractConfidence": null,
       "sourceUrl": "http://heritagescottsdale.com/",
       "notes": "Social Hour",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "f9ae886e-4313-4249-81f9-ac0fccc01b76",
@@ -6268,6 +6529,7 @@
       "extractConfidence": null,
       "sourceUrl": "http://heritagescottsdale.com/",
       "notes": "Wine Down Wednesday",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -6289,7 +6551,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://theindibar.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "870cd2bf-7146-49fc-8155-7ab8ba27db7f",
@@ -6315,6 +6578,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.innateaglemountain.com/eat--drink",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -6341,6 +6605,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.fairmont.com/en/hotels/abu-dhabi/fairmont-bab-al-bahr/dining/marcos-italian.restaurant.html",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -6367,6 +6632,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.fairmont.com/en/hotels/abu-dhabi/fairmont-bab-al-bahr/dining/marcos-italian.restaurant.html",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -6393,6 +6659,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.fairmont.com/en/hotels/abu-dhabi/fairmont-bab-al-bahr/dining/mazaj-bab-al.restaurant.html",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -6419,6 +6686,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.fairmont.com/en/hotels/abu-dhabi/fairmont-bab-al-bahr/dining/mazaj-bab-al.restaurant.html",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -6445,7 +6713,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.fairmont.com/en/hotels/abu-dhabi/fairmont-bab-al-bahr/dining/marcos-italian.restaurant.html",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "5b9fa5d9-3935-4645-9408-81c83c4dca10",
@@ -6471,7 +6740,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.fairmont.com/en/hotels/abu-dhabi/fairmont-bab-al-bahr/dining/mazaj-bab-al.restaurant.html",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "05ecdd75-f409-4a7c-8d70-344e56a573f2",
@@ -6497,7 +6767,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.fairmont.com/en/hotels/abu-dhabi/fairmont-bab-al-bahr/dining/marcos-italian.restaurant.html",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "f253a0d5-c71d-494b-82d3-40dbd2fdef75",
@@ -6523,7 +6794,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.fairmont.com/en/hotels/abu-dhabi/fairmont-bab-al-bahr/dining/mazaj-bab-al.restaurant.html",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "24187739-9b3e-430d-a833-b5922699a014",
@@ -6549,7 +6821,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.fairmont.com/en/hotels/abu-dhabi/fairmont-bab-al-bahr/dining/marcos-italian.restaurant.html",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "9fe06d62-ac7f-4287-8178-149790577f0b",
@@ -6575,7 +6848,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.fairmont.com/en/hotels/abu-dhabi/fairmont-bab-al-bahr/dining/marcos-italian.restaurant.html",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "8a452e3b-5317-44a1-865b-d877d766d4a9",
@@ -6601,7 +6875,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.marriott.com/en-us/dining/restaurant-bar/phxws-the-westin-kierland-resort-and-spa/5966007-j-swilling-s-poolside-bar-grill.mi",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "0670aa56-57b7-46f3-b2fa-b125da6b82f2",
@@ -6627,7 +6902,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.marriott.com/en-us/dining/restaurant-bar/phxws-the-westin-kierland-resort-and-spa/5966007-j-swilling-s-poolside-bar-grill.mi",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "35e151ef-0536-48de-8ee3-2269499313b3",
@@ -6653,7 +6929,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.tripadvisor.com/Restaurant_Review-g31350-d17614861-Reviews-Khao_Thai_Sushi-Scottsdale_Arizona.html",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "69a78be8-722e-4243-af51-40980fcd46ce",
@@ -6677,7 +6954,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.kodosushisake.com/menu",
       "notes": null,
-      "action": "promote"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "a9b29120-e0af-4dba-80f9-bf8ce4f74ab7",
@@ -6701,6 +6979,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.kodosushisake.com/menu",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -6725,6 +7004,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.kodosushisake.com/menu",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -6749,7 +7029,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.kodosushisake.com/menu",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "675b6171-1860-4afa-aefc-61261b926154",
@@ -6773,7 +7054,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.kodosushisake.com/menu",
       "notes": null,
-      "action": "promote"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "22688b96-346b-4dd2-a67f-515a9bf8f191",
@@ -6797,6 +7079,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.kodosushisake.com/menu",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -6821,6 +7104,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.kodosushisake.com/menu",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -6845,7 +7129,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.kodosushisake.com/menu",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "0e4deb40-43a8-4a27-940e-005bf1a5a19f",
@@ -6871,7 +7156,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.thescottsdaleresort.com/dine-drink/la-fogata",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "8a2c5405-618a-47d7-874b-e53c679b8e80",
@@ -6897,6 +7183,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.thescottsdaleresort.com/dine-drink/la-fogata",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -6923,7 +7210,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.thescottsdaleresort.com/dine-drink/la-fogata",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "e259be95-07aa-43eb-970d-e205f9536f2f",
@@ -6949,6 +7237,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.thescottsdaleresort.com/dine-drink/la-fogata",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -6975,6 +7264,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.thescottsdaleresort.com/dine-drink/la-fogata",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -7001,7 +7291,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.thescottsdaleresort.com/dine-drink/la-fogata",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "95733c16-3258-4f83-9aa7-481bd11ae1c6",
@@ -7027,6 +7318,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.scottsdaleprincess.com/scottsdale-restaurants/in-room-dining",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -7053,7 +7345,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.scottsdaleprincess.com/scottsdale-restaurants/in-room-dining",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "3751516a-5040-434c-8621-64ea47c9cf8f",
@@ -7079,6 +7372,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.scottsdaleprincess.com/scottsdale-restaurants/in-room-dining",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -7103,7 +7397,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.phoenixnewtimes.com/food-drink/los-olivos-mexican-patio-happy-hour-report-card-6546973/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "60bcfc80-f8a4-45fa-a07b-44a027f18b40",
@@ -7129,7 +7424,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://lucisgoodness.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "c63ceb73-642e-4bb1-9342-6767ad2bfdc0",
@@ -7155,7 +7451,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://lucisgoodness.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "eedb3180-96d8-45cd-851a-c66ee1ccdaa6",
@@ -7181,7 +7478,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://lucisgoodness.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "76620bde-d9fa-4c1d-ad8e-6bc859ad80eb",
@@ -7207,6 +7505,7 @@
       "extractConfidence": "1",
       "sourceUrl": "http://lucisgoodness.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -7233,6 +7532,7 @@
       "extractConfidence": "1",
       "sourceUrl": "http://lucisgoodness.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -7259,6 +7559,7 @@
       "extractConfidence": "0.3",
       "sourceUrl": "https://www.lucisgoodness.com/newpagec4d1771d",
       "notes": "Menu lists 'Happy hour (HH) on all draft beer', 'Happy hour (HH) on all house wine', and 'Happy hour (HH) on all specialty cocktails' but no days or times are specified.",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -7285,7 +7586,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.mastrosrestaurants.com/Locations/AZ/North-Scottsdale/",
       "notes": null,
-      "action": "promote"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "3f7ab367-1927-42cb-aa6d-532b7940fefc",
@@ -7311,7 +7613,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.mastrosrestaurants.com/Locations/AZ/North-Scottsdale/",
       "notes": null,
-      "action": "promote"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "534a09ef-3503-4795-9058-633284ad70bf",
@@ -7333,6 +7636,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://mayaclubaz.com/?utm_source=GMB&utm_medium=local",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -7355,6 +7659,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://mayaclubaz.com/?utm_source=GMB&utm_medium=local",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -7377,6 +7682,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://mayaclubaz.com/?utm_source=GMB&utm_medium=local",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -7400,7 +7706,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://tacotuesday.com/restaurants/mochilero-kitchen-scottsdale/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "b5a061a0-f176-4a95-b493-45df68988ce2",
@@ -7426,7 +7733,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://parspersiancuisine.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "d3d3c763-4315-4dc9-b5a9-15873232adf4",
@@ -7452,7 +7760,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://parspersiancuisine.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "3750e235-d818-4d5c-a378-f2e5d4dc2745",
@@ -7478,7 +7787,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.patriciaspizzaaz.com/menus/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "5cfe43ad-d997-4bfc-94ee-971d3a0fb341",
@@ -7504,6 +7814,7 @@
       "extractConfidence": "0.9",
       "sourceUrl": "https://www.patriciaspizzaaz.com/menu/happy-hour/",
       "notes": "Served at Bar Top and Bar Patio",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -7530,6 +7841,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://nextdoor.com/pages/patties-first-avenue-lounge-scottsdale-az/",
       "notes": "Every hour is happy hour - consistent $3 beer pricing all day, every day",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -7553,7 +7865,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://thevendry.com/venue/108659/persian-room-fine-dining-scottsdale-scottsdale-az",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "e424f235-136d-4a74-8d95-40936b245f85",
@@ -7577,7 +7890,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.pitadaleaz.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "0a88d243-c94b-4519-98a7-0273bc93edd7",
@@ -7603,7 +7917,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://pitajungle.com/locations/scottsdale-shea/?utm_source=google&utm_medium=organic&utm_campaign=ScottsdaleShea&utm_content=WebsiteLink",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "7a8384c0-7ee4-4e3c-8070-2cbc25e89fe8",
@@ -7629,7 +7944,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://pitajungle.com/locations/scottsdale-frank-lloyd-wright/?utm_source=google&utm_medium=organic&utm_campaign=FLW&utm_content=WebsiteLink",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "63cd310e-8ae9-417b-9919-f58140d368cc",
@@ -7655,7 +7971,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://pitajungle.com/locations/scottsdale-frank-lloyd-wright/?utm_source=google&utm_medium=organic&utm_campaign=FLW&utm_content=WebsiteLink",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "d382910a-a5d1-4518-b3af-a98dd3c801ab",
@@ -7681,7 +7998,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://pitajungle.com/locations/scottsdale-shea/?utm_source=google&utm_medium=organic&utm_campaign=ScottsdaleShea&utm_content=WebsiteLink",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "ea83d9c8-9438-4f2d-9449-6299eb02ad69",
@@ -7707,7 +8025,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://pitajungle.com/locations/scottsdale-shea/?utm_source=google&utm_medium=organic&utm_campaign=ScottsdaleShea&utm_content=WebsiteLink",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "32c6d24c-e049-486a-aa61-e658df5792f8",
@@ -7731,7 +8050,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://pitajungle.com/blog/enjoy-happy-hour-at-pita-jungle-with-tapas-in-newport-beach/",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "0af42e37-33ff-4cb0-a6b9-062c32327165",
@@ -7757,7 +8077,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://pitajungle.com/locations/scottsdale-shea/?utm_source=google&utm_medium=organic&utm_campaign=ScottsdaleShea&utm_content=WebsiteLink",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "f61528bd-67c4-4bdb-898a-18641a342157",
@@ -7783,7 +8104,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://pitajungle.com/locations/scottsdale-frank-lloyd-wright/?utm_source=google&utm_medium=organic&utm_campaign=FLW&utm_content=WebsiteLink",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "e446134a-ab4a-4235-92e5-15a16c511cac",
@@ -7809,7 +8131,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://pitajungle.com/locations/scottsdale-frank-lloyd-wright/?utm_source=google&utm_medium=organic&utm_campaign=FLW&utm_content=WebsiteLink",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "56500ff9-b047-4e5d-92a6-7f4ae6c7e1ce",
@@ -7833,7 +8156,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://pitajungle.com/blog/enjoy-happy-hour-at-pita-jungle-with-tapas-in-newport-beach/",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "d84928c5-e25f-485d-93a7-abc858d1c180",
@@ -7857,6 +8181,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://pitajungle.com/locations/scottsdale-shea/?utm_source=google&utm_medium=organic&utm_campaign=ScottsdaleShea&utm_content=WebsiteLink",
       "notes": "days assumed Mon–Fri (none stated)",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -7881,6 +8206,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://pitajungle.com/locations/scottsdale-frank-lloyd-wright/?utm_source=google&utm_medium=organic&utm_campaign=FLW&utm_content=WebsiteLink",
       "notes": "days assumed Mon–Fri (none stated)",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -7907,6 +8233,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://pitajungle.com/locations/scottsdale-shea/?utm_source=google&utm_medium=organic&utm_campaign=ScottsdaleShea&utm_content=WebsiteLink",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -7933,6 +8260,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://pitajungle.com/locations/scottsdale-frank-lloyd-wright/?utm_source=google&utm_medium=organic&utm_campaign=FLW&utm_content=WebsiteLink",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -7959,6 +8287,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.scottsdaleprincess.com/scottsdale-restaurants/in-room-dining",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -7985,6 +8314,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.scottsdaleprincess.com/scottsdale-restaurants/in-room-dining",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -8011,6 +8341,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.scottsdaleprincess.com/dining/the-plaza-bar",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -8037,6 +8368,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.scottsdaleprincess.com/dining/the-plaza-bar",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -8063,6 +8395,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.scottsdaleprincess.com/dining/the-plaza-bar",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -8089,6 +8422,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.scottsdaleprincess.com/scottsdale-restaurants/in-room-dining",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -8111,7 +8445,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://poppysoffice.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "09f0f3e9-d49c-468c-83e1-918d1367a5db",
@@ -8133,7 +8468,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://poppysoffice.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "441e0fcc-b123-46e5-a79c-88d1d366b285",
@@ -8157,7 +8493,8 @@
       "extractConfidence": "0.85",
       "sourceUrl": "https://www.rodiziogrill.com/north-scottsdale/events-and-specials.aspx",
       "notes": "Golden Grill Hour - Full Rodizio dinner for $45.99 per person including select dessert",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "a04ce6f0-738b-4006-aa9a-84d2e8c213d9",
@@ -8183,7 +8520,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://arcisgolf.com/clubs/mcdowell-mountain-golf-club/rossas-kitchen-and-patio",
       "notes": "Happy hour offered daily 2:00pm-5:00pm. Specific menu items and pricing not detailed on website.",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "68b00208-3d4b-4303-b602-2d1d9c80e836",
@@ -8207,7 +8545,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://scottsdale.rtosullivans.com/menu/",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "0a92607b-3f85-4082-a7ee-6a80d249949e",
@@ -8231,6 +8570,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://scottsdale.rtosullivans.com/",
       "notes": "days assumed Mon–Fri (none stated)",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -8252,7 +8592,8 @@
       "extractConfidence": "0.35",
       "sourceUrl": "https://scottsdale.rtosullivans.com/wp-content/uploads/2026/02/weekend-brunch.jpg",
       "notes": "Weekend Brunch Menu available Saturday & Sunday until 3pm. No discount amount published.",
-      "action": "keep_hidden"
+      "evidence": "meal-service menu page, no deals attached",
+      "action": "delete"
     },
     {
       "happyHourId": "6f517f99-9bd6-4e80-9b8f-79990be06b92",
@@ -8273,6 +8614,7 @@
       "extractConfidence": "0.4",
       "sourceUrl": "https://scottsdale.rtosullivans.com/wp-content/uploads/2026/02/weekend-brunch.jpg",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -8293,6 +8635,7 @@
       "extractConfidence": "0.35",
       "sourceUrl": "https://scottsdale.rtosullivans.com/wp-content/uploads/2026/02/sunday-irishdinner.jpg",
       "notes": "Sunday Irish Dinners: $2 off Shepherd Pie, Corned Beef, and Meatloaf (menu price). No time window published.",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -8313,6 +8656,7 @@
       "extractConfidence": "0.4",
       "sourceUrl": "https://scottsdale.rtosullivans.com/wp-content/uploads/2026/02/sunday-irishdinner.jpg",
       "notes": "Sunday Irish Dinners: Shepherd Pie, Corned Beef, or Meatloaf - $2.00 off menu price. Time window not specified on page.",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -8333,6 +8677,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://rubios.com/tuesday-specials-additions-d401-d302/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -8357,7 +8702,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://rudysbbq.com/location/detail/scottsdale-az",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "6663c6da-dd78-4098-9a2d-94dc7ed1bf8c",
@@ -8381,7 +8727,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://rudysbbq.com/location/detail/scottsdale-az",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "a9697ce0-0e00-49ca-adff-29b52318ae95",
@@ -8405,7 +8752,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.rustyspursaloon.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "48983ea5-2625-4934-9e51-bfde8c1623ed",
@@ -8429,7 +8777,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.rustyspursaloon.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "296ef93e-8c8d-4416-9f92-eee6bd737d78",
@@ -8454,6 +8803,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://shio-ramen-crudo.wheree.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -8480,7 +8830,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://slantedrice.com/specials",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "c488a968-4279-442e-821d-e9d1adb4f896",
@@ -8506,7 +8857,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://slantedrice.com/specials",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "e44e27a7-9a27-4e3c-a1e3-0d7e5290f955",
@@ -8532,7 +8884,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://sorrentoscottsdale.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "b99c55de-5126-4f48-9559-3577bd061438",
@@ -8558,7 +8911,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://sorrentoscottsdale.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "0a103f7d-ef74-4157-8476-1de5b954a78e",
@@ -8584,7 +8938,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.hoteladeline.com/straight-up.htm",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "61c6a948-cf7d-4903-a2b0-86e86bb6a12b",
@@ -8610,6 +8965,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.thecanalclubaz.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -8636,7 +8992,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.thecanalclubaz.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "4bf6eb24-9379-4c57-9e64-c2604745c27b",
@@ -8662,6 +9019,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.thecanalclubaz.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -8686,7 +9044,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.opentable.com/the-capital-grille-scottsdale",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "f1f7efe8-f996-4884-9ed3-011838aac8f6",
@@ -8712,7 +9071,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://theeleanoraz.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "59e541e5-486c-48aa-9417-eedb3dff8294",
@@ -8734,7 +9094,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://themickaz.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "e4cf1927-bf46-4298-a8b3-0397b589db0d",
@@ -8756,7 +9117,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://themickaz.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "6f54b9cd-6f8e-4a8c-8420-d3b53f56b1a1",
@@ -8778,7 +9140,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://themickaz.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "8db4bb17-4b6d-45db-a860-6998eb104439",
@@ -8800,7 +9163,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://themickaz.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "2a77bf88-1d8f-4d7d-bcec-40837099528c",
@@ -8826,7 +9190,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://tacotuesday.com/restaurants/the-mission-old-town-scottsdale/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "d268b76a-f292-495f-91a7-37f47ebb1372",
@@ -8852,7 +9217,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://theponyexpresscafe.com/?utm_source=google&utm_medium=wix_google_business_profile&utm_campaign=12532497004063623685",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "f893790f-02d7-4043-ac3f-a84b31296e4d",
@@ -8878,7 +9244,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.sonesta.com/sonesta-hotels-resorts/az/scottsdale/sonesta-suites-scottsdale-gainey-ranch#hoteldetails_dining",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "31908104-d91b-4475-8555-889de101b12a",
@@ -8904,6 +9271,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.sonesta.com/sonesta-hotels-resorts/az/scottsdale/sonesta-suites-scottsdale-gainey-ranch#hoteldetails_dining",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -8930,7 +9298,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.thethumb.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "b7d65355-d9d6-46f3-8d12-1b7b129bd88d",
@@ -8956,7 +9325,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.thethumb.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "a0c01c4a-0c46-4ffb-8f64-d2dc380e6638",
@@ -8982,6 +9352,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.thethumb.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -9006,6 +9377,7 @@
       "extractConfidence": "0.4",
       "sourceUrl": "https://www.whitechocolategrill.com/menu",
       "notes": "Happy Hour Drinks, Wines by the Glass, Draft Beer, and Private Barrel Cocktails available. Specific times not published.",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -9032,7 +9404,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.thephoeniciancompendium.com/menus/the-thirsty-camel-dining-menu",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "6d932e14-1f4a-4af7-9c98-1f6ca6d10f7b",
@@ -9058,7 +9431,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.thephoeniciancompendium.com/menus/the-thirsty-camel-dining-menu",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "16892d3f-e231-40b9-bb6b-3b811f5db86d",
@@ -9084,7 +9458,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.thephoeniciancompendium.com/menus/the-thirsty-camel-dining-menu",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "8350bba7-37c6-429f-a31d-c3ea58c0e8d4",
@@ -9106,7 +9481,8 @@
       "extractConfidence": "0.4",
       "sourceUrl": "https://www.thephoeniciancompendium.com/menus/the-thirsty-camel-dining-menu",
       "notes": "Summer Social with half-priced caviar and Board & Bottle pairings",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "e7ef4826-dfe0-4f38-a588-904bde1647b8",
@@ -9132,7 +9508,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.thephoeniciancompendium.com/menus/the-thirsty-camel-dining-menu",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "e3f5a6eb-af61-4520-9e0e-79ac060f510b",
@@ -9158,7 +9535,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://topgolf.com/us/riverwalk/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "6648e7d7-53fb-486f-b963-f0c2e80073a8",
@@ -9184,7 +9562,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://topgolf.com/us/riverwalk/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "1f4669fe-6e0c-4c31-8e6d-deda5efabf8c",
@@ -9208,7 +9587,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://unclesalsaz.com/menu/dinner/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "c7fa203a-2bf7-46dd-8aa9-05562ba0618c",
@@ -9232,7 +9612,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://unclesalsaz.com/menu/dinner/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "db80a684-6f01-4f43-9027-a93f4dad59b5",
@@ -9256,7 +9637,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://vedacuisine.com/specials",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "23de07c0-15ba-4c8e-b737-7482ba013cec",
@@ -9276,6 +9658,7 @@
       "extractConfidence": "0.55",
       "sourceUrl": "https://vitospizza.com/weekly-specials/",
       "notes": "Kids Night - kids eat for $4.50, includes a FREE sundae. Time not specified.",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -9296,6 +9679,7 @@
       "extractConfidence": "0.55",
       "sourceUrl": "https://vitospizza.com/weekly-specials/",
       "notes": "Half off select bottles of wine with the purchase of a large 2-topping pizza or 2 entrees. Time not specified.",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -9316,6 +9700,7 @@
       "extractConfidence": "0.65",
       "sourceUrl": "https://vitospizza.com/weekly-specials/",
       "notes": "$4 Draft Beers",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -9336,6 +9721,7 @@
       "extractConfidence": "0.65",
       "sourceUrl": "https://vitospizza.com/weekly-specials/",
       "notes": "Endless Pasta — choose any type of pasta and homemade sauce",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -9356,6 +9742,7 @@
       "extractConfidence": "0.65",
       "sourceUrl": "https://vitospizza.com/weekly-specials/",
       "notes": "$4 draft beers",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -9376,6 +9763,7 @@
       "extractConfidence": "0.65",
       "sourceUrl": "https://vitospizza.com/weekly-specials/",
       "notes": "Half price desserts",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -9402,6 +9790,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.zincbistro.com/menu",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -9428,7 +9817,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.zincbistro.com/menu",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "3de09b89-2186-42cf-aec2-2cef0e5bb6a1",
@@ -9454,7 +9844,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://zincbistro.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "1a5681cb-a532-4530-a7b8-275405b72b41",
@@ -9480,7 +9871,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://zincbistro.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "b9f7eb43-dc4a-43e8-b8ab-ed83aa20e50b",
@@ -9506,7 +9898,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://zincbistro.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "010de5f7-1b34-4137-9eb0-dd09f5317da6",
@@ -9532,6 +9925,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.zincbistro.com/menu",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -9558,6 +9952,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://zincbistro.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -9578,7 +9973,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://lezinque.com/community/mezcal-tasting-and-cocktail-challenge-massilia-dtla-04-08-26",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "158d74d1-3758-4eee-934a-9e673a1e0a1b",
@@ -9599,7 +9995,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.1919winecellar.com/special-events",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "ba095dba-c771-49a4-8952-7e353ded96d5",
@@ -9625,7 +10022,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.1919winecellar.com/weekly-events",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "e57a0992-3266-4864-bc45-1d7925d15df4",
@@ -9651,7 +10049,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.1919winecellar.com/special-events",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "ed38fd60-e786-4001-a8a2-70c6fef08346",
@@ -9676,6 +10075,7 @@
       "extractConfidence": "0.65",
       "sourceUrl": "https://wedonthaveone.com/el-que/",
       "notes": "Gringo Monday - $3 PBR tallboy; no time specified",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -9701,6 +10101,7 @@
       "extractConfidence": "0.75",
       "sourceUrl": "http://www.fasteddiesspokane.com/",
       "notes": "Monday: $10 Pitchers",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -9725,7 +10126,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.happinesswatogo.com/07am5tla/happiness-chinese-restaurant-spokane-99202/menu",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "f7ca5128-8411-4f02-84fa-70b3daea5516",
@@ -9751,6 +10153,7 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.jackanddans.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -9777,6 +10180,7 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.jackanddans.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -9803,7 +10207,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.jackanddans.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "8d701d00-6fce-4f99-90bb-1f2a4ed6396f",
@@ -9823,7 +10228,8 @@
       "extractConfidence": "0.85",
       "sourceUrl": "https://www.pjspubspokane.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "6c3e94b2-cb1c-4716-ad58-0cdfe0474708",
@@ -9848,7 +10254,8 @@
       "extractConfidence": "0.85",
       "sourceUrl": "https://www.pjspubspokane.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "728a3ce8-ac82-4f7b-9443-c58aa213e835",
@@ -9868,6 +10275,7 @@
       "extractConfidence": "0.85",
       "sourceUrl": "https://www.pjspubspokane.com/",
       "notes": "Industry discount on Mondays: 15% off",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -9892,7 +10300,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.7seasbrewing.com/4th-of-july-2025-special-hours/",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "994450b4-fd86-4387-9ba3-f13d269eabb2",
@@ -9916,7 +10325,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.7seasbrewing.com/4th-of-july-2025-special-hours/",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "5eebd5ed-44b9-405c-953f-c4bab095a6db",
@@ -9941,7 +10351,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.airporttavern.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "30e533a6-fff7-473b-af4f-8eb222d5cbb3",
@@ -9965,7 +10376,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.alfredscafetacoma.com/events.html",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "a398e1b8-5615-4226-9c4e-8f1553e70e07",
@@ -9989,7 +10401,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://asadotacoma.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "b16b6bee-de4c-4f97-95aa-12200bb5eef1",
@@ -10013,7 +10426,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://asadotacoma.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "a9ed69a6-c912-421c-9384-d3192a17ac52",
@@ -10037,6 +10451,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.bjsrestaurants.com/locations/wa/tacoma?utm_source=google&utm_medium=organic&utm_campaign=google_my_business",
       "notes": "days assumed Mon–Fri (none stated)",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -10057,6 +10472,7 @@
       "extractConfidence": "0.65",
       "sourceUrl": "https://cerellospizzas.com/menu",
       "notes": "No time window published",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -10077,6 +10493,7 @@
       "extractConfidence": "0.65",
       "sourceUrl": "https://cerellospizzas.com/menu",
       "notes": "No time window published",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -10097,6 +10514,7 @@
       "extractConfidence": "0.65",
       "sourceUrl": "https://cerellospizzas.com/menu",
       "notes": "No time window published",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -10123,7 +10541,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.amvetswa.org/post1chappies",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "b639562e-b7a0-4481-928f-227a0d652026",
@@ -10149,7 +10568,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.amvetswa.org/menus",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "e66fc6a4-3cda-408f-975b-f5906075e465",
@@ -10175,7 +10595,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.amvetswa.org/post1chappies",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "a48f59c2-9e76-4f85-99f3-087cccdec21a",
@@ -10201,7 +10622,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.amvetswa.org/post1chappies",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "67248c9c-fd08-4292-a89c-688bdfad5a0e",
@@ -10221,6 +10643,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.dirtyoscarsannex.com/menu/weekday-drink-specials/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -10241,6 +10664,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.dirtyoscarsannex.com/menu/weekday-drink-specials/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -10261,6 +10685,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.dirtyoscarsannex.com/menu/weekday-drink-specials/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -10281,6 +10706,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.dirtyoscarsannex.com/menu/weekday-drink-specials/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -10303,7 +10729,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.dirtyoscarsannex.com/menu/weekday-drink-specials/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "ab6d67ef-276b-454d-af5a-801c4fc83194",
@@ -10327,7 +10754,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://elgaucho.com/private-dining/",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "7a4e5a03-5c88-4948-ba63-2aa438484652",
@@ -10352,7 +10780,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.flyingsushiwa.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "ef21ac59-e3f7-4749-bd6b-58081e9d97b6",
@@ -10377,7 +10806,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.flyingsushiwa.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "442b4a1e-6249-4371-a434-e01d472cfa2f",
@@ -10403,7 +10833,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.hankstacoma.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "a41a635f-b142-460b-ad88-9c8fe0d01f14",
@@ -10426,7 +10857,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://hanssplacetacoma.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "827c8ae0-0750-41f3-82ce-2e69d1294701",
@@ -10449,7 +10881,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://hanssplacetacoma.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "51cbc841-923c-48c2-8931-b3be4eff7fe9",
@@ -10473,7 +10906,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.joyteriyaki6thave.com/1xosfj85/joy-teriyaki--6th-ave-tacoma-98406/order-online#menu-section",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "137920fb-ae06-473b-8b59-d9186c60280c",
@@ -10497,7 +10931,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.visitpiercecounty.com/listing/katie-downs-waterfront-tavern-+-eatery/60/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "2705b7a8-b307-4406-b49d-1017a7201e67",
@@ -10519,6 +10954,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.visitpiercecounty.com/listing/katie-downs-waterfront-tavern-+-eatery/60/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -10541,7 +10977,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.loaktoungthai.com/menu/happy-hour",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "7185f7da-3533-47a0-a3dc-4b01b657dfd5",
@@ -10563,7 +11000,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.loaktoungthai.com/menu/happy-hour",
       "notes": null,
-      "action": "promote"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "e1a1c560-43a8-442c-be8a-a6432b679d16",
@@ -10585,7 +11023,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.loaktoungthai.com/menu/happy-hour",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "3f31db00-ef6f-4f23-b487-942d1d5065f7",
@@ -10611,6 +11050,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.tiktok.com/discover/mandolin-restaurant-tacoma",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -10637,6 +11077,7 @@
       "extractConfidence": "1",
       "sourceUrl": "http://park-avenue-tavern.edan.io/happy-hour",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -10663,7 +11104,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://sappsapptacoma.com/specials",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "c91b3e6c-6931-41e9-bac0-93203c1ca7d5",
@@ -10689,7 +11131,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://sappsapptacoma.com/specials",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "743999b1-cea3-49af-a9e6-17e293d2dc0f",
@@ -10715,7 +11158,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.foodyas.com/US/Tacoma/101817201495282/Tacoma-Pie",
       "notes": "Happy hour 3-5pm daily with drink and food specials",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "916e3980-0ce4-4148-a805-d40ab1f332ae",
@@ -10741,7 +11185,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://vkvietkitchentacoma.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "07d6f825-37ff-46c0-b0d0-d988bbd4af1d",
@@ -10763,7 +11208,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.webesmokinbbq.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "0aae1d5c-0965-4f4b-81fd-e4afe6488663",
@@ -10789,7 +11235,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.postcard.inc/places/woobling-korean-bbq-tacoma-mall-tacoma-G_msqDOHXlO",
       "notes": "Lunch happy hour - limited menu all-you-can-eat pricing",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "ae0c73c4-92b2-4b17-9993-d71438caa956",
@@ -10815,6 +11262,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.tiktok.com/discover/woobling-korean-bbq-bellevue",
       "notes": "Late-night happy hour starting at 9pm",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -10839,7 +11287,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://cheerhop.com/tacoma/wooden-city-tacoma",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "734f8734-deeb-4eea-a3a0-9d0aba18bb08",
@@ -10863,6 +11312,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://cheerhop.com/tacoma/wooden-city-tacoma",
       "notes": "Late night menu at the bar",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -10887,7 +11337,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://thisistucson.com/eat/you-can-get-a-full-dinner-out-of-these-tucson-happy-hour-deals/article_f21d7db4-0573-11ee-9391-5f3c278db49b.html",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "13e66a39-8b6b-4841-858b-fbda2f49cece",
@@ -10913,7 +11364,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.yelp.com/biz/amelias-mexican-kitchen-tucson",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "477813ee-1d28-48db-9ba6-590fc1dd270f",
@@ -10939,7 +11391,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.yelp.com/biz/amelias-mexican-kitchen-tucson",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "fb4ba9f2-e7d3-4d37-9515-aa85d1da41c4",
@@ -10959,7 +11412,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://tucsonfoodie.com/2024/03/20/amelias-mexican-kitchen/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "a4e41d9e-f5c5-4e69-ba2b-ac8279104018",
@@ -10979,7 +11433,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://tucsonfoodie.com/2024/03/20/amelias-mexican-kitchen/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "a6789b52-ec0c-4e4f-b300-91813c8c4ff5",
@@ -11005,7 +11460,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.angrycrabshack.com/grant-rd-tucson-az",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "47d067f5-2ea1-4ef6-963e-d048e583e732",
@@ -11029,7 +11485,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://anthonyscigars.com/",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "0fd34a88-ae9f-4528-948b-d189589c0e04",
@@ -11053,7 +11510,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://anthonyscigars.com/",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "43a321ce-7092-4b27-95fc-d46124ed7009",
@@ -11079,7 +11537,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.arizonainn.com/dining/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "ed44de01-8f51-4b8c-b8b4-e60ca1d1fb4d",
@@ -11105,6 +11564,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.arizonainn.com/dining/menu-audubon-bar/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -11131,6 +11591,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.arizonainn.com/dining/menu-audubon-bar/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -11151,6 +11612,7 @@
       "extractConfidence": "0.5",
       "sourceUrl": "https://www.maedayazp.org/specials",
       "notes": "Thursday Facebook 'word of the nite' promotion: 20% off dine in & carry out when the word is said. No specific time window published.",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -11175,7 +11637,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.azwinecollective.com/events/",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "25ce9978-c2db-49e2-bcc8-e0732c2169a1",
@@ -11199,7 +11662,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.azwinecollective.com/event/tucson-foodie-happy-hour-week/",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "5d578c0a-886c-4b93-b921-3f3145e6c188",
@@ -11225,6 +11689,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/menus/general-menu",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -11251,6 +11716,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/menus/general-menu",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -11277,7 +11743,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "20862cc4-db89-4b1a-ac9a-e25a1edfeabc",
@@ -11303,7 +11770,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "bd9edbbf-def6-4acb-b655-60a8f672831b",
@@ -11329,6 +11797,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -11355,6 +11824,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -11381,6 +11851,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -11407,6 +11878,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://barrospizza.com/specials/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -11433,7 +11905,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://bianchisitalian.com/tucson-bianchi-s-italian-food-menu",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "17b5048c-464c-48d6-88bc-da7f86d2239d",
@@ -11459,7 +11932,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://bianchisitalian.com/tucson-bianchi-s-italian-food-menu",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "b5153caa-31ff-4411-8737-fb1be9b9f0d6",
@@ -11479,7 +11953,8 @@
       "extractConfidence": "0.4",
       "sourceUrl": "https://bigbadwolftucson.com/wp-content/uploads/2020/06/image0000.jpg",
       "notes": "Karaoke Night Monday 9pm-12am",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "09a99dab-0c53-44b9-b134-73591f257ab7",
@@ -11503,7 +11978,8 @@
       "extractConfidence": "0",
       "sourceUrl": "https://www.buffalowildwings.com/happy-hour",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "ec624d63-1095-4452-bf99-1f08cb66adff",
@@ -11526,6 +12002,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.buttonbrewhouse.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -11549,7 +12026,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.buttonbrewhouse.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "e3e3875e-ebfa-409b-b282-369bca0859e0",
@@ -11572,7 +12050,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.buttonbrewhouse.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "a6ecaeaf-ffb4-4105-864b-af0fa589fb25",
@@ -11595,7 +12074,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.buttonbrewhouse.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "b4d912f6-d880-4f54-b83b-4ce33a5ae688",
@@ -11618,7 +12098,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.buttonbrewhouse.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "fef48fc6-2849-4441-a1c5-007d91c7dffd",
@@ -11641,7 +12122,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.buttonbrewhouse.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "ae2f8416-2163-4840-b7e5-5310d1117f99",
@@ -11667,7 +12149,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.marriott.com/en-us/hotels/tuswi-the-westin-la-paloma-resort-and-spa/dining/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "57b34f15-ea2d-44d3-8744-ca3d094fe3f8",
@@ -11691,7 +12174,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://southernarizonaguide.com/is-cattletown-the-best-steakhouse-in-tucson/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "4025815b-2284-48b9-a92e-3181d5e76c29",
@@ -11717,7 +12201,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://tacotuesday.com/restaurants/charro-steak-del-rey-downtown/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "9ac7f140-52c1-48d0-b4ff-e1e035681702",
@@ -11741,7 +12226,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://fourthavenue.org/merchant-listings/corbetts/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "6aaf10f3-64a7-4577-a585-4cc0aad94ab5",
@@ -11762,6 +12248,7 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.coronettucson.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -11783,7 +12270,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.coronettucson.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "2421a56b-8b35-4ca3-accd-562312d95b4d",
@@ -11804,6 +12292,7 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.coronettucson.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -11825,7 +12314,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.coronettucson.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "f7914007-2bdf-4e9f-8255-3753ca0e6071",
@@ -11851,7 +12341,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://theclubatstarrpass.com/dining",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "3bf8038e-87ba-4dff-9cbe-53dbbc6beaf2",
@@ -11875,6 +12366,7 @@
       "extractConfidence": "0.55",
       "sourceUrl": "https://www.daveandbusters.com/content/dam/dave-and-busters/english/happy-hour-2023/eat-and-drink/5HH-320x390.png",
       "notes": "$5 Happy Hour advertised for Monday to Friday; specific times not published on provided pages",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -11896,6 +12388,7 @@
       "extractConfidence": "0.55",
       "sourceUrl": "https://www.daveandbusters.com/us/en/power-up/specials",
       "notes": "$1 Wings on Mondays and Thursdays; minimum order 10 wings, in-store only, dine-in only",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -11917,6 +12410,7 @@
       "extractConfidence": "0.55",
       "sourceUrl": "https://www.daveandbusters.com/us/en/power-up/specials",
       "notes": "Half-price games on Sundays and Wednesdays, in-store only. Excludes VR, The Arena, Game Suites, and Human Crane.",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -11941,6 +12435,7 @@
       "extractConfidence": "0.35",
       "sourceUrl": "https://elcisnerestaurant.com/menu/",
       "notes": "Happy Hour menu listed at bar only; drinks and appetizers mentioned but no specific times published",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -11967,7 +12462,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.famoussamstucson.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "d904c668-9371-47bd-990d-ddc6782c1296",
@@ -11993,7 +12489,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.iamaflowerchild.com/locations/flower-child-tucson/?utm_source=google&utm_medium=organic&utm_campaign=maps",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "5d6412b7-2055-4c95-ae84-b0a6b1ea38e5",
@@ -12019,7 +12516,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://freshsushipho.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "2b5690ff-bf21-4bd0-9984-a2f07d9775d0",
@@ -12045,7 +12543,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.gourmetgirlsglutenfree.com/?utm_source=google&utm_medium=organic&utm_campaign=gmb",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "306777f9-3b22-44f0-8749-fb4aea6fe0d6",
@@ -12071,7 +12570,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.greatwallchinesetucson.com/online-ordering",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "6774bf89-50f5-4154-9b75-94b9ddaab552",
@@ -12096,7 +12596,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://thehappyhourfinder.com/us_az/south-tucson/guillermos-double-l-restaurant/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "94c4738c-2ae9-49e5-ab22-b3098f697d3d",
@@ -12120,7 +12621,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://tucson.com/entertainment/music/the-original-hideout/article_2355cc1f-e6d2-52f2-ae62-7157851e85d1.html",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "631b82a1-4c94-4f25-91f6-74416ec1f796",
@@ -12145,7 +12647,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://tucsonfoodie.com/2023/12/08/istanbul-mediterranean-cuisine/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "735c710d-40e0-404c-95a5-79b5738c8671",
@@ -12169,7 +12672,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.opentable.com/r/jojos-restaurant-tucson",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "38da265f-1cbf-4fde-858a-e23ea3bbe3e6",
@@ -12193,7 +12697,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://thehappyhourfinder.com/us_az/tucson/kon-tiki-restaurant-lounge/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "9287328d-0d4f-4a6f-914f-da76589c9698",
@@ -12218,7 +12723,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://koreahouseaz.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "027fc2b8-3137-4af6-8af2-de65cdd74ed1",
@@ -12243,7 +12749,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://koreahouseaz.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "a3934355-0e0e-4b7b-9588-171eee5c0c7e",
@@ -12268,6 +12775,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://koreahouseaz.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -12294,7 +12802,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://whiskeydelbac.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "99a8f77b-e74e-461d-880d-af1f56555921",
@@ -12320,7 +12829,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://whiskeydelbac.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "6992e472-0d11-49f8-8863-fd911580f7ae",
@@ -12346,7 +12856,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://whiskeydelbac.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "48c87f6c-1fd2-45ca-a0f1-eae2422f3657",
@@ -12367,7 +12878,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://whiskeydelbac.com/2023/11/kxci-limited-release-barrell-event/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "deda4159-f422-4dc1-8151-6c1bf1399438",
@@ -12387,7 +12899,8 @@
       "extractConfidence": "0.6",
       "sourceUrl": "https://whiskeydelbac.com/event/final-friday-happy-hours-at-la-escondida-with-joe-pena/",
       "notes": "Held on the last Friday of every month",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "15b342b4-8f14-46b0-b5e5-523fc094b0fb",
@@ -12411,7 +12924,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://whiskeydelbac.com/menu/happy-hour",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "eec9ba28-a68a-44d8-871e-dd50c0ca6e5d",
@@ -12437,7 +12951,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.yelp.com/search?find_desc=la+indita&find_loc=Tucson,+AZ",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "0c1e926d-6347-4df6-9cdc-e75d06f10422",
@@ -12457,6 +12972,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.yelp.com/biz/la-indita-tucson?start=80",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -12483,6 +12999,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://laluztucson.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -12509,7 +13026,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://laluztucson.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "0c754741-f963-4ce8-a519-91a017ada664",
@@ -12535,7 +13053,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://laluztucson.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "222e5d37-37d2-451c-9909-5fbcb1012c03",
@@ -12559,7 +13078,8 @@
       "extractConfidence": null,
       "sourceUrl": "http://littlemexico-tucson.com/Steakhouse2026.pdf",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "0470f578-fd51-4538-8ed4-8e8b71984070",
@@ -12585,7 +13105,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://los-pochos-sports-bar.weeblyte.com/",
       "notes": "Daily happy hour",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "b9d76857-d983-4823-acc6-6441dce7d9da",
@@ -12611,6 +13132,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://retmaps.com/la-oficina-bar-restaurant",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -12634,6 +13156,7 @@
       "extractConfidence": "0.4",
       "sourceUrl": "https://www.mainevent.com/specials/",
       "notes": "Late Night Happy Hour available Sunday-Thursday during designated timeframes",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -12658,6 +13181,7 @@
       "extractConfidence": "0.4",
       "sourceUrl": "https://www.mainevent.com/specials/",
       "notes": "Afternoon Happy Hour available Monday-Friday during designated timeframes (opening time until stated end)",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -12684,7 +13208,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.midtownvegandeli.com/menus",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "05c67e23-8302-4ea4-a013-53899339461b",
@@ -12704,6 +13229,7 @@
       "extractConfidence": "0.6",
       "sourceUrl": "https://mulliganstucson.com/tucson-golf-links-and-harrison-mulligans-food-menu",
       "notes": "$1 Wings on Wednesdays – specific day deal; time window not published",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -12730,7 +13256,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.newasiatucson.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "5d9e6c33-d42d-436f-ab23-22f06d7a77a7",
@@ -12756,7 +13283,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.newasiatucson.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "645c8fdf-ddd9-461d-ab7c-ed3313b371d1",
@@ -12782,6 +13310,7 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.newasiatucson.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -12806,7 +13335,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://rollinghillsgolftucson.com/masters-lunch-special-4-8-4-14/",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "keep_hidden"
+      "evidence": "meal-service menu page, no deals attached",
+      "action": "delete"
     },
     {
       "happyHourId": "0e6307ad-42bc-440c-ba99-c7a3a876d74e",
@@ -12830,7 +13360,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://rollinghillsgolftucson.com/masters-lunch-special-4-8-4-14/",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": "meal-service menu page, no deals attached",
+      "action": "delete"
     },
     {
       "happyHourId": "3e4d7e15-37a6-4a95-a3ea-15e47eea8d10",
@@ -12851,6 +13382,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://coronettucson.com/menu/happy-hour",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -12872,7 +13404,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://coronettucson.com/menu/happy-hour",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "8762decc-abf9-4a81-90b9-1da7c8616e82",
@@ -12893,6 +13426,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://coronettucson.com/menu/happy-hour",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -12914,7 +13448,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://coronettucson.com/menu/happy-hour",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "1cf2e178-1327-485d-b5c9-9978108d4770",
@@ -12936,7 +13471,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.noanchoviesaz.com/club-events/industry-night-jun29",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "bc5daf2c-1585-4c4b-8e05-876e25702770",
@@ -12957,7 +13493,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.noanchoviesaz.com/club-events/college-night",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "38219546-0c08-4438-9f35-8e09781fb7a2",
@@ -12978,6 +13515,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.noanchoviesaz.com/club-events",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -13000,6 +13538,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.noanchoviesaz.com/club-events/industry-night-jun29",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -13024,7 +13563,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://thehappyhourfinder.com/us_az/tucson/ole-mexican-grill/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "8f6ec8f9-8f85-43f6-a04f-bf009d6ec105",
@@ -13048,7 +13588,8 @@
       "extractConfidence": "0.7",
       "sourceUrl": "https://www.opasbest.com/tucson/wp-content/uploads/2019/08/Opas-Best-Beer-Wine-Menu-4.25x14-8.7.19-full.jpg",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "c2d29faa-e535-446f-9587-0d589bdac99f",
@@ -13074,7 +13615,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://locations.outback.com/arizona/tucson/4871-east-grant-road?utm_source=gmb&utm_medium=local_search&utm_campaign=website_cta&y_source=1_MTU1MDI1MTItNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "985f57ee-54e1-46e1-bf4d-e047519a2ab9",
@@ -13100,7 +13642,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://locations.outback.com/arizona/tucson/4871-east-grant-road?utm_source=gmb&utm_medium=local_search&utm_campaign=website_cta&y_source=1_MTU1MDI1MTItNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "cc16cc53-42a0-4504-97c9-f4c6a1e96a6f",
@@ -13126,6 +13669,7 @@
       "extractConfidence": "0.5",
       "sourceUrl": "http://www.pappoules.com/",
       "notes": "Happy hour discounts listed: $2 off cocktails & Greek specialty cocktails, $2 off wines, $1 off draft beer. No times published.",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -13151,6 +13695,7 @@
       "extractConfidence": "0.4",
       "sourceUrl": "http://www.pappoules.com/",
       "notes": "Happy hour in dine-in bar area only, with no specific times published",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -13171,6 +13716,7 @@
       "extractConfidence": "0.5",
       "sourceUrl": "http://www.pappoules.com/",
       "notes": "Thursday weekly special: El Greco Salad with gyros or chicken + drink for $15.",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -13191,6 +13737,7 @@
       "extractConfidence": "0.5",
       "sourceUrl": "http://www.pappoules.com/",
       "notes": "Wednesday weekly special: Gyros with fries + drink for $13.",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -13211,6 +13758,7 @@
       "extractConfidence": "0.5",
       "sourceUrl": "http://www.pappoules.com/",
       "notes": "Tuesday weekly special: Small Greek Salad with gyros or chicken + drink for $13.",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -13231,6 +13779,7 @@
       "extractConfidence": "0.5",
       "sourceUrl": "http://www.pappoules.com/",
       "notes": "Monday weekly special: Soup/Salad/Spanakoptia Combo + drink (choose two) for $10. No times published.",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -13253,7 +13802,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.opentable.com/r/jw-marriott-starr-pass-passaggio-tucson",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "d8274a64-bb64-4ae4-968d-cf230422be47",
@@ -13277,7 +13827,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.perchenobistro.com/menu-1?menu=dinner-menu",
       "notes": null,
-      "action": "promote"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "85c0fca4-05fd-498d-9da9-2ef1fc5eaed9",
@@ -13301,7 +13852,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.perchenobistro.com/menu-1?menu=dinner-menu",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "e43c019b-36cd-4ea2-890b-f61799a8af14",
@@ -13327,7 +13879,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://gavicucina.com/menu/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "4849b142-449f-43be-9a3a-4b7a0ac4c602",
@@ -13350,7 +13903,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.pinnaclepeaktucson.com/events/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "ed22dc09-a0bf-41ce-a195-ae5ad97d1715",
@@ -13374,7 +13928,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://thehappyhourfinder.com/us_az/tucson/red-garter-saloon/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "231457ac-5169-43a0-9e4f-edcdba86e817",
@@ -13400,7 +13955,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://tacotuesday.com/restaurants/reforma-modern-mexican-tucson/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "4c58d0cb-e0dc-423e-86f3-3b67e69679bb",
@@ -13423,7 +13979,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://tucsonfoodie.com/2025/04/07/roadies-now-open/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "9c3aa684-ec74-4a8d-9fc0-a7d4a78ecce2",
@@ -13446,6 +14003,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://tucsonfoodie.com/2025/04/07/roadies-now-open/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -13466,7 +14024,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://thehappyhourfinder.com/us_az/tucson/roccos-little-chicago/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "ad866006-d80c-48c9-9b8f-9ab49dd1c83d",
@@ -13490,7 +14049,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.saigonblossoms.com/menu",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "b08a953b-b447-44f4-ad5f-73b3ddbc6982",
@@ -13516,7 +14076,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://sakura-teppan-steak-sushi.foodplacee.com/menu",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "eaebf52f-bcf6-4c2a-b336-ae45c238ca33",
@@ -13540,7 +14101,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://sakurateppansteaksushi.shop/",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "a954c81c-7929-4040-99f5-c5acc4b01bc1",
@@ -13564,7 +14126,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.vamosatucson.com/listing/seis-kitchen-&-catering-mercado/38264/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "db359f3c-d800-45ee-b881-8c02ac2b8780",
@@ -13588,7 +14151,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://tucsonfoodie.com/2025/05/13/grand-opening-seis-kitchen/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "881b0bfd-31aa-4ae0-9239-6699877e2195",
@@ -13614,7 +14178,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://tucson.com/entertainment/music/shooters-steakhouse-and-saloon/article_ff2bac56-f706-5270-8677-178400b9bac9.html",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "4811a001-f4af-499b-8e48-d8d95dc8e686",
@@ -13640,7 +14205,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://skydragonchinese.wixsite.com/tucson/lunch-menu",
       "notes": null,
-      "action": "promote"
+      "evidence": "meal-service menu page, no deals attached",
+      "action": "delete"
     },
     {
       "happyHourId": "7e456981-f416-4c70-974c-db599c2b6c75",
@@ -13664,6 +14230,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.sonoranhouse.com/sam-hughes-menu",
       "notes": "days assumed Mon–Fri (none stated)",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -13688,7 +14255,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.thetapandbottle.com/events",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "60cfe7c5-6802-4955-a0d4-94dadd664ea3",
@@ -13708,7 +14276,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.thetapandbottle.com/events",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "da4e0b19-8dcf-43dd-884a-8bf10743e44e",
@@ -13732,7 +14301,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.thetapandbottle.com/events",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "3d3481a0-9563-4c20-a132-cbf86427bd01",
@@ -13756,7 +14326,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://thehappyhourfinder.com/us_az/tucson/sushi-garden-north/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "b24ed861-1eaf-4344-aac8-4bf02021e9a9",
@@ -13777,7 +14348,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://thehappyhourfinder.com/us_az/tucson/sushi-garden-north/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "229e9b9d-61d7-43a3-bf0a-7fed84236685",
@@ -13803,7 +14375,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://sushitenaz.com/?page_id=9",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "9c9a820f-1292-47dc-aa5e-2f70a20c87b1",
@@ -13829,7 +14402,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://sushitenaz.com/?page_id=9",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "afe722cc-3c4d-4d39-8d1b-75cd5c22c831",
@@ -13852,7 +14426,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.yelp.com/biz/taco-giro-mexican-grill-w-valencia-tucson",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "5fdaf74d-37de-4851-bf7e-d49962cdfb0a",
@@ -13875,6 +14450,7 @@
       "extractConfidence": "0.4",
       "sourceUrl": "https://tacogiro.com/",
       "notes": "All-day deal Monday to Thursday",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -13898,7 +14474,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.yelp.com/biz/taco-giro-mexican-grill-w-valencia-tucson",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "693ca3d6-ed28-49e7-b607-e1f8e39f4813",
@@ -13923,7 +14500,8 @@
       "extractConfidence": "0.4",
       "sourceUrl": "https://tandemaz.com/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "5011764a-94d9-4a39-9654-3152e80ca856",
@@ -13943,6 +14521,7 @@
       "extractConfidence": "0.85",
       "sourceUrl": "https://images.squarespace-cdn.com/content/v1/60aef593412c937275e9ad09/1736212442332-41PZZTS5JNH2X9G8GCYP/wb-happyday-fbevent.jpg",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -13969,6 +14548,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.juanitostaqueria.com/menu",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -13992,7 +14572,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://tacotuesday.com/restaurants/teresas-mosaic-cafe-tucson/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "3a43b369-d7ff-42b8-b21f-5ebf31e221c3",
@@ -14013,6 +14594,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://tacotuesday.com/restaurants/teresas-mosaic-cafe-tucson/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -14033,6 +14615,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://tacotuesday.com/restaurants/teresas-mosaic-cafe-tucson/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -14057,7 +14640,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.opentable.com/r/terraza-garden-patio-and-lounge-tucson",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "b0145c19-5ce2-4410-868c-58844a9e734e",
@@ -14081,7 +14665,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://thebambooterrace.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "260c79b1-70b4-40cf-b052-72de495f232f",
@@ -14105,7 +14690,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://thebambooterrace.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "0f584aa5-858b-47ea-8362-12dbd0409f2d",
@@ -14125,6 +14711,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://thedepotbar.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -14151,7 +14738,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.atly.com/location/The-Dugout-Sports-Bar-Grill",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "ff8d45fc-16fa-43d8-8133-18ef5cfc08d6",
@@ -14177,7 +14765,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://pimaair.org/about-us/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "4d282856-2bfd-4597-8f8d-177225c6c9c0",
@@ -14203,6 +14792,7 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.pimaair.org/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -14227,7 +14817,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://the-gardens-bar-and-grill.mypagecloud.com/live_music",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "0d46c2ef-c80c-4cda-884e-e9e0b83cf108",
@@ -14250,7 +14841,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://tacotuesday.com/restaurants/teresas-mosaic-cafe-tucson/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "21091fbc-26d5-43ad-a2aa-95641879321b",
@@ -14271,6 +14863,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://tacotuesday.com/restaurants/teresas-mosaic-cafe-tucson/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -14291,6 +14884,7 @@
       "extractConfidence": null,
       "sourceUrl": "https://tacotuesday.com/restaurants/teresas-mosaic-cafe-tucson/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -14317,7 +14911,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://tucsonfoodie.com/2016/07/27/happy-hour-of-the-week-time-market/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "59691a4a-74de-433b-ad30-86c3a894dbc6",
@@ -14341,7 +14936,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://tinajaswine.com/event/modern-lending-happy-hour-4/",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "38beebce-284a-46af-a75a-f25c84781f4d",
@@ -14365,7 +14961,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://tinajaswine.com/event/modern-lending-happy-hour-5/",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "d8795784-a286-4e80-951c-dcbfa9ead156",
@@ -14389,7 +14986,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://tinajaswine.com/event/semi-private-event-happy-hour-20ppl/",
       "notes": "days assumed Mon–Fri (none stated)",
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "e53a76f2-968b-4c9b-8e2a-c9e26f62cd68",
@@ -14409,7 +15007,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://tinajaswine.com/events/",
       "notes": null,
-      "action": "promote"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "fec11635-aa83-4ed3-b1a0-b02a681cdfee",
@@ -14435,7 +15034,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.toast101.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "fbd1040c-030c-4aed-b1e5-128de2d0c790",
@@ -14461,7 +15061,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://tohonochul.org/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "d4e510ec-c754-4d40-8d43-e2826b897cfc",
@@ -14487,7 +15088,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://tohonochul.org/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "9deb78be-e815-410d-86c4-fe731e7dd8d4",
@@ -14510,7 +15112,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://topgolf.com/us/tucson/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "5e03b880-2e0d-4b12-9712-244be8f02f28",
@@ -14533,7 +15136,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://topgolf.com/us/tucson/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "bbdf49db-42e8-4c1f-8c8d-343ecadfc4a5",
@@ -14556,7 +15160,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://topgolf.com/us/tucson/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "17af661e-0f60-4e50-855e-a926db7aea08",
@@ -14577,7 +15182,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.tucsonkaraoke.com/post/tucson-s-hidden-gem-why-mandarin-grill-is-perfect-for-large-family-dinners-now-with-voicektv-perks",
       "notes": null,
-      "action": "promote"
+      "evidence": "meal-service menu page, no deals attached",
+      "action": "delete"
     },
     {
       "happyHourId": "cccdf7c0-ace0-46aa-90b7-54dff11f0255",
@@ -14603,7 +15209,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.wholeslvcepizza.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "8357d386-f196-4126-82c0-189bc5848e1b",
@@ -14629,7 +15236,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.wholeslvcepizza.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "be378b27-ab8d-4b9a-a0f9-312bd7582dcd",
@@ -14651,7 +15259,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.wildgarlicgrill.com/menu.html",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "1aaebcfd-cf5c-4cb5-9e81-6ea37a4674ef",
@@ -14677,7 +15286,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.wildgarlicgrill.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "c77fa2a1-6263-4e3d-bda4-f4697b8d5ce6",
@@ -14703,7 +15313,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.wildgarlicgrill.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "9b5b4e9c-cc7c-474d-8dde-041dbe4ebdca",
@@ -14729,7 +15340,8 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.wildgarlicgrill.com/",
       "notes": null,
-      "action": "keep_hidden"
+      "evidence": "matches venue operating hours",
+      "action": "delete"
     },
     {
       "happyHourId": "2c0ceac4-2219-4b18-ba5f-b85d04c856a3",
@@ -14751,6 +15363,7 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.wildgarlicgrill.com/menu.html",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -14777,6 +15390,7 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.wildgarlicgrill.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -14803,6 +15417,7 @@
       "extractConfidence": "1",
       "sourceUrl": "http://www.wildgarlicgrill.com/",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -14829,6 +15444,7 @@
       "extractConfidence": "0.35",
       "sourceUrl": "http://www.wildgarlicgrill.com/",
       "notes": "Happy hour at the bar every day; no times specified on available pages",
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -14850,6 +15466,7 @@
       "extractConfidence": "0.85",
       "sourceUrl": "https://ymhtucson.com/specials",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -14870,6 +15487,7 @@
       "extractConfidence": "0.85",
       "sourceUrl": "https://ymhtucson.com/specials",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -14890,6 +15508,7 @@
       "extractConfidence": "0.85",
       "sourceUrl": "https://ymhtucson.com/specials",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -14910,6 +15529,7 @@
       "extractConfidence": "0.85",
       "sourceUrl": "https://ymhtucson.com/specials",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -14930,6 +15550,7 @@
       "extractConfidence": "0.85",
       "sourceUrl": "https://ymhtucson.com/specials",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     },
     {
@@ -14950,6 +15571,7 @@
       "extractConfidence": "0.85",
       "sourceUrl": "https://ymhtucson.com/specials",
       "notes": null,
+      "evidence": null,
       "action": "keep_hidden"
     }
   ]

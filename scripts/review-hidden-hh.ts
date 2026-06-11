@@ -4,13 +4,15 @@
  *   Report (no DB writes):
  *     pnpm review:hidden [--city <slug> --state <code>] [--limit N]
  *   → writes docs/hidden-hh-review-<YYYY-MM-DD>.{json,md}
- *     Each window carries a suggested `action` ("promote" for HH-shaped windows,
- *     "keep_hidden" otherwise — see lib/recover/hiddenReview). Edit the JSON.
+ *     Suggested `action` is "delete" only on hard evidence the window is service hours
+ *     (see lib/recover/hiddenReview), else "keep_hidden". NEVER "promote" — the operator
+ *     sets that manually after verifying the happy hour themselves. Edit the JSON.
  *
  *   Apply (after you review + edit the .json's `action` fields):
  *     pnpm review:hidden --apply docs/hidden-hh-review-<date>.json
- *   → promote: active=true + venue → complete; delete: soft-delete. Writes audit_log.
- *     `delete` is performed ONLY if the json explicitly says action: "delete".
+ *   → promote: active=true + venue → complete (LIVE on the site — no further check);
+ *     delete: soft-delete, and the persist path refuses to ever re-insert an
+ *     operator-deleted window (no resurrection on re-extract). Writes audit_log.
  *
  * Requires DATABASE_URL only.
  */
@@ -18,7 +20,8 @@ import "dotenv/config";
 import { readFileSync, writeFileSync } from "node:fs";
 import postgres from "postgres";
 import { requireCityArgs } from "@/lib/cities/resolveCity";
-import { durationHours, suggestAction, type HiddenAction } from "@/lib/recover/hiddenReview";
+import { durationHours, suggestAction, deleteEvidence, type HiddenAction } from "@/lib/recover/hiddenReview";
+import type { OpenPeriod } from "@/lib/geo/timezone";
 
 const DATABASE_URL = process.env.DATABASE_URL;
 
@@ -55,6 +58,10 @@ interface ReportEntry {
   extractConfidence: string | null;
   sourceUrl: string | null;
   notes: string | null;
+  /** Evidence behind a suggested delete (null otherwise) — shown so the operator
+   *  sees WHY before nuking. Suggestions are never `promote`: going live requires
+   *  operator verification or a fresh re-extraction, not a guess. */
+  evidence: string | null;
   action: HiddenAction;
 }
 
@@ -86,10 +93,11 @@ async function runReport() {
         extract_confidence: string | null;
         source_url: string | null;
         notes: string | null;
+        hours_json: OpenPeriod[] | null;
       }[]
     >`
       SELECT hh.id AS happy_hour_id, v.id AS venue_id, c.name AS city, v.name AS venue,
-             v.website_url, hh.days_of_week, hh.start_time, hh.end_time, hh.all_day,
+             v.website_url, v.hours_json, hh.days_of_week, hh.start_time, hh.end_time, hh.all_day,
              hh.time_known,
              (SELECT count(*)::int FROM offerings o WHERE o.happy_hour_id = hh.id AND o.active) AS offerings,
              hh.extract_confidence, hh.source_url, hh.notes
@@ -109,10 +117,13 @@ async function runReport() {
 
     const entries: ReportEntry[] = rows.map((r) => {
       const shape = {
+        daysOfWeek: r.days_of_week,
         startTime: r.start_time,
         endTime: r.end_time,
         allDay: r.all_day,
         timeKnown: r.time_known,
+        sourceUrl: r.source_url,
+        offerings: r.offerings,
       };
       return {
         happyHourId: r.happy_hour_id,
@@ -130,7 +141,8 @@ async function runReport() {
         extractConfidence: r.extract_confidence,
         sourceUrl: r.source_url,
         notes: r.notes,
-        action: suggestAction(shape),
+        evidence: deleteEvidence(shape, r.hours_json),
+        action: suggestAction(shape, r.hours_json),
       };
     });
 
@@ -139,27 +151,32 @@ async function runReport() {
     const mdPath = `docs/hidden-hh-review-${stamp}.md`;
     writeFileSync(jsonPath, JSON.stringify({ generatedAt: stamp, entries }, null, 2));
 
-    const promote = entries.filter((e) => e.action === "promote");
+    const dels = entries.filter((e) => e.action === "delete");
     const md = [
       `# Hidden-window review — ${stamp}`,
       "",
       `${entries.length} hidden windows on ${new Set(entries.map((e) => e.venueId)).size} stub venues` +
         (cityArgs ? ` in ${cityArgs.slug}, ${cityArgs.state}` : " across all cities") +
-        `. Suggested promote: ${promote.length}.`,
+        `. Suggested delete (evidence-backed): ${dels.length}.`,
+      "",
+      "Actions: `promote` = goes LIVE on the site immediately (set it only after you have",
+      "verified the happy hour yourself — the tool never suggests it); `delete` = permanent",
+      "nuke, the window can never be re-created by a future re-extraction; `keep_hidden` =",
+      "stays invisible, eligible for the paid re-extract sweep to confirm or refute.",
       "",
       `Edit \`action\` fields in \`${jsonPath}\`, then: \`pnpm review:hidden --apply ${jsonPath}\``,
       "",
-      "| action | city | venue | days | time | dur(h) | offers | conf | notes |",
-      "|---|---|---|---|---|---|---|---|---|",
+      "| action | evidence | city | venue | days | time | dur(h) | offers | source | notes |",
+      "|---|---|---|---|---|---|---|---|---|---|",
       ...entries.map(
         (e) =>
-          `| ${e.action === "promote" ? "**promote**" : e.action} | ${e.city} | [${e.venue}](${e.websiteUrl ?? ""}) | ${fmtDays(e.daysOfWeek)} | ${fmtTime(e)} | ${e.durationH?.toFixed(1) ?? ""} | ${e.offerings} | ${e.extractConfidence ?? ""} | ${(e.notes ?? "").slice(0, 60)} |`,
+          `| ${e.action === "delete" ? "**delete**" : e.action} | ${e.evidence ?? ""} | ${e.city} | [${e.venue}](${e.websiteUrl ?? ""}) | ${fmtDays(e.daysOfWeek)} | ${fmtTime(e)} | ${e.durationH?.toFixed(1) ?? ""} | ${e.offerings} | ${e.sourceUrl ? `[src](${e.sourceUrl})` : ""} | ${(e.notes ?? "").slice(0, 60)} |`,
       ),
       "",
     ].join("\n");
     writeFileSync(mdPath, md);
 
-    console.log(`${entries.length} hidden windows (${promote.length} suggested promote)`);
+    console.log(`${entries.length} hidden windows (${dels.length} suggested delete, rest keep_hidden)`);
     console.log(`report → ${mdPath}`);
     console.log(`actions → ${jsonPath} (edit, then --apply)`);
   } finally {
