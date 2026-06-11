@@ -1,0 +1,310 @@
+[
+  {
+    "name": "Original Joe’s Westlake",
+    "primaryType": "italian_restaurant",
+    "website": "https://originaljoes.com/westlake/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Boulevard Cafe",
+    "primaryType": "american_restaurant",
+    "website": "http://theboulevardcafe.com/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Koi Palace",
+    "primaryType": "chinese_restaurant",
+    "website": "https://koipalace.com/menu",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Outback Steakhouse",
+    "primaryType": "steak_house",
+    "website": "https://locations.outback.com/california/daly-city/371-gellert-blvd.?utm_source=gmb&utm_medium=local_search&utm_campaign=website_cta&y_source=1_MTU1MDI2MDYtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "California Fish Grill",
+    "primaryType": "seafood_restaurant",
+    "website": "https://www.cafishgrill.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Celia's",
+    "primaryType": "mexican_restaurant",
+    "website": "http://www.celiasrestaurants.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Dim Sum King",
+    "primaryType": "chinese_restaurant",
+    "website": "https://www.dimsumking99.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Banana Island",
+    "primaryType": "restaurant",
+    "website": "https://www.bananaislandrestaurant.us/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Yoshi Ramen & Sushi",
+    "primaryType": "sushi_restaurant",
+    "website": "http://www.yoshi-ramen.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Molloy's Tavern",
+    "primaryType": "bar",
+    "website": "http://facebook.com/molloyscolma",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Izumi Revolving Sushi",
+    "primaryType": "sushi_restaurant",
+    "website": "http://www.izumikaitensushi.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Seapot Daly City",
+    "primaryType": "hot_pot_restaurant",
+    "website": "https://www.seapotusa.com/daly-city-ca",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Tselogs",
+    "primaryType": "filipino_restaurant",
+    "website": "http://www.tselogs.com/home.html",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Tomo Sushi & Teriyaki",
+    "primaryType": "japanese_restaurant",
+    "website": "https://tomosushiteriyaki.shop/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Blue Line Pizza",
+    "primaryType": "pizza_restaurant",
+    "website": "http://www.bluelinepizza.com/",
+    "bucket": "says_happy_hour",
+    "snippet": "iendly, outdoor patios, hang out during happy hour and watch the game or let us cater your"
+  },
+  {
+    "name": "El Zocalo Restaurant",
+    "primaryType": "restaurant",
+    "website": "https://www.facebook.com/pages/El-Zocalo-Restaurant/109674275734558",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "POGU",
+    "primaryType": "korean_restaurant",
+    "website": "https://www.instagram.com/jagalchi_official/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Spiral",
+    "primaryType": "japanese_restaurant",
+    "website": "http://spiraljapanesecuisine.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Tokyo Sushi & Bar",
+    "primaryType": "japanese_restaurant",
+    "website": "https://tokyosushibarssf.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Al Fin Restaurant",
+    "primaryType": "restaurant",
+    "website": "http://alfinrestaurant.online/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Ming Yuan Restaurant",
+    "primaryType": "chinese_restaurant",
+    "website": "http://mingyuan.us/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Fresh Elements",
+    "primaryType": "seafood_restaurant",
+    "website": "https://www.freshelements83.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Mr. Pollo Latin Fusion",
+    "primaryType": "colombian_restaurant",
+    "website": "https://mrpollodalycity.wixsite.com/mrpollo",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Los Reyes Restaurant",
+    "primaryType": "restaurant",
+    "website": "https://www.orderlosreyes.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Cafe Colma",
+    "primaryType": "filipino_restaurant",
+    "website": "https://www.luckychances.com/dining.aspx",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Los Metates",
+    "primaryType": "restaurant",
+    "website": "https://losmetatesca.com/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Kings West Coast Pizzeria",
+    "primaryType": "pizza_restaurant",
+    "website": "http://kingswestcoastpizzeria.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Majikku Ramen",
+    "primaryType": "japanese_restaurant",
+    "website": "https://majikkuramen.net/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Tiny Sushi - Oh Baby",
+    "primaryType": "japanese_restaurant",
+    "website": "http://ohbabysushi.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "House Of Fusion",
+    "primaryType": "japanese_restaurant",
+    "website": "https://houseoffusion.kwickmenu.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Creative Ideas Cafe",
+    "primaryType": "colombian_restaurant",
+    "website": "https://creativeideascateringcafe.com/",
+    "bucket": "says_happy_hour",
+    "snippet": ", Tea Cookies. Appetizers, Platters and Happy Hour Menu under Celebration Menu Tab Buffet"
+  },
+  {
+    "name": "Lava Hookah Lounge & Grill",
+    "primaryType": "hookah_bar",
+    "website": "https://www.lavaloungegrill.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Tom San Ramen",
+    "primaryType": "japanese_restaurant",
+    "website": "http://www.tomsanramendalycity.com/?utm_source=gmb&utm_medium=website",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "Pho Cafe",
+    "primaryType": "vietnamese_restaurant",
+    "website": "https://order.online/business/pho-cafe-897112",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Sushi Kashiwa",
+    "primaryType": "japanese_restaurant",
+    "website": "http://sushikashiwa.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Yokohama Iekei Ramen Daly City",
+    "primaryType": "ramen_restaurant",
+    "website": "https://yokohamaiekei.net/",
+    "bucket": "no_signal",
+    "snippet": ""
+  },
+  {
+    "name": "Marufuku Ramen Serramonte",
+    "primaryType": "ramen_restaurant",
+    "website": "https://www.marufukuramen.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "The Connection",
+    "primaryType": "cocktail_bar",
+    "website": "http://www.goplaypool.com/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Las Pencas de Maguey Restaurant",
+    "primaryType": "restaurant",
+    "website": "https://www.laspencasdemaguey-restaurant.com/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Bolare Trattoria & Pizzeria",
+    "primaryType": "italian_restaurant",
+    "website": "https://www.bolaretrattoriapizzeria.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "North Beach Pizza",
+    "primaryType": "pizza_restaurant",
+    "website": "https://northbeachpizza.com/northbeachpizzadc?utm_source=google",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "Iguana Azul",
+    "primaryType": "mexican_restaurant",
+    "website": "http://www.blueiguana415.com/",
+    "bucket": "unreachable",
+    "snippet": ""
+  },
+  {
+    "name": "UNI Pizzeria & Grill",
+    "primaryType": "pizza_restaurant",
+    "website": "https://unipizzeria.com/",
+    "bucket": "says_special_only",
+    "snippet": ""
+  },
+  {
+    "name": "La Zona 69 Night Club",
+    "primaryType": "night_club",
+    "website": "https://www.lazona69nightclub.com/",
+    "bucket": "no_signal",
+    "snippet": ""
+  }
+]
