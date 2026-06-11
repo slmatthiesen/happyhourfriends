@@ -181,7 +181,9 @@ async function main() {
     }
 
     mkdirSync("docs/audits", { recursive: true });
-    const out = `docs/audits/flag-adjudication-${EVAL ? "eval" : "queue"}-${new Date().toISOString().slice(0, 10)}${OFFSET > 0 ? `-offset${OFFSET}` : ""}.json`;
+    // Single-venue runs write a venue-suffixed file so they can never clobber a batch
+    // report (a --venue re-check overwrote the committed 111-venue report, 2026-06-11).
+    const out = `docs/audits/flag-adjudication-${VENUE ? `venue-${VENUE.slice(0, 8)}` : EVAL ? "eval" : "queue"}-${new Date().toISOString().slice(0, 10)}${OFFSET > 0 ? `-offset${OFFSET}` : ""}.json`;
     writeFileSync(out, JSON.stringify(report, null, 2));
     console.log(`── done ── ${rows.length} venue(s), spend $${(spentCents / 100).toFixed(2)}, report → ${out}`);
   } finally {
