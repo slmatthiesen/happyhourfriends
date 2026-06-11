@@ -42,7 +42,7 @@ export default async function Home() {
       )}
 
       <p className="mt-16 text-center text-sm text-text-muted/80">
-        Built by a friend who hates paying full price.
+        Built by a friend who loves trying new places.
       </p>
       <footer className="mt-4 flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm text-text-muted">
         <Link href="/about" className="hover:text-text-primary">
