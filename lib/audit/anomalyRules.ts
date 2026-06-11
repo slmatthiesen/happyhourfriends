@@ -60,7 +60,8 @@ export type AnomalyCode =
   | "uniform_cheap_prices" // Wooden Nickel's hallucinated $2-everything offerings
   | "day_mismatch_offering" // Bistro 44's "…on Sunday" item inside an every-day window
   | "food_kinded_as_drink" // Backyard's tacos/wings/shareables stored as kind=drink
-  | "monthly_event_window"; // Cook & Her Farmer's "every third Thursday" stored as weekly
+  | "monthly_event_window" // Cook & Her Farmer's "every third Thursday" stored as weekly
+  | "platform_website_url"; // venue website_url is an ordering/link-in-bio platform, not its site
 
 export interface AnomalyFlag {
   code: AnomalyCode;
@@ -82,6 +83,7 @@ const SEVERITY: Record<AnomalyCode, AnomalySeverity> = {
   day_mismatch_offering: "report",
   food_kinded_as_drink: "report",
   monthly_event_window: "report",
+  platform_website_url: "report",
 };
 
 function flag(code: AnomalyCode, evidence: string): AnomalyFlag {
@@ -202,6 +204,22 @@ function isOwnSubdomainSource(sourceUrl: string | null, websiteUrl: string | nul
   }
 }
 
+/** Ordering / delivery / link-in-bio platforms that Google sometimes returns as a
+ *  venue's "website". They can never verify HH data (Ciao Grazie's order.online
+ *  storefront, Sushiholic's carrd.co landing — 2026-06-11 operator review), and every
+ *  fetch against them is wasted. Flagged so the operator can find the real site. */
+const PLATFORM_WEBSITE_RE =
+  /(^|\.)(order\.online|carrd\.co|doordash\.com|ubereats\.com|grubhub\.com|postmates\.com|seamless\.com|chownow\.com|slicelife\.com|toasttab\.com|clover\.com|linktr\.ee|beacons\.ai)$/i;
+
+function isPlatformWebsite(websiteUrl: string | null): boolean {
+  if (!websiteUrl) return false;
+  try {
+    return PLATFORM_WEBSITE_RE.test(new URL(websiteUrl).hostname.toLowerCase());
+  } catch {
+    return false;
+  }
+}
+
 /** "every third Thursday" / "first Friday of the month" stored as a weekly window. */
 const MONTHLY_EVENT_RE =
   /\b(every\s+)?(first|second|third|fourth|fifth|last)\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)s?\b|\bonce\s+a\s+month\b|\bmonthly\b/i;
@@ -214,6 +232,10 @@ export function auditVenue(input: VenueAuditInput, now: Date = new Date()): Anom
   const flags: AnomalyFlag[] = [];
   const active = input.windows.filter((w) => w.active);
   if (active.length === 0) return flags;
+
+  if (isPlatformWebsite(input.websiteUrl)) {
+    flags.push(flag("platform_website_url", `venue website is an ordering/link platform, not its own site: ${input.websiteUrl}`));
+  }
 
   // --- Provenance + shape, per-window ---
   for (const w of active) {

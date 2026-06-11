@@ -8,8 +8,12 @@
  * Everyone imports from here now so the spellings can never drift again.
  */
 
-/** Matches `happy hour` / `happy-hour` / `happyhour` / `happy_hour`, any case. */
-export const HH_RE = /happy[-_ ]?hour/i;
+/** Matches `happy hour` / `happy-hour` / `happyhour` / `happy_hour`, any case — plus the
+ *  synonyms venues actually use for the same thing, each found in live data during the
+ *  2026-06-11 operator flag review: "Happier Hours" (The Monica), "Social Hour" (PYRO —
+ *  operator: "sometimes it's called social hour"), "Power Hour" (Orangedale Lounge).
+ *  The plain `happy` branch deliberately also matches "happyhour" URLs/slugs. */
+export const HH_RE = /happ(?:y|ier)[-_ ]?hours?|social[-_ ]?hour|power[-_ ]?hour/i;
 
 /** True when the text mentions happy hour in any common spelling/case. */
 export function matchesHappyHour(text: string): boolean {
@@ -22,8 +26,15 @@ export function matchesHappyHour(text: string): boolean {
  * plain dates and "Mon-Fri" don't false-match). Deliberately permissive — it gates the
  * PAID extractor and the operator's rule is "skip only pages with ZERO indication".
  */
-export const DEAL_RE =
-  /\bspecials?\b|drink\s*deals?|\bdaily\b|industry\s*night|happy\s*hr\b|\b\d{1,2}\s*(?:[ap]\.?m\.?)?\s*[-–—]+\s*\d{1,2}\s*[ap]\.?m\.?/i;
+/** A concrete time-range like "3-6pm" / "3 pm – 6 pm" (the second time must carry am/pm
+ *  so plain dates and "Mon-Fri" don't false-match). Exported on its own because it's the
+ *  "page text states an actual SCHEDULE" signal — stronger than a mere HH mention. */
+export const TIME_RANGE_RE = /\b\d{1,2}\s*(?:[ap]\.?m\.?)?\s*[-–—]+\s*\d{1,2}\s*[ap]\.?m\.?/i;
+
+export const DEAL_RE = new RegExp(
+  `\\bspecials?\\b|drink\\s*deals?|\\bdaily\\b|industry\\s*night|happy\\s*hr\\b|${TIME_RANGE_RE.source}`,
+  "i",
+);
 
 /**
  * True when page text shows ANY happy-hour or deal signal. This is the free local gate

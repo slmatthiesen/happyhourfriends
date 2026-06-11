@@ -1,8 +1,12 @@
 ---
 prompt: flag-adjudicate
-version: 3
+version: 4
 model: claude-haiku-4-5
-notes: Pinned via sha256 content hash recorded with the call. v3 — SAME-SITE CONFLICTS
+notes: Pinned via sha256 content hash recorded with the call. v4 — WRONG-BUSINESS CHECK
+  (2026-06-11)= the venue's address is now in the prompt; if the fetched pages describe a
+  business in a different city/state than the venue's address (The Depot Bar, Tucson —
+  website_url points at a Nashville bar's shop site), answer unclear and say so. v3 —
+  SAME-SITE CONFLICTS
   (2026-06-10)= when the venue's own pages disagree, prefer the location-specific page;
   ignore other locations' content embedded in shared site text (Chula's "Opening Soon"
   3-6pm blurb appeared on every page and overrode the location pages' 3-5pm, producing
@@ -56,9 +60,14 @@ Hard rules:
   answer **unclear** and describe the conflict.
 - Times in `site_schedule` use 24-hour HH:MM; days use ISO numbers 1=Mon … 7=Sun.
 
+- WRONG BUSINESS: if the fetched pages clearly describe a venue in a DIFFERENT city or
+  state than this venue's address (a stale or mis-assigned website), answer **unclear**
+  and state the mismatch — never confirm or correct from another business's pages.
+
 # User
 
 Venue: {{venue_name}}
+Address: {{venue_address}}
 
 STORED happy-hour data (what our database currently shows):
 {{stored_json}}
