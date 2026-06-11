@@ -2736,8 +2736,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.phoenixnewtimes.com/restaurants/valley-bar-in-downtown-phoenix-happy-hour-report-card-7612586",
       "notes": null,
-      "evidence": "matches venue operating hours",
-      "action": "delete"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "e57a1613-31d0-4c40-a1c5-e511b0577134",
@@ -3994,8 +3994,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.booksociety.social/menu/happy-hour",
       "notes": null,
-      "evidence": "matches venue operating hours",
-      "action": "delete"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "ec65c301-44f3-450c-92c5-21d37cfb18fe",
@@ -4021,8 +4021,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.booksociety.social/menu/happy-hour",
       "notes": null,
-      "evidence": "matches venue operating hours",
-      "action": "delete"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "a60ee0eb-00b8-4d3d-a66f-a9e9fabcf364",
@@ -4048,8 +4048,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.booksociety.social/menu/happy-hour",
       "notes": null,
-      "evidence": "matches venue operating hours",
-      "action": "delete"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "8f57cd33-bb92-4d66-8852-b54ffc1f7312",
@@ -4120,8 +4120,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://dmonaghansoakland.com/oakland-d-monaghans-on-the-hill-happy-hours-specials",
       "notes": "days assumed Mon–Fri (none stated)",
-      "evidence": "matches venue operating hours",
-      "action": "delete"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "1cd8f95f-7c75-4a09-b72a-0bcfdd14105b",
@@ -5672,8 +5672,8 @@
       "extractConfidence": null,
       "sourceUrl": "https://www.azfamily.com/2025/09/10/50-cent-wings-other-great-deals-under-10-this-scottsdale-happy-hour/",
       "notes": null,
-      "evidence": "matches venue operating hours",
-      "action": "delete"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "2cda2cd1-99fd-4201-be46-124d86d5eec8",
@@ -10977,8 +10977,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.loaktoungthai.com/menu/happy-hour",
       "notes": null,
-      "evidence": "matches venue operating hours",
-      "action": "delete"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "7185f7da-3533-47a0-a3dc-4b01b657dfd5",
@@ -11000,8 +11000,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.loaktoungthai.com/menu/happy-hour",
       "notes": null,
-      "evidence": "matches venue operating hours",
-      "action": "delete"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "e1a1c560-43a8-442c-be8a-a6432b679d16",
@@ -11662,8 +11662,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://www.azwinecollective.com/event/tucson-foodie-happy-hour-week/",
       "notes": "days assumed Mon–Fri (none stated)",
-      "evidence": "matches venue operating hours",
-      "action": "delete"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "5d578c0a-886c-4b93-b921-3f3145e6c188",
@@ -13404,8 +13404,8 @@
       "extractConfidence": "1",
       "sourceUrl": "https://coronettucson.com/menu/happy-hour",
       "notes": null,
-      "evidence": "matches venue operating hours",
-      "action": "delete"
+      "evidence": null,
+      "action": "keep_hidden"
     },
     {
       "happyHourId": "8762decc-abf9-4a81-90b9-1da7c8616e82",

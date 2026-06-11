@@ -3,13 +3,14 @@
  *
  *   Report (no DB writes):
  *     pnpm review:hidden [--city <slug> --state <code>] [--limit N]
- *   → writes docs/hidden-hh-review-<YYYY-MM-DD>.{json,md}
+ *   → writes docs/hidden-hh-review-<YYYY-MM-DD>.{json,md,csv}
  *     Suggested `action` is "delete" only on hard evidence the window is service hours
- *     (see lib/recover/hiddenReview), else "keep_hidden". NEVER "promote" — the operator
- *     sets that manually after verifying the happy hour themselves. Edit the JSON.
+ *     AND nothing hints at HH (see lib/recover/hiddenReview), else "keep_hidden".
+ *     NEVER "promote" — the operator sets that manually after verifying the happy hour
+ *     themselves. Edit the .json, or sort/filter the .csv in a spreadsheet.
  *
- *   Apply (after you review + edit the .json's `action` fields):
- *     pnpm review:hidden --apply docs/hidden-hh-review-<date>.json
+ *   Apply (after you review + edit the `action` fields, .json or .csv):
+ *     pnpm review:hidden --apply docs/hidden-hh-review-<date>.csv
  *   → promote: active=true + venue → complete (LIVE on the site — no further check);
  *     delete: soft-delete, and the persist path refuses to ever re-insert an
  *     operator-deleted window (no resurrection on re-extract). Writes audit_log.
@@ -20,7 +21,7 @@ import "dotenv/config";
 import { readFileSync, writeFileSync } from "node:fs";
 import postgres from "postgres";
 import { requireCityArgs } from "@/lib/cities/resolveCity";
-import { durationHours, suggestAction, deleteEvidence, type HiddenAction } from "@/lib/recover/hiddenReview";
+import { durationHours, suggestAction, deleteEvidence, toCsv, parseCsv, type HiddenAction } from "@/lib/recover/hiddenReview";
 import type { OpenPeriod } from "@/lib/geo/timezone";
 
 const DATABASE_URL = process.env.DATABASE_URL;
@@ -124,6 +125,7 @@ async function runReport() {
         timeKnown: r.time_known,
         sourceUrl: r.source_url,
         offerings: r.offerings,
+        notes: r.notes,
       };
       return {
         happyHourId: r.happy_hour_id,
@@ -149,7 +151,22 @@ async function runReport() {
     const stamp = today();
     const jsonPath = `docs/hidden-hh-review-${stamp}.json`;
     const mdPath = `docs/hidden-hh-review-${stamp}.md`;
+    const csvPath = `docs/hidden-hh-review-${stamp}.csv`;
     writeFileSync(jsonPath, JSON.stringify({ generatedAt: stamp, entries }, null, 2));
+    writeFileSync(
+      csvPath,
+      toCsv(
+        entries.map((e) => ({
+          ...e,
+          days: fmtDays(e.daysOfWeek),
+          time: fmtTime(e),
+          durationH: e.durationH?.toFixed(2) ?? "",
+        })),
+        // action first so it's the obvious edit column; ids last (needed by --apply).
+        ["action", "evidence", "city", "venue", "days", "time", "durationH", "offerings",
+         "extractConfidence", "sourceUrl", "websiteUrl", "notes", "happyHourId", "venueId"],
+      ),
+    );
 
     const dels = entries.filter((e) => e.action === "delete");
     const md = [
@@ -162,9 +179,13 @@ async function runReport() {
       "Actions: `promote` = goes LIVE on the site immediately (set it only after you have",
       "verified the happy hour yourself — the tool never suggests it); `delete` = permanent",
       "nuke, the window can never be re-created by a future re-extraction; `keep_hidden` =",
-      "stays invisible, eligible for the paid re-extract sweep to confirm or refute.",
+      "stays invisible (costs nothing), eligible for the paid re-extract sweep or for users",
+      "to fill in. A delete is never suggested when the source URL or notes mention happy",
+      "hour — any HH hint means the window stays reviewable.",
       "",
-      `Edit \`action\` fields in \`${jsonPath}\`, then: \`pnpm review:hidden --apply ${jsonPath}\``,
+      `Edit \`action\` fields in \`${jsonPath}\` — or sort/filter \`${csvPath}\` in a`,
+      `spreadsheet and edit its action column — then: \`pnpm review:hidden --apply <file>\``,
+      "(accepts .json or .csv).",
       "",
       "| action | evidence | city | venue | days | time | dur(h) | offers | source | notes |",
       "|---|---|---|---|---|---|---|---|---|---|",
@@ -178,10 +199,29 @@ async function runReport() {
 
     console.log(`${entries.length} hidden windows (${dels.length} suggested delete, rest keep_hidden)`);
     console.log(`report → ${mdPath}`);
-    console.log(`actions → ${jsonPath} (edit, then --apply)`);
+    console.log(`actions → ${jsonPath} or ${csvPath} (edit either, then --apply <file>)`);
   } finally {
     await sql.end();
   }
+}
+
+const ACTIONS: HiddenAction[] = ["promote", "keep_hidden", "delete"];
+
+/** Read operator decisions from the edited .json or .csv report. Fails loud on an
+ *  unknown action value or a row missing its ids (a mangled spreadsheet export must
+ *  never silently skip — or worse, misroute — a decision). */
+function readDecisions(path: string): Array<Pick<ReportEntry, "happyHourId" | "venueId" | "action">> {
+  const raw = readFileSync(path, "utf8");
+  const rows = path.endsWith(".csv")
+    ? parseCsv(raw)
+    : (JSON.parse(raw) as { entries: ReportEntry[] }).entries;
+  return rows.map((r, i) => {
+    const { happyHourId, venueId, action } = r as Record<string, string>;
+    if (!happyHourId || !venueId || !ACTIONS.includes(action as HiddenAction)) {
+      throw new Error(`row ${i + 1}: bad decision (happyHourId=${happyHourId}, venueId=${venueId}, action=${action})`);
+    }
+    return { happyHourId, venueId, action: action as HiddenAction };
+  });
 }
 
 async function runApply(path: string) {
@@ -189,13 +229,13 @@ async function runApply(path: string) {
     console.error("ERROR: DATABASE_URL is required.");
     process.exit(1);
   }
-  const parsed = JSON.parse(readFileSync(path, "utf8")) as { entries: ReportEntry[] };
+  const decisions = readDecisions(path);
   const sql = postgres(DATABASE_URL, { max: 4 });
   let promoted = 0;
   let deleted = 0;
   let kept = 0;
   try {
-    for (const e of parsed.entries) {
+    for (const e of decisions) {
       if (e.action === "keep_hidden") {
         kept++;
         continue;
