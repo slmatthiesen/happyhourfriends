@@ -40,6 +40,36 @@ export default function AboutPage() {
           quick heads-up helps you and your neighbors.
         </p>
       </div>
+      <section className="mt-14 border-t border-border pt-10">
+        <h2
+          className="text-2xl font-semibold text-text-primary"
+          style={{ fontFamily: "var(--font-serif)" }}
+        >
+          Hey — I&apos;m Steven 👋
+        </h2>
+        <div className="mt-6 flex flex-col gap-6 sm:flex-row sm:items-start">
+          {/* Swap for <Image src="/about/me-sombrero.jpg" alt="Steven in a sombrero, having a great time" width={160} height={160} className="rounded-xl object-cover" /> once the photo lands in public/about/. */}
+          <div className="flex h-40 w-40 shrink-0 items-center justify-center rounded-xl border border-border bg-bg-elevated text-6xl">
+            🤠
+          </div>
+          <div className="space-y-4 text-text-muted">
+            <p>
+              About ten years ago I built a site a lot like this one, just for
+              Phoenix. No ads, no gimmicks — every happy hour in town in one big
+              list. People loved it, and I never stopped thinking about why:
+              nobody wants to dig through ten menus to find the $5 margarita.
+              Friends just tell each other.
+            </p>
+            <p>
+              That&apos;s the bet behind Happy Hour Friends: a community that
+              keeps each other in the loop will always find better deals than
+              any ad budget. The data starts with us, but it gets good with you
+              — if you spot a deal we&apos;re missing or a price that&apos;s
+              changed, send it in. That&apos;s the whole idea.
+            </p>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }
