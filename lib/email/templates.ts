@@ -117,3 +117,41 @@ export function extractedHappyHoursEmail(
   </div>`;
   return { subject, html };
 }
+
+export interface QueuedForReviewEmailArgs {
+  venueName: string;
+  /** edit_submissions.target_type — shown so the operator knows what kind of change it is. */
+  targetType: string;
+  /** One-line change summary from the diff, when the submission carries one. */
+  summary?: string | null;
+  /** Why the pipeline parked it in the queue instead of deciding. */
+  reason: string;
+  queue: "queued_admin" | "queued_outreach";
+  adminUrl: string;
+}
+
+/**
+ * Catch-all "a submission landed in your queue" notice — covers every routing path
+ * that parks a submission for a human without one of the richer emails above
+ * (banned/critical at classify, verifier failures, unconfirmed verdicts, interpret
+ * dead-ends, first-happy-hour submissions).
+ */
+export function queuedForReviewEmail(
+  args: QueuedForReviewEmailArgs,
+): { subject: string; html: string } {
+  const label = args.queue === "queued_outreach" ? "Outreach queue" : "Review needed";
+  const subject = `[HHF] ${label} — ${args.venueName}${args.summary ? `: ${args.summary}` : ""}`;
+  const html = `
+  <div style="font-family:system-ui,sans-serif;max-width:560px">
+    <h2 style="margin:0 0 4px">${esc(args.venueName)}</h2>
+    <p style="margin:0 0 16px;color:#444">${esc(args.summary ?? `New ${args.targetType.replace(/_/g, " ")} submission`)}</p>
+
+    <p style="margin:0 0 16px"><b>Why it's queued:</b> ${esc(args.reason)}</p>
+
+    <p style="margin:24px 0 0">
+      <a href="${esc(args.adminUrl)}" style="background:#b4541f;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none">Review in admin queue →</a>
+    </p>
+    <p style="margin:12px 0 0;color:#999;font-size:12px">Nothing is live yet — this change is waiting for your manual review.</p>
+  </div>`;
+  return { subject, html };
+}
