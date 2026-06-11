@@ -43,6 +43,7 @@ TESTS=(
   test:revalidate
   test:route-contribution
   test:interpreter-newhh
+  test:queued-email
   test:safesearch
   test:evidence-relevance
   test:cardinal-districts

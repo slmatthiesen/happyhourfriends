@@ -3,6 +3,7 @@ import { db } from "@/db/client";
 import { editSubmissions } from "@/db/schema";
 import { verifyCaptcha } from "@/lib/captcha/hcaptcha";
 import { enqueueClassify, enqueueInterpret } from "@/lib/jobs/queue";
+import { notifyQueuedForReview } from "@/lib/jobs/queueForReview";
 import {
   SUBMISSION_TARGET_TYPES,
   type SubmissionPayload,
@@ -174,21 +175,22 @@ export async function POST(req: Request) {
   const initialStatus =
     body.targetType === "new_happy_hour" ? "queued_admin" : "pending";
 
+  const insertedDiff = {
+    before: body.diff.before ?? null,
+    after: body.targetType === "new_happy_hour"
+      // Stamp the venue id onto the after blob so the engine has it without a
+      // separate lookup (mirrors how new_offering carries happyHourId).
+      ? { ...after, venueId: body.targetId }
+      : after,
+    sourceUrl: effectiveSourceUrl,
+    summary: body.diff.summary ?? undefined,
+  };
   const [row] = await db
     .insert(editSubmissions)
     .values({
       targetType: body.targetType,
       targetId: body.targetType === "new_venue" ? null : body.targetId,
-      diffJsonb: {
-        before: body.diff.before ?? null,
-        after: body.targetType === "new_happy_hour"
-          // Stamp the venue id onto the after blob so the engine has it without a
-          // separate lookup (mirrors how new_offering carries happyHourId).
-          ? { ...after, venueId: body.targetId }
-          : after,
-        sourceUrl: effectiveSourceUrl,
-        summary: body.diff.summary ?? undefined,
-      },
+      diffJsonb: insertedDiff,
       aiEvidenceJsonb: storedEvidence
         ? { submittedFile: { url: storedEvidence.url, mime: storedEvidence.mime } }
         : undefined,
@@ -211,6 +213,12 @@ export async function POST(req: Request) {
     } catch (e) {
       console.error("Failed to enqueue pipeline job", e);
     }
+  } else {
+    // Straight-to-queue path — tell the operator now (no pipeline stage will).
+    await notifyQueuedForReview(
+      { id: row.id, targetType: body.targetType, targetId: body.targetId ?? null, diffJsonb: insertedDiff },
+      { reason: "Visitor added the first happy hour for this venue — no AI verification on this path." },
+    );
   }
 
   return NextResponse.json(

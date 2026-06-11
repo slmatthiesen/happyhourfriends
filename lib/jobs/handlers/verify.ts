@@ -1,12 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db/client";
-import {
-  editSubmissions,
-  happyHours,
-  offerings,
-  venues,
-  verificationAttempts,
-} from "@/db/schema";
+import { editSubmissions, verificationAttempts } from "@/db/schema";
 import { recordUsage } from "@/lib/ai/ledger";
 import { canRunStage2 } from "@/lib/ai/budget";
 import { verify, type VerifyInput, type VerifyResult } from "@/lib/ai/verifier";
@@ -21,6 +15,8 @@ import {
 } from "@/lib/email/templates";
 import { routeContribution, isAutoApplyEnabled } from "@/lib/contribution/route";
 import { isFirstPartyUrl } from "@/lib/contribution/firstParty";
+import { queueForReview } from "@/lib/jobs/queueForReview";
+import { venueContext } from "@/lib/jobs/venueContext";
 
 interface SubmittedFileRef {
   submittedFile?: { url?: string; mime?: string };
@@ -38,78 +34,6 @@ async function setStatus(
   fields: Partial<typeof editSubmissions.$inferInsert>,
 ): Promise<void> {
   await db.update(editSubmissions).set(fields).where(eq(editSubmissions.id, id));
-}
-
-interface VenueContext {
-  name: string;
-  websiteUrl: string | null;
-  otherUrl: string | null;
-  cityId?: string;
-}
-
-/** Resolve the venue behind a submission so the verifier knows where to look. */
-async function venueContext(sub: Submission): Promise<VenueContext | null> {
-  const diff = sub.diffJsonb as SubmissionDiff;
-  if (sub.targetType === "new_venue") {
-    return {
-      name: String(diff.after?.name ?? "Unknown venue"),
-      websiteUrl: (diff.after?.websiteUrl as string | undefined) ?? null,
-      otherUrl: (diff.after?.otherUrl as string | undefined) ?? null,
-      cityId: diff.after?.cityId as string | undefined,
-    };
-  }
-
-  let venueId: string | null = null;
-  if (sub.targetType === "venue") {
-    venueId = sub.targetId;
-  } else if (sub.targetType === "happy_hour" && sub.targetId) {
-    const [h] = await db
-      .select({ venueId: happyHours.venueId })
-      .from(happyHours)
-      .where(eq(happyHours.id, sub.targetId))
-      .limit(1);
-    venueId = h?.venueId ?? null;
-  } else if (sub.targetType === "offering" && sub.targetId) {
-    const [o] = await db
-      .select({ happyHourId: offerings.happyHourId })
-      .from(offerings)
-      .where(eq(offerings.id, sub.targetId))
-      .limit(1);
-    if (o) {
-      const [h] = await db
-        .select({ venueId: happyHours.venueId })
-        .from(happyHours)
-        .where(eq(happyHours.id, o.happyHourId))
-        .limit(1);
-      venueId = h?.venueId ?? null;
-    }
-  } else if (sub.targetType === "new_offering") {
-    // A new offering carries its parent happy hour's id in the diff (no row yet).
-    const hhId = diff.after?.happyHourId as string | undefined;
-    if (hhId) {
-      const [h] = await db
-        .select({ venueId: happyHours.venueId })
-        .from(happyHours)
-        .where(eq(happyHours.id, hhId))
-        .limit(1);
-      venueId = h?.venueId ?? null;
-    }
-  }
-  if (!venueId) return null;
-
-  const [v] = await db
-    .select({
-      name: venues.name,
-      websiteUrl: venues.websiteUrl,
-      otherUrl: venues.otherUrl,
-      cityId: venues.cityId,
-    })
-    .from(venues)
-    .where(eq(venues.id, venueId))
-    .limit(1);
-  return v
-    ? { name: v.name, websiteUrl: v.websiteUrl, otherUrl: v.otherUrl, cityId: v.cityId }
-    : null;
 }
 
 async function autoApply(
@@ -210,7 +134,11 @@ export async function handleVerify(submissionId: string): Promise<void> {
 
   const ctx = await venueContext(sub);
   if (!ctx) {
-    await setStatus(submissionId, { status: "queued_admin" });
+    await queueForReview(
+      sub,
+      { status: "queued_admin" },
+      { reason: "Could not resolve the venue behind this submission." },
+    );
     return;
   }
 
@@ -237,7 +165,7 @@ export async function handleVerify(submissionId: string): Promise<void> {
   try {
     result = await verify(input);
   } catch (e) {
-    await setStatus(submissionId, {
+    await queueForReview(sub, {
       status: "queued_admin",
       aiClassifierReasoning: `Verifier unavailable: ${errMsg(e)}`,
     });
@@ -336,7 +264,7 @@ export async function handleVerify(submissionId: string): Promise<void> {
     try {
       await autoApply(sub, diff, supportingUrl, result.summary);
     } catch (e) {
-      await setStatus(submissionId, {
+      await queueForReview(sub, {
         status: "queued_admin",
         aiClassifierReasoning: `${result.summary} (auto-apply blocked: ${errMsg(e)})`,
       });
@@ -345,7 +273,11 @@ export async function handleVerify(submissionId: string): Promise<void> {
   }
 
   // Unconfirmed: medium → outreach, high → admin.
-  await setStatus(submissionId, {
-    status: riskLevel === "medium" ? "queued_outreach" : "queued_admin",
-  });
+  await queueForReview(
+    sub,
+    { status: riskLevel === "medium" ? "queued_outreach" : "queued_admin" },
+    {
+      reason: `AI could not confirm (confidence ${result.confidence.toFixed(2)}): ${result.summary}`,
+    },
+  );
 }

@@ -6,6 +6,7 @@ import { interpret, type InterpretedOp } from "@/lib/ai/interpreter";
 import { getVenueDetailById, type VenueDetail } from "@/lib/queries/venues";
 import { readEvidenceForModel } from "@/lib/submit/evidenceStore";
 import { enqueueClassify } from "@/lib/jobs/queue";
+import { queueForReview } from "@/lib/jobs/queueForReview";
 import type { EditTargetType, SubmissionDiff } from "@/lib/apply/types";
 import { isFirstPartyUrl } from "@/lib/contribution/firstParty";
 import { extractHappyHours } from "@/lib/ai/extractHappyHours";
@@ -131,7 +132,7 @@ export async function handleInterpret(submissionId: string): Promise<void> {
   if (!parent || parent.status !== "pending") return;
 
   if (!parent.targetId) {
-    await setStatus(submissionId, {
+    await queueForReview(parent, {
       status: "queued_admin",
       aiClassifierReasoning: "Intent report had no target venue.",
     });
@@ -142,7 +143,7 @@ export async function handleInterpret(submissionId: string): Promise<void> {
 
   const venue = await getVenueDetailById(parent.targetId);
   if (!venue) {
-    await setStatus(submissionId, {
+    await queueForReview(parent, {
       status: "queued_admin",
       aiClassifierReasoning: "Target venue not found.",
     });
@@ -163,7 +164,7 @@ export async function handleInterpret(submissionId: string): Promise<void> {
         priorityUrls: [parentSourceUrl],
       });
     } catch (e) {
-      await setStatus(submissionId, {
+      await queueForReview(parent, {
         status: "queued_admin",
         aiClassifierReasoning: `First-party extract failed: ${errMsg(e)}`,
       });
@@ -216,7 +217,7 @@ export async function handleInterpret(submissionId: string): Promise<void> {
     result = await interpret({ note, venue, evidenceMedia });
   } catch (e) {
     // No API key / parse failure → fail safe to the admin queue with the raw note.
-    await setStatus(submissionId, {
+    await queueForReview(parent, {
       status: "queued_admin",
       aiClassifierReasoning: `Interpreter unavailable: ${errMsg(e)}`,
     });
@@ -240,18 +241,19 @@ export async function handleInterpret(submissionId: string): Promise<void> {
 
   let created = 0;
   for (const { op, r } of resolved) {
+    const childDiff = {
+      before: r.before,
+      after: r.after,
+      sourceUrl: parentSourceUrl,
+      summary: op.summary || result.summary,
+    };
     const [child] = await db
       .insert(editSubmissions)
       .values({
         targetType: r.targetType,
         targetId: r.targetId,
         parentSubmissionId: parent.id,
-        diffJsonb: {
-          before: r.before,
-          after: r.after,
-          sourceUrl: parentSourceUrl,
-          summary: op.summary || result.summary,
-        },
+        diffJsonb: childDiff,
         // Carry the parent's uploaded photo so Stage-2 verify can re-read it.
         aiEvidenceJsonb: parent.aiEvidenceJsonb ?? undefined,
         submitterFingerprint: parent.submitterFingerprint,
@@ -264,10 +266,13 @@ export async function handleInterpret(submissionId: string): Promise<void> {
     try {
       await enqueueClassify(child.id);
     } catch (e) {
-      await setStatus(child.id, {
-        status: "queued_admin",
-        aiClassifierReasoning: `Classify enqueue failed: ${errMsg(e)}`,
-      });
+      await queueForReview(
+        { id: child.id, targetType: r.targetType, targetId: r.targetId, diffJsonb: childDiff },
+        {
+          status: "queued_admin",
+          aiClassifierReasoning: `Classify enqueue failed: ${errMsg(e)}`,
+        },
+      );
     }
   }
 
@@ -277,7 +282,7 @@ export async function handleInterpret(submissionId: string): Promise<void> {
     const reason = result.tooLarge
       ? "Reported change is too large to apply automatically — review the attached menu."
       : `Could not map the report to a specific change: ${result.summary || note}`;
-    await setStatus(submissionId, {
+    await queueForReview(parent, {
       status: "queued_admin",
       aiClassifierReasoning: reason,
     });
