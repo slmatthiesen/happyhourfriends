@@ -5,7 +5,7 @@
  * eatwoven.com / backyardspokane.com menu prose (prose). Pure logic, no network.
  */
 import assert from "node:assert/strict";
-import { looksLikeMachineText } from "@/lib/ai/siteContent";
+import { looksLikeMachineText, isStaleDatedDocPath } from "@/lib/ai/siteContent";
 
 let passed = 0;
 function check(name: string) {
@@ -43,5 +43,16 @@ check("menu prose → not machine text");
 // Short texts are never judged junk (the empty-check path owns them).
 assert.equal(looksLikeMachineText("/a/b/c={};"), false);
 check("sub-200-char text never flags");
+
+// ── isStaleDatedDocPath (The Monica stale-PNG pattern, 2026-06-11) ──────────
+const NOW = new Date("2026-06-11T12:00:00Z");
+assert.equal(isStaleDatedDocPath("https://themonicatucson.com/wp-content/uploads/2022/08/happyhour-2-6.png", NOW), true);
+check("2022 uploads path → stale doc");
+assert.equal(isStaleDatedDocPath("https://x.com/wp-content/uploads/2025/11/menu.pdf", NOW), false);
+check("recent-year path → not stale");
+assert.equal(isStaleDatedDocPath("https://x.com/_files/ugd/abc123.pdf", NOW), false);
+check("no year token → never stale (Bottega Wix paths unaffected)");
+assert.equal(isStaleDatedDocPath("https://x.com/uploads/2019/menu-2026.png", NOW), false);
+check("a current-year token anywhere in the path rescues an old dir");
 
 console.log(`\n✓ ${passed} machine-text assertions passed.`);
