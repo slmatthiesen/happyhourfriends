@@ -21,7 +21,7 @@ import { triageSite, resolveEnrichAction } from "@/lib/places/siteTriage";
 import { hhLikelihood } from "@/lib/places/hhLikelihood";
 import { assessRealness } from "@/lib/places/realnessGate";
 import { reconcileWindows, offeringsFingerprint, type ReconcileWindow } from "@/lib/places/windowReconcile";
-import { sanitizeOfferings } from "@/lib/recover/offeringSanity";
+import { sanitizeOfferings, offeringNameKey } from "@/lib/recover/offeringSanity";
 import { firstOfCurrentMonth } from "@/lib/ai/budget";
 
 export interface ResolveResult {
@@ -162,12 +162,14 @@ export async function persistExtractedWindows(
       .select({ name: offerings.name, priceCents: offerings.priceCents })
       .from(offerings)
       .where(and(eq(offerings.happyHourId, row.id), eq(offerings.active, true)));
-    const seenOff = new Set(existingOff.map((o) => `${o.name ?? ""}|${o.priceCents ?? ""}`));
+    // Key matches sanitizeOfferings' dedupe identity (case/price-prefix-insensitive) so a
+    // re-extraction's "All shareables" doesn't duplicate a stored "All Shareables".
+    const seenOff = new Set(existingOff.map((o) => `${offeringNameKey(o.name)}|${o.priceCents ?? ""}`));
     // $0 deterministic cleanup: dedupe exact repeats, re-kind food mislabeled as drink,
     // and flag day-specific items that don't match this window's days (warn-only).
     const sanitized = sanitizeOfferings(hh.offerings, days);
     for (const off of sanitized.offerings) {
-      const offKey = `${off.name ?? ""}|${off.priceCents ?? ""}`;
+      const offKey = `${offeringNameKey(off.name)}|${off.priceCents ?? ""}`;
       if (seenOff.has(offKey)) continue;
       seenOff.add(offKey);
       await db.insert(offerings).values({
