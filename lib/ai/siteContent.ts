@@ -17,6 +17,21 @@ const MAX_DOC_BYTES = 3_000_000;
 /** Statuses bot walls answer plain fetches with — a headless browser usually gets through. */
 const BOT_WALL_STATUSES = new Set([401, 403, 406, 429]);
 
+/**
+ * Heuristic for "this page's stripped text is machine payload, not prose" — JS-walled
+ * sites (Popmenu/Wix route manifests, telemetry configs) often strip to brace-heavy,
+ * space-poor token soup that PASSES the has-text check and so never render-escalates
+ * (Cala's route slugs, Ciao Grazie's telemetry JSON, 2026-06-10). Real menu/HH prose has
+ * normal word spacing; code/JSON/slug dumps don't.
+ */
+export function looksLikeMachineText(text: string): boolean {
+  const sample = text.slice(0, 3_000);
+  if (sample.length < 200) return false; // tiny texts are judged by the empty-check instead
+  const spaces = (sample.match(/ /g) ?? []).length / sample.length;
+  const codey = (sample.match(/[{}[\]=;|/\\_]/g) ?? []).length / sample.length;
+  return spaces < 0.08 || codey > 0.08;
+}
+
 /** A page we fetched ourselves, ready to drop into the model's content blocks. */
 export interface FetchedPage {
   url: string;
@@ -77,9 +92,11 @@ export async function fetchPages(
     // 404/410/dead URL (e.g. a speculative path guess) — rendering those would launch a
     // browser per miss and stall prep.
     const botWalled = !r.ok && r.status != null && BOT_WALL_STATUSES.has(r.status);
+    const junkText = r.ok && !!r.contentText && looksLikeMachineText(r.contentText);
     const worthRendering =
       r.blockedByRobots === true ||
       botWalled ||
+      junkText ||
       (r.ok && !r.contentText && !r.isPdf && !r.isImage && !(r.mediaLinks && r.mediaLinks.length));
     if (worthRendering && opts.render) {
       const rendered = await opts.render(u);

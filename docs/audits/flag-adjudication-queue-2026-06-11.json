@@ -1,22 +1,30 @@
 [
   {
-    "venueId": "dda0bd50-e2b3-463f-b931-143c83fe802d",
-    "venue": "Dirty Dogg Saloon",
-    "verdict": "confirmed",
-    "recommendedAction": "keep",
-    "siteSchedule": "2-6 15:00-20:00, 6 00:00-23:59",
-    "evidence": "Happy Hour Tuesday – Saturday: 3pm – 8pm. Saturday College Football Drink Specials All Day",
-    "reason": "The site's happy hour window is Tue–Sat 3pm–8pm (15:00–20:00), which matches the stored data for days and times. The Saturday all-day college football special is also mentioned on the site. Both entries are confirmed.",
+    "venueId": "29308842-aa64-4acc-8e73-de7244cd811a",
+    "venue": "Chula Seafood Grayhawk",
+    "verdict": "corrected",
+    "recommendedAction": "reextract",
+    "siteSchedule": "1-6: 15:00-18:00, 7: All day",
+    "evidence": "Happy Hour: 3-6pm Monday - Saturday + All Day Sunday",
+    "reason": "The site states happy hour is 3-6pm (15:00-18:00) Monday–Saturday, but the stored data shows 15:00-17:00. The end time differs by one hour. The days and Sunday all-day component match, but the stored Mon–Sat window is incomplete.",
     "screens": {
-      "findings": [],
+      "findings": [
+        "window sourced from a third-party domain: https://sagemenu.com/phoenix/chula-seafood-grayhawk-scottsdale/",
+        "window sourced from a third-party domain: https://sagemenu.com/phoenix/chula-seafood-grayhawk-scottsdale/"
+      ],
       "policyHits": []
     },
     "pagesJudged": [
-      "http://dirtydoggsaloon.com/"
+      "https://www.chulaseafood.com/grayhawk",
+      "https://chulaseafood.com/menu-files/downtown-phoenix",
+      "https://chulaseafood.com/menu-files/scottsdale",
+      "https://chulaseafood.com/menu-files/uptown",
+      "https://chulaseafood.com/menu-files/grayhawk"
     ],
     "stored": [
       {
         "daysOfWeek": [
+          1,
           2,
           3,
           4,
@@ -24,36 +32,106 @@
           6
         ],
         "startTime": "15:00:00",
-        "endTime": "20:00:00",
+        "endTime": "17:00:00",
         "allDay": false,
-        "sourceUrl": "http://dirtydoggsaloon.com/",
-        "notes": "Happy hour",
+        "sourceUrl": "https://sagemenu.com/phoenix/chula-seafood-grayhawk-scottsdale/",
+        "notes": null,
         "offerings": [
           {
             "kind": "drink",
-            "category": "other",
-            "name": "Drink specials",
+            "category": "cocktail",
+            "name": "Chula Ritas and Chula cocktails",
+            "priceCents": 800,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "Draft beers",
+            "priceCents": 500,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "wine",
+            "name": "Wine by the glass",
             "priceCents": null,
-            "description": "Unspecified drink specials during happy hour"
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Grilled & raw oysters",
+            "priceCents": null,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Grilled street tacos",
+            "priceCents": 600,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "entree",
+            "name": "Soft shell crab sandwich",
+            "priceCents": 1500,
+            "description": null
           }
         ]
       },
       {
         "daysOfWeek": [
-          6
+          7
         ],
         "startTime": null,
         "endTime": null,
         "allDay": true,
-        "sourceUrl": "http://dirtydoggsaloon.com/",
-        "notes": "During college football games",
+        "sourceUrl": "https://sagemenu.com/phoenix/chula-seafood-grayhawk-scottsdale/",
+        "notes": null,
         "offerings": [
           {
             "kind": "drink",
-            "category": "other",
-            "name": "Drink specials",
+            "category": "cocktail",
+            "name": "Chula Ritas and Chula cocktails",
+            "priceCents": 800,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "beer",
+            "name": "Draft beers",
+            "priceCents": 500,
+            "description": null
+          },
+          {
+            "kind": "drink",
+            "category": "wine",
+            "name": "Wine by the glass",
             "priceCents": null,
-            "description": "Drink specials all day during Saturday college football"
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Grilled & raw oysters",
+            "priceCents": null,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "appetizer",
+            "name": "Grilled street tacos",
+            "priceCents": 600,
+            "description": null
+          },
+          {
+            "kind": "food",
+            "category": "entree",
+            "name": "Soft shell crab sandwich",
+            "priceCents": 1500,
+            "description": null
           }
         ]
       }
