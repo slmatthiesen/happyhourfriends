@@ -60,6 +60,7 @@ TESTS=(
   test:resolve-city
   test:offering-sanity
   test:adjudicate-flag
+  test:machine-text
   test:neighborhood-name
 )
 

@@ -171,21 +171,27 @@ export interface AdjudicationResult {
   promptHash: string;
 }
 
+// Property ORDER is deliberate: the model writes fields sequentially, so reasoning
+// fields come first and `verdict` LAST — otherwise it commits to a verdict before
+// thinking (Dirty Dogg wrote "Verdict should be confirmed" in reason under
+// verdict:"corrected" when verdict led the schema, 2026-06-10).
 const RECORD_ADJUDICATION: ToolUnion = {
   name: "record_adjudication",
-  description: "Record the verdict comparing stored happy-hour data to the venue's own pages.",
+  description:
+    "Record the verdict comparing stored happy-hour data to the venue's own pages. " +
+    "Fill the fields in order: evidence and reasoning first, verdict last.",
   input_schema: {
     type: "object",
     properties: {
-      verdict: { type: "string", enum: ["confirmed", "corrected", "no_mention", "unclear"] },
       site_schedule: {
         type: "string",
         description: "The happy-hour schedule the pages actually state (days + 24h times), or empty.",
       },
       evidence: { type: "string", description: "Verbatim quote (≤200 chars) from the excerpts." },
       reason: { type: "string", description: "One or two sentences justifying the verdict." },
+      verdict: { type: "string", enum: ["confirmed", "corrected", "no_mention", "unclear"] },
     },
-    required: ["verdict", "reason"],
+    required: ["reason", "verdict"],
   },
 };
 
@@ -211,11 +217,17 @@ export interface AdjudicationRequest {
   model: string;
 }
 
+/** Serialize ISO day numbers as names for the judge — Haiku misreads raw ISO numbers
+ *  (read stored {2..6}=Tue–Sat as Mon–Fri and false-corrected Dirty Dogg, 2026-06-10). */
+const DAY_NAMES: Record<number, string> = {
+  1: "Mon", 2: "Tue", 3: "Wed", 4: "Thu", 5: "Fri", 6: "Sat", 7: "Sun",
+};
+
 export function buildAdjudicationRequest(input: AdjudicationInput): AdjudicationRequest | null {
   const snippet = buildPagesSnippet(input.pages);
   if (snippet === null) return null;
   const stored = input.windows.map((w) => ({
-    daysOfWeek: w.daysOfWeek,
+    days: w.daysOfWeek.map((d) => DAY_NAMES[d] ?? String(d)),
     startTime: w.startTime,
     endTime: w.endTime,
     allDay: w.allDay,
