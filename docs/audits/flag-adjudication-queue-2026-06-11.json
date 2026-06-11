@@ -1,0 +1,63 @@
+[
+  {
+    "venueId": "dda0bd50-e2b3-463f-b931-143c83fe802d",
+    "venue": "Dirty Dogg Saloon",
+    "verdict": "confirmed",
+    "recommendedAction": "keep",
+    "siteSchedule": "2-6 15:00-20:00, 6 00:00-23:59",
+    "evidence": "Happy Hour Tuesday – Saturday: 3pm – 8pm. Saturday College Football Drink Specials All Day",
+    "reason": "The site's happy hour window is Tue–Sat 3pm–8pm (15:00–20:00), which matches the stored data for days and times. The Saturday all-day college football special is also mentioned on the site. Both entries are confirmed.",
+    "screens": {
+      "findings": [],
+      "policyHits": []
+    },
+    "pagesJudged": [
+      "http://dirtydoggsaloon.com/"
+    ],
+    "stored": [
+      {
+        "daysOfWeek": [
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "startTime": "15:00:00",
+        "endTime": "20:00:00",
+        "allDay": false,
+        "sourceUrl": "http://dirtydoggsaloon.com/",
+        "notes": "Happy hour",
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "other",
+            "name": "Drink specials",
+            "priceCents": null,
+            "description": "Unspecified drink specials during happy hour"
+          }
+        ]
+      },
+      {
+        "daysOfWeek": [
+          6
+        ],
+        "startTime": null,
+        "endTime": null,
+        "allDay": true,
+        "sourceUrl": "http://dirtydoggsaloon.com/",
+        "notes": "During college football games",
+        "offerings": [
+          {
+            "kind": "drink",
+            "category": "other",
+            "name": "Drink specials",
+            "priceCents": null,
+            "description": "Drink specials all day during Saturday college football"
+          }
+        ]
+      }
+    ],
+    "costCents": 1
+  }
+]
