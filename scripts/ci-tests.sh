@@ -21,6 +21,7 @@ TESTS=(
   test:venue-type
   test:first-party
   test:harvest
+  test:hidden-review
   test:stub-rank
   test:extract
   test:realness-gate
