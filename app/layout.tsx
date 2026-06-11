@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { PostHogProvider } from "@/lib/observability/posthog-provider";
+import { uiFlags } from "@/lib/ui/flags";
+import { FloatingDoodles } from "@/components/ui/floating-doodles";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
@@ -31,7 +33,8 @@ export default function RootLayout({
       lang="en"
       className={cn("h-full", "antialiased", "font-sans", jakarta.variable)}
     >
-      <body className="min-h-full flex flex-col">
+      <body className={cn("min-h-full flex flex-col", uiFlags.aurora && "aurora-on")}>
+        <FloatingDoodles />
         <PostHogProvider>{children}</PostHogProvider>
       </body>
     </html>

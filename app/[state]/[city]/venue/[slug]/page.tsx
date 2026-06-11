@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { CopyLinkButton } from "@/components/copy-link-button";
 import { DirectionsButton } from "@/components/directions-button";
 import { SiteWordmark } from "@/components/site-wordmark";
 import { Contribute } from "@/components/submit/contribute";
@@ -9,6 +10,10 @@ import { getCityByPath, getVenueBySlug } from "@/lib/queries/venues";
 import { cityPath, venuePath } from "@/lib/routes";
 import { breadcrumbListLd } from "@/lib/seo/structuredData";
 import { labelForVenueType } from "@/lib/places/venueType";
+import { uiFlags } from "@/lib/ui/flags";
+
+// Absolute base so the copied link is canonical, not request-host-relative.
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 // Full-route ISR, shared across all visitors. Safe to cache the render: the venue page
 // has no server-side time logic (the live "Now" state lives in the client grid), so a
@@ -203,6 +208,11 @@ export default async function VenuePage({
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
           {venue.address && <DirectionsButton address={venue.address} />}
+          {uiFlags.copyLink && (
+            <CopyLinkButton
+              url={new URL(venuePath(city.state, city.slug, venue.slug), SITE_URL).toString()}
+            />
+          )}
           {venue.websiteUrl && (
             <a
               href={venue.websiteUrl}
