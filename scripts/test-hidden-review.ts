@@ -9,7 +9,7 @@
  * from a meal-menu page with zero offerings.
  */
 import assert from "node:assert/strict";
-import { durationHours, suggestAction, deleteEvidence } from "@/lib/recover/hiddenReview";
+import { durationHours, suggestAction, deleteEvidence, toCsv, parseCsv } from "@/lib/recover/hiddenReview";
 import type { OpenPeriod } from "@/lib/geo/timezone";
 
 let passed = 0;
@@ -25,7 +25,7 @@ const win = (over: Partial<Parameters<typeof suggestAction>[0]> = {}) => ({
   endTime: "18:00:00" as string | null,
   allDay: false,
   timeKnown: true,
-  sourceUrl: "https://example.com/happy-hour" as string | null,
+  sourceUrl: "https://example.com/menu" as string | null,
   offerings: 0,
   ...over,
 });
@@ -88,6 +88,34 @@ check("all-day window → keep_hidden (governed by the all-day policy, not nuked
 check("unknown-time day-special (Splash Café) → keep_hidden", () => {
   const w = win({ daysOfWeek: [2], startTime: null, endTime: null, timeKnown: false });
   assert.equal(suggestAction(w, null), "keep_hidden");
+});
+
+// D.Monaghans golden: op-hours-shaped window, but the SOURCE PAGE is a happy-hours
+// page — that's an HH hint, so a permanent delete is never suggested (operator
+// 2026-06-11: lean keep_hidden when anything hints at HH; users fill in stubs).
+check("HH hint in source URL vetoes delete (D.Monaghans happy-hours-specials page)", () => {
+  const w = win({
+    startTime: "15:00:00",
+    endTime: "21:30:00",
+    sourceUrl: "https://dmonaghansoakland.com/oakland-d-monaghans-on-the-hill-happy-hours-specials",
+  });
+  assert.equal(suggestAction(w, open([1, 2, 3, 4, 5])), "keep_hidden");
+});
+check("HH hint in notes vetoes delete too", () => {
+  const w = win({ startTime: "11:00:00", endTime: "21:00:00", notes: "happy hour menu under Celebration tab" });
+  assert.equal(suggestAction(w, open([1, 2, 3, 4, 5])), "keep_hidden");
+});
+
+check("CSV round-trips commas, quotes and newlines in fields", () => {
+  const rows = [
+    { action: "keep_hidden", venue: 'Lefty\'s "Bar", Grill', notes: "line one\nline two", happyHourId: "a1" },
+    { action: "delete", venue: "Plain", notes: "", happyHourId: "b2" },
+  ];
+  const parsed = parseCsv(toCsv(rows, ["action", "venue", "notes", "happyHourId"]));
+  assert.equal(parsed.length, 2);
+  assert.equal(parsed[0].venue, 'Lefty\'s "Bar", Grill');
+  assert.equal(parsed[0].notes, "line one line two"); // newlines flattened on write
+  assert.equal(parsed[1].happyHourId, "b2");
 });
 
 console.log(`\n${passed} checks passed.`);
