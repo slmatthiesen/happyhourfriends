@@ -1,25 +1,24 @@
 [
   {
-    "venueId": "29308842-aa64-4acc-8e73-de7244cd811a",
-    "venue": "Chula Seafood Grayhawk",
+    "venueId": "687ff341-acc3-45c1-8456-09ba2e2d485a",
+    "venue": "Diego Pops",
     "verdict": "corrected",
     "recommendedAction": "reextract",
-    "siteSchedule": "1-6: 15:00-18:00, 7: All day",
-    "evidence": "Happy Hour: 3-6pm Monday - Saturday + All Day Sunday",
-    "reason": "The site states happy hour is 3-6pm (15:00-18:00) Monday–Saturday, but the stored data shows 15:00-17:00. The end time differs by one hour. The days and Sunday all-day component match, but the stored Mon–Sat window is incomplete.",
+    "siteSchedule": "1-7: 15:00-18:00",
+    "evidence": "7 days a week from 3pm-6pm / $2 off beers / $6 Diego Margaritas / $6 wine + sangria / 1/2 off appetizers / *Dine-in only.",
+    "reason": "The site states happy hour 7 days a week, 3pm–6pm (15:00–18:00), dine-in only, with $2 beers, $6 margaritas, $6 wine/sangria, and 1/2 off appetizers. The stored drink prices differ: stored shows beers at $4.00, margaritas at $5.00, and wine at $6.00. The stored food offering lists specific appetizers at no stated discount; the site states \"1/2 off appetizers\" generally. The stored Monday all-day taco deal is not mentioned on the site.",
     "screens": {
       "findings": [
-        "window sourced from a third-party domain: https://sagemenu.com/phoenix/chula-seafood-grayhawk-scottsdale/",
-        "window sourced from a third-party domain: https://sagemenu.com/phoenix/chula-seafood-grayhawk-scottsdale/"
+        "window sourced from an event/group page: https://www.diegopops.com/events/taco-monday"
       ],
       "policyHits": []
     },
     "pagesJudged": [
-      "https://www.chulaseafood.com/grayhawk",
-      "https://chulaseafood.com/menu-files/downtown-phoenix",
-      "https://chulaseafood.com/menu-files/scottsdale",
-      "https://chulaseafood.com/menu-files/uptown",
-      "https://chulaseafood.com/menu-files/grayhawk"
+      "https://www.diegopops.com/",
+      "https://www.diegopops.com/happy-hour",
+      "https://www.diegopops.com/happyhour",
+      "https://www.diegopops.com/happy-hour-menu",
+      "https://www.diegopops.com/menu"
     ],
     "stored": [
       {
@@ -29,109 +28,61 @@
           3,
           4,
           5,
-          6
+          6,
+          7
         ],
         "startTime": "15:00:00",
-        "endTime": "17:00:00",
+        "endTime": "18:00:00",
         "allDay": false,
-        "sourceUrl": "https://sagemenu.com/phoenix/chula-seafood-grayhawk-scottsdale/",
-        "notes": null,
+        "sourceUrl": "https://www.diegopops.com/menus/happy-hour?location=scottsdale",
+        "notes": "Dine-in only",
         "offerings": [
           {
             "kind": "drink",
-            "category": "cocktail",
-            "name": "Chula Ritas and Chula cocktails",
-            "priceCents": 800,
+            "category": "beer",
+            "name": "Beers",
+            "priceCents": 400,
             "description": null
           },
           {
             "kind": "drink",
-            "category": "beer",
-            "name": "Draft beers",
+            "category": "cocktail",
+            "name": "Diego Margaritas",
             "priceCents": 500,
-            "description": null
+            "description": "Made with 1800 Blanco Tequila"
           },
           {
             "kind": "drink",
             "category": "wine",
-            "name": "Wine by the glass",
-            "priceCents": null,
-            "description": null
-          },
-          {
-            "kind": "food",
-            "category": "appetizer",
-            "name": "Grilled & raw oysters",
-            "priceCents": null,
-            "description": null
-          },
-          {
-            "kind": "food",
-            "category": "appetizer",
-            "name": "Grilled street tacos",
+            "name": "Wine & Sangria",
             "priceCents": 600,
             "description": null
           },
           {
             "kind": "food",
-            "category": "entree",
-            "name": "Soft shell crab sandwich",
-            "priceCents": 1500,
-            "description": null
+            "category": "appetizer",
+            "name": "Most appetizers",
+            "priceCents": null,
+            "description": "Includes Chips & Salsa, Grilled Street Corn, Cheese Quesadilla, Chicken Tortilla Soup, Street Corn Queso, Guacamole, Taquitos, Brussels Sprout Nachos"
           }
         ]
       },
       {
         "daysOfWeek": [
-          7
+          1
         ],
         "startTime": null,
         "endTime": null,
         "allDay": true,
-        "sourceUrl": "https://sagemenu.com/phoenix/chula-seafood-grayhawk-scottsdale/",
-        "notes": null,
+        "sourceUrl": "https://www.diegopops.com/events/taco-monday",
+        "notes": "All day & all night, any taco of your choice",
         "offerings": [
-          {
-            "kind": "drink",
-            "category": "cocktail",
-            "name": "Chula Ritas and Chula cocktails",
-            "priceCents": 800,
-            "description": null
-          },
-          {
-            "kind": "drink",
-            "category": "beer",
-            "name": "Draft beers",
-            "priceCents": 500,
-            "description": null
-          },
-          {
-            "kind": "drink",
-            "category": "wine",
-            "name": "Wine by the glass",
-            "priceCents": null,
-            "description": null
-          },
-          {
-            "kind": "food",
-            "category": "appetizer",
-            "name": "Grilled & raw oysters",
-            "priceCents": null,
-            "description": null
-          },
-          {
-            "kind": "food",
-            "category": "appetizer",
-            "name": "Grilled street tacos",
-            "priceCents": 600,
-            "description": null
-          },
           {
             "kind": "food",
             "category": "entree",
-            "name": "Soft shell crab sandwich",
-            "priceCents": 1500,
-            "description": null
+            "name": "Tacos",
+            "priceCents": 300,
+            "description": "Any taco of your choice"
           }
         ]
       }

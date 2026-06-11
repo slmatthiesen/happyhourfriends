@@ -35,6 +35,17 @@ const DAY_TOKENS: Array<{ iso: number; re: RegExp }> = [
   { iso: 7, re: /\bsundays?\b/i },
 ];
 
+/** Dedupe identity for an offering name: case/whitespace-insensitive, with a leading
+ *  price token stripped — "$5 Wells" and "Wells" (both 500¢) are the same deal, and
+ *  "All shareables" vs "All Shareables" differ only by case (Backyard, 2026-06-10). */
+export function offeringNameKey(name: string | null): string {
+  return (name ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/^\$\s*\d+(\.\d+)?\s+(off\s+)?/, "")
+    .replace(/\s+/g, " ");
+}
+
 /** Shared lexicon predicates — also consumed by the audit anomaly rules so persist-time
  *  cleanup and stored-data auditing agree on what "looks like food" / "names a day" means. */
 export function isFoodTextMislabeledAsDrink(text: string): boolean {
@@ -67,8 +78,9 @@ export function sanitizeOfferings(
   const out: ExtractedOffering[] = [];
 
   for (const o of offerings) {
-    // 1. Dedupe exact repeats within this window's batch.
-    const key = `${(o.name ?? "").trim().toLowerCase()}|${o.priceCents ?? ""}|${(o.description ?? "").trim().toLowerCase()}`;
+    // 1. Dedupe repeats within this window's batch (name key is case/price-prefix
+    //    insensitive so "$5 Wells" and "Wells" at 500¢ collapse).
+    const key = `${offeringNameKey(o.name)}|${o.priceCents ?? ""}|${(o.description ?? "").trim().toLowerCase()}`;
     if (seen.has(key)) {
       warnings.push(`dropped duplicate offering: ${o.name ?? o.description ?? "(unnamed)"}`);
       continue;

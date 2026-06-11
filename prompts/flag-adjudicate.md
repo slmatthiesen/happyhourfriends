@@ -1,8 +1,12 @@
 ---
 prompt: flag-adjudicate
-version: 2
+version: 3
 model: claude-haiku-4-5
-notes: Pinned via sha256 content hash recorded with the call. v2 — two eval-earned rules
+notes: Pinned via sha256 content hash recorded with the call. v3 — SAME-SITE CONFLICTS
+  (2026-06-10)= when the venue's own pages disagree, prefer the location-specific page;
+  ignore other locations' content embedded in shared site text (Chula's "Opening Soon"
+  3-6pm blurb appeared on every page and overrode the location pages' 3-5pm, producing
+  a wrong "corrected" verdict against data that was accurate). v2 — two eval-earned rules
   (2026-06-10)= a food-only deal with no alcohol is NOT a happy hour (Sliver Pizzeria
   verdicted 'corrected' instead of drop), and a stored window including a day the site
   says the venue is CLOSED is 'corrected', not 'confirmed' (7 Mile House, closed
@@ -44,6 +48,12 @@ Hard rules:
 - If the site says the venue is CLOSED on a day the stored window includes (e.g. "closed
   Tuesdays" vs a stored 7-day window), that is **corrected** — report the days the venue
   actually operates in `site_schedule`. Matching times alone never outweigh a wrong day.
+- Multi-location sites: judge ONLY this venue's location. Ignore schedules belonging to
+  other locations — especially "Opening Soon"/"New Location" blurbs and other cities'
+  pages that leak into shared site text. When the venue's own pages CONFLICT (a general
+  menus page says one schedule, the location-specific page another), trust the
+  location-specific page; if you cannot tell which schedule belongs to this location,
+  answer **unclear** and describe the conflict.
 - Times in `site_schedule` use 24-hour HH:MM; days use ISO numbers 1=Mon … 7=Sun.
 
 # User

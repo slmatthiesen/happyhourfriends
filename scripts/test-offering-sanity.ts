@@ -5,7 +5,7 @@
  * Also covers the sourceDenylist additions from the same review.
  */
 import assert from "node:assert/strict";
-import { sanitizeOfferings } from "@/lib/recover/offeringSanity";
+import { sanitizeOfferings, offeringNameKey } from "@/lib/recover/offeringSanity";
 import type { ExtractedOffering } from "@/lib/ai/extractHappyHours";
 import { isDenylistedSource } from "@/lib/ai/sourceDenylist";
 
@@ -140,6 +140,25 @@ const EVERY_DAY = [1, 2, 3, 4, 5, 6, 7];
     assert.equal(isDenylistedSource(url), false, `should NOT be denylisted: ${url}`);
   }
   check("venue-own pages (incl. /taco-tuesday paths) stay allowed");
+}
+
+// ── offeringNameKey dedupe identity (Backyard re-extract dupes, 2026-06-10) ──
+{
+  assert.equal(offeringNameKey("$5 Wells"), offeringNameKey("Wells"));
+  assert.equal(offeringNameKey("All shareables"), offeringNameKey("All Shareables"));
+  assert.equal(offeringNameKey("$2 off  Tequila Pours"), offeringNameKey("tequila pours"));
+  assert.notEqual(offeringNameKey("Draft beers"), offeringNameKey("Well drinks"));
+  check("offeringNameKey: case/price-prefix variants collapse, distinct deals don't");
+
+  const r = sanitizeOfferings(
+    [
+      off({ kind: "drink", name: "$5 Wells", priceCents: 500 }),
+      off({ kind: "drink", name: "Wells", priceCents: 500 }),
+    ],
+    EVERY_DAY,
+  );
+  assert.equal(r.offerings.length, 1);
+  check("'$5 Wells' + 'Wells' at the same price dedupe to one row");
 }
 
 console.log(`\n✓ ${passed} offering-sanity + denylist assertions passed.`);
