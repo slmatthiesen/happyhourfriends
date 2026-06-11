@@ -1,13 +1,17 @@
 # Hidden-window review — 2026-06-11
 
-622 hidden windows on 281 stub venues across all cities. Suggested delete (evidence-backed): 193.
+622 hidden windows on 281 stub venues across all cities. Suggested delete (evidence-backed): 183.
 
 Actions: `promote` = goes LIVE on the site immediately (set it only after you have
 verified the happy hour yourself — the tool never suggests it); `delete` = permanent
 nuke, the window can never be re-created by a future re-extraction; `keep_hidden` =
-stays invisible, eligible for the paid re-extract sweep to confirm or refute.
+stays invisible (costs nothing), eligible for the paid re-extract sweep or for users
+to fill in. A delete is never suggested when the source URL or notes mention happy
+hour — any HH hint means the window stays reviewable.
 
-Edit `action` fields in `docs/hidden-hh-review-2026-06-11.json`, then: `pnpm review:hidden --apply docs/hidden-hh-review-2026-06-11.json`
+Edit `action` fields in `docs/hidden-hh-review-2026-06-11.json` — or sort/filter `docs/hidden-hh-review-2026-06-11.csv` in a
+spreadsheet and edit its action column — then: `pnpm review:hidden --apply <file>`
+(accepts .json or .csv).
 
 | action | evidence | city | venue | days | time | dur(h) | offers | source | notes |
 |---|---|---|---|---|---|---|---|---|---|
@@ -121,7 +125,7 @@ Edit `action` fields in `docs/hidden-hh-review-2026-06-11.json`, then: `pnpm rev
 | keep_hidden |  | Central Phoenix | [The Tamale Store](http://www.thetamalestore.com/) | Mon,Tue,Wed,Thu,Fri | 09:00:00–13:00:00 | 4.0 | 0 | [src](https://www.thetamalestore.com/events/2025/10/25/arrowhead-farmers-market-9am-1pm-special-halloween-market) | days assumed Mon–Fri (none stated) |
 | **delete** | matches venue operating hours | Central Phoenix | [Twenty Highland Tavern](http://www.wholefoodsmarket.com/stores/camelback?utm_source=google&utm_medium=organic&utm_campaign=listings) | Mon,Tue,Wed,Thu,Fri,Sat,Sun | 07:00:00–20:00:00 | 13.0 | 0 | [src](http://www.wholefoodsmarket.com/stores/camelback?utm_source=google&utm_medium=organic&utm_campaign=listings) |  |
 | keep_hidden |  | Central Phoenix | [Valley Bar](https://valleybarphx.com/) | Mon,Tue,Wed,Thu,Fri | 17:00:00–19:00:00 | 2.0 | 1 | [src](https://www.phoenixnewtimes.com/restaurants/valley-bar-in-downtown-phoenix-happy-hour-report-card-7612586) |  |
-| **delete** | matches venue operating hours | Central Phoenix | [Valley Bar](https://valleybarphx.com/) | Sun | 18:00:00–close |  | 1 | [src](https://www.phoenixnewtimes.com/restaurants/valley-bar-in-downtown-phoenix-happy-hour-report-card-7612586) |  |
+| keep_hidden |  | Central Phoenix | [Valley Bar](https://valleybarphx.com/) | Sun | 18:00:00–close |  | 1 | [src](https://www.phoenixnewtimes.com/restaurants/valley-bar-in-downtown-phoenix-happy-hour-report-card-7612586) |  |
 | keep_hidden |  | Central Phoenix | [Walter Studios](https://www.walterstudios.com/) | Thu,Fri,Sat,Sun | 16:00:00–18:00:00 | 2.0 | 3 | [src](https://www.phoenixmag.com/2024/11/04/happy-hour-spotlight-new-hhs-on-the-block-2/) |  |
 | keep_hidden |  | Central Phoenix | [Wren & Wolf](https://www.wrenandwolf.com/) | Mon,Tue,Wed,Thu,Fri | 15:00:00–18:00:00 | 3.0 | 0 | [src](https://fabulousarizona.com/food-drink/wren-wolf-phoenix/) |  |
 | keep_hidden |  | Daly City | [Creative Ideas Cafe](https://creativeideascateringcafe.com/) | Wed,Thu,Fri | all day |  | 1 | [src](https://creativeideascateringcafe.com/mexican-menu) | Cinco de Mayo happy hour Wed–Fri, time not specified, minimu |
@@ -170,12 +174,12 @@ Edit `action` fields in `docs/hidden-hh-review-2026-06-11.json`, then: `pnpm rev
 | **delete** | matches venue operating hours | Oakland | [Asmara Restaurant](http://asmararestaurantoakland.com/) | Tue,Wed,Thu,Fri,Sat,Sun | 11:30:00–22:00:00 | 10.5 | 0 | [src](http://asmararestaurantoakland.com/) |  |
 | **delete** | matches venue operating hours | Oakland | [Boathouse](http://boathousealameda.net/) | Mon,Tue,Wed,Thu,Fri,Sat,Sun | 10:00:00–22:00:00 | 12.0 | 0 | [src](http://boathousealameda.net/) |  |
 | keep_hidden |  | Oakland | [Book Society](https://www.booksociety.social/) | Sun | 09:00:00–10:30:00 | 1.5 | 0 | [src](https://www.booksociety.social/event-details) |  |
-| **delete** | matches venue operating hours | Oakland | [Book Society](https://www.booksociety.social/) | Mon,Tue,Wed,Thu,Fri,Sat,Sun | 12:00:00–20:00:00 | 8.0 | 0 | [src](https://www.booksociety.social/menu/happy-hour) |  |
-| **delete** | matches venue operating hours | Oakland | [Book Society](https://www.booksociety.social/) | Mon,Tue,Wed,Thu,Fri,Sat,Sun | 12:00:00–22:00:00 | 10.0 | 0 | [src](https://www.booksociety.social/menu/happy-hour) |  |
-| **delete** | matches venue operating hours | Oakland | [Book Society](https://www.booksociety.social/) | Mon,Tue,Wed,Thu,Fri,Sat,Sun | 12:00:00–18:30:00 | 6.5 | 0 | [src](https://www.booksociety.social/menu/happy-hour) |  |
+| keep_hidden |  | Oakland | [Book Society](https://www.booksociety.social/) | Mon,Tue,Wed,Thu,Fri,Sat,Sun | 12:00:00–20:00:00 | 8.0 | 0 | [src](https://www.booksociety.social/menu/happy-hour) |  |
+| keep_hidden |  | Oakland | [Book Society](https://www.booksociety.social/) | Mon,Tue,Wed,Thu,Fri,Sat,Sun | 12:00:00–22:00:00 | 10.0 | 0 | [src](https://www.booksociety.social/menu/happy-hour) |  |
+| keep_hidden |  | Oakland | [Book Society](https://www.booksociety.social/) | Mon,Tue,Wed,Thu,Fri,Sat,Sun | 12:00:00–18:30:00 | 6.5 | 0 | [src](https://www.booksociety.social/menu/happy-hour) |  |
 | keep_hidden |  | Oakland | [Book Society](https://www.booksociety.social/) | Tue,Wed | 18:00:00–20:00:00 | 2.0 | 0 | [src](https://www.booksociety.social/event-proposals) |  |
 | keep_hidden |  | Oakland | [D.Monaghans On The Hill](http://dmonaghansoakland.com/) | Mon,Tue,Wed,Thu,Fri | 15:00:00–18:00:00 | 3.0 | 0 | [src](https://dmonaghansoakland.com/oakland-d-monaghans-on-the-hill-happy-hours-specials) |  |
-| **delete** | matches venue operating hours | Oakland | [D.Monaghans On The Hill](http://dmonaghansoakland.com/) | Mon,Tue,Wed,Thu,Fri | 15:00:00–21:30:00 | 6.5 | 0 | [src](https://dmonaghansoakland.com/oakland-d-monaghans-on-the-hill-happy-hours-specials) | days assumed Mon–Fri (none stated) |
+| keep_hidden |  | Oakland | [D.Monaghans On The Hill](http://dmonaghansoakland.com/) | Mon,Tue,Wed,Thu,Fri | 15:00:00–21:30:00 | 6.5 | 0 | [src](https://dmonaghansoakland.com/oakland-d-monaghans-on-the-hill-happy-hours-specials) | days assumed Mon–Fri (none stated) |
 | keep_hidden |  | Oakland | [D.Monaghans On The Hill](http://dmonaghansoakland.com/) | Thu,Fri | 16:00:00–18:00:00 | 2.0 | 0 | [src](https://dmonaghansoakland.com/oakland-d-monaghans-on-the-hill-happy-hours-specials) |  |
 | **delete** | matches venue operating hours | Oakland | [El Agavero Restaurant & Tequila Bar](https://elagavero.com/) | Mon,Tue,Wed,Thu,Fri,Sat,Sun | 10:00:00–22:00:00 | 12.0 | 0 | [src](https://elagavero.com/) |  |
 | keep_hidden |  | Oakland | [ForTheCulture Oak](http://forthecultureoak.com/) | Mon,Tue,Wed,Thu,Fri,Sat,Sun | 11:00:00–16:00:00 | 5.0 | 0 | [src](http://forthecultureoak.com/) |  |
@@ -236,7 +240,7 @@ Edit `action` fields in `docs/hidden-hh-review-2026-06-11.json`, then: `pnpm rev
 | **delete** | matches venue operating hours | Scottsdale | [Churchill's Fine Cigars & Bar](https://churchillsaz.com/scottsdale/) | Mon,Tue,Wed,Thu,Fri,Sat,Sun | 10:00:00–22:00:00 | 12.0 | 0 | [src](https://churchillsaz.com/scottsdale/) |  |
 | keep_hidden |  | Scottsdale | [Ciao Grazie](https://www.ciaograzie.us/) | Mon,Tue,Wed,Thu,Fri,Sat,Sun | 15:00:00–18:00:00 | 3.0 | 6 | [src](https://ciaograzie.us/happy-hour/) |  |
 | keep_hidden |  | Scottsdale | [Dodo Bird Kitchen and Cocktails](https://dodobirdscottsdale.com/?utm_source=google) | Sun | 15:00:00–close |  | 1 | [src](https://www.azfamily.com/2025/09/10/50-cent-wings-other-great-deals-under-10-this-scottsdale-happy-hour/) |  |
-| **delete** | matches venue operating hours | Scottsdale | [Dodo Bird Kitchen and Cocktails](https://dodobirdscottsdale.com/?utm_source=google) | Wed | 15:00:00–close |  | 1 | [src](https://www.azfamily.com/2025/09/10/50-cent-wings-other-great-deals-under-10-this-scottsdale-happy-hour/) |  |
+| keep_hidden |  | Scottsdale | [Dodo Bird Kitchen and Cocktails](https://dodobirdscottsdale.com/?utm_source=google) | Wed | 15:00:00–close |  | 1 | [src](https://www.azfamily.com/2025/09/10/50-cent-wings-other-great-deals-under-10-this-scottsdale-happy-hour/) |  |
 | keep_hidden |  | Scottsdale | [Dominick's Steakhouse](https://www.dominickssteakhouse.com/?utm_source=google&utm_medium=organic&utm_campaign=gmb) | Mon,Tue,Wed,Thu,Fri,Sat,Sun | 16:00:00–18:00:00 | 2.0 | 2 | [src](https://www.experiencescottsdale.com/listing/dominicks-steakhouse/45191/) |  |
 | keep_hidden |  | Scottsdale | [Duke's Sports Bar and Grill](https://dukessportsbar.com/) | Tue | all day |  | 2 | [src](https://dukessportsbar.com/menu/specials/) | $5 off pizza with beverage purchase - time not specified |
 | keep_hidden |  | Scottsdale | [Duke's Sports Bar and Grill](https://dukessportsbar.com/) | Fri | all day |  | 1 | [src](https://dukessportsbar.com/menu/specials/) | Prime Rib - time not specified |
@@ -447,8 +451,8 @@ Edit `action` fields in `docs/hidden-hh-review-2026-06-11.json`, then: `pnpm rev
 | keep_hidden |  | Tacoma | [Joy Teriyaki - 6th Ave](https://www.joyteriyaki6thave.com/) | Mon,Tue,Wed,Thu,Fri | 16:00:00–17:00:00 | 1.0 | 0 | [src](https://www.joyteriyaki6thave.com/1xosfj85/joy-teriyaki--6th-ave-tacoma-98406/order-online#menu-section) | days assumed Mon–Fri (none stated) |
 | keep_hidden |  | Tacoma | [Katie Downs Waterfront Tavern](https://www.katiedowns.com/?utm_source=google&utm_medium=local) | Mon,Tue,Wed,Thu,Fri | 16:00:00–18:00:00 | 2.0 | 1 | [src](https://www.visitpiercecounty.com/listing/katie-downs-waterfront-tavern-+-eatery/60/) |  |
 | keep_hidden |  | Tacoma | [Katie Downs Waterfront Tavern](https://www.katiedowns.com/?utm_source=google&utm_medium=local) | Mon,Tue,Sun | 21:00:00–close |  | 1 | [src](https://www.visitpiercecounty.com/listing/katie-downs-waterfront-tavern-+-eatery/60/) |  |
-| **delete** | matches venue operating hours | Tacoma | [Loak Toung Thai](http://loaktoungthai.com/) | Wed,Thu,Fri | 11:00:00–20:00:00 | 9.0 | 0 | [src](https://www.loaktoungthai.com/menu/happy-hour) |  |
-| **delete** | matches venue operating hours | Tacoma | [Loak Toung Thai](http://loaktoungthai.com/) | Wed,Thu,Fri | 11:00:00–14:30:00 | 3.5 | 0 | [src](https://www.loaktoungthai.com/menu/happy-hour) |  |
+| keep_hidden |  | Tacoma | [Loak Toung Thai](http://loaktoungthai.com/) | Wed,Thu,Fri | 11:00:00–20:00:00 | 9.0 | 0 | [src](https://www.loaktoungthai.com/menu/happy-hour) |  |
+| keep_hidden |  | Tacoma | [Loak Toung Thai](http://loaktoungthai.com/) | Wed,Thu,Fri | 11:00:00–14:30:00 | 3.5 | 0 | [src](https://www.loaktoungthai.com/menu/happy-hour) |  |
 | keep_hidden |  | Tacoma | [Loak Toung Thai](http://loaktoungthai.com/) | Wed,Thu,Fri | 16:30:00–20:00:00 | 3.5 | 0 | [src](https://www.loaktoungthai.com/menu/happy-hour) |  |
 | keep_hidden |  | Tacoma | [Mandolin Sushi & Japanese steak house](https://mandolinsushi.cfd/) | Mon,Tue,Wed,Thu,Fri,Sat,Sun | 11:00:00–17:00:00 | 6.0 | 2 | [src](https://www.tiktok.com/discover/mandolin-restaurant-tacoma) |  |
 | keep_hidden |  | Tacoma | [Park Avenue Tavern](http://park-avenue-tavern.edan.io/) | Mon,Tue,Wed,Thu,Fri,Sat,Sun | 09:00:00–17:00:00 | 8.0 | 0 | [src](http://park-avenue-tavern.edan.io/happy-hour) |  |
@@ -474,7 +478,7 @@ Edit `action` fields in `docs/hidden-hh-review-2026-06-11.json`, then: `pnpm rev
 | keep_hidden |  | Tucson | [Arizona Inn - Main Dining Room](http://arizonainn.com/) | Mon,Tue,Wed,Thu,Fri,Sat,Sun | 07:30:00–14:00:00 | 6.5 | 0 | [src](https://www.arizonainn.com/dining/menu-audubon-bar/) |  |
 | keep_hidden |  | Tucson | [Arizona Pizza Company](https://www.maedayazp.org/) | Fri | all day |  | 1 | [src](https://www.maedayazp.org/specials) | Thursday Facebook 'word of the nite' promotion: 20% off dine |
 | keep_hidden |  | Tucson | [Arizona Wine Collective](https://www.azwinecollective.com/) | Mon,Tue,Wed,Thu,Fri | 15:00:00–19:00:00 | 4.0 | 0 | [src](https://www.azwinecollective.com/events/) | days assumed Mon–Fri (none stated) |
-| **delete** | matches venue operating hours | Tucson | [Arizona Wine Collective](https://www.azwinecollective.com/) | Mon,Tue,Wed,Thu,Fri | 16:00:00–21:00:00 | 5.0 | 0 | [src](https://www.azwinecollective.com/event/tucson-foodie-happy-hour-week/) | days assumed Mon–Fri (none stated) |
+| keep_hidden |  | Tucson | [Arizona Wine Collective](https://www.azwinecollective.com/) | Mon,Tue,Wed,Thu,Fri | 16:00:00–21:00:00 | 5.0 | 0 | [src](https://www.azwinecollective.com/event/tucson-foodie-happy-hour-week/) | days assumed Mon–Fri (none stated) |
 | keep_hidden |  | Tucson | [Barro's Pizza](https://barrospizza.com/) | Mon,Tue,Wed,Thu,Fri,Sat,Sun | 10:30:00–15:00:00 | 4.5 | 2 | [src](https://barrospizza.com/menus/general-menu) |  |
 | keep_hidden |  | Tucson | [Barro's Pizza](https://barrospizza.com/) | Mon,Tue,Wed,Thu,Fri,Sat,Sun | 10:30:00–15:00:00 | 4.5 | 2 | [src](https://barrospizza.com/menus/general-menu) |  |
 | keep_hidden |  | Tucson | [Barro's Pizza](https://barrospizza.com/) | Mon,Tue,Wed,Thu,Fri,Sat,Sun | 13:00:00–17:00:00 | 4.0 | 0 | [src](https://barrospizza.com/specials/) |  |
@@ -543,7 +547,7 @@ Edit `action` fields in `docs/hidden-hh-review-2026-06-11.json`, then: `pnpm rev
 | **delete** | meal-service menu page, no deals attached | Tucson | [Niblick Restaurant & Lounge](https://rollinghillsgolftucson.com/niblick-bar-grill/) | Mon,Tue,Wed,Thu,Fri | 04:00:00–14:00:00 | 10.0 | 0 | [src](https://rollinghillsgolftucson.com/masters-lunch-special-4-8-4-14/) | days assumed Mon–Fri (none stated) |
 | **delete** | meal-service menu page, no deals attached | Tucson | [Niblick Restaurant & Lounge](https://rollinghillsgolftucson.com/niblick-bar-grill/) | Mon,Tue,Wed,Thu,Fri | 16:00:00–20:00:00 | 4.0 | 0 | [src](https://rollinghillsgolftucson.com/masters-lunch-special-4-8-4-14/) | days assumed Mon–Fri (none stated) |
 | keep_hidden |  | Tucson | [Nightjar](https://coronettucson.com/nightjar/) | Fri,Sat | 05:00:00–14:00:00 | 9.0 | 0 | [src](https://coronettucson.com/menu/happy-hour) |  |
-| **delete** | matches venue operating hours | Tucson | [Nightjar](https://coronettucson.com/nightjar/) | Fri,Sat | 07:00:00–22:00:00 | 15.0 | 0 | [src](https://coronettucson.com/menu/happy-hour) |  |
+| keep_hidden |  | Tucson | [Nightjar](https://coronettucson.com/nightjar/) | Fri,Sat | 07:00:00–22:00:00 | 15.0 | 0 | [src](https://coronettucson.com/menu/happy-hour) |  |
 | keep_hidden |  | Tucson | [Nightjar](https://coronettucson.com/nightjar/) | Fri,Sat | 07:00:00–14:00:00 | 7.0 | 0 | [src](https://coronettucson.com/menu/happy-hour) |  |
 | keep_hidden |  | Tucson | [Nightjar](https://coronettucson.com/nightjar/) | Fri,Sat | 17:00:00–21:00:00 | 4.0 | 0 | [src](https://coronettucson.com/menu/happy-hour) |  |
 | **delete** | matches venue operating hours | Tucson | [No Anchovies](http://noanchoviesaz.com/) | Tue,Sat,Sun | 11:00:00–02:00:00 | 15.0 | 0 | [src](https://www.noanchoviesaz.com/club-events/industry-night-jun29) |  |
