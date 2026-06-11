@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "About · Happy Hour Friends",
@@ -48,14 +49,19 @@ export default function AboutPage() {
           Hey — I&apos;m Steven 👋
         </h2>
         <div className="mt-6 flex flex-col gap-6 sm:flex-row sm:items-start">
-          {/* Swap for <Image src="/about/me-sombrero.jpg" alt="Steven in a sombrero, having a great time" width={160} height={160} className="rounded-xl object-cover" /> once the photo lands in public/about/. */}
-          <div className="flex h-40 w-40 shrink-0 items-center justify-center rounded-xl border border-border bg-bg-elevated text-6xl">
-            🤠
-          </div>
+          <Image
+            src="/about/me-sombrero.jpg"
+            alt="Steven in a sombrero, having a great time"
+            width={160}
+            height={160}
+            className="h-40 w-40 shrink-0 rounded-xl object-cover"
+          />
           <div className="space-y-4 text-text-muted">
             <p>
               About ten years ago I built a site a lot like this one, just for
               Phoenix. No ads, no gimmicks — every happy hour in town in one big
+              list. It started as the way my friends and I kept track of where
+              to eat and drink for cheap, so we were all working from the same
               list. People loved it, and I never stopped thinking about why:
               nobody wants to dig through ten menus to find the $5 margarita.
               Friends just tell each other.
@@ -67,6 +73,7 @@ export default function AboutPage() {
               — if you spot a deal we&apos;re missing or a price that&apos;s
               changed, send it in. That&apos;s the whole idea.
             </p>
+            <p>Thanks for reading — hope to catch you at a spot.</p>
           </div>
         </div>
       </section>
