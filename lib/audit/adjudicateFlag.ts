@@ -243,6 +243,7 @@ export function buildAdjudicationRequest(input: AdjudicationInput): Adjudication
   const { system, user } = splitPrompt(loaded.content);
   const userText = user
     .replace("{{venue_name}}", input.venueName)
+    .replace("{{venue_address}}", input.address ?? "(unknown)")
     .replace("{{stored_json}}", JSON.stringify(stored, null, 1))
     .replace("{{pages}}", snippet);
   return {

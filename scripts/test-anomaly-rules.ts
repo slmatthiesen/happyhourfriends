@@ -535,4 +535,31 @@ check("clean venue with sane offerings raises none of the new codes", () => {
   assert.ok(NEW_CODES.every((c) => !codes.includes(c)), `unexpected: ${codes.join(",")}`);
 });
 
+check("platform_website_url: ordering/link platforms flag (Ciao Grazie / Sushiholic pattern)", () => {
+  for (const site of [
+    "https://order.online/business/ciao-grazie-14123607?utm_source=google",
+    "http://sushiholicarcadia.carrd.co/",
+    "https://www.doordash.com/store/some-venue",
+  ]) {
+    const codes = auditVenue({
+      websiteUrl: site,
+      hoursJson: null,
+      windows: [{
+        daysOfWeek: [1, 2, 3], startTime: "15:00:00", endTime: "18:00:00", allDay: false,
+        active: true, sourceUrl: "https://example.com/happy-hour", notes: null,
+      }],
+    }).map((f) => f.code);
+    assert.ok(codes.includes("platform_website_url"), `should flag: ${site}`);
+  }
+  const own = auditVenue({
+    websiteUrl: "https://www.eatwoven.com/",
+    hoursJson: null,
+    windows: [{
+      daysOfWeek: [1], startTime: "15:00:00", endTime: "18:00:00", allDay: false,
+      active: true, sourceUrl: "https://www.eatwoven.com/menus/", notes: null,
+    }],
+  }).map((f) => f.code);
+  assert.ok(!own.includes("platform_website_url"));
+});
+
 console.log(`\n✓ ${passed} anomaly-rule checks passed.`);

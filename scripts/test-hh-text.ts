@@ -6,7 +6,7 @@
  * Run: tsx scripts/test-hh-text.ts
  */
 import assert from "node:assert";
-import { matchesHappyHour, scoreHhUrl } from "@/lib/places/hhText";
+import { matchesHappyHour, scoreHhUrl, HH_RE } from "@/lib/places/hhText";
 
 let passed = 0;
 function check(name: string, fn: () => void) { fn(); passed++; console.log(`  ✓ ${name}`); }
@@ -38,6 +38,15 @@ check("scoreHhUrl ranks HH page above specials above generic menu above none", (
 check("scoreHhUrl catches no-space + underscore spellings in the path", () => {
   assert.ok(scoreHhUrl("https://x.com/happyhour") >= 100);
   assert.ok(scoreHhUrl("https://x.com/happy_hour") >= 100);
+});
+
+check("HH_RE synonyms from the 2026-06-11 review corpus", () => {
+  assert.ok(HH_RE.test("HAPPIER HOURS | 3-6 PM MONDAY THRU FRIDAY")); // The Monica
+  assert.ok(HH_RE.test("Join us for Social Hour every weekday"));     // PYRO
+  assert.ok(HH_RE.test("Power Hour 1-2pm: $2 off everything"));       // Orangedale
+  assert.ok(scoreHhUrl("https://www.pyrophx.com/social-hour") >= 100);
+  assert.ok(!HH_RE.test("open 24 hours"), "plain 'hours' must not match");
+  assert.ok(!HH_RE.test("rush hour traffic"), "'rush hour' must not match");
 });
 
 console.log(`\n${passed} checks passed.`);
