@@ -191,6 +191,24 @@ async function main() {
     check("a normal bar is still kept", () => {
       assert.equal(isExcludedByPlaceType("bar", ["bar", "restaurant"]), false);
     });
+    check("member-only org names are dropped (lodges type as plain `bar`)", () => {
+      assert.equal(isLikelyNoHappyHourFormat("Elks Lodge #2532"), true);
+      assert.equal(isLikelyNoHappyHourFormat("Elks club"), true);
+      assert.equal(isLikelyNoHappyHourFormat("Elks4777"), true); // digit-attached, regex form
+      assert.equal(isLikelyNoHappyHourFormat("VFW Post 97"), true);
+      assert.equal(isLikelyNoHappyHourFormat("American Legion Post 41"), true);
+      assert.equal(isLikelyNoHappyHourFormat("Moose Lodge 708"), true);
+      assert.equal(isLikelyNoHappyHourFormat("Fraternal Order of Eagles Aerie 2197"), true);
+      assert.equal(isLikelyNoHappyHourFormat("Tucson Lodge No. 4 F & AM"), true); // masonic naming
+      assert.equal(isLikelyNoHappyHourFormat("Knights of Columbus Hall"), true);
+    });
+    check("public venues with org-adjacent names are kept", () => {
+      assert.equal(isLikelyNoHappyHourFormat("McMenamins Pub at Elks Temple"), false); // tacoma, live HH
+      assert.equal(isLikelyNoHappyHourFormat("The Eagles Nest Bar"), false);
+      assert.equal(isLikelyNoHappyHourFormat("The Lodge Sasquatch Kitchen"), false);
+      assert.equal(isLikelyNoHappyHourFormat("Post Malone's Tavern"), false);
+      assert.equal(isLikelyNoHappyHourFormat("Oddfellows Cafe & Bar"), false); // lodge-form only
+    });
   }
 
   // --- Daly City review: junk-type excludes + hard review gate --------------------
