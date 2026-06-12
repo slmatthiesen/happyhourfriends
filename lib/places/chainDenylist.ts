@@ -272,6 +272,8 @@ const EXCLUDED_PRIMARY_TYPE = new Set<string>([
   // Bull Shooters has live HH).
   "golf_course",
   "country_club",
+  "coffee_roastery", // sibling of cafe/coffee_shop the 2026-05-30 calibration missed
+
   "sports_club",
   "consultant",
   "corporate_office",
