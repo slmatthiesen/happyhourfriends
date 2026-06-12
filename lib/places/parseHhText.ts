@@ -309,6 +309,45 @@ const RANGE_RE = new RegExp(
   `(?:${TIME}${SEP}(?:${TIME}|${CLOSE}))|\\bopen(?:ing)?\\b${SEP}${TIME}`,
   "gi",
 );
+// A bare numeric range followed by one of these nouns is a COUNT, not a time —
+// "special 4-6 course meals" (The Switch SLO) parsed as a 16:00–18:00 window. Only
+// applied when the range wrote no am/pm; an explicit meridiem always wins.
+const QUANTITY_NOUN_AFTER_RE =
+  /^\s*(courses?|people|persons?|guests?|items?|oz|ounces?|wines?|beers?|tastings?|seats?|weeks?|months?|years?|miles?|%|percent)\b/i;
+// One day EXPRESSION with its position: a keyword (daily/weekends/…) or a run of day
+// tokens joined by range/list connectors ("mon-fri", "mon, wed & fri"). Used to bind
+// each time range to its NEAREST day spec instead of letting the segment's first day
+// spec claim every range ("MON-FRI: 4-9PM SAT-SUN: 6-9PM" bound both to Mon–Fri).
+const DAY_EXPR_RE = new RegExp(
+  `\\b(?:daily|every\\s*day|all\\s*week|7\\s*days|weekends?|weekdays?)\\b` +
+    `|${DAY_TOKEN}(?:\\s*(?:-|–|—|to|through|thru|until|till|,|&|and|\\+|/)\\s*${DAY_TOKEN})*`,
+  "gi",
+);
+
+/** All day expressions in a segment, with the day set each resolves to. */
+function findDayExprs(segment: string): { index: number; days: number[] }[] {
+  const out: { index: number; days: number[] }[] = [];
+  DAY_EXPR_RE.lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = DAY_EXPR_RE.exec(segment)) !== null) {
+    if (m[0].length === 0) { DAY_EXPR_RE.lastIndex++; continue; }
+    const days = parseDays(m[0]);
+    if (days) out.push({ index: m.index, days });
+  }
+  return out;
+}
+
+/** Days for a range at `at`: nearest preceding day expr, else nearest following. */
+function bindDays(exprs: { index: number; days: number[] }[], at: number): number[] | null {
+  if (exprs.length === 0) return null;
+  let best: { index: number; days: number[] } | null = null;
+  for (const e of exprs) {
+    if (e.index <= at && (!best || e.index > best.index)) best = e;
+  }
+  if (best) return best.days;
+  // No preceding spec — trailing day spec shared by earlier ranges ("3-6pm …, Mon-Fri").
+  return exprs[0].days;
+}
 // Strong clause/sentence boundaries ONLY: ". " ; · ! newline, and the bullet " · ".
 // NOT "and" and NOT a bare comma — a single segment may share one day spec across
 // several time ranges (e.g. "3-6pm and 9pm-close, Mon-Fri").
@@ -338,13 +377,18 @@ export function parseHappyHours(text: string, sourceUrl: string): ParsedWindow[]
 
     // Context + days are scoped to THIS segment only.
     const hhContext = isHhContext(segment);
-    const segDays = parseDays(segment);
+    const dayExprs = findDayExprs(segment);
 
     // Find ALL time ranges in the segment; emit one window per range.
     RANGE_RE.lastIndex = 0;
     let m: RegExpExecArray | null;
     while ((m = RANGE_RE.exec(segment)) !== null) {
       if (m[0].length === 0) { RANGE_RE.lastIndex++; continue; }
+      // Bare range + quantity noun ("4-6 course meals") is a count, not a time.
+      if (
+        !/[ap]\.?m/i.test(m[0]) &&
+        QUANTITY_NOUN_AFTER_RE.test(segment.slice(m.index + m[0].length))
+      ) continue;
       const range = parseTimeRange(m[0], hhContext);
       if (!range) continue;
 
@@ -357,10 +401,10 @@ export function parseHappyHours(text: string, sourceUrl: string): ParsedWindow[]
       const around = segment.slice(Math.max(0, m.index - 140), m.index + m[0].length + 40);
       const hhNearTime = HH_RE.test(around);
 
-      let days = segDays;
+      let days = bindDays(dayExprs, m.index);
       let notes: string | null = null;
       // Track whether days were assumed (none stated in text).
-      const daysAssumed = !segDays && hhContext;
+      const daysAssumed = !days && hhContext;
       if (daysAssumed) { days = [1, 2, 3, 4, 5]; notes = "days assumed Mon–Fri (none stated)"; }
 
       const timeKnown = !!(range.startTime || range.endTime);
