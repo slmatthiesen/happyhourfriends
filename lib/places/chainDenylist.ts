@@ -143,10 +143,44 @@ const NO_HH_FORMAT_PATTERNS = [
   // casino-adjacent venues Google may type as a plain restaurant; the place-type gate
   // in isExcludedByPlaceType handles venues Google correctly tags with the casino type.
   "casino",
+  // Member-only organizations (operator 2026-06-12: audience is 20–40 young
+  // professionals; members-only halls don't belong on the site). Fraternal lodges and
+  // veterans posts run member bars, so Google types them plain `bar` and the
+  // alcohol-signal override would keep them — this NAME gate (which runs before the
+  // type gate and has no alcohol override) is the only thing that can drop them.
+  // Deliberately NOT here: "elks temple" (McMenamins Pub at Elks Temple, tacoma, is a
+  // public pub with live HH), bare "eagles"/"lodge"/"post" (real bars carry those).
+  "elks lodge",
+  "elks club",
+  "vfw",
+  "veterans of foreign wars",
+  "veterans hall",
+  "american legion",
+  "amvets",
+  "moose lodge",
+  "loyal order of moose",
+  "eagles aerie",
+  "eagles lodge",
+  "eagles club",
+  "fraternal order",
+  "masonic lodge",
+  "masonic temple",
+  "knights of columbus",
+  "ioof",
+  "odd fellows lodge",
+  "oddfellows lodge",
+  "sons of italy",
+  "sons of norway",
+  "senior center",
 ];
+
+// Digit-attached lodge forms the token-aware phrase list can't express: "Elks4777"
+// normalizes to one token, and Masonic lodges use "Tucson Lodge No. 4" naming.
+const MEMBER_ONLY_ORG_REGEXES = [/\belks ?\d/, /\blodge no ?\d/];
 
 export function isLikelyNoHappyHourFormat(name: string): boolean {
   const n = normalize(name);
+  if (MEMBER_ONLY_ORG_REGEXES.some((re) => re.test(n))) return true;
   // Word-boundary match — substring would let "deli" match "delicias", "acai" match
   // "açaí" variations, etc. (2026-05-28: dropped "Las Delicias Restaurant" by mistake).
   return NO_HH_FORMAT_PATTERNS.some(
