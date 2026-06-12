@@ -7,7 +7,12 @@
  * docs/superpowers/specs/2026-05-31-capture-everything-realness-filter-design.md.
  */
 import assert from "node:assert/strict";
-import { assessRealness, windowShouldBeActive, MIN_CONFIDENCE } from "@/lib/places/realnessGate";
+import {
+  assessRealness,
+  windowShouldBeActive,
+  mealSpecialEvidence,
+  MIN_CONFIDENCE,
+} from "@/lib/places/realnessGate";
 
 let passed = 0;
 function check(name: string, fn: () => void) {
@@ -94,6 +99,184 @@ check("HIDDEN when the realness gate is suspicious (free parser fine)", () => {
 });
 check("freeSuspect defaults to false (paid-extractor windows have no free flag)", () => {
   assert.equal(windowShouldBeActive({ realnessSuspect: false }), true);
+});
+
+// ── meal_special — meal services / events stored as happy hours ─────────────────
+// Goldens from the 2026-06-12 all-city price scan: every positive below was a LIVE
+// window that is plainly meal service or an event, every negative is a real (if
+// upscale) happy hour from the same scan that must stay live.
+
+const off = (name: string, dollars: number | null, description: string | null = null) => ({
+  name,
+  priceCents: dollars == null ? null : Math.round(dollars * 100),
+  description,
+});
+
+check("MEAL: 'Dinner Special' 5–10pm IS meal service (La Herradura)", () => {
+  const ev = mealSpecialEvidence({
+    startTime: "17:00",
+    endTime: "22:00",
+    offerings: [off("Dinner Special", 14.99)],
+  });
+  assert.ok(ev, "expected evidence");
+  const r = assessRealness({
+    allDay: false,
+    dayCount: 3,
+    timeKnown: true,
+    confidence: 0.9,
+    mealSpecial: { startTime: "17:00", endTime: "22:00", offerings: [off("Dinner Special", 14.99)] },
+  });
+  assert.ok(r.reasons.includes("meal_special"));
+});
+
+check("MEAL: 'Prix Fixe' lexicon fires regardless of price (The Italian Daughter)", () => {
+  assert.ok(
+    mealSpecialEvidence({
+      startTime: "14:00",
+      endTime: "17:30",
+      offerings: [off("Late Lunch or Early Dinner Prix Fixe", 33)],
+    }),
+  );
+});
+
+check("MEAL: 'Lunch special' name + lunch window (The Vig 11–3)", () => {
+  assert.ok(
+    mealSpecialEvidence({
+      startTime: "11:00",
+      endTime: "15:00",
+      offerings: [off("Lunch special: soft drink + choice of entree", 16)],
+    }),
+  );
+});
+
+check("MEAL: tokenless lunch window with avg > $12 (Izumi 11–3)", () => {
+  assert.ok(
+    mealSpecialEvidence({
+      startTime: "11:00",
+      endTime: "15:00",
+      offerings: [off("Combo Chow Mein", 18), off("Fried Rice", 20), off("Shrimp Specials", 13.99)],
+    }),
+  );
+});
+
+check("MEAL: single expensive item, no token, classic HH window (Spencer's $42 3–5pm)", () => {
+  assert.ok(
+    mealSpecialEvidence({ startTime: "15:00", endTime: "17:00", offerings: [off("", 42)] }),
+  );
+});
+
+check("MEAL: events are caught by lexicon (50 Shades 'Paint and Sip', 'Girl Dinner')", () => {
+  assert.ok(mealSpecialEvidence({ startTime: null, endTime: null, offerings: [off("Paint and Sip", 25)] }));
+  assert.ok(mealSpecialEvidence({ startTime: null, endTime: null, offerings: [off("Girl Dinner", 20)] }));
+});
+
+check("MEAL: 'Early-Bird Dinner specials' fires (CJ's Cafe)", () => {
+  assert.ok(
+    mealSpecialEvidence({
+      startTime: "14:00",
+      endTime: "17:00",
+      offerings: [off("Early-Bird Dinner specials", 15.95)],
+    }),
+  );
+});
+
+check("MEAL: 'Bottomless Bubbles' brunch fires on token even with a null start (PV Pie)", () => {
+  assert.ok(
+    mealSpecialEvidence({ startTime: null, endTime: "15:00", offerings: [off("Bottomless Bubbles", 19)] }),
+  );
+});
+
+check("NOT MEAL: Postino $25 board + bottle after 8pm stays live", () => {
+  assert.equal(
+    mealSpecialEvidence({
+      startTime: "20:00",
+      endTime: null,
+      offerings: [off("Board of bruschetta & bottle of wine", 25)],
+    }),
+    null,
+  );
+});
+
+check("NOT MEAL: upscale HH with cheap anchor items stays live (Maple & Ash)", () => {
+  assert.equal(
+    mealSpecialEvidence({
+      startTime: "16:00",
+      endTime: "18:00",
+      offerings: [off("Mini seafood towers", 40), off("Select cocktails", 15), off("Oysters", 3)],
+    }),
+    null,
+  );
+});
+
+check("NOT MEAL: 5–6pm window does NOT look like dinner service (Nobu 17–18)", () => {
+  assert.equal(
+    mealSpecialEvidence({
+      startTime: "17:00",
+      endTime: "18:00",
+      offerings: [off("Cold Dishes", 20), off("Hot Dishes", 16), off("Half Orders", 16)],
+    }),
+    null,
+  );
+});
+
+check("NOT MEAL: explicit happy-hour text VETOES every signal (Quesadilla Gorilla)", () => {
+  assert.equal(
+    mealSpecialEvidence({
+      startTime: "11:00",
+      endTime: "15:00",
+      offerings: [off("$15 Happy Hour Monday", 15), off("Oaxaca Old Fashioned", 15)],
+    }),
+    null,
+  );
+});
+
+check("NOT MEAL: happy-hour source URL vetoes a lunch-token offering", () => {
+  assert.equal(
+    mealSpecialEvidence({
+      startTime: "15:00",
+      endTime: "18:00",
+      sourceUrl: "https://example.com/happy-hour",
+      offerings: [off("Lunch portion fish & chips", 14)],
+    }),
+    null,
+  );
+});
+
+check("NOT MEAL: many priced items with a cheap floor is a real menu (Sullivan's)", () => {
+  assert.equal(
+    mealSpecialEvidence({
+      startTime: "15:00",
+      endTime: "18:00",
+      offerings: [
+        off("Jumbo Shrimp Cocktail", 20),
+        off("Crab Cake Sliders", 20),
+        off("Cheeseburger", 16),
+        off("Well drinks", 8),
+        off("Draft beer", 6),
+      ],
+    }),
+    null,
+  );
+});
+
+check("NOT MEAL: late-night crosses-midnight window never matches dinner shape", () => {
+  assert.equal(
+    mealSpecialEvidence({
+      startTime: "22:00",
+      endTime: "01:00",
+      offerings: [off("Night-owl cocktails", 13), off("Wings", 14)],
+    }),
+    null,
+  );
+});
+
+check("MEAL: no offerings at all → no evidence (nothing to judge)", () => {
+  assert.equal(mealSpecialEvidence({ startTime: "11:00", endTime: "15:00", offerings: [] }), null);
+});
+
+check("assessRealness without mealSpecial input behaves exactly as before", () => {
+  const r = assessRealness(GOOD);
+  assert.equal(r.suspect, false);
 });
 
 console.log(`\n${passed} checks passed.`);
