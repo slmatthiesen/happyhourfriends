@@ -189,25 +189,28 @@ export function Contribute({
           </div>
 
           <div className="rounded-md border border-border bg-bg-elevated/60 p-3">
-            <label className="mb-1 block text-text-muted">
-              Add a source <span className="text-accent-hot">*</span> — a link/URL
-              or a photo of the menu
+            <label className="mb-2 block text-text-muted">
+              Add a source <span className="text-accent-hot">*</span> — either one
+              works
             </label>
-            <input
-              className={inputCls}
-              type="text"
-              inputMode="url"
-              value={sourceUrl}
-              onChange={(e) => setSourceUrl(e.target.value)}
-              onBlur={(e) => {
-                const n = normalizeUrl(e.target.value);
-                if (n) setSourceUrl(n);
-              }}
-              placeholder="Paste a link/URL — venue website or menu page"
-            />
-            <div className="mt-2 flex items-center gap-3">
-              <label className="cursor-pointer rounded-md border border-border bg-bg-elevated px-3 py-1.5 text-xs text-text-primary hover:border-accent-cool">
-                {imageDataUrl ? "Change file" : "📷 Photo or PDF of the menu"}
+            {/* Link and photo are PARALLEL options, not steps — keep them side by
+                side with an explicit "or" so it never reads as "do both". */}
+            <div className="flex flex-wrap items-center gap-2">
+              <input
+                className={`${inputCls} min-w-[12rem] flex-1`}
+                type="text"
+                inputMode="url"
+                value={sourceUrl}
+                onChange={(e) => setSourceUrl(e.target.value)}
+                onBlur={(e) => {
+                  const n = normalizeUrl(e.target.value);
+                  if (n) setSourceUrl(n);
+                }}
+                placeholder="Paste a link/URL"
+              />
+              <span className="text-xs uppercase text-text-muted">or</span>
+              <label className="cursor-pointer whitespace-nowrap rounded-md border border-border bg-bg-elevated px-3 py-2 text-xs text-text-primary hover:border-accent-cool">
+                {imageDataUrl ? "Change file" : "📷 Add a photo of the menu"}
                 <input
                   type="file"
                   accept="image/*,application/pdf"
@@ -215,6 +218,8 @@ export function Contribute({
                   onChange={onPickImage}
                 />
               </label>
+            </div>
+            <div className="mt-2 flex items-center gap-3 empty:hidden">
               {imageDataUrl && (
                 <span className="flex items-center gap-2 text-xs text-text-muted">
                   {imageDataUrl.startsWith("data:application/pdf") ? (
