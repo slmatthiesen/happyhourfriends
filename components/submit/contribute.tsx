@@ -139,9 +139,11 @@ export function Contribute({
   const heading = hasHappyHour
     ? "Something off? Tell us"
     : `Know ${venueName}'s happy hour? Add it`;
+  // The has-HH page section already explains the flow right above the trigger —
+  // repeating it inside the form read as noise (operator feedback 2026-06-11).
   const blurb = hasHappyHour
-    ? "Prices changed? New deal? Closed? Tell us in plain words and back it up with a link or a photo of the menu — our AI sorts out the details and a human approves before anything goes live."
-    : "Paste a link to their happy-hour page or snap a photo of the menu (required), and add whatever details you know. A human reviews everything before it goes live.";
+    ? null
+    : "A human reviews everything before it goes live.";
 
   return (
     <div>
@@ -160,7 +162,7 @@ export function Contribute({
         >
           <div>
             <p className="mb-1 font-medium text-text-primary">{heading}</p>
-            <p className="text-xs text-text-muted">{blurb}</p>
+            {blurb && <p className="text-xs text-text-muted">{blurb}</p>}
           </div>
 
           <div>
@@ -186,10 +188,10 @@ export function Contribute({
             </p>
           </div>
 
-          <div>
+          <div className="rounded-md border border-border bg-bg-elevated/60 p-3">
             <label className="mb-1 block text-text-muted">
-              Add a source <span className="text-accent-hot">*</span> — a link or a
-              photo of the menu
+              Add a source <span className="text-accent-hot">*</span> — a link/URL
+              or a photo of the menu
             </label>
             <input
               className={inputCls}
@@ -201,7 +203,7 @@ export function Contribute({
                 const n = normalizeUrl(e.target.value);
                 if (n) setSourceUrl(n);
               }}
-              placeholder="Link — e.g. the venue's website or menu"
+              placeholder="Paste a link/URL — venue website or menu page"
             />
             <div className="mt-2 flex items-center gap-3">
               <label className="cursor-pointer rounded-md border border-border bg-bg-elevated px-3 py-1.5 text-xs text-text-primary hover:border-accent-cool">
@@ -241,9 +243,6 @@ export function Contribute({
                 </span>
               )}
             </div>
-            <p className="mt-1 text-xs text-text-muted">
-              A photo of the menu works great — our AI reads it to confirm.
-            </p>
           </div>
 
           <div>

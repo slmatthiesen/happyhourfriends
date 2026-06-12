@@ -50,7 +50,7 @@ export default function AboutPage() {
         </h2>
         <div className="mt-6 flex flex-col gap-6 sm:flex-row sm:items-start">
           <Image
-            src="/about/me-sombrero.jpg"
+            src="/about/me.jpg"
             alt="Steven in a sombrero, having a great time"
             width={160}
             height={160}

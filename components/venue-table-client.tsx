@@ -598,8 +598,8 @@ export function VenueTableClient({
           <span className="font-medium">
             {liveCount > 0 ? (
               <>
-                <span className="text-accent-warm">{liveCount}</span> happy hour
-                {liveCount === 1 ? "" : "s"} live now in {cityName}
+                <span className="mr-1 text-accent-warm">{liveCount}</span> happy
+                hour{liveCount === 1 ? "" : "s"} live now in {cityName}
               </>
             ) : (
               <>Nothing live right this minute in {cityName}</>
