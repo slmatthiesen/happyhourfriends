@@ -46,7 +46,7 @@ accrues invisibly. **Before running:** get the boundary-pruned tile count + doll
 subdivision. Never re-run with `--fresh`; discover each city once.
 
 ```bash
-pnpm run seed:discover -- --city <slug> --state <code>
+pnpm run seed:discover -- --city <slug> --state <code> --debug-drops
 ```
 
 Discovery is idempotent (upserts on `google_place_id`) and captures **hours, phone,
@@ -55,6 +55,12 @@ backfills needed for new cities.
 
 **Done when:** candidate count looks sane for the city's size (Spokane: ~200–300) and the
 out-of-boundary localities you expected to drop (suburbs, neighbor cities) were dropped.
+
+`--debug-drops` is free and non-optional: it writes every dropped candidate + reason to
+`docs/<slug>-discovery-drops.json` so the operator can review the drop list per venue
+(without it you only get aggregate counts — SLO 2026-06-12 lesson). Build the operator
+review doc (live/hidden/stubs/drops, see `docs/san-luis-obispo-onboarding-review.md`)
+at the end of the run.
 
 ---
 
