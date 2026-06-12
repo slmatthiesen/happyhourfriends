@@ -1,0 +1,89 @@
+{
+  "_comment": "Curated venues that should never appear on the site (member-only clubs, non-venues, private event rentals, no-alcohol businesses). Applied idempotently by `pnpm remove:venues` — soft-deletes by google_place_id, so the same file works against any environment's DB. Append entries with a reason + audit date; never remove entries (the soft-deleted row's google_place_id uniqueness is the resurrection guard).",
+  "removals": [
+    {
+      "googlePlaceId": "ChIJMwFbz5eHj4ARM8m6ooTS7TI",
+      "name": "Montclair Golf Enterprises",
+      "city": "oakland",
+      "reason": "Golf club (montclairgc.com) — not a public happy-hour venue; operator-reported 2026-06-12"
+    },
+    {
+      "googlePlaceId": "ChIJV-4pnid-hYARwPm7FLiA4MA",
+      "name": "Continental Club",
+      "city": "oakland",
+      "reason": "Private event rental (full venue buyouts only, no walk-in service) — site verified 2026-06-12"
+    },
+    {
+      "googlePlaceId": "ChIJHcoiFreAj4AR2p6yFgrNMdQ",
+      "name": "811 Oakland Event Venue",
+      "city": "oakland",
+      "reason": "Private event rental space, no walk-in bar service — site verified 2026-06-12"
+    },
+    {
+      "googlePlaceId": "ChIJH4aZ-10RK4cRijGzZmLULG4",
+      "name": "Elks4777",
+      "city": "phoenix-central",
+      "reason": "Members-only fraternal lodge — public can't visit"
+    },
+    {
+      "googlePlaceId": "ChIJ6UF4OgALK4cRuiqbVa_dMdQ",
+      "name": "Elks club",
+      "city": "scottsdale",
+      "reason": "Members-only fraternal lodge — public can't visit"
+    },
+    {
+      "googlePlaceId": "ChIJZx8ntVxzK4cRSmhtMHZ_hDU",
+      "name": "Press Coffee - The Roastery",
+      "city": "phoenix-central",
+      "reason": "Coffee roastery — coffee_shop family is an excluded discovery type (zero confirmed-HH)"
+    },
+    {
+      "googlePlaceId": "ChIJWQT6HqGglVQRTG3CR9Usxdg",
+      "name": "CEG Hospitality",
+      "city": "scottsdale",
+      "reason": "Restaurant-group corporate office (primaryType=corporate_office), not a venue"
+    },
+    {
+      "googlePlaceId": "ChIJxSiXegILK4cR9HQoUiWAee4",
+      "name": "Phoenix Beach Volleyball @ RTO Sullivans",
+      "city": "scottsdale",
+      "reason": "Volleyball league organization (primaryType=sports_club), not a venue"
+    },
+    {
+      "googlePlaceId": "ChIJYbb1FNsYnlQRWoW2wcoDr1I",
+      "name": "Mountain Lion Distributing",
+      "city": "spokane",
+      "reason": "Beverage distributor (primaryType=consultant), not a venue"
+    },
+    {
+      "googlePlaceId": "ChIJt-er14kYnlQR_aI9OK__Qp8",
+      "name": "Pinot's Palette",
+      "city": "spokane",
+      "reason": "Paint-and-sip class studio — alcohol only inside ticketed classes, no walk-in bar; site verified 2026-06-12"
+    },
+    {
+      "googlePlaceId": "ChIJyb61jukZnlQRYlXHO23qGhA",
+      "name": "Spokane NIGHT MARKET & Street Fair",
+      "city": "spokane",
+      "reason": "Recurring street-fair event, not a venue"
+    },
+    {
+      "googlePlaceId": "ChIJl9vWZdlVkFQRokBFM_DzTvQ",
+      "name": "Tacoma Arts Live",
+      "city": "tacoma",
+      "reason": "Nonprofit performing-arts organization (primaryType=association_or_organization), not a venue"
+    },
+    {
+      "googlePlaceId": "ChIJnwRVDgBv1oYR71C3kMqTHTY",
+      "name": "Hunter's Kitten Lounge",
+      "city": "tucson",
+      "reason": "Nonprofit cat lounge / rescue (Southern Arizona Cat Rescue), no alcohol service; site verified 2026-06-12"
+    },
+    {
+      "googlePlaceId": "ChIJ-YMtqvlz1oYRq6ke22z_Ulg",
+      "name": "The Rustik Barbershop",
+      "city": "tucson",
+      "reason": "Barbershop (primaryType=barber_shop); the sibling Rustiks Speakeasy Salon and Wine Bar listing stays"
+    }
+  ]
+}
