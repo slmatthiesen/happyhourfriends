@@ -23,6 +23,18 @@ export const metadata: Metadata = {
   title: "Happy Hour Friends",
   description:
     "Every happy hour in your city, in one sortable table. No guesses — every detail traces to a source.",
+  applicationName: "Happy Hour Friends",
+  // Text-only OG defaults — social/OG images are deliberately out of scope for now
+  // (no venue imagery available; operator decision 2026-06-11).
+  openGraph: {
+    siteName: "Happy Hour Friends",
+    type: "website",
+    locale: "en_US",
+    url: "/",
+    title: "Happy Hour Friends",
+    description:
+      "Every happy hour in your city, in one sortable table. No guesses — every detail traces to a source.",
+  },
 };
 
 export default function RootLayout({

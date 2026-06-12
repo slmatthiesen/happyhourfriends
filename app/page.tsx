@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CityPicker } from "@/components/city-picker";
 import { listCities } from "@/lib/queries/venues";
+import { webSiteLd } from "@/lib/seo/structuredData";
 
 // Rendered per-request, not prerendered at build: the city list comes from the DB,
 // so building this page statically would couple `next build` to a reachable DB.
@@ -18,6 +19,10 @@ export default async function Home() {
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-col items-center px-6 py-20 text-center sm:py-28">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteLd()) }}
+      />
       <h1
         className="text-balance text-4xl font-semibold text-text-primary sm:text-5xl"
         style={{ fontFamily: "var(--font-serif)" }}
