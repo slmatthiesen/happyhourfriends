@@ -35,6 +35,7 @@
     "backfill:neighborhood-tiers": "tsx scripts/backfill-neighborhood-tiers.ts",
     "backfill:google-neighborhoods": "tsx scripts/backfill-google-neighborhoods.ts",
     "prune:empty-venues": "tsx scripts/prune-empty-venues.ts",
+    "remove:venues": "tsx scripts/remove-venues.ts",
     "review:hidden": "tsx scripts/review-hidden-hh.ts",
     "test:hidden-review": "tsx scripts/test-hidden-review.ts",
     "reextract:stubs": "tsx scripts/reextract-stubs.ts",
