@@ -24,6 +24,13 @@ const OVERRIDES: Record<string, CityNeighborhoodOverrides> = {
       catalinafoothillsestates: "catalina-foothills",
     },
   },
+  "ca/san-luis-obispo": {
+    mergeIntoSlug: {
+      // Google splits the same core between "Downtown" and "Downtown Historic District"
+      // (both polygon-less Google names, so geometry can't arbitrate); locals say Downtown.
+      downtownhistoricdistrict: "downtown",
+    },
+  },
 };
 
 export function neighborhoodOverridesFor(
