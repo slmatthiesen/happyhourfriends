@@ -70,6 +70,9 @@ Desktop.ini
 /data/*.json
 /data/**/*.json
 /data/*.csv
+# Curated removal list IS tracked — no licensed/scrapeable HH data, and prod
+# applies it via `pnpm remove:venues` after a git pull.
+!/data/curated-venue-removals.json
 
 STEVEN_GITHUB.md1
 pnpm-lock.yaml

@@ -264,6 +264,21 @@ const EXCLUDED_PRIMARY_TYPE = new Set<string>([
   // match by design: a real bar that also offers classes keeps primaryType=bar (and the
   // alcohol override above protects it anyway).
   "educational_institution",
+  // Operator 2026-06-12 (cross-city non-venue audit): member-only clubs and non-venue
+  // businesses that slipped in with a buried "bar" in types[] (e.g. Montclair Golf
+  // Enterprises was primaryType=sports_club). Zero confirmed-HH across all cities for
+  // every type below. PRIMARY-only match: a public golf-entertainment bar like Topgolf
+  // is typed restaurant and untouched; billiards/darts bars are sports_complex (kept —
+  // Bull Shooters has live HH).
+  "golf_course",
+  "country_club",
+  "sports_club",
+  "consultant",
+  "corporate_office",
+  "barber_shop",
+  "beauty_salon",
+  "art_studio",
+  "association_or_organization",
 ]);
 
 /** Excluded when present ANYWHERE in types[] (format never runs a happy hour). */
