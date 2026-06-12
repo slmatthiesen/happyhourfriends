@@ -208,11 +208,6 @@ export default async function VenuePage({
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
           {venue.address && <DirectionsButton address={venue.address} />}
-          {uiFlags.copyLink && (
-            <CopyLinkButton
-              url={new URL(venuePath(city.state, city.slug, venue.slug), SITE_URL).toString()}
-            />
-          )}
           {venue.websiteUrl && (
             <a
               href={venue.websiteUrl}
@@ -311,6 +306,14 @@ export default async function VenuePage({
             </a>
           )}
         </div>
+        {/* Our-page action on its own line — the row above is all about the business. */}
+        {uiFlags.copyLink && (
+          <div className="mt-2">
+            <CopyLinkButton
+              url={new URL(venuePath(city.state, city.slug, venue.slug), SITE_URL).toString()}
+            />
+          </div>
+        )}
       </header>
 
       <section className="mt-10">

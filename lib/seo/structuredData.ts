@@ -17,6 +17,16 @@ export interface Crumb {
  * schema.org BreadcrumbList. Positions are 1-based; `item` is the absolute URL.
  * Google renders these as the breadcrumb trail in search results.
  */
+/** schema.org WebSite — site-name entity for the home page. */
+export function webSiteLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Happy Hour Friends",
+    url: SITE_URL,
+  };
+}
+
 export function breadcrumbListLd(crumbs: Crumb[]) {
   return {
     "@context": "https://schema.org",
