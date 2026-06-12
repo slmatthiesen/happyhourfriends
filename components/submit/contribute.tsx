@@ -193,11 +193,25 @@ export function Contribute({
               Add a source <span className="text-accent-hot">*</span> — either one
               works
             </label>
-            {/* Link and photo are PARALLEL options, not steps — keep them side by
-                side with an explicit "or" so it never reads as "do both". */}
-            <div className="flex flex-wrap items-center gap-2">
+            {/* Link and photo are PARALLEL options, not steps — an explicit "or"
+                keeps it from reading as "do both". Mobile-first: photos come from
+                phones, so the photo button leads (full-width, centered "or" below);
+                sm+ flips to input | or | button on one row. */}
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <label className="order-1 flex cursor-pointer items-center justify-center whitespace-nowrap rounded-md border border-border bg-bg-elevated px-3 py-2 text-xs text-text-primary hover:border-accent-cool sm:order-3 sm:w-auto">
+                {imageDataUrl ? "Change file" : "📷 Add a photo of the menu"}
+                <input
+                  type="file"
+                  accept="image/*,application/pdf"
+                  className="hidden"
+                  onChange={onPickImage}
+                />
+              </label>
+              <span className="order-2 text-center text-xs uppercase text-text-muted">
+                or
+              </span>
               <input
-                className={`${inputCls} min-w-[12rem] flex-1`}
+                className={`${inputCls} order-3 sm:order-1 sm:min-w-[12rem] sm:flex-1`}
                 type="text"
                 inputMode="url"
                 value={sourceUrl}
@@ -208,16 +222,6 @@ export function Contribute({
                 }}
                 placeholder="Paste a link/URL"
               />
-              <span className="text-xs uppercase text-text-muted">or</span>
-              <label className="cursor-pointer whitespace-nowrap rounded-md border border-border bg-bg-elevated px-3 py-2 text-xs text-text-primary hover:border-accent-cool">
-                {imageDataUrl ? "Change file" : "📷 Add a photo of the menu"}
-                <input
-                  type="file"
-                  accept="image/*,application/pdf"
-                  className="hidden"
-                  onChange={onPickImage}
-                />
-              </label>
             </div>
             <div className="mt-2 flex items-center gap-3 empty:hidden">
               {imageDataUrl && (
