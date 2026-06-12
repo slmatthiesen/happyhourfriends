@@ -202,6 +202,26 @@ const CITIES: CitySeed[] = [
       serviceBufferMeters: 500,
     },
   },
+  {
+    // San Luis Obispo, CA — completes the central-coast cluster next to Five Cities
+    // (compact, ~34 km², ~47k pop + Cal Poly; dense Higuera St downtown). Boundary mode
+    // via data/san-luis-obispo-boundary.geojson (OSM relation 112148) drives discovery;
+    // centerLat/Lng = bbox center of the boundary file (fallback map anchor only).
+    slug: "san-luis-obispo",
+    name: "San Luis Obispo",
+    state: "CA",
+    country: "US",
+    timezone: "America/Los_Angeles",
+    currency: "USD",
+    centerLat: 35.2725,
+    centerLng: -120.67037,
+    seedConfig: {
+      radiusKm: 8, // fallback only; data/san-luis-obispo-boundary.geojson drives real tiling/gate
+      cellMeters: 3000,
+      serviceLocalities: ["San Luis Obispo"],
+      serviceBufferMeters: 500,
+    },
+  },
 ];
 
 async function main() {
