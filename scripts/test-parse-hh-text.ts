@@ -194,4 +194,53 @@ check("'happy hour' literal in the segment → plausible (live)", () => {
   assert.equal(win(parseHappyHours("Happy hour specials daily 4pm-6pm", URL)).plausible, true);
 });
 
+// --- quantity-noun ranges must NOT be parsed as times (The Switch SLO, 2026-06-12) ---
+check("'4-6 course meals' is a count, not a 4-6pm window", () => {
+  const ws = parseHappyHours(
+    "We have featured events and special 4-6 course meals paired with beer or wine tastings. Happy hour specials at the bar.",
+    URL,
+  );
+  assert.equal(ws.length, 0);
+});
+check("'2-4 people' / '3-5 items' are counts, not times", () => {
+  assert.equal(parseHappyHours("Happy hour packages for 2-4 people", URL).length, 0);
+  assert.equal(parseHappyHours("Daily specials: choose 3-5 items", URL).length, 0);
+});
+check("'4-6 oz pours' is a quantity, not a time", () => {
+  assert.equal(parseHappyHours("Happy hour flights with 4-6 oz pours", URL).length, 0);
+});
+check("explicit meridiem wins over a trailing noun ('4-6pm course tastings')", () => {
+  const w = win(parseHappyHours("Happy hour 4-6pm course tastings", URL));
+  assert.equal(w.startTime, "16:00");
+  assert.equal(w.endTime, "18:00");
+});
+
+// --- per-range day binding (Charlie's Place SLO, 2026-06-12) ---
+check("two day:time pairs in one segment bind nearest-preceding days", () => {
+  const ws = clean(parseHappyHours("HAPPY HOUR MON - FRI: 4:00 - 9:00PM SAT - SUN: 6:00 - 9:00PM", URL));
+  assert.equal(ws.length, 2);
+  assert.deepEqual(ws[0].daysOfWeek, [1, 2, 3, 4, 5]);
+  assert.equal(ws[0].startTime, "16:00");
+  assert.equal(ws[0].endTime, "21:00");
+  assert.deepEqual(ws[1].daysOfWeek, [6, 7]);
+  assert.equal(ws[1].startTime, "18:00");
+  assert.equal(ws[1].endTime, "21:00");
+});
+check("single trailing day spec still shared across ranges ('3-6pm and 9pm-close, Mon-Fri')", () => {
+  const ws = clean(parseHappyHours("Happy hour 3-6pm and 9pm-close, Mon-Fri", URL));
+  assert.equal(ws.length, 2);
+  assert.deepEqual(ws[0].daysOfWeek, [1, 2, 3, 4, 5]);
+  assert.deepEqual(ws[1].daysOfWeek, [1, 2, 3, 4, 5]);
+});
+check("day list with connectors binds as one expression ('Mon, Wed & Fri 3-6pm')", () => {
+  const w = win(parseHappyHours("Happy hour Mon, Wed & Fri 3-6pm", URL));
+  assert.deepEqual(w.daysOfWeek, [1, 3, 5]);
+});
+check("keyword day expr binds nearest-preceding ('Weekdays 3-6pm, weekends 5-7pm')", () => {
+  const ws = clean(parseHappyHours("Happy hour weekdays 3-6pm, weekends 5-7pm", URL));
+  assert.equal(ws.length, 2);
+  assert.deepEqual(ws[0].daysOfWeek, [1, 2, 3, 4, 5]);
+  assert.deepEqual(ws[1].daysOfWeek, [6, 7]);
+});
+
 console.log(`\n${passed} checks passed.`);
