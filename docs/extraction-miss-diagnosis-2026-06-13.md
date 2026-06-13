@@ -30,6 +30,39 @@ The extractor is **not** failing at discovery or recall — it's failing at **pr
   wrong — sourced from the wrong site/location, invented from menu/operating-hours pages, or garbled.
 - The flag queue surfaces all of it, but until now nothing fed back, so precision never improved.
 
+## Deep dive: Spencer's — the schema.org JSON-LD Menu gap (added 2026-06-13)
+
+Spencer's for Steaks & Chops (Spokane) is in the meal-special review queue as a single
+**"$42" daily 3–5pm** "offering" (`extract_confidence: 1.0`). It is a steakhouse with a real,
+rich happy hour. Traced the miss layer by layer:
+
+- **Discovery:** OK — we used `spencersspokane.com/menus/`, the right page.
+- **Render:** OK — the HH content is in the **static HTML** (no iframe / JS widget).
+- **Root cause:** the entire happy-hour menu is published as **schema.org JSON-LD**
+  (`<script type="application/ld+json">`, `"@type":"Menu"` → `hasMenuItem` → `MenuItem`/`Offer`):
+  Spinach & Artichoke Dip $12 (+crab $5), Roasted Nuts $5, Pork Belly Flatbread $12, Prime Bites
+  $19, Hummus $13, Fries $7, Soup $6, Chips $3; Well Liquor $8, House Martinis $13, House Wine
+  $6.50, beer $6–11 — **108 `MenuItem`s on the page.** Our pipeline does **not parse JSON-LD Menu
+  schema at all** (the only `ld+json` code in `lib/` emits *our own* site's SEO data). The
+  structured menu is dropped with the `<script>` tags; the model falls back to visible text,
+  grabs a stray **"$42"** from the *Sunday Supper* section (~6 KB before the HH block — it's a
+  prix-fixe price), and emits one offering literally named "$42" — at full confidence.
+
+**Why it matters / leverage:** JSON-LD `Menu` schema is auto-emitted by common restaurant CMSs.
+A 7-site sample of other flagged venues found **Wooden Nickel** also ships `Menu` schema (8 items)
+we're ignoring; Finney's/Petra/ZOLA emit JSON-LD but not menu items; Cala/Quarterdeck have the HH
+only in visible HTML. So parsing JSON-LD Menu is a **free, deterministic, highest-precision**
+recovery for a real subset (~25–30% here, likely more across 1000 cities) — exact name/price/
+description, no AI guessing. It is complementary to fixing visible-text extraction for the rest.
+
+This also exposes a **confidence-calibration** problem: a garbage single-"$42" capture was stored
+at `extract_confidence: 1.0`, so the realness gate had no low-confidence signal to catch it.
+
+**New top fix bucket (0):** a deterministic JSON-LD harvester before the AI extractor — parse
+`Menu`/`MenuItem`/`Offer`, pick the menu whose name (or nearest heading) matches `HH_RE`
+("happy hour"/"social hour"), emit its items as structured offerings; feed the rest to the model.
+Golden: Spencer's `/menus/` → the 12 HH items at their real prices, never a "$42".
+
 ## The D bucket, broken into fix targets (ranked by leverage)
 
 ### 1. Source / provenance integrity — **highest leverage, data-trust critical** (≈6 venues)
@@ -148,10 +181,13 @@ column) already agreed. Useful as positives.
 - **Blanco:** chain venue; HH `source_url` from a different location's page → not applied.
 
 ## Recommended order of work
-1. **Source/provenance integrity** (#1) — biggest data-trust win, ~6 venues + protects every future city.
-2. **Bare-window gate** (#2) — removes phantom HH; cheap, deterministic.
-3. **Offering sanity + midnight parse** (#3).
-4. **Day handling** (#4).
-5. Venue dedup (#5); render tier (B) stays deferred.
+0. **JSON-LD Menu harvester** (Spencer's deep-dive) — free, deterministic, highest-precision
+   recovery of full HH menus we currently drop; recovers recall AND precision; generalizes to any
+   CMS that emits it.
+1. **Source/provenance integrity** — biggest data-trust win, ~6 venues + protects every future city.
+2. **Bare-window gate** — removes phantom HH; cheap, deterministic.
+3. **Offering sanity + midnight parse + confidence calibration** (the $42@1.0 case).
+4. **Day handling**.
+5. Venue dedup; render tier (B) stays deferred.
 
 Each as its own branch + golden test, prioritized by this rollup — not one venue at a time.
