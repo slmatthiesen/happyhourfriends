@@ -15,6 +15,7 @@
  */
 
 import { extractMediaLinks } from "@/lib/places/siteTriage";
+import { harvestJsonLdMenu } from "@/lib/places/jsonLdMenu";
 
 const BOT_NAME = "HappyHourFriendsBot";
 const USER_AGENT = `${BOT_NAME}/1.0 (+https://happyhourfriends.com)`;
@@ -196,6 +197,14 @@ export function stripHtml(html: string, maxContent: number = MAX_CONTENT): strin
   //     config blob — append it so it reaches the model (Philly's Sports Grill).
   const scriptText = harvestScriptText(html);
   if (scriptText) text = text ? `${text} ${scriptText}` : scriptText;
+
+  // 4c. schema.org JSON-LD Menu: restaurant CMSs publish the HH menu (exact name↔price
+  //     pairs) as structured data that step 1 drops and harvestScriptText can't pair
+  //     (bare-token prices are skipped). PREPEND the reconstructed HH menu so it leads
+  //     the payload and is always kept by the budget trim below (windows[0]). Spencer's:
+  //     12 real HH items instead of a stray "$42" Sunday-Supper entrée.
+  const jsonLdMenu = harvestJsonLdMenu(html);
+  if (jsonLdMenu) text = text ? `${jsonLdMenu}\n\n${text}` : jsonLdMenu;
 
   if (text.length <= maxContent) return text;
 
