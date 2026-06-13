@@ -34,10 +34,9 @@ export default async function NewVenuePage({
     },
     {
       key: "address",
-      label: "Street address",
+      label: "Street address (optional)",
       placeholder: "e.g. 1102 A St",
-      help: `City & state are added automatically (${city.name}, ${city.state}).`,
-      required: true,
+      help: `City & state are added automatically (${city.name}, ${city.state}). Skip it if you're not sure — we'll fill it in.`,
     },
     {
       key: "websiteUrl",
@@ -61,9 +60,9 @@ export default async function NewVenuePage({
         Add a {city.name} venue
       </h1>
       <p className="mt-2 text-text-muted">
-        Tell us about a spot we&apos;re missing — just the name, street address, and
-        website. We&apos;ll pull the happy-hour details from there and verify them
-        before anything goes live.
+        Tell us about a spot we&apos;re missing — just the name and website (a
+        street address helps but isn&apos;t required). We&apos;ll pull the
+        happy-hour details from there and verify them before anything goes live.
       </p>
 
       <div className="mt-8">
