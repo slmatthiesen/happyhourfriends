@@ -60,7 +60,7 @@ export interface PersistOptions {
  */
 export async function persistExtractedWindows(
   opts: PersistOptions,
-): Promise<{ windowsLive: number; windowsHidden: number; recovered: boolean }> {
+): Promise<{ windowsLive: number; windowsHidden: number; recovered: boolean; hiddenReasons: string[] }> {
   const { venueId, cityId, extracted, actor } = opts;
 
   await db.insert(aiUsageLedger).values({
@@ -109,6 +109,9 @@ export async function persistExtractedWindows(
 
   let live = 0;
   let hidden = 0;
+  // Why each hidden window was hidden — surfaced in the return so callers (seed:enrich
+  // report, admin) can tell the operator what to review without re-deriving the gates.
+  const hiddenReasons = new Set<string>();
   for (const hh of extracted.happyHours) {
     const recon = reconFor(hh);
     const reconActive = recon ? recon.active : true;
@@ -192,8 +195,16 @@ export async function persistExtractedWindows(
       })
       .returning({ id: happyHours.id, active: happyHours.active });
     if (!row) continue; // upsert always returns a row; guard satisfies the type
-    if (row.active) live++;
-    else hidden++;
+    if (row.active) {
+      live++;
+    } else {
+      hidden++;
+      // Aggregate every gate that voted this window down, for the caller's report.
+      if (verdict.suspect) for (const r of verdict.reasons) hiddenReasons.add(r);
+      if (!reconActive && recon) for (const r of recon.reasons) hiddenReasons.add(r);
+      if (provenanceSuspect) hiddenReasons.add("source_provenance");
+      if (hh.suspect) hiddenReasons.add("free_parse_implausible");
+    }
     // Insert only offerings not already on this window (key by name+price) — re-extraction must
     // not duplicate the existing set, but must add any the prior pass missed.
     const existingOff = await db
@@ -244,7 +255,7 @@ export async function persistExtractedWindows(
       .set({ dataCompleteness: "complete", lastVerifiedAt: new Date(), updatedAt: new Date() })
       .where(eq(venues.id, venueId));
   }
-  return { windowsLive: live, windowsHidden: hidden, recovered };
+  return { windowsLive: live, windowsHidden: hidden, recovered, hiddenReasons: [...hiddenReasons] };
 }
 
 export async function resolveVenue(opts: ResolveOptions): Promise<ResolveResult> {
