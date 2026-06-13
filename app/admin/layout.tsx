@@ -67,6 +67,12 @@ export default async function AdminLayout({
           >
             Flags
           </Link>
+          <Link
+            href="/admin/reviews"
+            className="text-text-primary hover:text-accent-cool"
+          >
+            Reviews
+          </Link>
         </nav>
         <div className="flex items-center gap-3 text-sm text-text-muted">
           <span>{admin.email}</span>
