@@ -12,11 +12,17 @@
  * See docs/superpowers/specs/2026-05-31-capture-everything-realness-filter-design.md.
  */
 
+import { HH_RE } from "@/lib/places/hhText";
+
 /** Below this overall extractor confidence, a window is hidden for review. */
 export const MIN_CONFIDENCE = 0.5;
 
 /** The deterministic signals the gate checks. Stable string ids — surfaced in reports. */
-export type RealnessReason = "all_day_many_days" | "no_time_window" | "low_confidence";
+export type RealnessReason =
+  | "all_day_many_days"
+  | "no_time_window"
+  | "low_confidence"
+  | "meal_special";
 
 export interface RealnessInput {
   /** Window runs the full open hours of its days (no clock window). */
@@ -27,6 +33,9 @@ export interface RealnessInput {
   timeKnown: boolean;
   /** Extract-level overall confidence (0..1) that the schedule is current/accurate. */
   confidence: number;
+  /** Offerings + window context for the meal-special rule; omit to skip that rule
+   *  (older callers keep their exact previous behavior). */
+  mealSpecial?: MealSpecialInput;
 }
 
 export interface RealnessVerdict {
@@ -48,8 +57,106 @@ export function assessRealness(input: RealnessInput): RealnessVerdict {
   if (input.allDay && input.dayCount >= 3) reasons.push("all_day_many_days");
   if (!input.timeKnown) reasons.push("no_time_window");
   if (input.confidence < MIN_CONFIDENCE) reasons.push("low_confidence");
+  if (input.mealSpecial && mealSpecialEvidence(input.mealSpecial)) reasons.push("meal_special");
 
   return { suspect: reasons.length > 0, reasons };
+}
+
+// ── meal_special — meal services / events stored as happy hours ─────────────────
+//
+// Born from the 2026-06-12 all-city price scan: ~20 LIVE windows were lunch menus,
+// dinner specials, prix fixes, and paint-and-sip events the extractor had captured
+// as happy hours. Three deterministic signals, each with near-zero hits on the real
+// (upscale) happy hours in the same scan. Like every gate signal this only HIDES
+// (active=false) for operator review — it never deletes.
+
+/** Meal-service / event language in an offering name or window notes. */
+export const MEAL_SPECIAL_RE =
+  /\b(?:prix[- ]?fixe|early[- ]?bird|lunch(?:eon)?|brunch|breakfast|dinner|supper|bottomless|paint\s*(?:and|&|'?n'?)\s*sip|\d+[- ]course)\b/i;
+
+/** Above this average offering price a meal-shaped time window becomes suspect
+ *  (operator's $12 line, 2026-06-12). Price alone NEVER fires — upscale HH is real. */
+export const MEAL_AVG_PRICE_CENTS = 1200;
+
+/** 1–2 priced items all at/above this → combo/entrée pricing, not a deal list. */
+export const MEAL_EXPENSIVE_ITEM_CENTS = 3000;
+
+export interface MealSpecialInput {
+  /** 24-hour "HH:MM[:SS]" or null. */
+  startTime: string | null;
+  endTime: string | null;
+  /** Extractor notes on the window. */
+  notes?: string | null;
+  /** Page the window was extracted from. */
+  sourceUrl?: string | null;
+  offerings: Array<{
+    name: string | null;
+    description?: string | null;
+    priceCents: number | null;
+  }>;
+}
+
+function toMinutes(t: string | null | undefined): number | null {
+  if (!t) return null;
+  const m = /^(\d{1,2}):(\d{2})/.exec(t);
+  return m ? Number(m[1]) * 60 + Number(m[2]) : null;
+}
+
+/**
+ * Why this window looks like meal service rather than a happy hour, or null when it
+ * doesn't. The string is operator-facing — surfaced verbatim in review reports so a
+ * hide is never unexplained. Signals (ANY fires):
+ *
+ *   1. meal-service language — prix fixe / lunch / brunch / dinner / early-bird /
+ *      bottomless / paint-and-sip / N-course in an offering name or the notes
+ *   2. meal-shaped clock window (lunch ≤12:00→≤16:00, or dinner ≥17:00→≥21:00)
+ *      AND average offering price above $12 — either alone is common in real HH
+ *   3. only 1–2 priced items, ALL ≥ $30 — combo/entrée pricing, not a deal list
+ *
+ * Veto: explicit happy-hour text anywhere (offering names, notes, source URL) clears
+ * all signals — a venue calling it a happy hour is evidence we keep (the D.Monaghans
+ * precedent from the hidden-window review).
+ */
+export function mealSpecialEvidence(input: MealSpecialInput): string | null {
+  const offeringText = input.offerings
+    .map((o) => `${o.name ?? ""} ${o.description ?? ""}`)
+    .join(" | ");
+  const windowText = `${offeringText} ${input.notes ?? ""}`;
+  if (HH_RE.test(windowText) || HH_RE.test(input.sourceUrl ?? "")) return null;
+
+  const evidence: string[] = [];
+
+  const token = MEAL_SPECIAL_RE.exec(windowText);
+  if (token) evidence.push(`meal-service language ("${token[0]}")`);
+
+  const priced = input.offerings
+    .map((o) => o.priceCents)
+    .filter((p): p is number => p != null && p > 0);
+  const avg = priced.length ? priced.reduce((a, b) => a + b, 0) / priced.length : null;
+  const start = toMinutes(input.startTime);
+  const end = toMinutes(input.endTime);
+
+  // end > start excludes crosses-midnight windows — late-night HH is real.
+  if (avg != null && avg > MEAL_AVG_PRICE_CENTS && start != null && end != null && end > start) {
+    const fmtAvg = `avg $${(avg / 100).toFixed(2)}`;
+    if (start <= 12 * 60 && end <= 16 * 60) {
+      evidence.push(`lunch-hours window with ${fmtAvg}`);
+    } else if (start >= 17 * 60 && end >= 21 * 60) {
+      evidence.push(`dinner-service window with ${fmtAvg}`);
+    }
+  }
+
+  if (
+    priced.length >= 1 &&
+    priced.length <= 2 &&
+    Math.min(...priced) >= MEAL_EXPENSIVE_ITEM_CENTS
+  ) {
+    evidence.push(
+      `only ${priced.length} priced item${priced.length === 1 ? "" : "s"}, all ≥ $${MEAL_EXPENSIVE_ITEM_CENTS / 100} (combo/entrée pricing)`,
+    );
+  }
+
+  return evidence.length ? evidence.join("; ") : null;
 }
 
 /**
