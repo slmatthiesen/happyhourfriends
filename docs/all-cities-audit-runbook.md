@@ -106,6 +106,34 @@ pnpm audit:data --city oakland --state ca
 
 ---
 
+## Phase 3b — Source provenance (FREE, all cities in ONE command)
+
+`audit:provenance` finds LIVE windows whose `source_url` does NOT trace to the venue's own
+website (the Depot Bar / Blanco failure mode — a sibling-brand domain, an aggregator, or a
+social post). The read-only counterpart to the persist-time guard in
+`lib/recover/sourceProvenance.ts`. **Omit `--city` to scan every city at once.**
+
+```
+pnpm audit:provenance                 # all cities → docs/audits/provenance-audit-<date>.{json,md,csv}
+```
+
+- Report only; nothing is changed. Suggested `action` is **hide** for every flagged window.
+- Edit the `action` column: leave `hide` to hide it (active=false, non-destructive — stays
+  for review, venue NOT deleted), or flip to `keep_live` for a FALSE POSITIVE (the source IS
+  the venue's own domain variant / CDN / parent-group site). You only edit the keepers — the
+  default hides.
+- `venueLiveWindows = 1` means hiding that row leaves the venue with no public happy hour
+  (it becomes a stub). That's the correct first-party-only tradeoff, but worth eyeballing.
+- For a legit shared menu host that keeps getting flagged (e.g. a tap-list platform), add it
+  to `MENU_HOSTS` in `lib/recover/sourceProvenance.ts` so the live persist gate stops
+  flagging it on future writes.
+
+```
+pnpm audit:provenance --apply docs/audits/provenance-audit-<date>.csv
+```
+
+---
+
 ## Phase 4 — Corrections (PAID, optional, per city)
 
 `audit:fix` re-fetches a flagged venue's own pages and applies a reversible correction.
@@ -128,15 +156,45 @@ keeps wasted extractions off the bill (HTML junk pages → Haiku skip; only real
 
 ---
 
+## Phase 5 — Quality curation (FREE, per city, DESTRUCTIVE)
+
+`audit:quality` scores every venue against the "20-40 metropolitan, appetizer + a drink" bar
+and suggests dropping venues with **no live happy hour AND** (no alcohol evidence anywhere OR
+a confidently-bad site). Read-only report; re-fetches each venue's own pages over plain HTTP
+($0, no API). Run this **LAST** — after stub recovery (Phase 4 / `reextract:stubs:free`) so
+you don't drop a venue a cheap re-extract would have filled.
+
+```
+pnpm audit:quality --city <slug> --state <code>   # → docs/audits/quality-audit-<city>-<date>.{json,md,csv}
+```
+
+- Edit the `verdict` column to exactly `drop?` / `keep` / `review` (any other value aborts
+  the apply before touching the DB). Only `drop?` rows act; each keeps its `venueId`.
+- `--apply` **soft-deletes** every `drop?` venue (deactivates its happy_hours + sets
+  `deleted_at` + audit_log) — reversible, same as `remove:venues`. **Review the CSV first**:
+  a `live`-site drop means "we read the site and found no alcohol wording", which can be a
+  false drop for a sit-down restaurant that has a bar.
+
+```
+pnpm audit:quality --apply docs/audits/quality-audit-<city>-<date>.csv
+```
+
+---
+
 ## Quick free-only sweep (copy/paste)
 
-Neighborhoods + duplicate dedup (apply) + anomaly flagging, all free:
+Neighborhoods + duplicate dedup (apply) + anomaly flagging + provenance, all free:
 
 ```
 pnpm backfill:neighborhoods
 for c in "tacoma wa" "tucson az" "phoenix-central az" "scottsdale az" "spokane wa" "daly-city ca" "five-cities ca" "oakland ca"; do set -- $c; pnpm reconcile:windows --city $1 --state $2 --apply; done
 for c in "tacoma wa" "tucson az" "phoenix-central az" "scottsdale az" "spokane wa" "daly-city ca" "five-cities ca" "oakland ca"; do set -- $c; pnpm audit:data --city $1 --state $2; done
+pnpm audit:provenance   # all cities in one shot → edit actions → --apply
 ```
+
+> Provenance and the Phase-5 quality curation produce report files you edit before `--apply`
+> — they are not part of the unattended sweep above. `review:hidden` and `review:meal-specials`
+> likewise each generate their own report → edit → apply cycle (all cities when run bare).
 
 (Run the dry-run `reconcile:windows` without `--apply` first if you want to eyeball the merge
 counts before writing.)

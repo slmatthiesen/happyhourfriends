@@ -30,6 +30,13 @@ check("happy hour wording → alcohol", () =>
   assert.equal(hasAlcoholContent("Happy Hour Mon-Fri 3-6pm"), true));
 check("21+ wording → alcohol", () =>
   assert.equal(hasAlcoholContent("Must be 21+ to enter the lounge"), true));
+check("sake / soju / izakaya → alcohol (Japanese/Korean spots)", () => {
+  assert.equal(hasAlcoholContent("Hot sake and a nigori flight"), true);
+  assert.equal(hasAlcoholContent("Korean BBQ with soju and beer"), true);
+  assert.equal(hasAlcoholContent("A modern izakaya in the heart of downtown"), true);
+});
+check("'for the sake of' idiom does NOT false-match sake", () =>
+  assert.equal(hasAlcoholContent("For the sake of freshness we make everything daily"), false));
 
 check("family-restaurant menu with no drinks → NOT alcohol", () =>
   assert.equal(hasAlcoholContent("Fried rice, chow mein, dim sum, jasmine tea, boba"), false));
