@@ -60,6 +60,7 @@ import { assessRealness, windowShouldBeActive, type RealnessReason } from "@/lib
 import { renderKillReport, type KillEntry, type KillReason } from "@/lib/places/killReport";
 import { writeFile } from "node:fs/promises";
 import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
+import { mapWithConcurrency } from "@/lib/async/mapWithConcurrency";
 
 // ---------------------------------------------------------------------------
 // Arg parsing
@@ -457,7 +458,14 @@ async function main() {
     process.exit(0);
   }
 
-  const sql = postgres(dbUrl, { max: 1 });
+  // The enrich loop runs candidates through a bounded worker pool; size the DB pool
+  // to match (+headroom) so concurrent candidates don't queue on a single connection.
+  // Override with SEED_ENRICH_CONCURRENCY if a run trips an API/site rate limit.
+  const enrichConcurrency = Math.max(
+    1,
+    Number(process.env.SEED_ENRICH_CONCURRENCY) || 6,
+  );
+  const sql = postgres(dbUrl, { max: enrichConcurrency + 2 });
 
   try {
     // ---- Resolve city row --------------------------------------------------
@@ -505,74 +513,89 @@ async function main() {
     const killEntries: KillEntry[] = [];
     const month = firstOfCurrentMonth();
 
-    for (let i = 0; i < candidates.length; i++) {
-      const candidate = candidates[i];
-      console.log(
-        `[${i + 1}/${candidates.length}] ${candidate.name} (id=${candidate.id})…`,
-      );
+    // Each candidate's work is independent — distinct host, no per-candidate Google
+    // call (discovery already captured website/hours/phone, migration 0016), its own
+    // DB writes. So we run them through a bounded worker pool instead of a serial
+    // loop + 500ms sleep: the in-flight cap is the only rate ceiling that matters,
+    // and it respects the DB pool (max below) and the Anthropic/site rate limits.
+    // Concurrency (and the matching DB pool size) is resolved once at startup above.
+    type EnrichResult =
+      | { kind: "filtered" }
+      | { kind: "skipped" }
+      | { kind: "killed"; killEntry: KillEntry }
+      | { kind: "outcome"; active: number; hidden: number }
+      | { kind: "error" };
 
-      // National-chain gate (defensive — discovery already filters these).
-      if (isDenylistedChain(candidate.name)) {
-        console.log("  ↷ skip — national chain");
-        await markProcessed(sql, candidate.id, "no_hh_found", null, { skipOutcome: true });
-        nFiltered++;
-        continue;
-      }
-
-      // Format gate: buffets / AYCE — these don't run happy hours.
-      if (isLikelyNoHappyHourFormat(candidate.name)) {
-        console.log("  ↷ skip — buffet/AYCE format");
-        await markProcessed(sql, candidate.id, "no_hh_found", null, { skipOutcome: true });
-        nFiltered++;
-        continue;
-      }
-
-      // Skip candidates already mapped to a venue (deduped by place_id).
-      if (candidate.google_place_id) {
-        const [existing] = await sql<{ id: string }[]>`
-          SELECT id FROM venues WHERE google_place_id = ${candidate.google_place_id}
-        `;
-        if (existing) {
-          console.log("  ↷ skip — already a venue (place_id matched)");
-          await sql`
-            UPDATE seed_candidates
-            SET processed_at = now(), resulting_venue_id = ${existing.id}, updated_at = now()
-            WHERE id = ${candidate.id}
-          `;
-          nSkipped++;
-          continue;
-        }
-      }
-
-      // --no-websearch + no website: skip paid web_search. But never DROP a high-HH-
-      // likelihood spot just because it has no site — POPULATE it as a $0 crowdsource
-      // stub (carrying captured phone/hours) so it's listed. Only candidates that fail
-      // the alcohol gate (non-alcohol) are filtered, same as the site-having path.
-      if (args.noWebsearch && !candidate.website_url) {
-        if (!passesAlcoholGate(candidate)) {
-          console.log("  ↷ filtered — no site, no alcohol signal");
-          await markProcessed(sql, candidate.id, "no_hh_found", null, { skipOutcome: true });
-          nFiltered++;
-          continue;
-        }
-        const persisted = await persistExtraction(sql, {
-          cityId: city.id,
-          ctx: stubCtxFor(candidate),
-          extracted: null,
-        });
-        await markProcessed(sql, candidate.id, persisted.outcome, persisted.venueId);
-        nNoHhFound++;
-        console.log("  ◦ no-site stub kept (high HH likelihood — crowdsource)");
-        continue;
-      }
-
-      let outcome: SeedOutcome = "error";
-      let resultingVenueId: string | null = null;
-      let activeThis = 0;
-      let hiddenThis = 0;
-      let hiddenReasonsThis: RealnessReason[] = [];
+    // Process one candidate. Buffers its log lines and flushes them as one block so
+    // concurrent candidates don't interleave their output. Returns a tally token; the
+    // caller folds these into the counters AFTER the pool drains (deterministic).
+    // Re-throws PlaceDetailsQuotaError so the pool fail-fasts and the run aborts with
+    // unprocessed candidates left for retry — same semantics as the old serial throw.
+    const processCandidate = async (
+      candidate: SeedCandidate,
+      index: number,
+    ): Promise<EnrichResult> => {
+      const lines: string[] = [];
+      const say = (s: string) => lines.push(s);
+      const flush = () =>
+        console.log(
+          [
+            `[${index + 1}/${candidates.length}] ${candidate.name} (id=${candidate.id})…`,
+            ...lines,
+          ].join("\n"),
+        );
 
       try {
+        // National-chain gate (defensive — discovery already filters these).
+        if (isDenylistedChain(candidate.name)) {
+          say("  ↷ skip — national chain");
+          await markProcessed(sql, candidate.id, "no_hh_found", null, { skipOutcome: true });
+          return { kind: "filtered" };
+        }
+
+        // Format gate: buffets / AYCE — these don't run happy hours.
+        if (isLikelyNoHappyHourFormat(candidate.name)) {
+          say("  ↷ skip — buffet/AYCE format");
+          await markProcessed(sql, candidate.id, "no_hh_found", null, { skipOutcome: true });
+          return { kind: "filtered" };
+        }
+
+        // Skip candidates already mapped to a venue (deduped by place_id).
+        if (candidate.google_place_id) {
+          const [existing] = await sql<{ id: string }[]>`
+            SELECT id FROM venues WHERE google_place_id = ${candidate.google_place_id}
+          `;
+          if (existing) {
+            say("  ↷ skip — already a venue (place_id matched)");
+            await sql`
+              UPDATE seed_candidates
+              SET processed_at = now(), resulting_venue_id = ${existing.id}, updated_at = now()
+              WHERE id = ${candidate.id}
+            `;
+            return { kind: "skipped" };
+          }
+        }
+
+        // --no-websearch + no website: skip paid web_search. But never DROP a high-HH-
+        // likelihood spot just because it has no site — POPULATE it as a $0 crowdsource
+        // stub (carrying captured phone/hours) so it's listed. Only candidates that fail
+        // the alcohol gate (non-alcohol) are filtered, same as the site-having path.
+        if (args.noWebsearch && !candidate.website_url) {
+          if (!passesAlcoholGate(candidate)) {
+            say("  ↷ filtered — no site, no alcohol signal");
+            await markProcessed(sql, candidate.id, "no_hh_found", null, { skipOutcome: true });
+            return { kind: "filtered" };
+          }
+          const persisted = await persistExtraction(sql, {
+            cityId: city.id,
+            ctx: stubCtxFor(candidate),
+            extracted: null,
+          });
+          await markProcessed(sql, candidate.id, persisted.outcome, persisted.venueId);
+          say("  ◦ no-site stub kept (high HH likelihood — crowdsource)");
+          return { kind: "outcome", active: 0, hidden: 0 };
+        }
+
         // ---- Use the website/price/hours/phone captured at discovery (migration 0016) --
         // No per-candidate Place Details call: discovery already gives us name + URL, which
         // is all the extractor needs to scrape. Saves ~$0.04/candidate in Google calls.
@@ -582,10 +605,9 @@ async function main() {
         // null (not captured for this city), the candidate passes — slip-throughs become
         // cheap stubs, not paid extractions.
         if (!passesAlcoholGate(candidate)) {
-          console.log("  ↷ filtered — Google reports no alcohol served");
+          say("  ↷ filtered — Google reports no alcohol served");
           await markProcessed(sql, candidate.id, "no_hh_found", null, { skipOutcome: true });
-          nFiltered++;
-          continue;
+          return { kind: "filtered" };
         }
 
         const siteUrl = candidate.website_url ?? null;
@@ -604,17 +626,18 @@ async function main() {
         const decided = resolveEnrichAction(verdict, likelihood);
 
         if (decided.action === "kill") {
-          console.log(`  ✗ kill — ${decided.reason}`);
-          killEntries.push({
-            name: candidate.name,
-            neighborhood: null,
-            reason: killReasonOf(verdict.reason),
-            urlTried: verdict.url,
-            likelihood,
-          });
+          say(`  ✗ kill — ${decided.reason}`);
           await markProcessed(sql, candidate.id, "killed_no_site", null);
-          nKilled++;
-          continue;
+          return {
+            kind: "killed",
+            killEntry: {
+              name: candidate.name,
+              neighborhood: null,
+              reason: killReasonOf(verdict.reason),
+              urlTried: verdict.url,
+              likelihood,
+            },
+          };
         }
 
         // extract: real reachable site (use HH links) OR no-site go-for-it (web_search).
@@ -633,12 +656,12 @@ async function main() {
 
         if (extracted) {
           await writeLedger(sql, city.id, month, extracted);
-          console.log(
+          say(
             `  → confidence=${extracted.confidence.toFixed(2)}, cost=${extracted.costCents}¢, ` +
               `${extracted.happyHours.length} window(s)`,
           );
         } else {
-          console.log("  → stub (social/ordering link only)");
+          say("  → stub (social/ordering link only)");
         }
 
         const ctx: PrepContext = {
@@ -662,55 +685,76 @@ async function main() {
           ctx,
           extracted,
         });
-        outcome = persisted.outcome;
-        resultingVenueId = persisted.venueId;
-        activeThis = persisted.activeCount;
-        hiddenThis = persisted.hiddenCount;
-        hiddenReasonsThis = persisted.hiddenReasons;
-        const hiddenNote = hiddenThis
-          ? ` · ${hiddenThis} hidden for review (${hiddenReasonsThis.join(", ")})`
+        await markProcessed(sql, candidate.id, persisted.outcome, persisted.venueId);
+
+        const hiddenNote = persisted.hiddenCount
+          ? ` · ${persisted.hiddenCount} hidden for review (${persisted.hiddenReasons.join(", ")})`
           : "";
-        if (activeThis > 0) {
-          console.log(`  ✓ ${activeThis} HH window(s) live${hiddenNote}`);
-        } else if (hiddenThis > 0) {
-          console.log(`  ⊘ ${hiddenThis} window(s) captured but hidden for review (${hiddenReasonsThis.join(", ")})`);
+        if (persisted.activeCount > 0) {
+          say(`  ✓ ${persisted.activeCount} HH window(s) live${hiddenNote}`);
+        } else if (persisted.hiddenCount > 0) {
+          say(`  ⊘ ${persisted.hiddenCount} window(s) captured but hidden for review (${persisted.hiddenReasons.join(", ")})`);
         } else {
-          console.log("  ◦ likely-HH stub kept (no data found — crowdsource)");
+          say("  ◦ likely-HH stub kept (no data found — crowdsource)");
         }
+        return { kind: "outcome", active: persisted.activeCount, hidden: persisted.hiddenCount };
       } catch (err) {
-        // Quota exhausted → ABORT; the candidate is NOT marked processed so it retries.
+        // Quota exhausted → ABORT the whole run; the candidate is NOT marked processed
+        // so it retries. Re-throw so the worker pool fail-fasts and stops scheduling.
         if (err instanceof PlaceDetailsQuotaError) {
-          console.error(`\n${err.message}\n`);
-          console.error(
-            `Aborting run at candidate ${i + 1}/${candidates.length}. ` +
-              `${i} candidate(s) processed so far; the rest stay unprocessed for retry.`,
-          );
+          say(`  ✗ ABORT — quota exhausted: ${err.message}`);
           throw err;
         }
         console.error(`  ERROR processing candidate ${candidate.id}:`, err);
-        outcome = "error";
+        try {
+          await markProcessed(sql, candidate.id, "error", null);
+        } catch (markErr) {
+          console.error(
+            `  ERROR updating seed_candidate ${candidate.id} after processing:`,
+            markErr,
+          );
+        }
+        say("  ✗ error (see stack above)");
+        return { kind: "error" };
+      } finally {
+        flush();
       }
+    };
 
-      // ---- Mark candidate as processed -------------------------------------
-      try {
-        await markProcessed(sql, candidate.id, outcome, resultingVenueId);
-      } catch (err) {
-        console.error(
-          `  ERROR updating seed_candidate ${candidate.id} after processing:`,
-          err,
-        );
-      }
+    console.log(`  (processing with concurrency ${enrichConcurrency})`);
+    const results = await mapWithConcurrency(
+      candidates,
+      enrichConcurrency,
+      processCandidate,
+      // Space worker starts so a full pool doesn't burst the Anthropic API and trip a
+      // per-minute limit (a lockout can stall ops for up to 24h — far costlier than
+      // the few seconds this adds). Tune via SEED_ENRICH_SPACING_MS.
+      { minSpacingMs: Math.max(0, Number(process.env.SEED_ENRICH_SPACING_MS) || 100) },
+    );
 
-      // Tally — split by what's PUBLICLY visible: live windows vs. captured-but-hidden.
-      nHiddenWindows += hiddenThis;
-      if (outcome === "error") nError++;
-      else if (activeThis > 0) nConfirmed++;
-      else if (hiddenThis > 0) nHiddenOnly++;
-      else nNoHhFound++;
-
-      // Conservative pace between candidates to avoid rate limits.
-      if (i < candidates.length - 1) {
-        await new Promise((resolve) => setTimeout(resolve, 500));
+    // ---- Fold per-candidate tallies into the counters (deterministic, post-pool) --
+    for (const r of results) {
+      switch (r.kind) {
+        case "filtered":
+          nFiltered++;
+          break;
+        case "skipped":
+          nSkipped++;
+          break;
+        case "killed":
+          nKilled++;
+          killEntries.push(r.killEntry);
+          break;
+        case "error":
+          nError++;
+          break;
+        case "outcome":
+          // Split by what's PUBLICLY visible: live windows vs. captured-but-hidden.
+          nHiddenWindows += r.hidden;
+          if (r.active > 0) nConfirmed++;
+          else if (r.hidden > 0) nHiddenOnly++;
+          else nNoHhFound++;
+          break;
       }
     }
 
