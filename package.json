@@ -110,6 +110,7 @@
     "test:routes": "tsx scripts/test-routes.ts",
     "test:resolve-city": "tsx scripts/test-resolve-city.ts",
     "test:offering-sanity": "tsx scripts/test-offering-sanity.ts",
+    "test:persist-unified": "tsx scripts/test-persist-unified.ts",
     "test:adjudicate-flag": "tsx scripts/test-adjudicate-flag.ts",
     "test:machine-text": "tsx scripts/test-machine-text.ts",
     "test:map-concurrency": "tsx scripts/test-map-concurrency.ts",
