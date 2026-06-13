@@ -17,7 +17,9 @@
  *   Apply (after you review + edit the `action` fields, .json or .csv):
  *     pnpm audit:provenance --apply docs/audits/provenance-audit-<date>.csv
  *   → hide: active=false (NON-destructive — window stays for review, never deleted),
- *     writes audit_log. keep_live: left untouched.
+ *     writes audit_log. keep_live: REACTIVATES a previously-hidden window (idempotent — so
+ *     re-applying after an earlier hide restores it); never touches a soft-deleted window
+ *     (operator deletes are final).
  *
  * Requires DATABASE_URL only.
  */
@@ -225,10 +227,24 @@ async function runApply(path: string) {
   const sql = postgres(DATABASE_URL, { max: 4 });
   let hidden = 0;
   let kept = 0;
+  let reactivated = 0;
   try {
     for (const e of decisions) {
       if (e.action === "keep_live") {
-        kept++;
+        // keep_live is idempotent: if an earlier apply hid this window, bring it back so the
+        // operator's reviewed decision wins. Only a currently-hidden, NON-deleted window is
+        // reactivated — a soft-deleted window stays deleted (operator deletes are final).
+        const [row] = await sql`
+          SELECT active FROM happy_hours WHERE id = ${e.happyHourId} AND deleted_at IS NULL
+        `;
+        if (!row || row.active) { kept++; continue; } // already live / deleted / unknown — leave it
+        await sql`UPDATE happy_hours SET active = true, updated_at = now() WHERE id = ${e.happyHourId}`;
+        await sql`
+          INSERT INTO audit_log (table_name, row_id, before_jsonb, after_jsonb, actor, reason)
+          VALUES ('happy_hours', ${e.happyHourId}, ${sql.json({ active: false })},
+                  ${sql.json({ active: true })}, 'admin', 'provenance audit: keep_live — source confirmed venue-owned, reactivating')
+        `;
+        reactivated++;
         continue;
       }
       // hide: only act on a currently-live, non-deleted window.
@@ -244,7 +260,7 @@ async function runApply(path: string) {
       `;
       hidden++;
     }
-    console.log(`hidden ${hidden}, kept live ${kept}`);
+    console.log(`hidden ${hidden}, reactivated ${reactivated}, kept live ${kept}`);
   } finally {
     await sql.end();
   }
