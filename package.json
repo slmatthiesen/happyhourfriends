@@ -47,6 +47,8 @@
     "reconcile:windows": "tsx scripts/reconcile-windows.ts",
     "audit:data": "tsx scripts/audit-data.ts",
     "audit:provenance": "tsx scripts/audit-provenance.ts",
+    "audit:quality": "tsx scripts/audit-quality.ts",
+    "test:venue-quality": "tsx scripts/test-venue-quality.ts",
     "audit:fix": "tsx scripts/audit-fix.ts",
     "export:flag-labels": "tsx scripts/export-flag-labels.ts",
     "eval:flags": "tsx scripts/eval-flag-rules.ts",
