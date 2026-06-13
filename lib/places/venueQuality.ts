@@ -41,6 +41,13 @@ const ALCOHOL_CONTENT_PATTERNS: RegExp[] = [
   /\bpilsners?\b/i,
   /\bwine list\b/i,
   /\bby the glass\b/i,
+  // Asian beverage signals — Japanese/Korean spots (sushi, ramen, izakaya, BBQ) serve
+  // alcohol their menus name as sake/soju, which the western-centric list above misses.
+  // `sake` excludes the "for the sake of" idiom; even a stray match only KEEPS a venue
+  // (this gate is recall-biased), so erring toward inclusion is safe.
+  /\bsake\b(?!\s+of\b)/i,
+  /\bsoju\b/i,
+  /\bizakaya\b/i,
   /\b(red|white|glass of) wine\b/i,
   /\bbeer\s*(?:&|and)\s*wine\b/i,
   /\bwine\s*(?:&|and)\s*beer\b/i,
