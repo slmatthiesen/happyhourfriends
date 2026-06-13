@@ -134,6 +134,21 @@ PGPASSWORD=hhf docker compose exec -T db psql -U hhf -d happyhourfriends -c \
 pnpm run ai:spend
 ```
 
+### Meal-special review — live windows that look like meal service, not HH ($0)
+
+The meal-special gate hides lunch menus / dinner specials / prix fixes / events at
+ingest going forward. This sweeps what's ALREADY live (flags evidence hits + every
+window averaging > $12; suggests `hide` only with stated evidence — never on price
+alone, never when the venue itself says "happy hour"):
+
+```bash
+pnpm review:meal-specials                          # report only, no writes
+# edit the action column (keep / hide / delete) in the .csv or .json, then:
+pnpm review:meal-specials --apply docs/meal-special-review-<date>.csv
+# hide = active=false (reversible); delete = permanent (never re-inserted);
+# a venue losing its last live window downgrades back to stub automatically.
+```
+
 ---
 
 ## 6. Deploy / data sync (see docs/data-sync-runbook.md)

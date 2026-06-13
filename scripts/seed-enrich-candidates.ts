@@ -302,6 +302,17 @@ async function persistExtraction(
       dayCount: days.length,
       timeKnown: hh.timeKnown,
       confidence: extracted!.confidence,
+      mealSpecial: {
+        startTime: hh.startTime,
+        endTime: hh.endTime,
+        notes: hh.notes,
+        sourceUrl: hh.sourceUrl,
+        offerings: hh.offerings.map((o) => ({
+          name: o.name,
+          description: o.description,
+          priceCents: o.priceCents,
+        })),
+      },
     });
     return { hh, days, verdict };
   });

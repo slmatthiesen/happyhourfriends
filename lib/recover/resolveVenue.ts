@@ -117,6 +117,17 @@ export async function persistExtractedWindows(
       dayCount: days.length,
       timeKnown: hh.timeKnown,
       confidence: extracted.confidence,
+      mealSpecial: {
+        startTime: hh.startTime,
+        endTime: hh.endTime,
+        notes: hh.notes,
+        sourceUrl: hh.sourceUrl,
+        offerings: hh.offerings.map((o) => ({
+          name: o.name,
+          description: o.description,
+          priceCents: o.priceCents,
+        })),
+      },
     });
     // An operator-deleted window must NEVER come back: the natural-key unique index is
     // partial (deleted_at IS NULL), so a re-extraction of the same page would re-insert
