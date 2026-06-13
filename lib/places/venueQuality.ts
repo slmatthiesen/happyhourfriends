@@ -125,8 +125,11 @@ export function classifySiteHealth(p: SiteHealthInput): SiteHealth {
 
 // ── curation verdict ───────────────────────────────────────────────────────────
 // keep | drop? | review. NEVER "drop?" a venue we couldn't read (blocked/unreadable/
-// social-only with no other signal) — that's "review", not a confident dry verdict.
-const DEAD_CLASS = new Set<SiteHealth>(["dead", "squatter", "parked", "no-site"]);
+// social-only) — that's "review". And NEVER drop a real bar that simply has no website:
+// a no-site venue with alcohol-by-type (Kona Club, Laurel Lounge) is a crowdsource stub,
+// flagged for review. A site that EXISTED and is now dead/squatter/parked is different
+// (likely closed) → it still overrides alcohol.
+const DEAD_SITE = new Set<SiteHealth>(["dead", "squatter", "parked"]);
 
 export function qualityVerdict(p: {
   hhLive: number;
@@ -134,11 +137,13 @@ export function qualityVerdict(p: {
   health: SiteHealth;
 }): "keep" | "drop?" | "review" {
   if (p.hhLive > 0) return "keep";
-  // Alcohol evidence rescues a venue unless its site is genuinely dead (no usable site).
-  if (p.anyAlcohol && !DEAD_CLASS.has(p.health)) return "keep";
-  if (DEAD_CLASS.has(p.health) || p.health === "menu-platform") return "drop?";
-  // We actually READ the site and found no alcohol + no HH → a genuinely dry spot.
-  if (p.health === "live" || p.health === "broken-https") return "drop?";
-  // blocked / unreadable / social-only with no signal → we can't confirm dry.
-  return "review";
+  if (p.anyAlcohol) {
+    if (p.health === "no-site") return "review"; // real venue, just no website → crowdsource, flag
+    if (!DEAD_SITE.has(p.health)) return "keep"; // alcohol on a reachable/unreadable site
+    return "drop?"; // alcohol but the site is dead/squatter/parked (likely closed)
+  }
+  // No alcohol evidence anywhere:
+  if (DEAD_SITE.has(p.health) || p.health === "no-site" || p.health === "menu-platform") return "drop?";
+  if (p.health === "live" || p.health === "broken-https") return "drop?"; // read it, dry
+  return "review"; // blocked / unreadable / social-only — can't confirm dry
 }
