@@ -23,7 +23,7 @@
 import "dotenv/config";
 import { writeFileSync } from "node:fs";
 import postgres from "postgres";
-import { requireCityArgs } from "@/lib/cities/resolveCity";
+import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 import { fetchUrl } from "@/lib/verification/fetchUrl";
 import { hasAlcoholSignal } from "@/lib/places/chainDenylist";
 import { hasAlcoholContent, isSquatterHtml } from "@/lib/places/venueQuality";
@@ -106,14 +106,17 @@ async function main() {
   if (!DATABASE_URL) { console.error("ERROR: DATABASE_URL is required."); process.exit(1); }
   const sql = postgres(DATABASE_URL, { max: 4 });
   try {
+    // Resolve the (slug, state) pair to one city_id — case-insensitive on both, the
+    // canonical path. A raw `c.state = 'ca'` compare silently returns 0 rows when the DB
+    // stores state uppercase (the bug that made the first daly-city run scan 0 venues).
+    const city = await resolveCity(sql, cityArgs.slug, cityArgs.state);
     const venues = await sql<
       { id: string; name: string; type: string | null; website_url: string | null; hh_live: number }[]
     >`
       SELECT v.id, v.name, v.type, v.website_url,
         (SELECT count(*)::int FROM happy_hours h WHERE h.venue_id = v.id AND h.active AND h.deleted_at IS NULL) AS hh_live
-      FROM venues v JOIN cities c ON c.id = v.city_id
-      WHERE v.deleted_at IS NULL AND v.status = 'active'
-        AND c.slug = ${cityArgs.slug} AND c.state = ${cityArgs.state}
+      FROM venues v
+      WHERE v.deleted_at IS NULL AND v.status = 'active' AND v.city_id = ${city.id}
       ORDER BY v.name
       ${limit ? sql`LIMIT ${limit}` : sql``}
     `;
