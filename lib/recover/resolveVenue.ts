@@ -75,7 +75,7 @@ export async function persistExtractedWindows(
   });
 
   const [venueRow] = await db
-    .select({ hoursJson: venues.hoursJson, websiteUrl: venues.websiteUrl })
+    .select({ hoursJson: venues.hoursJson, websiteUrl: venues.websiteUrl, priceLevel: venues.priceLevel })
     .from(venues)
     .where(eq(venues.id, venueId))
     .limit(1);
@@ -205,7 +205,7 @@ export async function persistExtractedWindows(
     const seenOff = new Set(existingOff.map((o) => `${offeringNameKey(o.name)}|${o.priceCents ?? ""}`));
     // $0 deterministic cleanup: dedupe exact repeats, re-kind food mislabeled as drink,
     // and flag day-specific items that don't match this window's days (warn-only).
-    const sanitized = sanitizeOfferings(hh.offerings, days);
+    const sanitized = sanitizeOfferings(hh.offerings, days, { priceLevel: venueRow?.priceLevel ?? null });
     for (const off of sanitized.offerings) {
       const offKey = `${offeringNameKey(off.name)}|${off.priceCents ?? ""}`;
       if (seenOff.has(offKey)) continue;
