@@ -279,4 +279,52 @@ check("assessRealness without mealSpecial input behaves exactly as before", () =
   assert.equal(r.suspect, false);
 });
 
+// ── bare-window gate (diagnosis bucket #2) ──────────────────────────────────────
+// A time window with ZERO offerings AND no happy-hour wording on its source is
+// operating hours or a lunch/menu page captured as a deal — hide for review.
+// Goldens from the 2026-06-13 diagnosis (Quarterdeck, Sliver Pizzeria).
+const bare = (over: Partial<Parameters<typeof assessRealness>[0]["mealSpecial"]> = {}) => ({
+  allDay: false,
+  dayCount: 5,
+  timeKnown: true,
+  confidence: 0.9,
+  mealSpecial: { startTime: "15:00", endTime: "17:00", notes: null, sourceUrl: null, offerings: [], ...over },
+});
+
+check("GOLDEN Quarterdeck: M–F 3–5pm, no offerings, menu-page source IS suspect", () => {
+  const r = assessRealness(bare({ sourceUrl: "https://thequarterdeck.com/menu" }));
+  assert.equal(r.suspect, true);
+  assert.ok(r.reasons.includes("no_offerings_no_hh_text"));
+});
+
+check("GOLDEN Sliver: M–F window from a /lunch-deals page, no offerings IS suspect", () => {
+  const r = assessRealness(bare({ startTime: "14:00", endTime: "16:30", sourceUrl: "https://sliverpizzeria.com/lunch-deals" }));
+  assert.equal(r.suspect, true);
+  assert.ok(r.reasons.includes("no_offerings_no_hh_text"));
+});
+
+check("bare window VETOED by 'happy hour' in notes stays live (North Italia)", () => {
+  const r = assessRealness(bare({ notes: "Happy Hour Mon–Fri 3–6pm in the bar" }));
+  assert.equal(r.reasons.includes("no_offerings_no_hh_text"), false);
+});
+
+check("bare window VETOED by a /happy-hour source URL stays live", () => {
+  const r = assessRealness(bare({ sourceUrl: "https://example.com/happy-hour" }));
+  assert.equal(r.reasons.includes("no_offerings_no_hh_text"), false);
+});
+
+check("'social hour' wording also vetoes the bare-window gate", () => {
+  const r = assessRealness(bare({ notes: "Social Hour 3–5pm" }));
+  assert.equal(r.reasons.includes("no_offerings_no_hh_text"), false);
+});
+
+check("a window WITH offerings is never a bare phantom (even with no HH wording)", () => {
+  const r = assessRealness({
+    allDay: false, dayCount: 5, timeKnown: true, confidence: 0.9,
+    mealSpecial: { startTime: "16:00", endTime: "18:00", notes: null, sourceUrl: "https://x.com/menu", offerings: [off("Draft beer", 5)] },
+  });
+  assert.equal(r.reasons.includes("no_offerings_no_hh_text"), false);
+  assert.equal(r.suspect, false);
+});
+
 console.log(`\n${passed} checks passed.`);

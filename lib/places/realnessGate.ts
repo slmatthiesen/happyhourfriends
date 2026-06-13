@@ -22,7 +22,8 @@ export type RealnessReason =
   | "all_day_many_days"
   | "no_time_window"
   | "low_confidence"
-  | "meal_special";
+  | "meal_special"
+  | "no_offerings_no_hh_text";
 
 export interface RealnessInput {
   /** Window runs the full open hours of its days (no clock window). */
@@ -50,6 +51,7 @@ export interface RealnessVerdict {
  *  - all-day on 3+ days     → almost always regular pricing, not a happy hour
  *  - no usable time at all   → can never be shown as "happening now"
  *  - low overall confidence  → the extractor wasn't sure the schedule is real/current
+ *  - no offerings + no HH text → operating hours / lunch menu, not a deal (bucket #2)
  */
 export function assessRealness(input: RealnessInput): RealnessVerdict {
   const reasons: RealnessReason[] = [];
@@ -58,6 +60,7 @@ export function assessRealness(input: RealnessInput): RealnessVerdict {
   if (!input.timeKnown) reasons.push("no_time_window");
   if (input.confidence < MIN_CONFIDENCE) reasons.push("low_confidence");
   if (input.mealSpecial && mealSpecialEvidence(input.mealSpecial)) reasons.push("meal_special");
+  if (input.mealSpecial && bareWindowNoHhEvidence(input.mealSpecial)) reasons.push("no_offerings_no_hh_text");
 
   return { suspect: reasons.length > 0, reasons };
 }
@@ -157,6 +160,23 @@ export function mealSpecialEvidence(input: MealSpecialInput): string | null {
   }
 
   return evidence.length ? evidence.join("; ") : null;
+}
+
+// ── bare-window gate (diagnosis 2026-06-13, bucket #2) ──────────────────────────
+//
+// A recurring time window with ZERO offerings AND no happy-hour wording on its
+// source is operating hours or a lunch/menu page captured as a deal, not a happy
+// hour (The Quarterdeck's M–F 3–5pm with nothing on it; Sliver's window lifted from
+// a /lunch-deals page). We deliberately KEEP bare windows that DO say "happy hour"
+// (a real window often lists no itemized prices — North Italia's "Mon–Fri 3–6pm"),
+// so the HH_RE veto over notes + source URL is the discriminator. Like every gate
+// signal this only HIDES (active=false) for review — it never deletes.
+
+/** True when a window has no offerings AND nothing on it reads as a happy hour. */
+export function bareWindowNoHhEvidence(input: MealSpecialInput): boolean {
+  if (input.offerings.length > 0) return false; // has deals → not a bare phantom
+  const text = `${input.notes ?? ""} ${input.sourceUrl ?? ""}`;
+  return !HH_RE.test(text);
 }
 
 /**
