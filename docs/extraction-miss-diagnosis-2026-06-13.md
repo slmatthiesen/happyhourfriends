@@ -66,6 +66,13 @@ Golden: Spencer's `/menus/` → the 12 HH items at their real prices, never a "$
 ## The D bucket, broken into fix targets (ranked by leverage)
 
 ### 1. Source / provenance integrity — **highest leverage, data-trust critical** (≈6 venues)
+**STATUS: SHIPPED — PR #125** (`lib/recover/sourceProvenance.ts`, wired into the one persist
+path; goldens in `scripts/test-source-provenance.ts`). To find ALREADY-stored bad-source windows
+that predate the fix, run the $0 read-only audit: `pnpm audit:provenance [--city <slug> --state <code>]`
+(report → edit actions → `--apply`). Sub-fix (c) "chain source-location match" was **deferred**: the
+Blanco golden turned out to be a cross-domain mismatch caught by (b), and a same-domain
+different-location heuristic has no corpus golden + real over-hide risk.
+
 The stored `source_url` points somewhere it shouldn't. This silently poisons good venues.
 - **Wooden City Tacoma** — sourced from `cheerhop.com/tacoma/wooden-city-tacoma`, a **third-party
   aggregator**. The first-party guard only denylists 4 domains; aggregators like cheerhop leak through.
