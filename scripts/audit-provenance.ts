@@ -6,7 +6,7 @@
  *
  *   Report (no DB writes):
  *     pnpm audit:provenance [--city <slug> --state <code>] [--limit N]
- *   → writes docs/provenance-audit-<YYYY-MM-DD>.{json,md,csv}
+ *   → writes docs/audits/provenance-audit-<YYYY-MM-DD>.{json,md,csv}
  *     Lists every live window whose source_url does NOT trace to the venue's own site
  *     (source host ≠ venue website host, and not a known menu/file host). Suggested
  *     `action` is "hide" for every flagged window; the operator flips false positives
@@ -15,14 +15,14 @@
  *     isSourceProvenanceSuspect; host columns are display-only, for tuning.
  *
  *   Apply (after you review + edit the `action` fields, .json or .csv):
- *     pnpm audit:provenance --apply docs/provenance-audit-<date>.csv
+ *     pnpm audit:provenance --apply docs/audits/provenance-audit-<date>.csv
  *   → hide: active=false (NON-destructive — window stays for review, never deleted),
  *     writes audit_log. keep_live: left untouched.
  *
  * Requires DATABASE_URL only.
  */
 import "dotenv/config";
-import { readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import postgres from "postgres";
 import { requireCityArgs } from "@/lib/cities/resolveCity";
 import { isSourceProvenanceSuspect } from "@/lib/recover/sourceProvenance";
@@ -144,9 +144,10 @@ async function runReport() {
     const hostTally = [...byHost.entries()].sort((a, b) => b[1] - a[1]);
 
     const stamp = today();
-    const jsonPath = `docs/provenance-audit-${stamp}.json`;
-    const mdPath = `docs/provenance-audit-${stamp}.md`;
-    const csvPath = `docs/provenance-audit-${stamp}.csv`;
+    mkdirSync("docs/audits", { recursive: true }); // keep docs/ tidy — outputs live here (gitignored)
+    const jsonPath = `docs/audits/provenance-audit-${stamp}.json`;
+    const mdPath = `docs/audits/provenance-audit-${stamp}.md`;
+    const csvPath = `docs/audits/provenance-audit-${stamp}.csv`;
     writeFileSync(jsonPath, JSON.stringify({ generatedAt: stamp, scanned, flagged: entries.length, hostTally, entries }, null, 2));
     writeFileSync(
       csvPath,
