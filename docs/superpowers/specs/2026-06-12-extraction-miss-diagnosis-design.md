@@ -27,11 +27,13 @@ the extractor.
 
 ## Scope
 
-**In:** the ~50 venues that carry an operator note across all 8 cities — the union of
-`data_audit.operator_note` (parked lane, 39) and `data_audit.agent_verdict` (where
-`keepFlaggedVenue` stashes the kept/hidden note, 50). These are the label-rich, ground-truth
-cases. (The ~30 notes left directly on `happy_hours` via `audit_log` are a stretch goal, not
-required for the rollup.)
+**In:** the **39** venues with a hand-written `data_audit.operator_note` across all 8 cities —
+the genuine operator ground truth. (Discovered during packet assembly: `agent_verdict` is NOT
+operator notes — 42 of its 42 standalone entries are AI-adjudicator verdicts like "Adjudicator
+confirmed vs own site…", i.e. confirmations that extraction was *right*. The Keep button never
+writes an operator note, so notes only ever reach `operator_note` via the parked lane. The AI
+verdict still rides along in each packet as context.) The ~30 notes left directly on
+`happy_hours` via `audit_log` are a stretch goal, not required for the rollup.
 
 **Out (deliberately):**
 - Applying notes or mutating any venue data.
