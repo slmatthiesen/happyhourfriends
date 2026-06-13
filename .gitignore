@@ -82,3 +82,21 @@ pnpm-lock.yaml
 # Per-run escalation shortlists emitted by reextract:stubs:free (regenerated output, not source)
 /docs/hh-escalation-*.json
 .superpowers/
+
+# Transient per-run audit/report outputs (regenerable; keep them out of git).
+# Durable docs (runbooks, current diagnosis, superpowers/ specs) are committed normally.
+docs/quality-audit-*
+docs/provenance-audit-*
+docs/*-data-audit-*
+docs/*-discovery-drops.*
+docs/*-discovery-review-*
+docs/*-hh-signal-scan-*
+docs/*-no-hh-diagnosis-*
+docs/*-escalation-review-*
+docs/hidden-hh-review-*
+docs/meal-special-review-*
+docs/suspect-hh-review-*
+docs/*-gate-review.csv
+docs/*-stubs-review.csv
+docs/audit-escalation/
+docs/audits/
