@@ -91,7 +91,13 @@ check("social-only, no alcohol evidence → review (can't confirm dry)", () =>
   assert.equal(qualityVerdict({ hhLive: 0, anyAlcohol: false, health: "social-only" }), "review"));
 check("unreadable 200, no signal → review", () =>
   assert.equal(qualityVerdict({ hhLive: 0, anyAlcohol: false, health: "unreadable" }), "review"));
-check("dead site overrides alcohol (no usable site) → drop?", () =>
+check("dead site overrides alcohol (likely closed) → drop?", () =>
   assert.equal(qualityVerdict({ hhLive: 0, anyAlcohol: true, health: "dead" }), "drop?"));
+// A real bar can simply have NO website (Kona Club, Laurel Lounge) — that's a crowdsource
+// stub, not junk. no-site must NOT override alcohol-by-type: flag for review, never drop.
+check("GOLDEN Kona Club: no-site BAR (alcohol by type) → review, NOT drop?", () =>
+  assert.equal(qualityVerdict({ hhLive: 0, anyAlcohol: true, health: "no-site" }), "review"));
+check("no-site venue with NO alcohol evidence → drop? (nothing to feature)", () =>
+  assert.equal(qualityVerdict({ hhLive: 0, anyAlcohol: false, health: "no-site" }), "drop?"));
 
 console.log(`\n${passed} checks passed.`);
