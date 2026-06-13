@@ -112,6 +112,7 @@
     "test:offering-sanity": "tsx scripts/test-offering-sanity.ts",
     "test:adjudicate-flag": "tsx scripts/test-adjudicate-flag.ts",
     "test:machine-text": "tsx scripts/test-machine-text.ts",
+    "test:map-concurrency": "tsx scripts/test-map-concurrency.ts",
     "adjudicate:flags": "tsx scripts/adjudicate-flags.ts",
     "apply:adjudications": "tsx scripts/apply-adjudications.ts",
     "test:parse-hh-text": "tsx scripts/test-parse-hh-text.ts",
