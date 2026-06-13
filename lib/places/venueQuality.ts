@@ -72,3 +72,73 @@ export function isSquatterHtml(html: string | null | undefined): boolean {
   const lower = html.toLowerCase();
   return SQUATTER_MARKERS.some((m) => lower.includes(m));
 }
+
+// ── site health ──────────────────────────────────────────────────────────────────
+// SACRED (mirrors lib/places/siteTriage): only DNS-failure / 5xx / 404–410 / parked /
+// squatter is DEAD. A 403 (bot-wall), 429, timeout, or empty-200 means the site is
+// ALIVE but we couldn't read it — that must NEVER read as "dead" and must never let a
+// real venue be dropped for "no alcohol" we simply couldn't see (the Boulevard Cafe 403).
+export type SiteHealth =
+  | "live"          // 2xx with readable text
+  | "broken-https"  // TLS failed but readable over plain http
+  | "blocked"       // alive but unreadable (403/429/timeout/reset) — bot-wall
+  | "unreadable"    // 2xx but no extractable text (JS shell / empty)
+  | "dead"          // DNS failure / 5xx / 404–410
+  | "squatter"      // lapsed-domain / generic restaurant-finder placeholder
+  | "parked"        // domain-for-sale parking page
+  | "social-only"   // only a social/ordering link
+  | "menu-platform" // only a third-party menu platform (kwickmenu/menu11/wheree)
+  | "no-site";      // no website on file
+
+export interface SiteHealthInput {
+  hasUrl: boolean;
+  isMenuPlatform: boolean;
+  isSocial: boolean;
+  /** Final fetch (after any https→http fallback): was it a 2xx? */
+  ok: boolean;
+  status?: number | null;
+  /** Pre-classified network error: "dead" (DNS/refused) | "blocked" (timeout/reset) | null. */
+  networkError?: "dead" | "blocked" | null;
+  hasText: boolean;
+  parked: boolean;
+  squatter: boolean;
+  brokenHttps: boolean;
+}
+
+export function classifySiteHealth(p: SiteHealthInput): SiteHealth {
+  if (!p.hasUrl) return "no-site";
+  if (p.isMenuPlatform) return "menu-platform";
+  if (p.isSocial) return "social-only";
+  if (p.ok && p.hasText) {
+    if (p.squatter) return "squatter";
+    if (p.parked) return "parked";
+    return p.brokenHttps ? "broken-https" : "live";
+  }
+  if (p.ok && !p.hasText) return "unreadable";
+  if (p.networkError === "dead") return "dead";
+  if (p.networkError === "blocked") return "blocked";
+  if (typeof p.status === "number") {
+    return p.status >= 500 || (p.status >= 404 && p.status <= 410) ? "dead" : "blocked";
+  }
+  return "blocked"; // unknown failure → SACRED: assume alive, keep
+}
+
+// ── curation verdict ───────────────────────────────────────────────────────────
+// keep | drop? | review. NEVER "drop?" a venue we couldn't read (blocked/unreadable/
+// social-only with no other signal) — that's "review", not a confident dry verdict.
+const DEAD_CLASS = new Set<SiteHealth>(["dead", "squatter", "parked", "no-site"]);
+
+export function qualityVerdict(p: {
+  hhLive: number;
+  anyAlcohol: boolean;
+  health: SiteHealth;
+}): "keep" | "drop?" | "review" {
+  if (p.hhLive > 0) return "keep";
+  // Alcohol evidence rescues a venue unless its site is genuinely dead (no usable site).
+  if (p.anyAlcohol && !DEAD_CLASS.has(p.health)) return "keep";
+  if (DEAD_CLASS.has(p.health) || p.health === "menu-platform") return "drop?";
+  // We actually READ the site and found no alcohol + no HH → a genuinely dry spot.
+  if (p.health === "live" || p.health === "broken-https") return "drop?";
+  // blocked / unreadable / social-only with no signal → we can't confirm dry.
+  return "review";
+}

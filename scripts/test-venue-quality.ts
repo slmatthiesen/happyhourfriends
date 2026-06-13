@@ -8,7 +8,7 @@
  * just keeps a venue, a false negative could wrongly drop a real bar.
  */
 import assert from "node:assert/strict";
-import { hasAlcoholContent, isSquatterHtml } from "@/lib/places/venueQuality";
+import { hasAlcoholContent, isSquatterHtml, classifySiteHealth, qualityVerdict } from "@/lib/places/venueQuality";
 
 let passed = 0;
 function check(name: string, fn: () => void) {
@@ -47,5 +47,51 @@ check("a real restaurant homepage is NOT a squatter page", () =>
   assert.equal(isSquatterHtml("<title>Celia's Mexican Restaurant — Daly City</title><body>Our menu, hours, and happy hour</body>"), false));
 check("empty html → not squatter", () =>
   assert.equal(isSquatterHtml(""), false));
+
+// ── classifySiteHealth — a 403/timeout is ALIVE (bot-wall), never "dead" ──────────
+const H = (over: Partial<Parameters<typeof classifySiteHealth>[0]> = {}) =>
+  classifySiteHealth({ hasUrl: true, isMenuPlatform: false, isSocial: false, ok: false, status: null, networkError: null, hasText: false, parked: false, squatter: false, brokenHttps: false, ...over });
+
+check("GOLDEN Boulevard Cafe: HTTP 403 is a bot-wall → blocked, NOT dead", () =>
+  assert.equal(H({ ok: false, status: 403 }), "blocked"));
+check("200 with text → live", () =>
+  assert.equal(H({ ok: true, status: 200, hasText: true }), "live"));
+check("200 with no extractable text → unreadable (alive), not dead", () =>
+  assert.equal(H({ ok: true, status: 200, hasText: false }), "unreadable"));
+check("500 → dead", () => assert.equal(H({ ok: false, status: 500 }), "dead"));
+check("404 → dead", () => assert.equal(H({ ok: false, status: 404 }), "dead"));
+check("429 rate-limit → blocked (alive)", () => assert.equal(H({ ok: false, status: 429 }), "blocked"));
+check("DNS/connection failure → dead", () => assert.equal(H({ networkError: "dead" }), "dead"));
+check("timeout/reset → blocked (SACRED: alive, kept)", () => assert.equal(H({ networkError: "blocked" }), "blocked"));
+check("squatter text → squatter", () => assert.equal(H({ ok: true, status: 200, hasText: true, squatter: true }), "squatter"));
+check("broken-https but readable over http → broken-https", () =>
+  assert.equal(H({ ok: true, status: 200, hasText: true, brokenHttps: true }), "broken-https"));
+check("menu-platform / social / no-site short-circuit", () => {
+  assert.equal(H({ isMenuPlatform: true }), "menu-platform");
+  assert.equal(H({ isSocial: true }), "social-only");
+  assert.equal(H({ hasUrl: false }), "no-site");
+});
+
+// ── qualityVerdict — never drop a venue we could not read ─────────────────────────
+check("GOLDEN Boulevard Cafe: no HH, no alcohol, blocked site → review (NOT drop?)", () =>
+  assert.equal(qualityVerdict({ hhLive: 0, anyAlcohol: false, health: "blocked" }), "review"));
+check("live site, read it, no alcohol, no HH → drop? (genuinely dry)", () =>
+  assert.equal(qualityVerdict({ hhLive: 0, anyAlcohol: false, health: "live" }), "drop?"));
+check("live site with alcohol → keep", () =>
+  assert.equal(qualityVerdict({ hhLive: 0, anyAlcohol: true, health: "live" }), "keep"));
+check("a live HH always keeps", () =>
+  assert.equal(qualityVerdict({ hhLive: 1, anyAlcohol: false, health: "dead" }), "keep"));
+check("truly dead site, no HH/alcohol → drop?", () =>
+  assert.equal(qualityVerdict({ hhLive: 0, anyAlcohol: false, health: "squatter" }), "drop?"));
+check("menu-platform, no HH → drop?", () =>
+  assert.equal(qualityVerdict({ hhLive: 0, anyAlcohol: false, health: "menu-platform" }), "drop?"));
+check("real bar with only a Facebook page (alcohol by type/name) → keep", () =>
+  assert.equal(qualityVerdict({ hhLive: 0, anyAlcohol: true, health: "social-only" }), "keep"));
+check("social-only, no alcohol evidence → review (can't confirm dry)", () =>
+  assert.equal(qualityVerdict({ hhLive: 0, anyAlcohol: false, health: "social-only" }), "review"));
+check("unreadable 200, no signal → review", () =>
+  assert.equal(qualityVerdict({ hhLive: 0, anyAlcohol: false, health: "unreadable" }), "review"));
+check("dead site overrides alcohol (no usable site) → drop?", () =>
+  assert.equal(qualityVerdict({ hhLive: 0, anyAlcohol: true, health: "dead" }), "drop?"));
 
 console.log(`\n${passed} checks passed.`);
