@@ -247,3 +247,130 @@ export async function resolveStubAction(
     return { ok: false, error: e instanceof Error ? e.message : "Resolve failed" };
   }
 }
+
+// ── /admin/reviews — live review queues (meal specials, hidden windows) ──────────
+
+export type ReviewDecision = "keep" | "hide" | "delete" | "promote";
+
+const REVIEW_REASONS: Record<"meal" | "hidden", string> = {
+  meal: "meal-special review",
+  hidden: "hidden-window review",
+};
+
+async function applyReviewDecision(
+  happyHourId: string,
+  decision: ReviewDecision,
+  queue: "meal" | "hidden",
+  adminEmail: string,
+): Promise<{ venueId: string | null; venueDemoted: boolean }> {
+  const { keepReviewWindow, deleteWindowForReview, promoteHiddenWindow } = await import(
+    "@/lib/recover/reviewQueues"
+  );
+  switch (decision) {
+    case "keep":
+      await keepReviewWindow(db, { happyHourId, queue, adminEmail });
+      return { venueId: null, venueDemoted: false };
+    case "hide": {
+      const { hideWindowForFlag } = await import("@/lib/audit/flagReview");
+      const r = await hideWindowForFlag(db, {
+        happyHourId,
+        adminEmail,
+        reason: `${REVIEW_REASONS[queue]}: operator hide`,
+      });
+      return r;
+    }
+    case "delete": {
+      const r = await deleteWindowForReview(db, {
+        happyHourId,
+        adminEmail,
+        reason: `${REVIEW_REASONS[queue]}: operator delete`,
+      });
+      return r;
+    }
+    case "promote": {
+      const r = await promoteHiddenWindow(db, { happyHourId, adminEmail });
+      return r;
+    }
+  }
+}
+
+export interface ReviewActionResult extends ActionResult {
+  /** Per-decision tally for bulk calls, e.g. "3 hidden, 1 venue demoted to stub". */
+  summary?: string;
+}
+
+/**
+ * Apply one operator decision to one review-queue window. keep = dismiss from the
+ * queue (audit marker only); hide = reversible active=false; delete = permanent
+ * soft-delete (never re-inserted by re-extraction); promote = hidden window goes
+ * LIVE (hidden queue only — set it only after verifying the happy hour yourself).
+ */
+export async function reviewWindowAction(
+  happyHourId: string,
+  decision: ReviewDecision,
+  queue: "meal" | "hidden",
+): Promise<ReviewActionResult> {
+  return reviewWindowBulkAction([happyHourId], decision, queue);
+}
+
+/** Apply one decision to many windows (the queue UI's bulk bar). */
+export async function reviewWindowBulkAction(
+  happyHourIds: string[],
+  decision: ReviewDecision,
+  queue: "meal" | "hidden",
+): Promise<ReviewActionResult> {
+  try {
+    const admin = await requireAdmin();
+    if (happyHourIds.length === 0) return { ok: false, error: "No windows selected" };
+    if (happyHourIds.length > 1000) return { ok: false, error: "Too many windows in one call (max 1000)" };
+    if (decision === "promote" && queue !== "hidden") {
+      return { ok: false, error: "Promote only applies to the hidden-window queue" };
+    }
+
+    let applied = 0;
+    let demotedCount = 0;
+    const failures: string[] = [];
+    const touchedVenues = new Set<string>();
+    for (const id of happyHourIds) {
+      try {
+        const r = await applyReviewDecision(id, decision, queue, admin.email);
+        applied++;
+        if (r.venueId) touchedVenues.add(r.venueId);
+        if (r.venueDemoted) demotedCount++;
+      } catch (e) {
+        failures.push(e instanceof Error ? e.message : String(e));
+      }
+    }
+
+    revalidatePath("/admin/reviews");
+    if (decision !== "keep") revalidatePath("/");
+
+    // Visibility changed locally → push each touched venue to prod (same per-venue
+    // bridge every admin edit uses). Collect failures into one warning.
+    let pubFailures = 0;
+    for (const venueId of touchedVenues) {
+      const pub = await publishVenueToProd(venueId);
+      if (!pub.ok) pubFailures++;
+    }
+
+    const pastTense: Record<ReviewDecision, string> = {
+      keep: "dismissed",
+      hide: "hidden",
+      delete: "deleted",
+      promote: "promoted",
+    };
+    const parts: string[] = [`${applied} ${pastTense[decision]}`];
+    if (demotedCount) parts.push(`${demotedCount} venue(s) demoted to stub`);
+    const warnings: string[] = [];
+    if (failures.length) warnings.push(`${failures.length} failed (${failures[0]})`);
+    if (pubFailures) warnings.push(`${pubFailures} venue(s) failed to publish to prod`);
+    return {
+      ok: failures.length < happyHourIds.length,
+      summary: parts.join(", "),
+      warning: warnings.length ? warnings.join(" · ") : undefined,
+      error: failures.length === happyHourIds.length ? failures[0] : undefined,
+    };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Review action failed" };
+  }
+}
