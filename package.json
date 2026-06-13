@@ -59,6 +59,7 @@
     "test:queued-email": "tsx scripts/test-queued-email.ts",
     "test:extract": "tsx scripts/test-extract-allday.ts",
     "test:realness-gate": "tsx scripts/test-realness-gate.ts",
+    "test:jsonld-menu": "tsx scripts/test-jsonld-menu.ts",
     "test:format": "tsx scripts/test-format-window.ts",
     "test:active": "tsx scripts/test-timezone-active.ts",
     "test:hours": "tsx scripts/test-opening-hours.ts",
