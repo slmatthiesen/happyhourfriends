@@ -61,7 +61,8 @@ export type AnomalyCode =
   | "day_mismatch_offering" // Bistro 44's "…on Sunday" item inside an every-day window
   | "food_kinded_as_drink" // Backyard's tacos/wings/shareables stored as kind=drink
   | "monthly_event_window" // Cook & Her Farmer's "every third Thursday" stored as weekly
-  | "platform_website_url"; // venue website_url is an ordering/link-in-bio platform, not its site
+  | "platform_website_url" // venue website_url is an ordering/link-in-bio platform, not its site
+  | "shop_page_source"; // Frutiland's Friday "HH" came from a Shopify /collections/ product page
 
 export interface AnomalyFlag {
   code: AnomalyCode;
@@ -84,6 +85,7 @@ const SEVERITY: Record<AnomalyCode, AnomalySeverity> = {
   food_kinded_as_drink: "report",
   monthly_event_window: "report",
   platform_website_url: "report",
+  shop_page_source: "report",
 };
 
 function flag(code: AnomalyCode, evidence: string): AnomalyFlag {
@@ -152,6 +154,20 @@ const EVENT_PATH_RE =
 /** Standalone year tokens in the path (uploads dirs, dated articles, menu filenames). */
 const YEAR_TOKEN_RE = /(?<!\d)20\d{2}(?!\d)/g;
 const STALE_AFTER_YEARS = 2;
+
+// E-commerce paths on the venue's own domain — a product/collection page describes a
+// THING FOR SALE (or a recurring event sold as one), not the bar's schedule. Frutiland
+// (SLO): a Friday taco-night window sourced from /collections/pastor-de-trompo.
+const SHOP_PATH_RE = /\/(collections?|products?|shop|store|merch)(\/|$)/i;
+
+function isShopPageSource(sourceUrl: string | null): boolean {
+  if (!sourceUrl) return false;
+  try {
+    return SHOP_PATH_RE.test(decodeURIComponent(new URL(sourceUrl).pathname));
+  } catch {
+    return false;
+  }
+}
 
 /** Event-y slug, or every year token in the path is ≥2 years old (a 2014 menu PNG is
  *  stale; a /uploads/2025/11/ path holding a current menu — or an old dir holding a
@@ -250,6 +266,9 @@ export function auditVenue(input: VenueAuditInput, now: Date = new Date()): Anom
     }
     if (isStaleEventSource(w.sourceUrl, now)) {
       flags.push(flag("stale_event_source", `recurring window sourced from a dated/event page: ${w.sourceUrl}`));
+    }
+    if (isShopPageSource(w.sourceUrl)) {
+      flags.push(flag("shop_page_source", `window sourced from a shop/product page: ${w.sourceUrl}`));
     }
     if (isImplausibleShape(w)) {
       flags.push(flag("implausible_active", `active window ${w.startTime}–${w.endTime} is implausible (>6h or degenerate)`));
