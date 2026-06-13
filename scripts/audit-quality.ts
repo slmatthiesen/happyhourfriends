@@ -5,7 +5,7 @@
  * writes); re-fetches each venue's own pages over plain HTTP (no API spend).
  *
  *   pnpm audit:quality --city <slug> --state <code> [--limit N]
- *   → docs/quality-audit-<city>-<YYYY-MM-DD>.{json,md,csv}
+ *   → docs/audits/quality-audit-<city>-<YYYY-MM-DD>.{json,md,csv}
  *
  * Per venue it reports, separately so you can judge each signal's reliability:
  *   - alcohol evidence: TYPE (bar-family only — "restaurant" is ambiguous by design,
@@ -21,7 +21,7 @@
  * Requires DATABASE_URL only.
  */
 import "dotenv/config";
-import { readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import postgres from "postgres";
 import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 import { fetchUrl } from "@/lib/verification/fetchUrl";
@@ -172,7 +172,8 @@ async function runReport() {
     };
 
     const stamp = today();
-    const base = `docs/quality-audit-${cityArgs!.slug}-${stamp}`;
+    mkdirSync("docs/audits", { recursive: true }); // keep docs/ tidy — outputs live here (gitignored)
+    const base = `docs/audits/quality-audit-${cityArgs!.slug}-${stamp}`;
     writeFileSync(`${base}.json`, JSON.stringify({ generatedAt: stamp, city: cityArgs, scanned: rows.length, keep: keep.length, drop: drop.length, review: review.length, rows }, null, 2));
     const yn = (b: boolean) => (b ? "Y" : "·");
     const line = (r: typeof rows[number]) =>
