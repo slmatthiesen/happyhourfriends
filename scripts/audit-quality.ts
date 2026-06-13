@@ -26,7 +26,7 @@ import postgres from "postgres";
 import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 import { fetchUrl } from "@/lib/verification/fetchUrl";
 import { hasAlcoholSignal } from "@/lib/places/chainDenylist";
-import { hasAlcoholContent, isSquatterHtml } from "@/lib/places/venueQuality";
+import { hasAlcoholContent, isSquatterHtml, classifySiteHealth, qualityVerdict, type SiteHealth } from "@/lib/places/venueQuality";
 import { isMenuPlatformWebsite } from "@/lib/places/menuPlatform";
 import { classifyUrl, isParkedHtml } from "@/lib/places/siteTriage";
 
@@ -46,36 +46,49 @@ const ALCOHOL_TYPES = new Set([
 
 function today() { return new Date().toISOString().slice(0, 10); }
 const TLS_ERR = /ssl|tls|certificate|eproto|packet length|err_ssl/i;
+const DNS_ERR = /enotfound|eai_again|econnrefused|getaddrinfo/i;
 
-interface SiteProbe { health: string; text: string; }
+interface SiteProbe { health: SiteHealth; text: string; }
+
+/** Classify a fetch error string: DNS/refused is truly dead; everything else (timeout,
+ *  reset, bot-block without a status) is "blocked" — alive but unreadable (SACRED). */
+function netErr(res: { ok: boolean; status?: number; error?: string }): "dead" | "blocked" | null {
+  if (res.ok || typeof res.status === "number" || !res.error) return null;
+  return DNS_ERR.test(res.error) ? "dead" : "blocked";
+}
 
 /** Probe a venue's own site for health + alcohol content. Reads homepage + a menu/HH
- *  page (recall for restaurants whose drink list isn't on the landing page). $0 HTTP. */
+ *  page (recall for restaurants whose drink list isn't on the landing page). $0 HTTP.
+ *  Health classification (classifySiteHealth) treats a 403/timeout/empty-200 as ALIVE
+ *  but unreadable — never "dead" — so a bot-walled real venue is flagged for review,
+ *  not dropped (the Boulevard Cafe 403). */
 async function probeSite(websiteUrl: string | null): Promise<SiteProbe> {
-  if (!websiteUrl) return { health: "no-site", text: "" };
-  if (isMenuPlatformWebsite(websiteUrl)) return { health: "menu-platform", text: "" };
-  if (classifyUrl(websiteUrl).kind === "social_only") return { health: "social-only", text: "" };
+  const base = {
+    hasUrl: !!websiteUrl,
+    isMenuPlatform: !!websiteUrl && isMenuPlatformWebsite(websiteUrl),
+    isSocial: !!websiteUrl && classifyUrl(websiteUrl).kind === "social_only",
+  };
+  const off = { ok: false, status: null, networkError: null, hasText: false, parked: false, squatter: false, brokenHttps: false } as const;
+  if (!base.hasUrl || base.isMenuPlatform || base.isSocial) {
+    return { health: classifySiteHealth({ ...base, ...off }), text: "" };
+  }
 
-  let res = await fetchUrl(websiteUrl);
+  let res = await fetchUrl(websiteUrl!);
   let brokenHttps = false;
   // HTTPS broken but server alive? retry plain HTTP (Los Metates: serves a squatter over http).
-  if (!res.ok && res.error && TLS_ERR.test(res.error) && websiteUrl.startsWith("https://")) {
+  if (!res.ok && res.error && TLS_ERR.test(res.error) && websiteUrl!.startsWith("https://")) {
     brokenHttps = true;
-    res = await fetchUrl(websiteUrl.replace(/^https:/, "http:"));
+    res = await fetchUrl(websiteUrl!.replace(/^https:/, "http:"));
   }
-  if (!res.ok || !res.contentText) {
-    const status = res.status ? `dead(${res.status})` : "dead";
-    return { health: brokenHttps && !res.contentText ? "broken-https" : status, text: "" };
-  }
-  if (isSquatterHtml(res.contentText)) return { health: "squatter", text: res.contentText };
-  if (isParkedHtml(res.contentText)) return { health: "parked", text: res.contentText };
 
-  let text = res.contentText;
-  // If no alcohol on the homepage, follow common menu/HH paths to give real restaurants
-  // a fair read before we conclude "no alcohol evidence".
-  if (!hasAlcoholContent(text)) {
+  let text = res.ok && res.contentText ? res.contentText : "";
+  const squatter = !!text && isSquatterHtml(text);
+  const parked = !!text && isParkedHtml(text);
+  // If readable with no alcohol yet, follow common menu/HH paths so real restaurants
+  // get a fair read before we conclude "no alcohol evidence".
+  if (text && !squatter && !parked && !hasAlcoholContent(text)) {
     try {
-      const origin = new URL(res.url || websiteUrl).origin;
+      const origin = new URL(res.url || websiteUrl!).origin;
       for (const path of ["/menu", "/menus", "/drinks", "/happy-hour"]) {
         const sub = await fetchUrl(`${origin}${path}`);
         if (sub.ok && sub.contentText) {
@@ -85,7 +98,18 @@ async function probeSite(websiteUrl: string | null): Promise<SiteProbe> {
       }
     } catch { /* origin unparseable — homepage text only */ }
   }
-  return { health: brokenHttps ? "broken-https" : "live", text };
+
+  const health = classifySiteHealth({
+    ...base,
+    ok: res.ok,
+    status: res.status ?? null,
+    networkError: netErr(res),
+    hasText: !!(res.ok && res.contentText),
+    parked,
+    squatter,
+    brokenHttps,
+  });
+  return { health, text };
 }
 
 /** Bounded-concurrency map (plain HTTP probes; be polite). */
@@ -99,8 +123,6 @@ async function pool<T, R>(items: T[], n: number, fn: (t: T) => Promise<R>): Prom
   );
   return out;
 }
-
-const BAD_SITE = new Set(["dead", "squatter", "parked", "social-only", "menu-platform", "no-site", "broken-https"]);
 
 async function main() {
   if (!DATABASE_URL) { console.error("ERROR: DATABASE_URL is required."); process.exit(1); }
@@ -127,8 +149,7 @@ async function main() {
       const nameSig = hasAlcoholSignal(v.name, null, null);
       const siteSig = hasAlcoholContent(probe.text);
       const anyAlcohol = typeSig || nameSig || siteSig;
-      const badSite = BAD_SITE.has(probe.health);
-      const verdict = v.hh_live > 0 || (anyAlcohol && !badSite) ? "keep" : "drop?";
+      const verdict = qualityVerdict({ hhLive: v.hh_live, anyAlcohol, health: probe.health });
       return {
         venue: v.name, type: v.type ?? "", hhLive: v.hh_live,
         alcType: typeSig, alcName: nameSig, alcSite: siteSig, anyAlcohol,
@@ -138,6 +159,7 @@ async function main() {
 
     const drop = rows.filter((r) => r.verdict === "drop?");
     const keep = rows.filter((r) => r.verdict === "keep");
+    const review = rows.filter((r) => r.verdict === "review");
     const tally = (key: (r: typeof rows[number]) => string) => {
       const m = new Map<string, number>();
       for (const r of rows) m.set(key(r), (m.get(key(r)) ?? 0) + 1);
@@ -146,15 +168,17 @@ async function main() {
 
     const stamp = today();
     const base = `docs/quality-audit-${cityArgs.slug}-${stamp}`;
-    writeFileSync(`${base}.json`, JSON.stringify({ generatedAt: stamp, city: cityArgs, scanned: rows.length, keep: keep.length, drop: drop.length, rows }, null, 2));
+    writeFileSync(`${base}.json`, JSON.stringify({ generatedAt: stamp, city: cityArgs, scanned: rows.length, keep: keep.length, drop: drop.length, review: review.length, rows }, null, 2));
     const yn = (b: boolean) => (b ? "Y" : "·");
     const line = (r: typeof rows[number]) =>
       `| ${r.verdict} | ${r.venue} | ${r.type} | ${r.hhLive} | ${yn(r.alcType)} | ${yn(r.alcName)} | ${yn(r.alcSite)} | ${r.siteHealth} | ${r.websiteUrl} |`;
     const md = [
       `# Quality audit — ${cityArgs.slug}, ${cityArgs.state} — ${stamp}`,
       "",
-      `Scanned **${rows.length}** active venues. Suggested **keep ${keep.length}**, **drop? ${drop.length}**.`,
-      "Verdict is a SUGGESTION (nothing applied). `drop?` = no live HH AND (no alcohol evidence OR bad site).",
+      `Scanned **${rows.length}** active venues. Suggested **keep ${keep.length}**, **drop? ${drop.length}**, **review ${review.length}**.`,
+      "Verdict is a SUGGESTION (nothing applied). `drop?` = no live HH AND a confidently-bad site",
+      "(dead/squatter/parked/menu-platform) OR a site we READ that has no alcohol. `review` = alive",
+      "but we couldn't read it (403 bot-wall / timeout / empty / social-only) — flagged, never auto-dropped.",
       "Alcohol columns: aT=by type (bar-family only), aN=by name, aS=by site-menu content. `restaurant` earns alcohol via aS or a live HH — never excluded for its type.",
       "",
       `### Site health: ${tally((r) => r.siteHealth).map(([k, n]) => `${k}×${n}`).join(", ")}`,
@@ -165,6 +189,12 @@ async function main() {
       "|---|---|---|--:|:--:|:--:|:--:|---|---|",
       ...drop.map(line),
       "",
+      "## review (alive but unreadable — flag, don't drop)",
+      "",
+      "| verdict | venue | type | HH | aT | aN | aS | site | url |",
+      "|---|---|---|--:|:--:|:--:|:--:|---|---|",
+      ...review.map(line),
+      "",
       "## keep",
       "",
       "| verdict | venue | type | HH | aT | aN | aS | site | url |",
@@ -174,7 +204,7 @@ async function main() {
     ].join("\n");
     writeFileSync(`${base}.md`, md);
 
-    console.log(`scanned ${rows.length}: keep ${keep.length}, drop? ${drop.length}`);
+    console.log(`scanned ${rows.length}: keep ${keep.length}, drop? ${drop.length}, review ${review.length}`);
     console.log(`site health: ${tally((r) => r.siteHealth).map(([k, n]) => `${k}×${n}`).join(", ")}`);
     console.log(`report → ${base}.md`);
   } finally {
