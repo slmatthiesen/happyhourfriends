@@ -2,8 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { CityListItem } from "@/lib/queries/venues";
+import { groupCitiesByState } from "@/lib/cities/groupByState";
 import { haversineMiles } from "@/lib/geo/distance";
 import { setGeoIntent } from "@/lib/geo/geoIntent";
 import { cityPath } from "@/lib/routes";
@@ -34,6 +35,7 @@ export function CityPicker({ cities }: { cities: CityListItem[] }) {
   const hasCoords = cities.some(
     (c) => c.centerLat != null && c.centerLng != null,
   );
+  const stateGroups = useMemo(() => groupCitiesByState(cities), [cities]);
 
   function useMyLocation() {
     setError(null);
@@ -91,26 +93,35 @@ export function CityPicker({ cities }: { cities: CityListItem[] }) {
         <p className="text-center text-sm uppercase tracking-wide text-text-muted">
           {hasCoords ? "or pick a city" : "Pick a city"}
         </p>
-        <ul className="mt-4 flex flex-wrap justify-center gap-3">
-          {cities.map((c) => (
-            <li key={c.id}>
-              <Link
-                href={cityPath(c.state, c.slug)}
-                className="flex items-baseline gap-2 rounded-lg border border-border bg-bg-surface px-4 py-2 transition-colors hover:bg-row-hover"
-              >
-                <span className="font-medium text-text-primary">
-                  {c.name}
-                  {c.state ? `, ${c.state}` : ""}
-                </span>
-                {c.venueCount > 0 && (
-                  <span className="text-sm text-text-muted">
-                    {c.venueCount} {c.venueCount === 1 ? "spot" : "spots"}
-                  </span>
-                )}
-              </Link>
-            </li>
+        <div className="mt-5 flex flex-col gap-7">
+          {stateGroups.map((group) => (
+            <div key={group.code || "other"}>
+              <p className="text-center text-xs font-medium uppercase tracking-[0.15em] text-text-muted/70">
+                {group.name}
+              </p>
+              <ul className="mt-3 flex flex-wrap justify-center gap-3">
+                {group.cities.map((c) => (
+                  <li key={c.id}>
+                    <Link
+                      href={cityPath(c.state, c.slug)}
+                      className="flex items-baseline gap-2 rounded-lg border border-border bg-bg-surface px-4 py-2 transition-colors hover:bg-row-hover"
+                    >
+                      <span className="font-medium text-text-primary">
+                        {c.name}
+                        {c.state ? `, ${c.state}` : ""}
+                      </span>
+                      {c.venueCount > 0 && (
+                        <span className="text-sm text-text-muted">
+                          {c.venueCount} {c.venueCount === 1 ? "spot" : "spots"}
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
     </div>
   );
