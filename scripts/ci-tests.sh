@@ -23,6 +23,7 @@ TESTS=(
   test:neighborhood-canonical
   test:first-party
   test:source-provenance
+  test:menu-platform
   test:harvest
   test:hidden-review
   test:stub-rank

@@ -37,6 +37,8 @@
     "backfill:google-neighborhoods": "tsx scripts/backfill-google-neighborhoods.ts",
     "prune:empty-venues": "tsx scripts/prune-empty-venues.ts",
     "remove:venues": "tsx scripts/remove-venues.ts",
+    "drop:menu-platform-stubs": "tsx scripts/drop-menu-platform-stubs.ts",
+    "test:menu-platform": "tsx scripts/test-menu-platform.ts",
     "review:hidden": "tsx scripts/review-hidden-hh.ts",
     "review:meal-specials": "tsx scripts/review-meal-specials.ts",
     "test:hidden-review": "tsx scripts/test-hidden-review.ts",
