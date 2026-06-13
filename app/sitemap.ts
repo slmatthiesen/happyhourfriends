@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, isNull, exists } from "drizzle-orm";
 import { db } from "@/db/client";
-import { cities, neighborhoods, venues } from "@/db/schema";
+import { cities, neighborhoods, venues, happyHours } from "@/db/schema";
 import { cityPath, neighborhoodPath, venuePath } from "@/lib/routes";
 
 // Generated at request time so `next build` doesn't depend on the DB being reachable.
@@ -22,6 +22,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .from(neighborhoods)
       .where(eq(neighborhoods.cityId, c.id));
 
+    // Index ONLY venues with a real, live happy hour — not help-wanted stubs. Thin
+    // stub pages (no HH) dilute the index and add no search value; the venue list,
+    // neighborhood rollups, and lastModified dates below all flow from this set.
     const vs = await db
       .select({
         slug: venues.slug,
@@ -29,10 +32,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         updatedAt: venues.updatedAt,
       })
       .from(venues)
-      .where(and(eq(venues.cityId, c.id), isNull(venues.deletedAt)));
+      .where(
+        and(
+          eq(venues.cityId, c.id),
+          isNull(venues.deletedAt),
+          exists(
+            db
+              .select({ id: happyHours.id })
+              .from(happyHours)
+              .where(
+                and(
+                  eq(happyHours.venueId, venues.id),
+                  eq(happyHours.active, true),
+                  isNull(happyHours.deletedAt),
+                ),
+              ),
+          ),
+        ),
+      );
 
     // lastModified = the freshest data the page actually shows. City rolls up all its
-    // venues; each neighborhood rolls up its own. A page with no venues carries no date.
+    // happy-hour venues; each neighborhood rolls up its own. A page with no such venues
+    // carries no date.
     const maxOf = (dates: Date[]): Date | undefined =>
       dates.length ? new Date(Math.max(...dates.map((d) => d.getTime()))) : undefined;
 
