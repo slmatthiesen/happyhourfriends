@@ -123,7 +123,8 @@
     "test:render-escalation": "tsx scripts/test-render-escalation.ts",
     "test:site-triage": "tsx scripts/test-site-triage.ts",
     "test:window-reconcile": "tsx scripts/test-window-reconcile.ts",
-    "test:neighborhood-name": "tsx scripts/test-neighborhood-name.ts"
+    "test:neighborhood-name": "tsx scripts/test-neighborhood-name.ts",
+    "test:group-by-state": "tsx scripts/test-group-by-state.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.99.0",
