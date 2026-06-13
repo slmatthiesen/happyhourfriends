@@ -327,4 +327,32 @@ check("a window WITH offerings is never a bare phantom (even with no HH wording)
   assert.equal(r.suspect, false);
 });
 
+// ── crosses-midnight implausible duration (diagnosis bucket #3) ─────────────────
+// The Backyard's "11pm–2pm" was stored as a 23:00→14:00 window — a 15h "happy hour"
+// that crosses midnight, i.e. a parse error. A real late-night HH that crosses midnight
+// is short (11pm–2am). Hide when the wrap-around duration is implausibly long (>6h).
+const dur = (startTime: string, endTime: string) =>
+  assessRealness({
+    allDay: false, dayCount: 5, timeKnown: true, confidence: 0.9,
+    mealSpecial: { startTime, endTime, notes: "Happy Hour", offerings: [off("Draft beer", 5)] },
+  });
+
+check("GOLDEN Backyard: 23:00→14:00 (15h crosses-midnight) IS suspect", () => {
+  const r = dur("23:00", "14:00");
+  assert.equal(r.suspect, true);
+  assert.ok(r.reasons.includes("implausible_window_duration"));
+});
+check("a real late-night HH 23:00→02:00 (3h) is NOT a duration problem", () => {
+  const r = dur("23:00", "02:00");
+  assert.equal(r.reasons.includes("implausible_window_duration"), false);
+});
+check("a normal non-crossing window 16:00→18:00 is NOT a duration problem", () => {
+  const r = dur("16:00", "18:00");
+  assert.equal(r.reasons.includes("implausible_window_duration"), false);
+});
+check("an exactly-6h crossing window (22:00→04:00) is allowed (boundary)", () => {
+  const r = dur("22:00", "04:00");
+  assert.equal(r.reasons.includes("implausible_window_duration"), false);
+});
+
 console.log(`\n${passed} checks passed.`);

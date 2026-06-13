@@ -69,9 +69,22 @@ function offeringText(o: ExtractedOffering): string {
   return [o.name, o.description].filter(Boolean).join(" ");
 }
 
+// Drink-price plausibility bounds (diagnosis bucket #3). WARN-only — never hide: real
+// dive $2 deals and real upscale $15 cocktails both exist, so price alone is a flag for
+// review, not a verdict (the operator owns the over-hide call).
+const DRINK_PRICE_FLOOR_CENTS = 200; // ≤ $2 a drink → almost always a scrape/parse error
+const CASUAL_DRINK_CEILING_CENTS = 1400; // ≥ $14 …
+const CASUAL_MAX_PRICE_LEVEL = 2; // … at a casual venue (Google price tier 1–2) → likely a full-price scrape
+
+export interface SanitizeOptions {
+  /** Google price tier 1–4 of the venue; enables the tier-aware high-price warning. */
+  priceLevel?: number | null;
+}
+
 export function sanitizeOfferings(
   offerings: ExtractedOffering[],
   windowDays: number[],
+  opts: SanitizeOptions = {},
 ): SanitizeResult {
   const warnings: string[] = [];
   const seen = new Set<string>();
@@ -109,6 +122,22 @@ export function sanitizeOfferings(
         warnings.push(
           `day-specific offering vs window days {${windowDays.join(",")}} (verify): ${o.name ?? o.description ?? "(unnamed)"}`,
         );
+      }
+    }
+
+    // 4. Implausible drink price (warn only) — judged on the FINAL kind so re-kinded food
+    //    (e.g. "$14 Wing Central") is never treated as a pricey drink.
+    if (next.kind === "drink" && typeof next.priceCents === "number" && next.priceCents > 0) {
+      const label = next.name ?? next.description ?? "(unnamed)";
+      const dollars = `$${(next.priceCents / 100).toFixed(2)}`;
+      if (next.priceCents <= DRINK_PRICE_FLOOR_CENTS) {
+        warnings.push(`implausibly cheap drink price (${dollars}) — verify: ${label}`);
+      } else if (
+        next.priceCents >= CASUAL_DRINK_CEILING_CENTS &&
+        typeof opts.priceLevel === "number" &&
+        opts.priceLevel <= CASUAL_MAX_PRICE_LEVEL
+      ) {
+        warnings.push(`drink price ${dollars} high for happy hour at this venue tier — verify: ${label}`);
       }
     }
 
