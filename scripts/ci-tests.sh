@@ -71,6 +71,7 @@ TESTS=(
   test:adjudicate-flag
   test:machine-text
   test:neighborhood-name
+  test:group-by-state
 )
 
 failed=()
