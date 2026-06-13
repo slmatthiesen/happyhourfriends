@@ -161,4 +161,52 @@ const EVERY_DAY = [1, 2, 3, 4, 5, 6, 7];
   check("'$5 Wells' + 'Wells' at the same price dedupe to one row");
 }
 
+// ── implausible price WARNINGS (diagnosis bucket #3) — warn only, never hide ──
+{
+  // Wooden Nickel: $2 wells/drafts — implausibly cheap (floor is universal, no tier needed).
+  const cheap = sanitizeOfferings([off({ kind: "drink", name: "$2 Well Drinks", priceCents: 200 })], EVERY_DAY);
+  assert.ok(cheap.warnings.some((w) => /cheap|implausible/i.test(w)), `expected cheap-price warning, got: ${cheap.warnings.join(" / ")}`);
+  check("Wooden Nickel: $2 well drink warns (implausibly cheap)");
+
+  // A normal $5 well does NOT warn.
+  const ok5 = sanitizeOfferings([off({ kind: "drink", name: "$5 Wells", priceCents: 500 })], EVERY_DAY);
+  assert.equal(ok5.warnings.length, 0);
+  check("$5 well drink does not warn");
+
+  // Quesadilla Gorilla: $15-16 cocktail at a casual venue (priceLevel ≤ 2) = full-price scrape → warn.
+  const casualHigh = sanitizeOfferings(
+    [off({ kind: "drink", category: "cocktail", name: "Oaxaca Old Fashioned", priceCents: 1600 })],
+    EVERY_DAY,
+    { priceLevel: 1 },
+  );
+  assert.ok(casualHigh.warnings.some((w) => /high|implausible/i.test(w)), `expected high-price warning, got: ${casualHigh.warnings.join(" / ")}`);
+  check("Quesadilla Gorilla: $16 cocktail at a casual (priceLevel 1) venue warns");
+
+  // Same $15 cocktail at an UPSCALE venue (priceLevel 4) is plausible → no warn (Maple & Ash).
+  const upscale = sanitizeOfferings(
+    [off({ kind: "drink", category: "cocktail", name: "Select cocktails", priceCents: 1500 })],
+    EVERY_DAY,
+    { priceLevel: 4 },
+  );
+  assert.equal(upscale.warnings.length, 0);
+  check("Maple & Ash: $15 cocktail at priceLevel 4 does NOT warn");
+
+  // High price with NO priceLevel known → no high-warn (the ceiling needs tier context).
+  const noTier = sanitizeOfferings(
+    [off({ kind: "drink", category: "cocktail", name: "House cocktail", priceCents: 1500 })],
+    EVERY_DAY,
+  );
+  assert.equal(noTier.warnings.length, 0);
+  check("no price-tier known → high-price ceiling does not fire");
+
+  // A $14 FOOD item at a casual venue is not a drink → no drink-ceiling warn.
+  const food = sanitizeOfferings(
+    [off({ kind: "drink", name: "$14 Wing Central", priceCents: 1400 })], // re-kinds to food
+    EVERY_DAY,
+    { priceLevel: 1 },
+  );
+  assert.ok(!food.warnings.some((w) => /high/i.test(w)), `food item must not get a drink high-price warning, got: ${food.warnings.join(" / ")}`);
+  check("a $14 food item (re-kinded) gets no drink high-price warning");
+}
+
 console.log(`\n✓ ${passed} offering-sanity + denylist assertions passed.`);

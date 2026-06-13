@@ -23,7 +23,8 @@ export type RealnessReason =
   | "no_time_window"
   | "low_confidence"
   | "meal_special"
-  | "no_offerings_no_hh_text";
+  | "no_offerings_no_hh_text"
+  | "implausible_window_duration";
 
 export interface RealnessInput {
   /** Window runs the full open hours of its days (no clock window). */
@@ -61,6 +62,7 @@ export function assessRealness(input: RealnessInput): RealnessVerdict {
   if (input.confidence < MIN_CONFIDENCE) reasons.push("low_confidence");
   if (input.mealSpecial && mealSpecialEvidence(input.mealSpecial)) reasons.push("meal_special");
   if (input.mealSpecial && bareWindowNoHhEvidence(input.mealSpecial)) reasons.push("no_offerings_no_hh_text");
+  if (input.mealSpecial && crossesMidnightImplausible(input.mealSpecial.startTime, input.mealSpecial.endTime)) reasons.push("implausible_window_duration");
 
   return { suspect: reasons.length > 0, reasons };
 }
@@ -171,6 +173,19 @@ export function mealSpecialEvidence(input: MealSpecialInput): string | null {
 // (a real window often lists no itemized prices — North Italia's "Mon–Fri 3–6pm"),
 // so the HH_RE veto over notes + source URL is the discriminator. Like every gate
 // signal this only HIDES (active=false) for review — it never deletes.
+
+/**
+ * A window whose stored clock crosses midnight (end < start) with an implausibly long
+ * wrap-around span (> 6h). Real late-night HH that crosses midnight is short (11pm–2am);
+ * a 23:00→14:00 "window" is a parse error (The Backyard's "11pm–2pm", diagnosis bucket
+ * #3). > 6h, so a generous 9pm–3am still passes; only absurd spans hide.
+ */
+function crossesMidnightImplausible(startTime: string | null, endTime: string | null): boolean {
+  const s = toMinutes(startTime);
+  const e = toMinutes(endTime);
+  if (s == null || e == null || e >= s) return false; // not a crossing window
+  return e + 24 * 60 - s > 6 * 60;
+}
 
 /** True when a window has no offerings AND nothing on it reads as a happy hour. */
 export function bareWindowNoHhEvidence(input: MealSpecialInput): boolean {
