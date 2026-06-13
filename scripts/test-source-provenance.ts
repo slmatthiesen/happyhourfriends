@@ -76,4 +76,42 @@ check("no/empty source url → not suspect", () =>
 check("unparseable source url → not suspect (can't judge)", () =>
   assert.equal(isSourceProvenanceSuspect("not a url", "https://foo.com"), false));
 
+// ── allowlist + same-registrable-domain tuning (goldens from the 2026-06-13 audit) ──
+// File/CDN/website-builder hosts that legitimately serve a venue's OWN menu assets —
+// false positives in the first audit; allowlisted so the guard stops flagging them.
+check("GoDaddy asset CDN (img1.wsimg.com) is exempt", () =>
+  assert.equal(isSourceProvenanceSuspect("https://img1.wsimg.com/blobby/go/x/downloads/menu.pdf", "https://cantondragonscottsdale.com"), false));
+check("Duda CDN (irp.cdn-website.com) is exempt", () =>
+  assert.equal(isSourceProvenanceSuspect("https://irp.cdn-website.com/abc/menu.pdf", "https://tacosbyparachos.com"), false));
+check("Shopify asset CDN is exempt", () =>
+  assert.equal(isSourceProvenanceSuspect("https://cdn.shopify.com/s/files/menu.pdf", "https://badjimmys.com"), false));
+check("Popmenu CDN (popmenucloud.com) is exempt", () =>
+  assert.equal(isSourceProvenanceSuspect("https://popmenucloud.com/abc/menu.png", "https://carlosobriens.com"), false));
+check("Webflow asset CDN (website-files.com) is exempt", () =>
+  assert.equal(isSourceProvenanceSuspect("https://cdn.prod.website-files.com/abc/menu.pdf", "https://andazscottsdale.com"), false));
+check("WordPress/Jetpack image CDN (wp.com) is exempt", () =>
+  assert.equal(isSourceProvenanceSuspect("https://i0.wp.com/branchline.bar/menu.jpg", "https://branchline.bar"), false));
+check("digital-menu platform (sagemenu.com) is exempt", () =>
+  assert.equal(isSourceProvenanceSuspect("https://sagemenu.com/m/chula", "https://chulaseafood.com"), false));
+check("QR-menu file host (qr-code-generator.com) is exempt", () =>
+  assert.equal(isSourceProvenanceSuspect("https://cdn.qr-code-generator.com/abc/menu.pdf", "https://woolyspismobeach.com"), false));
+
+// Sibling subdomains of the SAME registrable domain are the same business (Dog Haus:
+// venue stored as downtownphoenix.doghaus.com, source locations.doghaus.com).
+check("GOLDEN Dog Haus: sibling subdomains of doghaus.com are not suspect", () =>
+  assert.equal(
+    isSourceProvenanceSuspect("https://locations.doghaus.com/downtown-phoenix", "https://downtownphoenix.doghaus.com"),
+    false,
+  ));
+
+// Genuine bad sources from the audit STAY flagged → hide.
+check("GOLDEN Blanco (Scottsdale): sibling-brand domain stays suspect", () =>
+  assert.equal(isSourceProvenanceSuspect("https://www.blancococinacantina.com/?menu=happy-hour-menu", "https://blancotacostequila.com"), true));
+check("social media (instagram.com) is not a first-party source → suspect", () =>
+  assert.equal(isSourceProvenanceSuspect("https://www.instagram.com/p/abc", "https://basepizzeria.com"), true));
+check("third-party directory (whereis.gay) → suspect", () =>
+  assert.equal(isSourceProvenanceSuspect("https://whereis.gay/venue/nu-towne", "https://nutownephoenix.com"), true));
+check("local blog (thescottsdaleliving.com) → suspect", () =>
+  assert.equal(isSourceProvenanceSuspect("https://thescottsdaleliving.com/chula", "https://chulaseafood.com"), true));
+
 console.log(`\n${passed} checks passed.`);

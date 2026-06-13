@@ -18,7 +18,7 @@
  * no stored venue website, an unparseable source, or a source on a known menu/file
  * host whose domain identifies the platform, not the business.
  */
-import { isFirstPartyUrl } from "@/lib/contribution/firstParty";
+import { isDenylistedSource } from "@/lib/ai/sourceDenylist";
 
 /** Lowercase host with a leading "www." stripped; null if unparseable. */
 function host(url: string | null | undefined): string | null {
@@ -31,6 +31,25 @@ function host(url: string | null | undefined): string | null {
 }
 
 /**
+ * Registrable domain (eTLD+1) of an already-normalized host — the unit of "same
+ * business": sibling subdomains (locations.doghaus.com vs downtownphoenix.doghaus.com)
+ * share one, so they aren't flagged, while a different TLD (thedepotbar.com vs
+ * thedepotbar.shop) or brand (blancococinacantina.com vs blancotacostequila.com) does
+ * not. US-focused: defaults to the last two labels, with a small set of common
+ * multi-part public suffixes handled explicitly. Not a full PSL — extend as needed.
+ */
+const MULTIPART_TLDS = new Set([
+  "co.uk", "org.uk", "com.au", "net.au", "co.nz", "com.br", "co.jp", "com.mx",
+]);
+function registrableDomain(normalizedHost: string): string {
+  const parts = normalizedHost.split(".");
+  if (parts.length <= 2) return normalizedHost;
+  const lastTwo = parts.slice(-2).join(".");
+  if (MULTIPART_TLDS.has(lastTwo)) return parts.slice(-3).join(".");
+  return lastTwo;
+}
+
+/**
  * Hosts that legitimately serve many different businesses' menus/PDFs. A source on one
  * of these can't be host-matched to the venue's own domain, so the provenance check
  * skips it rather than hiding real data (the diagnosis's "isn't a known menu host"
@@ -38,18 +57,28 @@ function host(url: string | null | undefined): string | null {
  * separately via platform_website_url, not here.
  */
 const MENU_HOSTS = [
-  "toasttab.com",
+  // Site builders + their asset CDNs (a venue's own menu image/PDF lives here).
   "squarespace.com",
   "squarespace-cdn.com",
   "wixsite.com",
   "wixstatic.com",
   "filesusr.com",
   "usrfiles.com",
-  "square.site",
-  "popmenu.com",
-  "clover.com",
   "weebly.com",
   "godaddysites.com",
+  "wsimg.com", // GoDaddy Website Builder asset CDN (img1.wsimg.com)
+  "cdn-website.com", // Duda site builder CDN (irp.cdn-website.com)
+  "website-files.com", // Webflow asset CDN (cdn.prod.website-files.com)
+  "wp.com", // WordPress.com / Jetpack image CDN (i0/i1/i2.wp.com)
+  "shopify.com", // Shopify asset CDN (cdn.shopify.com)
+  // Menu / ordering platforms restaurants host their OWN menu on.
+  "toasttab.com",
+  "square.site",
+  "popmenu.com",
+  "popmenucloud.com", // Popmenu asset CDN
+  "sagemenu.com", // digital-menu platform
+  "clover.com",
+  // Generic file / object hosts used for menu PDFs & QR menus.
   "drive.google.com",
   "docs.google.com",
   "googleusercontent.com",
@@ -57,6 +86,7 @@ const MENU_HOSTS = [
   "dropboxusercontent.com",
   "amazonaws.com",
   "cloudfront.net",
+  "qr-code-generator.com", // QR-menu file host (cdn.qr-code-generator.com)
 ];
 
 function isMenuHost(url: string): boolean {
@@ -75,7 +105,11 @@ export function isSourceProvenanceSuspect(
   venueWebsite: string | null | undefined,
 ): boolean {
   if (!sourceUrl || !venueWebsite) return false;
-  if (host(sourceUrl) === null) return false; // unparseable → can't judge
-  if (isMenuHost(sourceUrl)) return false;
-  return !isFirstPartyUrl(sourceUrl, venueWebsite);
+  const sourceHost = host(sourceUrl);
+  const venueHost = host(venueWebsite);
+  if (sourceHost === null || venueHost === null) return false; // unparseable → can't judge
+  if (isDenylistedSource(sourceUrl)) return true; // aggregator leak — never trust
+  if (isMenuHost(sourceUrl)) return false; // platform host, can't be domain-matched
+  // Same business iff same registrable domain (sibling subdomains count, e.g. Dog Haus).
+  return registrableDomain(sourceHost) !== registrableDomain(venueHost);
 }
