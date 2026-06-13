@@ -3,7 +3,7 @@
  * Run: pnpm tsx scripts/test-parse-hh-text.ts — exits non-zero on any failure.
  */
 import assert from "node:assert/strict";
-import { parseHappyHours, parseDays, type ParsedWindow } from "@/lib/places/parseHhText";
+import { parseHappyHours, parseDays, parseOfferings, type ParsedWindow } from "@/lib/places/parseHhText";
 
 let passed = 0;
 function check(name: string, fn: () => void) { fn(); passed++; console.log(`  ✓ ${name}`); }
@@ -241,6 +241,46 @@ check("keyword day expr binds nearest-preceding ('Weekdays 3-6pm, weekends 5-7pm
   assert.equal(ws.length, 2);
   assert.deepEqual(ws[0].daysOfWeek, [1, 2, 3, 4, 5]);
   assert.deepEqual(ws[1].daysOfWeek, [6, 7]);
+});
+
+// --- offerings: per-item categorization + price ranges (1865 HH menu, 2026-06-12) ---
+check("deal list categorizes per item, not by whole-segment ('drafts' must not make wine a beer)", () => {
+  const os = parseOfferings("$10 cocktails $8 wines $5 select drafts apps from $10-12", URL);
+  const byName = Object.fromEntries(os.map((o) => [o.name, o]));
+  const find = (frag: string) => os.find((o) => o.name.includes(frag));
+  assert.equal(find("cocktails")?.category, "cocktail");
+  assert.equal(find("cocktails")?.priceCents, 1000);
+  assert.equal(find("wines")?.category, "wine");
+  assert.equal(find("wines")?.priceCents, 800);
+  assert.equal(find("drafts")?.category, "beer");
+  assert.equal(find("drafts")?.priceCents, 500);
+  assert.ok(byName, JSON.stringify(os));
+});
+check("'apps from $10-12' is a food offering at the range minimum, no orphan '$10'", () => {
+  const os = parseOfferings("$10 cocktails $8 wines $5 select drafts apps from $10-12", URL);
+  const apps = os.find((o) => o.name.includes("apps"));
+  assert.ok(apps, JSON.stringify(os));
+  assert.equal(apps!.kind, "food");
+  assert.equal(apps!.priceCents, 1000);
+  // No offering is a bare price with no item name.
+  assert.ok(os.every((o) => /[a-z]/i.test(o.name.replace(/\$[\d.-]+/g, "").trim())), JSON.stringify(os));
+  // 'drafts' label must not swallow the apps clause.
+  const drafts = os.find((o) => o.name.includes("drafts"));
+  assert.ok(!drafts!.name.includes("apps"), drafts!.name);
+});
+check("price-range-first '$10-12 apps' parses as one food offering at the minimum", () => {
+  const os = parseOfferings("$10-12 apps during happy hour", URL);
+  const apps = os.find((o) => o.name.includes("apps"));
+  assert.ok(apps, JSON.stringify(os));
+  assert.equal(apps!.kind, "food");
+  assert.equal(apps!.priceCents, 1000);
+});
+check("existing forms still parse: '$1 off menu cocktails' and 'half-price wings'", () => {
+  const off = parseOfferings("$1 off menu cocktails", URL);
+  assert.equal(off[0].discountCents, 100);
+  assert.equal(off[0].category, "cocktail");
+  const half = parseOfferings("half-price wings", URL);
+  assert.equal(half[0].kind, "food");
 });
 
 console.log(`\n${passed} checks passed.`);

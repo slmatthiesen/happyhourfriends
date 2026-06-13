@@ -562,4 +562,27 @@ check("platform_website_url: ordering/link platforms flag (Ciao Grazie / Sushiho
   assert.ok(!own.includes("platform_website_url"));
 });
 
+check("shop_page_source: window sourced from a shop/product page flags (Frutiland, SLO 2026-06-12)", () => {
+  const codes = auditVenue({
+    websiteUrl: "https://frutiiland.com/",
+    hoursJson: null,
+    windows: [{
+      daysOfWeek: [5], startTime: "18:00:00", endTime: "23:00:00", allDay: false,
+      active: true, sourceUrl: "https://frutiiland.com/collections/pastor-de-trompo", notes: "Friday Specials: tacos",
+    }],
+  }).map((f) => f.code);
+  assert.ok(codes.includes("shop_page_source"));
+});
+check("shop_page_source: a normal menu page does NOT flag", () => {
+  const codes = auditVenue({
+    websiteUrl: "https://x.com/",
+    hoursJson: null,
+    windows: [{
+      daysOfWeek: [1, 2, 3, 4, 5], startTime: "15:00:00", endTime: "18:00:00", allDay: false,
+      active: true, sourceUrl: "https://x.com/happy-hour-menu/", notes: null,
+    }],
+  }).map((f) => f.code);
+  assert.ok(!codes.includes("shop_page_source"));
+});
+
 console.log(`\n✓ ${passed} anomaly-rule checks passed.`);

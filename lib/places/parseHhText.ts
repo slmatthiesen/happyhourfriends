@@ -250,39 +250,83 @@ function computePlausible(
   return true;
 }
 
-/** Best-effort offerings from a snippet: "$N off X", "$N Y", "half-price Z". */
+// "$N" or a "$N-M" range (price ranges are real on HH menus: "apps from $10-12").
+const PRICE = "\\$(\\d+(?:\\.\\d{2})?)(?:\\s*[-–—]\\s*\\$?(\\d+(?:\\.\\d{2})?))?";
+// Trailing prepositions/articles a greedy LABEL drags in ("select drafts apps FROM").
+const LABEL_TRAILING_STOPWORD = /\s+(?:from|with|and|or|to|at|in|on|per|until|till|the|a|an|of|for)$/i;
+function trimLabel(label: string): string {
+  let l = label.trim();
+  for (let prev = ""; prev !== l; ) { prev = l; l = l.replace(LABEL_TRAILING_STOPWORD, ""); }
+  return l;
+}
+/**
+ * kind + category from the item's OWN label when it carries a food/drink word; the
+ * whole segment is only a fallback. Segment-level context misfiled every item on a
+ * mixed deal list ("$8 wines" categorized beer because "drafts" appeared later).
+ */
+function kindAndCategory(label: string, segment: string): { kind: ParsedOffering["kind"]; category: string } {
+  const primary = label && (DRINK.test(label) || FOOD.test(label)) ? label : segment;
+  const kind: ParsedOffering["kind"] = DRINK.test(primary) ? "drink" : FOOD.test(primary) ? "food" : "other";
+  return { kind, category: categorize(primary, kind) };
+}
+
+/** Best-effort offerings from a snippet: "$N off X", "$N(-M) Y", "X from $N(-M)", "half-price Z". */
 export function parseOfferings(s: string, sourceUrl: string): ParsedOffering[] {
   const out: ParsedOffering[] = [];
-
-  // "$N off X" / "$N Y" — dollar-priced or dollar-discounted items.
-  const dollar = new RegExp(`\\$(\\d+(?:\\.\\d{2})?)\\s*(off)?\\s*${LABEL}`, "gi");
+  // Spans consumed by the label-BEFORE-price form, so the $-first pass neither re-reads
+  // their price as an orphan item nor lets its greedy LABEL swallow their label.
+  const spans: [number, number][] = [];
   let m: RegExpExecArray | null;
-  while ((m = dollar.exec(s)) !== null) {
-    const cents = Math.round(parseFloat(m[1]) * 100);
-    const isOff = !!m[2];
-    const label = (m[3] ?? "").trim();
-    const ctx = `${label} ${s}`;
-    const kind: ParsedOffering["kind"] = DRINK.test(ctx) ? "drink" : FOOD.test(ctx) ? "food" : "other";
+
+  // "X from $N(-M)" — label-before-price ("apps from $10-12"). The single-word label
+  // must itself be a food/drink word so prose like "starting from $10" never matches.
+  const labelFrom = new RegExp(`\\b([a-z][a-z'/-]*)\\s+from\\s+${PRICE}`, "gi");
+  while (out.length < 8 && (m = labelFrom.exec(s)) !== null) {
+    const label = m[1];
+    if (!DRINK.test(label) && !FOOD.test(label)) continue;
+    spans.push([m.index, m.index + m[0].length]);
     out.push({
-      kind,
-      category: categorize(ctx, kind),
-      name: (m[0] || "").replace(/\s+/g, " ").trim(),
+      ...kindAndCategory(label, s),
+      name: m[0].replace(/\s+/g, " ").trim(),
+      priceCents: Math.round(parseFloat(m[2]) * 100), // range → its minimum
+      discountCents: null,
+      sourceUrl,
+    });
+  }
+
+  // "$N off X" / "$N Y" / "$N-M Y" — price-first items.
+  const dollar = new RegExp(`${PRICE}\\s*(off)?\\s*${LABEL}`, "gi");
+  while (out.length < 8 && (m = dollar.exec(s)) !== null) {
+    if (spans.some(([a, b]) => m!.index >= a && m!.index < b)) continue;
+    const cents = Math.round(parseFloat(m[1]) * 100);
+    const isOff = !!m[3];
+    const rawLabel = m[4] ?? "";
+    let label = rawLabel;
+    // Truncate a greedy label at the start of any label-from span it runs into.
+    if (rawLabel) {
+      const labelStart = m.index + m[0].lastIndexOf(rawLabel);
+      for (const [a] of spans) {
+        if (labelStart < a && labelStart + rawLabel.length > a) label = s.slice(labelStart, a);
+      }
+    }
+    label = trimLabel(label);
+    if (!label && !isOff) continue; // a bare price names no item ("$10" left over from a range)
+    const priceText = `$${m[1]}${m[2] ? `-${m[2]}` : ""}`;
+    out.push({
+      ...kindAndCategory(label, s),
+      name: `${priceText}${isOff ? " off" : ""}${label ? ` ${label}` : ""}`.trim(),
       priceCents: isOff ? null : cents,
       discountCents: isOff ? cents : null,
       sourceUrl,
     });
-    if (out.length >= 8) break;
   }
 
   // "half price X" / "half-price X" / "1/2 off X" — percentage discounts (no $ amount).
   const half = new RegExp(`(half[-\\s]?price|1/2\\s*(?:off|price))\\s*${LABEL}`, "gi");
   while (out.length < 8 && (m = half.exec(s)) !== null) {
-    const label = (m[2] ?? "").trim();
-    const ctx = `${label} ${s}`;
-    const kind: ParsedOffering["kind"] = DRINK.test(ctx) ? "drink" : FOOD.test(ctx) ? "food" : "other";
+    const label = trimLabel(m[2] ?? "");
     out.push({
-      kind,
-      category: categorize(ctx, kind),
+      ...kindAndCategory(label, s),
       name: (m[0] || "").replace(/\s+/g, " ").trim(),
       priceCents: null,
       discountCents: null,
