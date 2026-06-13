@@ -27,6 +27,7 @@ TESTS=(
   test:stub-rank
   test:extract
   test:realness-gate
+  test:jsonld-menu
   test:window-reconcile
   test:anomaly-rules
   test:flag-eval
