@@ -22,6 +22,7 @@ TESTS=(
   test:venue-type
   test:neighborhood-canonical
   test:first-party
+  test:source-provenance
   test:harvest
   test:hidden-review
   test:stub-rank

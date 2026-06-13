@@ -22,6 +22,7 @@ import { hhLikelihood } from "@/lib/places/hhLikelihood";
 import { assessRealness } from "@/lib/places/realnessGate";
 import { reconcileWindows, offeringsFingerprint, type ReconcileWindow } from "@/lib/places/windowReconcile";
 import { sanitizeOfferings, offeringNameKey } from "@/lib/recover/offeringSanity";
+import { isSourceProvenanceSuspect } from "@/lib/recover/sourceProvenance";
 import { firstOfCurrentMonth } from "@/lib/ai/budget";
 
 export interface ResolveResult {
@@ -74,7 +75,7 @@ export async function persistExtractedWindows(
   });
 
   const [venueRow] = await db
-    .select({ hoursJson: venues.hoursJson })
+    .select({ hoursJson: venues.hoursJson, websiteUrl: venues.websiteUrl })
     .from(venues)
     .where(eq(venues.id, venueId))
     .limit(1);
@@ -149,10 +150,16 @@ export async function persistExtractedWindows(
       )
       .limit(1);
     if (nuked) continue;
+    // Source/provenance integrity (diagnosis 2026-06-13, bucket #1): hide a window whose
+    // source_url is not the venue's own site (e.g. Depot Bar sourced thedepotbar.com for a
+    // .shop venue; Blanco sourced a sibling-brand domain). Non-destructive — the operator
+    // reviews hidden windows. No opinion when we can't compare (no website / menu host).
+    const provenanceSuspect = isSourceProvenanceSuspect(hh.sourceUrl, venueRow?.websiteUrl ?? null);
     // Hidden if the realness gate is suspicious OR the free parser flagged the window
-    // implausible OR the reconcile gate marked it inactive (operating-hours / overlap).
+    // implausible OR the reconcile gate marked it inactive (operating-hours / overlap)
+    // OR the source doesn't trace to the venue's own site.
     // Used for the insert, the live/hidden tally, AND the audit row so all three agree.
-    const isActive = !verdict.suspect && !hh.suspect && reconActive;
+    const isActive = !verdict.suspect && !hh.suspect && reconActive && !provenanceSuspect;
     const [row] = await db
       .insert(happyHours)
       .values({
@@ -217,16 +224,16 @@ export async function persistExtractedWindows(
         active: true,
       });
     }
+    const reasonNotes: string[] = [];
+    if (sanitized.warnings.length > 0) reasonNotes.push(`offering sanity: ${sanitized.warnings.join("; ")}`);
+    if (provenanceSuspect) reasonNotes.push(`source provenance: hidden, ${hh.sourceUrl} is not the venue's own site`);
     await db.insert(auditLog).values({
       tableName: "happy_hours",
       rowId: row.id,
       beforeJsonb: null,
       afterJsonb: { venueId, daysOfWeek: days, startTime: hh.startTime, endTime: hh.endTime, active: isActive },
       actor,
-      reason:
-        sanitized.warnings.length > 0
-          ? `stub resolve (offering sanity: ${sanitized.warnings.join("; ")})`
-          : "stub resolve",
+      reason: reasonNotes.length > 0 ? `stub resolve (${reasonNotes.join("; ")})` : "stub resolve",
     });
   }
 
