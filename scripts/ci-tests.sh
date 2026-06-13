@@ -70,6 +70,7 @@ TESTS=(
   test:offering-sanity
   test:adjudicate-flag
   test:machine-text
+  test:map-concurrency
   test:neighborhood-name
   test:group-by-state
 )
