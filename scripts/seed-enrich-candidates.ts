@@ -47,7 +47,7 @@ import {
   type PrepContext,
   type BatchState,
 } from "@/lib/ai/enrichBatchState";
-import { firstOfCurrentMonth } from "@/lib/ai/budget";
+import { persistExtractedWindows } from "@/lib/recover/resolveVenue";
 import { assignNeighborhoods } from "@/lib/geo/assignNeighborhoods";
 import { PlaceDetailsQuotaError } from "@/lib/places/placeDetails";
 import type { OpenPeriod } from "@/lib/geo/timezone";
@@ -56,7 +56,6 @@ import { slugify, placeIdSuffix } from "@/lib/places/venueSlug";
 import { deriveVenueType, isVenueType, type VenueType } from "@/lib/places/venueType";
 import { triageSite, resolveEnrichAction } from "@/lib/places/siteTriage";
 import { hhLikelihood } from "@/lib/places/hhLikelihood";
-import { assessRealness, windowShouldBeActive, type RealnessReason } from "@/lib/places/realnessGate";
 import { renderKillReport, type KillEntry, type KillReason } from "@/lib/places/killReport";
 import { writeFile } from "node:fs/promises";
 import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
@@ -272,9 +271,16 @@ async function insertVenueRow(
 }
 
 /**
- * Write one enriched candidate to the DB: insert the venue (complete|stub) and any
- * HH windows + offerings. Identical output across all three paths.
- * Returns the venue id + outcome. Does NOT mark the candidate processed.
+ * Persist one enriched candidate: create the venue from the candidate, then funnel its
+ * HH windows through the ONE canonical persist path (lib/recover/persistExtractedWindows)
+ * — the SAME code reextract-stubs and the admin Stub Resolver use. That path owns the
+ * ledger, the realness + reconcile + source-provenance gates, soft-delete respect (never
+ * resurrects an operator-deleted window), offering sanity/dedup, audit logging, and the
+ * promote-to-'complete'. Enrich only owns venue creation (persistExtractedWindows takes an
+ * existing venue id). Returns the venue id + outcome; does NOT mark the candidate processed.
+ *
+ * A null `extracted` is a pure stub (no website / social-only / unreachable): we create the
+ * venue and stop — there's no AI call to ledger and no windows to persist.
  */
 async function persistExtraction(
   sql: Sql,
@@ -289,48 +295,9 @@ async function persistExtraction(
   hasHH: boolean;
   activeCount: number;
   hiddenCount: number;
-  hiddenReasons: RealnessReason[];
+  hiddenReasons: string[];
 }> {
   const { cityId, ctx, extracted } = args;
-
-  // Run the pure realness gate per window (no AI). It NEVER drops data — it only
-  // decides active (shown) vs. hidden-for-review (active=false). The expensive
-  // extraction has already been captured; this is the cheap downstream filter.
-  const windows = (extracted?.happyHours ?? []).map((hh) => {
-    const days = [...new Set(hh.daysOfWeek)].sort((a, b) => a - b);
-    const verdict = assessRealness({
-      allDay: hh.allDay,
-      dayCount: days.length,
-      timeKnown: hh.timeKnown,
-      confidence: extracted!.confidence,
-      mealSpecial: {
-        startTime: hh.startTime,
-        endTime: hh.endTime,
-        notes: hh.notes,
-        sourceUrl: hh.sourceUrl,
-        offerings: hh.offerings.map((o) => ({
-          name: o.name,
-          description: o.description,
-          priceCents: o.priceCents,
-        })),
-      },
-    });
-    return { hh, days, verdict };
-  });
-
-  const hasHH = windows.length > 0;
-  const activeCount = windows.filter((w) =>
-    windowShouldBeActive({ realnessSuspect: w.verdict.suspect, freeSuspect: w.hh.suspect }),
-  ).length;
-  const hiddenCount = windows.length - activeCount;
-  const hiddenReasons = [...new Set(windows.flatMap((w) => w.verdict.reasons))];
-  const outcome: SeedOutcome = hasHH ? "confirmed_hh" : "no_hh_found";
-
-  // Completeness reflects what's PUBLICLY visible: 'complete' only if ≥1 active window.
-  // A venue whose windows are all hidden stays a help-wanted stub until reviewed.
-  const hasActive = activeCount > 0;
-  const completeness = hasActive ? "complete" : "stub";
-  const lastVerified = hasActive ? new Date() : null;
 
   const base = deriveVenueType({
     primaryType: ctx.primaryType,
@@ -341,11 +308,14 @@ async function persistExtraction(
   const finalType =
     extracted?.venueType && isVenueType(extracted.venueType) ? extracted.venueType : base;
 
+  // Insert the venue as a stub; the canonical persist path promotes it to 'complete' when
+  // an active window lands (it never demotes a pre-existing venue). This mirrors the
+  // resolveVenue flow exactly, so a stub with no live data simply stays a stub.
   const venueId = await insertVenueRow(sql, {
     cityId,
     ctx,
-    completeness,
-    lastVerified,
+    completeness: "stub",
+    lastVerified: null,
     venueType: finalType,
   });
 
@@ -358,57 +328,25 @@ async function persistExtraction(
               WHERE id = ${venueId} AND type IS NULL`;
   }
 
-  if (venueId && hasHH) {
-    for (const { hh, days, verdict } of windows) {
-      const hhRows = await sql<{ id: string }[]>`
-        INSERT INTO happy_hours
-          (venue_id, days_of_week, all_day, start_time, end_time,
-           location_within_venue, notes, active, extract_confidence, time_known, source_url)
-        VALUES
-          (${venueId}, ${days}, ${hh.allDay},
-           ${hh.startTime}, ${hh.endTime},
-           ${hh.locationWithinVenue}::location_within_venue,
-           ${hh.notes}, ${windowShouldBeActive({ realnessSuspect: verdict.suspect, freeSuspect: hh.suspect })}, ${extracted!.confidence}, ${hh.timeKnown}, ${hh.sourceUrl})
-        ON CONFLICT DO NOTHING
-        RETURNING id
-      `;
-      if (hhRows.length === 0) continue;
-      const hhId = hhRows[0].id;
-      for (const off of hh.offerings) {
-        await sql`
-          INSERT INTO offerings
-            (happy_hour_id, kind, category, name, price_cents,
-             original_price_cents, discount_cents, description,
-             conditions, active, source_url)
-          VALUES
-            (${hhId}, ${off.kind}::offering_kind,
-             ${off.category}::offering_category, ${off.name},
-             ${off.priceCents}, ${off.originalPriceCents},
-             ${off.discountCents}, ${off.description},
-             ${off.conditions}, true, ${off.sourceUrl})
-        `;
-      }
-    }
+  if (!venueId || !extracted) {
+    return { venueId, outcome: "no_hh_found", hasHH: false, activeCount: 0, hiddenCount: 0, hiddenReasons: [] };
   }
-  return { venueId, outcome, hasHH, activeCount, hiddenCount, hiddenReasons };
-}
 
-async function writeLedger(
-  sql: Sql,
-  cityId: string,
-  month: string,
-  extracted: ExtractResult,
-): Promise<void> {
-  await sql`
-    INSERT INTO ai_usage_ledger
-      (month, model, input_tokens, output_tokens, cost_cents,
-       stage, city_id, prompt_hash)
-    VALUES
-      (${month}, ${extracted.model},
-       ${extracted.usage.inputTokens}, ${extracted.usage.outputTokens},
-       ${extracted.costCents}, ${"seed"}::ai_stage,
-       ${cityId}, ${extracted.promptHash})
-  `;
+  const { windowsLive, windowsHidden, hiddenReasons } = await persistExtractedWindows({
+    venueId,
+    cityId,
+    extracted,
+    actor: "seed:enrich",
+  });
+  const hasHH = windowsLive + windowsHidden > 0;
+  return {
+    venueId,
+    outcome: hasHH ? "confirmed_hh" : "no_hh_found",
+    hasHH,
+    activeCount: windowsLive,
+    hiddenCount: windowsHidden,
+    hiddenReasons,
+  };
 }
 
 async function markProcessed(
@@ -511,7 +449,6 @@ async function main() {
     let nFiltered = 0;
     let nKilled = 0;
     const killEntries: KillEntry[] = [];
-    const month = firstOfCurrentMonth();
 
     // Each candidate's work is independent — distinct host, no per-candidate Google
     // call (discovery already captured website/hours/phone, migration 0016), its own
@@ -655,7 +592,6 @@ async function main() {
             : null;
 
         if (extracted) {
-          await writeLedger(sql, city.id, month, extracted);
           say(
             `  → confidence=${extracted.confidence.toFixed(2)}, cost=${extracted.costCents}¢, ` +
               `${extracted.happyHours.length} window(s)`,
@@ -819,7 +755,6 @@ async function runBatch(
   city: CityRow,
   args: { limit: number | null; noWebsearch: boolean },
 ): Promise<void> {
-  const month = firstOfCurrentMonth();
   const tally: ReportTally = {
     full: 0,
     hiddenVenues: 0,
@@ -915,7 +850,6 @@ async function runBatch(
         model: extractorModel,
       };
 
-      await writeLedger(sql, city.id, month, extracted);
       tally.batchCostCents += extracted.costCents;
 
       const persisted = await persistExtraction(sql, { cityId: city.id, ctx, extracted });
@@ -968,7 +902,6 @@ async function runBatch(
           priorityUrls: ctx.priorityUrls,
         });
         if (extracted) {
-          await writeLedger(sql, city.id, month, extracted);
           tally.fallbackCostCents += extracted.costCents;
         }
         const persisted = await persistExtraction(sql, { cityId: city.id, ctx, extracted });
