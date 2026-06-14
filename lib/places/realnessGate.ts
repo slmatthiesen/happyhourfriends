@@ -151,6 +151,21 @@ export function mealSpecialEvidence(input: MealSpecialInput): string | null {
     }
   }
 
+  // Time-only lunch-band signal (operator 2026-06-14): a window sitting wholly in lunch
+  // hours (start 11:00–14:00, end ≤ 16:00) that carries menu items is almost always a lunch
+  // menu, not a happy hour — even when items are cheap or unpriced (so the $12-gated rule
+  // above misses it). Price-independent on purpose. Requires ≥1 offering so this judges only
+  // offering-bearing windows (empty windows are the bare-window gate's job, below); the HH_RE
+  // veto at the top protects genuine midday happy hours ("Mon–Fri 12–3 happy hour"). Hides
+  // for review only — never deletes.
+  if (
+    input.offerings.length >= 1 &&
+    start != null && end != null && end > start &&
+    start >= 11 * 60 && start <= 14 * 60 && end <= 16 * 60
+  ) {
+    evidence.push("midday lunch-hours window (no happy-hour wording)");
+  }
+
   if (
     priced.length >= 1 &&
     priced.length <= 2 &&
