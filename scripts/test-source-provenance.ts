@@ -68,6 +68,19 @@ check("Wix file host (wixstatic) is exempt (not suspect)", () =>
     false,
   ));
 
+// aggregator / third-party listing sources are suspect — even with no venue website to
+// compare (Eddie V's Yelp-sourced HH; never the venue's own first-party schedule)
+check("Yelp source IS suspect (aggregator, host ≠ venue)", () =>
+  assert.equal(isSourceProvenanceSuspect("https://www.yelp.com/biz/eddie-vs-scottsdale", "https://www.eddiev.com/"), true));
+check("Yelp source IS suspect even when the venue has NO stored website", () =>
+  assert.equal(isSourceProvenanceSuspect("https://www.yelp.com/biz/x", null), true));
+check("OpenTable / DoorDash sources ARE suspect (third-party listing/ordering)", () => {
+  assert.equal(isSourceProvenanceSuspect("https://www.opentable.com/r/foo", "https://foo.com"), true);
+  assert.equal(isSourceProvenanceSuspect("https://www.doordash.com/store/foo", null), true);
+});
+check("a venue's OWN toasttab is still exempt (aggregator list ≠ menu host)", () =>
+  assert.equal(isSourceProvenanceSuspect("https://foo.toasttab.com/menu", "https://foo.com"), false));
+
 // can't judge → no opinion (never hide on insufficient signal)
 check("no stored venue website → not suspect (can't judge)", () =>
   assert.equal(isSourceProvenanceSuspect("https://anything.com/x", null), false));
