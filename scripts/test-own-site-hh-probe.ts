@@ -41,6 +41,14 @@ async function main() {
     assert.deepEqual(r, { hhPageUrl: "https://bistro44.com/happy-hour", status: "blocked" });
   });
 
+  await check("blocked: HH path 429s (rate-limited wall)", async () => {
+    const r = await probeOwnSiteHhPage(
+      "https://foo.com",
+      fakeFetcher({ "https://foo.com/happy-hour": { status: 429, body: "" } }),
+    );
+    assert.deepEqual(r, { hhPageUrl: "https://foo.com/happy-hour", status: "blocked" });
+  });
+
   await check("none: all paths 404", async () => {
     const r = await probeOwnSiteHhPage("https://foo.com", fakeFetcher({}));
     assert.deepEqual(r, { hhPageUrl: null, status: "none" });
