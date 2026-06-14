@@ -248,6 +248,55 @@ export async function resolveStubAction(
   }
 }
 
+// ── /admin/stubs — manual window entry for bot-walled venues ─────────────────────
+
+export interface ManualWindowActionResult extends ActionResult {
+  summary?: string;
+}
+
+/**
+ * Admin Stub Resolver: create a live happy-hour window by hand for a venue whose site
+ * is confirmed unreadable (hh_probe_status='blocked'). Operator trust → bypasses the
+ * realness gate and lands active=true.
+ */
+export async function createManualWindowAction(input: {
+  venueId: string;
+  daysOfWeek: number[];
+  startTime: string | null;
+  endTime: string | null;
+  sourceUrl: string;
+  offerings: {
+    kind: "food" | "drink" | "other";
+    category: "beer" | "wine" | "cocktail" | "spirit" | "appetizer" | "entree" | "dessert" | "other";
+    name: string;
+    priceCents?: number | null;
+  }[];
+}): Promise<ManualWindowActionResult> {
+  try {
+    const admin = await requireAdmin();
+    const { createManualWindow } = await import("@/lib/recover/manualWindow");
+    const r = await createManualWindow(db, input, admin.email);
+    revalidatePath("/admin/stubs");
+    revalidatePath("/");
+
+    // Bridge the new live window to prod so it shows on the actual site (local is the curation
+    // source of truth; this additive bridge is how the operator's manual entry goes live for
+    // users). Mirrors hideWindowAction et al. Skip on a pure duplicate (nothing new written).
+    let warning: string | undefined;
+    if (r.happyHourId) {
+      const pub = await publishVenueToProd(input.venueId);
+      if (!pub.ok) warning = `Window created locally, but publishing to prod failed: ${pub.error}`;
+    }
+    return {
+      ok: true,
+      summary: r.happyHourId ? "window created (live)" : "duplicate — no change",
+      warning,
+    };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Manual entry failed" };
+  }
+}
+
 // ── /admin/reviews — live review queues (meal specials, hidden windows) ──────────
 
 export type ReviewDecision = "keep" | "hide" | "delete" | "promote";

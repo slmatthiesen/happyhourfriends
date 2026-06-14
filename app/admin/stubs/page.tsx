@@ -17,6 +17,10 @@ export default async function StubsPage() {
       candUrl: seedCandidates.websiteUrl,
       primaryType: seedCandidates.primaryType,
       types: seedCandidates.types,
+      hhProbeStatus: venues.hhProbeStatus,
+      hhPageUrl: venues.hhPageUrl,
+      address: venues.address,
+      phone: venues.phone,
     })
     .from(venues)
     .leftJoin(cities, eq(venues.cityId, cities.id))
@@ -44,9 +48,18 @@ export default async function StubsPage() {
       candidateUrl: r.candUrl,
       type: r.type,
       score: hhLikelihood({ primaryType: r.primaryType, types: r.types, name: r.name }),
+      hhProbeStatus: r.hhProbeStatus ?? null,
+      hhPageUrl: r.hhPageUrl ?? null,
+      address: r.address ?? null,
+      phone: r.phone ?? null,
     });
   }
   items.sort((a, b) => (b.score ?? -1) - (a.score ?? -1));
+
+  // Blocked sites (confirmed unreadable) surface first — they're the manual-entry queue.
+  const blocked = items.filter((v) => v.hhProbeStatus === "blocked");
+  const rest = items.filter((v) => v.hhProbeStatus !== "blocked");
+  const ordered = [...blocked, ...rest];
 
   const withSite = items.filter((v) => v.websiteUrl || v.candidateUrl).length;
 
@@ -62,6 +75,13 @@ export default async function StubsPage() {
         Each click is one paid model call; a found window flips the venue live.
       </p>
 
+      {blocked.length > 0 && (
+        <p className="mt-3 text-sm text-text-muted">
+          <strong className="text-text-primary">{blocked.length} venue(s) need manual entry</strong>{" "}
+          (site confirmed unreadable — shown first).
+        </p>
+      )}
+
       <div className="mt-6 overflow-x-auto rounded-lg border border-border">
         <table className="w-full text-left text-sm">
           <thead className="bg-bg-elevated text-xs text-text-muted">
@@ -72,7 +92,7 @@ export default async function StubsPage() {
             </tr>
           </thead>
           <tbody>
-            {items.map((v) => (
+            {ordered.map((v) => (
               <StubRow key={v.id} venue={v} />
             ))}
           </tbody>

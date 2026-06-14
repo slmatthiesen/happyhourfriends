@@ -51,6 +51,16 @@ export const dataCompleteness = pgEnum("data_completeness", [
   "verified",
 ]);
 
+// Result of the own-site happy-hour-page probe (lib/places/ownSiteHhProbe).
+// readable = found and could read a HH/specials page on the venue's own domain.
+// blocked  = found a candidate URL but the page was bot-walled / JS-only.
+// none     = no HH/specials page detected on the own site.
+export const hhProbeStatus = pgEnum("hh_probe_status", [
+  "readable",
+  "blocked",
+  "none",
+]);
+
 // ── Happy hours / offerings ──────────────────────────────────────────────────
 export const locationWithinVenue = pgEnum("location_within_venue", [
   "bar",

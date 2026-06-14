@@ -68,10 +68,13 @@ TESTS=(
   test:hh-golden
   test:resolve-city
   test:offering-sanity
+  test:own-site-hh-priority
+  test:own-site-hh-probe
   test:persist-unified
   test:adjudicate-flag
   test:machine-text
   test:map-concurrency
+  test:manual-window
   test:neighborhood-name
   test:group-by-state
 )

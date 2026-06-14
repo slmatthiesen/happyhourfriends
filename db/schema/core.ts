@@ -24,6 +24,7 @@ import {
   cityStatus,
   dataCompleteness,
   hhExceptionType,
+  hhProbeStatus,
   locationWithinVenue,
   offeringCategory,
   offeringKind,
@@ -159,6 +160,11 @@ export const venues = pgTable(
     promotionEndsAt: timestamp("promotion_ends_at", { withTimezone: true }),
     dataCompleteness: dataCompleteness("data_completeness").notNull().default("stub"),
     lastVerifiedAt: timestamp("last_verified_at", { withTimezone: true }),
+    // Own-site happy-hour-page probe verdict (lib/places/ownSiteHhProbe). Persisted so the
+    // promote orchestrator, enrich URL-priority, and the admin manual-entry queue all reuse
+    // one $0 probe. NULL = never probed.
+    hhPageUrl: text("hh_page_url"),
+    hhProbeStatus: hhProbeStatus("hh_probe_status"),
     claimedByUserId: uuid("claimed_by_user_id"),
     ...timestamps,
     ...softDelete,
