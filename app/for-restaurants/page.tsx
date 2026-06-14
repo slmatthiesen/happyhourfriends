@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { SiteWordmark } from "@/components/site-wordmark";
+import { SiteFooter } from "@/components/site-footer";
 
 export const metadata: Metadata = {
   title: "For Restaurants · Happy Hour Friends",
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 export default function ForRestaurantsPage() {
   return (
     <main className="mx-auto w-full max-w-2xl px-6 py-16">
+      <SiteWordmark className="mb-8" />
       <h1
         className="text-4xl font-semibold text-text-primary"
         style={{ fontFamily: "var(--font-serif)" }}
@@ -34,12 +36,8 @@ export default function ForRestaurantsPage() {
           we leave it blank rather than guess. That commitment protects your
           guests and your reputation.
         </p>
-        <p>
-          <Link href="/tacoma" className="text-accent-cool hover:underline">
-            ← Browse Tacoma happy hours
-          </Link>
-        </p>
       </div>
+      <SiteFooter className="mt-14 border-t border-border pt-8" />
     </main>
   );
 }
