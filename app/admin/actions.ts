@@ -278,9 +278,19 @@ export async function createManualWindowAction(input: {
     const r = await createManualWindow(db, input, admin.email);
     revalidatePath("/admin/stubs");
     revalidatePath("/");
+
+    // Bridge the new live window to prod so it shows on the actual site (local is the curation
+    // source of truth; this additive bridge is how the operator's manual entry goes live for
+    // users). Mirrors hideWindowAction et al. Skip on a pure duplicate (nothing new written).
+    let warning: string | undefined;
+    if (r.happyHourId) {
+      const pub = await publishVenueToProd(input.venueId);
+      if (!pub.ok) warning = `Window created locally, but publishing to prod failed: ${pub.error}`;
+    }
     return {
       ok: true,
       summary: r.happyHourId ? "window created (live)" : "duplicate — no change",
+      warning,
     };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Manual entry failed" };

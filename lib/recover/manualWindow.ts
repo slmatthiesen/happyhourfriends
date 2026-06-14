@@ -109,6 +109,20 @@ export async function createManualWindow(
   const { hhRow, offeringRows } = buildManualWindowInsert(input);
 
   return database.transaction(async (tx) => {
+    // Invariant: manual entry is the narrow exception to "no manual venue patching" — allowed
+    // ONLY for venues whose site is confirmed unreadable (hh_probe_status='blocked'). Enforce it
+    // at the data layer, not just the admin UI, so a stray direct call can't patch any venue.
+    const [v0] = await tx
+      .select({ status: venues.hhProbeStatus })
+      .from(venues)
+      .where(eq(venues.id, input.venueId))
+      .limit(1);
+    if (!v0) throw new Error("venue not found");
+    if (v0.status !== "blocked")
+      throw new Error(
+        `manual entry only allowed for confirmed-unreadable venues (hh_probe_status='blocked'); this venue is '${v0.status ?? "unprobed"}'`,
+      );
+
     const inserted = await tx
       .insert(happyHours)
       .values(hhRow)
