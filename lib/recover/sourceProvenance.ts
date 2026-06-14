@@ -96,6 +96,28 @@ function isMenuHost(url: string): boolean {
 }
 
 /**
+ * Third-party listing / ordering platforms whose pages are NOT the venue's own data
+ * (Yelp, OpenTable, DoorDash, …). Deliberately separate from `isDenylistedSource`: the
+ * extraction-time denylist DROPS data and is kept narrow (the Blue Hound incident — a Yelp
+ * block lost 9 real offerings), so these are NOT dropped at extraction. Here, at the persist
+ * layer, an aggregator source is treated as provenance-suspect and HIDDEN for operator review
+ * (reversible) — it almost never IS the venue's first-party schedule. Distinct from MENU_HOSTS
+ * (where a venue hosts its OWN menu, e.g. toasttab).
+ */
+const AGGREGATOR_HOSTS = [
+  "yelp.com", "opentable.com", "tripadvisor.com", "zomato.com", "allmenus.com",
+  "menupix.com", "foursquare.com", "restaurantguru.com", "yellowpages.com",
+  // third-party ORDERING platforms (not the venue's own site)
+  "doordash.com", "ubereats.com", "grubhub.com", "seamless.com", "postmates.com",
+];
+
+function isAggregatorHost(url: string): boolean {
+  const h = host(url);
+  if (!h) return false;
+  return AGGREGATOR_HOSTS.some((a) => h === a || h.endsWith(`.${a}`));
+}
+
+/**
  * True when a window's `source_url` is NOT verifiably the venue's own site and should be
  * HIDDEN for review. No opinion (false) when we can't judge: missing/garbage source,
  * no stored venue website, or a known menu-hosting platform.
@@ -104,11 +126,16 @@ export function isSourceProvenanceSuspect(
   sourceUrl: string | null | undefined,
   venueWebsite: string | null | undefined,
 ): boolean {
-  if (!sourceUrl || !venueWebsite) return false;
+  if (!sourceUrl) return false;
   const sourceHost = host(sourceUrl);
+  if (sourceHost === null) return false; // unparseable → can't judge
+  // A competitor-aggregator (extraction denylist) or third-party listing/ordering source is
+  // NOT the venue's own schedule even when we have no venue website to compare against — flag
+  // it for review regardless. (Hide-only, reversible; the data itself is never dropped here.)
+  if (isDenylistedSource(sourceUrl) || isAggregatorHost(sourceUrl)) return true;
+  if (!venueWebsite) return false; // nothing to host-compare against → no opinion
   const venueHost = host(venueWebsite);
-  if (sourceHost === null || venueHost === null) return false; // unparseable → can't judge
-  if (isDenylistedSource(sourceUrl)) return true; // aggregator leak — never trust
+  if (venueHost === null) return false; // unparseable → can't judge
   if (isMenuHost(sourceUrl)) return false; // platform host, can't be domain-matched
   // Same business iff same registrable domain (sibling subdomains count, e.g. Dog Haus).
   return registrableDomain(sourceHost) !== registrableDomain(venueHost);
