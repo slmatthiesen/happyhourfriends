@@ -230,7 +230,10 @@ export function extractMediaLinks(html: string, baseUrl: string): string[] {
   return [...out].slice(0, 6);
 }
 
-/** Common HH/menu paths to PROBE even when nothing links them (most→least specific). */
+/** Common HH/menu paths to PROBE even when nothing links them (most→least specific).
+ *  When adding HH-specific paths here, check `ownSiteHhProbe.OWN_SITE_HH_PATHS` — it is a
+ *  deliberate subset of these (the generic /menu, /drinks, /cocktails paths are excluded
+ *  because they're too generic to count as a happy-hour page on their own). */
 export const GUESS_MENU_PATHS = [
   "/happy-hour", "/happyhour", "/happy-hour-menu", "/menu/happy-hour",
   "/specials", "/bar-menu", "/drink-menu", "/drinks", "/cocktails",
