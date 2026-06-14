@@ -10,7 +10,7 @@
  */
 import { and, eq, sql } from "drizzle-orm";
 import type { db as DbInstance } from "@/db/client";
-import { venues, happyHours, offerings, auditLog } from "@/db/schema";
+import { venues, cities, happyHours, offerings, auditLog } from "@/db/schema";
 
 export interface ManualOffering {
   kind: "food" | "drink" | "other";
@@ -53,6 +53,7 @@ export interface ManualWindowRows {
 /** Pure: validate operator input and shape the happy_hours + offerings rows. Throws on
  *  invalid input (a bad form must fail loud, never silently write a malformed window). */
 export function buildManualWindowInsert(input: ManualWindowInput): ManualWindowRows {
+  if (!input.venueId) throw new Error("manual window needs a venueId");
   const days = [...new Set(input.daysOfWeek)].sort((a, b) => a - b);
   if (days.length === 0) throw new Error("manual window needs at least one day");
   if (!days.every((d) => d >= 1 && d <= 7)) throw new Error("days must be ISO 1..7");
@@ -88,9 +89,12 @@ export function buildManualWindowInsert(input: ManualWindowInput): ManualWindowR
 
 /**
  * Write an operator-entered window live: insert the happy_hour + offerings, promote the venue
- * to complete + last_verified_at, and audit-log it. Sequential writes follow the reviewQueues.ts
- * pattern (no explicit transaction). Returns the new happy_hour id (or null if the unique index
- * swallowed a duplicate).
+ * to complete + last_verified_at, and audit-log it. ATOMIC — unlike reviewQueues.ts (which only
+ * toggles an existing row), this creates a NEW happy_hour + its offerings, so they must land (or
+ * fail) together: a live window with orphaned/absent offerings is a corrupt visible state. Mirrors
+ * the engine.ts `new_happy_hour` path (transaction + currency defaulted from the venue's city).
+ * Idempotent on the natural-key unique index. Returns the new happy_hour id (or null if a duplicate
+ * was swallowed).
  */
 export async function createManualWindow(
   database: typeof DbInstance,
@@ -99,29 +103,44 @@ export async function createManualWindow(
 ): Promise<{ happyHourId: string | null }> {
   const { hhRow, offeringRows } = buildManualWindowInsert(input);
 
-  const inserted = await database
-    .insert(happyHours)
-    .values(hhRow)
-    .onConflictDoNothing()
-    .returning({ id: happyHours.id });
-  const happyHourId = inserted[0]?.id ?? null;
-  if (!happyHourId) return { happyHourId: null }; // duplicate — nothing new to write
+  return database.transaction(async (tx) => {
+    const inserted = await tx
+      .insert(happyHours)
+      .values(hhRow)
+      .onConflictDoNothing()
+      .returning({ id: happyHours.id });
+    const happyHourId = inserted[0]?.id ?? null;
+    if (!happyHourId) return { happyHourId: null }; // duplicate — nothing new to write
 
-  if (offeringRows.length) {
-    await database.insert(offerings).values(offeringRows.map((o) => ({ ...o, happyHourId })));
-  }
-  await database
-    .update(venues)
-    .set({ dataCompleteness: "complete", lastVerifiedAt: sql`now()`, updatedAt: sql`now()` })
-    .where(and(eq(venues.id, input.venueId), eq(venues.dataCompleteness, "stub")));
-  await database.insert(auditLog).values({
-    tableName: "happy_hours",
-    rowId: happyHourId,
-    beforeJsonb: null,
-    afterJsonb: { active: true, source: "manual-entry" },
-    actor,
-    reason: "manual HH entry — unreadable site",
+    if (offeringRows.length) {
+      // Offerings default their currency from the venue's city, mirroring the seed pipeline
+      // + engine.ts new_happy_hour path (so operator-entered offerings match AI-entered ones).
+      const [v] = await tx
+        .select({ cityId: venues.cityId })
+        .from(venues)
+        .where(eq(venues.id, input.venueId))
+        .limit(1);
+      const [c] = v
+        ? await tx.select({ cc: cities.currencyCode }).from(cities).where(eq(cities.id, v.cityId)).limit(1)
+        : [];
+      const defaultCurrency = c?.cc ?? null;
+      await tx
+        .insert(offerings)
+        .values(offeringRows.map((o) => ({ ...o, happyHourId, currencyCode: defaultCurrency })));
+    }
+    await tx
+      .update(venues)
+      .set({ dataCompleteness: "complete", lastVerifiedAt: sql`now()`, updatedAt: sql`now()` })
+      .where(and(eq(venues.id, input.venueId), eq(venues.dataCompleteness, "stub")));
+    await tx.insert(auditLog).values({
+      tableName: "happy_hours",
+      rowId: happyHourId,
+      beforeJsonb: null,
+      afterJsonb: { active: true, source: "manual-entry" },
+      actor,
+      reason: "manual HH entry — unreadable site",
+    });
+
+    return { happyHourId };
   });
-
-  return { happyHourId };
 }
