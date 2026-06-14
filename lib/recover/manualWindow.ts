@@ -80,7 +80,12 @@ export function buildManualWindowInsert(input: ManualWindowInput): ManualWindowR
         kind: o.kind,
         category: o.category,
         name: o.name.trim(),
-        priceCents: o.priceCents ?? null,
+        // Reject a non-finite / negative price at the gate — Infinity would crash the
+        // integer insert; null ("price unknown") is the safe, valid fallback.
+        priceCents:
+          typeof o.priceCents === "number" && Number.isFinite(o.priceCents) && o.priceCents >= 0
+            ? o.priceCents
+            : null,
         sourceUrl: input.sourceUrl.trim(),
         active: true,
       })),
