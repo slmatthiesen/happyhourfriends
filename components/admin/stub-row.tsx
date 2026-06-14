@@ -96,6 +96,16 @@ function ManualEntryForm({ venue }: { venue: StubVenue }) {
 
   function submit() {
     setResult(null);
+    // Instant client-side guards so the operator gets feedback without a server round-trip
+    // (the backend re-validates these and would reject them anyway).
+    if (checkedDays.size === 0) {
+      setResult({ ok: false, error: "Select at least one day." });
+      return;
+    }
+    if (!startTime && !endTime) {
+      setResult({ ok: false, error: "Enter a start or end time." });
+      return;
+    }
     const sourceUrl = venue.hhPageUrl ?? venue.websiteUrl ?? "";
     const input = {
       venueId: venue.id,
@@ -105,15 +115,16 @@ function ManualEntryForm({ venue }: { venue: StubVenue }) {
       sourceUrl,
       offerings: offeringRows
         .filter((o) => o.name.trim())
-        .map((o) => ({
-          kind: o.kind,
-          category: o.category,
-          name: o.name.trim(),
-          priceCents:
-            o.priceStr.trim() !== ""
-              ? Math.round(parseFloat(o.priceStr) * 100)
-              : null,
-        })),
+        .map((o) => {
+          // Guard the dollars→cents parse: a non-finite/negative price (e.g. "1e308")
+          // would become Infinity and crash the integer insert — drop it to null instead.
+          const dollars = parseFloat(o.priceStr);
+          const priceCents =
+            o.priceStr.trim() !== "" && Number.isFinite(dollars) && dollars >= 0
+              ? Math.round(dollars * 100)
+              : null;
+          return { kind: o.kind, category: o.category, name: o.name.trim(), priceCents };
+        }),
     };
     startTransition(async () => {
       setResult(await createManualWindowAction(input));
@@ -350,6 +361,7 @@ export function StubRow({ venue }: { venue: StubVenue }) {
           </button>
           {isBlocked && (
             <button
+              type="button"
               onClick={() => setShowManual((v) => !v)}
               className="rounded-md border border-border px-2.5 py-1 text-xs hover:bg-row-hover"
               title="Enter happy-hour details by hand (site is confirmed unreadable)"

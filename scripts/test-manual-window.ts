@@ -38,6 +38,20 @@ check("happy path: active=true, time_known=true, sorted days, source carried", (
 check("rejects a missing venueId", () =>
   assert.throws(() => buildManualWindowInsert({ ...base, venueId: "" }), /venueId/i));
 
+check("coerces a non-finite / negative price to null", () => {
+  const { offeringRows } = buildManualWindowInsert({
+    ...base,
+    offerings: [
+      { kind: "drink" as const, category: "beer" as const, name: "ok", priceCents: 500 },
+      { kind: "drink" as const, category: "beer" as const, name: "inf", priceCents: Infinity },
+      { kind: "food" as const, category: "appetizer" as const, name: "neg", priceCents: -100 },
+    ],
+  });
+  assert.equal(offeringRows[0].priceCents, 500);
+  assert.equal(offeringRows[1].priceCents, null);
+  assert.equal(offeringRows[2].priceCents, null);
+});
+
 check("days are de-duped and sorted", () => {
   const { hhRow } = buildManualWindowInsert({ ...base, daysOfWeek: [5, 1, 1, 3] });
   assert.deepEqual(hhRow.daysOfWeek, [1, 3, 5]);
