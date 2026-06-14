@@ -10,13 +10,12 @@ export function SiteWordmark({ className }: { className?: string }) {
     <Link
       href="/"
       className={cn(
-        "inline-flex items-center gap-1.5 text-sm font-medium text-text-muted underline-offset-4 transition-colors hover:text-text-primary hover:underline",
+        "inline-block text-sm font-medium text-text-muted underline-offset-4 transition-colors hover:text-text-primary hover:underline",
         className,
       )}
       style={{ fontFamily: "var(--font-serif)" }}
     >
-      <span aria-hidden="true">🍻</span>
-      Happy Hour Friends
+      <span aria-hidden="true">🍻</span>&nbsp;Happy Hour Friends
     </Link>
   );
 }
