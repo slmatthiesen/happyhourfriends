@@ -120,7 +120,9 @@ async function main() {
     const stamp = today();
     const tally = (s: ProbeStatus) => outcomes.filter((o) => o.status === s).length;
     const live = outcomes.filter((o) => o.result === "live").length;
-    const stillBlocked = outcomes.filter((o) => o.result === "still-empty").length;
+    // Only blocked venues land in the manual-entry queue; a readable venue that extracted
+    // nothing is "still-empty" but NOT manual-queue work, so it must not inflate this count.
+    const stillBlocked = outcomes.filter((o) => o.result === "still-empty" && o.status === "blocked").length;
     const spent = outcomes.reduce((n, o) => n + (o.costCents ?? 0), 0);
 
     const md = [
