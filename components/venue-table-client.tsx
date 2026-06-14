@@ -1093,8 +1093,7 @@ export function VenueTableClient({
               <span aria-hidden="true" className="mr-1.5 font-medium">
                 {showStubs ? "−" : "＋"}
               </span>
-              {stubs.length} more {stubs.length === 1 ? "spot" : "spots"} we&apos;re
-              still confirming — know {stubs.length === 1 ? "it" : "one"}? Help us add it
+              {stubs.length} more {stubs.length === 1 ? "spot" : "spots"} we&apos;re still confirming — know {stubs.length === 1 ? "it" : "one"}? Help us add it ❤️
             </span>
             <span aria-hidden="true" className="shrink-0 text-xs uppercase tracking-wide">
               {showStubs ? "Hide" : "Show"}
