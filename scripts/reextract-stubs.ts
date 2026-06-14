@@ -39,6 +39,7 @@ import { hhLikelihood } from "@/lib/places/hhLikelihood";
 import { firstOfCurrentMonth } from "@/lib/ai/budget";
 import { persistExtractedWindows } from "@/lib/recover/resolveVenue";
 import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
+import { prioritizeOwnSiteHh } from "@/lib/places/ownSiteHhPriority";
 
 type Sql = ReturnType<typeof postgres>;
 
@@ -48,6 +49,7 @@ interface StubVenue {
   website_url: string | null;
   type: string | null;
   primary_type: string | null;
+  hh_page_url: string | null;
 }
 
 /** A stub that passed triage and is ready to extract. */
@@ -340,7 +342,7 @@ async function main() {
     // Stubs with a website: the recoverable population. (No-site stubs can't be re-read;
     // social-only stubs are caught by triage below and skipped.)
     const stubs = await sql<StubVenue[]>`
-      SELECT v.id, v.name, v.website_url, v.type::text AS type, sc.primary_type
+      SELECT v.id, v.name, v.website_url, v.type::text AS type, sc.primary_type, v.hh_page_url
       FROM venues v
       LEFT JOIN seed_candidates sc ON sc.resulting_venue_id = v.id
       WHERE v.city_id = ${city.id}
@@ -374,7 +376,7 @@ async function main() {
       qualified.push({
         venue: v,
         websiteUrl: verdict.kind === "real" ? verdict.url : null,
-        priorityUrls: decided.priorityUrls,
+        priorityUrls: prioritizeOwnSiteHh(decided.priorityUrls, v.hh_page_url),
       });
       if (args.dryRun) console.log(`  ⟳ ${v.name}  (${verdict.hhSignalUrls.length} HH link(s))`);
     }
