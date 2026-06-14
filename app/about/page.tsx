@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { SiteWordmark } from "@/components/site-wordmark";
+import { SiteFooter } from "@/components/site-footer";
 
 export const metadata: Metadata = {
   title: "About · Happy Hour Friends",
@@ -9,6 +11,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <main className="mx-auto w-full max-w-2xl px-6 py-16">
+      <SiteWordmark className="mb-8" />
       <h1
         className="text-4xl font-semibold text-text-primary"
         style={{ fontFamily: "var(--font-serif)" }}
@@ -77,6 +80,7 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+      <SiteFooter className="mt-14 border-t border-border pt-8" />
     </main>
   );
 }

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { SiteWordmark } from "@/components/site-wordmark";
+import { SiteFooter } from "@/components/site-footer";
 
 export const metadata: Metadata = {
   title: "FAQ · Happy Hour Friends",
@@ -13,7 +15,7 @@ const faqs = [
   },
   {
     q: "How do I submit a change?",
-    a: "Click the edit prompt on any venue, fill in the corrected value (and a source link if you have one), pass the captcha, and submit. Most verified low-risk changes apply within about a day.",
+    a: "A photo of the menu or a happy-hour sign is usually all we need. Snap it, add it on any venue (a source link helps but isn't required), pass the captcha, and submit. Most verified low-risk changes apply within about a day.",
   },
   {
     q: "How do you prevent fake submissions?",
@@ -44,6 +46,7 @@ const faqLd = {
 export default function FaqPage() {
   return (
     <main className="mx-auto w-full max-w-2xl px-6 py-16">
+      <SiteWordmark className="mb-8" />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
@@ -62,6 +65,7 @@ export default function FaqPage() {
           </div>
         ))}
       </dl>
+      <SiteFooter className="mt-14 border-t border-border pt-8" />
     </main>
   );
 }
