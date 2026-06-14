@@ -162,6 +162,13 @@
       "when": 1781128689502,
       "tag": "0022_misty_serpent_society",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1781475129735,
+      "tag": "0023_light_greymalkin",
+      "breakpoints": true
     }
   ]
 }
