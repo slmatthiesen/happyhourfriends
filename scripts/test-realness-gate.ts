@@ -274,6 +274,47 @@ check("MEAL: no offerings at all → no evidence (nothing to judge)", () => {
   assert.equal(mealSpecialEvidence({ startTime: "11:00", endTime: "15:00", offerings: [] }), null);
 });
 
+// ── time-only lunch-band rule (operator 2026-06-14): 11–2 = lunch, not happy hour ──
+check("LUNCH: cheap 11–2 window with food items IS meal service (no $12 needed)", () => {
+  const ev = mealSpecialEvidence({
+    startTime: "11:00",
+    endTime: "14:00",
+    offerings: [off("Pho", 11), off("Spring rolls", 6), off("Banh mi", 9)],
+  });
+  assert.ok(ev, "cheap lunch-band menu should now fire");
+  assert.match(ev, /lunch-hours window/);
+});
+
+check("LUNCH: 12–3 window also fires (within band)", () => {
+  assert.ok(mealSpecialEvidence({ startTime: "12:00", endTime: "15:00", offerings: [off("Bento box", 14)] }));
+});
+
+check("LUNCH: explicit 'happy hour' text VETOES the lunch-band rule (midday HH survives)", () => {
+  assert.equal(
+    mealSpecialEvidence({
+      startTime: "12:00",
+      endTime: "15:00",
+      notes: "Happy Hour Mon–Fri 12–3pm",
+      offerings: [off("Draft beer", 4)],
+    }),
+    null,
+  );
+});
+
+check("LUNCH: a 3–6pm HH window is NOT caught by the lunch-band rule (start past 14:00)", () => {
+  assert.equal(
+    mealSpecialEvidence({ startTime: "15:00", endTime: "18:00", offerings: [off("Well drinks", 5), off("Sliders", 7)] }),
+    null,
+  );
+});
+
+check("LUNCH: an 11–6pm all-afternoon window does NOT fire (end past 16:00, not lunch-contained)", () => {
+  assert.equal(
+    mealSpecialEvidence({ startTime: "11:00", endTime: "18:00", offerings: [off("Pizza slice", 4)] }),
+    null,
+  );
+});
+
 check("assessRealness without mealSpecial input behaves exactly as before", () => {
   const r = assessRealness(GOOD);
   assert.equal(r.suspect, false);
