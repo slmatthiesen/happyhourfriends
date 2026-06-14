@@ -68,6 +68,7 @@ TESTS=(
   test:hh-golden
   test:resolve-city
   test:offering-sanity
+  test:own-site-hh-priority
   test:own-site-hh-probe
   test:persist-unified
   test:adjudicate-flag
