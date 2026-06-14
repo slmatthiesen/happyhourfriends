@@ -32,7 +32,11 @@ check("happy path: active=true, time_known=true, sorted days, source carried", (
   assert.equal(hhRow.sourceUrl, "https://foo.com/happy-hour");
   assert.equal(offeringRows.length, 1);
   assert.equal(offeringRows[0].sourceUrl, "https://foo.com/happy-hour");
+  assert.equal(offeringRows[0].active, true);
 });
+
+check("rejects a missing venueId", () =>
+  assert.throws(() => buildManualWindowInsert({ ...base, venueId: "" }), /venueId/i));
 
 check("days are de-duped and sorted", () => {
   const { hhRow } = buildManualWindowInsert({ ...base, daysOfWeek: [5, 1, 1, 3] });
