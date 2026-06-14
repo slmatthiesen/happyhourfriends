@@ -95,17 +95,24 @@ probeOwnSiteHhPage(
 - Writes a `docs/own-site-hh-promote-<date>.{md,csv}` summary (counts per status, per-venue
   routing + result), mirroring the existing review-report style.
 
-## Component B — Bake own-site-HH priority into enrich
+## Component B — Bake own-site-HH priority into the recovery path
 
-In the `seed:enrich` candidate-URL ordering, push the venue's own HH page to the **front**
-of the priority list passed to `extractHappyHours`, ahead of `web_search` / aggregator hits.
-Source = persisted `venues.hh_page_url` when present, else an inline probe of the GUESS HH
-paths. This is the "Eddie V's stored a Yelp source instead of `eddiev.com/happy-hour`" fix:
-future enrich runs land **first-party live** windows instead of provenance-hidden ones.
+Push the venue's own confirmed HH page to the **front** of the priority-URL list passed to
+`extractHappyHours`, ahead of `web_search` / aggregator hits, so the extracted window's
+`source_url` is first-party and the provenance gate (PR #146) never hides it.
 
-Scope: ordering change only — no change to the extractor itself. The existing provenance
-gate (PR #146) already hides aggregator sources; this makes the first-party page win *before*
-that gate ever fires.
+**Where this actually lives (refined during implementation):** the prepend is wired into
+`scripts/reextract-stubs.ts`, threading the persisted `venues.hh_page_url` into `priorityUrls`
+via a pure `prioritizeOwnSiteHh(priorityUrls, hhPageUrl)` helper. `seed:enrich` is
+**intentionally NOT changed**: it processes brand-new `seed_candidates` that have no `venues`
+row yet (no persisted probe verdict), and its triage already ranks the own-site `/happy-hour`
+URL first — `siteVerdictFromFetch` runs `guessMenuUrls` + `rankCandidates`/`scoreHhUrl`, and
+`scoreHhUrl` scores `happy-hour` highest. So enrich already prioritizes the own-site page; an
+inline probe there would be redundant network I/O. The persisted-verdict prepend adds real
+value only on the reextract path, where the probe has *confirmed* the page is readable and
+pushes it ahead of triage's speculative guesses.
+
+Scope: ordering only — no change to the extractor itself.
 
 ## Component C — Bot-walled → pre-filled manual entry form
 
