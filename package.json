@@ -105,6 +105,7 @@
     "test:neighborhood-name": "tsx scripts/test-neighborhood-name.ts",
     "test:normalize-url": "tsx scripts/test-normalize-url.ts",
     "test:offering-sanity": "tsx scripts/test-offering-sanity.ts",
+    "test:own-site-hh-probe": "tsx scripts/test-own-site-hh-probe.ts",
     "test:parse-hh-text": "tsx scripts/test-parse-hh-text.ts",
     "test:persist-unified": "tsx scripts/test-persist-unified.ts",
     "test:queued-email": "tsx scripts/test-queued-email.ts",
