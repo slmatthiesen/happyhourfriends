@@ -11,7 +11,7 @@
   --bg-surface: #181f27;
   --bg-elevated: #232b35;
   --accent-warm: #f0b461; /* prices, primary CTA, "happening now" */
-  --accent-cool: #6b9ee8; /* links, secondary actions */
+  --accent-cool: #d98a5c; /* warm clay — links + secondary actions (was cool blue #6b9ee8) */
   --accent-hot: #e0708a; /* flags, warnings, badges */
   --text-primary: #e8edf2;
   --text-muted: #8fa1b3;
