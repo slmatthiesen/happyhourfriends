@@ -74,6 +74,7 @@ TESTS=(
   test:adjudicate-flag
   test:machine-text
   test:map-concurrency
+  test:manual-window
   test:neighborhood-name
   test:group-by-state
 )
