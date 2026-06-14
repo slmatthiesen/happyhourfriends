@@ -55,7 +55,7 @@ interface Outcome {
   websiteUrl: string | null;
   status: ProbeStatus;
   hhPageUrl: string | null;
-  result: "live" | "still-empty" | "skipped" | "dry-run";
+  result: "live" | "still-empty" | "no-page" | "dry-run";
   windowsLive?: number;
   costCents?: number;
 }
@@ -95,11 +95,11 @@ async function main() {
 
       const base: Outcome = {
         venue: r.venue, city: r.city, websiteUrl: r.website_url,
-        status: probe.status, hhPageUrl: probe.hhPageUrl, result: "skipped",
+        status: probe.status, hhPageUrl: probe.hhPageUrl, result: "no-page",
       };
 
       if (probe.status === "none") {
-        outcomes.push(base);
+        outcomes.push(base); // no own-site HH page found → nothing to re-extract
         continue;
       }
       if (dryRun) {
@@ -120,7 +120,7 @@ async function main() {
     const stamp = today();
     const tally = (s: ProbeStatus) => outcomes.filter((o) => o.status === s).length;
     const live = outcomes.filter((o) => o.result === "live").length;
-    const stillBlocked = outcomes.filter((o) => o.status === "blocked" && o.result !== "live").length;
+    const stillBlocked = outcomes.filter((o) => o.result === "still-empty").length;
     const spent = outcomes.reduce((n, o) => n + (o.costCents ?? 0), 0);
 
     const md = [
