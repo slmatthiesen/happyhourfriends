@@ -11,6 +11,7 @@ const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [
+    { url: `${base}/`, changeFrequency: "daily" },
     { url: `${base}/about` },
     { url: `${base}/faq` },
   ];
@@ -65,12 +66,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
 
     for (const n of hoods) {
-      const hoodLastMod = maxOf(
-        vs.filter((v) => v.neighborhoodId === n.id).map((v) => v.updatedAt),
-      );
+      // Same index-quality rule as venues below: emit a neighborhood only when it
+      // actually rolls up a live happy-hour venue. An empty rollup is a thin,
+      // near-duplicate page that dilutes the index and stalls in Search Console's
+      // "Discovered – currently not indexed".
+      const hoodVenues = vs.filter((v) => v.neighborhoodId === n.id);
+      if (hoodVenues.length === 0) continue;
       entries.push({
         url: `${base}${neighborhoodPath(c.state, c.slug, n.slug)}`,
-        ...(hoodLastMod ? { lastModified: hoodLastMod } : {}),
+        lastModified: maxOf(hoodVenues.map((v) => v.updatedAt)),
       });
     }
 
