@@ -16,12 +16,35 @@ import { hhLikelihood } from "@/lib/places/hhLikelihood";
 import { buildExtractRequest } from "@/lib/ai/extractHappyHours";
 import { freeExtractFromPages } from "@/lib/ai/freeExtract";
 import { persistExtractedWindows } from "@/lib/recover/resolveVenue";
-import { hasHhOrDealSignal } from "@/lib/places/hhText";
+import { hasHhOrDealSignal, hhOrDealMatch, HH_RE, TIME_RANGE_RE } from "@/lib/places/hhText";
 import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 
 function arg(f: string): string | undefined {
   const i = process.argv.indexOf(f);
   return i >= 0 ? process.argv[i + 1] : undefined;
+}
+
+/** Best-effort pre-tag so a review focuses on the few real candidates (operator confirms/overrides):
+ *   dead/notyet | exclude-by-rule | real? (matched actual happy-hour wording) |
+ *   weak:op-hours-or-nav (escalated only on a time-range / "special" / "daily" — usually noise) | "" */
+function autoTag(name: string, snippet: string, url: string, matched: string | null): string {
+  const t = `${name} ${snippet} ${url}`.toLowerCase();
+  if (/\b404\b|does not exist|coming soon|under construction/.test(t)) return "dead/notyet";
+  if (/wedding|private (dining|event|part)|event venue|banquet|art gallery|country club|\bgolf\b|buyout|corporate event|engagement part|micro wedding/.test(t)) return "exclude-by-rule";
+  const m = matched ?? "";
+  if (HH_RE.test(m)) return "real?"; // hit actual "happy hour" wording — worth the paid extractor
+  if (TIME_RANGE_RE.test(m) || /^\s*(daily|specials?)\s*$/i.test(m)) return "weak:op-hours-or-nav";
+  return "";
+}
+
+/** Sort order for the review CSV: act-on-these first. */
+function tagRank(tag: string): number {
+  return { "real?": 0, "": 1, "weak:op-hours-or-nav": 2, "exclude-by-rule": 3, "dead/notyet": 4 }[tag] ?? 1;
+}
+
+function csvCell(v: string | null): string {
+  const s = String(v ?? "").replace(/\s+/g, " ").trim();
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
 const LIMIT = arg("--limit") ? parseInt(arg("--limit")!, 10) : null;
@@ -40,6 +63,7 @@ interface EscalationEntry {
   citySlug: string;
   url: string;
   snippet: string;
+  matched: string | null;
 }
 
 async function main() {
@@ -144,9 +168,14 @@ async function main() {
       // No clean parse — does the page even show a signal? If so, escalate to paid.
       const signalPage = built.pages.find((p) => hasHhOrDealSignal(p.text ?? ""));
       if (signalPage) {
+        const text = signalPage.text ?? "";
+        const matched = hhOrDealMatch(text);
+        // Center the snippet on the ACTUAL match so a review sees why it escalated — prefer the
+        // happy-hour mention, else the matched deal token, else leading text.
+        const idx = matched ? text.toLowerCase().indexOf(matched.toLowerCase()) : -1;
         const snippet = (
-          (signalPage.text ?? "").match(/.{0,40}happy[ -]?hour.{0,80}/i)?.[0] ??
-          (signalPage.text ?? "").slice(0, 120)
+          text.match(/.{0,40}happ(?:y|ier)[ -]?hour.{0,80}/i)?.[0] ??
+          (idx >= 0 ? text.slice(Math.max(0, idx - 30), idx + 70) : text.slice(0, 120))
         )
           .replace(/\s+/g, " ")
           .trim();
@@ -156,6 +185,7 @@ async function main() {
           citySlug: city.slug,
           url: signalPage.url,
           snippet,
+          matched,
         });
         console.log(`  ⚑ ${v.name}: signal but no clean parse → escalate`);
         escalated++;
@@ -167,7 +197,21 @@ async function main() {
     if (shortlist.length > 0) {
       const outFile = `docs/hh-escalation-${city.slug}.json`;
       writeFileSync(outFile, JSON.stringify(shortlist, null, 2));
+      // Reviewable CSV: pre-tag the obvious non-HH, surface the matched word, leave a notes
+      // column for the operator. Tag values: "" (needs review — real vs noise) / exclude-by-rule
+      // / dead/notyet. Sorted untagged-first so the candidates worth a human call are on top.
+      const reviewRows = [...shortlist]
+        .map((s) => ({ ...s, tag: autoTag(s.name, s.snippet, s.url, s.matched) }))
+        // Real candidates first, then untagged, then weak/excluded/dead — top of the file is what to act on.
+        .sort((a, b) => tagRank(a.tag) - tagRank(b.tag));
+      const reviewCsv = [["tag", "matched", "name", "url", "snippet", "notes"].join(",")];
+      for (const s of reviewRows) {
+        reviewCsv.push([s.tag, s.matched ?? "", s.name, s.url, s.snippet, ""].map(csvCell).join(","));
+      }
+      const reviewFile = `docs/${city.slug}-escalation-review.csv`;
+      writeFileSync(reviewFile, reviewCsv.join("\n") + "\n");
       console.log(`\nEscalation shortlist (${shortlist.length}) → ${outFile}`);
+      console.log(`Reviewable CSV (tag + matched + notes) → ${reviewFile}`);
       console.log("Run the paid extractor on these, e.g.:");
       for (const s of shortlist.slice(0, 10)) {
         console.log(`  pnpm tsx scripts/reextract-stubs.ts --venue ${s.venueId} --url ${s.url}`);
