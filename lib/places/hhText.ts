@@ -36,19 +36,29 @@ export const DEAL_RE = new RegExp(
   "i",
 );
 
+/** URLs embedded in page text (canonical links, JSON, HTTP headers) carry path slugs like
+ *  "/menu/happy-hour" that are NOT content. Catch-all sites (kingyenrestaurant.com/menu/<anything>
+ *  serves the menu for ANY path) make such a slug meaningless, yet HH_RE would match it and fake a
+ *  happy hour. Strip URLs before signal-matching so only real page CONTENT counts — Perle's
+ *  "open at 3:00 for happy hour" survives; King Yen's URL slug does not (operator 2026-06-15). */
+const URL_NOISE_RE = /https?:\/\/\S+/gi;
+const signalText = (text: string): string => text.replace(URL_NOISE_RE, " ");
+
 /**
  * True when page text shows ANY happy-hour or deal signal. This is the free local gate
  * in front of the paid Claude extractor: no signal → don't spend a token (the page has no
  * happy hour to find). The inverse of the realness gate in [[capture-everything-realness-filter]].
  */
 export function hasHhOrDealSignal(text: string): boolean {
-  return HH_RE.test(text) || DEAL_RE.test(text);
+  const t = signalText(text);
+  return HH_RE.test(t) || DEAL_RE.test(t);
 }
 
 /** The actual substring that tripped hasHhOrDealSignal — so a review can see WHICH word
  *  escalated a page ("happy hour" vs a loose deal token like "daily"/"specials"/a time range). */
 export function hhOrDealMatch(text: string): string | null {
-  return HH_RE.exec(text)?.[0] ?? DEAL_RE.exec(text)?.[0] ?? null;
+  const t = signalText(text);
+  return HH_RE.exec(t)?.[0] ?? DEAL_RE.exec(t)?.[0] ?? null;
 }
 
 /**
