@@ -79,6 +79,37 @@ async function main() {
     assert.deepEqual(await probeOwnSiteHhPage("not a url", fakeFetcher({})), { hhPageUrl: null, status: "none" });
   });
 
+  await check("Pass 2: discovers a LINKED HH page the guessed paths miss → readable", async () => {
+    // guessed paths 404; the homepage links a non-guessed HH route that IS readable.
+    const r = await probeOwnSiteHhPage(
+      "https://spa.com",
+      fakeFetcher({
+        "https://spa.com": { status: 200, body: '<html><a href="/late-night/happy-hour">Happy Hour</a></html>' },
+        "https://spa.com/late-night/happy-hour": { status: 200, body: HH_BODY },
+      }),
+    );
+    assert.deepEqual(r, { hhPageUrl: "https://spa.com/late-night/happy-hour", status: "readable" });
+  });
+
+  await check("Pass 2: declared HH route that's JS-walled (no readable signal) → blocked", async () => {
+    const r = await probeOwnSiteHhPage(
+      "https://jsshell.com",
+      fakeFetcher({
+        "https://jsshell.com": { status: 200, body: '<a href="/menu/late-happy-hour">Happy Hour</a>' },
+        "https://jsshell.com/menu/late-happy-hour": { status: 200, body: '<div id="root"></div>' },
+      }),
+    );
+    assert.deepEqual(r, { hhPageUrl: "https://jsshell.com/menu/late-happy-hour", status: "blocked" });
+  });
+
+  await check("Pass 2: homepage bot-walls plain fetch → blocked (whole site, render needed)", async () => {
+    const r = await probeOwnSiteHhPage(
+      "https://walled.com",
+      fakeFetcher({ "https://walled.com": { status: 403, body: "" } }),
+    );
+    assert.deepEqual(r, { hhPageUrl: "https://walled.com", status: "blocked" });
+  });
+
   await check("non-own-site host (social / parent-hotel) → none, never probed", async () => {
     // instagram.com/happy-hour would 200 with generic content — must be skipped, not a false readable.
     const insta = await probeOwnSiteHhPage(
