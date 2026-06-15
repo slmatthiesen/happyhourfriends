@@ -44,7 +44,7 @@ async function main() {
           SELECT 1 FROM happy_hours h
           WHERE h.venue_id = v.id AND h.active = true AND h.deleted_at IS NULL
         )
-        ${cityArgs ? sql`AND c.slug = ${cityArgs.slug} AND c.state = ${cityArgs.state}` : sql``}
+        ${cityArgs ? sql`AND lower(c.slug) = ${cityArgs.slug} AND lower(c.state) = ${cityArgs.state}` : sql``}
       ORDER BY c.slug, v.name
     `;
 
