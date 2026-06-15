@@ -6,11 +6,28 @@
  * skipped at $0. Run: tsx scripts/test-hh-signal-gate.ts
  */
 import assert from "node:assert";
-import { hasHhOrDealSignal } from "@/lib/places/hhText";
+import { hasHhOrDealSignal, hhOrDealMatch } from "@/lib/places/hhText";
 import { pagesHaveExtractableSignal } from "@/lib/ai/siteContent";
 
 let passed = 0;
 function check(name: string, fn: () => void) { fn(); passed++; console.log(`  ✓ ${name}`); }
+
+// Soft-404 / catch-all sites (operator 2026-06-15): a "/menu/happy-hour" URL that serves the
+// generic menu for any path must NOT count as a happy hour. The signal is CONTENT, not URL slugs.
+check("URL slug does NOT fake a signal: a page whose only 'happy-hour' is in its own URL is skipped (King Yen)", () => {
+  assert.ok(!hasHhOrDealSignal("https://www.kingyenrestaurant.com/menu/happy-hour } max-age=0; path=/"));
+  assert.equal(hhOrDealMatch("Order online https://kingyenrestaurant.com/menu/happy-hour for pickup"), null);
+});
+
+check("real CONTENT still signals even next to a URL (Perle Bar)", () => {
+  assert.ok(hasHhOrDealSignal("Visit https://barperle.com/our-menus — closed for lunch, open at 3:00 for happy hour"));
+  assert.equal(hhOrDealMatch("open at 3:00 for happy hour — see https://barperle.com/drinks"), "happy hour");
+});
+
+check("a time-range inside a URL does NOT signal, but in text it does", () => {
+  assert.ok(!hasHhOrDealSignal("see https://x.com/events/3-6pm-promo for details"));
+  assert.ok(hasHhOrDealSignal("Bar menu 3-6pm daily"));
+});
 
 check("hasHhOrDealSignal: catches every happy-hour spelling", () => {
   for (const s of ["Join us for Happy Hour", "happy-hour menu", "our HappyHour deals", "happy_hour 4pm", "Happy Hr daily"]) {
