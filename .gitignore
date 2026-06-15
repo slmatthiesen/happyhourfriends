@@ -93,6 +93,7 @@ docs/*-discovery-review-*
 docs/*-hh-signal-scan-*
 docs/*-no-hh-diagnosis-*
 docs/*-escalation-review-*
+docs/*-escalation-review.csv
 docs/hidden-hh-review-*
 docs/regate-*
 docs/meal-special-review-*
