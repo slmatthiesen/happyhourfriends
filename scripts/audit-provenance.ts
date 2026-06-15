@@ -114,7 +114,7 @@ async function runReport() {
       JOIN cities c ON c.id = v.city_id
       WHERE hh.active AND hh.deleted_at IS NULL
         AND v.deleted_at IS NULL AND v.status = 'active'
-        ${cityArgs ? sql`AND c.slug = ${cityArgs.slug} AND c.state = ${cityArgs.state}` : sql``}
+        ${cityArgs ? sql`AND lower(c.slug) = ${cityArgs.slug} AND lower(c.state) = ${cityArgs.state}` : sql``}
       ORDER BY c.name, v.name, hh.start_time NULLS LAST
       ${limit ? sql`LIMIT ${limit}` : sql``}
     `;

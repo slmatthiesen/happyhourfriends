@@ -117,7 +117,7 @@ async function runReport() {
       LEFT JOIN offerings o
         ON o.happy_hour_id = hh.id AND o.deleted_at IS NULL AND o.active
       WHERE hh.deleted_at IS NULL AND hh.active
-        ${cityArgs ? sql`AND c.slug = ${cityArgs.slug} AND c.state = ${cityArgs.state}` : sql``}
+        ${cityArgs ? sql`AND lower(c.slug) = ${cityArgs.slug} AND lower(c.state) = ${cityArgs.state}` : sql``}
       GROUP BY hh.id, v.id, c.name, v.name, v.website_url
     `;
 

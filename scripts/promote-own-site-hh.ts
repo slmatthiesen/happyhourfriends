@@ -23,7 +23,7 @@
 import "dotenv/config";
 import { writeFileSync } from "node:fs";
 import postgres from "postgres";
-import { requireCityArgs } from "@/lib/cities/resolveCity";
+import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 import { probeOwnSiteHhPage, type ProbeStatus } from "@/lib/places/ownSiteHhProbe";
 import { resolveVenue } from "@/lib/recover/resolveVenue";
 
@@ -68,6 +68,10 @@ async function main() {
   const sql = postgres(DATABASE_URL, { max: 4 });
   const outcomes: Outcome[] = [];
   try {
+    // Resolve --city/--state to a canonical city row (case-insensitive, fail-loud on a bad
+    // city) and filter by id. A raw `c.state = ${cityArgs.state}` filter is a TRAP: requireCityArgs
+    // lowercases the state but cities.state is stored uppercase ('AZ'), so it silently matches 0.
+    const city = cityArgs ? await resolveCity(sql, cityArgs.slug, cityArgs.state) : null;
     const rows = await sql<Row[]>`
       SELECT v.id AS venue_id, c.name AS city, v.name AS venue, v.website_url
       FROM venues v
@@ -78,7 +82,7 @@ async function main() {
           SELECT 1 FROM happy_hours a
           WHERE a.venue_id = v.id AND a.active AND a.deleted_at IS NULL
         )
-        ${cityArgs ? sql`AND c.slug = ${cityArgs.slug} AND c.state = ${cityArgs.state}` : sql``}
+        ${city ? sql`AND c.id = ${city.id}` : sql``}
       ORDER BY c.name, v.name
       ${limit ? sql`LIMIT ${limit}` : sql``}
     `;

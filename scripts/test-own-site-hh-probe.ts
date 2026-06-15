@@ -79,6 +79,20 @@ async function main() {
     assert.deepEqual(await probeOwnSiteHhPage("not a url", fakeFetcher({})), { hhPageUrl: null, status: "none" });
   });
 
+  await check("non-own-site host (social / parent-hotel) → none, never probed", async () => {
+    // instagram.com/happy-hour would 200 with generic content — must be skipped, not a false readable.
+    const insta = await probeOwnSiteHhPage(
+      "https://www.instagram.com/bayhorsetavern",
+      fakeFetcher({ "https://www.instagram.com/happy-hour": { status: 200, body: HH_BODY } }),
+    );
+    assert.deepEqual(insta, { hhPageUrl: null, status: "none" });
+    const hotel = await probeOwnSiteHhPage(
+      "http://www3.hilton.com/en/hotels/arizona",
+      fakeFetcher({ "http://www3.hilton.com/happy-hour": { status: 200, body: HH_BODY } }),
+    );
+    assert.deepEqual(hotel, { hhPageUrl: null, status: "none" });
+  });
+
   console.log(`\n${passed} checks passed.`);
 }
 
