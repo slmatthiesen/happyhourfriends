@@ -111,7 +111,7 @@ async function runReport() {
           SELECT 1 FROM happy_hours a
           WHERE a.venue_id = v.id AND a.active AND a.deleted_at IS NULL
         )
-        ${cityArgs ? sql`AND c.slug = ${cityArgs.slug} AND c.state = ${cityArgs.state}` : sql``}
+        ${cityArgs ? sql`AND lower(c.slug) = ${cityArgs.slug} AND lower(c.state) = ${cityArgs.state}` : sql``}
       ORDER BY c.name, v.name, hh.start_time NULLS LAST
       ${limit ? sql`LIMIT ${limit}` : sql``}
     `;
