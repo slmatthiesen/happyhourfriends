@@ -23,7 +23,7 @@ export type RealnessReason =
   | "no_time_window"
   | "low_confidence"
   | "meal_special"
-  | "no_offerings_no_hh_text"
+  | "bare_non_hh_window"
   | "implausible_window_duration";
 
 export interface RealnessInput {
@@ -52,7 +52,7 @@ export interface RealnessVerdict {
  *  - all-day on 3+ days     → almost always regular pricing, not a happy hour
  *  - no usable time at all   → can never be shown as "happening now"
  *  - low overall confidence  → the extractor wasn't sure the schedule is real/current
- *  - no offerings + no HH text → operating hours / lunch menu, not a deal (bucket #2)
+ *  - bare window spanning an operating day → operating hours, not a deal
  */
 export function assessRealness(input: RealnessInput): RealnessVerdict {
   const reasons: RealnessReason[] = [];
@@ -61,7 +61,7 @@ export function assessRealness(input: RealnessInput): RealnessVerdict {
   if (!input.timeKnown) reasons.push("no_time_window");
   if (input.confidence < MIN_CONFIDENCE) reasons.push("low_confidence");
   if (input.mealSpecial && mealSpecialEvidence(input.mealSpecial)) reasons.push("meal_special");
-  if (input.mealSpecial && bareWindowNoHhEvidence(input.mealSpecial)) reasons.push("no_offerings_no_hh_text");
+  if (input.mealSpecial && bareWindowSuspect(input.mealSpecial)) reasons.push("bare_non_hh_window");
   if (input.mealSpecial && crossesMidnightImplausible(input.mealSpecial.startTime, input.mealSpecial.endTime)) reasons.push("implausible_window_duration");
 
   return { suspect: reasons.length > 0, reasons };
@@ -76,8 +76,11 @@ export function assessRealness(input: RealnessInput): RealnessVerdict {
 // (active=false) for operator review — it never deletes.
 
 /** Meal-service / event language in an offering name or window notes. */
+// Event/format words always fire; meal-period words (lunch/dinner/…) fire UNLESS followed by
+// "menu" — "Dinner menu appetizers" cites a menu (a real HH food item), it is not dinner service
+// (Trattoria Pina, 2026-06-15). "Dinner Special" still matches.
 export const MEAL_SPECIAL_RE =
-  /\b(?:prix[- ]?fixe|early[- ]?bird|lunch(?:eon)?|brunch|breakfast|dinner|supper|bottomless|paint\s*(?:and|&|'?n'?)\s*sip|\d+[- ]course)\b/i;
+  /\b(?:prix[- ]?fixe|early[- ]?bird|bottomless|paint\s*(?:and|&|'?n'?)\s*sip|\d+[- ]course)\b|\b(?:lunch(?:eon)?|brunch|breakfast|dinner|supper)\b(?!\s+menus?\b)/i;
 
 /** Above this average offering price a meal-shaped time window becomes suspect
  *  (operator's $12 line, 2026-06-12). Price alone NEVER fires — upscale HH is real. */
@@ -127,67 +130,94 @@ export function mealSpecialEvidence(input: MealSpecialInput): string | null {
     .map((o) => `${o.name ?? ""} ${o.description ?? ""}`)
     .join(" | ");
   const windowText = `${offeringText} ${input.notes ?? ""}`;
-  if (HH_RE.test(windowText) || HH_RE.test(input.sourceUrl ?? "")) return null;
+  // Two veto scopes (La Herradura vs Vix Creek, 2026-06-15):
+  //  - ownVeto — the window's OWN text (offering names/descriptions + notes) says "happy hour".
+  //    The venue calls THIS window a happy hour → clears every signal.
+  //  - urlVeto — only the source URL slug says happy hour (a "/happy-hours-specials" landing
+  //    page or "HappyHour-Menu.pdf"). A page slug is shared by every row scraped off that page,
+  //    so it clears the AMBIGUOUS signals (price + timing) but NOT an explicit meal-period TOKEN
+  //    in the offering itself: "Breakfast Special" on a happy-hours page is still breakfast
+  //    (La Herradura). This keeps real HH menus live (Vix Creek's $11 food list off a
+  //    HappyHour-Menu.pdf) while hiding tokened meal rows swept onto a happy-hours landing page.
+  const ownVeto = HH_RE.test(windowText);
+  if (ownVeto) return null;
+  const urlVeto = HH_RE.test(input.sourceUrl ?? "");
 
   const evidence: string[] = [];
 
+  // Meal-period TOKEN — not URL-vetoable (an explicit "Dinner Special" is a meal, page slug aside).
   const token = MEAL_SPECIAL_RE.exec(windowText);
   if (token) evidence.push(`meal-service language ("${token[0]}")`);
 
-  const priced = input.offerings
-    .map((o) => o.priceCents)
-    .filter((p): p is number => p != null && p > 0);
-  const avg = priced.length ? priced.reduce((a, b) => a + b, 0) / priced.length : null;
-  const start = toMinutes(input.startTime);
-  const end = toMinutes(input.endTime);
+  // Ambiguous price/timing signals — a happy-hour source URL clears these (a HH menu legitimately
+  // carries upscale items and midday windows).
+  if (!urlVeto) {
+    const priced = input.offerings
+      .map((o) => o.priceCents)
+      .filter((p): p is number => p != null && p > 0);
+    const avg = priced.length ? priced.reduce((a, b) => a + b, 0) / priced.length : null;
+    const start = toMinutes(input.startTime);
+    const end = toMinutes(input.endTime);
 
-  // end > start excludes crosses-midnight windows — late-night HH is real.
-  if (avg != null && avg > MEAL_AVG_PRICE_CENTS && start != null && end != null && end > start) {
-    const fmtAvg = `avg $${(avg / 100).toFixed(2)}`;
-    if (start <= 12 * 60 && end <= 16 * 60) {
-      evidence.push(`lunch-hours window with ${fmtAvg}`);
-    } else if (start >= 17 * 60 && end >= 21 * 60) {
-      evidence.push(`dinner-service window with ${fmtAvg}`);
+    // end > start excludes crosses-midnight windows — late-night HH is real.
+    if (avg != null && avg > MEAL_AVG_PRICE_CENTS && start != null && end != null && end > start) {
+      const fmtAvg = `avg $${(avg / 100).toFixed(2)}`;
+      if (start <= 12 * 60 && end <= 16 * 60) {
+        evidence.push(`lunch-hours window with ${fmtAvg}`);
+      } else if (start >= 17 * 60 && end >= 21 * 60) {
+        evidence.push(`dinner-service window with ${fmtAvg}`);
+      }
     }
-  }
 
-  // Time-only lunch-band signal (operator 2026-06-14): a window sitting wholly in lunch
-  // hours (start 11:00–14:00, end ≤ 16:00) that carries menu items is almost always a lunch
-  // menu, not a happy hour — even when items are cheap or unpriced (so the $12-gated rule
-  // above misses it). Price-independent on purpose. Requires ≥1 offering so this judges only
-  // offering-bearing windows (empty windows are the bare-window gate's job, below); the HH_RE
-  // veto at the top protects genuine midday happy hours ("Mon–Fri 12–3 happy hour"). Hides
-  // for review only — never deletes.
-  if (
-    input.offerings.length >= 1 &&
-    start != null && end != null && end > start &&
-    start >= 11 * 60 && start <= 14 * 60 && end <= 16 * 60
-  ) {
-    evidence.push("midday lunch-hours window (no happy-hour wording)");
-  }
+    // Time-only lunch-band (operator 2026-06-14): a window wholly in lunch hours (start 11:00–14:00,
+    // end ≤ 16:00) carrying menu items is almost always a lunch menu, even when cheap or unpriced
+    // (so the $12 rule above misses it). Requires ≥1 offering (empty windows are the bare-window
+    // gate's job). The ownVeto above protects genuine midday happy hours ("Mon–Fri 12–3 happy hour").
+    if (
+      input.offerings.length >= 1 &&
+      start != null && end != null && end > start &&
+      start >= 11 * 60 && start <= 14 * 60 && end <= 16 * 60
+    ) {
+      evidence.push("midday lunch-hours window (no happy-hour wording)");
+    }
 
-  if (
-    priced.length >= 1 &&
-    priced.length <= 2 &&
-    Math.min(...priced) >= MEAL_EXPENSIVE_ITEM_CENTS
-  ) {
-    evidence.push(
-      `only ${priced.length} priced item${priced.length === 1 ? "" : "s"}, all ≥ $${MEAL_EXPENSIVE_ITEM_CENTS / 100} (combo/entrée pricing)`,
-    );
+    if (
+      priced.length >= 1 &&
+      priced.length <= 2 &&
+      Math.min(...priced) >= MEAL_EXPENSIVE_ITEM_CENTS
+    ) {
+      evidence.push(
+        `only ${priced.length} priced item${priced.length === 1 ? "" : "s"}, all ≥ $${MEAL_EXPENSIVE_ITEM_CENTS / 100} (combo/entrée pricing)`,
+      );
+    }
   }
 
   return evidence.length ? evidence.join("; ") : null;
 }
 
-// ── bare-window gate (diagnosis 2026-06-13, bucket #2) ──────────────────────────
+// ── bare-window gate — TIME-FIRST (operator directive 2026-06-14) ───────────────
 //
-// A recurring time window with ZERO offerings AND no happy-hour wording on its
-// source is operating hours or a lunch/menu page captured as a deal, not a happy
-// hour (The Quarterdeck's M–F 3–5pm with nothing on it; Sliver's window lifted from
-// a /lunch-deals page). We deliberately KEEP bare windows that DO say "happy hour"
-// (a real window often lists no itemized prices — North Italia's "Mon–Fri 3–6pm"),
-// so the HH_RE veto over notes + source URL is the discriminator. Like every gate
-// signal this only HIDES (active=false) for review — it never deletes.
+// REVERSES the 2026-06-13 rule that hid every offering-less window. Operator policy:
+// a CONFIRMED bounded time is enough to go live, even with no published food/drink
+// ("if time, show it live"). Two weeks of real happy hours (Super Duper's M–F 4–6pm)
+// were benched as "bare" — that recall loss is worse than the occasional menu-page
+// false positive. So a bare window is suspect ONLY when its clock span covers most of
+// an operating day (≥ BARE_OPERATING_HOURS_MIN) AND carries no happy-hour wording —
+// i.e. it is operating hours, not a deal (Wandering Tortoise's 11am–11pm blob). The
+// HH_RE veto still keeps any bare window that says "happy hour". The reconcile gate
+// (isOperatingHours) is the authoritative op-hours check when hours_json exists; this
+// duration test is the backstop for venues with no hours data. HIDES only, never deletes.
+
+/** A bare window this long or longer (no offerings, no HH wording) reads as operating
+ *  hours rather than a happy hour. 6h: a 3–8pm deal (5h) still shows; an 11am–10pm span
+ *  does not. */
+export const BARE_OPERATING_HOURS_MIN = 6 * 60;
+
+/** A bare window that starts by this time AND ends by BARE_DAYTIME_END is a daytime/lunch
+ *  menu, not a happy hour (Original Joe's 10am–2pm, Giuseppe's 11:30–3pm captured off a
+ *  /menu page). Afternoon HH (starts 2pm+) is past this floor and still shows. */
+export const BARE_DAYTIME_START_MAX = 12 * 60; // noon
+export const BARE_DAYTIME_END = 16 * 60; // 4pm
 
 /**
  * A window whose stored clock crosses midnight (end < start) with an implausibly long
@@ -202,11 +232,24 @@ function crossesMidnightImplausible(startTime: string | null, endTime: string | 
   return e + 24 * 60 - s > 6 * 60;
 }
 
-/** True when a window has no offerings AND nothing on it reads as a happy hour. */
-export function bareWindowNoHhEvidence(input: MealSpecialInput): boolean {
-  if (input.offerings.length > 0) return false; // has deals → not a bare phantom
-  const text = `${input.notes ?? ""} ${input.sourceUrl ?? ""}`;
-  return !HH_RE.test(text);
+/** True when a bare window (no offerings, no HH wording) does NOT look like a happy hour:
+ *  it either spans most of an operating day (operating hours) or sits in the daytime/lunch
+ *  band (a menu). A bounded, afternoon/evening, HH-length bare window is NOT suspect —
+ *  confirmed time alone is enough to show it (operator directive 2026-06-14). Open-until-close
+ *  (start known, no end) counts as confirmed. The HH_RE veto keeps anything that says
+ *  "happy hour" regardless of shape. */
+export function bareWindowSuspect(input: MealSpecialInput): boolean {
+  if (input.offerings.length > 0) return false; // has deals → judged elsewhere
+  // Veto on the window's OWN wording (notes) only, not the shared page-URL slug — see the
+  // mealSpecialEvidence note: a "/happy-hours" landing page does not make every bare window
+  // on it a happy hour.
+  if (HH_RE.test(input.notes ?? "")) return false; // says "happy hour" → keep, whatever the shape
+  const start = toMinutes(input.startTime);
+  const end = toMinutes(input.endTime);
+  if (start == null || end == null || end <= start) return false; // unbounded/open-close/crossing
+  if (end - start >= BARE_OPERATING_HOURS_MIN) return true; // spans an operating day
+  if (start <= BARE_DAYTIME_START_MAX && end <= BARE_DAYTIME_END) return true; // daytime/lunch menu
+  return false;
 }
 
 /**
