@@ -1,15 +1,27 @@
 /**
  * Own-site happy-hour page probe — the $0 first step of the auto-promote pipeline.
  *
- * Given a venue's own website, GET the HH-specific subset of GUESS_MENU_PATHS on its own
- * origin and classify what we find. The verdict is persisted on the venue and drives the
- * promote orchestrator (re-extract), enrich URL-priority, and the manual-entry queue.
+ * Given a venue's own website, decide whether it has a reachable happy-hour page worth
+ * re-extracting. Two passes (plain HTTP, no API):
+ *   1. GET the HH-specific guessed paths (/happy-hour, /specials, …) on the venue's origin.
+ *   2. If none hit, fetch the homepage and DISCOVER HH pages the site LINKS or DECLARES
+ *      (anchor links + Wix `pageUriSEO` routes) — this catches non-guessed paths AND JS-SPA
+ *      sites whose HH page exists as a declared route even though the raw HTML carries no HH
+ *      text (the Wix/Squarespace recall gap, [[js-walled-sites-and-pdf-menus]]).
+ * The verdict drives the promote orchestrator (re-extract), enrich URL-priority, and the
+ * manual-entry queue.
  *
- * Plain HTTP only (no API, no cost). MAIN-THREAD ONLY: background subagents can't web-fetch
- * (env constraint). The fetcher is injected so the unit test is hermetic.
+ * MAIN-THREAD ONLY: background subagents can't web-fetch (env constraint). The fetcher is
+ * injected so the unit test is hermetic.
  */
-import { hasHhOrDealSignal } from "@/lib/places/hhText";
+import { hasHhOrDealSignal, scoreHhUrl } from "@/lib/places/hhText";
+import { extractHhSignalLinks, extractPageRoutes, pickDeclaredPages } from "@/lib/places/siteTriage";
 import { isNonOwnSiteHost } from "@/lib/recover/sourceProvenance";
+
+/** scoreHhUrl threshold for "HH-specific" (matches the audit's render-escalation bar): explicit
+ *  happy-hour pages (100+), specials (70), drink/cocktail menus (60). Generic /menu (30-40) is
+ *  not specific enough to count as a discovered HH page on its own. */
+const HH_URL_SCORE = 60;
 
 /** The HH-specific paths from siteTriage.GUESS_MENU_PATHS — most→least specific. A real HH
  *  page lives at one of these; /menu and /drinks are deliberately excluded (too generic to
@@ -41,11 +53,29 @@ const defaultFetcher: Fetcher = async (url) => {
   return { status: res.status, body };
 };
 
+const isBotWall = (status: number) => status === 403 || status === 401 || status === 429 || status === 406;
+
+/** Read one candidate URL: `readable` if 200 + HH signal, otherwise note if it's a bot-wall. */
+async function tryReadHh(
+  url: string,
+  fetcher: Fetcher,
+): Promise<"readable" | "blocked" | "miss"> {
+  let res: { status: number; body: string };
+  try {
+    res = await fetcher(url);
+  } catch {
+    return "miss"; // network error → treat as a miss, keep probing
+  }
+  if (res.status === 200 && hasHhOrDealSignal(res.body)) return "readable";
+  if (isBotWall(res.status)) return "blocked";
+  return "miss";
+}
+
 /**
- * Probe the venue's own origin for a happy-hour page. Returns the FIRST `readable` page
- * (200 + HH text signal); if none is readable but at least one path is `blocked`
- * (403 / anti-bot), returns that (the real extractor escalates to headless render);
- * otherwise `none`. Never throws — a fetch error on one path is treated as a miss.
+ * Probe the venue's own origin for a happy-hour page (see file header for the two passes).
+ * Returns `readable` (a page we read HH text from — re-extract works cheaply), `blocked` (an HH
+ * page that exists but plain HTTP can't read — 403/anti-bot OR a JS-walled declared route — so
+ * re-extract must escalate to headless render), or `none`. Never throws.
  */
 export async function probeOwnSiteHhPage(
   websiteUrl: string | null | undefined,
@@ -63,20 +93,42 @@ export async function probeOwnSiteHhPage(
   if (isNonOwnSiteHost(origin)) return { hhPageUrl: null, status: "none" };
 
   let blockedUrl: string | null = null;
+  const note = (url: string, verdict: "readable" | "blocked" | "miss"): ProbeResult | null => {
+    if (verdict === "readable") return { hhPageUrl: url, status: "readable" };
+    if (verdict === "blocked" && !blockedUrl) blockedUrl = url;
+    return null;
+  };
+
+  // Pass 1: guessed HH-specific paths.
   for (const path of OWN_SITE_HH_PATHS) {
-    const url = origin + path;
-    let res: { status: number; body: string };
-    try {
-      res = await fetcher(url);
-    } catch {
-      continue; // network error on this path → treat as miss, keep probing
-    }
-    if (res.status === 200 && hasHhOrDealSignal(res.body)) {
-      return { hhPageUrl: url, status: "readable" }; // signal beats everything — return now
-    }
-    if ((res.status === 403 || res.status === 401 || res.status === 429) && !blockedUrl) {
-      blockedUrl = url; // remember the first wall, but keep looking for a readable page
-    }
+    const hit = note(origin + path, await tryReadHh(origin + path, fetcher));
+    if (hit) return hit;
   }
+
+  // Pass 2: discover HH pages the homepage LINKS or DECLARES (catches non-guessed paths and
+  // JS-SPA Wix routes the guessed-path check can't read).
+  let home: { status: number; body: string };
+  try {
+    home = await fetcher(origin);
+  } catch {
+    home = { status: 0, body: "" };
+  }
+  if (home.status === 200 && home.body) {
+    const declared = pickDeclaredPages(
+      [...extractHhSignalLinks(home.body, origin), ...extractPageRoutes(home.body, origin)],
+      origin,
+      8,
+    ).filter((u) => scoreHhUrl(u) >= HH_URL_SCORE && !isNonOwnSiteHost(u));
+    for (const url of declared.slice(0, 3)) {
+      const hit = note(url, await tryReadHh(url, fetcher));
+      if (hit) return hit;
+    }
+    // A declared HH route we found but could NOT plain-read (JS-walled content) is still a real
+    // HH page — route it to render-based re-extract rather than dropping it as `none`.
+    if (declared.length && !blockedUrl) blockedUrl = declared[0];
+  } else if (isBotWall(home.status) && !blockedUrl) {
+    blockedUrl = origin; // the whole site bot-walls plain fetch → re-extract with render
+  }
+
   return blockedUrl ? { hhPageUrl: blockedUrl, status: "blocked" } : { hhPageUrl: null, status: "none" };
 }
