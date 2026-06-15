@@ -118,6 +118,34 @@ function isAggregatorHost(url: string): boolean {
 }
 
 /**
+ * Social profiles + booking/parent-hotel domains a venue sometimes has on file as its
+ * "website" when it has no real own site. Appending an HH path to these (instagram.com/
+ * happy-hour, www3.hilton.com/happy-hour) yields a meaningless generic page, so the own-site
+ * HH probe must skip them — they aren't a site the venue controls a /happy-hour route on.
+ */
+const NON_OWN_SITE_HOSTS = [
+  // social
+  "instagram.com", "facebook.com", "m.facebook.com", "twitter.com", "x.com",
+  "tiktok.com", "linktr.ee", "linktree.com", "linkin.bio", "beacons.ai", "google.com",
+  // parent-hotel / booking chains (the venue's page is generic, not its own HH route)
+  "hilton.com", "marriott.com", "hyatt.com", "ihg.com", "choicehotels.com",
+  "wyndhamhotels.com", "booking.com",
+];
+
+/**
+ * True when a URL's host is NOT a site the venue itself controls a happy-hour route on —
+ * a social profile, a third-party aggregator/ordering platform, or a parent-hotel/booking
+ * chain. Used by the own-site HH probe to avoid appending `/happy-hour` to a non-own domain.
+ */
+export function isNonOwnSiteHost(url: string | null | undefined): boolean {
+  if (!url) return false;
+  const h = host(url);
+  if (!h) return false;
+  if (isAggregatorHost(url)) return true;
+  return NON_OWN_SITE_HOSTS.some((a) => h === a || h.endsWith(`.${a}`));
+}
+
+/**
  * True when a window's `source_url` is NOT verifiably the venue's own site and should be
  * HIDDEN for review. No opinion (false) when we can't judge: missing/garbage source,
  * no stored venue website, or a known menu-hosting platform.

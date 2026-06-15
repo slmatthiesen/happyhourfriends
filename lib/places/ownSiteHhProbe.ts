@@ -9,6 +9,7 @@
  * (env constraint). The fetcher is injected so the unit test is hermetic.
  */
 import { hasHhOrDealSignal } from "@/lib/places/hhText";
+import { isNonOwnSiteHost } from "@/lib/recover/sourceProvenance";
 
 /** The HH-specific paths from siteTriage.GUESS_MENU_PATHS — most→least specific. A real HH
  *  page lives at one of these; /menu and /drinks are deliberately excluded (too generic to
@@ -56,6 +57,10 @@ export async function probeOwnSiteHhPage(
   } catch {
     return { hhPageUrl: null, status: "none" };
   }
+  // The "website" on file is sometimes a social profile or a parent-hotel/booking domain, not
+  // a site the venue controls a /happy-hour route on — probing those yields a meaningless
+  // generic page (instagram.com/happy-hour, www3.hilton.com/happy-hour). Skip them.
+  if (isNonOwnSiteHost(origin)) return { hhPageUrl: null, status: "none" };
 
   let blockedUrl: string | null = null;
   for (const path of OWN_SITE_HH_PATHS) {
