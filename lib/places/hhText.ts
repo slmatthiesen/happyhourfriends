@@ -45,6 +45,12 @@ export function hasHhOrDealSignal(text: string): boolean {
   return HH_RE.test(text) || DEAL_RE.test(text);
 }
 
+/** The actual substring that tripped hasHhOrDealSignal — so a review can see WHICH word
+ *  escalated a page ("happy hour" vs a loose deal token like "daily"/"specials"/a time range). */
+export function hhOrDealMatch(text: string): string | null {
+  return HH_RE.exec(text)?.[0] ?? DEAL_RE.exec(text)?.[0] ?? null;
+}
+
 /**
  * Likelihood that a URL points at HH info, for ordering candidate pages
  * most→least likely. Higher = check first. 0 = no signal.
