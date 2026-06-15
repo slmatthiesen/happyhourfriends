@@ -35,6 +35,7 @@
     "prune:empty-venues": "tsx scripts/prune-empty-venues.ts",
     "reextract:stubs": "tsx scripts/reextract-stubs.ts",
     "reextract:stubs:free": "tsx scripts/reextract-stubs-free.ts",
+    "regate": "tsx scripts/regate-hidden.ts",
     "triage:stubs": "tsx scripts/triage-stub-sites.ts",
     "rank:stubs": "tsx scripts/rank-stub-candidates.ts",
     "diagnose:no-hh": "tsx scripts/diagnose-no-hh.ts",

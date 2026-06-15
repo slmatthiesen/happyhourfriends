@@ -230,16 +230,39 @@ check("NOT MEAL: explicit happy-hour text VETOES every signal (Quesadilla Gorill
   );
 });
 
-check("NOT MEAL: happy-hour source URL vetoes a lunch-token offering", () => {
-  assert.equal(
+check("MEAL: a 'lunch' token fires even when the page URL slug says happy-hour (URL not per-window proof)", () => {
+  // REVERSED 2026-06-14: a shared /happy-hour page slug no longer vetoes — it was whitelisting
+  // breakfast/operating-hours rows scraped off a venue's happy-hour landing page (La Herradura).
+  assert.ok(
     mealSpecialEvidence({
       startTime: "15:00",
       endTime: "18:00",
       sourceUrl: "https://example.com/happy-hour",
       offerings: [off("Lunch portion fish & chips", 14)],
     }),
+  );
+});
+
+check("VETO still works on the window's OWN text: 'happy hour' in the offering name keeps it live", () => {
+  assert.equal(
+    mealSpecialEvidence({
+      startTime: "15:00",
+      endTime: "18:00",
+      offerings: [off("Happy Hour fish & chips", 14)],
+    }),
     null,
   );
+});
+
+check("GOLDEN La Herradura: 7am–noon 'Breakfast Special' off a /happy-hours page IS meal service", () => {
+  const ev = mealSpecialEvidence({
+    startTime: "07:00",
+    endTime: "12:00",
+    sourceUrl: "https://laherradurakitchen.com/...-happy-hours-specials",
+    offerings: [off("Breakfast Special", null)],
+  });
+  assert.ok(ev, "breakfast token must fire despite the happy-hours page URL");
+  assert.match(ev, /breakfast/i);
 });
 
 check("NOT MEAL: many priced items with a cheap floor is a real menu (Sullivan's)", () => {
@@ -289,6 +312,54 @@ check("LUNCH: 12–3 window also fires (within band)", () => {
   assert.ok(mealSpecialEvidence({ startTime: "12:00", endTime: "15:00", offerings: [off("Bento box", 14)] }));
 });
 
+check("MEAL TOKEN beats page-URL: 'Lunch Special' at 10–2 off a /happy-hours page fires (La Herradura)", () => {
+  const ev = mealSpecialEvidence({
+    startTime: "10:00",
+    endTime: "14:00",
+    sourceUrl: "https://laherradurakitchen.com/...-happy-hours-specials",
+    offerings: [off("Lunch Special", 11.99)],
+  });
+  assert.ok(ev, "explicit meal token fires regardless of the happy-hours page URL");
+  assert.match(ev, /meal-service language/);
+});
+
+check("GOLDEN Vix Creek: 2–4pm food list (avg $11) off a HappyHour-Menu.pdf STAYS LIVE (URL veto on timing)", () => {
+  // The exact regression caught 2026-06-15: real HH demoted because the URL veto was dropped.
+  const ev = mealSpecialEvidence({
+    startTime: "14:00",
+    endTime: "16:00",
+    sourceUrl: "https://static1.squarespace.com/.../VCS-HappyHour-Menu.pdf",
+    offerings: [off("Chicken Wings", 6), off("Sliders", 12), off("Steak Bites", 14), off("Fish Tacos", 10)],
+  });
+  assert.equal(ev, null);
+});
+
+check("GOLDEN Trattoria Pina: '<meal> menu' is a menu citation, NOT meal service (drinks + 'Dinner menu appetizers')", () => {
+  // Real HH demoted because "Dinner menu appetizers" tripped the meal token. "Dinner menu" cites a menu.
+  assert.equal(
+    mealSpecialEvidence({
+      startTime: "17:00",
+      endTime: "18:30",
+      offerings: [off("All cocktails", null), off("Glass of wine", null), off("Dinner menu appetizers", null)],
+    }),
+    null,
+  );
+});
+
+check("but 'Dinner Special' (no 'menu') still fires", () => {
+  assert.ok(mealSpecialEvidence({ startTime: "17:00", endTime: "22:00", offerings: [off("Dinner Special", 15)] }));
+});
+
+check("but the SAME 2–4pm food window with NO happy-hour source IS a lunch window", () => {
+  const ev = mealSpecialEvidence({
+    startTime: "14:00",
+    endTime: "16:00",
+    offerings: [off("Chicken Wings", 6), off("Sliders", 12)],
+  });
+  assert.ok(ev);
+  assert.match(ev, /lunch-hours window/);
+});
+
 check("LUNCH: explicit 'happy hour' text VETOES the lunch-band rule (midday HH survives)", () => {
   assert.equal(
     mealSpecialEvidence({
@@ -320,10 +391,14 @@ check("assessRealness without mealSpecial input behaves exactly as before", () =
   assert.equal(r.suspect, false);
 });
 
-// ── bare-window gate (diagnosis bucket #2) ──────────────────────────────────────
-// A time window with ZERO offerings AND no happy-hour wording on its source is
-// operating hours or a lunch/menu page captured as a deal — hide for review.
-// Goldens from the 2026-06-13 diagnosis (Quarterdeck, Sliver Pizzeria).
+// ── bare-window gate — TIME-FIRST policy (operator directive 2026-06-14) ─────────
+// REVERSES the 2026-06-13 bucket-#2 rule. Operator: a window with a CONFIRMED bounded
+// time goes LIVE even with no published food/drink ("if time, show it live"). A bare
+// window is now suspect ONLY when its clock span covers most of an operating day (≥6h)
+// AND it carries no happy-hour wording — i.e. it is operating hours, not a deal. The
+// reconcile gate (isOperatingHours) is the authoritative op-hours check when hours_json
+// exists; this duration backstop covers venues with no hours data. Reason id renamed
+// no_offerings_no_hh_text → bare_operating_hours.
 const bare = (over: Partial<Parameters<typeof assessRealness>[0]["mealSpecial"]> = {}) => ({
   allDay: false,
   dayCount: 5,
@@ -332,31 +407,90 @@ const bare = (over: Partial<Parameters<typeof assessRealness>[0]["mealSpecial"]>
   mealSpecial: { startTime: "15:00", endTime: "17:00", notes: null, sourceUrl: null, offerings: [], ...over },
 });
 
-check("GOLDEN Quarterdeck: M–F 3–5pm, no offerings, menu-page source IS suspect", () => {
+check("NEW POLICY: M–F 3–5pm bare window, menu-page source, goes LIVE (confirmed time)", () => {
   const r = assessRealness(bare({ sourceUrl: "https://thequarterdeck.com/menu" }));
+  assert.equal(r.suspect, false);
+  assert.equal(r.reasons.includes("bare_non_hh_window"), false);
+});
+
+check("NEW POLICY: bare 2–4:30pm afternoon window goes LIVE (start past noon)", () => {
+  const r = assessRealness(bare({ startTime: "14:00", endTime: "16:30", sourceUrl: "https://sliverpizzeria.com/menu" }));
+  assert.equal(r.suspect, false);
+});
+
+check("GOLDEN Super Duper shape: bare M–F 4–6pm goes LIVE (the 2-weeks-hidden case)", () => {
+  const r = assessRealness(bare({ startTime: "16:00", endTime: "18:00" }));
+  assert.equal(r.suspect, false);
+});
+
+check("bare OPEN-until-close window (start known, no end) goes LIVE", () => {
+  const r = assessRealness(bare({ startTime: "15:00", endTime: null }));
+  assert.equal(r.reasons.includes("bare_non_hh_window"), false);
+});
+
+check("OPERATING HOURS: bare 11am–10pm (11h) span IS suspect (Wandering Tortoise shape)", () => {
+  const r = assessRealness(bare({ startTime: "11:00", endTime: "22:00" }));
   assert.equal(r.suspect, true);
-  assert.ok(r.reasons.includes("no_offerings_no_hh_text"));
+  assert.ok(r.reasons.includes("bare_non_hh_window"));
 });
 
-check("GOLDEN Sliver: M–F window from a /lunch-deals page, no offerings IS suspect", () => {
-  const r = assessRealness(bare({ startTime: "14:00", endTime: "16:30", sourceUrl: "https://sliverpizzeria.com/lunch-deals" }));
+check("OPERATING HOURS veto: a long bare span that SAYS happy hour stays LIVE", () => {
+  const r = assessRealness(bare({ startTime: "11:00", endTime: "22:00", notes: "All-day Happy Hour" }));
+  assert.equal(r.reasons.includes("bare_non_hh_window"), false);
+});
+
+check("DAYTIME/LUNCH: bare 10am–2pm menu-page window IS suspect (Original Joe's)", () => {
+  const r = assessRealness(bare({ startTime: "10:00", endTime: "14:00", sourceUrl: "https://originaljoes.com/menu" }));
   assert.equal(r.suspect, true);
-  assert.ok(r.reasons.includes("no_offerings_no_hh_text"));
+  assert.ok(r.reasons.includes("bare_non_hh_window"));
 });
 
-check("bare window VETOED by 'happy hour' in notes stays live (North Italia)", () => {
-  const r = assessRealness(bare({ notes: "Happy Hour Mon–Fri 3–6pm in the bar" }));
-  assert.equal(r.reasons.includes("no_offerings_no_hh_text"), false);
+check("DAYTIME/LUNCH: bare 11:30am–3pm window IS suspect (Giuseppe's /about)", () => {
+  const r = assessRealness(bare({ startTime: "11:30", endTime: "15:00" }));
+  assert.ok(r.reasons.includes("bare_non_hh_window"));
 });
 
-check("bare window VETOED by a /happy-hour source URL stays live", () => {
-  const r = assessRealness(bare({ sourceUrl: "https://example.com/happy-hour" }));
-  assert.equal(r.reasons.includes("no_offerings_no_hh_text"), false);
+check("DAYTIME/LUNCH veto: a bare midday window that SAYS happy hour stays LIVE", () => {
+  const r = assessRealness(bare({ startTime: "12:00", endTime: "15:00", notes: "Happy Hour Mon–Fri 12–3pm" }));
+  assert.equal(r.reasons.includes("bare_non_hh_window"), false);
 });
 
-check("'social hour' wording also vetoes the bare-window gate", () => {
-  const r = assessRealness(bare({ notes: "Social Hour 3–5pm" }));
-  assert.equal(r.reasons.includes("no_offerings_no_hh_text"), false);
+// Veto coverage — HH_RE clears the bare-window gate on the window's OWN NOTES (any wording).
+// A shared page-URL slug does NOT veto (REVERSED 2026-06-14, La Herradura leak).
+check("REVERSED: a long bare span from a /happy-hour page URL IS operating hours (slug not per-window proof)", () => {
+  const r = assessRealness(bare({ startTime: "11:00", endTime: "22:00", sourceUrl: "https://example.com/happy-hour" }));
+  assert.equal(r.suspect, true);
+  assert.ok(r.reasons.includes("bare_non_hh_window"));
+});
+
+check("VETO (notes): a long bare span whose NOTES say happy hour stays LIVE", () => {
+  const r = assessRealness(bare({ startTime: "11:00", endTime: "22:00", notes: "All-day Happy Hour" }));
+  assert.equal(r.reasons.includes("bare_non_hh_window"), false);
+});
+
+check("VETO ('social hour'): a daytime bare span worded 'Social Hour' stays LIVE", () => {
+  const r = assessRealness(bare({ startTime: "11:00", endTime: "15:00", notes: "Social Hour 11–3" }));
+  assert.equal(r.reasons.includes("bare_non_hh_window"), false);
+});
+
+check("VETO (North Italia notes): bare span with 'happy hour' notes stays LIVE", () => {
+  const r = assessRealness(bare({ startTime: "11:00", endTime: "18:00", notes: "Happy Hour Mon–Fri 3–6pm in the bar" }));
+  assert.equal(r.reasons.includes("bare_non_hh_window"), false);
+});
+
+check("NOT LUNCH: bare 2–4pm afternoon HH stays LIVE (start past noon floor)", () => {
+  const r = assessRealness(bare({ startTime: "14:00", endTime: "16:00" }));
+  assert.equal(r.reasons.includes("bare_non_hh_window"), false);
+});
+
+check("exactly 6h bare span (15:00–21:00) IS suspect (boundary, operating-day length)", () => {
+  const r = assessRealness(bare({ startTime: "15:00", endTime: "21:00" }));
+  assert.ok(r.reasons.includes("bare_non_hh_window"));
+});
+
+check("just under 6h bare span (15:00–20:30) goes LIVE", () => {
+  const r = assessRealness(bare({ startTime: "15:00", endTime: "20:30" }));
+  assert.equal(r.reasons.includes("bare_non_hh_window"), false);
 });
 
 check("a window WITH offerings is never a bare phantom (even with no HH wording)", () => {
@@ -364,7 +498,7 @@ check("a window WITH offerings is never a bare phantom (even with no HH wording)
     allDay: false, dayCount: 5, timeKnown: true, confidence: 0.9,
     mealSpecial: { startTime: "16:00", endTime: "18:00", notes: null, sourceUrl: "https://x.com/menu", offerings: [off("Draft beer", 5)] },
   });
-  assert.equal(r.reasons.includes("no_offerings_no_hh_text"), false);
+  assert.equal(r.reasons.includes("bare_non_hh_window"), false);
   assert.equal(r.suspect, false);
 });
 
