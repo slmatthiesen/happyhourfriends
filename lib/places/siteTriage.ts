@@ -227,6 +227,28 @@ export function extractMediaLinks(html: string, baseUrl: string): string[] {
       if (u) out.add(u);
     }
   }
+  // JSON-LD (schema.org) menus — getbento / BentoBox / Squarespace embed the HH menu as an
+  // image or PDF inside <script type="application/ld+json"> Menu/MenuSection data, with NO
+  // <a>/<img> tag for the scanners above to find (Limón's HH lived in a getbento MenuSection
+  // image; initial enrich got the window text but never the deals). Harvest media URLs from
+  // ld+json blocks that carry menu CONTEXT — the schema type is the signal, so a generically
+  // named menu image is kept; a NOISE filter still drops logos/heroes sharing the block.
+  const ldRe = /<script\b[^>]*type\s*=\s*["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+  const MENU_CONTEXT = /\bMenu\b|hasMenu|MenuSection|MenuItem/i;
+  const MEDIA_URL = /https?:\/\/[^\s"'\\<>]+\.(?:pdf|jpe?g|png|webp)(?:\?[^\s"'\\<>]*)?/gi;
+  const MEDIA_NOISE = /logo|favicon|sprite|avatar|\bicon\b|background|banner|hero\b/i;
+  while ((m = ldRe.exec(html)) !== null) {
+    const block = m[1];
+    if (!MENU_CONTEXT.test(block)) continue;
+    let um: RegExpExecArray | null;
+    while ((um = MEDIA_URL.exec(block)) !== null) {
+      const raw = um[0].replace(/&amp;/gi, "&");
+      if (MEDIA_NOISE.test(raw)) continue;
+      const isPdf = /\.pdf(\?|$)/i.test(raw);
+      const u = abs(isPdf ? raw : fullResImageUrl(raw));
+      if (u) out.add(u);
+    }
+  }
   return [...out].slice(0, 6);
 }
 
