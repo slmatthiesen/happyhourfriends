@@ -183,7 +183,7 @@ export function extractPageRoutes(html: string, baseUrl: string): string[] {
  * not HTML. A restaurant PDF is almost always a menu (kept regardless of name); images
  * are kept only when the filename/alt looks menu-ish (avoids decorative photos).
  */
-const MEDIA_SIGNAL = /menu|happy|hour|\bbar\b|drink|cocktail|special|food|dinner|lunch|brunch/i;
+const MEDIA_SIGNAL = /menu|happy|hour|\bbar\b|drink|cocktail|special|food|dinner|lunch|brunch|vermut|aperitivo|apericena/i;
 
 /**
  * Wix (and similar) embed a tiny BLURRED thumbnail in the served HTML —
@@ -227,6 +227,28 @@ export function extractMediaLinks(html: string, baseUrl: string): string[] {
       if (u) out.add(u);
     }
   }
+  // JSON-LD (schema.org) menus — getbento / BentoBox / Squarespace embed the HH menu as an
+  // image or PDF inside <script type="application/ld+json"> Menu/MenuSection data, with NO
+  // <a>/<img> tag for the scanners above to find (Limón's HH lived in a getbento MenuSection
+  // image; initial enrich got the window text but never the deals). Harvest media URLs from
+  // ld+json blocks that carry menu CONTEXT — the schema type is the signal, so a generically
+  // named menu image is kept; a NOISE filter still drops logos/heroes sharing the block.
+  const ldRe = /<script\b[^>]*type\s*=\s*["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+  const MENU_CONTEXT = /\bMenu\b|hasMenu|MenuSection|MenuItem/i;
+  const MEDIA_URL = /https?:\/\/[^\s"'\\<>]+\.(?:pdf|jpe?g|png|webp)(?:\?[^\s"'\\<>]*)?/gi;
+  const MEDIA_NOISE = /logo|favicon|sprite|avatar|\bicon\b|background|banner|hero\b/i;
+  while ((m = ldRe.exec(html)) !== null) {
+    const block = m[1];
+    if (!MENU_CONTEXT.test(block)) continue;
+    let um: RegExpExecArray | null;
+    while ((um = MEDIA_URL.exec(block)) !== null) {
+      const raw = um[0].replace(/&amp;/gi, "&");
+      if (MEDIA_NOISE.test(raw)) continue;
+      const isPdf = /\.pdf(\?|$)/i.test(raw);
+      const u = abs(isPdf ? raw : fullResImageUrl(raw));
+      if (u) out.add(u);
+    }
+  }
   return [...out].slice(0, 6);
 }
 
@@ -236,6 +258,9 @@ export function extractMediaLinks(html: string, baseUrl: string): string[] {
  *  because they're too generic to count as a happy-hour page on their own). */
 export const GUESS_MENU_PATHS = [
   "/happy-hour", "/happyhour", "/happy-hour-menu", "/menu/happy-hour",
+  // Multilingual HH pages (Iberia's was /vermut-hour/): probe these too — ethnic venues
+  // label their happy hour in their own language (Spanish vermut/hora-feliz, Italian aperitivo).
+  "/vermut-hour", "/hora-feliz", "/aperitivo", "/apericena",
   "/specials", "/bar-menu", "/drink-menu", "/drinks", "/cocktails",
   "/menu", "/menus", "/food-menu",
 ];
@@ -255,7 +280,7 @@ export function guessMenuUrls(baseUrl: string): string[] {
 // it and the page (which holds the HH) was never fetched. CONTENT_HINT keeps such pages;
 // PAGE_NOISE drops cart/account/legal/ordering routes that never carry HH.
 const CONTENT_HINT =
-  /about|event|special|menu|food|drink|dining|cocktail|happy|hour|deal|brunch|lunch|dinner|\bbar\b/i;
+  /about|event|special|menu|food|drink|dining|cocktail|happy|hour|deal|brunch|lunch|dinner|\bbar\b|vermut|aperitivo|apericena|hora[-_ ]?feliz/i;
 const PAGE_NOISE =
   /\/(cart|checkout|account|login|sign-?in|register|privacy|terms|gift|careers?|jobs?|contact|reservations?|order-online|form-confirmation|sitemap)\b/i;
 
@@ -389,11 +414,14 @@ export function siteVerdictFromFetch(
     // rank ahead of speculative path guesses (a declared /about-3-1 / /scottsdale exists;
     // a guessed /happy-hour usually 404s).
     const declared = pickDeclaredPages(sitemapUrls, finalUrl, 6);
-    const guesses = rankCandidates(guessMenuUrls(finalUrl), 12);
+    // 16 (was 12): the multilingual HH guess paths (/vermut-hour, /aperitivo, …) score 100 and
+    // would otherwise bump generic /menu out of the net. The extractor's own MAX_FETCH still
+    // bounds actual fetches, so a longer priority list costs nothing.
+    const guesses = rankCandidates(guessMenuUrls(finalUrl), 16);
     // CONFIRMED = linked docs + anchor/route links + sitemap pages (all known to exist).
     // EXCLUDES `guesses` — only confirmed pages may trigger a PAID escalation downstream.
     confirmedHhUrls = rankCandidates([...rankedMedia, ...confirmed, ...declared], 12);
-    hhSignalUrls = [...new Set([...rankedMedia, ...confirmed, ...declared, ...guesses])].slice(0, 12);
+    hhSignalUrls = [...new Set([...rankedMedia, ...confirmed, ...declared, ...guesses])].slice(0, 16);
   } else {
     hhSignalUrls = guessMenuUrls(url); // bot-blocked: still probe the obvious paths
     confirmedHhUrls = []; // page unreadable → nothing confirmed (guesses must not escalate)
