@@ -559,9 +559,18 @@ const EMPTY_PARSE = {
  * free-parses first to pick a route) can reach the model WITHOUT a second fetch — some sites block
  * the rapid re-fetch and return "no content", silently dropping a real HH page.
  */
+// Per-request cap so one stalled extraction can't hang the whole run. A 2026-06-16 debug
+// run sat at 0% CPU for ~28 min — the SDK's 10-min default timeout × its default retries on a
+// dead socket. Bound it: a single extraction gets at most ~2 min, with one retry for transient
+// errors. Worst case becomes minutes, not half-hours.
+const EXTRACT_REQUEST_TIMEOUT_MS = 120_000;
+
 export async function runExtractModel(built: ExtractRequest): Promise<ExtractResult> {
   const { params, promptHash, model } = built;
-  const response: Message = await anthropic().messages.create(params);
+  const response: Message = await anthropic().messages.create(params, {
+    timeout: EXTRACT_REQUEST_TIMEOUT_MS,
+    maxRetries: 1,
+  });
   const summedUsage: Usage = {
     inputTokens: response.usage.input_tokens,
     outputTokens: response.usage.output_tokens,
