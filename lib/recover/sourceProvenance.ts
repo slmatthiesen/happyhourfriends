@@ -71,6 +71,7 @@ const MENU_HOSTS = [
   "website-files.com", // Webflow asset CDN (cdn.prod.website-files.com)
   "wp.com", // WordPress.com / Jetpack image CDN (i0/i1/i2.wp.com)
   "shopify.com", // Shopify asset CDN (cdn.shopify.com)
+  "getbento.com", // BentoBox restaurant CMS asset CDN (images.getbento.com — Limón's HH menu image)
   // Menu / ordering platforms restaurants host their OWN menu on.
   "toasttab.com",
   "square.site",
