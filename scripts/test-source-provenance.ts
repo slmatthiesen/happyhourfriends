@@ -60,6 +60,11 @@ check("Squarespace CDN menu PDF is exempt (not suspect)", () =>
     isSourceProvenanceSuspect("https://static1.squarespace.com/static/abc/menu.pdf", "https://foo.com"),
     false,
   ));
+check("BentoBox getbento CDN menu image is exempt (Limón bug — not suspect)", () =>
+  assert.equal(
+    isSourceProvenanceSuspect("https://images.getbento.com/accounts/x/media/images/happy_hour.png", "https://www.limonrestaurants.com/"),
+    false,
+  ));
 check("Toast ordering/menu host is exempt (not suspect)", () =>
   assert.equal(isSourceProvenanceSuspect("https://foo.toasttab.com/menu", "https://foo.com"), false));
 check("Wix file host (wixstatic) is exempt (not suspect)", () =>

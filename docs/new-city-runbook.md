@@ -94,10 +94,27 @@ The gate merges duplicate windows, hides operating-hours-masquerading-as-HH, and
 overlaps. All changes are reversible (soft-delete / `active` flips, idempotent).
 
 ```bash
+pnpm tsx scripts/regate-hidden.ts --city <slug> --state <code>             # dry-run ($0): preview promotes
+pnpm tsx scripts/regate-hidden.ts --city <slug> --state <code> --apply     # flip stale-hidden→live
 pnpm run reconcile:windows -- --city <slug> --state <code>          # dry-run first
 pnpm run reconcile:windows -- --city <slug> --state <code> --apply
 pnpm tsx scripts/spotcheck-free.ts --city <slug> --state <code>     # eyeball every LIVE window + evidence
 ```
+
+⚠️ **`regate-hidden` is NON-OPTIONAL and easy to forget** (it is not a `seed:*`/`reconcile:*`
+script). `active` is a STORED column set once at persist time, so any window persisted before a
+gate improvement stays hidden until regate re-evaluates it. Skipping it benched **5 real HH on
+San Mateo** (Lazy Dog, Hotaru w/ 8 offerings, Dog Haus, YAYOI) that the current gate already
+passes — discovered 2026-06-16 only because the live count looked too low. Run it every city.
+
+**Targeted re-extract for bare HH-URL windows (paid, ~$0.01–0.03/venue):** after regate, windows
+that are still hidden as "bare" (time captured, 0 offerings) but whose source URL is a real HH page
+(`/happy-hour`, `/specials`) are usually real — the extractor got the time but missed the deals.
+Re-extract the page to recover offerings → they go live:
+`pnpm tsx scripts/reextract-stubs.ts --city <slug> --state <code> --venue "<name>" --url "<hh-url>" --quick`.
+San Mateo: 5/8 recovered for ~$0.15 (NEL, Lazy Dog, American Bull, Amici's, Johnston's). The rest
+(JS-walled / no clear HH on the page) stay hidden for crowdsource. Manual entry is gated to
+`hh_probe_status='blocked'` venues only (readable sites must be fixed via the extractor, by design).
 
 **Done when:** you've eyeballed the live windows and each one is a real happy hour with a
 plausible source. A misextracted venue means **fix the extractor/gate, never hand-patch
@@ -112,6 +129,10 @@ polygons are the fallback for venues without one. Build the fallback layers, the
 
 ```bash
 pnpm run import:osm-neighborhoods -- --city <slug> --state <code>   # vernacular polygons (may be 0 — fine)
+# METRO SLUGS ONLY (boundary = union of >1 town, e.g. san-mateo, five-cities): add each constituent
+# town as a COARSE neighborhood so venues Google didn't sub-label still get a town + the dropdown
+# offers each town by name. No-op for single-town cities. Run BEFORE backfill.
+pnpm run import:locality-neighborhoods -- --city <slug> --state <code>
 pnpm run generate:cardinal-districts -- --city <slug> --state <code> --downtown <lat,lng> # gap-free floor from the boundary file; ALWAYS pass the real CBD as --downtown (the centroid default lands far from downtown in elongated cities — Oakland was 5.5km off; --redo-downtown re-cuts it)
 pnpm run backfill:neighborhoods -- --city <slug> --state <code>     # assign venues
 pnpm run analyze:neighborhood-coverage -- --city <slug> --state <code>
