@@ -431,7 +431,7 @@ async function main() {
     if (candidates.length === 0) {
       console.log(
         `No unprocessed seed_candidates found for '${city.slug}'. ` +
-          "Run seed-discover-tacoma.ts first.",
+          "Run seed-discover.ts first.",
       );
       return;
     }
