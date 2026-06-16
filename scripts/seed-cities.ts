@@ -224,18 +224,20 @@ const CITIES: CitySeed[] = [
   },
   {
     slug: "san-mateo",
-    name: "San Mateo",
+    name: "San Mateo & Mid-Peninsula",
     state: "CA",
     country: "US",
     timezone: "America/Los_Angeles",
     currency: "USD",
-    // center: bbox center of data/san-mateo-boundary.geojson (OSM relation 2835017)
-    centerLat: 37.5561,
-    centerLng: -122.3147,
+    // center: bbox center of data/san-mateo-boundary.geojson — dissolved union of 5 mid-Peninsula
+    // cities (OSM rels: San Mateo 2835017, Foster City 2835016, San Carlos 112314,
+    // Belmont 9959750, Burlingame 9949457). Towns surface as neighborhood filters (Five Cities model).
+    centerLat: 37.5406,
+    centerLng: -122.2788,
     seedConfig: {
-      radiusKm: 6, // fallback only; data/san-mateo-boundary.geojson drives real tiling/gate
+      radiusKm: 10, // fallback only; data/san-mateo-boundary.geojson drives real tiling/gate
       cellMeters: 3000,
-      serviceLocalities: ["San Mateo"],
+      serviceLocalities: ["San Mateo", "Belmont", "San Carlos", "Foster City", "Burlingame"],
       serviceBufferMeters: 500,
     },
   },

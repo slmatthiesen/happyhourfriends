@@ -180,6 +180,32 @@ check("Wix image de-thumbnailed to full-res; signal matched on original name (Sh
   // a non-Wix url is untouched
   assert.equal(fullResImageUrl("https://x.com/menu.jpg"), "https://x.com/menu.jpg");
 });
+check("JSON-LD MenuSection image is harvested (Limón / getbento bug)", () => {
+  // The HH menu lives in schema.org JSON-LD as an image on a CDN — no <a>/<img> tag for the
+  // old scanner to find. extractMediaLinks must read ld+json menu blocks.
+  const html = `<script type="application/ld+json">${JSON.stringify({
+    "@type": "Menu",
+    hasMenuSection: {
+      "@type": "MenuSection",
+      name: "Happy Hour M-F 3-6pm",
+      hasMenuItem: { "@type": "MenuItem", image: { url: "https://images.getbento.com/accounts/x/media/images/15432happy_hour_1.png?w=1800&fit=max" } },
+    },
+  })}</script>`;
+  const links = extractMediaLinks(html, "https://www.limonrestaurants.com/menus/");
+  assert.ok(
+    links.some((u) => u.startsWith("https://images.getbento.com/accounts/x/media/images/15432happy_hour_1.png")),
+    `expected getbento menu image, got ${JSON.stringify(links)}`,
+  );
+});
+check("JSON-LD menu PDF is harvested even with a generic filename (menu context)", () => {
+  const html = `<script type='application/ld+json'>{"@type":"Restaurant","hasMenu":{"@type":"Menu","url":"https://cdn.example.com/files/2026-doc.pdf"}}</script>`;
+  const links = extractMediaLinks(html, "https://r.com/");
+  assert.deepEqual(links, ["https://cdn.example.com/files/2026-doc.pdf"]);
+});
+check("JSON-LD WITHOUT menu context does not harvest a logo image", () => {
+  const html = `<script type="application/ld+json">{"@type":"Organization","logo":{"url":"https://cdn.example.com/brand/logo.png"}}</script>`;
+  assert.deepEqual(extractMediaLinks(html, "https://r.com/"), []);
+});
 check("500 server error → kill (dead)", () => {
   const v = siteVerdictFromFetch("https://x.com/", { kind: "response", status: 503, html: "", finalUrl: "https://x.com/" });
   assert.equal(v.decision, "kill");
