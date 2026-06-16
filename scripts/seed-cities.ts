@@ -222,6 +222,23 @@ const CITIES: CitySeed[] = [
       serviceBufferMeters: 500,
     },
   },
+  {
+    slug: "san-mateo",
+    name: "San Mateo",
+    state: "CA",
+    country: "US",
+    timezone: "America/Los_Angeles",
+    currency: "USD",
+    // center: bbox center of data/san-mateo-boundary.geojson (OSM relation 2835017)
+    centerLat: 37.5561,
+    centerLng: -122.3147,
+    seedConfig: {
+      radiusKm: 6, // fallback only; data/san-mateo-boundary.geojson drives real tiling/gate
+      cellMeters: 3000,
+      serviceLocalities: ["San Mateo"],
+      serviceBufferMeters: 500,
+    },
+  },
 ];
 
 async function main() {
