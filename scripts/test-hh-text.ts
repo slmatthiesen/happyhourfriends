@@ -40,6 +40,19 @@ check("scoreHhUrl catches no-space + underscore spellings in the path", () => {
   assert.ok(scoreHhUrl("https://x.com/happy_hour") >= 100);
 });
 
+check("HH_RE multilingual terms (Iberia vermut-hour bug, 2026-06-16)", () => {
+  assert.ok(HH_RE.test("Vermut Hour - for two $24.65"));           // Iberia (Spanish vermouth hour)
+  assert.ok(HH_RE.test("Disfruta la hora del vermut"));            // "hora del vermut"
+  assert.ok(HH_RE.test("Hora Feliz 5-7pm"));                       // "hora feliz" = happy hour
+  assert.ok(HH_RE.test("Aperitivo every evening 5-7"));            // Italian aperitivo ritual
+  assert.ok(HH_RE.test("Apericena buffet with your drink"));       // Italian apericena
+  assert.ok(scoreHhUrl("https://www.iberiarestaurant.com/vermut-hour/") >= 100);
+  assert.ok(scoreHhUrl("https://x.com/aperitivo") >= 100);
+});
+check("multilingual terms don't false-positive on plain ingredients", () => {
+  assert.ok(!matchesHappyHour("Negroni with sweet vermouth"));     // vermouth (ingredient) ≠ vermut hour
+  assert.ok(!matchesHappyHour("dinner is served at this hora"));   // bare "hora" w/o feliz/vermut
+});
 check("HH_RE synonyms from the 2026-06-11 review corpus", () => {
   assert.ok(HH_RE.test("HAPPIER HOURS | 3-6 PM MONDAY THRU FRIDAY")); // The Monica
   assert.ok(HH_RE.test("Join us for Social Hour every weekday"));     // PYRO

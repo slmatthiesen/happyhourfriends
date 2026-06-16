@@ -12,8 +12,13 @@
  *  synonyms venues actually use for the same thing, each found in live data during the
  *  2026-06-11 operator flag review: "Happier Hours" (The Monica), "Social Hour" (PYRO —
  *  operator: "sometimes it's called social hour"), "Power Hour" (Orangedale Lounge).
- *  The plain `happy` branch deliberately also matches "happyhour" URLs/slugs. */
-export const HH_RE = /happ(?:y|ier)[-_ ]?hours?|social[-_ ]?hour|power[-_ ]?hour/i;
+ *  The plain `happy` branch deliberately also matches "happyhour" URLs/slugs.
+ *  Multilingual terms (2026-06-16, Iberia's /vermut-hour/ was missed twice): ethnic venues
+ *  label HH in their own language — "vermut hour" / "hora del vermut" / "hora feliz" (Spanish),
+ *  "aperitivo" / "apericena" (Italian). Anchored to avoid false hits ("vermut hour" not bare
+ *  "vermouth" the ingredient; "hora" only with feliz/vermut). High-value for diverse metros + SF. */
+export const HH_RE =
+  /happ(?:y|ier)[-_ ]?hours?|social[-_ ]?hour|power[-_ ]?hour|vermut[-_ ]?hours?|hora[-_ ]?(?:feliz|del[-_ ]?vermut)|aperitivo|apericena/i;
 
 /** True when the text mentions happy hour in any common spelling/case. */
 export function matchesHappyHour(text: string): boolean {
