@@ -11,7 +11,7 @@
  * them as seed_candidates with googlePlaceId=null.
  *
  * Usage:
- *   tsx scripts/seed-discover-tacoma.ts --city tacoma --state wa [--curated]
+ *   tsx scripts/seed-discover.ts --city tacoma --state wa [--curated]
  *
  * Required env vars:
  *   DATABASE_URL           Postgres connection string
@@ -45,17 +45,37 @@ import { pickNeighborhood } from "@/lib/places/neighborhoodName";
 // Arg parsing
 // ---------------------------------------------------------------------------
 
-function parseArgs(): { curated: boolean; fresh: boolean; debugDrops: boolean } {
+interface DiscoverArgs {
+  curated: boolean;
+  fresh: boolean;
+  debugDrops: boolean;
+  hhRecall: boolean;
+  hhRecallOnly: boolean;
+  estimate: boolean;
+  subTile: boolean;
+  maxCalls: number;
+}
+
+function parseArgs(): DiscoverArgs {
   const argv = process.argv.slice(2);
+  // Default ceiling on the HH-recall Text Search pass (NOT the Nearby sweep, which keeps its
+  // own maxTiles guard). Whole-bbox = 3 calls; --sub-tile quadrants = 12; so 30 leaves room.
+  let maxCalls = 30;
+  const FLAGS = new Set([
+    "--curated", "--fresh", "--debug-drops",
+    "--hh-recall", "--hh-recall-only", "--estimate", "--sub-tile",
+  ]);
   // Reject stray args. `seed:discover tucson` (no --city) silently ran Tacoma before — a
   // costly footgun (wrong city / wasted Places quota). The city MUST be --city + --state flags.
   for (let i = 0; i < argv.length; i++) {
     const tok = argv[i];
     if (tok === "--city" || tok === "--state") { i++; continue; } // these consume their value
-    if (tok === "--curated" || tok === "--fresh" || tok === "--debug-drops") continue;
+    if (tok === "--max-calls") { maxCalls = Number(argv[++i]); continue; }
+    if (FLAGS.has(tok)) continue;
     throw new Error(
       `Unexpected argument "${tok}". Pass the city as flags:\n` +
-        `  npm run seed:discover -- --city <slug> --state <code>   (e.g. --city tucson --state az)`,
+        `  npm run seed:discover -- --city <slug> --state <code>   (e.g. --city tucson --state az)\n` +
+        `  Optional: --hh-recall | --hh-recall-only | --estimate | --sub-tile | --max-calls <n>`,
     );
   }
   return {
@@ -65,6 +85,17 @@ function parseArgs(): { curated: boolean; fresh: boolean; debugDrops: boolean } 
     // are kept so we don't lose enrich results.
     fresh: argv.includes("--fresh"),
     debugDrops: argv.includes("--debug-drops"),
+    // --hh-recall: ALSO run the HH-targeted Text Search recall pass after the Nearby sweep.
+    // --hh-recall-only: run ONLY the recall pass (skip the Nearby sweep) — for cheaply
+    // backfilling an already-discovered city without re-paying for Nearby tiling.
+    hhRecall: argv.includes("--hh-recall"),
+    hhRecallOnly: argv.includes("--hh-recall-only"),
+    // --estimate: print the worst-case call count + cost and exit. Makes ZERO Google calls.
+    estimate: argv.includes("--estimate"),
+    // --sub-tile: split the city bbox into quadrants for the recall pass (beats the 60-result
+    // cap for large cities). Off by default — whole-bbox is 3 calls.
+    subTile: argv.includes("--sub-tile"),
+    maxCalls: Number.isFinite(maxCalls) && maxCalls > 0 ? maxCalls : 30,
   };
 }
 
@@ -127,6 +158,18 @@ interface NearbySearchResponse {
 
 const PLACES_ENDPOINT =
   "https://places.googleapis.com/v1/places:searchNearby";
+const TEXT_SEARCH_ENDPOINT =
+  "https://places.googleapis.com/v1/places:searchText";
+
+// Shared Place field mask (Enterprise + Atmosphere tier). Reused by the Nearby sweep and
+// the HH-recall Text Search so BOTH capture the same venue metadata (alcohol gate + hours +
+// phone + neighborhood) in a single call — no per-candidate Place Details call in enrich.
+const PLACE_FIELD_MASK =
+  "places.id,places.displayName,places.formattedAddress,places.location," +
+  "places.primaryType,places.types,places.websiteUri,places.rating," +
+  "places.userRatingCount,places.priceLevel,places.businessStatus," +
+  "places.servesBeer,places.servesWine,places.servesCocktails," +
+  "places.nationalPhoneNumber,places.regularOpeningHours,places.addressComponents";
 
 // Tacoma bbox (PRD §7.3 notes the city center + bbox from cities table).
 // Fallback radius/bbox when the DB row has no bbox stored yet.
@@ -277,17 +320,10 @@ async function fetchNearby(
     headers: {
       "Content-Type": "application/json",
       "X-Goog-Api-Key": apiKey,
-      // Atmosphere-tier mask: the Enterprise fields (websiteUri/rating/priceLevel/
-      // businessStatus) PLUS serves*/regularOpeningHours/phone. searchNearby bills per
-      // TILE CALL, not per result, so capturing the alcohol gate + hours + phone here
-      // (≈+$1/city) deletes the per-CANDIDATE Place Details call from enrich
-      // (≈-$8-30/city). photos is intentionally omitted — hero capture is broken.
-      "X-Goog-FieldMask":
-        "places.id,places.displayName,places.formattedAddress,places.location," +
-        "places.primaryType,places.types,places.websiteUri,places.rating," +
-        "places.userRatingCount,places.priceLevel,places.businessStatus," +
-        "places.servesBeer,places.servesWine,places.servesCocktails," +
-        "places.nationalPhoneNumber,places.regularOpeningHours,places.addressComponents",
+      // Atmosphere-tier mask (shared PLACE_FIELD_MASK). searchNearby bills per TILE CALL,
+      // not per result, so capturing the alcohol gate + hours + phone here (≈+$1/city)
+      // deletes the per-CANDIDATE Place Details call from enrich (≈-$8-30/city).
+      "X-Goog-FieldMask": PLACE_FIELD_MASK,
     },
     body: JSON.stringify(body),
   });
@@ -299,6 +335,105 @@ async function fetchNearby(
 
   const data: NearbySearchResponse = (await res.json()) as NearbySearchResponse;
   return data.places ?? [];
+}
+
+// ---------------------------------------------------------------------------
+// HH-targeted recall (Text Search)
+// ---------------------------------------------------------------------------
+// The DISTANCE-ranked Nearby sweep truncates each tile to the nearest 20 SERVER-SIDE, so
+// real HH anchors in dense corridors (e.g. Jack's on S El Camino, San Mateo) are dropped
+// before we ever see them. Google exposes NO happy-hour field, so we tap its "happy hour"
+// search RELEVANCE instead. Recovered places run through the IDENTICAL gate ladder +
+// boundary gate + upsert as Nearby results — this only changes how candidates are FOUND.
+
+const HH_RECALL_QUERIES = ["happy hour"] as const;
+// Google caps Text Search at 60 results across pages (3 × pageSize 20). Hard ceiling per
+// query+region — there is NO adaptive recursion (unlike Nearby), so cost is fixed and
+// countable up front: queries × regions × ≤3 pages.
+const TEXT_SEARCH_MAX_PAGES = 3;
+
+interface LatLngRect {
+  low: { latitude: number; longitude: number };
+  high: { latitude: number; longitude: number };
+}
+
+interface TextSearchResponse {
+  places?: PlaceResult[];
+  nextPageToken?: string;
+}
+
+/** Split a rectangle into 4 quadrants (opt-in --sub-tile, to surface > 60 venues/city). */
+function splitRectQuadrants(r: LatLngRect): LatLngRect[] {
+  const midLat = (r.low.latitude + r.high.latitude) / 2;
+  const midLng = (r.low.longitude + r.high.longitude) / 2;
+  return [
+    { low: { latitude: r.low.latitude, longitude: r.low.longitude }, high: { latitude: midLat, longitude: midLng } },
+    { low: { latitude: r.low.latitude, longitude: midLng }, high: { latitude: midLat, longitude: r.high.longitude } },
+    { low: { latitude: midLat, longitude: r.low.longitude }, high: { latitude: r.high.latitude, longitude: midLng } },
+    { low: { latitude: midLat, longitude: midLng }, high: { latitude: r.high.latitude, longitude: r.high.longitude } },
+  ];
+}
+
+async function fetchTextSearchPage(
+  apiKey: string,
+  textQuery: string,
+  rectangle: LatLngRect,
+  pageToken?: string,
+): Promise<TextSearchResponse> {
+  const body: Record<string, unknown> = {
+    textQuery,
+    rankPreference: "RELEVANCE",
+    locationRestriction: { rectangle },
+    pageSize: 20,
+  };
+  if (pageToken) body.pageToken = pageToken;
+  const res = await fetch(TEXT_SEARCH_ENDPOINT, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Goog-Api-Key": apiKey,
+      "X-Goog-FieldMask": `${PLACE_FIELD_MASK},nextPageToken`,
+    },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "(no body)");
+    throw new Error(`Google Places searchText error ${res.status}: ${text}`);
+  }
+  return (await res.json()) as TextSearchResponse;
+}
+
+/**
+ * Run the HH-recall Text Search over each region, paginating to the 60-result cap, merging
+ * unique places into `into`. Returns calls made (cost accounting) and net-new added to the
+ * pool. No recursion — bounded by regions × queries × TEXT_SEARCH_MAX_PAGES.
+ */
+async function collectHhRecall(
+  apiKey: string,
+  regions: LatLngRect[],
+  into: Map<string, PlaceResult>,
+): Promise<{ calls: number; added: number }> {
+  let calls = 0;
+  let added = 0;
+  for (const region of regions) {
+    for (const q of HH_RECALL_QUERIES) {
+      let pageToken: string | undefined;
+      let page = 0;
+      do {
+        const data = await fetchTextSearchPage(apiKey, q, region, pageToken);
+        calls++;
+        for (const p of data.places ?? []) {
+          if (!p.id) continue;
+          if (!into.has(p.id)) added++;
+          into.set(p.id, p);
+        }
+        pageToken = data.nextPageToken;
+        page++;
+        await new Promise((r) => setTimeout(r, 40));
+      } while (pageToken && page < TEXT_SEARCH_MAX_PAGES);
+    }
+  }
+  return { calls, added };
 }
 
 // Genuine airport primary types. The `airport` INCLUDED type also returns places merely
@@ -423,7 +558,7 @@ async function main() {
         "  2. Create an API key and enable 'Places API (New)'\n" +
         "  3. Set a budget alert at $50/mo (PRD §10.1)\n" +
         "  4. Add to .env:  GOOGLE_PLACES_API_KEY=<your-key>\n" +
-        "  5. Re-run:  tsx scripts/seed-discover-tacoma.ts\n",
+        "  5. Re-run:  tsx scripts/seed-discover.ts\n",
     );
     process.exit(0);
   }
@@ -540,6 +675,29 @@ async function main() {
       });
     };
 
+    // ---- HH-recall rectangle (bounds the "happy hour" Text Search) ----------
+    // Boundary mode: the boundary's buffered bbox. Radius mode: center ± coverage.
+    const recallEnabled = args.hhRecall || args.hhRecallOnly;
+    let recallRect: LatLngRect;
+    if (useBoundary) {
+      const [rb] = await sql<
+        { xmin: number; ymin: number; xmax: number; ymax: number }[]
+      >`
+        SELECT ST_XMin(e) xmin, ST_YMin(e) ymin, ST_XMax(e) xmax, ST_YMax(e) ymax
+        FROM (
+          SELECT ST_Envelope(ST_Buffer(g::geography, ${SERVICE_BUFFER_METERS})::geometry) e
+          FROM _seed_boundary
+        ) s
+      `;
+      recallRect = { low: { latitude: rb.ymin, longitude: rb.xmin }, high: { latitude: rb.ymax, longitude: rb.xmax } };
+    } else {
+      const dLat = COVERAGE_METERS / 111_320;
+      const dLng = COVERAGE_METERS / (111_320 * Math.cos((lat * Math.PI) / 180));
+      recallRect = { low: { latitude: lat - dLat, longitude: lng - dLng }, high: { latitude: lat + dLat, longitude: lng + dLng } };
+    }
+    const recallRegions: LatLngRect[] = args.subTile ? splitRectQuadrants(recallRect) : [recallRect];
+
+    // ---- Nearby seed tiles (free to COMPUTE; only FETCHED if the Nearby sweep runs) ----
     let tiles: { lat: number; lng: number }[];
     if (useBoundary) {
       // Tile the boundary's buffered bbox, then drop tiles whose center is far from the
@@ -579,6 +737,95 @@ async function main() {
           `junk primary types; service area = ${SERVICE_LOCALITIES.join("/")} ≤${SERVICE_RADIUS_KM}km…`,
       );
     }
+    const seedTiles: Tile[] = tiles.map((t) => ({
+      lat: t.lat,
+      lng: t.lng,
+      radiusMeters: CELL_METERS,
+      depth: 0,
+    }));
+    // Runaway cap scaled to CITY SIZE (full 4-ary tree per seed tile + margin) — the Nearby
+    // sweep's own guard, independent of the recall --max-calls ceiling.
+    const perSeedTreeMax = (Math.pow(4, MAX_DEPTH + 1) - 1) / 3;
+    const maxTiles = Math.ceil(seedTiles.length * perSeedTreeMax) + 10;
+
+    // ---- Cost plan + --estimate (prints the worst-case call count; makes ZERO calls) ----
+    const plannedRecallCalls = recallEnabled
+      ? recallRegions.length * HH_RECALL_QUERIES.length * TEXT_SEARCH_MAX_PAGES
+      : 0;
+    if (recallEnabled) {
+      console.log(
+        `  HH recall plan: "${HH_RECALL_QUERIES.join('", "')}" × ${recallRegions.length} region(s) ` +
+          `× ≤${TEXT_SEARCH_MAX_PAGES} pages = ≤${plannedRecallCalls} Text Search call(s) ` +
+          `(~$${(plannedRecallCalls * 0.04).toFixed(2)} @ Enterprise+Atmosphere).`,
+      );
+      if (plannedRecallCalls > args.maxCalls) {
+        throw new Error(
+          `HH recall would make ≤${plannedRecallCalls} calls, over --max-calls=${args.maxCalls}. ` +
+            `Raise --max-calls to proceed.`,
+        );
+      }
+    }
+    if (!args.hhRecallOnly) {
+      console.log(`  Nearby sweep plan: ≤${maxTiles} tile call(s) (adaptive — usually far fewer) + 1 airport call.`);
+    }
+    if (args.estimate) {
+      console.log(`  --estimate: no Google calls made. Re-run without --estimate to execute.`);
+      await sql.end();
+      return;
+    }
+
+    // ---- Collect places into one pool → the shared gate ladder + boundary + upsert ----
+    const collected = new Map<string, PlaceResult>();
+
+    if (!args.hhRecallOnly) {
+      // Adaptive collection: each seed tile is queried by NEAREST-20; a saturated tile (20)
+      // subdivides into 4 smaller tiles and re-queries, down to the floor.
+      let floorSaturated = 0;
+      let tilesFetched = 0;
+      let tilesPruned = 0;
+      const nearby = await collectAdaptive<PlaceResult>({
+        seedTiles,
+        maxTiles,
+        fetchTile: async (tile) => {
+          // Subdivision pruning (BOUNDARY mode): skip a CHILD tile whose circle can't reach the
+          // in-scope area — don't PAY to subdivide into a dense neighbor city (e.g. San Francisco
+          // for Daly City). Seed tiles (depth 0) are already pruned to the boundary bbox above.
+          if (useBoundary && tile.depth > 0) {
+            const [{ within }] = await sql<{ within: boolean }[]>`
+              SELECT ST_DWithin(
+                g::geography,
+                ST_SetSRID(ST_MakePoint(${tile.lng}, ${tile.lat}), 4326)::geography,
+                ${SERVICE_BUFFER_METERS + tile.radiusMeters}
+              ) AS within
+              FROM _seed_boundary
+            `;
+            if (!within) { tilesPruned++; return []; }
+          }
+          let places: PlaceResult[];
+          try {
+            places = await fetchNearby(placesKey, tile.lat, tile.lng, tile.radiusMeters);
+          } catch (err) {
+            console.error(`  ERROR @ ${tile.lat.toFixed(3)},${tile.lng.toFixed(3)}:`, err);
+            return [];
+          }
+          tilesFetched++;
+          await new Promise((r) => setTimeout(r, 40)); // gentle throttle (unchanged cadence)
+          return places;
+        },
+        onFloorSaturated: () => { floorSaturated++; },
+      });
+      for (const [k, v] of nearby) collected.set(k, v);
+      console.log(
+        `  Adaptive tiling: ${tilesFetched} tile fetches → ${nearby.size} unique places` +
+          (tilesPruned > 0 ? `; ${tilesPruned} out-of-boundary child tile(s) pruned (no call)` : ``) +
+          (floorSaturated > 0 ? `; ${floorSaturated} floor tile(s) still saturated (dense hotspot)` : ``),
+      );
+    }
+
+    if (recallEnabled) {
+      const { calls, added } = await collectHhRecall(placesKey, recallRegions, collected);
+      console.log(`  HH recall: ${calls} Text Search call(s) → ${added} unique place(s) added to the pool.`);
+    }
 
     // Airport points (for the in-terminal exclusion gate). One Places call; [] on error.
     const airports = await findAirports(placesKey, lat, lng);
@@ -586,62 +833,6 @@ async function main() {
       airports.length > 0
         ? `  Airport gate: ${airports.length} airport point(s) found; dropping candidates within 1500m.`
         : `  Airport gate: no airports found near center — gate is a no-op this run.`,
-    );
-
-    // Adaptive collection: each seed tile is queried by NEAREST-20; a tile that returns a
-    // saturated 20 subdivides into 4 smaller tiles and re-queries, down to the floor.
-    const seedTiles: Tile[] = tiles.map((t) => ({
-      lat: t.lat,
-      lng: t.lng,
-      radiusMeters: CELL_METERS,
-      depth: 0,
-    }));
-    // Mutated inside the fetchTile / onFloorSaturated closures below; read after the await.
-    let floorSaturated = 0;
-    let tilesFetched = 0;
-    let tilesPruned = 0;
-    // Runaway cap scaled to CITY SIZE, not a fixed number. A depth-MAX_DEPTH run can at most
-    // expand each seed tile into a full 4-ary tree (sum_{d=0}^{D} 4^d). Bounding the cap to
-    // that theoretical max (+ margin) scales to any city — a small city stays tightly capped,
-    // a large one (Tucson) gets the room it legitimately needs — while still tripping on a
-    // genuine runaway (e.g. an accidental deeper recursion would exceed the per-seed tree max).
-    const perSeedTreeMax = (Math.pow(4, MAX_DEPTH + 1) - 1) / 3;
-    const maxTiles = Math.ceil(seedTiles.length * perSeedTreeMax) + 10;
-    const collected = await collectAdaptive<PlaceResult>({
-      seedTiles,
-      maxTiles,
-      fetchTile: async (tile) => {
-        // Subdivision pruning (BOUNDARY mode): skip a CHILD tile whose circle can't reach the
-        // in-scope area — don't PAY to subdivide into a dense neighbor city (e.g. San Francisco
-        // for Daly City). Seed tiles (depth 0) are already pruned to the boundary bbox above.
-        if (useBoundary && tile.depth > 0) {
-          const [{ within }] = await sql<{ within: boolean }[]>`
-            SELECT ST_DWithin(
-              g::geography,
-              ST_SetSRID(ST_MakePoint(${tile.lng}, ${tile.lat}), 4326)::geography,
-              ${SERVICE_BUFFER_METERS + tile.radiusMeters}
-            ) AS within
-            FROM _seed_boundary
-          `;
-          if (!within) { tilesPruned++; return []; }
-        }
-        let places: PlaceResult[];
-        try {
-          places = await fetchNearby(placesKey, tile.lat, tile.lng, tile.radiusMeters);
-        } catch (err) {
-          console.error(`  ERROR @ ${tile.lat.toFixed(3)},${tile.lng.toFixed(3)}:`, err);
-          return [];
-        }
-        tilesFetched++;
-        await new Promise((r) => setTimeout(r, 40)); // gentle throttle (unchanged cadence)
-        return places;
-      },
-      onFloorSaturated: () => { floorSaturated++; },
-    });
-    console.log(
-      `  Adaptive tiling: ${tilesFetched} tile fetches → ${collected.size} unique places` +
-        (tilesPruned > 0 ? `; ${tilesPruned} out-of-boundary child tile(s) pruned (no call)` : ``) +
-        (floorSaturated > 0 ? `; ${floorSaturated} floor tile(s) still saturated (dense hotspot)` : ``),
     );
 
     // Gate + upsert every unique place. (Same gate ladder as before, now run once per

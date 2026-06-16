@@ -4,7 +4,7 @@
  *
  * Coordinates are the city centroid (reference data) used as the default map
  * center / discovery anchor — not venue data. `seedConfig` is per-city discovery
- * tuning (radius, locality filter) read by scripts/seed-discover-tacoma.ts.
+ * tuning (radius, locality filter) read by scripts/seed-discover.ts.
  */
 import "dotenv/config";
 import postgres from "postgres";

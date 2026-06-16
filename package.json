@@ -15,7 +15,7 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "seed:cities": "tsx scripts/seed-cities.ts",
-    "seed:discover": "tsx scripts/seed-discover-tacoma.ts",
+    "seed:discover": "tsx scripts/seed-discover.ts",
     "seed:enrich": "tsx scripts/seed-enrich-candidates.ts",
     "scope:venues": "tsx scripts/scope-venues.ts",
     "reset:city-venues": "tsx scripts/reset-city-venues.ts",
