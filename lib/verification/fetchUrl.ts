@@ -179,6 +179,16 @@ export function stripHtml(html: string, maxContent: number = MAX_CONTENT): strin
     .replace(/<(script|style|svg|noscript|head|template|iframe)\b[^>]*>[\s\S]*?<\/\1>/gi, " ")
     .replace(/\sstyle="[^"]*"/gi, " ")
     .replace(/\bdata:[a-z0-9/;,+=._-]{60,}/gi, " ");
+  // 1b. Preserve section structure BEFORE the blanket tag strip. Headings → "## " markers,
+  //     block boundaries → newlines. Without this the page collapses to one flat line and
+  //     offerings get mis-attributed across sections (Alcazar's $17 cocktails / $40 bottle /
+  //     footer "Location" all landed in the Happy Hour window). div/section breaks cover
+  //     Wix/Squarespace sites that render labels as styled divs, not <h*>.
+  text = text
+    .replace(/<h[1-6]\b[^>]*>/gi, "\n## ")
+    .replace(/<\/h[1-6]>/gi, "\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(p|li|tr|div|section|article|header|footer|ul|ol|table)\s*>/gi, "\n");
   // 2. Remove remaining tags
   text = text.replace(/<[^>]+>/g, " ");
   // 3. Decode common HTML entities
@@ -189,8 +199,13 @@ export function stripHtml(html: string, maxContent: number = MAX_CONTENT): strin
     .replace(/&quot;/gi, '"')
     .replace(/&#39;/gi, "'")
     .replace(/&nbsp;/gi, " ");
-  // 4. Collapse whitespace
-  text = text.replace(/\s+/g, " ").trim();
+  // 4. Collapse intra-line whitespace but PRESERVE the line breaks from step 1b (the
+  //    section signal). Cap blank-line runs so payload stays tight.
+  text = text
+    .replace(/[ \t\f\v\r]+/g, " ")
+    .replace(/ *\n */g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 
   // 4b. Recover content SSR builders hide in <script> JSON (stripped at step 1). On a
   //     client-hydrated page the visible text is empty but the happy-hour info is in the
