@@ -91,6 +91,8 @@
     "test:free-extract": "tsx scripts/test-free-extract.ts",
     "test:group-by-state": "tsx scripts/test-group-by-state.ts",
     "test:harvest": "tsx scripts/test-fetchurl-harvest.ts",
+    "test:striphtml-sections": "tsx scripts/test-striphtml-sections.ts",
+    "test:section-scoping-fixtures": "tsx scripts/test-section-scoping-fixtures.ts",
     "test:hh-golden": "tsx scripts/test-hh-golden.ts",
     "test:hh-outcomes": "tsx scripts/test-hh-outcomes.ts",
     "test:hh-relevance": "tsx scripts/test-hh-relevance.ts",

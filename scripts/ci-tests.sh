@@ -26,6 +26,8 @@ TESTS=(
   test:menu-platform
   test:venue-quality
   test:harvest
+  test:striphtml-sections
+  test:section-scoping-fixtures
   test:hidden-review
   test:stub-rank
   test:extract
