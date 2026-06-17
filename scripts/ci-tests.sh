@@ -27,6 +27,7 @@ TESTS=(
   test:venue-quality
   test:harvest
   test:hidden-review
+  test:review-siblings
   test:stub-rank
   test:extract
   test:realness-gate
