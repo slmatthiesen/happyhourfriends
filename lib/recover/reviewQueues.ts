@@ -75,7 +75,8 @@ export interface ReviewWindowEntry {
   siblingWindows: SiblingWindow[];
 }
 
-/** A venue's window as fetched for sibling context (one row per non-deleted window). */
+/** A venue's window as fetched for sibling context (one row per non-deleted window).
+ *  Exported only so the pure helper below can be unit-tested without a DB. */
 export interface VenueWindowRow {
   happyHourId: string;
   venueId: string;
@@ -110,7 +111,9 @@ export function buildSiblingWindows(
       offeringCount: w.offeringNames.length,
       topOfferings: w.offeringNames.slice(0, 3),
       sourceUrl: w.sourceUrl,
-      newer: w.createdAt > reviewed.createdAt,
+      // Guard a missing reviewed timestamp: never claim "newer" without a basis to compare
+      // (an empty string would sort before every ISO date and mark all siblings newer).
+      newer: reviewed.createdAt ? w.createdAt > reviewed.createdAt : false,
     }))
     .sort(
       (a, b) =>
@@ -160,6 +163,8 @@ async function attachSiblingWindows(
              '[]'
            ) AS offering_names
     FROM happy_hours hh
+    -- drizzle interpolates a JS array as a parameterized "($1, $2, …)" tuple — exactly the
+    -- IN-list form (each id a bind param, injection-safe). Not ANY(): that needs a real array.
     WHERE hh.venue_id IN ${venueIds} AND hh.deleted_at IS NULL
   `);
 

@@ -65,4 +65,14 @@ check("returns empty when the venue has no other windows (delete = orphan)", () 
   assert.deepEqual(buildSiblingWindows(reviewed, [win({ happyHourId: "old" })]), []);
 });
 
+check("a sibling with the SAME created_at is not newer (same extraction batch)", () => {
+  const s = buildSiblingWindows(reviewed, [win({ happyHourId: "twin", createdAt: reviewed.createdAt })]);
+  assert.equal(s[0].newer, false);
+});
+
+check("a missing reviewed created_at never marks siblings newer", () => {
+  const s = buildSiblingWindows({ happyHourId: "old", createdAt: "" }, [win({ happyHourId: "x" })]);
+  assert.equal(s[0].newer, false);
+});
+
 console.log(`\n${passed} checks passed.`);

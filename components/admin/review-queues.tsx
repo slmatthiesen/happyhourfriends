@@ -259,6 +259,8 @@ export function ReviewQueues({ meal, hidden }: { meal: ReviewWindowEntry[]; hidd
                 )}
                 <div className="text-xs text-text-muted">{offeringsLabel(e)}</div>
                 {e.notes && <div className="text-xs italic text-text-muted">{e.notes.slice(0, 140)}</div>}
+                {/* Invariant: meal-queue windows are always live (SQL: hh.active),
+                    hidden-queue always hidden (NOT hh.active) — keep in sync if a tab is added. */}
                 <SiblingContext e={e} reviewedActive={tab === "meal"} />
               </td>
               <td className="py-2 text-right tabular-nums">
