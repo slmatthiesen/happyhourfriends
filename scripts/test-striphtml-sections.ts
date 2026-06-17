@@ -63,4 +63,16 @@ check("regression: scripts/styles still dropped, entities still decoded", () => 
   assert.match(t, /Tacos & Beer/);
 });
 
+check("<br> breaks onto a new line", () => {
+  const t = stripHtml(`<p>Tacos $3<br>Beer $4</p>`);
+  assert.ok(t.indexOf("Beer") > t.indexOf("Tacos"), "br did not separate lines");
+  assert.ok(/Tacos \$3\s*\n\s*Beer \$4/.test(t), "br did not produce a newline between items");
+});
+
+check("heading with a '>' inside an attribute value does not leak attr garbage", () => {
+  const t = stripHtml(`<h2 data-x="a>b">Happy Hour 4-6pm</h2><p>Well drinks $5</p>`);
+  assert.match(t, /## Happy Hour 4-6pm/);
+  assert.ok(!/data-x|a>b|class=/.test(t), "attribute garbage leaked into heading");
+});
+
 console.log(`\n${passed} checks passed.`);
