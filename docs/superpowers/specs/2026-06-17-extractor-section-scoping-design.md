@@ -91,9 +91,14 @@ Add a rule to `prompts/seed-extract-hh.md`:
 - Record offerings only when they appear **within / under a happy-hour section or
   heading**. The `## ` markers delimit sections.
 - Explicitly ignore, even when priced and on the same page: full drink/food menus not
-  under an HH heading; glass-vs-bottle / bottle-service pricing; footer or
-  operating-hours text; homepage feature-marketing (brunch, weekly specials, signature
-  cocktails) that is not part of the HH offering list.
+  under an HH heading; **regular menu pricing** listed outside the HH section (including a
+  wine's standard glass/bottle price — e.g. Alcazar's `$40` sangria bottle under "Other
+  Offerings"); footer or operating-hours text; homepage feature-marketing (brunch, weekly
+  specials, signature cocktails) that is not part of the HH offering list.
+- A **bottle CAN be a happy hour** when it is explicitly discounted or wrapped into a
+  day/HH special **within the HH section** — e.g. "half-price bottles", "$20 bottles
+  Monday" (the Postino's pattern). The test is section + explicit discount, never the
+  word "bottle." Record those.
 - A happy-hour **window** must be anchored to stated HH day/time text near the
   offerings — never manufactured from operating hours or marketing copy.
 - Keep all existing rules (WINDOW-IS-ENOUGH, THIS-LOCATION-ONLY, day-heading
