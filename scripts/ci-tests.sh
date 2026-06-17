@@ -29,6 +29,7 @@ TESTS=(
   test:striphtml-sections
   test:section-scoping-fixtures
   test:hidden-review
+  test:review-siblings
   test:stub-rank
   test:extract
   test:realness-gate
