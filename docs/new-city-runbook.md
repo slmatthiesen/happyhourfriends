@@ -53,6 +53,16 @@ Discovery is idempotent (upserts on `google_place_id`) and captures **hours, pho
 serves-alcohol, and the Google neighborhood name** per candidate for free — no separate
 backfills needed for new cities.
 
+**HH-targeted recall runs by DEFAULT** (no flag needed). After the Nearby sweep, discovery
+also runs a Google Text Search for `"happy hour"` over the city bbox — the Nearby sweep's
+nearest-20/tile cap truncates real HH anchors server-side (e.g. Jack's San Mateo was never a
+candidate until recall), and Google exposes no HH field, so this taps its search relevance
+instead. Adds a flat **~$0.12** (3 calls, hard-capped at the 60-result limit — it does NOT
+scale with city size). Recovered venues run through the same gates + boundary + upsert.
+Opt out with `--no-hh-recall` (legacy Nearby-only); add `--sub-tile` to pull >60 results in
+dense cities. To backfill an already-discovered city cheaply, `--hh-recall-only` skips the
+Nearby sweep. Always preview spend with `--estimate` ($0, prints the worst-case call count).
+
 **Done when:** candidate count looks sane for the city's size (Spokane: ~200–300) and the
 out-of-boundary localities you expected to drop (suburbs, neighbor cities) were dropped.
 

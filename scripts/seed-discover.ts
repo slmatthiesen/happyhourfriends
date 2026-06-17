@@ -49,7 +49,7 @@ interface DiscoverArgs {
   curated: boolean;
   fresh: boolean;
   debugDrops: boolean;
-  hhRecall: boolean;
+  noHhRecall: boolean;
   hhRecallOnly: boolean;
   estimate: boolean;
   subTile: boolean;
@@ -63,7 +63,7 @@ function parseArgs(): DiscoverArgs {
   let maxCalls = 30;
   const FLAGS = new Set([
     "--curated", "--fresh", "--debug-drops",
-    "--hh-recall", "--hh-recall-only", "--estimate", "--sub-tile",
+    "--hh-recall", "--no-hh-recall", "--hh-recall-only", "--estimate", "--sub-tile",
   ]);
   // Reject stray args. `seed:discover tucson` (no --city) silently ran Tacoma before — a
   // costly footgun (wrong city / wasted Places quota). The city MUST be --city + --state flags.
@@ -75,7 +75,7 @@ function parseArgs(): DiscoverArgs {
     throw new Error(
       `Unexpected argument "${tok}". Pass the city as flags:\n` +
         `  npm run seed:discover -- --city <slug> --state <code>   (e.g. --city tucson --state az)\n` +
-        `  Optional: --hh-recall | --hh-recall-only | --estimate | --sub-tile | --max-calls <n>`,
+        `  HH recall runs by DEFAULT. Optional: --no-hh-recall | --hh-recall-only | --estimate | --sub-tile | --max-calls <n>`,
     );
   }
   return {
@@ -85,10 +85,12 @@ function parseArgs(): DiscoverArgs {
     // are kept so we don't lose enrich results.
     fresh: argv.includes("--fresh"),
     debugDrops: argv.includes("--debug-drops"),
-    // --hh-recall: ALSO run the HH-targeted Text Search recall pass after the Nearby sweep.
-    // --hh-recall-only: run ONLY the recall pass (skip the Nearby sweep) — for cheaply
-    // backfilling an already-discovered city without re-paying for Nearby tiling.
-    hhRecall: argv.includes("--hh-recall"),
+    // HH-targeted Text Search recall runs by DEFAULT so discovery is complete in one shot
+    // (it's the lever that stops real anchors like Jack's San Mateo being silently truncated).
+    // --no-hh-recall: Nearby sweep only (legacy behavior). --hh-recall-only: recall ONLY (skip
+    // Nearby) — for cheaply backfilling an already-discovered city. (--hh-recall is now a no-op
+    // alias, accepted for back-compat since recall is the default.)
+    noHhRecall: argv.includes("--no-hh-recall"),
     hhRecallOnly: argv.includes("--hh-recall-only"),
     // --estimate: print the worst-case call count + cost and exit. Makes ZERO Google calls.
     estimate: argv.includes("--estimate"),
@@ -677,7 +679,7 @@ async function main() {
 
     // ---- HH-recall rectangle (bounds the "happy hour" Text Search) ----------
     // Boundary mode: the boundary's buffered bbox. Radius mode: center ± coverage.
-    const recallEnabled = args.hhRecall || args.hhRecallOnly;
+    const recallEnabled = !args.noHhRecall;
     let recallRect: LatLngRect;
     if (useBoundary) {
       const [rb] = await sql<
