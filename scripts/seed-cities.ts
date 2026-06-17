@@ -40,6 +40,24 @@ interface CitySeed {
 
 const CITIES: CitySeed[] = [
   {
+    // Santa Barbara, CA — operator launch city (2026-06-16). OSM boundary relation 112224
+    // (mainland metro; ~20×14km bbox). Montecito kept as an enclave; Goleta is a separate city.
+    slug: "santa-barbara",
+    name: "Santa Barbara",
+    state: "CA",
+    country: "US",
+    timezone: "America/Los_Angeles",
+    currency: "USD",
+    centerLat: 34.4,
+    centerLng: -119.7498,
+    seedConfig: {
+      radiusKm: 12,
+      cellMeters: 3000,
+      serviceLocalities: ["Santa Barbara", "Montecito"],
+      serviceBufferMeters: 500,
+    },
+  },
+  {
     slug: "tacoma",
     name: "Tacoma",
     state: "WA",
