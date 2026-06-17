@@ -99,6 +99,7 @@
     "test:hh-signal-gate": "tsx scripts/test-hh-signal-gate.ts",
     "test:hh-text": "tsx scripts/test-hh-text.ts",
     "test:hidden-review": "tsx scripts/test-hidden-review.ts",
+    "test:review-siblings": "tsx scripts/test-review-siblings.ts",
     "test:hours": "tsx scripts/test-opening-hours.ts",
     "test:interpreter-newhh": "tsx scripts/test-interpreter-newhh.ts",
     "test:jsonld-menu": "tsx scripts/test-jsonld-menu.ts",
