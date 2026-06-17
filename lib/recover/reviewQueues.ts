@@ -36,6 +36,23 @@ export interface ReviewOffering {
   priceCents: number | null;
 }
 
+/** Another non-deleted window on the same venue — the "what survives if I delete this"
+ *  context shown on a review row, so a delete never feels like erasing the venue. */
+export interface SiblingWindow {
+  happyHourId: string;
+  daysOfWeek: number[];
+  startTime: string | null;
+  endTime: string | null;
+  allDay: boolean;
+  /** true = live/visible to users, false = hidden. */
+  active: boolean;
+  offeringCount: number;
+  topOfferings: string[];
+  sourceUrl: string | null;
+  /** Created after the reviewed window — i.e. a likely fresher re-extraction. */
+  newer: boolean;
+}
+
 export interface ReviewWindowEntry {
   happyHourId: string;
   venueId: string;
@@ -54,6 +71,53 @@ export interface ReviewWindowEntry {
   evidence: string | null;
   /** What the rule suggests — the operator can always override. */
   suggested: "keep" | "hide" | "keep_hidden" | "delete";
+  /** The venue's OTHER non-deleted windows (live + hidden), for delete-safety context. */
+  siblingWindows: SiblingWindow[];
+}
+
+/** A venue's window as fetched for sibling context (one row per non-deleted window). */
+export interface VenueWindowRow {
+  happyHourId: string;
+  venueId: string;
+  daysOfWeek: number[];
+  startTime: string | null;
+  endTime: string | null;
+  allDay: boolean;
+  active: boolean;
+  createdAt: string;
+  sourceUrl: string | null;
+  offeringNames: string[];
+}
+
+/**
+ * Build the sibling context for one reviewed window: the venue's OTHER non-deleted
+ * windows, flagged `newer` when created after the reviewed one, sorted live-first then
+ * newest-first then richest-first. Pure — unit-tested without a DB.
+ */
+export function buildSiblingWindows(
+  reviewed: { happyHourId: string; createdAt: string },
+  venueWindows: VenueWindowRow[],
+): SiblingWindow[] {
+  return venueWindows
+    .filter((w) => w.happyHourId !== reviewed.happyHourId)
+    .map((w) => ({
+      happyHourId: w.happyHourId,
+      daysOfWeek: w.daysOfWeek,
+      startTime: w.startTime,
+      endTime: w.endTime,
+      allDay: w.allDay,
+      active: w.active,
+      offeringCount: w.offeringNames.length,
+      topOfferings: w.offeringNames.slice(0, 3),
+      sourceUrl: w.sourceUrl,
+      newer: w.createdAt > reviewed.createdAt,
+    }))
+    .sort(
+      (a, b) =>
+        Number(b.active) - Number(a.active) ||
+        Number(b.newer) - Number(a.newer) ||
+        b.offeringCount - a.offeringCount,
+    );
 }
 
 const avgCents = (offerings: ReviewOffering[]): number | null => {
@@ -62,6 +126,70 @@ const avgCents = (offerings: ReviewOffering[]): number | null => {
     .filter((p): p is number => p != null && p > 0);
   return priced.length ? priced.reduce((a, b) => a + b, 0) / priced.length : null;
 };
+
+/**
+ * Populate `siblingWindows` on each entry in ONE batch query over the entries' venues:
+ * every non-deleted window (live + hidden), so a row can show what survives a delete.
+ * `createdAtById` maps each reviewed window to its created_at for the `newer` flag.
+ */
+async function attachSiblingWindows(
+  entries: ReviewWindowEntry[],
+  createdAtById: Map<string, string>,
+): Promise<void> {
+  if (entries.length === 0) return;
+  const venueIds = [...new Set(entries.map((e) => e.venueId))];
+  const rows = await db.execute<{
+    happy_hour_id: string;
+    venue_id: string;
+    days_of_week: number[];
+    start_time: string | null;
+    end_time: string | null;
+    all_day: boolean;
+    active: boolean;
+    created_at: string | Date;
+    source_url: string | null;
+    offering_names: string[] | null;
+  }>(sql`
+    SELECT hh.id AS happy_hour_id, hh.venue_id, hh.days_of_week, hh.start_time,
+           hh.end_time, hh.all_day, hh.active, hh.created_at, hh.source_url,
+           coalesce(
+             (SELECT json_agg(o.name ORDER BY o.price_cents DESC NULLS LAST)
+              FROM offerings o
+              WHERE o.happy_hour_id = hh.id AND o.deleted_at IS NULL AND o.active
+                AND o.name IS NOT NULL),
+             '[]'
+           ) AS offering_names
+    FROM happy_hours hh
+    WHERE hh.venue_id IN ${venueIds} AND hh.deleted_at IS NULL
+  `);
+
+  const byVenue = new Map<string, VenueWindowRow[]>();
+  for (const r of rows) {
+    const list = byVenue.get(r.venue_id) ?? [];
+    list.push({
+      happyHourId: r.happy_hour_id,
+      venueId: r.venue_id,
+      daysOfWeek: r.days_of_week,
+      startTime: r.start_time,
+      endTime: r.end_time,
+      allDay: r.all_day,
+      active: r.active,
+      // timestamptz comes back as a Date (or string) at runtime — coerce to ISO so the
+      // pure helper's `newer` string-compare is well-defined.
+      createdAt: new Date(r.created_at).toISOString(),
+      sourceUrl: r.source_url,
+      offeringNames: r.offering_names ?? [],
+    });
+    byVenue.set(r.venue_id, list);
+  }
+
+  for (const e of entries) {
+    e.siblingWindows = buildSiblingWindows(
+      { happyHourId: e.happyHourId, createdAt: createdAtById.get(e.happyHourId) ?? "" },
+      byVenue.get(e.venueId) ?? [],
+    );
+  }
+}
 
 /**
  * LIVE windows that look like meal service rather than a happy hour — the gate's
@@ -81,11 +209,12 @@ export async function mealSpecialQueue(): Promise<ReviewWindowEntry[]> {
     all_day: boolean;
     source_url: string | null;
     notes: string | null;
+    created_at: string | Date;
     offerings: ReviewOffering[];
   }>(sql`
     SELECT hh.id AS happy_hour_id, v.id AS venue_id, c.name AS city, v.name AS venue,
            v.website_url, hh.days_of_week, hh.start_time, hh.end_time, hh.all_day,
-           hh.source_url, hh.notes,
+           hh.source_url, hh.notes, hh.created_at,
            coalesce(
              json_agg(json_build_object(
                'name', o.name, 'description', o.description, 'priceCents', o.price_cents
@@ -107,6 +236,7 @@ export async function mealSpecialQueue(): Promise<ReviewWindowEntry[]> {
   `);
 
   const entries: ReviewWindowEntry[] = [];
+  const createdAtById = new Map<string, string>();
   for (const r of rows) {
     const evidence = mealSpecialEvidence({
       startTime: r.start_time,
@@ -117,6 +247,7 @@ export async function mealSpecialQueue(): Promise<ReviewWindowEntry[]> {
     });
     const avg = avgCents(r.offerings);
     if (!evidence && (avg == null || avg <= MEAL_AVG_PRICE_CENTS)) continue;
+    createdAtById.set(r.happy_hour_id, new Date(r.created_at).toISOString());
     entries.push({
       happyHourId: r.happy_hour_id,
       venueId: r.venue_id,
@@ -133,6 +264,7 @@ export async function mealSpecialQueue(): Promise<ReviewWindowEntry[]> {
       notes: r.notes,
       evidence,
       suggested: evidence ? "hide" : "keep",
+      siblingWindows: [],
     });
   }
   entries.sort(
@@ -140,6 +272,7 @@ export async function mealSpecialQueue(): Promise<ReviewWindowEntry[]> {
       Number(b.evidence != null) - Number(a.evidence != null) ||
       (b.avgPriceCents ?? 0) - (a.avgPriceCents ?? 0),
   );
+  await attachSiblingWindows(entries, createdAtById);
   return entries;
 }
 
@@ -162,12 +295,13 @@ export async function hiddenWindowQueue(): Promise<ReviewWindowEntry[]> {
     time_known: boolean;
     source_url: string | null;
     notes: string | null;
+    created_at: string | Date;
     hours_json: OpenPeriod[] | null;
     offerings: ReviewOffering[];
   }>(sql`
     SELECT hh.id AS happy_hour_id, v.id AS venue_id, c.name AS city, v.name AS venue,
            v.website_url, v.hours_json, hh.days_of_week, hh.start_time, hh.end_time,
-           hh.all_day, hh.time_known, hh.source_url, hh.notes,
+           hh.all_day, hh.time_known, hh.source_url, hh.notes, hh.created_at,
            coalesce(
              json_agg(json_build_object(
                'name', o.name, 'description', o.description, 'priceCents', o.price_cents
@@ -194,7 +328,8 @@ export async function hiddenWindowQueue(): Promise<ReviewWindowEntry[]> {
     ORDER BY c.name, v.name, hh.start_time NULLS LAST
   `);
 
-  return rows.map((r) => {
+  const createdAtById = new Map<string, string>();
+  const entries: ReviewWindowEntry[] = rows.map((r) => {
     const shape = {
       daysOfWeek: r.days_of_week,
       startTime: r.start_time,
@@ -205,6 +340,7 @@ export async function hiddenWindowQueue(): Promise<ReviewWindowEntry[]> {
       offerings: r.offerings.length,
       notes: r.notes,
     };
+    createdAtById.set(r.happy_hour_id, new Date(r.created_at).toISOString());
     return {
       happyHourId: r.happy_hour_id,
       venueId: r.venue_id,
@@ -221,8 +357,11 @@ export async function hiddenWindowQueue(): Promise<ReviewWindowEntry[]> {
       notes: r.notes,
       evidence: deleteEvidence(shape, r.hours_json),
       suggested: suggestAction(shape, r.hours_json) === "delete" ? "delete" : "keep_hidden",
+      siblingWindows: [],
     };
   });
+  await attachSiblingWindows(entries, createdAtById);
+  return entries;
 }
 
 // ── operator decisions ───────────────────────────────────────────────────────────

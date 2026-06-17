@@ -6,7 +6,7 @@ import {
   type ReviewActionResult,
   type ReviewDecision,
 } from "@/app/admin/actions";
-import type { ReviewWindowEntry } from "@/lib/recover/reviewQueues";
+import type { ReviewWindowEntry, SiblingWindow } from "@/lib/recover/reviewQueues";
 import { formatDays } from "@/lib/format";
 
 type QueueKind = "meal" | "hidden";
@@ -33,6 +33,48 @@ function offeringsLabel(e: ReviewWindowEntry): string {
     .slice(0, 4)
     .map((o) => `${o.name ?? o.description ?? "?"}${o.priceCents != null ? ` $${(o.priceCents / 100).toFixed(o.priceCents % 100 === 0 ? 0 : 2)}` : ""}`)
     .join(" · ");
+}
+
+function siblingLabel(s: SiblingWindow): string {
+  const time = s.allDay ? "all day" : `${s.startTime?.slice(0, 5) ?? "open"}–${s.endTime?.slice(0, 5) ?? "close"}`;
+  const items = `${s.offeringCount} item${s.offeringCount === 1 ? "" : "s"}`;
+  return `${formatDays(s.daysOfWeek)} ${time} · ${items}${s.newer ? " · newer" : ""}`;
+}
+
+/**
+ * "What survives if I delete this" — so removing a row never feels like erasing the venue.
+ * reviewedActive: the row's own window is live (meal tab) vs hidden (hidden tab).
+ */
+function SiblingContext({ e, reviewedActive }: { e: ReviewWindowEntry; reviewedActive: boolean }) {
+  const live = e.siblingWindows.filter((s) => s.active);
+  const hidden = e.siblingWindows.filter((s) => !s.active);
+  if (reviewedActive && live.length === 0) {
+    return (
+      <div className="mt-1 text-xs font-medium text-red-700">
+        ⚠ only live window — deleting returns this venue to a stub
+      </div>
+    );
+  }
+  if (live.length > 0) {
+    const best = live[0];
+    return (
+      <div className="mt-1 text-xs text-emerald-700">
+        ✓ venue keeps {live.length} other live window{live.length === 1 ? "" : "s"}:{" "}
+        <span className="text-text-muted">
+          {siblingLabel(best)}
+          {best.topOfferings.length > 0 ? ` (${best.topOfferings.join(", ")})` : ""}
+        </span>
+      </div>
+    );
+  }
+  if (hidden.length > 0) {
+    return (
+      <div className="mt-1 text-xs text-text-muted">
+        venue has {hidden.length} other hidden window{hidden.length === 1 ? "" : "s"}
+      </div>
+    );
+  }
+  return null;
 }
 
 export function ReviewQueues({ meal, hidden }: { meal: ReviewWindowEntry[]; hidden: ReviewWindowEntry[] }) {
@@ -217,6 +259,7 @@ export function ReviewQueues({ meal, hidden }: { meal: ReviewWindowEntry[]; hidd
                 )}
                 <div className="text-xs text-text-muted">{offeringsLabel(e)}</div>
                 {e.notes && <div className="text-xs italic text-text-muted">{e.notes.slice(0, 140)}</div>}
+                <SiblingContext e={e} reviewedActive={tab === "meal"} />
               </td>
               <td className="py-2 text-right tabular-nums">
                 {e.avgPriceCents != null ? (e.avgPriceCents / 100).toFixed(2) : "—"}
