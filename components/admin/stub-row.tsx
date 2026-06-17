@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import {
   resolveStubAction,
   createManualWindowAction,
+  deleteStubVenueAction,
   type ResolveStubResult,
   type ManualWindowActionResult,
 } from "@/app/admin/actions";
@@ -285,6 +286,9 @@ export function StubRow({ venue }: { venue: StubVenue }) {
   const [result, setResult] = useState<ResolveStubResult | null>(null);
   const [url, setUrl] = useState("");
   const [showManual, setShowManual] = useState(false);
+  const [isDeleting, startDelete] = useTransition();
+  const [deleted, setDeleted] = useState(false);
+  const [deleteErr, setDeleteErr] = useState<string | null>(null);
 
   function run(withUrl?: string) {
     setResult(null);
@@ -293,8 +297,33 @@ export function StubRow({ venue }: { venue: StubVenue }) {
     });
   }
 
+  function deleteVenue() {
+    if (
+      !window.confirm(
+        `Delete "${venue.name}"? Removes it from the site (soft delete — revertable from the audit log).`,
+      )
+    )
+      return;
+    setDeleteErr(null);
+    startDelete(async () => {
+      const res = await deleteStubVenueAction(venue.id);
+      if (res.ok) setDeleted(true);
+      else setDeleteErr(res.error ?? "Delete failed");
+    });
+  }
+
   const scorePct = venue.score != null ? `${Math.round(venue.score * 100)}%` : "—";
   const isBlocked = venue.hhProbeStatus === "blocked";
+
+  if (deleted) {
+    return (
+      <tr className="border-t border-border align-top opacity-50">
+        <td colSpan={3} className="px-3 py-2 text-xs text-text-muted line-through">
+          {venue.name} — deleted
+        </td>
+      </tr>
+    );
+  }
 
   return (
     <tr className="border-t border-border align-top">
@@ -369,7 +398,17 @@ export function StubRow({ venue }: { venue: StubVenue }) {
               {showManual ? "Hide manual form" : "Enter manually"}
             </button>
           )}
+          <button
+            type="button"
+            onClick={deleteVenue}
+            disabled={isDeleting}
+            className="ml-auto rounded-md border border-border px-2.5 py-1 text-xs text-accent-hot hover:bg-accent-hot/10 disabled:opacity-50"
+            title="Soft-delete this venue (junk / not a real venue). Revertable from the audit log."
+          >
+            {isDeleting ? "Deleting…" : "Delete"}
+          </button>
         </div>
+        {deleteErr && <div className="mt-1 text-xs text-accent-hot">✗ {deleteErr}</div>}
         {result && (
           <div className="mt-1 text-xs">
             {result.error ? (
