@@ -13,6 +13,23 @@ reconcile gate, 99.5% neighborhood coverage.
 `ANTHROPIC_API_KEY` in `.env`. All city-targeting scripts require **both**
 `--city <slug> --state <code>`.
 
+## One-shot path (recommended)
+
+After Phase 1 (the city row + boundary GeoJSON exist), `onboard:city` runs the whole paid
+pipeline — discover (Nearby + HH recall) → enrich `--batch` → city-wide summary — behind a
+SINGLE upfront cost confirm, then stops at the operator review/go-live gate:
+
+```bash
+pnpm tsx scripts/onboard-city.ts --city <slug> --state <code> --estimate   # $0 preview
+pnpm tsx scripts/onboard-city.ts --city <slug> --state <code>              # runs it (asks once)
+```
+
+`--yes` skips the confirm (needed for non-interactive/agent runs). It deliberately does NOT
+flip the city live or touch prod — both operator-only. The phases below are the manual
+equivalents (still valid for re-running a single step or for the neighborhood pipeline, which
+`onboard:city` does not run — enrich assigns neighborhoods to existing polygons, but importing
+OSM neighbourhoods for a brand-new city is still a separate Phase, see below).
+
 ---
 
 ## Phase 1 — Register the city (code, $0)
