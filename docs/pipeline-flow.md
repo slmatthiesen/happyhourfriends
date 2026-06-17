@@ -12,7 +12,7 @@ to see these render as diagrams.)
 flowchart TD
     A["npm run seed:cities<br/><i>seed-cities.ts</i><br/>insert city row"] --> B
 
-    B["npm run seed:discover<br/><i>seed-discover-tacoma.ts</i><br/>Google Places, tiled by boundary;<br/>chain denylist + junk-type + alcohol gate<br/>→ seed_candidates"] --> C
+    B["npm run seed:discover<br/><i>seed-discover.ts</i><br/>Google Places, tiled by boundary;<br/>chain denylist + junk-type + alcohol gate<br/>→ seed_candidates"] --> C
 
     C["npm run scope:venues<br/><i>scope-venues.ts</i><br/>prune candidates outside<br/>municipal boundary + 500m"] --> D
 
@@ -96,7 +96,7 @@ flowchart TD
 
 | npm step | script | key functions |
 |---|---|---|
-| `seed:discover` | `seed-discover-tacoma.ts` | Places tiling, `chainDenylist`, boundary gate → `seed_candidates` |
+| `seed:discover` | `seed-discover.ts` | Places tiling, `chainDenylist`, boundary gate → `seed_candidates` |
 | `scope:venues` | `scope-venues.ts` | `ST_Contains` boundary + 500m buffer prune |
 | `seed:enrich` | `seed-enrich-candidates.ts` | `triageSite` → `resolveEnrichAction` → `buildExtractRequest`/`extractHappyHours` → `assessRealness` → `persistExtraction`; Batch via `createBatch/pollBatch/streamResults` |
 | `reextract:stubs` | `reextract-stubs.ts` | same triage+extract over existing stubs; `attachWindows`, `persistResult`. Modes: batch (default), `--quick`, `--collect <batchId>`, `--venue --url` |
@@ -118,7 +118,7 @@ flowchart TD
  seed:cities ............... seed-cities.ts ............ insert city row
      │
      ▼
- seed:discover  (free) ..... seed-discover-tacoma.ts ... Google Places, tiled by
+ seed:discover  (free) ..... seed-discover.ts ... Google Places, tiled by
      │                                                   boundary; chain denylist +
      │                                                   junk-type + alcohol gate
      │                                                   → seed_candidates

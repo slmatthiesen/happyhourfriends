@@ -1,9 +1,9 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/client";
-import { auditLog, promotionTier, venues } from "@/db/schema";
+import { auditLog, happyHours, promotionTier, venues } from "@/db/schema";
 import { requireAdmin } from "@/lib/admin/auth";
 import {
   applySubmission,
@@ -117,6 +117,54 @@ export async function setPromotionAction(
     return { ok: true };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Update failed" };
+  }
+}
+
+/** Soft-delete a stub venue from the Stub Resolver (junk / not a real venue). Mirrors
+ *  scripts/remove-venues.ts: deactivate any active windows + set deleted_at — NEVER hard
+ *  delete (the surviving google_place_id row is the re-discovery guard). Audit-logged so it
+ *  is revertable; operator-driven only (this is judgment, not a heuristic delete). */
+export async function deleteStubVenueAction(venueId: string): Promise<ActionResult> {
+  try {
+    const admin = await requireAdmin();
+    const [venue] = await db
+      .select({ id: venues.id, deletedAt: venues.deletedAt })
+      .from(venues)
+      .where(eq(venues.id, venueId))
+      .limit(1);
+    if (!venue) return { ok: false, error: "Venue not found" };
+    if (venue.deletedAt) return { ok: false, error: "Venue already deleted" };
+
+    const now = new Date();
+    await db.transaction(async (tx) => {
+      await tx
+        .update(happyHours)
+        .set({ active: false, updatedAt: now })
+        .where(
+          and(
+            eq(happyHours.venueId, venueId),
+            eq(happyHours.active, true),
+            isNull(happyHours.deletedAt),
+          ),
+        );
+      await tx
+        .update(venues)
+        .set({ deletedAt: now, updatedAt: now })
+        .where(eq(venues.id, venueId));
+      await tx.insert(auditLog).values({
+        tableName: "venues",
+        rowId: venueId,
+        beforeJsonb: { deletedAt: null },
+        afterJsonb: { deletedAt: now.toISOString() },
+        actor: adminActor(admin.email),
+        reason: "stub deleted by operator (stub resolver)",
+      });
+    });
+
+    revalidatePath("/admin/stubs");
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Delete failed" };
   }
 }
 

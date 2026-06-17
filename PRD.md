@@ -756,7 +756,7 @@ Filter chip UX shows the vernacular names first (locals' mental model), with the
 
 **Stage A — Discovery**
 
-Script: `scripts/seed-discover-tacoma.ts`
+Script: `scripts/seed-discover.ts`
 
 Sources:
 1. Google Places API Nearby Search: `type=bar` and `type=restaurant` within Tacoma bounding box, paginated. Stores `name`, `place_id`, `address`, `lat`, `lng`, `phone`, `website` into `seed_candidates`.
