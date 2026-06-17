@@ -185,7 +185,7 @@ export function stripHtml(html: string, maxContent: number = MAX_CONTENT): strin
   //     footer "Location" all landed in the Happy Hour window). div/section breaks cover
   //     Wix/Squarespace sites that render labels as styled divs, not <h*>.
   text = text
-    .replace(/<h[1-6]\b[^>]*>/gi, "\n## ")
+    .replace(/<h[1-6]\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi, "\n## ")
     .replace(/<\/h[1-6]>/gi, "\n")
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/(p|li|tr|div|section|article|header|footer|ul|ol|table)\s*>/gi, "\n");
