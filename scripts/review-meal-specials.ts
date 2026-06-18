@@ -274,7 +274,7 @@ async function runApply(path: string) {
           SELECT id FROM happy_hours WHERE id = ${e.happyHourId} AND deleted_at IS NULL
         `;
         if (!before) continue;
-        await sql`UPDATE happy_hours SET deleted_at = now(), updated_at = now() WHERE id = ${e.happyHourId}`;
+        await sql`UPDATE happy_hours SET deleted_at = now(), active = false, updated_at = now() WHERE id = ${e.happyHourId}`;
         await sql`
           INSERT INTO audit_log (table_name, row_id, before_jsonb, after_jsonb, actor, reason)
           VALUES ('happy_hours', ${e.happyHourId}, ${sql.json({ deletedAt: null })},
