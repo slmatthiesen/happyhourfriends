@@ -96,6 +96,11 @@ const HH_LINK_PATTERNS = [
   /specials?/i,
   /(beer|drink|cocktail|wine|food)[-_ ]?menu/i,
   /\/menus?\b/i,
+  // Deal pages venues name creatively — the HH lives here but the path says none of the
+  // above (Milestone Tavern: /happenings carries the HH image; recovered 14 deals once
+  // fetched). Kept tight to deal-ish nouns so we don't pull in /events catering pages.
+  /happenings?/i,
+  /\b(deals?|offers?)\b/i,
 ];
 
 // Visible ANCHOR-TEXT a human clicks for a menu/HH page — the strongest signal, because
@@ -108,6 +113,8 @@ const HH_TEXT_PATTERNS = [
   /\bspecials?\b/i,
   /\bmenus?\b/i, // "View Menu", "Our Menu", "Food Menu", "Menu"
   /\b(drinks?|cocktails?)\b/i,
+  /\bhappenings?\b/i, // creatively-named deal pages (Milestone Tavern)
+  /\b(deals?|offers?)\b/i,
 ];
 
 export function classifyUrl(raw: string | null | undefined): { kind: SiteKind; url: string | null } {
