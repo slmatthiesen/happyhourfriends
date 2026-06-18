@@ -79,9 +79,22 @@ $SSH "sudo -u postgres psql -d ${DB} -v ON_ERROR_STOP=1 -c \"TRUNCATE ${TRUNCATE
 $SSH "sudo -u postgres psql -d ${DB} -v ON_ERROR_STOP=1 --single-transaction -f /tmp/hhf-push.sql"
 $SSH "rm -f /tmp/hhf-push.sql"
 
-# 5. Restart + verify.
+# 5. Restart + bust the public read cache + verify.
 echo "▶ Starting ${SVC}…"
 $SSH "systemctl start ${SVC}"
+
+# The full reload writes straight to the DB, so the public ISR/route cache (city pages
+# 1h, landing counts 1 day) would keep serving the pre-push snapshot. Wait for the app
+# to answer, then purge everything via the internal revalidate endpoint over loopback
+# (prod REVALIDATE_SECRET stays on the box). Best-effort — data is already live.
+echo "▶ Refreshing public cache…"
+$SSH "for i in \$(seq 1 30); do curl -fsS -o /dev/null http://127.0.0.1:3000/ && break; sleep 1; done; \
+  SECRET=\$(sed -n 's/^REVALIDATE_SECRET=//p' ${APP_DIR}/.env | head -1 | tr -d '\"'); \
+  curl -fsS -X POST http://127.0.0.1:3000/api/internal/revalidate \
+    -H 'content-type: application/json' -H \"x-revalidate-secret: \$SECRET\" \
+    -d '{\"all\":true,\"tags\":[\"cities-summary\"]}' >/dev/null \
+  && echo '  public cache purged' || echo '  ⚠ cache refresh failed (pages refresh within the hour)'"
+
 echo "▶ Prod counts:"
 $SSH "sudo -u postgres psql -d ${DB} -c \"SELECT (SELECT count(*) FROM venues) AS venues, (SELECT count(*) FROM happy_hours) AS happy_hours, (SELECT count(*) FROM offerings) AS offerings;\""
 echo "✅ Push complete."
