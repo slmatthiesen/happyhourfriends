@@ -30,10 +30,20 @@ run_sync() {
   local PROD_DATABASE_URL
   PROD_DATABASE_URL="$(printf '%s' "$raw" | sed -E "s#@[^/]+/#@127.0.0.1:${TUNNEL_PORT}/#")"
 
-  # Open a tunnel via a control socket so we can tear it down cleanly.
+  # Reap any tunnel leaked by a prior aborted run that's still holding the port —
+  # otherwise ssh -L can't bind ("Address already in use") and the sync would silently
+  # run against the stale forward instead of a fresh one.
+  if pkill -f "ssh -fN -M -S /tmp/hhf-tunnel\..* -L ${TUNNEL_PORT}:localhost:5432" 2>/dev/null; then
+    echo "▶ Reaped a stale tunnel still holding :${TUNNEL_PORT}"
+    sleep 1
+  fi
+
+  # Open a tunnel via a control socket so we can tear it down cleanly. SOCK is baked into
+  # the trap at definition time (not expanded at EXIT) because it's function-local and
+  # would be out of scope — and thus unbound under `set -u` — by the time the trap fires.
   local SOCK; SOCK="$(mktemp -u /tmp/hhf-tunnel.XXXXXX)"
   ssh -fN -M -S "$SOCK" -L "${TUNNEL_PORT}:localhost:5432" "${SSH_USER}@${PROD_IP}"
-  trap 'ssh -S "$SOCK" -O exit "'"${SSH_USER}@${PROD_IP}"'" 2>/dev/null || true' EXIT
+  trap 'ssh -S "'"$SOCK"'" -O exit "'"${SSH_USER}@${PROD_IP}"'" 2>/dev/null || true' EXIT
   echo "▶ Tunnel up: 127.0.0.1:${TUNNEL_PORT} → ${PROD_IP}:5432"
 
   DATABASE_URL="$DATABASE_URL" PROD_DATABASE_URL="$PROD_DATABASE_URL" \
