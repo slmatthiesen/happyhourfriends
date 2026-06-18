@@ -51,6 +51,44 @@ export interface PersistOptions {
   actor: string;
 }
 
+/** Minimal surface we need from the drizzle client OR a transaction handle. */
+type Executor = Pick<typeof db, "execute">;
+
+/**
+ * Supersede stale bare duplicates for one venue. A re-extraction that pins a window to a
+ * specific area (location 'bar'/'patio') doesn't match the older location-agnostic ('all')
+ * row on the natural key, so the upsert INSERTs a second row instead of replacing it —
+ * leaving two same-time windows (one bare 'all', one with the deals). Soft-delete the
+ * redundant bare 'all' window whenever a same-time sibling in a specific area now carries
+ * offerings. Scoped to the 'all' catch-all only: two distinct specific areas (bar vs patio)
+ * still coexist, and a bare window with no priced sibling is left for review. Soft-delete
+ * (active=false + deleted_at) so the natural-key index frees up and it never resurrects.
+ */
+export async function supersedeBareLocationDuplicates(
+  executor: Executor,
+  venueId: string,
+): Promise<void> {
+  await executor.execute(sql`
+    UPDATE happy_hours h
+       SET active = false, deleted_at = now(), updated_at = now()
+     WHERE h.venue_id = ${venueId}
+       AND h.active = true AND h.deleted_at IS NULL
+       AND h.location_within_venue = 'all'
+       AND NOT EXISTS (
+         SELECT 1 FROM offerings o WHERE o.happy_hour_id = h.id AND o.deleted_at IS NULL)
+       AND EXISTS (
+         SELECT 1 FROM happy_hours s
+           JOIN offerings o2 ON o2.happy_hour_id = s.id AND o2.deleted_at IS NULL
+          WHERE s.venue_id = h.venue_id AND s.id <> h.id
+            AND s.active = true AND s.deleted_at IS NULL
+            AND s.location_within_venue <> 'all'
+            AND s.days_of_week = h.days_of_week
+            AND s.start_time IS NOT DISTINCT FROM h.start_time
+            AND s.end_time   IS NOT DISTINCT FROM h.end_time
+            AND s.all_day = h.all_day)
+  `);
+}
+
 /**
  * The ONE persist path — shared by resolveVenue (admin) and scripts/reextract-stubs.ts.
  * Ledger the model call, insert realness-gated windows + offerings + audit, and promote
@@ -247,6 +285,8 @@ export async function persistExtractedWindows(
       reason: reasonNotes.length > 0 ? `stub resolve (${reasonNotes.join("; ")})` : "stub resolve",
     });
   }
+
+  await supersedeBareLocationDuplicates(db, venueId);
 
   const recovered = live > 0;
   if (recovered) {
