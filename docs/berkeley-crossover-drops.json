@@ -1,0 +1,171 @@
+{
+  "dropped_inside_oakland": [
+    {
+      "id": "00a0e1ec-670b-4f07-8b81-61fd8d2753ad",
+      "name": "Sideshow Express",
+      "addr": "6037 San Pablo Ave, Oakland, CA 94608, USA"
+    },
+    {
+      "id": "885640e3-ed78-4f1a-96dd-17604e6e8bff",
+      "name": "Mujiri",
+      "addr": "6501 San Pablo Ave B, Oakland, CA 94608, USA"
+    },
+    {
+      "id": "3929a41b-3bf1-40c9-9a12-ced882548243",
+      "name": "Oori Triangles - College Ave",
+      "addr": "6000 College Ave, Oakland, CA 94618, USA"
+    },
+    {
+      "id": "603da381-9557-4696-aa37-a4bfaaaafe66",
+      "name": "Namaste Pizza",
+      "addr": "5942 San Pablo Ave, Oakland, CA 94608, USA"
+    },
+    {
+      "id": "c0f64ed2-1c8e-405d-87fb-c00ff7f91ff5",
+      "name": "Redfield Cider Bar & Bottle Shop",
+      "addr": "5815 College Ave, Oakland, CA 94618, USA"
+    },
+    {
+      "id": "420b857e-3266-4d32-b6e6-7012c9124270",
+      "name": "Ramen Shop",
+      "addr": "5812 College Ave, Oakland, CA 94618, USA"
+    },
+    {
+      "id": "640ae96a-8179-489f-bc89-108d80877e74",
+      "name": "Forge Rockridge",
+      "addr": "5900 College Ave, Oakland, CA 94618, USA"
+    },
+    {
+      "id": "4ad9ab1f-dc67-475f-b109-d801121ad184",
+      "name": "Millennium",
+      "addr": "5912 College Ave, Oakland, CA 94618, USA"
+    },
+    {
+      "id": "fe6a38fe-7163-4da7-8b33-0427c86cd48a",
+      "name": "SAFFRON KITCHEN, RESTAURANT & BAR",
+      "addr": "5940 College Ave Unit J-I, Oakland, CA 94618, USA"
+    },
+    {
+      "id": "44b2dabc-4284-42ab-af68-ac3ab284622a",
+      "name": "Sideshow Kitchen",
+      "addr": "942 Stanford Ave, Oakland, CA 94608, USA"
+    }
+  ],
+  "buffer_zone_neither": [
+    {
+      "id": "1de00865-5c8d-4c2b-a4e1-0e254afc6c41",
+      "name": "Anahuac",
+      "addr": "1501 Solano Ave, Berkeley, CA 94707, USA"
+    },
+    {
+      "id": "a3856af2-a0fd-4166-91d2-0a0fd615980b",
+      "name": "Schmidt’s Tobacco & Trading Co.",
+      "addr": "1492 Solano Ave, Albany, CA 94706, USA"
+    },
+    {
+      "id": "3a4b2df1-6c90-471f-862e-6b7325bc5eec",
+      "name": "Yo Sushi",
+      "addr": "1107 San Pablo Ave, Albany, CA 94706, USA"
+    },
+    {
+      "id": "1dff4aca-418d-465c-bf1c-9ef1afe6b2d6",
+      "name": "Inn Kensington Restaurant",
+      "addr": "293 Arlington Ave, Kensington, CA 94707, USA"
+    },
+    {
+      "id": "360ee4bd-5fc7-4592-8553-92a4049a59cf",
+      "name": "Sakana Sushi & Roll",
+      "addr": "303 Arlington Ave #1, Kensington, CA 94707, USA"
+    },
+    {
+      "id": "2226238d-44d8-438d-9587-e2339050a860",
+      "name": "Kensington Circus Pub",
+      "addr": "389 Colusa Ave, Kensington, CA 94707, USA"
+    },
+    {
+      "id": "6661107b-4cd0-4db3-ab99-18a1ddfd4d58",
+      "name": "Benchmark Pizzeria",
+      "addr": "1568 Oak View Ave, Kensington, CA 94707, USA"
+    },
+    {
+      "id": "395fbea7-a0d7-44ac-a936-d1a4712bdbf9",
+      "name": "Jungdon Katsu",
+      "addr": "6485 Hollis St, Emeryville, CA 94608, USA"
+    },
+    {
+      "id": "f0fe35c6-a5a3-4af6-a719-bd89668d603f",
+      "name": "Good To Eat",
+      "addr": "1298 65th St #1, Emeryville, CA 94608, USA"
+    },
+    {
+      "id": "38fca515-2b16-460a-ae0c-eb1e328c7d9c",
+      "name": "Los Moles",
+      "addr": "1320 65th St, Emeryville, CA 94608, USA"
+    },
+    {
+      "id": "89c67558-e63f-48b3-a130-885c14cc88cf",
+      "name": "Secrets Of Tiger",
+      "addr": "6520 Hollis St, Emeryville, CA 94608, USA"
+    },
+    {
+      "id": "cc8da87e-ad4e-4b96-9a45-8526a832689e",
+      "name": "Pizza Gallery",
+      "addr": "6613 Hollis St, Emeryville, CA 94608, USA"
+    },
+    {
+      "id": "8619555f-f557-436a-bbf4-9bae6387718c",
+      "name": "Bowl'd Korean Rice Bar",
+      "addr": "1479 Solano Ave, Albany, CA 94706, USA"
+    },
+    {
+      "id": "6feaa1ab-3bac-4ec6-a190-6d73b535924a",
+      "name": "Duo Grill House",
+      "addr": "1491 Solano Ave, Albany, CA 94706, USA"
+    },
+    {
+      "id": "b3c8aa0c-7a2a-42e2-9f0f-1044363c864d",
+      "name": "House of Curries",
+      "addr": "1497 Solano Ave, Albany, CA 94706, USA"
+    },
+    {
+      "id": "12ac7faa-12e1-4ed5-90c1-b75668601e5c",
+      "name": "Renee's Place",
+      "addr": "1477 Solano Ave, Albany, CA 94706, USA"
+    },
+    {
+      "id": "f9916377-9468-43e7-901b-2a0d542f2d71",
+      "name": "Gordo Taquería",
+      "addr": "1423 Solano Ave, Albany, CA 94706, USA"
+    },
+    {
+      "id": "c8da17d4-cb4e-46f7-a9b4-023c61478c3a",
+      "name": "Chez Mansour",
+      "addr": "1369 Solano Ave, Albany, CA 94707, USA"
+    },
+    {
+      "id": "8af36b6c-ddcc-4913-b046-a5d75603b185",
+      "name": "China Village",
+      "addr": "1335 Solano Ave, Albany, CA 94706, USA"
+    },
+    {
+      "id": "7452e296-2eac-4340-ada3-33ecd693c3a9",
+      "name": "Kathmandu Restaurant",
+      "addr": "1410 Solano Ave, Albany, CA 94706, USA"
+    },
+    {
+      "id": "d72100b9-1a22-40ce-8f5b-42a83d8b606f",
+      "name": "Lao Thai Kitchen",
+      "addr": "1406 Solano Ave, Albany, CA 94706, USA"
+    },
+    {
+      "id": "9ff15a56-4681-4f43-9199-d7fd1c083cf6",
+      "name": "Prizefighter",
+      "addr": "6702 Hollis St, Emeryville, CA 94608, USA"
+    },
+    {
+      "id": "9d02d814-9a5f-4a6f-81a1-6f9337c9573f",
+      "name": "Cugini",
+      "addr": "1556 Solano Ave, Berkeley, CA 94707, USA"
+    }
+  ]
+}

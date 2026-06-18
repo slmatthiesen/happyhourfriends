@@ -199,6 +199,30 @@ const CITIES: CitySeed[] = [
     },
   },
   {
+    // Berkeley, CA — East Bay, directly NORTH of Oakland (shares the 37.836 border vertex).
+    // Boundary mode via data/berkeley-boundary.geojson (OSM relation 2833528) drives discovery.
+    // CROSSOVER NOTE: seed_candidates.google_place_id is GLOBALLY unique and discovery's
+    // ON CONFLICT upsert never reassigns city_id, so Oakland (already onboarded) keeps every
+    // border venue it owns — Berkeley cannot duplicate or steal them. Tight municipal boundary
+    // + 500m buffer (matching Oakland) is the only other lever; the post-discovery review flags
+    // any Emeryville/Albany bleed (the unclaimed neighbors a 500m ring can reach). centerLat/Lng
+    // = boundary bbox center (fallback map anchor only; the boundary drives real tiling/gate).
+    slug: "berkeley",
+    name: "Berkeley",
+    state: "CA",
+    country: "US",
+    timezone: "America/Los_Angeles",
+    currency: "USD",
+    centerLat: 37.8712,
+    centerLng: -122.3014,
+    seedConfig: {
+      radiusKm: 8, // fallback only; data/berkeley-boundary.geojson drives real tiling/gate
+      cellMeters: 3000,
+      serviceLocalities: ["Berkeley"],
+      serviceBufferMeters: 500,
+    },
+  },
+  {
     // Spokane, WA — Inland Northwest process-test city (moderate, ~180 km², ~230k pop).
     // First WA city since Tacoma; tests neighborhood-data + HH-publishing generalization
     // outside AZ/Bay. Boundary mode via data/spokane-boundary.geojson (OSM relation 237599)
