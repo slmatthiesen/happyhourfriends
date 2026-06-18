@@ -46,7 +46,7 @@ const CHAINS: string[] = [
  * exactly the bug that let Applebee's / Wendy's / Denny's / BJ's all slip through
  * the discovery + enrich chain gates in the 2026-05-27 Tacoma run.
  */
-function normalize(name: string): string {
+export function normalize(name: string): string {
   return name
     .toLowerCase()
     // Strip apostrophes (straight U+0027, right curly U+2019, left curly U+2018).

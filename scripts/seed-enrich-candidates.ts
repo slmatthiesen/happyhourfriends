@@ -48,6 +48,7 @@ import {
   type BatchState,
 } from "@/lib/ai/enrichBatchState";
 import { persistExtractedWindows } from "@/lib/recover/resolveVenue";
+import { applyChainHappyHourIfMissing } from "@/lib/recover/applyChainHappyHour";
 import { assignNeighborhoods } from "@/lib/geo/assignNeighborhoods";
 import { PlaceDetailsQuotaError } from "@/lib/places/placeDetails";
 import type { OpenPeriod } from "@/lib/geo/timezone";
@@ -328,16 +329,32 @@ async function persistExtraction(
               WHERE id = ${venueId} AND type IS NULL`;
   }
 
-  if (!venueId || !extracted) {
+  if (!venueId) {
     return { venueId, outcome: "no_hh_found", hasHH: false, activeCount: 0, hiddenCount: 0, hiddenReasons: [] };
   }
 
-  const { windowsLive, windowsHidden, hiddenReasons } = await persistExtractedWindows({
+  let windowsLive = 0;
+  let windowsHidden = 0;
+  let hiddenReasons: string[] = [];
+  if (extracted) {
+    const r = await persistExtractedWindows({ venueId, cityId, extracted, actor: "seed:enrich" });
+    windowsLive = r.windowsLive;
+    windowsHidden = r.windowsHidden;
+    hiddenReasons = r.hiddenReasons;
+  }
+
+  // Chain HH floor: fill an operator-confirmed chain-wide happy hour (CHAIN_HAPPY_HOURS) when
+  // the extractor missed or under-captured it — so EVERY location of the chain gets it, even
+  // one that returned nothing. The gap-fill guard skips a location that already has its own
+  // (richer) offerings, and it funnels through the same canonical persist path.
+  const chain = await applyChainHappyHourIfMissing({
     venueId,
     cityId,
-    extracted,
+    venueName: ctx.name,
     actor: "seed:enrich",
   });
+  if (chain.applied) windowsLive += chain.windowsLive;
+
   const hasHH = windowsLive + windowsHidden > 0;
   return {
     venueId,
