@@ -119,6 +119,7 @@
     "test:parse-hh-text": "tsx scripts/test-parse-hh-text.ts",
     "test:persist-unified": "tsx scripts/test-persist-unified.ts",
     "test:supersede": "tsx scripts/test-supersede-bare-window.ts",
+    "eval:extractor": "tsx scripts/eval-extractor.ts",
     "test:queued-email": "tsx scripts/test-queued-email.ts",
     "test:realness-gate": "tsx scripts/test-realness-gate.ts",
     "test:recognizability": "tsx scripts/test-recognizability.ts",
