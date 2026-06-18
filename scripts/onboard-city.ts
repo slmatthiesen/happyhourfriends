@@ -147,6 +147,25 @@ async function main() {
     ...enrichPass,
   ]);
 
+  // Gate phase — $0, reversible, and EASY TO FORGET by hand (neither is a seed:*/reconcile:*
+  // step). `active` is stored at persist time, so regate re-evaluates windows the current
+  // gate already passes (it benched 5 real HH on San Mateo before it was wired in); the
+  // combo-cuisine drop is an operator "every city" rule. Running them here makes them
+  // non-optional. reconcile:windows is intentionally NOT run — the reconcile gate already
+  // fires at enrich-persist, so it's a near-permanent no-op (run on demand only if needed).
+  await runStep("Regate (promote/demote stale-gated windows)", [
+    "scripts/regate-hidden.ts",
+    "--city", slug!,
+    "--state", state!,
+    "--apply",
+  ]);
+  await runStep("Drop combo-cuisine non-HH windows", [
+    "scripts/drop-combo-cuisine-hh.ts",
+    "--city", slug!,
+    "--state", state!,
+    "--apply",
+  ]);
+
   await printSummary();
 
   console.log(
