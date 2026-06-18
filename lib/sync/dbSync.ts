@@ -130,6 +130,11 @@ function topoSortByParent(
 
 type Conflict = "do-nothing" | { pk: string[]; update: string[] };
 
+// Postgres caps a single statement at 65534 bind parameters. A multi-row INSERT binds
+// rows × cols params, so wide tables (venues) overflow well before they run out of rows.
+// Chunk so each statement stays under the cap, with headroom for any driver-added params.
+const MAX_BIND_PARAMS = 60000;
+
 /** Build the multi-row INSERT and run it; returns the number of rows actually written. */
 async function insertRows(
   target: Queryable,
@@ -139,23 +144,38 @@ async function insertRows(
   conflict: Conflict,
 ): Promise<number> {
   if (rows.length === 0) return 0;
-  // postgres.js: target(rows, ...cols) → ("c1","c2") values (…),(…) with params.
-  if (conflict === "do-nothing") {
-    const res = await target`
-      INSERT INTO ${target(table)} ${target(rows, ...cols)}
-      ON CONFLICT DO NOTHING
-      RETURNING 1`;
-    return res.count;
+
+  // Build the upsert SET clause once — it's independent of the row batch.
+  const set =
+    conflict === "do-nothing"
+      ? undefined
+      : (() => {
+          const setFrags = conflict.update.map((c) => target`${target(c)} = excluded.${target(c)}`);
+          let frag = setFrags[0];
+          for (let i = 1; i < setFrags.length; i++) frag = target`${frag}, ${setFrags[i]}`;
+          return frag;
+        })();
+
+  const rowsPerChunk = Math.max(1, Math.floor(MAX_BIND_PARAMS / Math.max(cols.length, 1)));
+  let written = 0;
+  for (let i = 0; i < rows.length; i += rowsPerChunk) {
+    const chunk = rows.slice(i, i + rowsPerChunk);
+    // postgres.js: target(rows, ...cols) → ("c1","c2") values (…),(…) with params.
+    if (conflict === "do-nothing") {
+      const res = await target`
+        INSERT INTO ${target(table)} ${target(chunk, ...cols)}
+        ON CONFLICT DO NOTHING
+        RETURNING 1`;
+      written += res.count;
+    } else {
+      const res = await target`
+        INSERT INTO ${target(table)} ${target(chunk, ...cols)}
+        ON CONFLICT (${target(conflict.pk)}) DO UPDATE SET ${set!}
+        RETURNING 1`;
+      written += res.count;
+    }
   }
-  // Upsert: conflict on PK, update every non-PK column from the incoming row.
-  const setFrags = conflict.update.map((c) => target`${target(c)} = excluded.${target(c)}`);
-  let set = setFrags[0];
-  for (let i = 1; i < setFrags.length; i++) set = target`${set}, ${setFrags[i]}`;
-  const res = await target`
-    INSERT INTO ${target(table)} ${target(rows, ...cols)}
-    ON CONFLICT (${target(conflict.pk)}) DO UPDATE SET ${set}
-    RETURNING 1`;
-  return res.count;
+  return written;
 }
 
 /**
