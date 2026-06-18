@@ -241,6 +241,14 @@ export const happyHours = pgTable(
         (all_day = false AND (start_time IS NOT NULL OR end_time IS NOT NULL))
       `,
     ),
+    check(
+      // A soft-deleted window must never stay live. Every read already guards
+      // `deleted_at IS NULL` alongside `active`, so a contradictory row doesn't leak —
+      // but it's an invalid state a future query could trip over, so make it
+      // unrepresentable. Soft-delete paths must set active=false in the same write.
+      "happy_hours_deleted_inactive",
+      sql`deleted_at IS NULL OR active = false`,
+    ),
   ],
 );
 
