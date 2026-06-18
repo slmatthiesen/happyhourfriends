@@ -81,6 +81,7 @@ TESTS=(
   test:neighborhood-name
   test:group-by-state
   test:chain-happy-hours
+  test:point-in-polygon
 )
 
 failed=()
