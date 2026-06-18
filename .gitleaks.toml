@@ -1,0 +1,19 @@
+# gitleaks config — extends the full default ruleset, then allowlists our test fixtures.
+#
+# scripts/fixtures/ holds verbatim captured HTML of real venue websites, used as
+# deterministic inputs for the extractor tests. Those pages embed the SITES' OWN public,
+# client-side keys (Squarespace context, Google Maps JS key, reCAPTCHA site key) — values
+# already shipped to every browser that loads the page, not Happy Hour Friends secrets.
+# gitleaks' generic-api-key rule flags them on every full-history scan, so the secret-scan
+# job is permanently red over findings that are neither ours nor sensitive.
+#
+# This narrowly excludes that fixtures directory; the default rules still cover all real
+# source, config, and env files.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Captured third-party venue HTML test fixtures — sites' own public client keys, not our secrets"
+paths = [
+  '''scripts/fixtures/''',
+]
