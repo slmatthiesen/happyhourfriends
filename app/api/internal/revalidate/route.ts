@@ -35,12 +35,21 @@ export async function POST(req: NextRequest) {
 
   const paths = asStringArray((body as { paths?: unknown }).paths);
   const tags = asStringArray((body as { tags?: unknown }).tags);
+  // `all: true` is the bulk-sync escape hatch. A direct-to-DB data push (push:data /
+  // push:data:additive) bypasses the apply engine, so nothing fires per-route
+  // invalidation and the public pages serve stale until their ISR window lapses. It
+  // touches far too many routes to enumerate, so purge everything: revalidatePath('/',
+  // 'layout') invalidates every route nested under the root layout, and we expire the
+  // day-cached landing counts (`cities-summary`) by tag.
+  const all = (body as { all?: unknown }).all === true;
 
+  if (all) revalidatePath("/", "layout");
   for (const path of paths) revalidatePath(path);
   // `{ expire: 0 }` is the documented form for route handlers driven by external/
   // background systems (immediate expiry → next visit recomputes). Our tagged data is
   // an `unstable_cache` entry, not a `use cache` function, so this just expires it.
+  if (all) revalidateTag("cities-summary", { expire: 0 });
   for (const tag of tags) revalidateTag(tag, { expire: 0 });
 
-  return NextResponse.json({ revalidated: { paths, tags } });
+  return NextResponse.json({ revalidated: { all, paths, tags } });
 }
