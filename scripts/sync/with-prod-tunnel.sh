@@ -48,4 +48,34 @@ run_sync() {
 
   DATABASE_URL="$DATABASE_URL" PROD_DATABASE_URL="$PROD_DATABASE_URL" \
     ./node_modules/.bin/tsx scripts/sync/db-sync.ts "$direction" "$@"
+
+  # A data sync writes straight to prod's DB, bypassing the apply engine that normally
+  # busts the public read cache — so without this the new rows sit behind the ISR window
+  # (city pages 1h, landing counts 1 day). After a real push (push + --apply, not a dry
+  # run), tell prod to purge its public cache so the data shows immediately. Best-effort:
+  # the data is already written, so a refresh failure must not fail the sync.
+  if [ "$direction" = push ] && printf '%s\n' "$@" | grep -qxF -- --apply; then
+    refresh_prod_cache "$SSH_USER" "$PROD_IP" "$APP_DIR" || \
+      echo "⚠ Cache refresh failed — data IS written; pages refresh within the hour, or re-run the refresh."
+  fi
+}
+
+# POST to prod's internal revalidate endpoint over the loopback on the box (so the prod
+# REVALIDATE_SECRET never leaves the droplet). Sends `all:true` for a full purge AND an
+# explicit city-path list + counts tag, so it works whether or not prod has the newer
+# `all`-aware endpoint deployed yet.
+refresh_prod_cache() {
+  local ssh_user="$1" prod_ip="$2" app_dir="$3"
+  local paths_json
+  paths_json="$(ssh -n "${ssh_user}@${prod_ip}" \
+    "sudo -u postgres psql -d happyhourfriends -At -c \"SELECT '/'||lower(state)||'/'||slug FROM cities ORDER BY slug;\"" \
+    | sed 's/.*/\"&\"/' | paste -sd, -)" || return 1
+  [ -n "$paths_json" ] || return 1
+  local body="{\"all\":true,\"paths\":[${paths_json}],\"tags\":[\"cities-summary\"]}"
+  ssh -n "${ssh_user}@${prod_ip}" \
+    "SECRET=\$(sed -n 's/^REVALIDATE_SECRET=//p' ${app_dir}/.env | head -1 | tr -d '\"'); \
+     curl -fsS -X POST http://127.0.0.1:3000/api/internal/revalidate \
+       -H 'content-type: application/json' -H \"x-revalidate-secret: \$SECRET\" \
+       -d '${body}' >/dev/null" || return 1
+  echo "▶ Refreshed prod public cache (all city pages + landing counts)"
 }
