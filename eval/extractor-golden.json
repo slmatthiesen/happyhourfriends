@@ -1,0 +1,41 @@
+{
+  "_doc": "Ground-truth happy-hour data the extractor MUST reproduce. Hand-verified from each venue's own page/PDF (date in `verifiedOn`). days = ISO 1=Mon..7=Sun. offeringKeywords = lowercase substrings that must appear in an extracted offering's name/description; recall = fraction found. Grow this set as new failure modes surface; it is the regression gate for any extractor change.",
+  "goldens": [
+    {
+      "name": "Santo Mezcal",
+      "url": "https://www.santomezcalsb.com/",
+      "type": "mexican_restaurant",
+      "verifiedOn": "2026-06-17",
+      "pageKind": "own /happy-hour HTML page",
+      "expectWindows": [{ "days": [1, 2, 3, 4], "start": "14:00", "end": "17:00" }],
+      "offeringKeywords": [
+        "santo margarita", "santo mule", "santo gimlet", "house wine", "draft beer", "bottle beer",
+        "taco ensenada", "chimichanga", "taquitos", "taco culichi", "nachos", "ceviche", "sopecitos"
+      ]
+    },
+    {
+      "name": "Chuck's of Hawaii",
+      "url": "https://chucksofhawaii.com/santa-barbara-happy-hour/",
+      "type": "restaurant",
+      "verifiedOn": "2026-06-17",
+      "pageKind": "clean HTML page",
+      "expectWindows": [{ "days": [7, 1, 2, 3, 4], "start": "17:00", "end": "18:00" }],
+      "offeringKeywords": [
+        "mai tai", "margarita", "syrah", "chardonnay", "pinot grigio", "well drink",
+        "ribeye", "thai tender", "new york steak"
+      ]
+    },
+    {
+      "name": "District Oakland",
+      "url": "https://districtoak.com/menus/happy-hour-copy/",
+      "type": "restaurant",
+      "verifiedOn": "2026-06-17",
+      "pageKind": "PDF menu (deals live in a linked PDF)",
+      "expectWindows": [
+        { "days": [1, 2, 3, 4, 5], "start": "16:00", "end": "19:00" },
+        { "days": [6], "start": "17:00", "end": "19:00" }
+      ],
+      "offeringKeywords": ["oyster", "well drink", "wine", "draft beer", "bellini", "bar bites"]
+    }
+  ]
+}
