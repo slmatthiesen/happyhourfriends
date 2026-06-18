@@ -18,9 +18,19 @@
  *   GOOGLE_PLACES_API_KEY  Google Cloud Places API (New) key
  */
 import "dotenv/config";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import postgres from "postgres";
 import { requireCityArgs } from "@/lib/cities/resolveCity";
+import {
+  pointInPolygon,
+  bboxOf,
+  inBBox,
+  geometryFromGeoJson,
+  type PolygonLike,
+  type BBox,
+  type Position,
+} from "@/lib/geo/pointInPolygon";
 import {
   isDenylistedChain,
   isLikelyNoHappyHourFormat,
@@ -635,6 +645,35 @@ async function main() {
       `;
     }
 
+    // ---- Crossover defense: drop candidates inside ANOTHER city's polygon -----
+    // The service buffer (e.g. 500m) intentionally reaches past the municipal line, so it
+    // pulls in border venues that geographically belong to a neighbor. A venue inside an
+    // already-onboarded city's boundary is THAT city's — keep it out of this one regardless
+    // of mailing address (unreliable at borders). The structural guard (global-unique
+    // google_place_id) already protects venues that neighbor ALREADY claimed; this adds the
+    // ones it hasn't discovered yet (Berkeley pulled 10 Rockridge venues inside Oakland).
+    // Assumes boundary files are non-overlapping municipal/metro definitions.
+    const siblingBoundaries: { slug: string; geom: PolygonLike; bbox: BBox }[] = [];
+    for (const f of readdirSync("data")) {
+      if (!f.endsWith("-boundary.geojson")) continue;
+      const sibSlug = f.slice(0, -"-boundary.geojson".length);
+      if (sibSlug === city.slug) continue;
+      try {
+        const sibGeom = geometryFromGeoJson(JSON.parse(readFileSync(join("data", f), "utf8")));
+        siblingBoundaries.push({ slug: sibSlug, geom: sibGeom, bbox: bboxOf(sibGeom) });
+      } catch {
+        // A malformed sibling file shouldn't abort discovery — just skip it.
+      }
+    }
+    /** The slug of another city whose polygon contains this point, or null. */
+    const crossoverCityFor = (pLng: number, pLat: number): string | null => {
+      const pt: Position = [pLng, pLat];
+      for (const s of siblingBoundaries) {
+        if (inBBox(pt, s.bbox) && pointInPolygon(pt, s.geom)) return s.slug;
+      }
+      return null;
+    };
+
     // --fresh: wipe prior candidates (except those already linked to a venue) so the
     // re-discovery reflects the current type/area filters cleanly.
     if (args.fresh) {
@@ -652,6 +691,8 @@ async function main() {
     // ---- Google Places: tiled search (junk primary types excluded) ----------
     let placesInserted = 0;
     let outOfArea = 0;
+    let crossoverDropped = 0;
+    const crossoverByCity = new Map<string, number>();
     let chainsSkipped = 0;
     let formatsSkipped = 0;
     let typesSkipped = 0;
@@ -919,6 +960,17 @@ async function main() {
         continue;
       }
 
+      // Crossover: in-area but geographically inside another onboarded city's polygon → drop.
+      if (pLat != null && pLng != null) {
+        const owner = crossoverCityFor(pLng, pLat);
+        if (owner) {
+          crossoverDropped++;
+          crossoverByCity.set(owner, (crossoverByCity.get(owner) ?? 0) + 1);
+          recordDrop(`in-other-city:${owner}`, place);
+          continue;
+        }
+      }
+
       try {
         const priceLevel = priceLevelNum;
         const types = place.types ?? null;
@@ -976,6 +1028,16 @@ async function main() {
         `${airportSkipped} airport dropped, ${lowSignalSkipped} low-signal dropped, ` +
         `${placesSkipped} skipped.`,
     );
+    if (crossoverDropped > 0) {
+      const breakdown = [...crossoverByCity.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .map(([s, n]) => `${s}: ${n}`)
+        .join(", ");
+      console.log(
+        `  crossover: ${crossoverDropped} candidate(s) dropped — inside another city's polygon (${breakdown}). ` +
+          `Saved enriching venues that belong to a neighbor.`,
+      );
+    }
 
     if (args.debugDrops) {
       const path = `docs/${city.slug}-discovery-drops.json`;
