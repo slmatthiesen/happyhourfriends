@@ -169,6 +169,13 @@
       "when": 1781475129735,
       "tag": "0023_light_greymalkin",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1781751417379,
+      "tag": "0024_right_the_executioner",
+      "breakpoints": true
     }
   ]
 }
