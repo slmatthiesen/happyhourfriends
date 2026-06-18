@@ -36,6 +36,15 @@
         { "days": [6], "start": "17:00", "end": "19:00" }
       ],
       "offeringKeywords": ["oyster", "well drink", "wine", "draft beer", "bellini", "bar bites"]
+    },
+    {
+      "name": "Milestone Tavern",
+      "url": "https://www.milestonetavern.com/",
+      "type": "restaurant",
+      "verifiedOn": "2026-06-18",
+      "pageKind": "HH on a creatively-named page (/happenings) — tests triage nav discovery",
+      "expectWindows": [],
+      "offeringKeywords": ["chips", "meatball", "street taco", "caesar"]
     }
   ]
 }
