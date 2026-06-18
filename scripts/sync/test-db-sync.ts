@@ -112,6 +112,14 @@ async function main() {
     await local`INSERT INTO happy_hours (venue_id, days_of_week, start_time, end_time)
       VALUES (${U.vShared}, ARRAY[5]::smallint[], '15:00', '17:00')`;
 
+    // Bulk-stage enough NEW venues that a single multi-row INSERT would exceed Postgres'
+    // 65534-param cap (34 insertable cols × rows). This forces additivePush to chunk;
+    // before chunking landed it threw MAX_PARAMETERS_EXCEEDED. 3700 rows ≈ 125k params.
+    const BULK_VENUES = 3700;
+    await local`INSERT INTO venues (id, city_id, name, slug, google_place_id, status)
+      SELECT gen_random_uuid(), ${U.city}, 'Bulk ' || g, 'bulk-' || g, 'gp_bulk_' || g, 'active'
+        FROM generate_series(1, ${BULK_VENUES}) g`;
+
     // ── 1. DRY-RUN push writes nothing ──────────────────────────────────────────
     const prodVenuesBefore = Number((await prod`SELECT count(*)::int n FROM venues`)[0].n);
     await additivePush(local, prod, { dryRun: true });
@@ -158,6 +166,12 @@ async function main() {
       Number((await prod`SELECT count(*)::int n FROM happy_hours WHERE venue_id = ${U.vShared}`)[0].n),
       0,
       "push must NOT carry an edit (new HH) onto an existing prod venue",
+    );
+    // Every bulk venue crossed the chunk boundary and landed — no MAX_PARAMETERS_EXCEEDED.
+    assert.equal(
+      Number((await prod`SELECT count(*)::int n FROM venues WHERE slug LIKE 'bulk-%'`)[0].n),
+      BULK_VENUES,
+      "push must chunk wide multi-row inserts past the 65534-param cap",
     );
 
     // ── 3. APPLY pull: prod rows come down; local staged work survives ────────────
