@@ -177,7 +177,7 @@ async function runApply(path: string) {
         if (e.action === "stub") {
           const before = await tx`SELECT * FROM happy_hours WHERE id = ${e.happyHourId}`;
           await tx`UPDATE offerings SET deleted_at = now() WHERE happy_hour_id = ${e.happyHourId} AND deleted_at IS NULL`;
-          await tx`UPDATE happy_hours SET deleted_at = now() WHERE id = ${e.happyHourId}`;
+          await tx`UPDATE happy_hours SET deleted_at = now(), active = false WHERE id = ${e.happyHourId}`;
           const after = await tx`SELECT * FROM happy_hours WHERE id = ${e.happyHourId}`;
           await tx`
             INSERT INTO audit_log (table_name, row_id, before_jsonb, after_jsonb, actor, reason)
@@ -199,7 +199,7 @@ async function runApply(path: string) {
             FROM happy_hours hh
             WHERE hh.id = o.happy_hour_id AND hh.venue_id = ${e.venueId} AND o.deleted_at IS NULL
           `;
-          await tx`UPDATE happy_hours SET deleted_at = now() WHERE venue_id = ${e.venueId} AND deleted_at IS NULL`;
+          await tx`UPDATE happy_hours SET deleted_at = now(), active = false WHERE venue_id = ${e.venueId} AND deleted_at IS NULL`;
           await tx`UPDATE venues SET deleted_at = now(), status = 'closed' WHERE id = ${e.venueId}`;
           const after = await tx`SELECT * FROM venues WHERE id = ${e.venueId}`;
           await tx`
