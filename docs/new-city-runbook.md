@@ -13,11 +13,19 @@ reconcile gate, 99.5% neighborhood coverage.
 `ANTHROPIC_API_KEY` in `.env`. All city-targeting scripts require **both**
 `--city <slug> --state <code>`.
 
+**Extractor eval gate is CONDITIONAL.** Run `pnpm eval:extractor` (paid, ~$0.20) before
+onboarding ONLY when the extractor / prompt / model changed since the last city — to catch a
+recall regression before spending on a fresh city. A pure onboarding with no extractor change
+does NOT need it (Berkeley ran it and it caught nothing — $0.20 wasted). See memory
+`project_extractor-eval-gate`.
+
 ## One-shot path (recommended)
 
 After Phase 1 (the city row + boundary GeoJSON exist), `onboard:city` runs the whole paid
-pipeline — discover (Nearby + HH recall) → enrich `--batch` → city-wide summary — behind a
-SINGLE upfront cost confirm, then stops at the operator review/go-live gate:
+pipeline — discover (Nearby + HH recall) → enrich `--batch` → **regate** → **combo-cuisine
+drop** → city-wide summary — behind a SINGLE upfront cost confirm, then stops at the operator
+review/go-live gate. (Regate + combo-drop are $0/reversible and were easy to forget by hand,
+so they're baked in; see Phase 4.)
 
 ```bash
 pnpm tsx scripts/onboard-city.ts --city <slug> --state <code> --estimate   # $0 preview
@@ -70,6 +78,17 @@ Discovery is idempotent (upserts on `google_place_id`) and captures **hours, pho
 serves-alcohol, and the Google neighborhood name** per candidate for free — no separate
 backfills needed for new cities.
 
+**Crossover with adjacent cities is automatic.** The service buffer reaches past the
+municipal line, so discovery point-in-polygon-tests every candidate against the other cities'
+`data/<slug>-boundary.geojson` files and **drops any that fall inside another onboarded
+city's polygon** (reason `in-other-city:<slug>`, in `--debug-drops` + a summary line). This
+is the geographic half of crossover defense; the structural half (global-unique
+`google_place_id`, `city_id` never reassigned on conflict) protects venues a neighbor already
+claimed. Mailing-address city is unreliable at borders, so the polygon is the authority
+(Berkeley dropped 10 Rockridge venues inside Oakland, 2026-06-18). Neighbor *towns with no
+onboarded city of their own* (e.g. Emeryville, Albany) are NOT auto-dropped — that's an
+operator inclusion call; review them in the drops/candidate list.
+
 **HH-targeted recall runs by DEFAULT** (no flag needed). After the Nearby sweep, discovery
 also runs a Google Text Search for `"happy hour"` over the city bbox — the Nearby sweep's
 nearest-20/tile cap truncates real HH anchors server-side (e.g. Jack's San Mateo was never a
@@ -120,19 +139,28 @@ budget up to ~$35 for a large city if web_search does heavy lifting.
 The gate merges duplicate windows, hides operating-hours-masquerading-as-HH, and resolves
 overlaps. All changes are reversible (soft-delete / `active` flips, idempotent).
 
+**`onboard:city` now runs `regate` + `drop:combo-cuisine-hh` automatically** (after enrich) —
+the commands below are for re-runs or a manual pipeline. After onboarding, just **spot-check**:
+
 ```bash
-pnpm tsx scripts/regate-hidden.ts --city <slug> --state <code>             # dry-run ($0): preview promotes
-pnpm tsx scripts/regate-hidden.ts --city <slug> --state <code> --apply     # flip stale-hidden→live
-pnpm run reconcile:windows -- --city <slug> --state <code>          # dry-run first
-pnpm run reconcile:windows -- --city <slug> --state <code> --apply
 pnpm tsx scripts/spotcheck-free.ts --city <slug> --state <code>     # eyeball every LIVE window + evidence
+# re-run individually if needed:
+pnpm tsx scripts/regate-hidden.ts --city <slug> --state <code> [--apply]      # promote/demote stale-gated
+pnpm tsx scripts/drop-combo-cuisine-hh.ts --city <slug> --state <code> [--apply]  # combo-cuisine non-HH
 ```
 
-⚠️ **`regate-hidden` is NON-OPTIONAL and easy to forget** (it is not a `seed:*`/`reconcile:*`
-script). `active` is a STORED column set once at persist time, so any window persisted before a
-gate improvement stays hidden until regate re-evaluates it. Skipping it benched **5 real HH on
-San Mateo** (Lazy Dog, Hotaru w/ 8 offerings, Dog Haus, YAYOI) that the current gate already
-passes — discovered 2026-06-16 only because the live count looked too low. Run it every city.
+⚠️ **`regate-hidden` is NON-OPTIONAL** (`active` is a STORED column set once at persist time,
+so any window persisted before a gate improvement stays hidden until regate re-evaluates it —
+it benched **5 real HH on San Mateo** before it was run). `onboard:city` runs it for you now;
+run it by hand only after a later gate change. **`reconcile:windows` is NOT in the standard
+flow** — the reconcile gate already fires at enrich-persist, so it's a near-permanent no-op
+(Berkeley: 0 merges). Run it on demand only if you suspect duplicate windows snuck in:
+`pnpm run reconcile:windows -- --city <slug> --state <code> [--apply]`.
+
+> ⚠️ Combo-drop soft-deletes combo-cuisine (Chinese/ramen/dim-sum) windows lacking
+> overwhelming HH evidence — it can hit a LIVE window (e.g. a cocktail-bar/Chinese hybrid).
+> It's reversible; review what it removed in the run output and rescue genuine HHs via
+> re-extract before go-live.
 
 **Targeted re-extract for bare HH-URL windows (paid, ~$0.01–0.03/venue):** after regate, windows
 that are still hidden as "bare" (time captured, 0 offerings) but whose source URL is a real HH page
@@ -168,6 +196,10 @@ pnpm run analyze:neighborhood-coverage -- --city <slug> --state <code>
 **Done when:** coverage ≥95% (the gate) and the filter dropdown reads like names a local
 would say. Spokane hit 99.5% on cardinal districts alone (0 OSM polygons — a data gap,
 not a failure).
+
+> `backfill:neighborhoods` is **often a no-op** — enrich assigns at venue creation and
+> `generate:cardinal-districts` reassigns affected venues as it cuts the districts (Berkeley:
+> backfill assigned 0). Run it anyway as the safety net; 0 assigned is expected, not a failure.
 
 ---
 
