@@ -93,6 +93,7 @@
     "test:free-extract": "tsx scripts/test-free-extract.ts",
     "test:group-by-state": "tsx scripts/test-group-by-state.ts",
     "test:chain-happy-hours": "tsx scripts/test-chain-happy-hours.ts",
+    "test:point-in-polygon": "tsx scripts/test-point-in-polygon.ts",
     "test:harvest": "tsx scripts/test-fetchurl-harvest.ts",
     "test:striphtml-sections": "tsx scripts/test-striphtml-sections.ts",
     "test:section-scoping-fixtures": "tsx scripts/test-section-scoping-fixtures.ts",
