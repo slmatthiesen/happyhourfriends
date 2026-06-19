@@ -38,6 +38,21 @@
       "offeringKeywords": ["oyster", "well drink", "wine", "draft beer", "bellini", "bar bites"]
     },
     {
+      "name": "Bei Sushi",
+      "url": "https://beisushi.com",
+      "type": "sushi_restaurant",
+      "verifiedOn": "2026-06-19",
+      "pageKind": "IMAGE menu (HH deals live in a happy-hour PNG, no text/PDF)",
+      "expectWindows": [
+        { "days": [2, 3, 4], "start": "16:30", "end": "19:00" },
+        { "days": [5, 6, 7], "start": "15:00", "end": "19:00" }
+      ],
+      "offeringKeywords": [
+        "seaweed salad", "egg roll", "gyoza", "chicken karaage", "california roll",
+        "spicy tuna", "nigiri", "sashimi", "house hot sake", "sake bomb", "soju", "beer"
+      ]
+    },
+    {
       "name": "Milestone Tavern",
       "url": "https://www.milestonetavern.com/",
       "type": "restaurant",
