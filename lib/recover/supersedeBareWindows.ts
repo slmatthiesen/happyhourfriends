@@ -63,26 +63,63 @@ function sameDays(a: SupersedeWindow, b: SupersedeWindow): boolean {
   return b.daysOfWeek.every((d) => set.has(d));
 }
 
-/** Window ids that should be soft-deleted (retired). Only ever bare windows. */
-export function planBareSupersedes(windows: SupersedeWindow[]): Set<string> {
-  const retire = new Set<string>();
+/** The two windows share at least one ISO day. */
+function sharesADay(a: SupersedeWindow, b: SupersedeWindow): boolean {
+  const set = new Set(a.daysOfWeek);
+  return b.daysOfWeek.some((d) => set.has(d));
+}
 
-  // Rule 1 — full-coverage deal supersede.
+export interface PlanSupersedeOptions {
+  /**
+   * Operator URL-resolve ("Extract from URL"): the freshly extracted windows are AUTHORITATIVE
+   * for the time slots they cover, so retire a stale bare window as soon as ONE deal window
+   * time-CONTAINS it AND shares a day — it's the same happy hour, a competing day-inference
+   * (Rose Garden: stale Tue–Fri bare vs fresh Tue/Thu/Fri/Sun deals). Background paths
+   * (enrich/reextract) keep the conservative full-day-coverage rule (false), so a genuinely
+   * day-split listing (LOCAL's all-week bare vs a Mon-only deal menu) never loses uncovered days.
+   */
+  authoritative?: boolean;
+}
+
+/** Window ids that should be soft-deleted (retired). Only ever bare windows. */
+export function planBareSupersedes(
+  windows: SupersedeWindow[],
+  opts: PlanSupersedeOptions = {},
+): Set<string> {
+  const retire = new Set<string>();
+  const authoritative = opts.authoritative ?? false;
+
+  // Rule 1 — deal supersede.
   for (const ww of windows) {
     if (ww.offeringCount > 0) continue; // never retire a deal-carrying window
     const wiv = interval(ww);
     if (!wiv) continue; // unpositionable bare window — leave for review
-    const fullyCovered = ww.daysOfWeek.every((d) =>
-      windows.some(
-        (s) =>
-          s.id !== ww.id &&
-          s.offeringCount > 0 &&
-          s.daysOfWeek.includes(d) &&
-          !locationsDistinct(s, ww) &&
-          contains(interval(s), wiv),
-      ),
-    );
-    if (fullyCovered) retire.add(ww.id);
+    const covered = authoritative
+      // Authoritative: one deal window that contains this bare window's time AND shares a day
+      // is enough — the operator's fresh extraction wins for that slot. `sharesADay` keeps a
+      // disjoint-day bare window (a Sat-only HH the fresh run didn't touch) alive; `contains`
+      // keeps a broader all-day bare window from being eaten by a sub-hour deal window.
+      ? windows.some(
+          (s) =>
+            s.id !== ww.id &&
+            s.offeringCount > 0 &&
+            !locationsDistinct(s, ww) &&
+            contains(interval(s), wiv) &&
+            sharesADay(s, ww),
+        )
+      // Conservative: retire only when EVERY (day, time) the bare window asserts is contained
+      // by a deal-carrying window. Partial coverage keeps it — uncovered days are still info.
+      : ww.daysOfWeek.every((d) =>
+          windows.some(
+            (s) =>
+              s.id !== ww.id &&
+              s.offeringCount > 0 &&
+              s.daysOfWeek.includes(d) &&
+              !locationsDistinct(s, ww) &&
+              contains(interval(s), wiv),
+          ),
+        );
+    if (covered) retire.add(ww.id);
   }
 
   // Rule 2 — a bare specific-area copy of a same-time bare 'all' window.
