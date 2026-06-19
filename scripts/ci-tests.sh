@@ -84,6 +84,7 @@ TESTS=(
   test:point-in-polygon
   test:plan-supersede
   test:fetch-targets
+  test:add-offerings
 )
 
 failed=()

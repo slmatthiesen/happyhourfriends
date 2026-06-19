@@ -280,6 +280,7 @@ export async function resolveStubAction(
     });
     if (r.recovered) {
       revalidatePath("/admin/stubs");
+      revalidatePath("/admin/bare-windows"); // re-extract from the bare-windows bucket too
       revalidatePath("/");
     }
     return {
@@ -342,6 +343,43 @@ export async function createManualWindowAction(input: {
     };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Manual entry failed" };
+  }
+}
+
+// ── /admin/bare-windows — add deals to a live-but-bare window ────────────────────
+
+export interface AddOfferingsActionResult extends ActionResult {
+  added?: number;
+}
+
+/**
+ * Bare-window bucket: attach operator-entered offerings to an existing LIVE window that
+ * extracted bare (deals were in a menu image/PDF the extractor couldn't fully read). The
+ * operator entering the deals is the verification. Audit-logged + bridged to prod.
+ */
+export async function addOfferingsToWindowAction(input: {
+  happyHourId: string;
+  sourceUrl: string;
+  offerings: {
+    kind: "food" | "drink" | "other";
+    category: "beer" | "wine" | "cocktail" | "spirit" | "appetizer" | "entree" | "dessert" | "other";
+    name: string;
+    priceCents?: number | null;
+  }[];
+}): Promise<AddOfferingsActionResult> {
+  try {
+    const admin = await requireAdmin();
+    const { addOfferingsToWindow } = await import("@/lib/recover/addOfferings");
+    const r = await addOfferingsToWindow(db, input, adminActor(admin.email));
+    revalidatePath("/admin/bare-windows");
+    revalidatePath("/");
+
+    let warning: string | undefined;
+    const pub = await publishVenueToProd(r.venueId);
+    if (!pub.ok) warning = `Saved locally, but publishing to prod failed: ${pub.error}`;
+    return { ok: true, added: r.added, warning };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Add offerings failed" };
   }
 }
 

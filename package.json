@@ -105,6 +105,7 @@
     "test:hh-relevance": "tsx scripts/test-hh-relevance.ts",
     "test:hh-signal-gate": "tsx scripts/test-hh-signal-gate.ts",
     "test:fetch-targets": "tsx scripts/test-fetch-targets.ts",
+    "test:add-offerings": "tsx scripts/test-add-offerings.ts",
     "test:hh-text": "tsx scripts/test-hh-text.ts",
     "test:hidden-review": "tsx scripts/test-hidden-review.ts",
     "test:review-siblings": "tsx scripts/test-review-siblings.ts",
