@@ -7,7 +7,7 @@
  * paid extractor. CLEAN-but-implausible windows ARE returned, marked `suspect` so
  * persist writes them hidden (active=false): the venue stays a stub for review.
  */
-import type { FetchedPage } from "@/lib/ai/siteContent";
+import { pagesShowDroppedDeals, type FetchedPage } from "@/lib/ai/siteContent";
 import type { ExtractResult, ExtractedHappyHour } from "@/lib/ai/extractHappyHours";
 import { parseHappyHours, type ParsedWindow } from "@/lib/places/parseHhText";
 import { scoreHhUrl } from "@/lib/places/hhText";
@@ -79,4 +79,21 @@ export function freeExtractFromPages(
     promptHash: meta.promptHash,
     model: meta.model,
   };
+}
+
+/**
+ * Should the enrich free-first gate ABANDON a $0 free parse and re-pay the extractor?
+ * Yes only when the free parse produced window(s) but captured ZERO offerings WHILE the
+ * fetched pages still carry real deal content — prices/discounts in text, or a menu PDF/
+ * image the text parser can't read (pagesShowDroppedDeals). That's a recall miss on present
+ * content (Santo Mezcal: "$9 cocktails" dropped to a bare window), not an empty listing.
+ *
+ * Returns false when `free` is null (the caller already escalates that case) and false for a
+ * genuinely bare "Mon–Fri 3–6pm, no prices, no menu doc" page — that valid time-only window
+ * stays for $0 and is never re-touched.
+ */
+export function shouldEscalateForDroppedDeals(free: ExtractResult | null, pages: FetchedPage[]): boolean {
+  if (!free) return false;
+  const hasOfferings = free.happyHours.some((w) => w.offerings.length > 0);
+  return !hasOfferings && pagesShowDroppedDeals(pages);
 }
