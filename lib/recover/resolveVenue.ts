@@ -50,6 +50,12 @@ export interface PersistOptions {
   cityId: string;
   extracted: ExtractResult;
   actor: string;
+  /**
+   * Operator URL-resolve: treat the fresh extraction as authoritative, so a stale bare window
+   * the new deal window time-covers (same slot, overlapping days) is retired rather than left
+   * as a duplicate. Off for background enrich/reextract (conservative full-coverage supersede).
+   */
+  authoritative?: boolean;
 }
 
 /** Minimal surface we need from the drizzle client OR a transaction handle. */
@@ -67,6 +73,7 @@ type Executor = Pick<typeof db, "execute">;
 export async function supersedeBareWindowsForVenue(
   executor: Executor,
   venueId: string,
+  opts: { authoritative?: boolean } = {},
 ): Promise<string[]> {
   const rows = await executor.execute<{
     id: string;
@@ -93,7 +100,7 @@ export async function supersedeBareWindowsForVenue(
     location: r.loc,
     offeringCount: r.offs,
   }));
-  const retire = planBareSupersedes(windows);
+  const retire = planBareSupersedes(windows, { authoritative: opts.authoritative });
   for (const id of retire) {
     await executor.execute(sql`
       UPDATE happy_hours SET active = false, deleted_at = now(), updated_at = now() WHERE id = ${id}`);
@@ -298,7 +305,7 @@ export async function persistExtractedWindows(
     });
   }
 
-  await supersedeBareWindowsForVenue(db, venueId);
+  await supersedeBareWindowsForVenue(db, venueId, { authoritative: opts.authoritative });
 
   const recovered = live > 0;
   if (recovered) {
@@ -328,6 +335,10 @@ export async function resolveVenue(opts: ResolveOptions): Promise<ResolveResult>
 
   // Discover priority URLs: operator-supplied, else auto via triage.
   let priorityUrls = (opts.urls ?? []).filter((u) => u.trim().length > 0);
+  // An operator who pasted a URL is asserting "this page is the truth" — let the fresh
+  // extraction win over stale bare windows it time-covers (authoritative supersede). Auto
+  // discovery (no URL) stays conservative.
+  const operatorSupplied = priorityUrls.length > 0;
   if (priorityUrls.length === 0) {
     if (!venue.websiteUrl) return { ...empty, error: "no website on file and no URL supplied" };
     const verdict = await triageSite({ websiteUri: venue.websiteUrl, name: venue.name, cityName });
@@ -351,6 +362,7 @@ export async function resolveVenue(opts: ResolveOptions): Promise<ResolveResult>
     cityId: venue.cityId,
     extracted,
     actor,
+    authoritative: operatorSupplied,
   });
   return {
     ok: true,
