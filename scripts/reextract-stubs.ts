@@ -19,6 +19,12 @@
  *   tsx scripts/reextract-stubs.ts --city tucson --state az --dry-run      # $0: triage only, who qualifies
  *   tsx scripts/reextract-stubs.ts --city tucson --state az [--limit N]    # PAID, BATCH (~$0.015/venue)
  *   tsx scripts/reextract-stubs.ts --city tucson --state az --quick        # PAID, synchronous (~$0.03/venue)
+ *   tsx scripts/reextract-stubs.ts --city tucson --state az --bare         # heal LIVE windows w/ 0 offerings
+ *
+ * --bare targets the "dropped deals" backlog (a live happy-hour window but no offerings —
+ * see audit:bare-windows). On the default BATCH path it skips, at $0, any such venue whose
+ * page no longer shows deal content (genuinely time-only — left untouched). --quick has no
+ * such pre-filter, so pair --bare with --limit for a sample or use the default batch path.
  *
  * Required env: DATABASE_URL, ANTHROPIC_API_KEY (for the real run), GOOGLE_PLACES_API_KEY optional.
  */
@@ -38,6 +44,7 @@ import { triageSite, resolveEnrichAction } from "@/lib/places/siteTriage";
 import { hhLikelihood } from "@/lib/places/hhLikelihood";
 import { firstOfCurrentMonth } from "@/lib/ai/budget";
 import { persistExtractedWindows } from "@/lib/recover/resolveVenue";
+import { pagesShowDroppedDeals } from "@/lib/ai/siteContent";
 import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 import { prioritizeOwnSiteHh } from "@/lib/places/ownSiteHhPriority";
 
@@ -86,6 +93,7 @@ function parseArgs() {
     limit: get("--limit") ? parseInt(get("--limit")!, 10) : null,
     dryRun: a.includes("--dry-run"),
     quick: a.includes("--quick"), // synchronous path; default is the Batch API
+    bare: a.includes("--bare"), // heal venues with a LIVE window but 0 offerings (dropped deals)
     collect: get("--collect"), // resume: persist an already-ended batch by id
     venue: get("--venue"), // operator-targeted: extract ONE venue (id or name) from given --url(s)
     urls: getAll("--url"), // explicit menu/PDF URL(s) the operator found
@@ -146,6 +154,7 @@ async function runQuick(
 /** Default path: submit every request as one Batch (~50% cheaper), poll, then persist. */
 async function runBatch(
   sql: Sql, cityId: string, cityName: string, month: string, qualified: Qualified[], c: Counters,
+  bareMode = false,
 ) {
   const { model, promptHash } = extractorMetadata();
   const requests: BatchRequest[] = [];
@@ -169,6 +178,14 @@ async function runBatch(
     if (!built.hasSignal) {
       c.skippedNoSignal++;
       console.log(`  ⊘ ${q.venue.name}: no happy-hour/deal signal on page (skipped, $0)`);
+      continue;
+    }
+    // Bare-window heal: only re-pay for venues whose page actually still shows dropped
+    // deals (prices/discounts in text, or a menu PDF/image). A live window whose site is
+    // genuinely time-only is left exactly as-is — we never re-touch valid bare data.
+    if (bareMode && !pagesShowDroppedDeals(built.pages)) {
+      c.skippedNoSignal++;
+      console.log(`  ⊘ ${q.venue.name}: live window but no dropped deals on page (skipped, $0)`);
       continue;
     }
     requests.push({ custom_id: q.venue.id, params: built.params });
@@ -339,27 +356,50 @@ async function main() {
     const { slug, state } = requireCityArgs();
     const city = await resolveCity(sql, slug, state);
 
-    // Stubs with a website: the recoverable population. (No-site stubs can't be re-read;
-    // social-only stubs are caught by triage below and skipped.)
-    const stubs = await sql<StubVenue[]>`
-      SELECT v.id, v.name, v.website_url, v.type::text AS type, sc.primary_type, v.hh_page_url
-      FROM venues v
-      LEFT JOIN seed_candidates sc ON sc.resulting_venue_id = v.id
-      WHERE v.city_id = ${city.id}
-        AND v.status = 'active'
-        AND v.data_completeness = 'stub'
-        AND v.website_url IS NOT NULL
-      ORDER BY v.name
-      ${args.limit ? sql`LIMIT ${args.limit}` : sql``}
-    `;
+    // Default population: stubs with a website (recoverable; no-site/social-only are
+    // filtered by triage below). With --bare instead: venues that ARE live (a happy-hour
+    // window) but carry 0 offerings — the "dropped deals" backlog from audit:bare-windows.
+    const stubs = args.bare
+      ? await sql<StubVenue[]>`
+          SELECT v.id, v.name, v.website_url, v.type::text AS type, sc.primary_type, v.hh_page_url
+          FROM venues v
+          LEFT JOIN seed_candidates sc ON sc.resulting_venue_id = v.id
+          WHERE v.city_id = ${city.id}
+            AND v.status = 'active'
+            AND v.deleted_at IS NULL
+            AND v.website_url IS NOT NULL
+            AND EXISTS (
+              SELECT 1 FROM happy_hours h
+              WHERE h.venue_id = v.id AND h.active = true AND h.deleted_at IS NULL
+            )
+            AND NOT EXISTS (
+              SELECT 1 FROM happy_hours h2
+              JOIN offerings o ON o.happy_hour_id = h2.id AND o.active = true AND o.deleted_at IS NULL
+              WHERE h2.venue_id = v.id AND h2.active = true AND h2.deleted_at IS NULL
+            )
+          ORDER BY v.name
+          ${args.limit ? sql`LIMIT ${args.limit}` : sql``}
+        `
+      : await sql<StubVenue[]>`
+          SELECT v.id, v.name, v.website_url, v.type::text AS type, sc.primary_type, v.hh_page_url
+          FROM venues v
+          LEFT JOIN seed_candidates sc ON sc.resulting_venue_id = v.id
+          WHERE v.city_id = ${city.id}
+            AND v.status = 'active'
+            AND v.data_completeness = 'stub'
+            AND v.website_url IS NOT NULL
+          ORDER BY v.name
+          ${args.limit ? sql`LIMIT ${args.limit}` : sql``}
+        `;
 
+    const population = args.bare ? "bare-window venue(s) (live, 0 offerings)" : "stub venue(s) with a website";
     const mode = args.dryRun ? "DRY RUN" : args.quick ? "QUICK (sync)" : "BATCH";
     const perVenue = args.quick ? 0.03 : 0.015;
     console.log(
-      `[${mode}] ${stubs.length} stub venue(s) with a website in ${city.name}.\n` +
+      `[${mode}] ${stubs.length} ${population} in ${city.name}.\n` +
         (args.dryRun
           ? "Triage only — no model calls, no spend.\n"
-          : `Estimated cost: ~$${(stubs.length * perVenue).toFixed(2)}.\n`),
+          : `Estimated cost: ~$${(stubs.length * perVenue).toFixed(2)} (upper bound; bare-window heal skips no-deal pages at $0).\n`),
     );
 
     // Triage every stub ($0): keep the ones with a real, extractable site.
@@ -386,7 +426,7 @@ async function main() {
 
     if (!args.dryRun) {
       if (args.quick) await runQuick(sql, city.id, city.name, month, qualified, c);
-      else await runBatch(sql, city.id, city.name, month, qualified, c);
+      else await runBatch(sql, city.id, city.name, month, qualified, c, args.bare);
     }
 
     console.log("\n── Re-extract complete ───────────────────────────────────");

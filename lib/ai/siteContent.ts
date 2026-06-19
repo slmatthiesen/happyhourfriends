@@ -7,7 +7,7 @@
  */
 import type { ContentBlockParam } from "@anthropic-ai/sdk/resources/messages";
 import { fetchUrl, type FetchResult, type ImageMediaType } from "@/lib/verification/fetchUrl";
-import { hasHhOrDealSignal, TIME_RANGE_RE } from "@/lib/places/hhText";
+import { hasHhOrDealSignal, hasPriceOrDealSignal, TIME_RANGE_RE } from "@/lib/places/hhText";
 
 // Bound the document (PDF/image) payload fed to the model. A venue with many menu
 // PDFs (Bottega has 6) overwhelms the extractor — 6/4.5MB returned nothing, while
@@ -71,6 +71,23 @@ export function pagesHaveExtractableSignal(pages: FetchedPage[]): boolean {
       Boolean(p.pdfBase64) ||
       Boolean(p.imageBase64) ||
       (typeof p.text === "string" && hasHhOrDealSignal(p.text)),
+  );
+}
+
+/**
+ * Narrower than pagesHaveExtractableSignal: do these pages carry actual DEAL/PRICE content
+ * the shallow text parser would drop? True when a page has a PDF/image menu (binary — the
+ * free parser can't read it) OR its text shows a concrete price/discount (hasPriceOrDealSignal,
+ * NOT a bare schedule). The escalation trigger when the $0 parse captured a window but ZERO
+ * offerings: a bare "Mon–Fri 3–6pm, no prices, no menu doc" page returns false and stays $0;
+ * Santo Mezcal ("$9 cocktails") or a venue whose deals live in a menu PDF returns true.
+ */
+export function pagesShowDroppedDeals(pages: FetchedPage[]): boolean {
+  return pages.some(
+    (p) =>
+      Boolean(p.pdfBase64) ||
+      Boolean(p.imageBase64) ||
+      (typeof p.text === "string" && hasPriceOrDealSignal(p.text)),
   );
 }
 

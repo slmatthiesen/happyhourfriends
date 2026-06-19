@@ -66,6 +66,30 @@ export function hhOrDealMatch(text: string): string | null {
   return HH_RE.exec(t)?.[0] ?? DEAL_RE.exec(t)?.[0] ?? null;
 }
 
+/** A concrete dollar amount like "$9" / "$ 12" / "$5.50" (some sites render "$ 9"). */
+export const PRICE_TOKEN_RE = /\$\s?\d/;
+
+/** Worded deal signals that imply an actual DISCOUNT or priced offering, NOT a mere
+ *  schedule. Deliberately omits the bare time-range, bare "daily", and bare "happy hour"
+ *  that DEAL_RE/HH_RE allow — those describe WHEN, not WHAT, so a time-only page never trips
+ *  this. */
+export const DEAL_WORDS_RE =
+  /\bspecials?\b|drink\s*deals?|\$\d+\s*off|\d+%\s*off|half[-\s]?off|half[-\s]?price|1\/2[-\s]?(?:off|price)|\bbogo\b|two[-\s]?for[-\s]?one|industry\s*night/i;
+
+/**
+ * True when page CONTENT shows an actual deal or price (dollar amounts or discount wording),
+ * as opposed to a bare schedule. This is the escalation trigger for the enrich free-first
+ * gate: when the $0 parser captured a window but ZERO offerings yet the page clearly lists
+ * priced deals, the shallow text parser dropped them — fall through to the paid extractor
+ * (PDF / image / JSON-LD / sub-page) to recover them. Narrower than [[hasHhOrDealSignal]] on
+ * purpose: "Happy Hour Mon–Fri 3–6pm" with no prices is genuinely bare and must NOT escalate
+ * ($0 path preserved). Operator decision 2026-06-18: price OR deal-words, excluding bare time.
+ */
+export function hasPriceOrDealSignal(text: string): boolean {
+  const t = signalText(text);
+  return PRICE_TOKEN_RE.test(t) || DEAL_WORDS_RE.test(t);
+}
+
 /**
  * Likelihood that a URL points at HH info, for ordering candidate pages
  * most→least likely. Higher = check first. 0 = no signal.

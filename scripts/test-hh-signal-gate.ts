@@ -7,7 +7,7 @@
  */
 import assert from "node:assert";
 import { hasHhOrDealSignal, hhOrDealMatch } from "@/lib/places/hhText";
-import { pagesHaveExtractableSignal } from "@/lib/ai/siteContent";
+import { pagesHaveExtractableSignal, pagesShowDroppedDeals } from "@/lib/ai/siteContent";
 
 let passed = 0;
 function check(name: string, fn: () => void) { fn(); passed++; console.log(`  ✓ ${name}`); }
@@ -106,6 +106,22 @@ check("pagesHaveExtractableSignal: true for a page naming Specials (→ Haiku de
   assert.ok(pagesHaveExtractableSignal([
     { url: "https://x.com", text: "Order Online. Menu. Appetizers. Entrees. Specials. Desserts. Powered by Toast." },
   ]));
+});
+
+// pagesShowDroppedDeals — the NARROWER enrich-escalation gate: a bare free-parse window with
+// 0 offerings should re-pay the extractor only when the page actually carries deal content
+// (prices/discounts in text, or a binary menu the free parser can't read) — NOT for a bare
+// "Mon–Fri 3–6pm" schedule. This is the difference from pagesHaveExtractableSignal.
+check("pagesShowDroppedDeals: true on a priced page (Santo Mezcal class)", () => {
+  assert.ok(pagesShowDroppedDeals([{ url: "https://x.com/hh", text: "Happy Hour 2-5pm: $9 cocktails, $7 wine, $5 beer" }]));
+});
+check("pagesShowDroppedDeals: true on a menu PDF/image (deals we can't read free)", () => {
+  assert.ok(pagesShowDroppedDeals([{ url: "https://x.com/hh.pdf", pdfBase64: "JVBERi0=" }]), "pdf");
+  assert.ok(pagesShowDroppedDeals([{ url: "https://x.com/flyer.jpg", imageBase64: "/9j/4AA=", imageMediaType: "image/jpeg" }]), "image");
+});
+check("pagesShowDroppedDeals: FALSE on a bare schedule with no prices/menu doc (stays $0)", () => {
+  assert.ok(!pagesShowDroppedDeals([{ url: "https://x.com/hh", text: "Happy Hour Monday through Friday, 3-6pm. Join us!" }]));
+  assert.ok(!pagesShowDroppedDeals([{ url: "https://x.com", text: "Social Hour daily 4-6pm in the lounge." }]));
 });
 
 console.log(`\n${passed} checks passed.`);
