@@ -15,7 +15,7 @@ import "dotenv/config";
 import assert from "node:assert/strict";
 import { db } from "@/db/client";
 import { sql } from "drizzle-orm";
-import { supersedeBareLocationDuplicates } from "@/lib/recover/resolveVenue";
+import { supersedeBareWindowsForVenue } from "@/lib/recover/resolveVenue";
 
 class Rollback extends Error {}
 
@@ -58,9 +58,19 @@ async function main() {
       await offer(diningDeals, "Dining cocktail");
 
       // Scenario C — a bare 'all' with NO priced same-time sibling. Must be left for review.
-      const lonelyBare = await win("all", "ARRAY[6]", "15:00", "17:00");
+      // (Day 6 / 09:00–11:00 — no other scenario's deal window touches it.)
+      const lonelyBare = await win("all", "ARRAY[6]", "09:00", "11:00");
 
-      await supersedeBareLocationDuplicates(tx, venueId);
+      // Scenario D — cross-day coverage (LOCAL): a bare all-week window fully covered by two
+      // day-split deal windows on days 1–7 must be superseded. (Isolated to 19:00–20:00 so it
+      // can't interact with the afternoon scenarios above.)
+      const bareAllWeek = await win("all", "ARRAY[1,2,3,4,5,6,7]", "19:00", "20:00");
+      const dealEarly = await win("all", "ARRAY[1,2,3]", "19:00", "20:00");
+      await offer(dealEarly, "Mon-Wed beer");
+      const dealLate = await win("all", "ARRAY[4,5,6,7]", "19:00", "21:00");
+      await offer(dealLate, "Thu-Sun wine");
+
+      await supersedeBareWindowsForVenue(tx, venueId);
 
       const isActive = async (id: string) => {
         const [r] = await tx.execute<{ active: boolean; deleted: boolean }>(sql`
@@ -73,8 +83,11 @@ async function main() {
       assert.equal(await isActive(patioDeals), true, "distinct priced 'patio' window must survive");
       assert.equal(await isActive(diningDeals), true, "distinct priced 'dining' window must survive");
       assert.equal(await isActive(lonelyBare), true, "bare window with no priced sibling must survive");
+      assert.equal(await isActive(bareAllWeek), false, "fully-covered cross-day bare window must be superseded");
+      assert.equal(await isActive(dealEarly), true, "Mon-Wed deal window must survive");
+      assert.equal(await isActive(dealLate), true, "Thu-Sun deal window must survive");
 
-      console.log("✅ supersede-bare-window: bug class collapsed, legit coexistence + lonely bare preserved.");
+      console.log("✅ supersede-bare-window: bug class collapsed, cross-day coverage + coexistence + lonely bare preserved.");
       throw new Rollback();
     })
     .catch((err) => {

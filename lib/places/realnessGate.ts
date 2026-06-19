@@ -58,6 +58,13 @@ export function assessRealness(input: RealnessInput): RealnessVerdict {
   const reasons: RealnessReason[] = [];
 
   if (input.allDay && input.dayCount >= 3) reasons.push("all_day_many_days");
+  // An "all day" window carrying NO offerings and no happy-hour wording asserts nothing
+  // usable — it is an extraction artifact (an image misread gave Lion's Tale an "all day
+  // Monday" window with no deals). Hide it regardless of day count. allDay + offerings, or
+  // allDay + "happy hour" in the notes, is real and untouched. HIDES only, never deletes.
+  else if (input.allDay && input.mealSpecial && isAllDayBareArtifact(input.mealSpecial)) {
+    reasons.push("bare_non_hh_window");
+  }
   if (!input.timeKnown) reasons.push("no_time_window");
   if (input.confidence < MIN_CONFIDENCE) reasons.push("low_confidence");
   if (input.mealSpecial && mealSpecialEvidence(input.mealSpecial)) reasons.push("meal_special");
@@ -238,6 +245,14 @@ function crossesMidnightImplausible(startTime: string | null, endTime: string | 
  *  confirmed time alone is enough to show it (operator directive 2026-06-14). Open-until-close
  *  (start known, no end) counts as confirmed. The HH_RE veto keeps anything that says
  *  "happy hour" regardless of shape. */
+/** An all-day window with no offerings and no "happy hour" wording — an extraction artifact
+ *  (no time, no deal, no HH claim). The notes-only veto mirrors bareWindowSuspect: a shared
+ *  page-URL slug does not make a contentless all-day window a happy hour. */
+export function isAllDayBareArtifact(input: MealSpecialInput): boolean {
+  if (input.offerings.length > 0) return false;
+  return !HH_RE.test(input.notes ?? "");
+}
+
 export function bareWindowSuspect(input: MealSpecialInput): boolean {
   if (input.offerings.length > 0) return false; // has deals → judged elsewhere
   // Veto on the window's OWN wording (notes) only, not the shared page-URL slug — see the
