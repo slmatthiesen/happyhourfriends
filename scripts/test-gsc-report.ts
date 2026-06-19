@@ -25,38 +25,42 @@ const lookup: VenueLookup = async ({ slug }) => {
   return null;
 };
 
-await check("groups by page and sorts by impressions desc", async () => {
-  const report = await buildReport(rows, lookup);
-  assert.equal(report.length, 3);
-  assert.deepEqual(report.map((e) => e.impressions), [50, 25, 5]);
-});
+async function main() {
+  await check("groups by page and sorts by impressions desc", async () => {
+    const report = await buildReport(rows, lookup);
+    assert.equal(report.length, 3);
+    assert.deepEqual(report.map((e) => e.impressions), [50, 25, 5]);
+  });
 
-await check("venue status derives from window/offering counts", async () => {
-  const report = await buildReport(rows, lookup);
-  const alamar = report.find((e) => e.page.endsWith("/alamar"))!;
-  const stubby = report.find((e) => e.page.endsWith("/stubby"))!;
-  assert.equal(alamar.venue!.status, "complete");
-  assert.equal(stubby.venue!.status, "stub");
-});
+  await check("venue status derives from window/offering counts", async () => {
+    const report = await buildReport(rows, lookup);
+    const alamar = report.find((e) => e.page.endsWith("/alamar"))!;
+    const stubby = report.find((e) => e.page.endsWith("/stubby"))!;
+    assert.equal(alamar.venue!.status, "complete");
+    assert.equal(stubby.venue!.status, "stub");
+  });
 
-await check("unresolved venue (lookup null) is tagged", async () => {
-  const r: SearchAnalyticsRow[] = [
-    { page: "https://x.com/ca/oakland/venue/ghost", query: "ghost", impressions: 3, clicks: 0, position: 7 },
-  ];
-  const report = await buildReport(r, lookup);
-  assert.equal(report[0].venue!.status, "unresolved");
-});
+  await check("unresolved venue (lookup null) is tagged", async () => {
+    const r: SearchAnalyticsRow[] = [
+      { page: "https://x.com/ca/oakland/venue/ghost", query: "ghost", impressions: 3, clicks: 0, position: 7 },
+    ];
+    const report = await buildReport(r, lookup);
+    assert.equal(report[0].venue!.status, "unresolved");
+  });
 
-await check("top queries are sorted and capped at 5", async () => {
-  const report = await buildReport(rows, lookup);
-  const alamar = report.find((e) => e.page.endsWith("/alamar"))!;
-  assert.deepEqual(alamar.topQueries.map((q) => q.query), ["alamar happy hour", "happy hour oakland"]);
-});
+  await check("top queries are sorted and capped at 5", async () => {
+    const report = await buildReport(rows, lookup);
+    const alamar = report.find((e) => e.page.endsWith("/alamar"))!;
+    assert.deepEqual(alamar.topQueries.map((q) => q.query), ["alamar happy hour", "happy hour oakland"]);
+  });
 
-await check("city page has no venue block", async () => {
-  const report = await buildReport(rows, lookup);
-  const city = report.find((e) => e.kind === "city")!;
-  assert.equal(city.venue, undefined);
-});
+  await check("city page has no venue block", async () => {
+    const report = await buildReport(rows, lookup);
+    const city = report.find((e) => e.kind === "city")!;
+    assert.equal(city.venue, undefined);
+  });
 
-console.log(`\n${passed} checks passed`);
+  console.log(`\n${passed} checks passed`);
+}
+
+main().then(() => process.exit(0)).catch((err) => { console.error(err); process.exit(1); });
