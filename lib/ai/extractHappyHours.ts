@@ -35,7 +35,7 @@ import { MODELS } from "@/lib/ai/models";
 import { loadPrompt, splitPrompt } from "@/lib/ai/promptHash";
 import { fetchPages, renderPagesAsBlocks, pagesHaveExtractableSignal } from "@/lib/ai/siteContent";
 import type { FetchedPage } from "@/lib/ai/siteContent";
-import { freeExtractFromPages, shouldEscalateForDroppedDeals } from "@/lib/ai/freeExtract";
+import { freeExtractFromPages, shouldEscalateForDroppedDeals, reconcileFreeDaysWithModelOfferings } from "@/lib/ai/freeExtract";
 import { classifyHhRelevance, foldRelevanceCost } from "@/lib/ai/hhRelevance";
 
 // ---------------------------------------------------------------------------
@@ -644,7 +644,10 @@ export async function extractHappyHours(
     // never leave /admin/bare-windows. Mirrors the enrich free-first gate (seed-enrich-candidates.ts).
     if (shouldEscalateForDroppedDeals(free, pages)) {
       if (process.env.EXTRACT_DEBUG) console.error(`[extract] free parse dropped deals → escalating to paid extractor`);
-      return runExtractModel(built);
+      // Keep the free parse's stable DAYS (from explicit recurring text) and take only the
+      // model's OFFERINGS — so a dated-events site (SpotHopper) can't flicker the day-set.
+      const paid = await runExtractModel(built);
+      return reconcileFreeDaysWithModelOfferings(free, paid);
     }
     if (process.env.EXTRACT_DEBUG) console.error(`[extract] free parse hit: ${free.happyHours.length} window(s), $0`);
     return free;
