@@ -22,7 +22,9 @@ const USER_AGENT = `${BOT_NAME}/1.0 (+https://happyhourfriends.com)`;
 
 const TIMEOUT_MS = 10_000;
 const MAX_CONTENT = 8_000; // default (verifier tool loop); extractor overrides higher.
-const MAX_PDF_BYTES = 10 * 1024 * 1024; // Claude accepts up to 32MB; keep it sane.
+// Claude accepts up to 32MB; keep it sane by default. Env-overridable so an operator can pull a
+// known-good oversized menu (e.g. a 19MB Squarespace HH PDF) through the real path for a one-off.
+const MAX_PDF_BYTES = Number(process.env.FETCH_MAX_PDF_BYTES) || 10 * 1024 * 1024;
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // vision images — keep request size sane.
 
 // Transient-failure retry. Media/discovered-page fetches dropped ~1/3 of runs to a

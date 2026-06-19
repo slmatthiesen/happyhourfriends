@@ -256,6 +256,24 @@ export function extractMediaLinks(html: string, baseUrl: string): string[] {
       if (u) out.add(u);
     }
   }
+  // Squarespace BUTTON BLOCKS link an uploaded menu PDF via a clickthroughUrl in block JSON —
+  // {"clickthroughUrl":{"url":"/s/Fate-Happy-Hour-Menu"}} — not an <a>/<img>/ld+json, and the
+  // target is an EXTENSIONLESS Squarespace file redirect (/s/… or static1…/t/…), so neither the
+  // anchor scanner nor the `.pdf` test above can see it. Follow it when the slug or its button
+  // label carries a menu/HH signal; fetchUrl resolves the 302 and detects the PDF by
+  // content-type. Fate Brewing's 19MB HH menu lived here, invisible → a bare window.
+  const SQSP_FILE_LINK = /^(?:\/s\/|https?:\/\/static1\.squarespace\.com\/static\/[a-f0-9]+\/t\/)/i;
+  const ctRe = /"clickthroughUrl"\s*:\s*\{\s*"url"\s*:\s*"([^"]+)"/gi;
+  while ((m = ctRe.exec(html)) !== null) {
+    const href = m[1].replace(/\\\//g, "/");
+    if (!SQSP_FILE_LINK.test(href)) continue;
+    if (/\.(jpe?g|png|webp|gif)(\?|#|$)/i.test(href)) continue; // an image target is handled above
+    const label = html.slice(Math.max(0, m.index - 160), m.index).replace(/<[^>]+>/g, " ");
+    if (MEDIA_SIGNAL.test(href) || MEDIA_SIGNAL.test(label)) {
+      const u = abs(href);
+      if (u) out.add(u);
+    }
+  }
   return [...out].slice(0, 6);
 }
 
