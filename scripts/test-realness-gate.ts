@@ -46,6 +46,31 @@ check("explicit all-day on 2 days is NOT suspect", () => {
   assert.equal(r.suspect, false);
 });
 
+check("all-day BARE artifact (1 day, no offerings, no HH wording) IS suspect (Lion's Tale image misread)", () => {
+  const r = assessRealness({
+    allDay: true, dayCount: 1, timeKnown: true, confidence: 0.9,
+    mealSpecial: { startTime: null, endTime: null, notes: null, offerings: [] },
+  });
+  assert.equal(r.suspect, true);
+  assert.ok(r.reasons.includes("bare_non_hh_window"));
+});
+
+check("all-day on 1 day WITH offerings is NOT suspect (real all-day Tuesday deal)", () => {
+  const r = assessRealness({
+    allDay: true, dayCount: 1, timeKnown: true, confidence: 0.9,
+    mealSpecial: { startTime: null, endTime: null, notes: null, offerings: [{ name: "$5 mimosas", priceCents: 500 }] },
+  });
+  assert.equal(r.suspect, false);
+});
+
+check("all-day BARE but notes say 'happy hour' is NOT suspect (HH veto)", () => {
+  const r = assessRealness({
+    allDay: true, dayCount: 1, timeKnown: true, confidence: 0.9,
+    mealSpecial: { startTime: null, endTime: null, notes: "All-day happy hour Mondays", offerings: [] },
+  });
+  assert.equal(r.suspect, false);
+});
+
 check("all-day on 3 days IS suspect (likely regular pricing)", () => {
   const r = assessRealness({ allDay: true, dayCount: 3, timeKnown: true, confidence: 0.9 });
   assert.equal(r.suspect, true);
