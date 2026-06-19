@@ -62,6 +62,12 @@ export default async function AdminLayout({
             Stubs
           </Link>
           <Link
+            href="/admin/bare-windows"
+            className="text-text-primary hover:text-accent-cool"
+          >
+            Bare windows
+          </Link>
+          <Link
             href="/admin/flags"
             className="text-text-primary hover:text-accent-cool"
           >
