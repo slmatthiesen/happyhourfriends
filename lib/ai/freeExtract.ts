@@ -8,9 +8,10 @@
  * persist writes them hidden (active=false): the venue stays a stub for review.
  */
 import { pagesShowDroppedDeals, type FetchedPage } from "@/lib/ai/siteContent";
-import type { ExtractResult, ExtractedHappyHour } from "@/lib/ai/extractHappyHours";
+import type { ExtractResult, ExtractedHappyHour, ExtractedOffering } from "@/lib/ai/extractHappyHours";
 import { parseHappyHours, type ParsedWindow } from "@/lib/places/parseHhText";
 import { scoreHhUrl } from "@/lib/places/hhText";
+import { hhmmToMin } from "@/lib/places/windowReconcile";
 
 /**
  * Provenance score for cross-page dedup. When two pages yield the SAME window
@@ -96,4 +97,81 @@ export function shouldEscalateForDroppedDeals(free: ExtractResult | null, pages:
   if (!free) return false;
   const hasOfferings = free.happyHours.some((w) => w.offerings.length > 0);
   return !hasOfferings && pagesShowDroppedDeals(pages);
+}
+
+const MIN_PER_DAY = 1440;
+
+/** Effective [start,end] minute interval, or null when unpositionable (no start, not all-day). */
+function windowInterval(startTime: string | null, endTime: string | null, allDay: boolean): [number, number] | null {
+  if (allDay) return [0, MIN_PER_DAY];
+  if (startTime == null) return null;
+  const start = hhmmToMin(startTime);
+  let end = endTime == null ? MIN_PER_DAY : hhmmToMin(endTime);
+  if (endTime != null && end <= start) end += MIN_PER_DAY; // crosses midnight
+  return [start, end];
+}
+
+function intervalsOverlap(a: [number, number] | null, b: [number, number] | null): boolean {
+  if (!a || !b) return false;
+  return a[0] < b[1] && b[0] < a[1];
+}
+
+/** 'all' (or null) is the whole venue and is compatible with anything; two DIFFERENT
+ *  specific areas (bar vs patio) never share offerings. */
+function locationCompatible(a: string, b: string): boolean {
+  const la = a || "all";
+  const lb = b || "all";
+  return la === "all" || lb === "all" || la === lb;
+}
+
+const offeringKey = (o: ExtractedOffering): string =>
+  `${(o.name ?? "").toLowerCase().trim()}|${o.priceCents ?? ""}|${(o.description ?? "").toLowerCase().trim()}`;
+
+/** The two windows recur on at least one common ISO day — i.e. the same slot, not merely an
+ *  overlapping clock-time on different days (a Sat brunch must not fold into a Mon-Fri window). */
+function sharesADay(a: number[], b: number[]): boolean {
+  const set = new Set(a);
+  return b.some((d) => set.has(d));
+}
+
+/**
+ * Reconcile a stable free-parse window set with a paid model re-extraction done ONLY to recover
+ * dropped deals. The free windows' DAYS/TIMES win — they were parsed from explicit recurring text
+ * ("Tuesday-Friday 4-6PM"), so they're stable run-to-run; the model supplies the OFFERINGS. This
+ * kills the day-set flicker on sites that render a recurring HH as dated one-off promo cards
+ * (SpotHopper: "Sunday Funday", "Trouble Tuesdays") that the model otherwise folds into the
+ * recurring day-set differently on every run.
+ *
+ * Each free window keeps its days/time and gains the offerings of every model window whose days
+ * overlap it at the same time and a compatible location (deduped). Model-only windows are
+ * DROPPED — "explicit statement wins": a window the free parser didn't derive from explicit text
+ * is exactly the dated-promo noise (SpotHopper "Sunday Funday" 4-6pm) whose day-set flickers run
+ * to run. The result carries the model's cost/usage/confidence so the ledger reflects the call.
+ *
+ * Tradeoff (operator decision 2026-06-19): a genuinely separate recurring window that the free
+ * parser missed AND that shares no day with any free window is also dropped. Rare — the free
+ * parser captures any explicitly-stated window, and a deal window almost always shares a day with
+ * the stated recurring one. Consistency is the goal here; the operator reviews each resolve.
+ */
+export function reconcileFreeDaysWithModelOfferings(free: ExtractResult, model: ExtractResult): ExtractResult {
+  const freeWindows: ExtractedHappyHour[] = free.happyHours.map((f) => ({ ...f, offerings: [...f.offerings] }));
+  const freeIntervals = freeWindows.map((f) => windowInterval(f.startTime, f.endTime, f.allDay));
+
+  freeWindows.forEach((f, fi) => {
+    const fiv = freeIntervals[fi];
+    const seen = new Set(f.offerings.map(offeringKey));
+    for (const m of model.happyHours) {
+      if (!locationCompatible(f.locationWithinVenue, m.locationWithinVenue)) continue;
+      if (!sharesADay(f.daysOfWeek, m.daysOfWeek)) continue;
+      if (!intervalsOverlap(fiv, windowInterval(m.startTime, m.endTime, m.allDay))) continue;
+      for (const off of m.offerings) {
+        const k = offeringKey(off);
+        if (seen.has(k)) continue;
+        seen.add(k);
+        f.offerings.push({ ...off, sourceUrl: off.sourceUrl || f.sourceUrl });
+      }
+    }
+  });
+
+  return { ...model, happyHours: freeWindows };
 }
