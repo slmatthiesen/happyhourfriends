@@ -89,4 +89,38 @@ check("a 'patio' deal does NOT supersede an 'all' bare (different specific area)
   assert.equal(r.size, 0, "distinct specific areas never supersede each other");
 });
 
+// ── authoritative mode (operator URL-resolve: "fresh extraction wins") ──────────────────
+const retiredAuth = (wins: SupersedeWindow[]) => planBareSupersedes(wins, { authoritative: true });
+
+check("AUTH Rose Garden: stale bare Tue-Fri retired by fresh deal Tue/Thu/Fri/Sun (shared days, same time)", () => {
+  const stale = w({ id: "stale", daysOfWeek: [2, 3, 4, 5], startTime: "16:00:00", endTime: "18:00:00" });
+  const deal = w({ id: "deal", daysOfWeek: [2, 4, 5, 7], startTime: "16:00:00", endTime: "18:00:00", offeringCount: 2 });
+  assert.ok(retiredAuth([stale, deal]).has("stale"), "stale bare retired under authoritative");
+  assert.ok(!retired([stale, deal]).has("stale"), "but conservative mode keeps it (Wed uncovered)");
+});
+
+check("AUTH keeps a disjoint-day bare window (no shared day with the deal → genuinely separate HH)", () => {
+  const sat = w({ id: "sat", daysOfWeek: [6], startTime: "16:00:00", endTime: "18:00:00" });
+  const mf = w({ id: "mf", daysOfWeek: [1, 2, 3, 4, 5], startTime: "16:00:00", endTime: "18:00:00", offeringCount: 4 });
+  assert.equal(retiredAuth([sat, mf]).size, 0, "Sat-only bare survives — fresh run never touched it");
+});
+
+check("AUTH does NOT eat a broader all-day bare window with a sub-hour deal window", () => {
+  const allDay = w({ id: "allDay", daysOfWeek: [2], startTime: null, endTime: null, allDay: true });
+  const deal = w({ id: "deal", daysOfWeek: [2], startTime: "16:00:00", endTime: "18:00:00", offeringCount: 3 });
+  assert.ok(!retiredAuth([allDay, deal]).has("allDay"), "deal doesn't contain the all-day span → bare kept");
+});
+
+check("AUTH still never retires a deal-carrying window", () => {
+  const dealA = w({ id: "dealA", daysOfWeek: [2, 4], startTime: "16:00:00", endTime: "18:00:00", offeringCount: 5 });
+  const dealB = w({ id: "dealB", daysOfWeek: [2, 4, 7], startTime: "16:00:00", endTime: "18:00:00", offeringCount: 9 });
+  assert.equal(retiredAuth([dealA, dealB]).size, 0);
+});
+
+check("AUTH respects distinct specific areas (patio deal never supersedes a dining bare)", () => {
+  const bareDining = w({ id: "bareDining", daysOfWeek: [5], location: "dining" });
+  const patio = w({ id: "patio", daysOfWeek: [5], location: "patio", offeringCount: 3 });
+  assert.equal(retiredAuth([bareDining, patio]).size, 0);
+});
+
 console.log(`\n${passed} checks passed.`);
