@@ -51,6 +51,20 @@ check("escalate: free window + another page showing prices the parser didn't att
   const pricePage = { url: "https://x.com/drinks", text: "Drink specials: $9 margaritas, $7 wine" };
   assert.equal(shouldEscalateForDroppedDeals(free, [bareSchedule, pricePage]), true);
 });
+check("escalate: Rose Garden class — free window + 'Half-off / $3 off' deal text on the SAME page", () => {
+  // Real /admin/bare-windows miss (The Rose Garden, 2026-06-19): the free parser captured the
+  // Tue–Fri 4–6pm window but dropped the deals to 0 offerings, while the page plainly lists
+  // them. The shared extractHappyHours short-circuit used to take this $0 bare result and never
+  // pay the model — so the venue could never leave the bare-windows bucket.
+  const page = {
+    url: "https://therosegardenaz.com/phoenix-downtown-the-rose-garden-happy-hours-specials",
+    text: "Happy Hour Tuesday-Friday 4pm-6pm. Half-off all flatbreads. $3 off any menu drink (beer, wine, signature cocktails).",
+  };
+  const free = freeExtractFromPages([page], META);
+  assert.ok(free && free.happyHours.length >= 1, "free parsed the window");
+  assert.equal(free!.happyHours.some((w) => w.offerings.length > 0), false, "but dropped the deals → bare window");
+  assert.equal(shouldEscalateForDroppedDeals(free, [page]), true, "deal text present → must escalate to paid extractor");
+});
 check("DO NOT escalate: genuinely bare time-only pages stay $0", () => {
   const free = freeExtractFromPages([bareSchedule], META);
   assert.ok(free, "free parsed the bare window");
