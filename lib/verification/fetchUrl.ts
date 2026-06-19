@@ -25,7 +25,10 @@ const MAX_CONTENT = 8_000; // default (verifier tool loop); extractor overrides 
 // Claude accepts up to 32MB; keep it sane by default. Env-overridable so an operator can pull a
 // known-good oversized menu (e.g. a 19MB Squarespace HH PDF) through the real path for a one-off.
 const MAX_PDF_BYTES = Number(process.env.FETCH_MAX_PDF_BYTES) || 10 * 1024 * 1024;
-const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // vision images — keep request size sane.
+// Vision images — keep request size sane by default. Env-overridable (like the PDF cap): a
+// high-res Squarespace menu image (Sidecar's HH menu is an 8MB PNG) carries real deals and
+// otherwise gets rejected as "too large", silently dropping them.
+const MAX_IMAGE_BYTES = Number(process.env.FETCH_MAX_IMAGE_BYTES) || 5 * 1024 * 1024;
 
 // Transient-failure retry. Media/discovered-page fetches dropped ~1/3 of runs to a
 // whole-venue 0% recall: a CDN timeout / connection reset / 5xx on the (single) HH PDF or
