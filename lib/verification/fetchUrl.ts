@@ -25,6 +25,16 @@ const MAX_CONTENT = 8_000; // default (verifier tool loop); extractor overrides 
 const MAX_PDF_BYTES = 10 * 1024 * 1024; // Claude accepts up to 32MB; keep it sane.
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // vision images — keep request size sane.
 
+// Transient-failure retry. Media/discovered-page fetches dropped ~1/3 of runs to a
+// whole-venue 0% recall: a CDN timeout / connection reset / 5xx on the (single) HH PDF or
+// image silently lost the deal source for that run. Retry those — but NOT terminal results
+// (404, robots-block, too-large) or bot walls (401/403/406/429), which the caller's render
+// fallback owns; retrying them would just add latency before the browser tier runs anyway.
+const RETRY_DELAYS_MS = [300, 800]; // length = retry count → 3 attempts total
+const RETRYABLE_STATUSES = new Set([408, 425, 500, 502, 503, 504]);
+
+const sleep = (ms: number) => (ms > 0 ? new Promise((r) => setTimeout(r, ms)) : Promise.resolve());
+
 export type ImageMediaType = "image/jpeg" | "image/png" | "image/gif" | "image/webp";
 
 /** Map a content-type / extension to a Claude-vision-supported image media type. */
@@ -42,6 +52,20 @@ function imageMediaType(contentType: string, pathname: string): ImageMediaType |
 export interface FetchOpts {
   /** Max chars of reduced HTML text to return. Default MAX_CONTENT. */
   maxContent?: number;
+  /** Injected for tests (hermetic, no network); defaults to the global fetch. */
+  fetchImpl?: typeof fetch;
+  /** Backoff schedule between transient-failure retries; length = retry count.
+   *  Defaults to RETRY_DELAYS_MS. Tests pass [0, 0] to retry without real waits. */
+  retryDelaysMs?: number[];
+}
+
+/** A failure worth re-attempting: a thrown network/timeout error (no HTTP status reached)
+ *  or a transient server status. Terminal results (robots-block, 4xx incl. bot walls,
+ *  too-large — all of which carry a status) are NOT retried. */
+function isRetryableFailure(r: FetchResult): boolean {
+  if (r.ok || r.blockedByRobots) return false;
+  if (r.status != null) return RETRYABLE_STATUSES.has(r.status);
+  return r.error != null; // thrown network/timeout error — never reached an HTTP status
 }
 
 /** Signals that a text window carries menu / happy-hour content. */
@@ -249,108 +273,115 @@ export function stripHtml(html: string, maxContent: number = MAX_CONTENT): strin
 
 export async function fetchUrl(url: string, opts: FetchOpts = {}): Promise<FetchResult> {
   const maxContent = opts.maxContent ?? MAX_CONTENT;
+  const doFetch = opts.fetchImpl ?? fetch;
+  const retryDelays = opts.retryDelaysMs ?? RETRY_DELAYS_MS;
+  let parsed: URL;
   try {
-    const parsed = new URL(url);
-    const targetPath = parsed.pathname + parsed.search;
-    const robotsUrl = `${parsed.origin}/robots.txt`;
+    parsed = new URL(url);
+  } catch (err) {
+    return { url, ok: false, error: err instanceof Error ? err.message : String(err) };
+  }
+  const targetPath = parsed.pathname + parsed.search;
+  const robotsUrl = `${parsed.origin}/robots.txt`;
 
-    // --- robots.txt check ---
-    try {
-      const robotsController = new AbortController();
-      const robotsTimer = setTimeout(
-        () => robotsController.abort(),
-        TIMEOUT_MS,
-      );
-      const robotsRes = await fetch(robotsUrl, {
-        signal: robotsController.signal,
-        headers: { "User-Agent": USER_AGENT },
-      });
-      clearTimeout(robotsTimer);
+  // --- robots.txt check (once; failures proceed optimistically, never retried) ---
+  try {
+    const robotsController = new AbortController();
+    const robotsTimer = setTimeout(() => robotsController.abort(), TIMEOUT_MS);
+    const robotsRes = await doFetch(robotsUrl, {
+      signal: robotsController.signal,
+      headers: { "User-Agent": USER_AGENT },
+    });
+    clearTimeout(robotsTimer);
 
-      if (robotsRes.ok) {
-        const robotsTxt = await robotsRes.text();
-        if (
-          isBlockedByRobots(
-            robotsTxt,
-            BOT_NAME,
-            targetPath,
-          )
-        ) {
-          return { url, ok: false, blockedByRobots: true };
-        }
+    if (robotsRes.ok) {
+      const robotsTxt = await robotsRes.text();
+      if (isBlockedByRobots(robotsTxt, BOT_NAME, targetPath)) {
+        return { url, ok: false, blockedByRobots: true };
       }
-    } catch {
-      // robots.txt fetch failed — proceed optimistically
     }
+  } catch {
+    // robots.txt fetch failed — proceed optimistically
+  }
 
-    // --- Target fetch ---
+  // --- Target fetch + parse (one attempt; a thrown error becomes an {ok:false, error}) ---
+  const attempt = async (): Promise<FetchResult> => {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    try {
+      const res = await doFetch(url, {
+        signal: controller.signal,
+        headers: {
+          "User-Agent": USER_AGENT,
+          Accept:
+            "text/html,application/xhtml+xml,application/pdf,application/xml;q=0.9,*/*;q=0.8",
+        },
+      });
 
-    const res = await fetch(url, {
-      signal: controller.signal,
-      headers: {
-        "User-Agent": USER_AGENT,
-        Accept:
-          "text/html,application/xhtml+xml,application/pdf,application/xml;q=0.9,*/*;q=0.8",
-      },
-    });
-    clearTimeout(timer);
+      if (!res.ok) {
+        return { url, ok: false, status: res.status };
+      }
 
-    if (!res.ok) {
-      return { url, ok: false, status: res.status };
-    }
+      const contentType = (res.headers.get("content-type") ?? "").toLowerCase();
+      const looksPdf =
+        contentType.includes("application/pdf") ||
+        parsed.pathname.toLowerCase().endsWith(".pdf");
 
-    const contentType = (res.headers.get("content-type") ?? "").toLowerCase();
-    const looksPdf =
-      contentType.includes("application/pdf") ||
-      parsed.pathname.toLowerCase().endsWith(".pdf");
-
-    if (looksPdf) {
-      const bytes = Buffer.from(await res.arrayBuffer());
-      if (bytes.byteLength > MAX_PDF_BYTES) {
+      if (looksPdf) {
+        const bytes = Buffer.from(await res.arrayBuffer());
+        if (bytes.byteLength > MAX_PDF_BYTES) {
+          return {
+            url,
+            ok: false,
+            status: res.status,
+            contentType,
+            error: `PDF too large (${Math.round(bytes.byteLength / 1024 / 1024)}MB).`,
+          };
+        }
         return {
           url,
-          ok: false,
+          ok: true,
           status: res.status,
-          contentType,
-          error: `PDF too large (${Math.round(bytes.byteLength / 1024 / 1024)}MB).`,
+          contentType: "application/pdf",
+          isPdf: true,
+          pdfBase64: bytes.toString("base64"),
         };
       }
-      return {
-        url,
-        ok: true,
-        status: res.status,
-        contentType: "application/pdf",
-        isPdf: true,
-        pdfBase64: bytes.toString("base64"),
-      };
-    }
 
-    // Image menus (>50% of HH menus are image/PDF) → return bytes for a vision block.
-    const imgType = imageMediaType(contentType, parsed.pathname);
-    if (imgType) {
-      const bytes = Buffer.from(await res.arrayBuffer());
-      if (bytes.byteLength > MAX_IMAGE_BYTES) {
-        return { url, ok: false, status: res.status, contentType, error: "image too large" };
+      // Image menus (>50% of HH menus are image/PDF) → return bytes for a vision block.
+      const imgType = imageMediaType(contentType, parsed.pathname);
+      if (imgType) {
+        const bytes = Buffer.from(await res.arrayBuffer());
+        if (bytes.byteLength > MAX_IMAGE_BYTES) {
+          return { url, ok: false, status: res.status, contentType, error: "image too large" };
+        }
+        return {
+          url,
+          ok: true,
+          status: res.status,
+          contentType: imgType,
+          isImage: true,
+          imageBase64: bytes.toString("base64"),
+          imageMediaType: imgType,
+        };
       }
-      return {
-        url,
-        ok: true,
-        status: res.status,
-        contentType: imgType,
-        isImage: true,
-        imageBase64: bytes.toString("base64"),
-        imageMediaType: imgType,
-      };
-    }
 
-    const raw = await res.text();
-    const contentText = stripHtml(raw, maxContent);
-    const mediaLinks = extractMediaLinks(raw, res.url || url);
-    return { url, ok: true, status: res.status, contentType, contentText, mediaLinks };
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    return { url, ok: false, error: message };
+      const raw = await res.text();
+      const contentText = stripHtml(raw, maxContent);
+      const mediaLinks = extractMediaLinks(raw, res.url || url);
+      return { url, ok: true, status: res.status, contentType, contentText, mediaLinks };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return { url, ok: false, error: message };
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+
+  let result = await attempt();
+  for (let i = 0; i < retryDelays.length && isRetryableFailure(result); i++) {
+    await sleep(retryDelays[i]);
+    result = await attempt();
   }
+  return result;
 }
