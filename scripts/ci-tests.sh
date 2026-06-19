@@ -83,6 +83,7 @@ TESTS=(
   test:chain-happy-hours
   test:point-in-polygon
   test:plan-supersede
+  test:fetch-targets
 )
 
 failed=()

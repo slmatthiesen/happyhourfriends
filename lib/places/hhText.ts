@@ -102,7 +102,12 @@ export function hasPriceOrDealSignal(text: string): boolean {
  *   anything else                      0
  */
 export function scoreHhUrl(url: string): number {
-  const u = url.toLowerCase();
+  // Decode percent-escapes and the '+' that CDNs use for spaces in filenames, so a
+  // "happy+hour_2.PNG" / "happy%20hour.pdf" scores as a happy-hour URL instead of 0 (the
+  // HH_RE separator class is `[-_ ]`, not `+`). This drove Bei Sushi's HH image to rank 0.
+  let u = url.toLowerCase();
+  try { u = decodeURIComponent(u); } catch { /* malformed escape — score the raw form */ }
+  u = u.replace(/\+/g, " ");
   if (HH_RE.test(u)) return 100 + (/menu/.test(u) ? 10 : 0);
   if (/special/.test(u)) return 70;
   if (/(beer|drink|cocktail|wine)[-_ ]?menu|\/(drinks|cocktails)\b/.test(u)) return 60;
