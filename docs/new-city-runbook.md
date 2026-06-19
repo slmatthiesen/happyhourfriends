@@ -214,11 +214,10 @@ pnpm run audit:data -- --city <slug> --state <code>
 pnpm run audit:fix -- --city <slug> --state <code>    # check its flags before applying
 
 # Dropped-deals check ($0): live windows that should carry offerings but don't because the
-# deals sit in a menu PDF/image or a page the free parser missed. Heal is spend-gated.
-pnpm run audit:bare-windows -- --city <slug> --state <code>
-# if it reports any, spend to recover them (BATCH, skips no-deal pages at $0):
-pnpm run reextract:stubs -- --city <slug> --state <code> --bare --dry-run   # $0 preview
-pnpm run reextract:stubs -- --city <slug> --state <code> --bare             # PAID
+# deals sit in a menu PDF/image or a page the free parser missed. audit:bare-windows IS the
+# $0 preview (lists the venues + cause tags); the heal then spends only on those.
+pnpm run audit:bare-windows -- --city <slug> --state <code>     # $0 detector + cost = ~$0.015 × count
+pnpm run reextract:stubs -- --city <slug> --state <code> --bare # PAID heal (BATCH, skips no-deal pages at $0)
 ```
 
 **Done when:** flags are adjudicated (keep/hide), high-confidence fixes applied, and
