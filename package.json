@@ -48,6 +48,7 @@
     "audit:data": "tsx scripts/audit-data.ts",
     "audit:provenance": "tsx scripts/audit-provenance.ts",
     "audit:quality": "tsx scripts/audit-quality.ts",
+    "audit:bare-windows": "tsx scripts/audit-bare-windows.ts",
     "audit:fix": "tsx scripts/audit-fix.ts",
     "promote:own-site-hh": "tsx scripts/promote-own-site-hh.ts",
     "review:hidden": "tsx scripts/review-hidden-hh.ts",

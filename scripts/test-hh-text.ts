@@ -6,7 +6,7 @@
  * Run: tsx scripts/test-hh-text.ts
  */
 import assert from "node:assert";
-import { matchesHappyHour, scoreHhUrl, HH_RE } from "@/lib/places/hhText";
+import { matchesHappyHour, scoreHhUrl, HH_RE, hasPriceOrDealSignal } from "@/lib/places/hhText";
 
 let passed = 0;
 function check(name: string, fn: () => void) { fn(); passed++; console.log(`  ✓ ${name}`); }
@@ -60,6 +60,39 @@ check("HH_RE synonyms from the 2026-06-11 review corpus", () => {
   assert.ok(scoreHhUrl("https://www.pyrophx.com/social-hour") >= 100);
   assert.ok(!HH_RE.test("open 24 hours"), "plain 'hours' must not match");
   assert.ok(!HH_RE.test("rush hour traffic"), "'rush hour' must not match");
+});
+
+check("hasPriceOrDealSignal fires on real prices/deals (enrich escalation trigger)", () => {
+  for (const s of [
+    "$9 cocktails | $7 wine | $5 beer",   // Santo Mezcal (the bug)
+    "$ 12 select appetizers",             // space after $
+    "1/2 off drinks 4-6pm",
+    "half-price wings",
+    "50% off all drafts",
+    "$5 off pitchers",
+    "drink specials every night",
+    "Industry Night every Sunday",
+  ]) {
+    assert.ok(hasPriceOrDealSignal(s), `should escalate: ${s}`);
+  }
+});
+
+check("hasPriceOrDealSignal stays $0 on bare schedules / non-deal text", () => {
+  for (const s of [
+    "Happy Hour Mon–Fri 3–6pm",          // bare time, no prices → keep for $0
+    "Happy Hour daily",                   // bare "daily" must not trip it
+    "Social Hour 4-6pm",
+    "Open 24 hours, kitchen until 11pm",
+    "Our story began in 1998 on the waterfront",
+    "Reservations recommended for parties of six",
+  ]) {
+    assert.ok(!hasPriceOrDealSignal(s), `should NOT escalate: ${s}`);
+  }
+});
+
+check("hasPriceOrDealSignal ignores price-like tokens inside URLs", () => {
+  // signalText strips URLs first, so a query string can't fake a deal.
+  assert.ok(!hasPriceOrDealSignal("see https://x.com/menu?id=$5off for hours"));
 });
 
 console.log(`\n${passed} checks passed.`);

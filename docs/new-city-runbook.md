@@ -212,9 +212,17 @@ source URLs. Full procedure: `docs/all-cities-audit-runbook.md`.
 pnpm run audit:data -- --city <slug> --state <code>
 # review flags in /admin/flags (or the emitted report), then:
 pnpm run audit:fix -- --city <slug> --state <code>    # check its flags before applying
+
+# Dropped-deals check ($0): live windows that should carry offerings but don't because the
+# deals sit in a menu PDF/image or a page the free parser missed. Heal is spend-gated.
+pnpm run audit:bare-windows -- --city <slug> --state <code>
+# if it reports any, spend to recover them (BATCH, skips no-deal pages at $0):
+pnpm run reextract:stubs -- --city <slug> --state <code> --bare --dry-run   # $0 preview
+pnpm run reextract:stubs -- --city <slug> --state <code> --bare             # PAID
 ```
 
-**Done when:** flags are adjudicated (keep/hide) and high-confidence fixes applied.
+**Done when:** flags are adjudicated (keep/hide), high-confidence fixes applied, and
+`audit:bare-windows` reports ~0 dropped-deal venues (or the rest are genuinely time-only).
 
 ---
 
