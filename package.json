@@ -25,6 +25,7 @@
     "import:locality-neighborhoods": "tsx scripts/import-locality-neighborhoods.ts",
     "gen:onboarding-review": "tsx scripts/gen-onboarding-review.ts",
     "generate:cardinal-districts": "tsx scripts/generate-cardinal-districts.ts",
+    "gsc:pull": "tsx scripts/gsc-pull.ts",
     "backfill:neighborhoods": "tsx scripts/backfill-neighborhoods.ts",
     "backfill:neighborhood-tiers": "tsx scripts/backfill-neighborhood-tiers.ts",
     "backfill:google-neighborhoods": "tsx scripts/backfill-google-neighborhoods.ts",
