@@ -13,7 +13,9 @@ import { hasHhOrDealSignal, hasPriceOrDealSignal, scoreHhUrl, TIME_RANGE_RE } fr
 // PDFs (Bottega has 6) overwhelms the extractor — 6/4.5MB returned nothing, while
 // ~4/2.4MB extracts cleanly. Cap by count AND bytes; text pages are always included.
 const MAX_DOC_PAGES = 5;
-const MAX_DOC_BYTES = 3_000_000;
+// Env-overridable (paired with fetchUrl's FETCH_MAX_PDF_BYTES) so an operator can pull one
+// known-good oversized menu through the real path for a one-off; default keeps payloads tight.
+const MAX_DOC_BYTES = Number(process.env.FETCH_MAX_DOC_BYTES) || 3_000_000;
 /** Statuses bot walls answer plain fetches with — a headless browser usually gets through. */
 const BOT_WALL_STATUSES = new Set([401, 403, 406, 429]);
 
