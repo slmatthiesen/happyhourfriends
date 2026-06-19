@@ -7,7 +7,7 @@
  */
 import type { ContentBlockParam } from "@anthropic-ai/sdk/resources/messages";
 import { fetchUrl, type FetchResult, type ImageMediaType } from "@/lib/verification/fetchUrl";
-import { hasHhOrDealSignal, hasPriceOrDealSignal, TIME_RANGE_RE } from "@/lib/places/hhText";
+import { hasHhOrDealSignal, hasPriceOrDealSignal, scoreHhUrl, TIME_RANGE_RE } from "@/lib/places/hhText";
 
 // Bound the document (PDF/image) payload fed to the model. A venue with many menu
 // PDFs (Bottega has 6) overwhelms the extractor — 6/4.5MB returned nothing, while
@@ -92,6 +92,41 @@ export function pagesShowDroppedDeals(pages: FetchedPage[]): boolean {
 }
 
 /**
+ * A plain `#fragment` is the SAME document server-side: fetching /menu#happyhour and
+ * /menu#exploremenu returns identical bytes. Strip it so same-page anchor links collapse to
+ * one fetch target — but preserve hashbang / hash-route fragments (`#!/…`, `#/…`) that some
+ * SPAs use as the actual route. */
+export function stripPageAnchor(u: string): string {
+  return u.replace(/#(?![!/]).*$/, "");
+}
+
+/** Dedup key for a fetch target: anchor-stripped + trailing-slash-normalised. */
+export function fetchUrlKey(u: string): string {
+  return stripPageAnchor(u).replace(/\/$/, "");
+}
+
+/**
+ * The first `max` distinct fetch targets, in order, deduped by fetchUrlKey. Same-page anchors
+ * and slash variants collapse so they don't burn slots a real menu image/PDF needs — Bei
+ * Sushi's homepage links 4 same-page anchors (#happyhour, #exploremenu, …) that crowded its
+ * happy-hour PNG out of the fetch budget, so the model never saw the deals. Returns the
+ * anchor-stripped URL (a real, fetchable document).
+ */
+export function dedupeFetchTargets(urls: (string | null | undefined)[], max: number): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const u of urls) {
+    if (typeof u !== "string" || u.trim().length === 0) continue;
+    const key = fetchUrlKey(u);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(stripPageAnchor(u));
+    if (out.length >= max) break;
+  }
+  return out;
+}
+
+/**
  * Fetch the given URLs over plain HTTP (deduped, capped). Order is preserved, so pass the
  * highest-signal URLs first. Failures (unreachable / robots-blocked / non-HTML-non-PDF)
  * are silently skipped — the returned list contains only pages with usable content.
@@ -108,11 +143,7 @@ export async function fetchPages(
     render?: (url: string) => Promise<FetchResult>;
   } = {},
 ): Promise<FetchedPage[]> {
-  const clean = urls.filter(
-    (u): u is string => typeof u === "string" && u.trim().length > 0,
-  );
-  const norm = (u: string) => u.replace(/\/$/, "");
-  const unique = [...new Set(clean)].slice(0, max);
+  const unique = dedupeFetchTargets(urls, max);
   // Plain fetch first; fall back to the headless render tier ONLY when it came back empty
   // (robots-blocked, or a JS shell with no text / no docs / no media links).
   const fetchOne = async (u: string): Promise<FetchResult> => {
@@ -138,7 +169,7 @@ export async function fetchPages(
   };
   const results = await Promise.all(unique.map(fetchOne));
   const pages: FetchedPage[] = [];
-  const seen = new Set(unique.map(norm));
+  const seen = new Set(unique.map(fetchUrlKey));
   const follow: string[] = [];
   const docs: FetchResult[] = []; // PDF/image results, added later under a budget
   for (const r of results) {
@@ -152,7 +183,8 @@ export async function fetchPages(
     // the served HTML; gating this on contentText is why such venues became stubs despite
     // a reachable HH PDF (fetchUrl populates mediaLinks from raw HTML regardless of text).
     for (const m of r.mediaLinks ?? []) {
-      if (!seen.has(norm(m))) { seen.add(norm(m)); follow.push(m); }
+      const k = fetchUrlKey(m);
+      if (!seen.has(k)) { seen.add(k); follow.push(m); }
     }
   }
 
@@ -163,6 +195,12 @@ export async function fetchPages(
     const more = await Promise.all(toFollow.map(fetchOne));
     for (const r of more) if (r.ok && (r.isPdf || r.isImage)) docs.push(r);
   }
+
+  // Feed the most happy-hour-relevant docs FIRST: under the byte/count budget a
+  // "happy+hour.PNG" (scoreHhUrl 100) must outrank a generic food-menu image (30), or the
+  // budget fills with the dinner menu and the actual HH deal list is dropped (Bei Sushi).
+  // Stable sort — equal-score docs keep fetch order.
+  docs.sort((a, b) => scoreHhUrl(b.url) - scoreHhUrl(a.url));
 
   // Add docs under a bounded budget (too many / too-large docs overwhelm the model).
   // Fresh page text outranks stale documents: when the page TEXT already states an
