@@ -26,6 +26,7 @@ TESTS=(
   test:menu-platform
   test:venue-quality
   test:harvest
+  test:fetchurl-retry
   test:striphtml-sections
   test:section-scoping-fixtures
   test:hidden-review
