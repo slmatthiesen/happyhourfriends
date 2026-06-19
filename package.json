@@ -96,6 +96,8 @@
     "test:format-by-day": "tsx scripts/test-format-by-day.ts",
     "test:free-extract": "tsx scripts/test-free-extract.ts",
     "test:group-by-state": "tsx scripts/test-group-by-state.ts",
+    "test:gsc-resolve-page": "tsx scripts/test-gsc-resolve-page.ts",
+    "test:gsc-report": "tsx scripts/test-gsc-report.ts",
     "test:chain-happy-hours": "tsx scripts/test-chain-happy-hours.ts",
     "test:point-in-polygon": "tsx scripts/test-point-in-polygon.ts",
     "test:harvest": "tsx scripts/test-fetchurl-harvest.ts",
