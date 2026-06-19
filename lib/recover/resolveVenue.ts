@@ -22,6 +22,7 @@ import { hhLikelihood } from "@/lib/places/hhLikelihood";
 import { assessRealness } from "@/lib/places/realnessGate";
 import { reconcileWindows, offeringsFingerprint, type ReconcileWindow } from "@/lib/places/windowReconcile";
 import { sanitizeOfferings, offeringNameKey } from "@/lib/recover/offeringSanity";
+import { planBareSupersedes, type SupersedeWindow } from "@/lib/recover/supersedeBareWindows";
 import { isSourceProvenanceSuspect } from "@/lib/recover/sourceProvenance";
 import { firstOfCurrentMonth } from "@/lib/ai/budget";
 
@@ -55,38 +56,49 @@ export interface PersistOptions {
 type Executor = Pick<typeof db, "execute">;
 
 /**
- * Supersede stale bare duplicates for one venue. A re-extraction that pins a window to a
- * specific area (location 'bar'/'patio') doesn't match the older location-agnostic ('all')
- * row on the natural key, so the upsert INSERTs a second row instead of replacing it —
- * leaving two same-time windows (one bare 'all', one with the deals). Soft-delete the
- * redundant bare 'all' window whenever a same-time sibling in a specific area now carries
- * offerings. Scoped to the 'all' catch-all only: two distinct specific areas (bar vs patio)
- * still coexist, and a bare window with no priced sibling is left for review. Soft-delete
- * (active=false + deleted_at) so the natural-key index frees up and it never resurrects.
+ * Retire a venue's BARE happy-hour windows that its richer windows have made redundant, so a
+ * re-extraction ADDS deals without leaving stale duplicates behind. Loads the venue's full
+ * active window set (existing + just-inserted) and applies planBareSupersedes — the pure,
+ * unit-tested decision (lib/recover/supersedeBareWindows). Only ever soft-deletes BARE windows
+ * (0 offerings) and only when their every day+time is preserved by a deal-carrying window
+ * (full coverage) or they duplicate a same-time bare 'all' window. Soft-delete (active=false +
+ * deleted_at) frees the natural-key index so the row never resurrects. Returns retired ids.
  */
-export async function supersedeBareLocationDuplicates(
+export async function supersedeBareWindowsForVenue(
   executor: Executor,
   venueId: string,
-): Promise<void> {
-  await executor.execute(sql`
-    UPDATE happy_hours h
-       SET active = false, deleted_at = now(), updated_at = now()
-     WHERE h.venue_id = ${venueId}
-       AND h.active = true AND h.deleted_at IS NULL
-       AND h.location_within_venue = 'all'
-       AND NOT EXISTS (
-         SELECT 1 FROM offerings o WHERE o.happy_hour_id = h.id AND o.deleted_at IS NULL)
-       AND EXISTS (
-         SELECT 1 FROM happy_hours s
-           JOIN offerings o2 ON o2.happy_hour_id = s.id AND o2.deleted_at IS NULL
-          WHERE s.venue_id = h.venue_id AND s.id <> h.id
-            AND s.active = true AND s.deleted_at IS NULL
-            AND s.location_within_venue <> 'all'
-            AND s.days_of_week = h.days_of_week
-            AND s.start_time IS NOT DISTINCT FROM h.start_time
-            AND s.end_time   IS NOT DISTINCT FROM h.end_time
-            AND s.all_day = h.all_day)
+): Promise<string[]> {
+  const rows = await executor.execute<{
+    id: string;
+    days: number[];
+    start: string | null;
+    end: string | null;
+    all_day: boolean;
+    loc: string | null;
+    offs: number;
+  }>(sql`
+    SELECT h.id, h.days_of_week AS days, h.start_time::text AS start, h.end_time::text AS "end",
+           h.all_day, h.location_within_venue::text AS loc,
+           (SELECT COUNT(*) FROM offerings o
+              WHERE o.happy_hour_id = h.id AND o.active = true AND o.deleted_at IS NULL)::int AS offs
+      FROM happy_hours h
+     WHERE h.venue_id = ${venueId} AND h.active = true AND h.deleted_at IS NULL
   `);
+  const windows: SupersedeWindow[] = [...rows].map((r) => ({
+    id: r.id,
+    daysOfWeek: r.days,
+    startTime: r.start,
+    endTime: r.end,
+    allDay: r.all_day,
+    location: r.loc,
+    offeringCount: r.offs,
+  }));
+  const retire = planBareSupersedes(windows);
+  for (const id of retire) {
+    await executor.execute(sql`
+      UPDATE happy_hours SET active = false, deleted_at = now(), updated_at = now() WHERE id = ${id}`);
+  }
+  return [...retire];
 }
 
 /**
@@ -286,7 +298,7 @@ export async function persistExtractedWindows(
     });
   }
 
-  await supersedeBareLocationDuplicates(db, venueId);
+  await supersedeBareWindowsForVenue(db, venueId);
 
   const recovered = live > 0;
   if (recovered) {

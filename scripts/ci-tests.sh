@@ -82,6 +82,7 @@ TESTS=(
   test:group-by-state
   test:chain-happy-hours
   test:point-in-polygon
+  test:plan-supersede
 )
 
 failed=()
