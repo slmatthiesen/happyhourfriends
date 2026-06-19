@@ -9,6 +9,7 @@ import {
   extractHhSignalLinks,
   extractMediaLinks,
   fullResImageUrl,
+  cappedSquarespaceImageUrl,
   resolveEnrichAction,
   siteVerdictFromFetch,
   pickDeclaredPages,
@@ -228,6 +229,29 @@ check("clickthroughUrl to a non-Squarespace / non-file target is ignored", () =>
 check("Squarespace /s/ clickthrough with NO menu signal is ignored", () => {
   const html = `<p>Gift Cards</p>","clickthroughUrl":{"url":"/s/Buy-A-Card"}`;
   assert.deepEqual(extractMediaLinks(html, "https://r.com/"), []);
+});
+// Squarespace CDN images carry a ?format=<N>w width. A high-res menu image (2500w, ~8MB)
+// blows the 10MB-base64 API image cap; cap it at 1500w (the model downscales to ~1568px anyway).
+check("caps an oversized Squarespace CDN image format to 1500w", () => {
+  const u = cappedSquarespaceImageUrl(
+    "https://images.squarespace-cdn.com/content/v1/abc/x/Classics+%288.5+x+14+in%29.png?format=2500w",
+  );
+  assert.match(u, /format=1500w/);
+  assert.match(u, /Classics\+%288\.5\+x\+14\+in%29\.png/, "preserves the path filename verbatim");
+});
+check("leaves an already-small Squarespace format untouched", () => {
+  const small = "https://images.squarespace-cdn.com/content/v1/abc/x/menu.png?format=1000w";
+  assert.equal(cappedSquarespaceImageUrl(small), small);
+});
+check("caps a Squarespace image with no format param", () => {
+  assert.match(
+    cappedSquarespaceImageUrl("https://images.squarespace-cdn.com/content/v1/abc/x/menu.png"),
+    /format=1500w/,
+  );
+});
+check("leaves non-Squarespace image URLs untouched", () => {
+  const other = "https://cdn.example.com/menu.png?format=2500w";
+  assert.equal(cappedSquarespaceImageUrl(other), other);
 });
 check("500 server error → kill (dead)", () => {
   const v = siteVerdictFromFetch("https://x.com/", { kind: "response", status: 503, html: "", finalUrl: "https://x.com/" });
