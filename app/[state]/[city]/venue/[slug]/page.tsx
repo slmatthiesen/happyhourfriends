@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CopyLinkButton } from "@/components/copy-link-button";
 import { DirectionsButton } from "@/components/directions-button";
+import { SignalButton } from "@/components/signal/signal-button";
 import { SiteWordmark } from "@/components/site-wordmark";
 import { Contribute } from "@/components/submit/contribute";
 import { formatDays, formatDaysLong, formatPrice, formatWindowByDay } from "@/lib/format";
@@ -193,15 +194,20 @@ export default async function VenuePage({
           >
             {venue.name}
           </h1>
-          {lastUpdated && (
-            <p className="mt-2 shrink-0 text-right text-xs text-text-muted">
-              Updated{" "}
-              {lastUpdated.toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "short",
-              })}
-            </p>
-          )}
+          <div className="flex shrink-0 flex-col items-end gap-2">
+            {lastUpdated && (
+              <p className="text-right text-xs text-text-muted">
+                Updated{" "}
+                {lastUpdated.toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                })}
+              </p>
+            )}
+            {uiFlags.signals && (
+              <SignalButton venueId={venue.id} initialCount={venue.signalCount} />
+            )}
+          </div>
         </div>
         {labelForVenueType(venue.type) && (
           <span className="mt-3 inline-block rounded-full border border-border bg-bg-elevated px-2.5 py-0.5 text-xs font-medium uppercase tracking-wide text-text-muted">
