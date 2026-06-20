@@ -5,7 +5,7 @@ import { useState } from "react";
 import type { SubmissionPayload } from "@/lib/submit/payload";
 import { normalizeUrl } from "@/lib/submit/normalizeUrl";
 import { getFingerprint } from "./submission-form";
-import { HCaptcha } from "./hcaptcha";
+import { Turnstile } from "./turnstile";
 
 const inputCls =
   "w-full rounded-md border border-border bg-bg-elevated px-3 py-2 text-text-primary placeholder:text-text-muted focus:border-accent-cool focus:outline-none";
@@ -279,7 +279,7 @@ export function Contribute({
             className="hidden"
           />
 
-          <HCaptcha onToken={setToken} />
+          <Turnstile onToken={setToken} />
 
           {error && <p className="text-accent-hot">{error}</p>}
 

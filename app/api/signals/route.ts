@@ -25,7 +25,7 @@ async function countSignals(venueId: string, kind: string): Promise<number> {
  * POST = add a signal, DELETE = remove it. Both return the authoritative
  * { ok, count, tapped } so the client self-heals against localStorage/DB drift.
  * Anti-abuse: honeypot + in-memory sliding-window rate limit (fingerprint + IP).
- * No hCaptcha — too heavy for a one-tap gesture, and the count can't be inflated
+ * No Turnstile — too heavy for a one-tap gesture, and the count can't be inflated
  * (per-fingerprint toggle, one row max).
  */
 async function handle(req: Request, op: "add" | "remove") {

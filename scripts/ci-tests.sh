@@ -44,6 +44,7 @@ TESTS=(
   test:site-health
   test:signal-rate-limit
   test:signal-request
+  test:turnstile-verify
   test:resolve-website-url
   test:format
   test:active

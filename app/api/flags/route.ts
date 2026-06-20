@@ -2,7 +2,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { db } from "@/db/client";
 import { communityFlags } from "@/db/schema";
-import { verifyCaptcha } from "@/lib/captcha/hcaptcha";
+import { verifyCaptcha } from "@/lib/captcha/turnstile";
 import { checkBasicRateLimit, ensureSubmitter, hashIp } from "@/lib/trust/submitter";
 
 const FLAG_TARGET_TYPES = ["venue", "happy_hour"] as const;
@@ -32,7 +32,7 @@ interface FlagBody {
 
 /**
  * POST /api/flags — community flag / vote endpoint (PRD §5.2, §3.10).
- * Honeypot + hCaptcha + coarse rate limit guard it; valid votes land in
+ * Honeypot + Turnstile + coarse rate limit guard it; valid votes land in
  * community_flags (unresolved). Duplicate votes (same target+flagType+fingerprint,
  * unresolved) are detected and return 200 { ok:true, duplicate:true }.
  */

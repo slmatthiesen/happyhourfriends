@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { SubmissionPayload, SubmissionTargetType } from "@/lib/submit/payload";
 import { normalizeUrl } from "@/lib/submit/normalizeUrl";
-import { HCaptcha } from "./hcaptcha";
+import { Turnstile } from "./turnstile";
 
 export interface FieldSpec {
   key: string;
@@ -433,7 +433,7 @@ export function SubmissionForm({
         className="hidden"
       />
 
-      <HCaptcha onToken={setToken} />
+      <Turnstile onToken={setToken} />
 
       {error && <p className="text-accent-hot">{error}</p>}
 
