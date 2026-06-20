@@ -10,10 +10,12 @@ import {
   smallint,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
   type AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import { timestamps } from "./columns";
+import { venues } from "./core";
 import {
   aiRiskLevel,
   aiVerdict,
@@ -112,3 +114,32 @@ export const submitterTrust = pgTable("submitter_trust", {
   banned: boolean("banned").notNull().default(false),
   ...timestamps,
 });
+
+/**
+ * venue_signals — one row per anonymous "thumbs up" on a venue listing. A positive,
+ * toggleable signal (add via POST, remove via DELETE). Deliberately NOT in
+ * community_flags: it never resolves and must never enter the moderation pipeline
+ * (lib/trust/flagResolution.ts). The unique index is the dedup — one signal per
+ * fingerprint per venue per kind. `kind` leaves room for a future second reaction.
+ */
+export const venueSignals = pgTable(
+  "venue_signals",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    venueId: uuid("venue_id")
+      .notNull()
+      .references(() => venues.id, { onDelete: "cascade" }),
+    kind: text("kind").notNull().default("good"),
+    submitterFingerprint: text("submitter_fingerprint").notNull(),
+    submitterIp: inet("submitter_ip"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("venue_signals_dedup_idx").on(
+      t.venueId,
+      t.kind,
+      t.submitterFingerprint,
+    ),
+    index("venue_signals_count_idx").on(t.venueId, t.kind),
+  ],
+);
