@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db/client";
 import { editSubmissions } from "@/db/schema";
-import { verifyCaptcha } from "@/lib/captcha/hcaptcha";
+import { verifyCaptcha } from "@/lib/captcha/turnstile";
 import { enqueueClassify, enqueueInterpret } from "@/lib/jobs/queue";
 import { notifyQueuedForReview } from "@/lib/jobs/queueForReview";
 import {
@@ -25,7 +25,7 @@ const MAX_BODY_BYTES = 10 * 1024 * 1024;
 
 /**
  * POST /api/submissions — the anonymous correction/addition endpoint (PRD §6.4).
- * Honeypot + hCaptcha + coarse rate limit guard it; valid submissions land in
+ * Honeypot + Turnstile + coarse rate limit guard it; valid submissions land in
  * edit_submissions with status `pending` for the Phase 3 classifier (or, until then,
  * the admin queue). No data is applied here.
  */

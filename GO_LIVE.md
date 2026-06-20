@@ -15,7 +15,7 @@ New cities: `docs/new-city-runbook.md`.
 
 **Prod config (verified 2026-06-09):**
 - [x] **Env vars:** `NEXT_PUBLIC_SITE_URL` correct (canonical on `/wa/tacoma` resolves
-      to the prod host), `HCAPTCHA_SECRET_KEY` set (captcha confirmed working),
+      to the prod host), `TURNSTILE_SECRET_KEY` set (captcha confirmed working),
       `ANTHROPIC_API_KEY` + `RESEND_API_KEY` + `RESEND_FROM` set. **`ADMIN_EMAIL` was
       missing** — added 2026-06-09 + service restarted (without it every operator email
       silently skipped: empty recipient list).

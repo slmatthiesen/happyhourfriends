@@ -56,13 +56,13 @@ until its key is set — see [`.env.example`](.env.example) for the full list:
 | Database         | `DATABASE_URL`                                | required   |
 | AI moderation    | `ANTHROPIC_API_KEY`                           | submissions queue for a human admin instead of auto-applying |
 | Venue discovery  | `GOOGLE_PLACES_API_KEY`                       | seed/discovery scripts are no-ops |
-| Spam protection  | `HCAPTCHA_*`                                  | captcha skipped in dev; **fails closed in production** |
+| Spam protection  | `TURNSTILE_*`                                  | captcha skipped in dev; **fails closed in production** |
 | Admin sign-in    | `FIREBASE_*`, `ADMIN_EMAIL`                   | admin routes are inaccessible |
 | Email, telemetry | `RESEND_*`, `SENTRY_*`, `NEXT_PUBLIC_POSTHOG_*` | disabled |
 
 ## How submissions flow
 
-1. **Submit** — anonymous `POST /api/submissions` (honeypot + hCaptcha + rate limits).
+1. **Submit** — anonymous `POST /api/submissions` (honeypot + Turnstile + rate limits).
    A happy-hour/offering change must carry evidence: a source URL **or** a photo/PDF of
    the menu (uploads are re-encoded and stripped of metadata server-side).
 2. **Classify** — a background job risk-classifies the change (Stage 1).
