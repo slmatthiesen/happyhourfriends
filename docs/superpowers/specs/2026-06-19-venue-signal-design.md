@@ -20,7 +20,12 @@ or knocks the venue. Not forced, just present.
 - **Icon: thumbs up 👍.** Ambiguous on purpose — "whatever people want it to be."
 - **Dedup by both IP and localStorage fingerprint**, same anti-abuse posture as flags.
 - **Full interaction feedback** — distinct hover, active/pressed, and tapped states —
-  and **spam-click protection** (button disabled in-flight + API rate-limit).
+  and **layered spam protection**: in-flight disable + ~1s client cooldown, plus a
+  dedicated server-side sliding-window rate limit (per fingerprint **and** IP) that
+  shuts down sustained hammering and fingerprint-rotation count-padding.
+- **Structural safety note:** the signal is a per-fingerprint toggle (one row max), so
+  sustained clicking can only flip the clicker's own vote — it can never inflate the
+  count. Rate-limiting is therefore about request volume, not data integrity.
 
 ## Why a dedicated table, NOT `community_flags` reuse
 
@@ -73,6 +78,11 @@ New route **`/api/signals`** — a trimmed sibling of `/api/flags`, exporting bo
 - **Reuses the anti-abuse helpers** from `lib/trust/submitter`: `hashIp`,
   `checkBasicRateLimit`, `ensureSubmitter`, plus the honeypot pattern. Rate-limit applies
   to both methods so rapid add/remove/add toggling is throttled.
+- **Dedicated sliding-window rate limit** for this endpoint, on top of the coarse basic
+  limit — keyed on fingerprint **and** IP, with tunable constants (defaults
+  ~10/min and ~30/hour). A real user needs 1–2 toggles; anything past the window → `429`.
+  The IP key blocks the fingerprint-rotation padding vector. Exact store reuses /
+  extends whatever `checkBasicRateLimit` already uses; settled in the plan.
 - **No visible hCaptcha** — a captcha challenge on a one-tap delight kills it. Abuse
   ceiling is trivial (worst case someone pads a positive number; it can't harm a venue).
   Honeypot + IP/fingerprint dedup + rate-limit are sufficient.
@@ -112,8 +122,10 @@ New client component **`components/signal/signal-button.tsx`**:
   - *active/pressed:* brief scale-down (tactile press).
   - *tapped:* filled thumb, accent color.
   - *in-flight:* `disabled` + slight opacity, **no layout shift**.
-- **Spam protection:** button is `disabled` while a request is in flight (no double-fire);
-  API rate-limit backs it up for cross-reload toggling abuse.
+- **Spam protection (client):** button `disabled` while in-flight, then a **~1s cooldown**
+  before it re-enables. On a `429` from the server limit, keep current state and stay
+  disabled for the backoff window — no error banner. Server rate-limit is the hard stop
+  behind these.
 - Uses the shared fingerprint (`hhf_fp`, same key as `flag-widget.tsx` /
   `submission-form.tsx`).
 - No caption, no hCaptcha widget. Honeypot input hidden off the a11y tree, mirroring
@@ -137,13 +149,16 @@ New client component **`components/signal/signal-button.tsx`**:
   returns `{ count, tapped: true }`; second POST (conflict) is idempotent (count
   unchanged); DELETE removes and returns `{ count, tapped: false }`; DELETE of a
   non-existent row is a no-op; rate-limit path returns 429.
+- **Sustained-abuse cap:** N toggles within the window from one fingerprint → 429 once
+  the limit trips; same for many fingerprints sharing one IP (padding vector).
 - **Toggle round-trip:** add → count n+1 / tapped; remove → count n / not-tapped.
 - **Resolver isolation:** assert `resolveOpenFlags` is untouched by `venue_signals`
   (no shared table) — i.e. a regression guard that positive taps never enter moderation.
 - **Query:** `getVenueBySlug` returns correct `signalCount`.
 - **Component:** optimistic toggle, revert + re-enable on failure, reconcile to
-  server count, button disabled while in-flight (no double-fire), filled state persists
-  across reloads via localStorage.
+  server count, button disabled while in-flight (no double-fire) and during the ~1s
+  cooldown, 429 keeps state + stays disabled, filled state persists across reloads via
+  localStorage.
 
 ## Out of scope (YAGNI)
 
