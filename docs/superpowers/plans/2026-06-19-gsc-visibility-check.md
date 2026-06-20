@@ -616,15 +616,29 @@ git commit -m "chore(gsc): document env, register hermetic tests, ignore tmp rep
 
 ---
 
-## Task 6: Create the weekly routine
+## Task 6: Create the weekly routine — DEFERRED (2026-06-19)
 
-**Files:** none (the routine is created via the `schedule` skill, not repo code).
+**Status: deferred by operator.** A scheduled *cloud* routine runs in an isolated sandbox
+without the operator's local `.env`, GSC key file, or network access to the local Docker
+PostGIS, so `pnpm gsc:pull` can't run there without extra infra (cloud secrets + a
+cloud-reachable `DATABASE_URL`). Operator chose to hand off the command for now and run it
+manually, pointing Claude at `tmp/gsc-report.json` for the verification + bubble-up.
+
+**Manual usage (the hand-off):**
+1. `pnpm gsc:pull` (optionally `--days N --limit M`) → writes `tmp/gsc-report.{json,md}`.
+2. Point Claude at `tmp/gsc-report.json` with the verification prompt below.
+
+When ready to automate: either schedule it locally via the `loop` skill / OS cron (has
+`.env` + DB + key file already), or stand up a cloud routine after wiring GSC creds as
+cloud secrets and a cloud-reachable DB.
+
+**Files:** none (the routine, when created, is via the `schedule` skill, not repo code).
 
 - [ ] **Step 1: Confirm `gsc:pull` runs green** (Task 4 smoke test passed).
 
-- [ ] **Step 2: Create the routine via the `schedule` skill**
+- [ ] **Step 2: (Deferred) Create the routine via the `schedule` skill**
 
-Invoke the `schedule` skill to create a **weekly** routine with this prompt:
+The verification prompt (used either by the future routine or a manual run):
 
 ```
 Run `pnpm gsc:pull` in the happyhourfriends repo, then read tmp/gsc-report.json.
