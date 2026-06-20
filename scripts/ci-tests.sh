@@ -81,6 +81,8 @@ TESTS=(
   test:manual-window
   test:neighborhood-name
   test:group-by-state
+  test:gsc-resolve-page
+  test:gsc-report
   test:chain-happy-hours
   test:point-in-polygon
   test:plan-supersede
