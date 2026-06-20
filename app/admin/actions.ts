@@ -13,6 +13,10 @@ import {
 } from "@/lib/apply/engine";
 import { publishVenueToProd } from "@/lib/sync/publishVenueToProd";
 import { adminActor } from "@/lib/apply/types";
+import { classifySiteHealth } from "@/lib/places/siteHealth";
+import { probeUrl } from "@/lib/places/probeUrl";
+import { resolveWorkingUrl } from "@/lib/places/resolveWebsiteUrl";
+import { isDenylistedSource } from "@/lib/ai/sourceDenylist";
 
 type PromotionTier = (typeof promotionTier.enumValues)[number];
 
@@ -161,10 +165,107 @@ export async function deleteStubVenueAction(venueId: string): Promise<ActionResu
       });
     });
 
+    // Propagate the soft-delete to prod: publishVenue upserts the full row (carrying deleted_at),
+    // and prod's public queries already filter deleted_at — so the venue vanishes from the live site.
+    let warning: string | undefined;
+    const pub = await publishVenueToProd(venueId);
+    if (!pub.ok) warning = `Deleted locally, but publishing the removal to prod failed: ${pub.error}`;
+
     revalidatePath("/admin/stubs");
-    return { ok: true };
+    revalidatePath("/admin/site-health");
+    return { ok: true, warning };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Delete failed" };
+  }
+}
+
+/** Edit a venue's stored website_url (or clear it with null), re-probe its link health, and
+ *  publish the change to prod. Drives the /admin/site-health queue's Save / Accept actions. */
+export async function updateVenueWebsiteAction(
+  venueId: string,
+  url: string | null,
+): Promise<ActionResult> {
+  try {
+    const admin = await requireAdmin();
+    const trimmed = url?.trim() || null;
+    if (trimmed) {
+      let parsed: URL;
+      try {
+        parsed = new URL(trimmed);
+      } catch {
+        return { ok: false, error: "Enter a valid http(s) URL" };
+      }
+      if (parsed.protocol !== "http:" && parsed.protocol !== "https:")
+        return { ok: false, error: "URL must start with http:// or https://" };
+      if (isDenylistedSource(trimmed))
+        return { ok: false, error: "That domain is a competitor/aggregator and can't be used" };
+    }
+
+    const [venue] = await db
+      .select({ id: venues.id, websiteUrl: venues.websiteUrl })
+      .from(venues)
+      .where(eq(venues.id, venueId))
+      .limit(1);
+    if (!venue) return { ok: false, error: "Venue not found" };
+
+    // Re-probe the new URL so the row's health reflects the edit immediately (null = cleared).
+    let health: string | null = null;
+    let detail: string | null = null;
+    let suggested: string | null = null;
+    if (trimmed) {
+      const verdict = classifySiteHealth(await probeUrl(trimmed), trimmed);
+      health = verdict.health;
+      detail = verdict.detail;
+      if (verdict.broken) suggested = (await resolveWorkingUrl(trimmed)).suggestedUrl;
+    }
+
+    const now = new Date();
+    await db.transaction(async (tx) => {
+      await tx
+        .update(venues)
+        .set({
+          websiteUrl: trimmed,
+          siteHealth: health,
+          siteHealthDetail: detail,
+          siteHealthSuggestedUrl: suggested,
+          siteHealthCheckedAt: now,
+          updatedAt: now,
+        })
+        .where(eq(venues.id, venueId));
+      await tx.insert(auditLog).values({
+        tableName: "venues",
+        rowId: venueId,
+        beforeJsonb: { websiteUrl: venue.websiteUrl },
+        afterJsonb: { websiteUrl: trimmed },
+        actor: adminActor(admin.email),
+        reason: "website_url edited (site-health queue)",
+      });
+    });
+
+    let warning: string | undefined;
+    const pub = await publishVenueToProd(venueId);
+    if (!pub.ok) warning = `Saved locally, but publishing to prod failed: ${pub.error}`;
+
+    revalidatePath("/admin/site-health");
+    return { ok: true, warning };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Update failed" };
+  }
+}
+
+/** One-click accept of the audit's deterministic working-URL suggestion for a venue. */
+export async function acceptSuggestedUrlAction(venueId: string): Promise<ActionResult> {
+  try {
+    await requireAdmin();
+    const [v] = await db
+      .select({ suggested: venues.siteHealthSuggestedUrl })
+      .from(venues)
+      .where(eq(venues.id, venueId))
+      .limit(1);
+    if (!v?.suggested) return { ok: false, error: "No suggested URL to accept" };
+    return await updateVenueWebsiteAction(venueId, v.suggested);
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Accept failed" };
   }
 }
 

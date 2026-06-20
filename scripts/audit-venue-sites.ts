@@ -22,14 +22,10 @@
 import "dotenv/config";
 import postgres from "postgres";
 import { writeFile } from "node:fs/promises";
-import { classifySiteHealth, type ProbeOutcome, type SiteHealth } from "@/lib/places/siteHealth";
+import { classifySiteHealth, type SiteHealth } from "@/lib/places/siteHealth";
+import { probeUrl } from "@/lib/places/probeUrl";
+import { resolveWorkingUrl } from "@/lib/places/resolveWebsiteUrl";
 import { resolveCity } from "@/lib/cities/resolveCity";
-
-const TIMEOUT_MS = 12_000;
-// A real browser UA: a health check should see what a user sees, not trip bot walls that
-// would mislabel a perfectly good site as http_error.
-const USER_AGENT =
-  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
 
 interface Args {
   city?: string;
@@ -38,6 +34,7 @@ interface Args {
   limit: number | null;
   concurrency: number;
   includeOk: boolean;
+  persist: boolean;
 }
 
 function parseArgs(argv = process.argv.slice(2)): Args {
@@ -52,41 +49,8 @@ function parseArgs(argv = process.argv.slice(2)): Args {
     limit: get("--limit") ? parseInt(get("--limit")!, 10) : null,
     concurrency: get("--concurrency") ? Math.max(1, parseInt(get("--concurrency")!, 10)) : 12,
     includeOk: argv.includes("--include-ok"),
+    persist: argv.includes("--persist"),
   };
-}
-
-/** Map a thrown fetch error to the Node/undici code our classifier reads. */
-function errorCodeOf(e: unknown): string {
-  const err = e as { name?: string; code?: unknown; cause?: { code?: unknown } };
-  if (err?.cause?.code != null) return String(err.cause.code);
-  if (err?.code != null) return String(err.code);
-  if (err?.name === "AbortError") return "ABORT_ERR";
-  return "UNKNOWN";
-}
-
-/** One HTTP probe → normalized outcome. Never throws. */
-async function probe(url: string): Promise<ProbeOutcome> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
-  try {
-    const res = await fetch(url, {
-      method: "GET",
-      redirect: "follow",
-      signal: controller.signal,
-      headers: { "user-agent": USER_AGENT, accept: "text/html,*/*" },
-    });
-    // Drain nothing — we only need status + final URL. Cancel the body to free the socket.
-    try {
-      await res.body?.cancel();
-    } catch {
-      /* already consumed/closed */
-    }
-    return { finalUrl: res.url || url, status: res.status, errorCode: null };
-  } catch (e) {
-    return { finalUrl: null, status: null, errorCode: errorCodeOf(e) };
-  } finally {
-    clearTimeout(timer);
-  }
 }
 
 async function pool<T, R>(items: T[], size: number, fn: (t: T, i: number) => Promise<R>): Promise<R[]> {
@@ -124,6 +88,7 @@ interface ReportRow {
   http_status: number | null;
   health: SiteHealth;
   detail: string;
+  suggested_url: string | null;
 }
 
 async function main() {
@@ -154,14 +119,19 @@ async function main() {
   console.log(`Probing ${venues.length} venue site(s) [scope=${scopeLabel}, status=${args.status}] …`);
 
   const verdicts = await pool(venues, args.concurrency, async (v) => {
-    const outcome = await probe(v.website_url);
+    const outcome = await probeUrl(v.website_url);
     const verdict = classifySiteHealth(outcome, v.website_url);
-    return { v, outcome, verdict };
+    // For broken links, try to derive a working URL (www/protocol/redirect variant with a
+    // valid cert) so the operator can one-click accept it in /admin/site-health.
+    const suggestedUrl = verdict.broken
+      ? (await resolveWorkingUrl(v.website_url)).suggestedUrl
+      : null;
+    return { v, outcome, verdict, suggestedUrl };
   });
 
   const counts: Record<string, number> = {};
   const rows: ReportRow[] = [];
-  for (const { v, outcome, verdict } of verdicts) {
+  for (const { v, outcome, verdict, suggestedUrl } of verdicts) {
     counts[verdict.health] = (counts[verdict.health] ?? 0) + 1;
     if (verdict.broken || args.includeOk) {
       rows.push({
@@ -176,6 +146,7 @@ async function main() {
         http_status: outcome.status,
         health: verdict.health,
         detail: verdict.detail,
+        suggested_url: suggestedUrl,
       });
     }
   }
@@ -195,6 +166,29 @@ async function main() {
   console.log("\nHealth breakdown:");
   for (const h of ORDER) if (counts[h]) console.log(`  ${h.padEnd(13)} ${counts[h]}`);
   console.log(`\n${broken} broken / ${venues.length} probed → ${outPath}`);
+
+  if (args.persist && verdicts.length > 0) {
+    // Stamp link-health onto every probed venue (healthy ones too, so a fixed link clears its
+    // stale broken status) — one bulk UPDATE via unnest, not a query per row.
+    const now = new Date();
+    const ids = verdicts.map((x) => x.v.id);
+    const healths = verdicts.map((x) => x.verdict.health);
+    const details = verdicts.map((x) => x.verdict.detail);
+    const suggests = verdicts.map((x) => x.suggestedUrl);
+    await sql`
+      UPDATE venues AS v SET
+        site_health = d.health,
+        site_health_detail = d.detail,
+        site_health_suggested_url = d.suggested,
+        site_health_checked_at = ${now}
+      FROM (
+        SELECT * FROM unnest(${ids}::uuid[], ${healths}::text[], ${details}::text[], ${suggests}::text[])
+          AS t(id, health, detail, suggested)
+      ) d
+      WHERE v.id = d.id
+    `;
+    console.log(`Persisted site_health for ${verdicts.length} venue(s).`);
+  }
 
   await sql.end();
 }
