@@ -28,6 +28,8 @@ npm run build       # acceptance gate
 - Match the style of the surrounding code (comment density, naming, idioms).
 - Don't commit secrets, `.env`, or anything under `public/uploads/` (all gitignored).
   CI runs a secret scan on every push.
+- Optional agent tooling (pre-push gate, pre-warmed worktree pool) is documented in
+  [`docs/agent-tooling.md`](docs/agent-tooling.md); neither is required to contribute.
 
 ## Heads-up: this is not the Next.js you may know
 
