@@ -9,6 +9,7 @@ import {
   offerings,
   tags,
   venues,
+  venueSignals,
   venueTags,
 } from "@/db/schema";
 
@@ -385,6 +386,7 @@ export async function listVenuesForCity(
 export interface VenueDetail extends VenueRow {
   neighborhoodName: string | null;
   happyHours: (HappyHourRow & { offerings: OfferingRow[] })[];
+  signalCount: number;
 }
 
 /** Assemble a VenueDetail (neighborhood name + active-or-not hours + offerings) from
@@ -421,10 +423,16 @@ async function assembleVenueDetail(venue: VenueRow): Promise<VenueDetail> {
     else offersByHour.set(o.happyHourId, [o]);
   }
 
+  const [signalRow] = await db
+    .select({ n: sql<number>`count(*)::int` })
+    .from(venueSignals)
+    .where(and(eq(venueSignals.venueId, venue.id), eq(venueSignals.kind, "good")));
+
   return {
     ...venue,
     neighborhoodName: hood?.name ?? null,
     happyHours: hours.map((h) => ({ ...h, offerings: offersByHour.get(h.id) ?? [] })),
+    signalCount: Number(signalRow?.n ?? 0),
   };
 }
 

@@ -6,4 +6,5 @@ export const uiFlags = {
   aurora: true,
   doodles: true,
   copyLink: true,
+  signals: true,
 } as const;

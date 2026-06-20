@@ -42,6 +42,8 @@ TESTS=(
   test:render-escalation
   test:site-triage
   test:site-health
+  test:signal-rate-limit
+  test:signal-request
   test:resolve-website-url
   test:format
   test:active
