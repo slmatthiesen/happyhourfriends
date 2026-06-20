@@ -206,6 +206,25 @@ check("JSON-LD WITHOUT menu context does not harvest a logo image", () => {
   const html = `<script type="application/ld+json">{"@type":"Organization","logo":{"url":"https://cdn.example.com/brand/logo.png"}}</script>`;
   assert.deepEqual(extractMediaLinks(html, "https://r.com/"), []);
 });
+check("page-JSON escaped relative PDF is harvested (Square Online / Hula Hoops bug)", () => {
+  // Square Online embeds the menu PDF in its own page-data JSON as an ESCAPED, RELATIVE path
+  // with a space in the filename — no <a>/<img>/ld+json tag for the other scanners. The link
+  // must be unescaped (\/ → /) and resolved against the base URL.
+  const html = `<script>{"section":{"content":"\\/uploads\\/b\\/6dd5\\/Hula-Hoops-Dinner Menu PDF.pdf"}}</script>`;
+  const links = extractMediaLinks(html, "https://www.myhulahoops.com/");
+  assert.ok(
+    links.some((u) => decodeURI(u) === "https://www.myhulahoops.com/uploads/b/6dd5/Hula-Hoops-Dinner Menu PDF.pdf"),
+    `expected resolved Square PDF, got ${JSON.stringify(links)}`,
+  );
+});
+check("page-JSON escaped relative menu image is harvested", () => {
+  const html = `<script>{"img":"\\/uploads\\/happy-hour-flyer.jpg"}</script>`;
+  assert.ok(extractMediaLinks(html, "https://r.com/").includes("https://r.com/uploads/happy-hour-flyer.jpg"));
+});
+check("page-JSON PDF without a menu/HH signal is ignored (no noise)", () => {
+  const html = `<script>{"x":"\\/files\\/privacy-policy.pdf"}</script>`;
+  assert.deepEqual(extractMediaLinks(html, "https://r.com/"), []);
+});
 check("500 server error → kill (dead)", () => {
   const v = siteVerdictFromFetch("https://x.com/", { kind: "response", status: 503, html: "", finalUrl: "https://x.com/" });
   assert.equal(v.decision, "kill");

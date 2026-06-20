@@ -256,6 +256,22 @@ export function extractMediaLinks(html: string, baseUrl: string): string[] {
       if (u) out.add(u);
     }
   }
+  // Generic page-builder JSON (Square Online, Wix, Squarespace, …): the menu PDF/image URL is
+  // embedded in the builder's own page-data JSON, NOT an <a>/<img>/ld+json tag the scanners
+  // above can see, and often as an ESCAPED, RELATIVE path with spaces in the filename
+  // (Hula Hoops/Square: "\/uploads\/…\/Hula-Hoops-Dinner Menu PDF.pdf"). Unescape, then keep
+  // any quoted media path whose name carries a menu/HH signal (NOISE filter still drops
+  // logos/heroes; document context isn't available here, so the filename signal is required).
+  const unescaped = html.replace(/\\\//g, "/");
+  const QUOTED_MEDIA = /["']([^"'<>]+?\.(?:pdf|jpe?g|png|webp))(\?[^"'<>]*)?["']/gi;
+  let qm: RegExpExecArray | null;
+  while ((qm = QUOTED_MEDIA.exec(unescaped)) !== null) {
+    const raw = (qm[1] + (qm[2] ?? "")).replace(/&amp;/gi, "&");
+    if (MEDIA_NOISE.test(raw) || !MEDIA_SIGNAL.test(raw)) continue;
+    const isPdf = /\.pdf(\?|$)/i.test(raw);
+    const u = abs(isPdf ? raw : fullResImageUrl(raw));
+    if (u) out.add(u);
+  }
   return [...out].slice(0, 6);
 }
 
