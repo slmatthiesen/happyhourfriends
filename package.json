@@ -140,6 +140,7 @@
     "test:signal-rate-limit": "tsx scripts/test-signal-rate-limit.ts",
     "test:signal-request": "tsx scripts/test-signal-request.ts",
     "test:site-health": "tsx scripts/test-site-health.ts",
+    "test:turnstile-verify": "tsx scripts/test-turnstile-verify.ts",
     "test:resolve-website-url": "tsx scripts/test-resolve-website-url.ts",
     "test:recognizability": "tsx scripts/test-recognizability.ts",
     "test:render-escalation": "tsx scripts/test-render-escalation.ts",

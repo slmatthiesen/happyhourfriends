@@ -46,7 +46,7 @@ The product's differentiator vs. existing aggregators is the table-first UX (sor
 | Job queue | pg-boss (latest) | Postgres-native, no Redis dependency |
 | Styling | Tailwind CSS 4 + shadcn/ui | |
 | Admin auth | Firebase Auth | Operator login only |
-| Captcha | hCaptcha | Free tier |
+| Captcha | Cloudflare Turnstile | Free, unlimited |
 | Email | Resend | Outreach + transactional |
 | LLM | Anthropic SDK (`@anthropic-ai/sdk`) | Models below |
 | Hosting | DigitalOcean droplet + DO Managed Postgres (SFO3) | $15/mo Postgres tier minimum for 7-day PITR backups |
@@ -562,7 +562,7 @@ Pin a content hash of each prompt in `ai_usage_ledger` so you can correlate beha
    - Per IP: 20/day, 60/week
    - Per email (if provided): 10/day
    - Critical-flag rate: 2/day per fingerprint
-2. **Captcha** (hCaptcha) on every submission form
+2. **Captcha** (Cloudflare Turnstile) on every submission form
 3. **Honeypot field** in submission form (`<input name="website" hidden>` — bot fills → reject silently)
 4. **Trust scoring** (see §3.11) — banned fingerprints' submissions are accepted but never applied; logged to study attack patterns
 5. **Community flag corroboration** — critical changes need 5 confirms from distinct fingerprints OR AI verification OR admin approval
@@ -676,7 +676,7 @@ const url = isApple
 1. User clicks pencil icon on any editable cell (price, time, etc.) OR "Suggest edit" on expanded row OR "Add a venue" CTA
 2. Modal opens with the field(s) pre-filled, current values shown alongside proposed
 3. Optional fields: source URL ("Where did you see this?"), email ("If you want us to email if there's an issue")
-4. hCaptcha
+4. Cloudflare Turnstile
 5. Honeypot
 6. Submit → `POST /api/submissions`
 7. Response: "Thanks — AI will review and most changes apply within 24 hours. You can [follow this link] to check status." (Status page is a public URL keyed by submission ID, no auth.)
@@ -859,8 +859,8 @@ ANTHROPIC_MODEL_VERIFIER=claude-sonnet-4-6
 ANTHROPIC_MONTHLY_CAP_CENTS=2000
 ANTHROPIC_WARNING_THRESHOLD_CENTS=1500
 GOOGLE_PLACES_API_KEY=
-HCAPTCHA_SITE_KEY=
-HCAPTCHA_SECRET_KEY=
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=
+TURNSTILE_SECRET_KEY=
 RESEND_API_KEY=
 RESEND_FROM=help@happyhourfriends.com
 FIREBASE_PROJECT_ID=
@@ -898,7 +898,7 @@ NEXT_PUBLIC_SITE_URL=https://happyhourfriends.com
 - [ ] About / FAQ pages live
 
 ### Phase 2 — Submissions + manual admin review (week 3)
-- [ ] Anonymous submission flow with hCaptcha + honeypot
+- [ ] Anonymous submission flow with Turnstile + honeypot
 - [ ] Submission stored in `edit_submissions` with status `pending`
 - [ ] Admin queue at `/admin` shows pending submissions with diff view
 - [ ] Admin can apply, reject, or edit-then-apply
@@ -953,7 +953,7 @@ NEXT_PUBLIC_SITE_URL=https://happyhourfriends.com
 These need a decision or input before / during build:
 
 1. **Google Places API key** — create one in GCP console; budget alert at $50/mo
-2. **hCaptcha site + secret key** — register at hcaptcha.com
+2. **Turnstile site + secret key** — register at dash.cloudflare.com (Turnstile)
 3. **Resend account** — register, add domain, paste DKIM records into Cloudflare
 4. **Firebase project** — create, enable Auth (Google provider), add your email as admin
 5. **Anthropic console** — set workspace spend limit to $30/mo as backstop
@@ -1000,7 +1000,7 @@ Tracked so they don't get sneaked into v1 scope:
 - Anthropic tool use: https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview
 - Firebase Auth (server SDK in Next.js): https://firebase.google.com/docs/auth/admin
 - Resend: https://resend.com/docs
-- hCaptcha: https://docs.hcaptcha.com/
+- Cloudflare Turnstile: https://developers.cloudflare.com/turnstile/
 - DigitalOcean Managed Postgres + PostGIS: https://docs.digitalocean.com/products/databases/postgresql/
 - Cloudflare Email Routing: https://developers.cloudflare.com/email-routing/
 

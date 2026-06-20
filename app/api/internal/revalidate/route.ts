@@ -8,7 +8,7 @@ import { NextResponse, type NextRequest } from "next/server";
 export const runtime = "nodejs";
 
 /** Shared-secret gate. In production a missing secret fails closed (mirrors the
- *  hCaptcha posture); in dev we allow it so the flow works without configuration. */
+ *  Turnstile posture); in dev we allow it so the flow works without configuration. */
 function authorized(req: NextRequest): boolean {
   const secret = process.env.REVALIDATE_SECRET;
   if (!secret) return process.env.NODE_ENV !== "production";
