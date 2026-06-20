@@ -59,6 +59,7 @@ TESTS=(
   test:revalidate
   test:route-contribution
   test:interpreter-newhh
+  test:new-happy-hour-dedup
   test:queued-email
   test:safesearch
   test:evidence-relevance
