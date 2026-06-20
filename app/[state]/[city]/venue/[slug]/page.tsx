@@ -38,10 +38,16 @@ export async function generateMetadata({
   if (!c || c.status !== "live") return { title: "Not found · Happy Hour Friends" };
   const v = await getVenueBySlug(c.id, slug);
   if (!v) return { title: "Not found · Happy Hour Friends" };
+  // Stubs (no active happy hour) are thin "help-wanted" pages with nothing to answer a
+  // search. The sitemap already omits them, but Google still finds them via internal
+  // links — noindex actively keeps them out of the index. follow:true preserves link
+  // equity to the real pages they link to.
+  const hasActiveHappyHour = v.happyHours.some((h) => h.active && !h.deletedAt);
   return {
     title: `${v.name} Happy Hour · ${c.name} · Happy Hour Friends`,
     description: `Happy hour times and deals for ${v.name}${v.address ? ` — ${v.address}` : ""}.`,
     alternates: { canonical: venuePath(c.state, c.slug, v.slug) },
+    ...(hasActiveHappyHour ? {} : { robots: { index: false, follow: true } }),
   };
 }
 
