@@ -166,6 +166,14 @@ export const venues = pgTable(
     hhPageUrl: text("hh_page_url"),
     hhProbeStatus: hhProbeStatus("hh_probe_status"),
     claimedByUserId: uuid("claimed_by_user_id"),
+    // Website link-health, written by `audit:venue-sites --persist` (lib/places/siteHealth).
+    // Plain text (not an enum) so the classifier's vocabulary can evolve without a migration.
+    // Drives the /admin/site-health review queue. NULL = never probed.
+    siteHealth: text("site_health"),
+    siteHealthDetail: text("site_health_detail"),
+    // Deterministic working-URL suggestion (lib/places/resolveWebsiteUrl); NULL = none found.
+    siteHealthSuggestedUrl: text("site_health_suggested_url"),
+    siteHealthCheckedAt: timestamp("site_health_checked_at", { withTimezone: true }),
     ...timestamps,
     ...softDelete,
   },

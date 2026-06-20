@@ -42,6 +42,7 @@ TESTS=(
   test:render-escalation
   test:site-triage
   test:site-health
+  test:resolve-website-url
   test:format
   test:active
   test:hours

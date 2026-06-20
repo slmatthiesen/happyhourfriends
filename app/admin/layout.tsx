@@ -74,6 +74,12 @@ export default async function AdminLayout({
             Flags
           </Link>
           <Link
+            href="/admin/site-health"
+            className="text-text-primary hover:text-accent-cool"
+          >
+            Site health
+          </Link>
+          <Link
             href="/admin/reviews"
             className="text-text-primary hover:text-accent-cool"
           >
