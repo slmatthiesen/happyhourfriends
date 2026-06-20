@@ -13,6 +13,11 @@ import {
   requestVenueRevalidation,
   type VenueRevalidationTarget,
 } from "@/lib/cache/revalidate";
+import {
+  planNewHappyHour,
+  newOfferingsToInsert,
+  type OfferingLike,
+} from "./newHappyHour";
 import type { Actor, SubmissionDiff } from "./types";
 
 /**
@@ -311,7 +316,7 @@ export async function applySubmission(
     } else if (sub.targetType === "new_happy_hour") {
       // The "add a happy hour" path for stub venues: visitor submitted days/times
       // (and optionally a list of offerings) directly, source already enforced. We
-      // insert the HH row and any offerings in a single txn; only the HH gets an
+      // write the HH row and any offerings in a single txn; only the HH gets an
       // audit_log entry — reverting it soft-deletes the HH, and the venue queries
       // join offerings via happy_hour_id, so the offerings become invisible too.
       const hhValues = pick(
@@ -325,21 +330,85 @@ export async function applySubmission(
           "new_happy_hour requires venueId, daysOfWeek, startTime, and a source.",
         );
       }
-      const [insertedHh] = await tx
-        .insert(happyHours)
-        .values(hhValues as typeof happyHours.$inferInsert)
-        .returning();
-      rowId = insertedHh.id;
 
-      // Offerings ride along in the same txn. They default currency from the
-      // venue's city (mirrors the seed pipeline + new_offering path).
+      // Dedup against the venue's existing windows (live AND soft-deleted — the natural
+      // unique key spans both) so a re-submission of an already-present window attaches
+      // or resurrects instead of crashing a blind INSERT on happy_hours_natural_uq.
+      const existingWindows = await tx
+        .select({
+          id: happyHours.id,
+          daysOfWeek: happyHours.daysOfWeek,
+          startTime: happyHours.startTime,
+          endTime: happyHours.endTime,
+          locationWithinVenue: happyHours.locationWithinVenue,
+          deletedAt: happyHours.deletedAt,
+        })
+        .from(happyHours)
+        .where(eq(happyHours.venueId, venueId));
+      const plan = planNewHappyHour(
+        {
+          daysOfWeek: days,
+          startTime: hhValues.startTime as string,
+          endTime: (hhValues.endTime as string | null | undefined) ?? null,
+          locationWithinVenue:
+            (hhValues.locationWithinVenue as string | null | undefined) ?? null,
+        },
+        existingWindows,
+      );
+
+      let hhRow: Record<string, unknown>;
+      if (plan.mode === "insert") {
+        const [insertedHh] = await tx
+          .insert(happyHours)
+          .values(hhValues as typeof happyHours.$inferInsert)
+          .returning();
+        rowId = insertedHh.id;
+        beforeJsonb = null;
+        hhRow = insertedHh as Record<string, unknown>;
+      } else {
+        rowId = plan.happyHourId;
+        const before = await readRow(tx, "happy_hours", rowId);
+        beforeJsonb = before;
+        if (plan.resurrect) {
+          // Un-delete and re-activate the previously-removed window, refreshing its source.
+          await updateRow(tx, "happy_hours", rowId, {
+            deletedAt: null,
+            active: true,
+            sourceUrl: hhValues.sourceUrl,
+            ...(hhValues.notes !== undefined ? { notes: hhValues.notes } : {}),
+          });
+        } else if (before && !before.sourceUrl && hhValues.sourceUrl) {
+          // Live duplicate that lacked a source — backfill provenance from the submission.
+          await updateRow(tx, "happy_hours", rowId, {
+            sourceUrl: hhValues.sourceUrl,
+          });
+        }
+        hhRow = (await readRow(tx, "happy_hours", rowId)) as Record<string, unknown>;
+      }
+
+      // Offerings ride along in the same txn, deduped against the target window's existing
+      // offerings (none for a brand-new window). They default currency from the venue's
+      // city (mirrors the seed pipeline + new_offering path).
       const rawOfferings = Array.isArray(
         (after as { offerings?: unknown }).offerings,
       )
         ? ((after as { offerings: Record<string, unknown>[] }).offerings)
         : [];
+      const existingOfferings =
+        plan.mode === "insert"
+          ? []
+          : await tx
+              .select()
+              .from(offerings)
+              .where(
+                and(eq(offerings.happyHourId, rowId), isNull(offerings.deletedAt)),
+              );
+      const offeringsToInsert = newOfferingsToInsert(
+        rawOfferings,
+        existingOfferings as OfferingLike[],
+      );
       let defaultCurrency: string | null = null;
-      if (rawOfferings.length) {
+      if (offeringsToInsert.length) {
         const [v] = await tx
           .select({ cityId: venues.cityId })
           .from(venues)
@@ -355,9 +424,9 @@ export async function applySubmission(
         defaultCurrency = c?.cc ?? null;
       }
       const insertedOfferings: Record<string, unknown>[] = [];
-      for (const raw of rawOfferings) {
+      for (const raw of offeringsToInsert) {
         const o = pick(
-          { ...raw, happyHourId: insertedHh.id, sourceUrl: hhValues.sourceUrl },
+          { ...raw, happyHourId: rowId, sourceUrl: hhValues.sourceUrl },
           OFFERING_FIELDS,
         );
         if (!o.kind || !o.category) continue;
@@ -368,11 +437,7 @@ export async function applySubmission(
           .returning();
         insertedOfferings.push(insertedOff as Record<string, unknown>);
       }
-      beforeJsonb = null;
-      afterJsonb = {
-        ...(insertedHh as Record<string, unknown>),
-        offerings: insertedOfferings,
-      };
+      afterJsonb = { ...hhRow, offerings: insertedOfferings };
     } else if (sub.targetType === "new_offering") {
       // Insert a brand-new offering onto an EXISTING happy hour (e.g. an interpreted
       // "they added $5 wings"). Source is required just like an offering update.
