@@ -205,6 +205,30 @@ export function fullResImageUrl(url: string): string {
   return wix ? wix[1] : url;
 }
 
+/**
+ * Cap a Squarespace CDN image's `?format=<N>w` width. Squarespace serves menu images from
+ * images.squarespace-cdn.com at up to format=2500w (~8MB) — which exceeds the Claude API's
+ * 10MB-base64 per-image cap (8MB raw → ~10.7MB base64) AND wastes tokens, since the model
+ * downscales every image to ~1568px on the long edge anyway. Cap the width at 1500w: at least
+ * the downscale target for any orientation, ~5.6MB raw (~7.5MB base64, safely under 10MB).
+ * Only ever LOWERS resolution (the inverse of fullResImageUrl, which de-thumbnails Wix images —
+ * different CDN, opposite direction). Non-Squarespace URLs and already-smaller formats pass
+ * through untouched. Sidecar Social Club's 8MB HH menu image was dropped without this.
+ */
+export function cappedSquarespaceImageUrl(url: string, maxWidth = 1500): string {
+  let u: URL;
+  try {
+    u = new URL(url);
+  } catch {
+    return url;
+  }
+  if (!/(^|\.)images\.squarespace-cdn\.com$/i.test(u.hostname)) return url;
+  const widthMatch = u.searchParams.get("format")?.match(/^(\d+)w$/i);
+  if (widthMatch && Number(widthMatch[1]) <= maxWidth) return url; // already small enough
+  u.searchParams.set("format", `${maxWidth}w`); // no format, format=original, or wider → cap
+  return u.toString();
+}
+
 export function extractMediaLinks(html: string, baseUrl: string): string[] {
   const out = new Set<string>();
   const abs = (u: string) => { try { return new URL(u, baseUrl).toString(); } catch { return null; } };
@@ -271,6 +295,24 @@ export function extractMediaLinks(html: string, baseUrl: string): string[] {
     const isPdf = /\.pdf(\?|$)/i.test(raw);
     const u = abs(isPdf ? raw : fullResImageUrl(raw));
     if (u) out.add(u);
+  }
+  // Squarespace BUTTON BLOCKS link an uploaded menu PDF via a clickthroughUrl in block JSON —
+  // {"clickthroughUrl":{"url":"/s/Fate-Happy-Hour-Menu"}} — not an <a>/<img>/ld+json, and the
+  // target is an EXTENSIONLESS Squarespace file redirect (/s/… or static1…/t/…), so neither the
+  // anchor scanner nor the `.pdf` test above can see it. Follow it when the slug or its button
+  // label carries a menu/HH signal; fetchUrl resolves the 302 and detects the PDF by
+  // content-type. Fate Brewing's 19MB HH menu lived here, invisible → a bare window.
+  const SQSP_FILE_LINK = /^(?:\/s\/|https?:\/\/static1\.squarespace\.com\/static\/[a-f0-9]+\/t\/)/i;
+  const ctRe = /"clickthroughUrl"\s*:\s*\{\s*"url"\s*:\s*"([^"]+)"/gi;
+  while ((m = ctRe.exec(html)) !== null) {
+    const href = m[1].replace(/\\\//g, "/");
+    if (!SQSP_FILE_LINK.test(href)) continue;
+    if (/\.(jpe?g|png|webp|gif)(\?|#|$)/i.test(href)) continue; // an image target is handled above
+    const label = html.slice(Math.max(0, m.index - 160), m.index).replace(/<[^>]+>/g, " ");
+    if (MEDIA_SIGNAL.test(href) || MEDIA_SIGNAL.test(label)) {
+      const u = abs(href);
+      if (u) out.add(u);
+    }
   }
   return [...out].slice(0, 6);
 }
