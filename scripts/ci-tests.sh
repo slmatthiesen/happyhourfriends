@@ -41,6 +41,7 @@ TESTS=(
   test:evidence-cleanup
   test:render-escalation
   test:site-triage
+  test:site-health
   test:format
   test:active
   test:hours
