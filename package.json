@@ -137,6 +137,7 @@
     "test:queued-email": "tsx scripts/test-queued-email.ts",
     "test:realness-gate": "tsx scripts/test-realness-gate.ts",
     "test:site-health": "tsx scripts/test-site-health.ts",
+    "test:resolve-website-url": "tsx scripts/test-resolve-website-url.ts",
     "test:recognizability": "tsx scripts/test-recognizability.ts",
     "test:render-escalation": "tsx scripts/test-render-escalation.ts",
     "test:resolve": "tsx scripts/test-resolve-bounds.ts",

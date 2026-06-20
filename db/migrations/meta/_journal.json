@@ -176,6 +176,13 @@
       "when": 1781751417379,
       "tag": "0024_right_the_executioner",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1781929192173,
+      "tag": "0025_superb_karen_page",
+      "breakpoints": true
     }
   ]
 }
