@@ -38,7 +38,7 @@ A few things are worth knowing before you report:
 
 - Vulnerabilities requiring a compromised admin account or server access.
 - Issues that only affect a deployment misconfiguration explicitly warned against in the
-  docs (e.g. running without `HCAPTCHA_SECRET_KEY`, or exposing the app without a proxy).
+  docs (e.g. running without `TURNSTILE_SECRET_KEY`, or exposing the app without a proxy).
 - Findings in third-party dependencies without a demonstrated impact here (please report
   those upstream).
 

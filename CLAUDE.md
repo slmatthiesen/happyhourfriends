@@ -108,7 +108,7 @@ The schema is **multi-city-native** (operator goal: ~1000 cities). Summary:
   start_time`); `end_time` is **nullable** ("until close").
 - `happy_hours.days_of_week` is a `smallint[]` — one row per window (Mon–Fri = `{1..5}`),
   not per day. Stored sorted; DB CHECK enforces non-empty array of 1..7.
-- Client-exposed keys use `NEXT_PUBLIC_` prefixes (PostHog, hCaptcha site key).
+- Client-exposed keys use `NEXT_PUBLIC_` prefixes (PostHog, Turnstile site key).
 
 ## Environment constraints
 

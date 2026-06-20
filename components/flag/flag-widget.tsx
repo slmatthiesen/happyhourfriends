@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { HCaptcha } from "@/components/submit/hcaptcha";
+import { Turnstile } from "@/components/submit/turnstile";
 
 export interface FlagWidgetProps {
   targetType: "venue" | "happy_hour";
@@ -44,7 +44,7 @@ export function FlagWidget({
   const [state, setState] = useState<"idle" | "submitting" | "done" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
 
-  // Stable callback ref so HCaptcha's useEffect dep doesn't re-fire.
+  // Stable callback ref so Turnstile's useEffect dep doesn't re-fire.
   const handleToken = useCallback((t: string | null) => setToken(t), []);
 
   const defaultPrompt =
@@ -147,7 +147,7 @@ export function FlagWidget({
         className="hidden"
       />
 
-      <HCaptcha onToken={handleToken} />
+      <Turnstile onToken={handleToken} />
 
       {error && (
         <p role="alert" className="mt-2 text-accent-hot">
