@@ -1,0 +1,27 @@
+# no-mistakes: local pre-push gate. Push with `git push no-mistakes <branch>`
+# or drive it headlessly with `no-mistakes axi run --intent "..."`.
+# The gate validates in a disposable git worktree of the pushed commit, which has
+# NO node_modules (gitignored), so the test command installs deps first — fast,
+# since pnpm hard-links from its content-addressed store. See docs/agent-tooling.md.
+
+agent: claude
+
+commands:
+  test: "pnpm install --frozen-lockfile --prefer-offline && pnpm typecheck"
+  lint: "pnpm lint"
+
+# Never let the gate's agent rewrite our code automatically; surface findings for
+# human approval instead. (0 disables each step's auto-fix loop.)
+auto_fix:
+  rebase: 0
+  review: 0
+  test: 0
+  lint: 0
+  ci: 0
+
+# Don't infer "intent" by scanning local agent transcripts.
+intent:
+  enabled: false
+
+ignore_patterns:
+  - "db/migrations/**"

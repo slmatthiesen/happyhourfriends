@@ -1,0 +1,7 @@
+# treehouse: pre-warmed git worktree pool for parallel agent sessions.
+# Repo-safe settings only (no executable hooks here, by design).
+# Per-machine hooks (e.g. linking node_modules) live in ~/.config/treehouse/config.toml.
+# See docs/agent-tooling.md.
+
+max_trees = 3
+root = ""
