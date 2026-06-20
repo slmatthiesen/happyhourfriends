@@ -48,6 +48,15 @@ async function main() {
     assert.equal(report[0].venue!.status, "unresolved");
   });
 
+  await check("bare status: active windows but no offerings", async () => {
+    const r: SearchAnalyticsRow[] = [
+      { page: "https://x.com/ca/oakland/venue/timeonly", query: "timeonly hh", impressions: 4, clicks: 0, position: 7 },
+    ];
+    const bareLookup: VenueLookup = async () => ({ name: "Time Only", windowCount: 1, offeringCount: 0 });
+    const report = await buildReport(r, bareLookup);
+    assert.equal(report[0].venue!.status, "bare");
+  });
+
   await check("top queries are sorted and capped at 5", async () => {
     const report = await buildReport(rows, lookup);
     const alamar = report.find((e) => e.page.endsWith("/alamar"))!;
