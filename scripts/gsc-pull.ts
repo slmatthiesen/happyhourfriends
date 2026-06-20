@@ -20,7 +20,7 @@ function arg(name: string, fallback: number): number {
   const i = process.argv.indexOf(`--${name}`);
   if (i === -1) return fallback;
   const v = Number(process.argv[i + 1]);
-  return Number.isFinite(v) ? v : fallback;
+  return Number.isFinite(v) && v > 0 ? v : fallback;
 }
 
 function isoDaysAgo(days: number): string {
@@ -33,15 +33,23 @@ const lookup: VenueLookup = async ({ stateSlug, citySlug, slug }) => {
   if (!city) return null;
   const venue = await getVenueBySlug(city.id, slug);
   if (!venue) return null;
-  const windowCount = venue.happyHours.length;
-  const offeringCount = venue.happyHours.reduce((n, w) => n + w.offerings.length, 0);
+  // Count only windows the venue page actually renders (active, non-deleted) so the
+  // reported status matches what a searcher sees — getVenueBySlug also returns inactive
+  // (benched/hidden) windows, which would otherwise inflate the status.
+  const liveWindows = venue.happyHours.filter((w) => w.active);
+  const windowCount = liveWindows.length;
+  const offeringCount = liveWindows.reduce((n, w) => n + w.offerings.length, 0);
   return { name: venue.name, windowCount, offeringCount };
 };
 
 function toMarkdown(report: PageReportEntry[]): string {
   const lines = ["# GSC visibility report", ""];
   for (const e of report) {
-    const status = e.venue ? ` — **${e.venue.status}** (${e.venue.windowCount}w/${e.venue.offeringCount}o)` : ` — ${e.kind}`;
+    const status = e.venue
+      ? e.venue.status === "unresolved"
+        ? " — **unresolved** (no matching venue row)"
+        : ` — **${e.venue.status}** (${e.venue.windowCount}w/${e.venue.offeringCount}o)`
+      : ` — ${e.kind}`;
     lines.push(`## ${e.page}${status}`);
     lines.push(`impressions ${e.impressions} · clicks ${e.clicks}`);
     for (const q of e.topQueries) lines.push(`- "${q.query}" (${q.impressions} impr)`);
@@ -62,6 +70,7 @@ async function main() {
   const rows = await client.fetchRows({
     property,
     startDate: isoDaysAgo(days),
+    // GSC data lags ~2-3 days, so the most recent days contribute no rows — harmless.
     endDate: isoDaysAgo(0),
     rowLimit,
   });
