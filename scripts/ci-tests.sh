@@ -35,6 +35,7 @@ TESTS=(
   test:extract
   test:realness-gate
   test:jsonld-menu
+  test:signal-gate
   test:doc-budget
   test:render-trigger
   test:window-reconcile

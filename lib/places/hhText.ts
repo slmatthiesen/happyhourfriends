@@ -115,3 +115,29 @@ export function scoreHhUrl(url: string): number {
   if (/\/menus?\b/.test(u)) return 30;
   return 0;
 }
+
+/** A MENU/HH/drink document by NAME — happy/social/power hour, HH, specials, a menu (the word
+ *  anywhere, not just a /menu path), drinks/cocktails/bar/wine/beer, or a multilingual HH term.
+ *  Deliberately EXCLUDES bare meal words (dinner/lunch/brunch/food) and dish nouns, so a "Dinner
+ *  Menu.jpg" matches (via `menu`) but a "Berry-Pie.png" / "item-3.jpg" / "food-2.jpg" dish photo
+ *  does not. Operator vocabulary, 2026-06-20. Anchored with word boundaries to avoid false hits
+ *  (barbecue ≠ bar). */
+const MENU_DOC_RE =
+  /happ(?:y|ier)[-_ ]?hours?|social[-_ ]?hour|power[-_ ]?hour|\bhh\b|special|\bmenu\b|\bdrinks?\b|cocktail|\bbar\b|\bwine\b|\bbeer\b|aperitivo|vermut|apericena|hora[-_ ]?(?:feliz|del[-_ ]?vermut)|prix[-_ ]?fixe|tasting/i;
+
+/**
+ * True when a media file's NAME marks it a menu/HH/drink document worth a paid read — as opposed
+ * to a decorative dish photo. Decodes `%20`/`+` first (so "Online%20Menu.jpg" and "happy+hour.png"
+ * match — the bug that scoreHhUrl's slash-anchored `/menus?` test missed). The gate for whether an
+ * IMAGE escalates to the paid extractor (every page has images; only menu-ish ones earn a read).
+ */
+export function looksLikeMenuDoc(url: string): boolean {
+  let u = url.toLowerCase();
+  try { u = decodeURIComponent(u); } catch { /* malformed escape — match the raw form */ }
+  // Normalize EVERY non-letter run (`_`, `+`, `-`, `.`, digits, `/`) to a space so the word
+  // boundaries are clean: `nudo_menu` / `0menu2` / `drink-menu` all expose the word `menu`.
+  // (\bmenu\b failed on "nudo_menu" — `_` is a word char, so there was no boundary; that
+  // false-dropped Nudo Ramen's menu image.) Lean inclusive — the goal is maximizing recall.
+  u = u.replace(/[^a-z]+/g, " ");
+  return MENU_DOC_RE.test(u);
+}
