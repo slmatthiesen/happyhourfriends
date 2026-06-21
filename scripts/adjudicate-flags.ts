@@ -19,6 +19,7 @@ import "dotenv/config";
 import { mkdirSync, writeFileSync } from "node:fs";
 import postgres from "postgres";
 import { triageSite } from "@/lib/places/siteTriage";
+import { loadRenderUrl, closeRenderBrowserSafe } from "@/lib/verification/lazyRender";
 import { fetchPages } from "@/lib/ai/siteContent";
 import {
   adjudicateFlaggedVenue,
@@ -62,7 +63,7 @@ async function fetchOwnPages(websiteUrl: string | null, name: string, cityName: 
   let render: typeof import("@/lib/verification/renderUrl").renderUrl | undefined;
   if (process.env.DISABLE_HEADLESS_RENDER !== "1") {
     try {
-      render = (await import("@/lib/verification/renderUrl")).renderUrl;
+      render = await loadRenderUrl();
     } catch {
       render = undefined;
     }
@@ -188,7 +189,7 @@ async function main() {
     console.log(`── done ── ${rows.length} venue(s), spend $${(spentCents / 100).toFixed(2)}, report → ${out}`);
   } finally {
     await sql.end();
-    await (await import("@/lib/verification/renderUrl")).closeRenderBrowser().catch(() => {});
+    await closeRenderBrowserSafe();
   }
 }
 

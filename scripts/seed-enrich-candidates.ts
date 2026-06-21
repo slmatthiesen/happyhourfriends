@@ -38,6 +38,7 @@ import {
   type ExtractResult,
 } from "@/lib/ai/extractHappyHours";
 import { freeExtractFromPages, shouldEscalateForDroppedDeals } from "@/lib/ai/freeExtract";
+import { closeRenderBrowserSafe } from "@/lib/verification/lazyRender";
 import { costCents } from "@/lib/ai/pricing";
 import { createBatch, pollBatch, streamResults, type BatchRequest } from "@/lib/ai/batch";
 import {
@@ -741,7 +742,7 @@ async function main() {
   } finally {
     await sql.end();
     // Close the shared headless browser if the extractor's render fallback launched one.
-    await (await import("@/lib/verification/renderUrl")).closeRenderBrowser().catch(() => {});
+    await closeRenderBrowserSafe();
   }
 }
 
