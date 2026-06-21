@@ -7,7 +7,7 @@
  */
 import type { ContentBlockParam } from "@anthropic-ai/sdk/resources/messages";
 import { fetchUrl, type FetchResult, type ImageMediaType } from "@/lib/verification/fetchUrl";
-import { hasHhOrDealSignal, hasPriceOrDealSignal, scoreHhUrl, TIME_RANGE_RE } from "@/lib/places/hhText";
+import { hasHhOrDealSignal, hasPriceOrDealSignal, looksLikeMenuDoc, scoreHhUrl, TIME_RANGE_RE } from "@/lib/places/hhText";
 
 // Bound the document (PDF/image) payload fed to the model. A venue with many menu
 // PDFs (Bottega has 6) overwhelms the extractor — 6/4.5MB returned nothing, while
@@ -71,15 +71,24 @@ export interface FetchedPage {
 
 /**
  * Free pre-extraction gate: should these fetched pages be sent to the (paid) Claude
- * extractor at all? Escalate when ANY page carries a PDF/image menu we can't read for
- * free, OR any page's text shows a happy-hour/deal signal. Pages with none of that have
- * no happy hour to find — skip them at $0 instead of paying Claude to read "nothing here".
+ * extractor at all? Escalate when:
+ *   - page TEXT shows a happy-hour/deal signal (the strongest lead), OR
+ *   - a PDF is present (a PDF is a document — almost always a menu/specials sheet), OR
+ *   - an IMAGE is present AND its name looks like a menu (looksLikeMenuDoc).
+ * The image-name test is the key money-saver: EVERY page has images (logos, hero shots,
+ * food photos), so escalating on mere image presence paid Haiku to read decorative dish
+ * photos that never carried a happy hour. looksLikeMenuDoc decodes the URL (%20/+) and matches
+ * menu/HH/special/drink names, so a real "happy_hour.png" / "Online Menu.jpg" still escalates
+ * while item-3.jpg / food-2.jpg / Berry-Pie.png do not. A generically-named menu image is still
+ * reached via its page TEXT (or its HH-context, which always comes with HH text nearby) — so the
+ * only images we drop are decorative ones with no menu name and no HH text (validated 0-loss on
+ * Tacoma+Spokane live venues).
  */
 export function pagesHaveExtractableSignal(pages: FetchedPage[]): boolean {
   return pages.some(
     (p) =>
       Boolean(p.pdfBase64) ||
-      Boolean(p.imageBase64) ||
+      (Boolean(p.imageBase64) && looksLikeMenuDoc(p.url)) ||
       (typeof p.text === "string" && hasHhOrDealSignal(p.text)),
   );
 }
