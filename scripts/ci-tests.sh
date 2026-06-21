@@ -35,6 +35,8 @@ TESTS=(
   test:extract
   test:realness-gate
   test:jsonld-menu
+  test:doc-budget
+  test:render-trigger
   test:window-reconcile
   test:anomaly-rules
   test:flag-eval
