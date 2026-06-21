@@ -38,6 +38,7 @@ TESTS=(
   test:signal-gate
   test:doc-budget
   test:render-trigger
+  test:lazy-render
   test:window-reconcile
   test:anomaly-rules
   test:flag-eval

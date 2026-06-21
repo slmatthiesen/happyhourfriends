@@ -22,6 +22,7 @@ import "dotenv/config";
 import postgres from "postgres";
 import { writeFile } from "node:fs/promises";
 import { triageSite } from "@/lib/places/siteTriage";
+import { closeRenderBrowserSafe } from "@/lib/verification/lazyRender";
 import { fetchPages, pagesShowDroppedDeals } from "@/lib/ai/siteContent";
 import { hasPriceOrDealSignal } from "@/lib/places/hhText";
 import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
@@ -160,7 +161,7 @@ async function main() {
     console.log(`\nHeal list (venue ids) → ${reportPath}`);
     console.log(`Then: pnpm reextract:stubs --city ${slug} --state ${state} --bare --dry-run   (then --bare to spend)`);
   } finally {
-    await (await import("@/lib/verification/renderUrl")).closeRenderBrowser().catch(() => {});
+    await closeRenderBrowserSafe();
     await sql.end();
   }
 }
