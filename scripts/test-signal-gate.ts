@@ -29,6 +29,8 @@ check("image 'menu.jpg' → escalate", () =>
   assert.equal(gate({ url: "https://x.com/menu.jpg", imageBase64: "x", imageMediaType: "image/jpeg" }), true));
 check("%20-encoded 'Online Menu' image → escalate (Tacoma Comedy Club; decode before matching)", () =>
   assert.equal(gate({ url: "https://x.com/1744356246-Tacoma%20Online%20Menu%202.jpg", imageBase64: "x", imageMediaType: "image/jpeg" }), true));
+check("underscore-glued menu name escalates (Nudo Ramen 'NUDO_Menu') — normalize _ to space", () =>
+  assert.equal(gate({ url: "https://x.com/NUDO_Menu+(2)-2+copy.png?format=1500", imageBase64: "x", imageMediaType: "image/png" }), true));
 check("decorative dish photo item-400.jpg → NO escalate", () =>
   assert.equal(gate({ url: "https://x.com/item-400000009593607383.jpg", imageBase64: "x", imageMediaType: "image/jpeg" }), false));
 check("food photo food-2.jpg → NO escalate", () =>

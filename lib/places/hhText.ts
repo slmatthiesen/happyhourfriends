@@ -134,6 +134,10 @@ const MENU_DOC_RE =
 export function looksLikeMenuDoc(url: string): boolean {
   let u = url.toLowerCase();
   try { u = decodeURIComponent(u); } catch { /* malformed escape — match the raw form */ }
-  u = u.replace(/\+/g, " ");
+  // Normalize EVERY non-letter run (`_`, `+`, `-`, `.`, digits, `/`) to a space so the word
+  // boundaries are clean: `nudo_menu` / `0menu2` / `drink-menu` all expose the word `menu`.
+  // (\bmenu\b failed on "nudo_menu" — `_` is a word char, so there was no boundary; that
+  // false-dropped Nudo Ramen's menu image.) Lean inclusive — the goal is maximizing recall.
+  u = u.replace(/[^a-z]+/g, " ");
   return MENU_DOC_RE.test(u);
 }
