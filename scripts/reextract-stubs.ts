@@ -39,6 +39,7 @@ import {
   type ExtractResult,
 } from "@/lib/ai/extractHappyHours";
 import { createBatch, pollBatch, streamResults, type BatchRequest } from "@/lib/ai/batch";
+import { closeRenderBrowserSafe } from "@/lib/verification/lazyRender";
 import { costCents } from "@/lib/ai/pricing";
 import { triageSite, resolveEnrichAction } from "@/lib/places/siteTriage";
 import { hhLikelihood } from "@/lib/places/hhLikelihood";
@@ -451,7 +452,7 @@ async function main() {
     // Close the shared headless browser the extractor may have launched (buildExtractRequest
     // lazy-imports renderUrl). Without this the open Chromium keeps the process alive and the
     // script hangs on exit — which previously blocked a multi-city loop after the first city.
-    await (await import("@/lib/verification/renderUrl")).closeRenderBrowser().catch(() => {});
+    await closeRenderBrowserSafe();
     await sql.end();
   }
 }
