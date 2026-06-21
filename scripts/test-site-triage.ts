@@ -218,6 +218,19 @@ check("page-JSON escaped relative PDF is harvested (Square Online / Hula Hoops b
     `expected resolved Square PDF, got ${JSON.stringify(links)}`,
   );
 });
+check("HH-context doc ranks before a non-HH menu doc (Hula Hoops dinner vs brunch)", () => {
+  // The HH heading sits in the page JSON just above the linked menu PDF: the Dinner PDF is
+  // preceded by "Happy Hour Mon-Fri 3:00pm-5:30pm", the Brunch PDF by "Bottomless Mimosa".
+  // Both filenames score 0, so without context the budget spent on the wrong (brunch) menu.
+  const html =
+    `<script>{"a":{"insert":"Bottomless Mimosa\\n"},"img":{"link":{"file":"\\/uploads\\/Hula-Hoops-Brunch-Menu.pdf"}}},` +
+    `{"b":{"insert":"Happy Hour Mon-Fri 3:00pm-5:30pm\\n"},"img":{"link":{"file":"\\/uploads\\/Hula-Hoops-Dinner Menu PDF.pdf"}}}</script>`;
+  const links = extractMediaLinks(html, "https://www.myhulahoops.com/");
+  assert.ok(
+    decodeURI(links[0]).endsWith("Hula-Hoops-Dinner Menu PDF.pdf"),
+    `expected the HH-context Dinner PDF first, got ${JSON.stringify(links)}`,
+  );
+});
 check("page-JSON escaped relative menu image is harvested", () => {
   const html = `<script>{"img":"\\/uploads\\/happy-hour-flyer.jpg"}</script>`;
   assert.ok(extractMediaLinks(html, "https://r.com/").includes("https://r.com/uploads/happy-hour-flyer.jpg"));
