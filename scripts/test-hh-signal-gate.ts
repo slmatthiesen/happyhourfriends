@@ -65,9 +65,15 @@ check("pagesHaveExtractableSignal: true when any text page has a signal", () => 
   ]));
 });
 
-check("pagesHaveExtractableSignal: true for a PDF or image even with no text (can't read free)", () => {
+check("pagesHaveExtractableSignal: a PDF (any name) escalates even with no text — it's a document", () => {
   assert.ok(pagesHaveExtractableSignal([{ url: "https://x.com/hh.pdf", pdfBase64: "JVBERi0=" }]), "pdf escalates");
-  assert.ok(pagesHaveExtractableSignal([{ url: "https://x.com/flyer.jpg", imageBase64: "/9j/4AA=", imageMediaType: "image/jpeg" }]), "image escalates");
+});
+
+check("pagesHaveExtractableSignal: an image escalates ONLY when its name looks like a menu (not every image)", () => {
+  // Every page has images; a decorative/food photo must NOT trigger a paid read.
+  assert.ok(pagesHaveExtractableSignal([{ url: "https://x.com/happy-hour-menu.jpg", imageBase64: "/9j/4AA=", imageMediaType: "image/jpeg" }]), "menu-named image escalates");
+  assert.ok(!pagesHaveExtractableSignal([{ url: "https://x.com/flyer.jpg", imageBase64: "/9j/4AA=", imageMediaType: "image/jpeg" }]), "generic image does not");
+  assert.ok(!pagesHaveExtractableSignal([{ url: "https://x.com/Berry-Pie.png", imageBase64: "/9j/4AA=", imageMediaType: "image/png" }]), "dish photo does not");
 });
 
 check("pagesHaveExtractableSignal: false for garbage-only text pages", () => {
