@@ -388,6 +388,7 @@ async function main() {
             AND v.status = 'active'
             AND v.data_completeness = 'stub'
             AND v.website_url IS NOT NULL
+            AND v.deleted_at IS NULL
           ORDER BY v.name
           ${args.limit ? sql`LIMIT ${args.limit}` : sql``}
         `;
