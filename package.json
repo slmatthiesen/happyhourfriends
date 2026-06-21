@@ -46,6 +46,7 @@
     "diagnose:no-hh": "tsx scripts/diagnose-no-hh.ts",
     "spotcheck:free": "tsx scripts/spotcheck-free.ts",
     "scan:onsite-hh": "tsx scripts/scan-onsite-hh.ts",
+    "scan:stub-signal": "tsx scripts/scan-stub-signal.ts",
     "reconcile:windows": "tsx scripts/reconcile-windows.ts",
     "audit:data": "tsx scripts/audit-data.ts",
     "audit:provenance": "tsx scripts/audit-provenance.ts",
