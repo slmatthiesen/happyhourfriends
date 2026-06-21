@@ -395,7 +395,9 @@ function bindDays(exprs: { index: number; days: number[] }[], at: number): numbe
 // Strong clause/sentence boundaries ONLY: ". " ; · ! newline, and the bullet " · ".
 // NOT "and" and NOT a bare comma — a single segment may share one day spec across
 // several time ranges (e.g. "3-6pm and 9pm-close, Mon-Fri").
-const SEGMENT_SPLIT = /(?:\.(?=\s)|[;·!\n\r])+/;
+// `!` is an exclamation, not a clause boundary — splitting on it severed "Happy Hour!" from its
+// own times ("Happy Hour! Mon–Fri 4–7pm"), leaving the time segment context-less → fuzzy/hidden.
+const SEGMENT_SPLIT = /(?:\.(?=\s)|[;·\n\r])+/;
 
 /**
  * Split text into clause-level segments, then parse each INDEPENDENTLY so happy-hour
