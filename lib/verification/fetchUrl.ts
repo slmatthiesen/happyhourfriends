@@ -14,7 +14,7 @@
  * can hand them to Claude as a native document block. Never throws.
  */
 
-import { extractMediaLinks } from "@/lib/places/siteTriage";
+import { extractMediaLinks, cappedSquarespaceImageUrl } from "@/lib/places/siteTriage";
 import { harvestJsonLdMenu } from "@/lib/places/jsonLdMenu";
 
 const BOT_NAME = "HappyHourFriendsBot";
@@ -22,8 +22,13 @@ const USER_AGENT = `${BOT_NAME}/1.0 (+https://happyhourfriends.com)`;
 
 const TIMEOUT_MS = 10_000;
 const MAX_CONTENT = 8_000; // default (verifier tool loop); extractor overrides higher.
-const MAX_PDF_BYTES = 10 * 1024 * 1024; // Claude accepts up to 32MB; keep it sane.
-const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // vision images — keep request size sane.
+// Claude accepts up to 32MB; keep it sane by default. Env-overridable so an operator can pull a
+// known-good oversized menu (e.g. a 19MB Squarespace HH PDF) through the real path for a one-off.
+const MAX_PDF_BYTES = Number(process.env.FETCH_MAX_PDF_BYTES) || 10 * 1024 * 1024;
+// Vision images — the Claude API accepts up to 10MB BASE64 per image (~7.5MB raw). Default to
+// 7MB raw (~9.3MB base64, safely under the cap) so real menu images land — e.g. a Squarespace
+// HH menu capped to format=1500w runs ~5.6MB. Env-overridable for one-off oversized pulls.
+const MAX_IMAGE_BYTES = Number(process.env.FETCH_MAX_IMAGE_BYTES) || 7 * 1024 * 1024;
 
 // Transient-failure retry. Media/discovered-page fetches dropped ~1/3 of runs to a
 // whole-venue 0% recall: a CDN timeout / connection reset / 5xx on the (single) HH PDF or
@@ -274,6 +279,9 @@ export function stripHtml(html: string, maxContent: number = MAX_CONTENT): strin
 export async function fetchUrl(url: string, opts: FetchOpts = {}): Promise<FetchResult> {
   const maxContent = opts.maxContent ?? MAX_CONTENT;
   const doFetch = opts.fetchImpl ?? fetch;
+  // Cap oversized Squarespace CDN images to a model-sufficient width BEFORE fetching, so a
+  // high-res menu image doesn't blow the 10MB-base64 API cap (no-op for every other URL).
+  url = cappedSquarespaceImageUrl(url);
   const retryDelays = opts.retryDelaysMs ?? RETRY_DELAYS_MS;
   let parsed: URL;
   try {
