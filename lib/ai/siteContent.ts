@@ -22,6 +22,10 @@ const MAX_DOC_PAGES = 5;
 const MAX_DOC_BYTES = Number(process.env.FETCH_MAX_DOC_BYTES) || 10_000_000;
 /** Statuses bot walls answer plain fetches with — a headless browser usually gets through. */
 const BOT_WALL_STATUSES = new Set([401, 403, 406, 429]);
+/** Below this many chars, a reachable page's stripped text is treated as a content-less SPA
+ *  shell (a JS app frame whose real menu loads client-side) — Cheesecake Factory's happy-hour
+ *  shell strips to 246 chars of footer ("Privacy Policy · © 2026"). */
+const SPA_SHELL_TEXT_FLOOR = 600;
 
 /**
  * Heuristic for "this page's stripped text is machine payload, not prose" — JS-walled
@@ -133,6 +137,37 @@ export function dedupeFetchTargets(urls: (string | null | undefined)[], max: num
 }
 
 /**
+ * Should we re-fetch `r` with the headless browser? The plain, robots-respecting fetch runs
+ * first; the (slow) browser only helps when it can see MORE than that fetch did:
+ *   - blockedByRobots — a robots-walled page/shortlink a real browser just loads.
+ *   - bot wall (401/403/406/429) — refused to our UA, fine in a browser (veroamorepizza.com).
+ *   - junk machine-text — SSR token-soup that needs JS to become readable.
+ *   - empty shell — reachable, no text/doc/media → a JS app frame with nothing extracted.
+ *   - boilerplate shell — reachable with only a SHORT, signal-less blurb (nav/footer) and no
+ *     menu doc to follow: a JS-SPA menu whose content loads client-side. Catches platforms
+ *     that (unlike Cheesecake Factory, which is robots-blocked) serve a non-empty shell the
+ *     empty-shell branch never sees. Gated on no HH/deal/price signal so a real-but-terse HH
+ *     page is never needlessly re-rendered, and on no media so a doc is followed instead.
+ * NEVER for a genuine 404/410/dead URL — rendering misses would launch a browser per miss.
+ * Pure + exported so the trigger is unit-testable without the network.
+ */
+export function needsBrowserRender(r: FetchResult): boolean {
+  if (r.blockedByRobots === true) return true;
+  if (!r.ok) return r.status != null && BOT_WALL_STATUSES.has(r.status);
+  if (r.isPdf || r.isImage) return false;
+  if (r.contentText) {
+    if (looksLikeMachineText(r.contentText)) return true;
+    if (r.mediaLinks && r.mediaLinks.length) return false; // a real menu doc to follow → no render
+    return (
+      r.contentText.length < SPA_SHELL_TEXT_FLOOR &&
+      !hasHhOrDealSignal(r.contentText) &&
+      !hasPriceOrDealSignal(r.contentText)
+    );
+  }
+  return !(r.mediaLinks && r.mediaLinks.length); // empty shell with no doc to follow
+}
+
+/**
  * Fetch the given URLs over plain HTTP (deduped, capped). Order is preserved, so pass the
  * highest-signal URLs first. Failures (unreachable / robots-blocked / non-HTML-non-PDF)
  * are silently skipped — the returned list contains only pages with usable content.
@@ -150,24 +185,11 @@ export async function fetchPages(
   } = {},
 ): Promise<FetchedPage[]> {
   const unique = dedupeFetchTargets(urls, max);
-  // Plain fetch first; fall back to the headless render tier ONLY when it came back empty
-  // (robots-blocked, or a JS shell with no text / no docs / no media links).
+  // Plain fetch first; fall back to the headless render tier only when it can see MORE
+  // (see needsBrowserRender).
   const fetchOne = async (u: string): Promise<FetchResult> => {
     const r = await fetchUrl(u, { maxContent: opts.maxContent });
-    // Only fall back to the (slow) browser when it can actually help: a robots-blocked
-    // shortlink the browser would just follow, a bot-UA wall (401/403/406/429 — a real
-    // browser usually gets through; veroamorepizza.com 403s plain fetch but renders fine),
-    // or a reachable JS-shell that rendered no text / docs / links. NEVER for a genuine
-    // 404/410/dead URL (e.g. a speculative path guess) — rendering those would launch a
-    // browser per miss and stall prep.
-    const botWalled = !r.ok && r.status != null && BOT_WALL_STATUSES.has(r.status);
-    const junkText = r.ok && !!r.contentText && looksLikeMachineText(r.contentText);
-    const worthRendering =
-      r.blockedByRobots === true ||
-      botWalled ||
-      junkText ||
-      (r.ok && !r.contentText && !r.isPdf && !r.isImage && !(r.mediaLinks && r.mediaLinks.length));
-    if (worthRendering && opts.render) {
+    if (needsBrowserRender(r) && opts.render) {
       const rendered = await opts.render(u);
       if (rendered.ok) return rendered;
     }
