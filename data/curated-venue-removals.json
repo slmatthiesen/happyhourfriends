@@ -84,6 +84,12 @@
       "name": "The Rustik Barbershop",
       "city": "tucson",
       "reason": "Barbershop (primaryType=barber_shop); the sibling Rustiks Speakeasy Salon and Wine Bar listing stays"
+    },
+    {
+      "googlePlaceId": "ChIJM5RmtSQAkVQRDcFVYqcpwRw",
+      "name": "Pho Ever Tacoma",
+      "city": "tacoma",
+      "reason": "Domain (phoevertacoma.shop) lapsed and was grabbed by a ParkLogic domain-parking service (payload tenant=namecheap-expired, redirects via router.parklogic.com). Catch-all returns HTTP 200 on every path, defeating triage and burning extractor spend on ad/redirect junk that can never yield a happy hour; operator-reported toxic 2026-06-21"
     }
   ]
 }
