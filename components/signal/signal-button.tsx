@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 
 const COOLDOWN_MS = 1000;
 
@@ -19,6 +19,39 @@ function getFingerprint(): string {
   }
 }
 
+const signalKey = (venueId: string) => `hhf_signal_${venueId}`;
+
+/**
+ * Persisted per-venue "tapped" state exposed as an external store, so it can be read
+ * during render without a setState-in-effect: the server snapshot is always `false`
+ * and the client reconciles to localStorage after hydration (no mismatch). A tap also
+ * notifies every mounted button and listens for cross-tab `storage` events.
+ */
+const listeners = new Set<() => void>();
+function subscribeTapped(onChange: () => void): () => void {
+  listeners.add(onChange);
+  window.addEventListener("storage", onChange);
+  return () => {
+    listeners.delete(onChange);
+    window.removeEventListener("storage", onChange);
+  };
+}
+function readTapped(venueId: string): boolean {
+  try {
+    return localStorage.getItem(signalKey(venueId)) === "1";
+  } catch {
+    return false;
+  }
+}
+function writeTapped(venueId: string, value: boolean): void {
+  try {
+    localStorage.setItem(signalKey(venueId), value ? "1" : "0");
+  } catch {
+    /* ignore */
+  }
+  for (const notify of listeners) notify();
+}
+
 /**
  * Positive-only, toggleable "thumbs up" on a venue listing. Tap to add, tap again to
  * remove. Optimistic, then reconciles to the server-returned { count, tapped } so a
@@ -33,18 +66,14 @@ export function SignalButton({
   initialCount: number;
 }) {
   const [count, setCount] = useState(initialCount);
-  const [tapped, setTapped] = useState(false);
   const [busy, setBusy] = useState(false);
   const cooldownRef = useRef(false);
 
-  // Read persisted tapped state after mount (avoids SSR hydration mismatch).
-  useEffect(() => {
-    try {
-      setTapped(localStorage.getItem(`hhf_signal_${venueId}`) === "1");
-    } catch {
-      /* ignore */
-    }
-  }, [venueId]);
+  const tapped = useSyncExternalStore(
+    subscribeTapped,
+    () => readTapped(venueId),
+    () => false,
+  );
 
   async function toggle() {
     if (busy || cooldownRef.current) return;
@@ -52,7 +81,7 @@ export function SignalButton({
 
     // Optimistic.
     setBusy(true);
-    setTapped(adding);
+    writeTapped(venueId, adding);
     setCount((c) => c + (adding ? 1 : -1));
 
     try {
@@ -63,21 +92,16 @@ export function SignalButton({
       });
       if (res.status === 429 || !res.ok) {
         // Revert; keep state untouched on the server.
-        setTapped(!adding);
+        writeTapped(venueId, !adding);
         setCount((c) => c + (adding ? -1 : 1));
       } else {
         const data = (await res.json()) as { count?: number; tapped?: boolean };
         const nextTapped = typeof data.tapped === "boolean" ? data.tapped : adding;
         if (typeof data.count === "number") setCount(data.count);
-        setTapped(nextTapped);
-        try {
-          localStorage.setItem(`hhf_signal_${venueId}`, nextTapped ? "1" : "0");
-        } catch {
-          /* ignore */
-        }
+        writeTapped(venueId, nextTapped);
       }
     } catch {
-      setTapped(!adding);
+      writeTapped(venueId, !adding);
       setCount((c) => c + (adding ? -1 : 1));
     } finally {
       setBusy(false);
