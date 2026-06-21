@@ -283,4 +283,15 @@ check("existing forms still parse: '$1 off menu cocktails' and 'half-price wings
   assert.equal(half[0].kind, "food");
 });
 
+// GOLDEN (Mi Nidito, 2026-06-15): "!" after "Happy Hour" was a SEGMENT_SPLIT boundary, severing
+// the phrase from its own times → the time segment lost HH context → marked fuzzy/hidden. A real,
+// clean happy hour must parse plausible.
+check("'Happy Hour! Mon-Fri 4-7pm, Sat-Sun 12-4pm' → two CLEAN plausible windows", () => {
+  const w = parseHappyHours("Join us for Happy Hour! Monday through Friday 4 - 7pm Saturday and Sunday 12 - 4pm", URL);
+  const wk = w.find((x) => x.daysOfWeek.join() === "1,2,3,4,5");
+  const we = w.find((x) => x.daysOfWeek.join() === "6,7");
+  assert.ok(wk && wk.plausible && wk.startTime === "16:00" && wk.endTime === "19:00", "Mon-Fri 4-7pm clean+plausible");
+  assert.ok(we && we.plausible && we.startTime === "12:00" && we.endTime === "16:00", "Sat-Sun 12-4pm clean+plausible");
+});
+
 console.log(`\n${passed} checks passed.`);
