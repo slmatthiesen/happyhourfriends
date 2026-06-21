@@ -11,7 +11,7 @@
  * times stays a stub — that is the extractor-recall-gap safety net.
  */
 
-import { scoreHhUrl } from "@/lib/places/hhText";
+import { HH_RE, scoreHhUrl } from "@/lib/places/hhText";
 import { discoverSitemapUrls, type TextFetcher } from "@/lib/places/sitemap";
 
 export type SiteKind = "real" | "social_only" | "none";
@@ -229,9 +229,32 @@ export function cappedSquarespaceImageUrl(url: string, maxWidth = 1500): string 
   return u.toString();
 }
 
+// How far BEFORE a media link to look for "happy hour" page text. The HH heading sits just
+// above the linked menu doc — Hula Hoops's Square JSON puts "Happy Hour Mon-Fri 3:00pm-5:30pm"
+// ~200 chars before the Dinner-menu PDF link, while the Brunch PDF is preceded by "Bottomless
+// Mimosa". Tight so a nearby-but-unrelated section's HH text doesn't bleed onto the wrong doc.
+const HH_CONTEXT_WINDOW = 400;
+
+/**
+ * Media (PDF/image) menu links in the page, RANKED so a doc that sits in a happy-hour context
+ * comes first. >50% of HH menus are a document, not HTML; when a site links several (dinner,
+ * brunch, catering) only the one next to the "happy hour" text holds the deals, so picking by
+ * filename alone sends the wrong menu (Hula Hoops's Brunch PDF outweighed its HH Dinner PDF).
+ * Each link is tagged `hhContext` when "happy hour" appears in its anchor text / alt / the
+ * source just before it; context links sort first (stable within each group). Callers then
+ * spend the doc budget on the HH-linked doc and skip the irrelevant ones.
+ */
 export function extractMediaLinks(html: string, baseUrl: string): string[] {
-  const out = new Set<string>();
+  // url → hhContext (true if ANY occurrence sits next to happy-hour text). Insertion order
+  // preserved by Map, so a stable context-first sort keeps discovery order within each group.
+  const found = new Map<string, boolean>();
   const abs = (u: string) => { try { return new URL(u, baseUrl).toString(); } catch { return null; } };
+  const add = (u: string | null, hhContext: boolean) => {
+    if (u) found.set(u, (found.get(u) ?? false) || hhContext);
+  };
+  // "happy hour" in the link's own label/alt, or in the source window just before it.
+  const hhNear = (src: string, index: number, extra = "") =>
+    HH_RE.test(extra) || HH_RE.test(src.slice(Math.max(0, index - HH_CONTEXT_WINDOW), index));
 
   // <a href="…pdf"> (any PDF) and <a href="…jpg/png/webp"> with a menu signal.
   const aRe = /<a\b[^>]*href\s*=\s*["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
@@ -243,7 +266,7 @@ export function extractMediaLinks(html: string, baseUrl: string): string[] {
     const isImg = /\.(jpe?g|png|webp)(\?|#|$)/i.test(href);
     if (isPdf || (isImg && (MEDIA_SIGNAL.test(href) || MEDIA_SIGNAL.test(text)))) {
       const u = abs(isPdf ? href : fullResImageUrl(href)); // signal matched on original; fetch full-res
-      if (u) out.add(u);
+      add(u, hhNear(html, m.index, text));
     }
   }
   // <img src="…"> whose filename or alt suggests a menu.
@@ -255,7 +278,7 @@ export function extractMediaLinks(html: string, baseUrl: string): string[] {
     if (!src || !/\.(jpe?g|png|webp)(\?|#|$)/i.test(src)) continue;
     if (MEDIA_SIGNAL.test(src) || MEDIA_SIGNAL.test(alt)) {
       const u = abs(fullResImageUrl(src)); // signal matched on original src; fetch full-res
-      if (u) out.add(u);
+      add(u, hhNear(html, m.index, alt));
     }
   }
   // JSON-LD (schema.org) menus — getbento / BentoBox / Squarespace embed the HH menu as an
@@ -277,7 +300,7 @@ export function extractMediaLinks(html: string, baseUrl: string): string[] {
       if (MEDIA_NOISE.test(raw)) continue;
       const isPdf = /\.pdf(\?|$)/i.test(raw);
       const u = abs(isPdf ? raw : fullResImageUrl(raw));
-      if (u) out.add(u);
+      add(u, hhNear(block, um.index));
     }
   }
   // Generic page-builder JSON (Square Online, Wix, Squarespace, …): the menu PDF/image URL is
@@ -285,7 +308,7 @@ export function extractMediaLinks(html: string, baseUrl: string): string[] {
   // above can see, and often as an ESCAPED, RELATIVE path with spaces in the filename
   // (Hula Hoops/Square: "\/uploads\/…\/Hula-Hoops-Dinner Menu PDF.pdf"). Unescape, then keep
   // any quoted media path whose name carries a menu/HH signal (NOISE filter still drops
-  // logos/heroes; document context isn't available here, so the filename signal is required).
+  // logos/heroes). The HH heading sits in the JSON just before the link, so context ranks it.
   const unescaped = html.replace(/\\\//g, "/");
   const QUOTED_MEDIA = /["']([^"'<>]+?\.(?:pdf|jpe?g|png|webp))(\?[^"'<>]*)?["']/gi;
   let qm: RegExpExecArray | null;
@@ -294,7 +317,7 @@ export function extractMediaLinks(html: string, baseUrl: string): string[] {
     if (MEDIA_NOISE.test(raw) || !MEDIA_SIGNAL.test(raw)) continue;
     const isPdf = /\.pdf(\?|$)/i.test(raw);
     const u = abs(isPdf ? raw : fullResImageUrl(raw));
-    if (u) out.add(u);
+    add(u, hhNear(unescaped, qm.index));
   }
   // Squarespace BUTTON BLOCKS link an uploaded menu PDF via a clickthroughUrl in block JSON —
   // {"clickthroughUrl":{"url":"/s/Fate-Happy-Hour-Menu"}} — not an <a>/<img>/ld+json, and the
@@ -310,11 +333,14 @@ export function extractMediaLinks(html: string, baseUrl: string): string[] {
     if (/\.(jpe?g|png|webp|gif)(\?|#|$)/i.test(href)) continue; // an image target is handled above
     const label = html.slice(Math.max(0, m.index - 160), m.index).replace(/<[^>]+>/g, " ");
     if (MEDIA_SIGNAL.test(href) || MEDIA_SIGNAL.test(label)) {
-      const u = abs(href);
-      if (u) out.add(u);
+      add(abs(href), hhNear(html, m.index, href + " " + label));
     }
   }
-  return [...out].slice(0, 6);
+  // HH-context docs first (stable within each group → discovery order preserved), capped at 6.
+  return [...found.entries()]
+    .sort((a, b) => Number(b[1]) - Number(a[1]))
+    .map(([u]) => u)
+    .slice(0, 6);
 }
 
 /** Common HH/menu paths to PROBE even when nothing links them (most→least specific).
