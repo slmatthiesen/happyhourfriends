@@ -13,9 +13,13 @@ import { hasHhOrDealSignal, hasPriceOrDealSignal, scoreHhUrl, TIME_RANGE_RE } fr
 // PDFs (Bottega has 6) overwhelms the extractor — 6/4.5MB returned nothing, while
 // ~4/2.4MB extracts cleanly. Cap by count AND bytes; text pages are always included.
 const MAX_DOC_PAGES = 5;
-// Env-overridable (paired with fetchUrl's FETCH_MAX_PDF_BYTES) so an operator can pull one
-// known-good oversized menu through the real path for a one-off; default keeps payloads tight.
-const MAX_DOC_BYTES = Number(process.env.FETCH_MAX_DOC_BYTES) || 3_000_000;
+// 10MB (was 3MB): real venues publish the happy hour as ONE big menu PDF and nothing smaller
+// carries the deals — Hula Hoops's HH lives in a 6.9MB Dinner-menu PDF that 3MB dropped,
+// leaving a bare window. We now rank the HH-context-linked doc first (see selectDocsWithinBudget
+// + extractMediaLinks), so the budget only has to fit that ONE doc; 10MB raw (~13MB base64) is
+// well under the Anthropic 32MB request ceiling. Env-overridable (paired with fetchUrl's
+// FETCH_MAX_PDF_BYTES) for the rare oversized menu (e.g. Fate Brewing's 19MB HH PDF).
+const MAX_DOC_BYTES = Number(process.env.FETCH_MAX_DOC_BYTES) || 10_000_000;
 /** Statuses bot walls answer plain fetches with — a headless browser usually gets through. */
 const BOT_WALL_STATUSES = new Set([401, 403, 406, 429]);
 
@@ -198,13 +202,6 @@ export async function fetchPages(
     for (const r of more) if (r.ok && (r.isPdf || r.isImage)) docs.push(r);
   }
 
-  // Feed the most happy-hour-relevant docs FIRST: under the byte/count budget a
-  // "happy+hour.PNG" (scoreHhUrl 100) must outrank a generic food-menu image (30), or the
-  // budget fills with the dinner menu and the actual HH deal list is dropped (Bei Sushi).
-  // Stable sort — equal-score docs keep fetch order.
-  docs.sort((a, b) => scoreHhUrl(b.url) - scoreHhUrl(a.url));
-
-  // Add docs under a bounded budget (too many / too-large docs overwhelm the model).
   // Fresh page text outranks stale documents: when the page TEXT already states an
   // actual time-range schedule, skip docs whose path is dated ≥2 years old — the model
   // otherwise trusts a full (stale) menu image over the current text (The Monica's 2022
@@ -214,20 +211,50 @@ export async function fetchPages(
   const htmlStatesSchedule = pages.some(
     (p) => typeof p.text === "string" && TIME_RANGE_RE.test(p.text),
   );
-  let docCount = 0;
+  pages.push(
+    ...selectDocsWithinBudget(docs, {
+      maxBytes: MAX_DOC_BYTES,
+      maxPages: MAX_DOC_PAGES,
+      staleDated: htmlStatesSchedule ? isStaleDatedDocPath : undefined,
+    }),
+  );
+  return pages;
+}
+
+/** Raw doc bytes a fetched PDF/image carries (base64 inflates ~4/3, so undo it). */
+function docRawBytes(r: Pick<FetchResult, "pdfBase64" | "imageBase64">): number {
+  return (r.pdfBase64?.length ?? r.imageBase64?.length ?? 0) * 0.75;
+}
+
+/**
+ * Pick the menu docs (PDF/image) to feed the model, under a count + byte budget.
+ * Ranking: happy-hour relevance first (scoreHhUrl) so a "happy+hour.PNG" (100) outranks a
+ * generic food-menu image (30) — Bei Sushi. For EQUAL score the sort is stable, so it keeps
+ * the caller's order — which is HH-context first (extractMediaLinks ranks a doc linked next to
+ * "happy hour" page text ahead of one that isn't). That's how Hula Hoops's 6.9MB Happy-Hour
+ * Dinner PDF beats its 7.9MB Brunch PDF (both filename-score 0): we spend the budget on the
+ * HH-linked doc and never send the irrelevant brunch menu. `staleDated(url)` drops docs
+ * superseded by fresh page text (see caller). Pure + exported so the budget math is
+ * unit-testable without the network.
+ */
+export function selectDocsWithinBudget(
+  docs: FetchResult[],
+  opts: { maxBytes: number; maxPages: number; staleDated?: (url: string) => boolean },
+): FetchedPage[] {
+  const ranked = [...docs].sort((a, b) => scoreHhUrl(b.url) - scoreHhUrl(a.url));
+  const picked: FetchedPage[] = [];
   let docBytes = 0;
-  for (const r of docs) {
-    if (htmlStatesSchedule && isStaleDatedDocPath(r.url)) continue;
-    const bytes = (r.pdfBase64?.length ?? r.imageBase64?.length ?? 0) * 0.75;
-    if (docCount >= MAX_DOC_PAGES || docBytes + bytes > MAX_DOC_BYTES) continue;
-    if (r.isPdf && r.pdfBase64) pages.push({ url: r.url, pdfBase64: r.pdfBase64 });
+  for (const r of ranked) {
+    if (opts.staleDated?.(r.url)) continue;
+    const bytes = docRawBytes(r);
+    if (picked.length >= opts.maxPages || docBytes + bytes > opts.maxBytes) continue;
+    if (r.isPdf && r.pdfBase64) picked.push({ url: r.url, pdfBase64: r.pdfBase64 });
     else if (r.isImage && r.imageBase64 && r.imageMediaType)
-      pages.push({ url: r.url, imageBase64: r.imageBase64, imageMediaType: r.imageMediaType });
+      picked.push({ url: r.url, imageBase64: r.imageBase64, imageMediaType: r.imageMediaType });
     else continue;
-    docCount++;
     docBytes += bytes;
   }
-  return pages;
+  return picked;
 }
 
 /**
