@@ -60,6 +60,26 @@
       "pageKind": "HH on a creatively-named page (/happenings) — tests triage nav discovery",
       "expectWindows": [],
       "offeringKeywords": ["chips", "meatball", "street taco", "caesar"]
+    },
+    {
+      "name": "Hula Hoops Restaurant & Tiki Bar",
+      "url": "https://www.myhulahoops.com/",
+      "type": "restaurant",
+      "verifiedOn": "2026-06-20",
+      "pageKind": "operator find: HH window in page JSON; deals in a 6.9MB Dinner-menu PDF reached via HH-context link (needs 10MB doc budget)",
+      "expectWindows": [{ "days": [1, 2, 3, 4, 5], "start": "15:00", "end": "17:30" }],
+      "offeringKeywords": ["well drink", "beer tap", "bottle beer", "cocktail"]
+    },
+    {
+      "name": "The Cheesecake Factory",
+      "url": "https://locations.thecheesecakefactory.com/ca/san-mateo-156.html",
+      "type": "restaurant",
+      "verifiedOn": "2026-06-20",
+      "pageKind": "operator find: HH menu on a client-rendered SPA reached from the location page (robots-blocked → needs headless render)",
+      "expectWindows": [{ "days": [1, 2, 3, 4, 5], "start": "16:00", "end": "18:00" }],
+      "offeringKeywords": [
+        "roadside slider", "avocado eggroll", "tex mex eggroll", "pot sticker", "fried calamari"
+      ]
     }
   ]
 }
