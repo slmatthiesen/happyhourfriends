@@ -37,6 +37,7 @@ import { fetchPages, renderPagesAsBlocks, pagesHaveExtractableSignal } from "@/l
 import type { FetchedPage } from "@/lib/ai/siteContent";
 import { freeExtractFromPages, shouldEscalateForDroppedDeals, reconcileFreeDaysWithModelOfferings } from "@/lib/ai/freeExtract";
 import { classifyHhRelevance, foldRelevanceCost } from "@/lib/ai/hhRelevance";
+import { loadRenderUrl } from "@/lib/verification/lazyRender";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -435,7 +436,7 @@ export async function buildExtractRequest(input: ExtractInput): Promise<ExtractR
   let render: typeof import("@/lib/verification/renderUrl").renderUrl | undefined;
   if (!input.noRender && process.env.DISABLE_HEADLESS_RENDER !== "1") {
     try {
-      render = (await import("@/lib/verification/renderUrl")).renderUrl;
+      render = await loadRenderUrl();
     } catch {
       render = undefined;
     }

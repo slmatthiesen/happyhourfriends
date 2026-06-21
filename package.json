@@ -123,6 +123,7 @@
     "test:signal-gate": "tsx scripts/test-signal-gate.ts",
     "test:doc-budget": "tsx scripts/test-doc-budget.ts",
     "test:render-trigger": "tsx scripts/test-render-trigger.ts",
+    "test:lazy-render": "tsx scripts/test-lazy-render.ts",
     "test:machine-text": "tsx scripts/test-machine-text.ts",
     "test:map-concurrency": "tsx scripts/test-map-concurrency.ts",
     "test:maps-link": "tsx scripts/test-maps-link.ts",

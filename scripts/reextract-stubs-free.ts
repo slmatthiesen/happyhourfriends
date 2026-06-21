@@ -14,6 +14,7 @@ import { writeFileSync } from "node:fs";
 import { triageSite, resolveEnrichAction } from "@/lib/places/siteTriage";
 import { hhLikelihood } from "@/lib/places/hhLikelihood";
 import { buildExtractRequest } from "@/lib/ai/extractHappyHours";
+import { closeRenderBrowserSafe } from "@/lib/verification/lazyRender";
 import { freeExtractFromPages } from "@/lib/ai/freeExtract";
 import { persistExtractedWindows } from "@/lib/recover/resolveVenue";
 import { hasHhOrDealSignal, hhOrDealMatch, HH_RE, TIME_RANGE_RE } from "@/lib/places/hhText";
@@ -232,7 +233,7 @@ async function main() {
   } finally {
     // Close the headless browser if buildExtractRequest launched one (it won't here since
     // noRender:true, but we mirror reextract-stubs.ts's finally block for safety).
-    await (await import("@/lib/verification/renderUrl")).closeRenderBrowser().catch(() => {});
+    await closeRenderBrowserSafe();
     await sql.end();
   }
 }
