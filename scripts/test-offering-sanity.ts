@@ -75,14 +75,16 @@ const EVERY_DAY = [1, 2, 3, 4, 5, 6, 7];
     ],
     EVERY_DAY,
   );
+  // Names below are post-strip: the redundant "$N " absolute-price prefix is removed
+  // (price_cents carries it); "$1 off draft beers" keeps its prefix (discount, null price).
   const kinds = Object.fromEntries(r.offerings.map((o) => [o.name, o.kind]));
-  assert.equal(kinds["$10 All Shareables Happy Hour"], "food");
-  assert.equal(kinds["$10 Backyard Burger Tuesday Happy"], "food");
-  assert.equal(kinds["$12 Riverside Tacos"], "food");
-  assert.equal(kinds["$14 Wing Central"], "food");
+  assert.equal(kinds["All Shareables Happy Hour"], "food");
+  assert.equal(kinds["Backyard Burger Tuesday Happy"], "food");
+  assert.equal(kinds["Riverside Tacos"], "food");
+  assert.equal(kinds["Wing Central"], "food");
   check("Backyard: shareables/burger/tacos/wings all re-kinded drink→food");
   assert.equal(kinds["$1 off draft beers"], "drink");
-  assert.equal(kinds["$5 Wells"], "drink");
+  assert.equal(kinds["Wells"], "drink");
   check("Backyard: drafts and wells stay drink");
   assert.ok(r.warnings.some((w) => w.includes("day-specific") && w.includes("Tuesday")));
   check("Backyard: Tuesday special merged into the weekly window warned");
@@ -207,6 +209,62 @@ const EVERY_DAY = [1, 2, 3, 4, 5, 6, 7];
   );
   assert.ok(!food.warnings.some((w) => /high/i.test(w)), `food item must not get a drink high-price warning, got: ${food.warnings.join(" / ")}`);
   check("a $14 food item (re-kinded) gets no drink high-price warning");
+}
+
+// ── Grand Lake Kitchen golden: price duplicated into name + heading-as-offering ──────
+// The lake-merritt-menus extraction stored names like "$19 Kamala Llama hummus" WITH
+// price_cents=1900 (price duplicated), and captured the section heading "HAPPY HOUR AT
+// GLK" as an $18 offering. Both inflated the avg over $12 and double-printed the price.
+{
+  const r = sanitizeOfferings(
+    [
+      off({ kind: "food", name: "$19 Kamala Llama hummus", priceCents: 1900 }),
+      off({ kind: "food", name: "$16 Pastrami Reuben beef pastrami", priceCents: 1600 }),
+      off({ kind: "food", name: "$18 HAPPY HOUR AT GLK", priceCents: 1800 }),
+      off({ kind: "drink", name: "$5 ON IT HH LAGER", priceCents: 500 }),
+    ],
+    [1, 2, 3, 4, 5],
+  );
+
+  const hummus = r.offerings.find((o) => o.name?.includes("Kamala"));
+  assert.equal(hummus?.name, "Kamala Llama hummus");
+  check("GLK: redundant '$19 ' price prefix stripped from stored name (price_cents kept)");
+  assert.equal(hummus?.priceCents, 1900);
+  check("GLK: stripping the name prefix leaves price_cents untouched");
+
+  const lager = r.offerings.find((o) => o.name?.includes("LAGER"));
+  assert.equal(lager?.name, "ON IT HH LAGER");
+  check("GLK: '$5 ' stripped from a real drink deal too");
+
+  assert.ok(
+    !r.offerings.some((o) => /happy hour at glk/i.test(o.name ?? "")),
+    `expected the "HAPPY HOUR AT GLK" heading dropped, got: ${r.offerings.map((o) => o.name).join(" / ")}`,
+  );
+  check("GLK: section-heading pseudo-offering 'HAPPY HOUR AT GLK' dropped");
+  assert.ok(
+    r.warnings.some((w) => /heading/i.test(w)),
+    `expected a heading-drop warning, got: ${r.warnings.join(" / ")}`,
+  );
+  check("GLK: heading drop is recorded as a warning");
+}
+
+// ── Guard: never strip a discount phrase or a real "happy hour <item>" deal ───────────
+{
+  // "$1 Off All Drinks" is a discount, not an absolute price → leave the name intact.
+  const discount = sanitizeOfferings([off({ kind: "drink", name: "$1 Off All Drinks", priceCents: null })], EVERY_DAY);
+  assert.equal(discount.offerings[0]?.name, "$1 Off All Drinks");
+  check("guard: '$N Off …' discount prefix is NOT stripped");
+
+  // A leading "$5 Off" stays even when a price is set (lookahead protects the word "off").
+  const offWithPrice = sanitizeOfferings([off({ kind: "food", name: "$5 Off Wings", priceCents: 500 })], EVERY_DAY);
+  assert.equal(offWithPrice.offerings[0]?.name, "$5 Off Wings");
+  check("guard: '$5 Off Wings' keeps its 'Off' even with a price set");
+
+  // A genuine deal that merely mentions happy hour AND names a drink survives.
+  const realDeal = sanitizeOfferings([off({ kind: "drink", name: "$5 Happy Hour Lager", priceCents: 500 })], EVERY_DAY);
+  assert.equal(realDeal.offerings.length, 1);
+  assert.equal(realDeal.offerings[0]?.name, "Happy Hour Lager");
+  check("guard: '$5 Happy Hour Lager' (real drink) kept, only the price prefix stripped");
 }
 
 console.log(`\n✓ ${passed} offering-sanity + denylist assertions passed.`);
