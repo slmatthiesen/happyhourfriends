@@ -8,7 +8,7 @@
  * persist writes them hidden (active=false): the venue stays a stub for review.
  */
 import { pagesShowDroppedDeals, type FetchedPage } from "@/lib/ai/siteContent";
-import type { ExtractResult, ExtractedHappyHour, ExtractedOffering } from "@/lib/ai/extractHappyHours";
+import type { ExtractResult, ExtractedHappyHour } from "@/lib/ai/extractHappyHours";
 import { parseHappyHours, type ParsedWindow } from "@/lib/places/parseHhText";
 import { scoreHhUrl } from "@/lib/places/hhText";
 import { hhmmToMin } from "@/lib/places/windowReconcile";
@@ -111,9 +111,10 @@ function windowInterval(startTime: string | null, endTime: string | null, allDay
   return [start, end];
 }
 
-function intervalsOverlap(a: [number, number] | null, b: [number, number] | null): boolean {
-  if (!a || !b) return false;
-  return a[0] < b[1] && b[0] < a[1];
+/** Same positioned clock interval — both bounded and identical, not merely overlapping. Two null
+ *  (unpositionable) intervals are NOT a confident match (we can't confirm they're the same slot). */
+function sameInterval(a: [number, number] | null, b: [number, number] | null): boolean {
+  return a != null && b != null && a[0] === b[0] && a[1] === b[1];
 }
 
 /** 'all' (or null) is the whole venue and is compatible with anything; two DIFFERENT
@@ -124,9 +125,6 @@ function locationCompatible(a: string, b: string): boolean {
   return la === "all" || lb === "all" || la === lb;
 }
 
-const offeringKey = (o: ExtractedOffering): string =>
-  `${(o.name ?? "").toLowerCase().trim()}|${o.priceCents ?? ""}|${(o.description ?? "").toLowerCase().trim()}`;
-
 /** The two windows recur on at least one common ISO day — i.e. the same slot, not merely an
  *  overlapping clock-time on different days (a Sat brunch must not fold into a Mon-Fri window). */
 function sharesADay(a: number[], b: number[]): boolean {
@@ -135,43 +133,53 @@ function sharesADay(a: number[], b: number[]): boolean {
 }
 
 /**
- * Reconcile a stable free-parse window set with a paid model re-extraction done ONLY to recover
- * dropped deals. The free windows' DAYS/TIMES win — they were parsed from explicit recurring text
- * ("Tuesday-Friday 4-6PM"), so they're stable run-to-run; the model supplies the OFFERINGS. This
- * kills the day-set flicker on sites that render a recurring HH as dated one-off promo cards
- * (SpotHopper: "Sunday Funday", "Trouble Tuesdays") that the model otherwise folds into the
- * recurring day-set differently on every run.
+ * Reconcile a stable free-parse window set with a paid model re-extraction done to recover dropped
+ * deals. KEEP-ALL (operator decision 2026-06-22): the model just read the authoritative source
+ * (menu PDF / HH page) and is the authority on BOTH the offerings AND the window structure, so
+ * EVERY model window is kept. The free parser contributes only ANTI-FLICKER: when a model window is
+ * the SAME window as a free one (identical time-bounds, a shared ISO day, compatible location), the
+ * model window adopts the free parser's day-set — some sites (SpotHopper) render a recurring HH as
+ * dated one-off promo cards, so the model's recurring days flicker run-to-run while the free parser
+ * read explicit recurring text ("Tuesday-Friday 4-6PM") and is stable.
  *
- * Each free window keeps its days/time and gains the offerings of every model window whose days
- * overlap it at the same time and a compatible location (deduped). Model-only windows are
- * DROPPED — "explicit statement wins": a window the free parser didn't derive from explicit text
- * is exactly the dated-promo noise (SpotHopper "Sunday Funday" 4-6pm) whose day-set flickers run
- * to run. The result carries the model's cost/usage/confidence so the ledger reflects the call.
+ * Why keep-all, and not DROP model-only windows (the prior design): a window dropped HERE never
+ * reaches persistExtractedWindows, so it never hits the realness gate that would otherwise insert it
+ * hidden (active=false) and surface it for review. Dropping = SILENT LOSS — and at reconcile time a
+ * real recurring window read only from a PDF ("ALL DAY SATURDAY $2 off beer cans") is
+ * indistinguishable from a dated promo, so the prior design lost it outright (Yellow Belly Tap SB,
+ * 2026-06-22). Keeping = the realness gate hides genuine noise but nothing is lost; the operator
+ * reviews it. A free window the model did NOT reproduce is also kept — a model recall miss must not
+ * drop an explicitly-stated window. The result carries the model's cost/usage so the ledger is right.
  *
- * Tradeoff (operator decision 2026-06-19): a genuinely separate recurring window that the free
- * parser missed AND that shares no day with any free window is also dropped. Rare — the free
- * parser captures any explicitly-stated window, and a deal window almost always shares a day with
- * the stated recurring one. Consistency is the goal here; the operator reviews each resolve.
+ * Residual tradeoff: a SpotHopper site whose dated promos flicker their day-set accumulates
+ * near-duplicate promo windows across repeated re-extracts (distinct natural keys); the recurring
+ * window itself stays stable, and reconcile:windows / mergeDuplicates collapse the dups.
  */
 export function reconcileFreeDaysWithModelOfferings(free: ExtractResult, model: ExtractResult): ExtractResult {
-  const freeWindows: ExtractedHappyHour[] = free.happyHours.map((f) => ({ ...f, offerings: [...f.offerings] }));
+  const freeWindows = free.happyHours;
   const freeIntervals = freeWindows.map((f) => windowInterval(f.startTime, f.endTime, f.allDay));
+  const modelWindows: ExtractedHappyHour[] = model.happyHours.map((m) => ({ ...m, offerings: [...m.offerings] }));
+  const freeMatched = new Array<boolean>(freeWindows.length).fill(false);
 
-  freeWindows.forEach((f, fi) => {
-    const fiv = freeIntervals[fi];
-    const seen = new Set(f.offerings.map(offeringKey));
-    for (const m of model.happyHours) {
-      if (!locationCompatible(f.locationWithinVenue, m.locationWithinVenue)) continue;
-      if (!sharesADay(f.daysOfWeek, m.daysOfWeek)) continue;
-      if (!intervalsOverlap(fiv, windowInterval(m.startTime, m.endTime, m.allDay))) continue;
-      for (const off of m.offerings) {
-        const k = offeringKey(off);
-        if (seen.has(k)) continue;
-        seen.add(k);
-        f.offerings.push({ ...off, sourceUrl: off.sourceUrl || f.sourceUrl });
-      }
+  for (const m of modelWindows) {
+    const miv = windowInterval(m.startTime, m.endTime, m.allDay);
+    const fi = freeWindows.findIndex(
+      (f, i) =>
+        locationCompatible(f.locationWithinVenue, m.locationWithinVenue) &&
+        sharesADay(f.daysOfWeek, m.daysOfWeek) &&
+        sameInterval(miv, freeIntervals[i]),
+    );
+    if (fi >= 0) {
+      m.daysOfWeek = [...freeWindows[fi].daysOfWeek]; // adopt the free parser's stable days (anti-flicker)
+      freeMatched[fi] = true;
     }
-  });
+  }
 
-  return { ...model, happyHours: freeWindows };
+  // A free window the model never reproduced is a model recall miss — keep it (never drop a window
+  // pre-persist; the realness gate hides what it must, but nothing is silently lost).
+  const unmatchedFree = freeWindows
+    .filter((_, i) => !freeMatched[i])
+    .map((f) => ({ ...f, offerings: [...f.offerings] }));
+
+  return { ...model, happyHours: [...modelWindows, ...unmatchedFree] };
 }
