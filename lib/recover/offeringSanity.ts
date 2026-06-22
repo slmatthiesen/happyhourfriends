@@ -77,7 +77,14 @@ export function classifyStoredOffering(o: {
   priceCents: number | null;
 }): { action: "drop" } | { action: "rename"; newName: string } | { action: "keep" } {
   const cleaned = stripRedundantPricePrefix(o.name, o.priceCents);
-  if (isHappyHourHeading(cleaned)) return { action: "drop" };
+  if (isHappyHourHeading(cleaned)) {
+    // A heading carries no real deal — but a generically-named yet PRICED row
+    // ("Happy Hour Drinks" $9.50) IS a real offering. Only drop when the price is
+    // absent, or was itself embedded as a "$N" prefix in the name ("$18 HAPPY HOUR
+    // AT GLK", where the price is heading noise, not a deal).
+    const pricePrefixed = /^\$\s*\d/.test((o.name ?? "").trim());
+    if (o.priceCents == null || pricePrefixed) return { action: "drop" };
+  }
   if (cleaned != null && cleaned !== o.name) return { action: "rename", newName: cleaned };
   return { action: "keep" };
 }

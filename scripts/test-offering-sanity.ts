@@ -283,6 +283,14 @@ const EVERY_DAY = [1, 2, 3, 4, 5, 6, 7];
   assert.deepEqual(classifyStoredOffering({ name: "HAPPY HOUR AT GLK", priceCents: null }), { action: "drop" });
   check("classify: bare heading with no price → drop");
 
+  // A generically-named but PRICED row is a real deal, not a heading — keep it.
+  // (The White Chocolate Grill: "Happy Hour Drinks" at $9.50.)
+  assert.deepEqual(classifyStoredOffering({ name: "Happy Hour Drinks", priceCents: 950 }), { action: "keep" });
+  check("classify: priced 'Happy Hour Drinks' ($9.50) → keep (real deal, not a heading)");
+
+  assert.deepEqual(classifyStoredOffering({ name: "Happy Hour Specials", priceCents: null }), { action: "drop" });
+  check("classify: 'Happy Hour Specials' with no price → drop (contentless heading)");
+
   assert.deepEqual(classifyStoredOffering({ name: "$1 off draft beers", priceCents: null }), { action: "keep" });
   check("classify: '$N off …' discount → keep (not a redundant price)");
 
