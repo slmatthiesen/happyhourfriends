@@ -68,6 +68,27 @@ export function isHappyHourHeading(name: string | null): boolean {
   );
 }
 
+/** Per-row verdict for a backfill over ALREADY-STORED offerings (sanitizeOfferings only
+ *  runs on fresh extractions). `drop` = soft-delete a heading mis-captured as an offering;
+ *  `rename` = strip the redundant price prefix in place; `keep` = leave it untouched.
+ *  Pure and idempotent — re-running over a cleaned row yields `keep`. */
+export function classifyStoredOffering(o: {
+  name: string | null;
+  priceCents: number | null;
+}): { action: "drop" } | { action: "rename"; newName: string } | { action: "keep" } {
+  const cleaned = stripRedundantPricePrefix(o.name, o.priceCents);
+  if (isHappyHourHeading(cleaned)) {
+    // A heading carries no real deal — but a generically-named yet PRICED row
+    // ("Happy Hour Drinks" $9.50) IS a real offering. Only drop when the price is
+    // absent, or was itself embedded as a "$N" prefix in the name ("$18 HAPPY HOUR
+    // AT GLK", where the price is heading noise, not a deal).
+    const pricePrefixed = /^\$\s*\d/.test((o.name ?? "").trim());
+    if (o.priceCents == null || pricePrefixed) return { action: "drop" };
+  }
+  if (cleaned != null && cleaned !== o.name) return { action: "rename", newName: cleaned };
+  return { action: "keep" };
+}
+
 /** Shared lexicon predicates — also consumed by the audit anomaly rules so persist-time
  *  cleanup and stored-data auditing agree on what "looks like food" / "names a day" means. */
 export function isFoodTextMislabeledAsDrink(text: string): boolean {
