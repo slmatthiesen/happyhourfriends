@@ -12,9 +12,9 @@
  * playwright + Chromium are LAZY-imported so the Next app bundle never pulls them in; this
  * module is imported only by the local seed/enrich (prep-time) pipeline.
  */
-import type { Browser, BrowserContext } from "playwright";
+import type { APIRequestContext, Browser, BrowserContext } from "playwright";
 import type { FetchResult } from "@/lib/verification/fetchUrl";
-import { extractMediaLinks } from "@/lib/places/siteTriage";
+import { extractMediaLinks, extractMenuEmbedUrls } from "@/lib/places/siteTriage";
 
 const UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 " +
@@ -46,6 +46,43 @@ export async function closeRenderBrowser(): Promise<void> {
     await _browser.close().catch(() => {});
     _browser = null;
   }
+}
+
+/** Strip a menu-widget's HTML to readable text (it returns small, clean markup — no need for the
+ *  full fetchUrl pipeline). Drops script/style, unwraps tags, collapses whitespace. */
+function widgetHtmlToText(html: string): string {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<\/(p|li|tr|div|section|h[1-6])\s*>/gi, "\n")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&amp;/gi, "&").replace(/&nbsp;/gi, " ").replace(/&#39;/gi, "'").replace(/&quot;/gi, '"')
+    .replace(/[ \t]+/g, " ").replace(/ *\n */g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+/** Fetch any known menu-widget iframes embedded in `html` and return their combined text (each
+ *  under a "Menu (embedded from <host>):" header), or "" if none/failed. Never throws. */
+async function harvestMenuEmbeds(
+  request: APIRequestContext,
+  html: string,
+  baseUrl: string,
+  opts: { timeout: number; maxBytes: number },
+): Promise<string> {
+  const urls = extractMenuEmbedUrls(html, baseUrl).slice(0, 3);
+  const chunks: string[] = [];
+  for (const u of urls) {
+    try {
+      const r = await request.get(u, { timeout: opts.timeout, maxRedirects: 10 });
+      if (!r.ok()) continue;
+      const buf = await r.body();
+      if (buf.length > opts.maxBytes) continue;
+      const text = widgetHtmlToText(buf.toString("utf8"));
+      if (text.length > 20) chunks.push(`Menu (embedded from ${new URL(u).hostname}):\n${text}`);
+    } catch {
+      /* skip an unreachable widget — fall back to the page's own text */
+    }
+  }
+  return chunks.join("\n\n");
 }
 
 function isImageCt(ct: string): FetchResult["imageMediaType"] | null {
@@ -102,7 +139,12 @@ export async function renderUrl(
       const html = await page.content();
       const text = await page.innerText("body").catch(() => "");
       const mediaLinks = extractMediaLinks(html, page.url());
-      return { url: page.url(), ok: true, status: nav?.status() ?? resp.status(), contentType: ct, contentText: text, mediaLinks };
+      // Cross-origin MENU-widget iframes (SinglePlatform etc.) hold the deals but their content is
+      // NOT in body.innerText. Fetch each widget's own HTML as text and fold it in, so a single
+      // paid extraction captures the menu instead of leaving a bare window (Finch & Fork SB).
+      const embedText = await harvestMenuEmbeds(ctx.request, html, page.url(), { timeout, maxBytes });
+      const contentText = embedText ? (text ? `${text}\n\n${embedText}` : embedText) : text;
+      return { url: page.url(), ok: true, status: nav?.status() ?? resp.status(), contentType: ct, contentText, mediaLinks };
     } finally {
       await page.close().catch(() => {});
     }

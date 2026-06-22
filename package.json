@@ -131,6 +131,7 @@
     "test:map-concurrency": "tsx scripts/test-map-concurrency.ts",
     "test:maps-link": "tsx scripts/test-maps-link.ts",
     "test:manual-window": "tsx scripts/test-manual-window.ts",
+    "test:menu-embed": "tsx scripts/test-menu-embed.ts",
     "test:menu-platform": "tsx scripts/test-menu-platform.ts",
     "test:name-primary": "tsx scripts/test-name-primary-assignment.ts",
     "test:neighborhood-canonical": "tsx scripts/test-neighborhood-canonical.ts",
