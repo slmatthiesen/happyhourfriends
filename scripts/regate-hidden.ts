@@ -297,8 +297,14 @@ async function main() {
     console.log(`\nFull per-venue list → ${outPath}\nCSV → ${csvPath}`);
 
     if (APPLY) {
-      const promoteIds = promote.map((p) => p.row.id);
-      const demoteIds = demote.map((d) => d.row.id);
+      // --ids restricts the WRITE to specific venue UUIDs (the report still lists every
+      // candidate). Lets the operator approve a subset — "promote just Grand Lake" — without
+      // regate's all-or-nothing apply pushing unrelated/ shape-promoted venues live.
+      const venueFilter = argOf("--ids")
+        ? new Set(argOf("--ids")!.split(",").map((s) => s.trim()).filter(Boolean))
+        : null;
+      const promoteIds = promote.filter((p) => !venueFilter || venueFilter.has(p.row.venue_id)).map((p) => p.row.id);
+      const demoteIds = demote.filter((d) => !venueFilter || venueFilter.has(d.row.venue_id)).map((d) => d.row.id);
       if (promoteIds.length) await sql`UPDATE happy_hours SET active = true, updated_at = now() WHERE id IN ${sql(promoteIds)}`;
       if (demoteIds.length) await sql`UPDATE happy_hours SET active = false, updated_at = now() WHERE id IN ${sql(demoteIds)}`;
       // REVIEW rows are left active=false (already hidden) — they need operator confirmation, not a write.
