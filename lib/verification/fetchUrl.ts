@@ -54,6 +54,26 @@ const sleep = (ms: number) => (ms > 0 ? new Promise((r) => setTimeout(r, ms)) : 
 
 export type ImageMediaType = "image/jpeg" | "image/png" | "image/gif" | "image/webp";
 
+/**
+ * The image's REAL media type from its magic bytes — the only thing Anthropic's vision API trusts.
+ * CDNs serve WebP under a .png/.jpg URL (and sometimes an image/png header); the API validates
+ * bytes-vs-declared-type and 400s the WHOLE request on a mismatch, dropping all extraction for the
+ * venue (Wooden Nickel's bar-interior.png is WebP). Returns null for anything not a Claude-supported
+ * raster image (SVG, AVIF, an HTML error page) so the caller skips it rather than risk that 400.
+ * Pure + exported for unit testing.
+ */
+export function sniffImageMediaType(bytes: Uint8Array): ImageMediaType | null {
+  const b = bytes;
+  if (b.length < 4) return null;
+  if (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return "image/jpeg";
+  if (b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47) return "image/png";
+  if (b[0] === 0x47 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x38) return "image/gif";
+  // WebP: "RIFF" <4-byte size> "WEBP"
+  if (b.length >= 12 && b[0] === 0x52 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x46 &&
+      b[8] === 0x57 && b[9] === 0x45 && b[10] === 0x42 && b[11] === 0x50) return "image/webp";
+  return null;
+}
+
 /** Map a content-type / extension to a Claude-vision-supported image media type. */
 function imageMediaType(contentType: string, pathname: string): ImageMediaType | null {
   const ct = contentType.split(";")[0].trim();
@@ -385,14 +405,20 @@ export async function fetchUrl(url: string, opts: FetchOpts = {}): Promise<Fetch
         if (bytes.byteLength > MAX_IMAGE_BYTES) {
           return { url, ok: false, status: res.status, contentType, error: "image too large" };
         }
+        // Trust the BYTES, not the URL/header: a WebP served as .png mislabeled here 400s the whole
+        // extraction request. Sniff fails → not a Claude-supported raster (SVG/AVIF/error page) → skip.
+        const actualType = sniffImageMediaType(bytes);
+        if (!actualType) {
+          return { url, ok: false, status: res.status, contentType, error: "unsupported image format" };
+        }
         return {
           url,
           ok: true,
           status: res.status,
-          contentType: imgType,
+          contentType: actualType,
           isImage: true,
           imageBase64: bytes.toString("base64"),
-          imageMediaType: imgType,
+          imageMediaType: actualType,
         };
       }
 
