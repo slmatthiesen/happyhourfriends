@@ -95,7 +95,10 @@ const result = (windows: ExtractedHappyHour[], conf = 0.65): ExtractResult => ({
   usage: { inputTokens: 100, outputTokens: 50 }, costCents: 2, promptHash: "ph", model: "haiku",
 });
 
-check("reconcile: Rose Garden — free Tue-Fri days kept, model deals attached, dated promos dropped", () => {
+// KEEP-ALL (2026-06-22): every model window survives; the free parse only snaps the day-set of a
+// MATCHED window (identical time-bounds + shared day) for anti-flicker. Dropping a window pre-persist
+// bypasses the realness gate (silent loss), so disjoint/all-day model windows are kept, not dropped.
+check("reconcile: Rose Garden — matched window adopts free's stable days; distinct promos kept (own days)", () => {
   const free = result([win({ daysOfWeek: [2, 3, 4, 5], offerings: [] })], 1);
   const model = result([
     win({ daysOfWeek: [2, 4, 5, 7], offerings: [off({ name: "Flatbreads", description: "Half-off" }), off({ kind: "drink", category: "beer", description: "$3 off drinks", discountCents: 300 })] }),
@@ -103,41 +106,61 @@ check("reconcile: Rose Garden — free Tue-Fri days kept, model deals attached, 
     win({ daysOfWeek: [7], startTime: "16:00", endTime: "00:00", offerings: [] }), // Sunday Funday extended
   ]);
   const r = reconcileFreeDaysWithModelOfferings(free, model);
-  assert.equal(r.happyHours.length, 1, "one stable window, dated promos dropped");
-  assert.deepEqual(r.happyHours[0].daysOfWeek, [2, 3, 4, 5], "days from the free parse (stable)");
-  assert.equal(r.happyHours[0].offerings.length, 2, "model's deals attached");
+  assert.equal(r.happyHours.length, 3, "matched window + 2 distinct promos all kept");
+  const main = r.happyHours.find((w) => w.startTime === "16:00" && w.endTime === "18:00")!;
+  assert.deepEqual(main.daysOfWeek, [2, 3, 4, 5], "matched window adopts the free parser's stable days");
+  assert.equal(main.offerings.length, 2, "matched window keeps the model's deals");
+  assert.ok(r.happyHours.some((w) => w.allDay && w.daysOfWeek.join() === "2"), "Trouble Tuesday all-day kept on its own day");
+  assert.ok(r.happyHours.some((w) => w.daysOfWeek.join() === "7"), "Sunday Funday kept on its own day (not folded in)");
   assert.equal(r.costCents, 2, "carries the paid model's cost for the ledger");
 });
 
-check("reconcile: model-only windows are DROPPED — explicit statement wins (kills the flicker)", () => {
+check("reconcile: a model-only window on a disjoint day is KEPT (no silent loss), not dropped", () => {
   const free = result([win({ daysOfWeek: [1, 2, 3, 4, 5], offerings: [] })], 1);
   const model = result([
-    win({ daysOfWeek: [1, 2, 3, 4, 5], offerings: [off({ name: "Wings", priceCents: 500 })] }), // overlaps free → folds in
-    win({ daysOfWeek: [7], startTime: "16:00", endTime: "18:00", offerings: [off({ name: "Funday deal", priceCents: 900 })] }), // Sunday promo, disjoint day → dropped
+    win({ daysOfWeek: [1, 2, 3, 4, 5], offerings: [off({ name: "Wings", priceCents: 500 })] }), // matches free
+    win({ daysOfWeek: [7], startTime: "16:00", endTime: "18:00", offerings: [off({ name: "Funday deal", priceCents: 900 })] }), // disjoint day → KEPT
   ]);
   const r = reconcileFreeDaysWithModelOfferings(free, model);
-  assert.equal(r.happyHours.length, 1, "only the free window survives; the Sunday promo is dropped");
-  assert.deepEqual(r.happyHours[0].daysOfWeek, [1, 2, 3, 4, 5], "stable days from the free parse");
-  assert.equal(r.happyHours[0].offerings.length, 1, "Wings folded into the free window");
+  assert.equal(r.happyHours.length, 2, "both windows survive — the Sunday promo is no longer dropped");
+  const wings = r.happyHours.find((w) => w.daysOfWeek.join() === "1,2,3,4,5")!;
+  assert.equal(wings.offerings[0].name, "Wings", "Wings stays on the matched Mon-Fri window");
+  assert.ok(r.happyHours.some((w) => w.daysOfWeek.join() === "7" && w.offerings[0]?.name === "Funday deal"), "Funday kept on Sunday");
 });
 
-check("reconcile: a bare model-only window (no shared day) is dropped as noise", () => {
-  const free = result([win({ daysOfWeek: [2, 3, 4, 5], offerings: [] })], 1);
+check("reconcile: an all-day model special does NOT fold into a bounded window sharing a day", () => {
+  // Yellow Belly Tap SB regression: Mon-Thu 4-6 free skeleton; the model adds the real PDF deals
+  // PLUS Saturday all-day + Taco Tuesday + Wed burger. The all-day specials must stay separate (days
+  // 2,3 fall inside Mon-Thu but the time-bounds differ), and the Saturday window must NOT be lost.
+  const free = result([win({ daysOfWeek: [1, 2, 3, 4], startTime: "16:00", endTime: "18:00", offerings: [] })], 1);
   const model = result([
-    win({ daysOfWeek: [2, 3, 4, 5], offerings: [off({ name: "Sliders" })] }),
-    win({ daysOfWeek: [7], startTime: "10:00", endTime: "13:00", offerings: [] }), // disjoint bare promo → drop
+    win({ daysOfWeek: [1, 2, 3, 4], startTime: "16:00", endTime: "18:00", offerings: [
+      off({ kind: "drink", category: "beer", name: "Beer", discountCents: 200 }),
+      off({ kind: "drink", category: "wine", name: "Wine", discountCents: 200 }),
+      off({ kind: "food", category: "other", name: "All pizzas", discountCents: 300 }),
+      off({ kind: "food", category: "appetizer", name: "Pretzels, fries & soup", discountCents: 200 }),
+    ] }),
+    win({ daysOfWeek: [6], allDay: true, startTime: null, endTime: null, offerings: [off({ kind: "drink", category: "beer", name: "Beer cans", discountCents: 200 })] }),
+    win({ daysOfWeek: [2], allDay: true, startTime: null, endTime: null, offerings: [off({ name: "Local Fish Tacos", discountCents: 400 })] }),
+    win({ daysOfWeek: [3], allDay: true, startTime: null, endTime: null, offerings: [off({ category: "entree", name: "Burger and Beer Special", priceCents: 1500 })] }),
   ]);
   const r = reconcileFreeDaysWithModelOfferings(free, model);
-  assert.equal(r.happyHours.length, 1, "bare model-only promo dropped");
-  assert.equal(r.happyHours[0].offerings.length, 1);
+  assert.equal(r.happyHours.length, 4, "all four windows survive");
+  const monThu = r.happyHours.find((w) => w.startTime === "16:00" && w.endTime === "18:00")!;
+  assert.equal(monThu.offerings.length, 4, "Mon-Thu window has ONLY its 4 real HH deals");
+  assert.ok(!monThu.offerings.some((o) => /burger|taco/i.test(o.name ?? "")), "no Tue/Wed special folded into Mon-Thu");
+  assert.ok(r.happyHours.some((w) => w.daysOfWeek.join() === "6"), "Saturday all-day window is preserved, not dropped");
 });
 
-check("reconcile: distinct specific areas don't cross-pollinate (free 'bar' keeps out 'patio' deals)", () => {
+check("reconcile: distinct specific areas don't cross-pollinate; both the patio deal and the bare bar window survive", () => {
   const free = result([win({ locationWithinVenue: "bar", offerings: [] })], 1);
   const model = result([win({ locationWithinVenue: "patio", offerings: [off({ name: "Patio-only" })] })]);
   const r = reconcileFreeDaysWithModelOfferings(free, model);
-  assert.equal(r.happyHours.length, 1, "only the free 'bar' window survives");
-  assert.equal(r.happyHours[0].offerings.length, 0, "free 'bar' window did not absorb 'patio' deals");
+  assert.equal(r.happyHours.length, 2, "patio window kept (real deal) AND the unmatched bare bar window kept");
+  const patio = r.happyHours.find((w) => w.locationWithinVenue === "patio")!;
+  assert.equal(patio.offerings[0].name, "Patio-only", "patio deal preserved");
+  const bar = r.happyHours.find((w) => w.locationWithinVenue === "bar")!;
+  assert.equal(bar.offerings.length, 0, "bar window stays bare (did not absorb patio deal)");
 });
 
 console.log(`\n${passed} checks passed.`);
