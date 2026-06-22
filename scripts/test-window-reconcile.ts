@@ -10,6 +10,7 @@ import {
   mergeDuplicates,
   isOperatingHours,
   windowsOverlap,
+  windowContains,
   reconcileWindows,
   offeringsFingerprint,
   type ReconcileWindow,
@@ -337,7 +338,9 @@ check("GOLDEN SunSet: real deal window survives a bare fragment AND an op-hours 
   assert.equal(live[0].window.endTime, "17:30:00");
   const hidden = rs.filter((r) => !r.active);
   assert.ok(hidden.find((r) => r.window.endTime === "20:00:00")?.reasons.includes("operating_hours"));
-  assert.ok(hidden.find((r) => r.window.endTime === "17:00:00")?.reasons.includes("overlap_conflict"));
+  // The bare 16–17 fragment is fully CONTAINED by the real 16:00–17:30 deal, so the
+  // (more specific) bare-covered clip catches it before the overlap pass.
+  assert.ok(hidden.find((r) => r.window.endTime === "17:00:00")?.reasons.includes("bare_covered_clip"));
 });
 
 
@@ -420,6 +423,106 @@ check("closed-day clip: unknown hours (null/empty) never clips", () => {
   assert.deepEqual(a[0].window.daysOfWeek, [1, 2, 3, 4, 5, 6, 7]);
   const b = reconcileWindows([w([1, 2, 3, 4, 5, 6, 7], "15:00:00", "18:00:00")], []);
   assert.deepEqual(b[0].window.daysOfWeek, [1, 2, 3, 4, 5, 6, 7]);
+});
+
+check("windowContains: identical interval → true", () => {
+  assert.equal(windowContains(w([1], "15:00:00", "18:00:00"), w([1], "15:00:00", "18:00:00")), true);
+});
+check("windowContains: wider deal contains narrower bare → true", () => {
+  assert.equal(windowContains(w([1], "14:00:00", "19:00:00"), w([1], "15:00:00", "18:00:00")), true);
+});
+check("windowContains: narrower deal does NOT contain wider bare → false", () => {
+  assert.equal(windowContains(w([1], "15:00:00", "17:00:00"), w([1], "15:00:00", "18:00:00")), false);
+});
+check("windowContains: until-close handling (null end = end of day)", () => {
+  assert.equal(windowContains(w([1], "21:00:00", null), w([1], "21:00:00", null)), true);
+  // a bounded deal ending 23:00 cannot cover an until-close bare.
+  assert.equal(windowContains(w([1], "21:00:00", "23:00:00"), w([1], "21:00:00", null)), false);
+});
+check("windowContains: all-day deal contains a bounded bare; bounded deal does NOT contain all-day bare", () => {
+  assert.equal(windowContains(w([1], null, null, true), w([1], "15:00:00", "18:00:00")), true);
+  assert.equal(windowContains(w([1], "15:00:00", "18:00:00"), w([1], null, null, true)), false);
+});
+
+check("GOLDEN Eureka: bare 15–18 [1-7] beside Mon/Tue deals → minority covered → clipped to Wed–Sun", () => {
+  const rs = reconcileWindows(
+    [
+      { ...w([1, 2, 3, 4, 5, 6, 7], "15:00:00", "18:00:00"), offeringsKey: "" },
+      { ...w([1], "15:00:00", "18:00:00"), offeringsKey: "well drink|600" },
+      { ...w([2], "15:00:00", "18:00:00"), offeringsKey: "house wine|700" },
+    ],
+    null,
+  );
+  const bare = rs.find((r) => (r.window.offeringsKey ?? "") === "")!;
+  assert.equal(bare.active, true);
+  assert.deepEqual(bare.window.daysOfWeek, [3, 4, 5, 6, 7]);
+  assert.ok(bare.reasons.includes("bare_covered_clip"));
+  assert.equal(active(rs).length, 3); // clipped bare + 2 deals all live
+});
+
+check("bare window DROPPED when a strict majority of its days are covered by deals (3 of 5)", () => {
+  const rs = reconcileWindows(
+    [
+      { ...w([1, 2, 3, 4, 5], "15:00:00", "18:00:00"), offeringsKey: "" },
+      { ...w([1], "15:00:00", "18:00:00"), offeringsKey: "a|100" },
+      { ...w([2], "15:00:00", "18:00:00"), offeringsKey: "b|200" },
+      { ...w([3], "15:00:00", "18:00:00"), offeringsKey: "c|300" },
+    ],
+    null,
+  );
+  const bare = rs.find((r) => (r.window.offeringsKey ?? "") === "")!;
+  assert.equal(bare.active, false);
+  assert.ok(bare.reasons.includes("bare_covered_clip"));
+  assert.equal(active(rs).length, 3); // only the 3 deal windows
+});
+
+check("bare window fully covered (100%) is dropped", () => {
+  const rs = reconcileWindows(
+    [
+      { ...w([1, 2], "16:00:00", "18:00:00"), offeringsKey: "" },
+      { ...w([1], "16:00:00", "18:00:00"), offeringsKey: "a|100" },
+      { ...w([2], "16:00:00", "18:00:00"), offeringsKey: "b|200" },
+    ],
+    null,
+  );
+  const bare = rs.find((r) => (r.window.offeringsKey ?? "") === "")!;
+  assert.equal(bare.active, false);
+});
+
+check("a lone bare window (no deal windows) is never clipped — only info we have", () => {
+  const rs = reconcileWindows([{ ...w([1, 2, 3, 4, 5], "15:00:00", "18:00:00"), offeringsKey: "" }], null);
+  assert.equal(rs.length, 1);
+  assert.equal(rs[0].active, true);
+  assert.deepEqual(rs[0].window.daysOfWeek, [1, 2, 3, 4, 5]);
+  assert.equal(rs[0].reasons.includes("bare_covered_clip"), false);
+});
+
+check("bare NOT clipped when the overlapping deal is narrower in time (containment, not overlap)", () => {
+  // deal 15–17 does not cover the bare's 17–18 → the clip pass must not fire.
+  // (Pass 3 overlap-conflict still hides the bare — but for a different reason.)
+  const rs = reconcileWindows(
+    [
+      { ...w([1, 2, 3, 4, 5], "15:00:00", "18:00:00"), offeringsKey: "" },
+      { ...w([1, 2, 3, 4, 5], "15:00:00", "17:00:00"), offeringsKey: "a|100" },
+    ],
+    null,
+  );
+  const bare = rs.find((r) => (r.window.offeringsKey ?? "") === "")!;
+  assert.equal(bare.reasons.includes("bare_covered_clip"), false);
+});
+
+check("La Marcha: bare 22:00–close [1-6] beside Fri/Sat deal → minority covered → clipped to [1-4]", () => {
+  const rs = reconcileWindows(
+    [
+      { ...w([1, 2, 3, 4, 5, 6], "22:00:00", "00:00:00"), offeringsKey: "" },
+      { ...w([5, 6], "22:00:00", "00:00:00"), offeringsKey: "sangria|900" },
+    ],
+    null,
+  );
+  const bare = rs.find((r) => (r.window.offeringsKey ?? "") === "")!;
+  assert.equal(bare.active, true);
+  assert.deepEqual(bare.window.daysOfWeek, [1, 2, 3, 4]);
+  assert.ok(bare.reasons.includes("bare_covered_clip"));
 });
 
 console.log(`\n${passed} checks passed.`);

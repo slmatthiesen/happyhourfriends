@@ -2,6 +2,8 @@
  * Re-apply the deterministic window-reconcile gate to EXISTING happy_hours rows.
  *   pnpm tsx scripts/reconcile-windows.ts --city spokane --state wa            (dry-run report)
  *   pnpm tsx scripts/reconcile-windows.ts --city spokane --state wa --apply    (write changes)
+ *   …add --bare-covered-only to persist ONLY bare-covered clips/drops (a surgical heal
+ *     that won't flush accumulated operating-hours / overlap / closed-day verdicts).
  *
  * Merges exact-duplicate windows (keeps one, unions days, soft-deletes the rest), and
  * flips active=false on operating-hours / overlap-conflict windows. NEVER hard-deletes.
@@ -14,6 +16,7 @@ import { reconcileWindows, mergeKey, offeringsFingerprint, type ReconcileWindow 
 import type { OpenPeriod } from "@/lib/geo/timezone";
 
 const apply = process.argv.includes("--apply");
+const bareCoveredOnly = process.argv.includes("--bare-covered-only");
 
 async function main() {
   const { slug, state } = requireCityArgs();
@@ -30,6 +33,7 @@ async function main() {
 
     let hiddenTotal = 0;
     let mergedTotal = 0;
+    let clippedTotal = 0;
     const report: string[] = [];
 
     for (const v of venues) {
@@ -81,6 +85,10 @@ async function main() {
       };
 
       for (const res of results) {
+        // Surgical heal: persist only bare-covered verdicts, leaving any accumulated
+        // operating-hours / overlap / closed-day verdicts (incl. full-day hides of real
+        // deal windows on stale Google hours) for the operator's full routine.
+        if (bareCoveredOnly && !res.reasons.includes("bare_covered_clip")) continue;
         const key = mergeKey(res.window);
         const ids = idsByKey.get(key) ?? [];
         if (ids.length === 0) continue;
@@ -118,6 +126,24 @@ async function main() {
             await sql`UPDATE happy_hours SET active = false, updated_at = now() WHERE id = ${keep}`;
           }
         }
+
+        // Clip: an active bare window whose day-set shrank WITHOUT a merge (bare-covered
+        // clip). The merge branch already writes the union (which is post-clip) when rows
+        // were absorbed, so this only covers the no-merge case. Never writes an empty array
+        // — a fully-clipped window is inactive and handled by the HIDE branch. Scoped to
+        // bare_covered_clip: persisting closed_day_clip on real deal-carrying windows is a
+        // separate, Google-hours-dependent sweep, intentionally left out of this path.
+        if (res.active && keepAlive && absorbed.length === 0 && res.reasons.includes("bare_covered_clip")) {
+          const before = [...new Set(rows.find((r) => r.id === keep)?.days_of_week ?? [])].sort((a, b) => a - b);
+          const after = res.window.daysOfWeek;
+          if (after.length > 0 && after.join(",") !== before.join(",")) {
+            clippedTotal += 1;
+            report.push(`  CLIP   ${v.name}: ${label(res.window)} days ${before.join(",")} → ${after.join(",")} [${res.reasons.join(",")}]`);
+            if (apply) {
+              await sql`UPDATE happy_hours SET days_of_week = ${after}, updated_at = now() WHERE id = ${keep}`;
+            }
+          }
+        }
       }
 
       // If reconcile hid a venue's LAST active window, it's no longer a complete listing —
@@ -138,7 +164,7 @@ async function main() {
 
     console.log(report.join("\n"));
     console.log(
-      `\n${apply ? "APPLIED" : "DRY-RUN"} for '${slug}/${state}': ${mergedTotal} duplicate row(s) merged, ${hiddenTotal} window(s) hidden.`,
+      `\n${apply ? "APPLIED" : "DRY-RUN"} for '${slug}/${state}': ${mergedTotal} duplicate row(s) merged, ${clippedTotal} window(s) day-clipped, ${hiddenTotal} window(s) hidden.`,
     );
     if (!apply) console.log("Re-run with --apply to write.");
   } finally {
