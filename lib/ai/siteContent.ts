@@ -8,6 +8,14 @@
 import type { ContentBlockParam } from "@anthropic-ai/sdk/resources/messages";
 import { fetchUrl, type FetchResult, type ImageMediaType } from "@/lib/verification/fetchUrl";
 import { hasHhOrDealSignal, hasPriceOrDealSignal, looksLikeMenuDoc, scoreHhUrl, TIME_RANGE_RE } from "@/lib/places/hhText";
+import { mapWithConcurrency } from "@/lib/async/mapWithConcurrency";
+
+// A venue's candidate URLs are nearly all the same host, so firing them all at once
+// (the old Promise.all) rate-limited the server into 429s and the HH page never loaded.
+// Cap in-flight fetches per fetchPages call and stagger their starts so we stay a polite
+// client. fetchUrl's own 429 backoff-retry handles any rate-limit we still trip.
+const FETCH_CONCURRENCY = 3;
+const FETCH_SPACING_MS = 150;
 
 // Bound the document (PDF/image) payload fed to the model. A venue with many menu
 // PDFs (Bottega has 6) overwhelms the extractor — 6/4.5MB returned nothing, while
@@ -199,12 +207,20 @@ export async function fetchPages(
   const fetchOne = async (u: string): Promise<FetchResult> => {
     const r = await fetchUrl(u, { maxContent: opts.maxContent });
     if (needsBrowserRender(r) && opts.render) {
-      const rendered = await opts.render(u);
-      if (rendered.ok) return rendered;
+      // A render failure must not abort the whole (fail-fast) concurrency pool — fall back
+      // to the plain result so one bad page can't drop every other URL for the venue.
+      try {
+        const rendered = await opts.render(u);
+        if (rendered.ok) return rendered;
+      } catch {
+        /* keep the plain fetch result */
+      }
     }
     return r;
   };
-  const results = await Promise.all(unique.map(fetchOne));
+  const results = await mapWithConcurrency(unique, FETCH_CONCURRENCY, (u) => fetchOne(u), {
+    minSpacingMs: FETCH_SPACING_MS,
+  });
   const pages: FetchedPage[] = [];
   const seen = new Set(unique.map(fetchUrlKey));
   const follow: string[] = [];
@@ -229,7 +245,9 @@ export async function fetchPages(
   // we'd otherwise only read as text. Bottega's happy-hour PDF is here.
   const toFollow = follow.slice(0, 6);
   if (toFollow.length > 0) {
-    const more = await Promise.all(toFollow.map(fetchOne));
+    const more = await mapWithConcurrency(toFollow, FETCH_CONCURRENCY, (u) => fetchOne(u), {
+      minSpacingMs: FETCH_SPACING_MS,
+    });
     for (const r of more) if (r.ok && (r.isPdf || r.isImage)) docs.push(r);
   }
 
