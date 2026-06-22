@@ -13,7 +13,7 @@
  * module is imported only by the local seed/enrich (prep-time) pipeline.
  */
 import type { APIRequestContext, Browser, BrowserContext } from "playwright";
-import type { FetchResult } from "@/lib/verification/fetchUrl";
+import { sniffImageMediaType, type FetchResult } from "@/lib/verification/fetchUrl";
 import { extractMediaLinks, extractMenuEmbedUrls } from "@/lib/places/siteTriage";
 
 const UA =
@@ -126,8 +126,10 @@ export async function renderUrl(
     const imgType = isImageCt(ct);
     if (imgType) {
       const buf = await resp.body();
-      if (buf.length <= maxBytes) {
-        return { url: finalUrl, ok: true, status: resp.status(), contentType: ct, isImage: true, imageBase64: buf.toString("base64"), imageMediaType: imgType };
+      // Trust the BYTES: a WebP served as image/png mislabeled here 400s the extraction request.
+      const actualType = sniffImageMediaType(buf);
+      if (actualType && buf.length <= maxBytes) {
+        return { url: finalUrl, ok: true, status: resp.status(), contentType: actualType, isImage: true, imageBase64: buf.toString("base64"), imageMediaType: actualType };
       }
     }
 
