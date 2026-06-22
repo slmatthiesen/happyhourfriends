@@ -50,7 +50,7 @@ async function main() {
   console.log(`url: ${url ?? "(none)"}\n`);
 
   // ---- Boundary 1: triage (page discovery) ----
-  const verdict = await triageSite({ websiteUri: url, name, cityName: null });
+  const verdict = await triageSite({ websiteUri: url, name, cityName: null, primaryType, types });
   const likelihood = hhLikelihood({ primaryType, types, name });
   const decided = resolveEnrichAction(verdict, likelihood);
   console.log("── triage ──");

@@ -349,17 +349,35 @@ export function extractMediaLinks(html: string, baseUrl: string): string[] {
  *  because they're too generic to count as a happy-hour page on their own). */
 export const GUESS_MENU_PATHS = [
   "/happy-hour", "/happyhour", "/happy-hour-menu", "/menu/happy-hour",
-  // Multilingual HH pages (Iberia's was /vermut-hour/): probe these too — ethnic venues
-  // label their happy hour in their own language (Spanish vermut/hora-feliz, Italian aperitivo).
-  "/vermut-hour", "/hora-feliz", "/aperitivo", "/apericena",
   "/specials", "/bar-menu", "/drink-menu", "/drinks", "/cocktails",
   "/menu", "/menus", "/food-menu",
 ];
 
-export function guessMenuUrls(baseUrl: string): string[] {
+// Multilingual HH pages (Iberia's was /vermut-hour/): ethnic venues label their happy hour
+// in their own language (Spanish vermut/hora-feliz, Italian aperitivo). Probed ONLY for
+// venues whose cuisine/name signals that locale — guessing them for an American seafood
+// chain is four guaranteed 404s per venue (same-host round-trips that pressure the rate
+// limiter). When a venue actually LINKS such a page, extractHhSignalLinks/routes/sitemap
+// still find it regardless; this list is only the unlinked-path safety net.
+export const MULTILINGUAL_MENU_PATHS = ["/vermut-hour", "/hora-feliz", "/aperitivo", "/apericena"];
+
+// Cuisine/name signal that a venue may label its happy hour in Spanish or Italian.
+const MULTILINGUAL_LOCALE_RE =
+  /spanish|mexican|latin|tapas|peruvian|argentin|cuban|spaniard|italian|trattoria|osteria|enoteca|cantina|taqueria|taco|vermut|aperitivo|apericena/i;
+
+/** True when a venue's name/types suggest a Spanish/Italian/Latin HH vocabulary. */
+export function wantsMultilingualGuesses(
+  signal: { name?: string | null; primaryType?: string | null; types?: string[] | null } = {},
+): boolean {
+  const hay = [signal.name, signal.primaryType, ...(signal.types ?? [])].filter(Boolean).join(" ");
+  return MULTILINGUAL_LOCALE_RE.test(hay);
+}
+
+export function guessMenuUrls(baseUrl: string, includeMultilingual = false): string[] {
   try {
     const origin = new URL(baseUrl).origin;
-    return GUESS_MENU_PATHS.map((p) => origin + p);
+    const paths = includeMultilingual ? [...GUESS_MENU_PATHS, ...MULTILINGUAL_MENU_PATHS] : GUESS_MENU_PATHS;
+    return paths.map((p) => origin + p);
   } catch {
     return [];
   }
@@ -369,11 +387,23 @@ export function guessMenuUrls(baseUrl: string): string[] {
 // Wix (and similar) auto-name a venue's events/HH page with an opaque slug like
 // `/about-3-1` — scoreHhUrl scores it 0, so the old `scoreHhUrl(u) > 0` filter dropped
 // it and the page (which holds the HH) was never fetched. CONTENT_HINT keeps such pages;
-// PAGE_NOISE drops cart/account/legal/ordering routes that never carry HH.
+// PAGE_NOISE + EDITORIAL_NOISE drop routes that never carry a happy hour.
+//
+// Deliberately EXCLUDES the bare meal/food tokens (food|dining|dinner|lunch|brunch): on
+// chains they matched marketing/blog slugs (Anthony's /finn-the-food-truck,
+// /our-seafood-buyers-guide, /fanzone-dining, /certified-sustainable-lobster-tail-dinners)
+// that scored 0 yet were fetched AND fed to the model — wasted round-trips + input tokens.
+// A real menu page still survives on `menu`; a daily-special page on `special`; the opaque
+// Wix slug on `about`/`event`. So we lose the marketing noise, not the HH.
 const CONTENT_HINT =
-  /about|event|special|menu|food|drink|dining|cocktail|happy|hour|deal|brunch|lunch|dinner|\bbar\b|vermut|aperitivo|apericena|hora[-_ ]?feliz/i;
+  /about|event|special|menu|drink|cocktail|happy|hour|deal|\bbar\b|vermut|aperitivo|apericena|hora[-_ ]?feliz/i;
 const PAGE_NOISE =
   /\/(cart|checkout|account|login|sign-?in|register|privacy|terms|gift|careers?|jobs?|contact|reservations?|order-online|form-confirmation|sitemap)\b/i;
+// Editorial/blog/PR pages that legitimately carry a HH keyword (a "cocktail-guide" article,
+// a "happy-hour-news" post) but are prose, not a menu — drop them even when CONTENT_HINT or
+// scoreHhUrl would otherwise keep them. Anchored so it never eats a real /menu or /specials.
+const EDITORIAL_NOISE =
+  /\/(blog|news|press|article|story|stories|recipes?|guide|cooking|featured)\b|\/20\d\d\/\d|food-truck/i;
 
 /**
  * From a pool of declared URLs (a sitemap, or a site's embedded routes), pick the
@@ -396,7 +426,7 @@ export function pickDeclaredPages(urls: string[], baseUrl: string, limit = 6): s
         return false;
       }
     })
-    .filter((u) => !PAGE_NOISE.test(u))
+    .filter((u) => !PAGE_NOISE.test(u) && !EDITORIAL_NOISE.test(u))
     .map((u) => ({ u, s: scoreHhUrl(u) }))
     .filter((x) => x.s > 0 || CONTENT_HINT.test(x.u))
     .sort((a, b) => b.s - a.s);
@@ -459,6 +489,7 @@ export function siteVerdictFromFetch(
   url: string,
   outcome: FetchOutcome,
   sitemapUrls: string[] = [],
+  wantMultilingual = false,
 ): SiteVerdict {
   if (outcome.kind === "timeout") {
     return { kind: "real", url, reachability: "timeout", hhSignalUrls: [], confirmedHhUrls: [], decision: "stub", reason: "slow site (timeout) — kept as stub" };
@@ -505,16 +536,17 @@ export function siteVerdictFromFetch(
     // rank ahead of speculative path guesses (a declared /about-3-1 / /scottsdale exists;
     // a guessed /happy-hour usually 404s).
     const declared = pickDeclaredPages(sitemapUrls, finalUrl, 6);
-    // 16 (was 12): the multilingual HH guess paths (/vermut-hour, /aperitivo, …) score 100 and
-    // would otherwise bump generic /menu out of the net. The extractor's own MAX_FETCH still
-    // bounds actual fetches, so a longer priority list costs nothing.
-    const guesses = rankCandidates(guessMenuUrls(finalUrl), 16);
+    // Speculative path guesses, ranked most-likely-HH first. Multilingual paths are gated
+    // to Spanish/Italian/Latin venues (wantMultilingual) — guessing them everywhere is dead
+    // round-trips that pressure the rate limiter. Cap 12 = MAX_FETCH; confirmed pages lead,
+    // so guesses only fill the slots real pages leave.
+    const guesses = rankCandidates(guessMenuUrls(finalUrl, wantMultilingual), 12);
     // CONFIRMED = linked docs + anchor/route links + sitemap pages (all known to exist).
     // EXCLUDES `guesses` — only confirmed pages may trigger a PAID escalation downstream.
     confirmedHhUrls = rankCandidates([...rankedMedia, ...confirmed, ...declared], 12);
-    hhSignalUrls = [...new Set([...rankedMedia, ...confirmed, ...declared, ...guesses])].slice(0, 16);
+    hhSignalUrls = [...new Set([...rankedMedia, ...confirmed, ...declared, ...guesses])].slice(0, 12);
   } else {
-    hhSignalUrls = guessMenuUrls(url); // bot-blocked: still probe the obvious paths
+    hhSignalUrls = guessMenuUrls(url, wantMultilingual); // bot-blocked: still probe the obvious paths
     confirmedHhUrls = []; // page unreadable → nothing confirmed (guesses must not escalate)
   }
   return { kind: "real", url, reachability: "ok", hhSignalUrls, confirmedHhUrls, decision: "extract", reason: "reachable" };
@@ -524,6 +556,8 @@ export async function triageSite(input: {
   websiteUri: string | null;
   name: string;
   cityName: string | null;
+  primaryType?: string | null;
+  types?: string[] | null;
 }): Promise<SiteVerdict> {
   const cls = classifyUrl(input.websiteUri);
   if (cls.kind === "none") {
@@ -559,5 +593,10 @@ export async function triageSite(input: {
     }
   }
 
-  return siteVerdictFromFetch(cls.url!, outcome, sitemapUrls);
+  const wantMultilingual = wantsMultilingualGuesses({
+    name: input.name,
+    primaryType: input.primaryType,
+    types: input.types,
+  });
+  return siteVerdictFromFetch(cls.url!, outcome, sitemapUrls, wantMultilingual);
 }

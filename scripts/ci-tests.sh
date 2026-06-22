@@ -33,6 +33,7 @@ TESTS=(
   test:review-siblings
   test:stub-rank
   test:extract
+  test:extract-image-fallback
   test:realness-gate
   test:jsonld-menu
   test:signal-gate
