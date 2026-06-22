@@ -343,12 +343,55 @@ export function extractMediaLinks(html: string, baseUrl: string): string[] {
     .slice(0, 6);
 }
 
+// Third-party MENU-widget hosts: restaurant sites embed the actual menu (items + prices, often
+// the ONLY place the happy-hour deals live) in a cross-origin iframe from one of these platforms.
+// The iframe content is invisible to the page's own text AND to extractMediaLinks (which scans
+// <a>/<img>/ld+json media, not <iframe>), so the window extracts but the deals don't → a bare
+// window (Finch & Fork SB: SinglePlatform). These hosts are platform-wide, so fetching the widget
+// URL as text recovers a whole class of venues. Allowlist (not a generic iframe sweep) so maps/
+// social/video/reservation iframes — which carry no menu — are never followed. host-suffix match.
+const MENU_EMBED_HOSTS = [
+  "singleplatform.com", // menu-display widget (places./menus.singleplatform.com) — verified
+  "toasttab.com", // Toast online ordering (order.toasttab.com) — menu + prices
+  "popmenu.com", // Popmenu menu platform
+  "getbento.com", // BentoBox menu embeds
+];
+
+/**
+ * Menu-widget iframe URLs in `html`, absolutized + deduped (discovery order preserved). Only
+ * iframes whose host is a known MENU platform (MENU_EMBED_HOSTS) — a reservation/map/social
+ * iframe is never returned. Caller fetches each as a text page so the embedded deals reach the
+ * model. Pure + exported for unit testing. Run on RENDERED html (the iframe is usually JS-injected).
+ */
+export function extractMenuEmbedUrls(html: string, baseUrl: string): string[] {
+  const out = new Map<string, true>();
+  const iframeRe = /<iframe\b[^>]*?\b(?:src|data-src)\s*=\s*["']([^"']+)["'][^>]*>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = iframeRe.exec(html)) !== null) {
+    // Rendered HTML encodes & as &amp; in attributes; decode so query params keep their real names
+    // (else `&amp;display_menu=…` parses as a param literally named `amp;display_menu`, the widget
+    // ignores menu scoping and returns EVERY menu — Finch & Fork's 260KB all-menus dump).
+    const src = m[1].replace(/&amp;/gi, "&");
+    let abs: URL;
+    try { abs = new URL(src, baseUrl); } catch { continue; }
+    const host = abs.hostname.toLowerCase();
+    if (MENU_EMBED_HOSTS.some((h) => host === h || host.endsWith(`.${h}`))) out.set(abs.toString(), true);
+  }
+  const urls = [...out.keys()];
+  // A `*_modal` widget is a "browse every menu" popup — on an HH page it floods the payload with
+  // regular-menu items (meal-special over-capture). Drop it WHEN a scoped sibling carries the
+  // actual menu; keep it only if it's the lone widget.
+  const isModal = (u: string) => /_modal\/?$/i.test(new URL(u).pathname);
+  const scoped = urls.filter((u) => !isModal(u));
+  return scoped.length > 0 ? scoped : urls;
+}
+
 /** Common HH/menu paths to PROBE even when nothing links them (most→least specific).
  *  When adding HH-specific paths here, check `ownSiteHhProbe.OWN_SITE_HH_PATHS` — it is a
  *  deliberate subset of these (the generic /menu, /drinks, /cocktails paths are excluded
  *  because they're too generic to count as a happy-hour page on their own). */
 export const GUESS_MENU_PATHS = [
-  "/happy-hour", "/happyhour", "/happy-hour-menu", "/menu/happy-hour",
+  "/happy-hour", "/happyhour", "/happy-hour-menu", "/menu/happy-hour", "/menus/happy-hour",
   "/specials", "/bar-menu", "/drink-menu", "/drinks", "/cocktails",
   "/menu", "/menus", "/food-menu",
 ];
