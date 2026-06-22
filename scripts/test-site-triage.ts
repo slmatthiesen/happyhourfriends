@@ -14,6 +14,8 @@ import {
   siteVerdictFromFetch,
   pickDeclaredPages,
   classifyFetchError,
+  guessMenuUrls,
+  wantsMultilingualGuesses,
   type SiteVerdict,
 } from "@/lib/places/siteTriage";
 
@@ -392,6 +394,69 @@ check("bot-blocked (non-200) → confirmedHhUrls empty (no confirmed links were 
 check("dead/stub verdicts carry an empty confirmedHhUrls", () => {
   assert.deepEqual(siteVerdictFromFetch("http://gone/", { kind: "unreachable" }).confirmedHhUrls, []);
   assert.deepEqual(siteVerdictFromFetch("http://slow/", { kind: "timeout" }).confirmedHhUrls, []);
+});
+
+// --- discovery precision: drop meal-token marketing noise, gate multilingual guesses ---
+check("pickDeclaredPages drops chain marketing slugs that only matched a meal token", () => {
+  const sitemap = [
+    "https://anthonys.com/restaurant/x/",
+    "https://anthonys.com/feature/happy-hour/",        // real HH — keep
+    "https://anthonys.com/menu/happy-hour",            // real HH — keep
+    "https://anthonys.com/finn-the-food-truck/",       // marketing (was kept via "food")
+    "https://anthonys.com/our-seafood-buyers-guide/",  // marketing (was kept via "food")
+    "https://anthonys.com/fanzone-dining/",            // marketing (was kept via "dining")
+    "https://anthonys.com/certified-sustainable-lobster-tail-dinners/", // (was kept via "dinner")
+    "https://anthonys.com/3-most-important-things-when-cooking-seafood/",
+  ];
+  const picked = pickDeclaredPages(sitemap, "https://anthonys.com/", 8);
+  assert.ok(picked.includes("https://anthonys.com/feature/happy-hour/"), "keeps the HH feature page");
+  assert.ok(picked.includes("https://anthonys.com/menu/happy-hour"), "keeps the HH menu page");
+  for (const noise of ["finn-the-food-truck", "seafood-buyers-guide", "fanzone-dining", "lobster-tail-dinners", "cooking-seafood"]) {
+    assert.ok(!picked.some((u) => u.includes(noise)), `drops marketing slug: ${noise}`);
+  }
+});
+check("pickDeclaredPages still keeps a real /menu and the opaque Wix slug", () => {
+  const picked = pickDeclaredPages(
+    ["https://w.com/menu", "https://w.com/about-3-1", "https://w.com/events"],
+    "https://w.com/", 6,
+  );
+  assert.ok(picked.includes("https://w.com/menu"));
+  assert.ok(picked.includes("https://w.com/about-3-1"), "opaque content slug survives on CONTENT_HINT");
+});
+check("EDITORIAL_NOISE drops a blog/news article even when it carries a HH keyword", () => {
+  const picked = pickDeclaredPages(
+    ["https://b.com/blog/best-happy-hour-cocktails", "https://b.com/happy-hour", "https://b.com/2026/03/news"],
+    "https://b.com/", 6,
+  );
+  assert.ok(picked.includes("https://b.com/happy-hour"), "real HH page kept");
+  assert.ok(!picked.some((u) => u.includes("/blog/")), "blog article dropped");
+  assert.ok(!picked.some((u) => u.includes("/news")), "dated news path dropped");
+});
+check("wantsMultilingualGuesses: locale signal on / off", () => {
+  assert.equal(wantsMultilingualGuesses({ primaryType: "mexican_restaurant" }), true);
+  assert.equal(wantsMultilingualGuesses({ name: "Trattoria Bella" }), true);
+  assert.equal(wantsMultilingualGuesses({ name: "Iberia Tapas", types: ["spanish_restaurant"] }), true);
+  assert.equal(wantsMultilingualGuesses({ name: "Anthony's", primaryType: "seafood_restaurant" }), false);
+  assert.equal(wantsMultilingualGuesses({}), false);
+});
+check("guessMenuUrls excludes multilingual paths by default, includes them when flagged", () => {
+  const base = guessMenuUrls("https://x.com/");
+  assert.ok(base.includes("https://x.com/happy-hour"), "core HH guess present");
+  assert.ok(!base.some((u) => u.includes("vermut") || u.includes("aperitivo")), "no multilingual by default");
+  const ml = guessMenuUrls("https://x.com/", true);
+  assert.ok(ml.includes("https://x.com/vermut-hour") && ml.includes("https://x.com/aperitivo"), "multilingual when flagged");
+});
+check("siteVerdictFromFetch: American venue gets no multilingual guess, Spanish venue does", () => {
+  const html = "content ".repeat(40);
+  const american = siteVerdictFromFetch("https://a.com/", { kind: "response", status: 200, html, finalUrl: "https://a.com/" }, [], false);
+  assert.ok(!american.hhSignalUrls.some((u) => u.includes("vermut") || u.includes("aperitivo")));
+  const spanish = siteVerdictFromFetch("https://s.com/", { kind: "response", status: 200, html, finalUrl: "https://s.com/" }, [], true);
+  assert.ok(spanish.hhSignalUrls.some((u) => u.includes("vermut-hour")), "Spanish venue probes /vermut-hour");
+});
+check("siteVerdictFromFetch caps hhSignalUrls at 12 (was 16)", () => {
+  const html = "content ".repeat(40);
+  const v = siteVerdictFromFetch("https://c.com/", { kind: "response", status: 200, html, finalUrl: "https://c.com/" }, [], true);
+  assert.ok(v.hhSignalUrls.length <= 12, `cap is 12, got ${v.hhSignalUrls.length}`);
 });
 
 console.log(`\n${passed} checks passed.`);
