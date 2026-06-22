@@ -13,7 +13,7 @@
  * module is imported only by the local seed/enrich (prep-time) pipeline.
  */
 import type { APIRequestContext, Browser, BrowserContext } from "playwright";
-import { sniffImageMediaType, type FetchResult } from "@/lib/verification/fetchUrl";
+import { harvestMenuJson, sniffImageMediaType, type FetchResult } from "@/lib/verification/fetchUrl";
 import { extractMediaLinks, extractMenuEmbedUrls } from "@/lib/places/siteTriage";
 
 const UA =
@@ -145,8 +145,11 @@ export async function renderUrl(
       // NOT in body.innerText. Fetch each widget's own HTML as text and fold it in, so a single
       // paid extraction captures the menu instead of leaving a bare window (Finch & Fork SB).
       const embedText = await harvestMenuEmbeds(ctx.request, html, page.url(), { timeout, maxBytes });
-      const contentText = embedText ? (text ? `${text}\n\n${embedText}` : embedText) : text;
-      return { url: page.url(), ok: true, status: nav?.status() ?? resp.status(), contentType: ct, contentText, mediaLinks };
+      // Inline framework menu JSON (Next.js RSC / Squarespace tabs): the HH menu is in a <script>
+      // chunk innerText can't see — reconstruct it so the deals reach the model (Twelvemonth SB).
+      const menuJson = harvestMenuJson(html);
+      const parts = [text, menuJson, embedText].filter(Boolean);
+      return { url: page.url(), ok: true, status: nav?.status() ?? resp.status(), contentType: ct, contentText: parts.join("\n\n"), mediaLinks };
     } finally {
       await page.close().catch(() => {});
     }

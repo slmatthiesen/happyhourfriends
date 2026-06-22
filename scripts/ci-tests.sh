@@ -24,6 +24,7 @@ TESTS=(
   test:first-party
   test:source-provenance
   test:menu-embed
+  test:menu-json
   test:menu-platform
   test:venue-quality
   test:harvest

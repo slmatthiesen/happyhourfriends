@@ -185,6 +185,48 @@ export function harvestScriptText(html: string, cap = 8000): string {
   return out.join(" · ");
 }
 
+/**
+ * Pull structured menus out of inline JSON. JS frameworks (Next.js RSC / Squarespace) embed the
+ * full menu — including Happy Hour — as JSON in a <script> and render it into tabs client-side, so
+ * innerText sees only the visible tab and stripHtml/harvestScriptText can't pair an item's name with
+ * its price (Twelvemonth's HH never reached the model → a bare window). This walks the menu shape
+ * `{"title":<section>,"items":[{"name":…,"price":…}]}` in document order and emits readable
+ * "## Section / Name — $price" lines so the model gets the deals (it scopes to the HH section, so we
+ * keep every section rather than pre-filter). Handles the flight-escaped (\") and plain forms.
+ * Pure + exported for unit testing.
+ */
+export function harvestMenuJson(html: string, cap = 8000): string {
+  // Unescape one level of flight encoding (self.__next_f chunks escape quotes as \"); a no-op for
+  // already-plain SSR JSON. Gate on the menu-item signature so non-menu JSON is never mined.
+  const u = html.replace(/\\"/g, '"');
+  if (!/"items"\s*:\s*\[\s*\{\s*"name"/.test(u)) return "";
+  const tokenRe =
+    /"title"\s*:\s*"([^"]{1,80})"|"name"\s*:\s*"([^"}]{1,80})"[^}]*?"price"\s*:\s*"([^"}]{0,24})"/g;
+  // Flight JSON encodes punctuation as \uXXXX (& → &) — decode so names read cleanly.
+  const dec = (s: string) =>
+    s.replace(/\\u([0-9a-fA-F]{4})/g, (_, h) => String.fromCharCode(parseInt(h, 16))).trim();
+  type Tok = { kind: "title" | "item"; name: string; price?: string };
+  const toks: Tok[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = tokenRe.exec(u)) !== null) {
+    if (m[1] !== undefined) toks.push({ kind: "title", name: dec(m[1]) });
+    else {
+      const price = dec(m[3] ?? "").replace(/\${2,}/g, "$"); // "$$15" template artifact → "$15"
+      toks.push({ kind: "item", name: dec(m[2]), price: /^\$?\d/.test(price) ? price : "" });
+    }
+  }
+  // Keep a section title only when an item follows it (drops page-meta "title" fields).
+  const lines: string[] = [];
+  let used = 0;
+  const push = (s: string) => { if (used < cap) { lines.push(s); used += s.length + 1; } };
+  for (let i = 0; i < toks.length; i++) {
+    const t = toks[i];
+    if (t.kind === "title") { if (toks[i + 1]?.kind === "item") push(`\n## ${t.name}`); }
+    else if (t.name) push(t.price ? `${t.name} — ${t.price}` : t.name);
+  }
+  return lines.some((l) => !l.startsWith("\n##")) ? lines.join("\n").trim() : "";
+}
+
 export interface FetchResult {
   url: string;
   ok: boolean;
@@ -291,6 +333,12 @@ export function stripHtml(html: string, maxContent: number = MAX_CONTENT): strin
   //     12 real HH items instead of a stray "$42" Sunday-Supper entrée.
   const jsonLdMenu = harvestJsonLdMenu(html);
   if (jsonLdMenu) text = text ? `${jsonLdMenu}\n\n${text}` : jsonLdMenu;
+
+  // 4d. Inline framework menu JSON (Next.js RSC / Squarespace): the full menu, including Happy
+  //     Hour, lives in a <script> flight chunk and renders into client-side tabs — invisible to
+  //     steps above. PREPEND the reconstructed name↔price menu (Twelvemonth's HH was here).
+  const menuJson = harvestMenuJson(html);
+  if (menuJson) text = text ? `${menuJson}\n\n${text}` : menuJson;
 
   if (text.length <= maxContent) return text;
 
