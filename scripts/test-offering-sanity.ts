@@ -5,7 +5,7 @@
  * Also covers the sourceDenylist additions from the same review.
  */
 import assert from "node:assert/strict";
-import { sanitizeOfferings, offeringNameKey } from "@/lib/recover/offeringSanity";
+import { sanitizeOfferings, offeringNameKey, classifyStoredOffering } from "@/lib/recover/offeringSanity";
 import type { ExtractedOffering } from "@/lib/ai/extractHappyHours";
 import { isDenylistedSource } from "@/lib/ai/sourceDenylist";
 
@@ -265,6 +265,35 @@ const EVERY_DAY = [1, 2, 3, 4, 5, 6, 7];
   assert.equal(realDeal.offerings.length, 1);
   assert.equal(realDeal.offerings[0]?.name, "Happy Hour Lager");
   check("guard: '$5 Happy Hour Lager' (real drink) kept, only the price prefix stripped");
+}
+
+// ── classifyStoredOffering: the backfill's per-row verdict over ALREADY-STORED rows ──
+{
+  assert.deepEqual(classifyStoredOffering({ name: "$19 Kamala Llama hummus", priceCents: 1900 }), {
+    action: "rename",
+    newName: "Kamala Llama hummus",
+  });
+  check("classify: price-prefixed name → rename to the stripped name");
+
+  assert.deepEqual(classifyStoredOffering({ name: "$18 HAPPY HOUR AT GLK", priceCents: 1800 }), {
+    action: "drop",
+  });
+  check("classify: '$18 HAPPY HOUR AT GLK' → drop (heading, after strip)");
+
+  assert.deepEqual(classifyStoredOffering({ name: "HAPPY HOUR AT GLK", priceCents: null }), { action: "drop" });
+  check("classify: bare heading with no price → drop");
+
+  assert.deepEqual(classifyStoredOffering({ name: "$1 off draft beers", priceCents: null }), { action: "keep" });
+  check("classify: '$N off …' discount → keep (not a redundant price)");
+
+  assert.deepEqual(classifyStoredOffering({ name: "Wells", priceCents: 500 }), { action: "keep" });
+  check("classify: already-clean name → keep (idempotent)");
+
+  assert.deepEqual(classifyStoredOffering({ name: "$5 Happy Hour Lager", priceCents: 500 }), {
+    action: "rename",
+    newName: "Happy Hour Lager",
+  });
+  check("classify: real 'Happy Hour <item>' deal → rename, never dropped");
 }
 
 console.log(`\n✓ ${passed} offering-sanity + denylist assertions passed.`);

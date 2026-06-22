@@ -68,6 +68,20 @@ export function isHappyHourHeading(name: string | null): boolean {
   );
 }
 
+/** Per-row verdict for a backfill over ALREADY-STORED offerings (sanitizeOfferings only
+ *  runs on fresh extractions). `drop` = soft-delete a heading mis-captured as an offering;
+ *  `rename` = strip the redundant price prefix in place; `keep` = leave it untouched.
+ *  Pure and idempotent — re-running over a cleaned row yields `keep`. */
+export function classifyStoredOffering(o: {
+  name: string | null;
+  priceCents: number | null;
+}): { action: "drop" } | { action: "rename"; newName: string } | { action: "keep" } {
+  const cleaned = stripRedundantPricePrefix(o.name, o.priceCents);
+  if (isHappyHourHeading(cleaned)) return { action: "drop" };
+  if (cleaned != null && cleaned !== o.name) return { action: "rename", newName: cleaned };
+  return { action: "keep" };
+}
+
 /** Shared lexicon predicates — also consumed by the audit anomaly rules so persist-time
  *  cleanup and stored-data auditing agree on what "looks like food" / "names a day" means. */
 export function isFoodTextMislabeledAsDrink(text: string): boolean {
