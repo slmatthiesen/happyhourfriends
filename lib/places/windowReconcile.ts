@@ -39,7 +39,8 @@ export type ReconcileReason =
   | "operating_hours"
   | "overlap_conflict"
   | "merged_duplicate"
-  | "closed_day_clip";
+  | "closed_day_clip"
+  | "bare_covered_clip";
 
 export interface ReconcileResult {
   window: ReconcileWindow; // possibly merged (days unioned)
@@ -187,6 +188,25 @@ function shareADay(a: ReconcileWindow, b: ReconcileWindow): boolean {
   return b.daysOfWeek.some((d) => set.has(d));
 }
 
+/** Clock interval of a window for coverage tests; all-day spans the whole day [0,1440]. */
+function clockInterval(win: ReconcileWindow): [number, number] | null {
+  if (win.allDay) return [0, MIN_PER_DAY];
+  return interval(win);
+}
+
+/**
+ * True when `outer`'s clock interval fully contains `inner`'s (day-agnostic). Used by the
+ * bare-covered clip: a deal window "covers" a bare window only when it spans the bare's
+ * whole time range, so clipping the bare loses no information. Containment (not mere
+ * overlap) is the safety property — partial overlap is left to the overlap-conflict pass.
+ */
+export function windowContains(outer: ReconcileWindow, inner: ReconcileWindow): boolean {
+  const o = clockInterval(outer);
+  const i = clockInterval(inner);
+  if (!o || !i) return false;
+  return o[0] <= i[0] && o[1] >= i[1];
+}
+
 /**
  * True when two windows share a day AND their clock ranges overlap but are NOT identical.
  * Identical-time windows are never conflicts: same offerings → merged in Task 2; different
@@ -250,6 +270,36 @@ export function reconcileWindows(
     if (k === "" || copyOfReal) {
       results[i].active = false;
       results[i].reasons.push("operating_hours");
+    }
+  }
+
+  // Pass 2.5: bare-covered day clip. A bare (offerings-empty) window whose time a
+  // deal-carrying window already covers on a given day is redundant on that day — the
+  // deal side is the better-evidenced listing (Eureka's all-week 15–18 bare beside its
+  // Mon/Tue priced windows). For each bare survivor, find the days a still-active
+  // deal-carrying window CONTAINS (so no info is lost). If a strict majority of the
+  // bare's days are covered, drop the whole window (operator: M–Th covered, no Fri →
+  // drop). Otherwise clip only the covered days, keeping the rest — a lone bare window
+  // with no deal to cover it is untouched (the only info we have, often a menu-paste
+  // prompt). Runs before overlap-conflict so the contained case clips gently instead of
+  // Pass 3 hiding the whole bare window.
+  const activeDealWindows = results.filter((r) => r.active && (r.window.offeringsKey ?? "") !== "");
+  for (const r of results) {
+    if (!r.active || (r.window.offeringsKey ?? "") !== "") continue;
+    const days = r.window.daysOfWeek;
+    const coveredDays = new Set(
+      days.filter((d) =>
+        activeDealWindows.some(
+          (deal) => deal !== r && deal.window.daysOfWeek.includes(d) && windowContains(deal.window, r.window),
+        ),
+      ),
+    );
+    if (coveredDays.size === 0) continue;
+    r.reasons.push("bare_covered_clip");
+    if (coveredDays.size * 2 > days.length) {
+      r.active = false; // strict majority covered → drop whole window (days left intact)
+    } else {
+      r.window.daysOfWeek = days.filter((d) => !coveredDays.has(d)); // clip the covered days
     }
   }
 
