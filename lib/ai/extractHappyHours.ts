@@ -637,12 +637,40 @@ const EMPTY_PARSE = {
 // errors. Worst case becomes minutes, not half-hours.
 const EXTRACT_REQUEST_TIMEOUT_MS = 120_000;
 
+/** Anthropic rejects an occasional menu image it can't decode (corrupt/unsupported), failing
+ *  the WHOLE request with a 400 "Could not process image". One bad photo must not cost us the
+ *  venue's text/PDF happy hour — detect that error and retry once with image blocks removed. */
+export function isImageProcessingError(err: unknown): boolean {
+  if (!err || typeof err !== "object") return false;
+  const status = (err as { status?: number }).status;
+  if (status !== undefined && status !== 400) return false;
+  return /could not process image|unable to process image|invalid.*image/i.test(JSON.stringify(err));
+}
+
+/** Returns params with every image content block dropped, or null if there were none to drop. */
+export function stripImageBlocks(params: MessageCreateParamsNonStreaming): MessageCreateParamsNonStreaming | null {
+  let removed = false;
+  const messages = params.messages.map((m) => {
+    if (!Array.isArray(m.content)) return m;
+    const kept = m.content.filter((b) => b.type !== "image");
+    if (kept.length !== m.content.length) removed = true;
+    return { ...m, content: kept };
+  });
+  return removed ? { ...params, messages } : null;
+}
+
 export async function runExtractModel(built: ExtractRequest): Promise<ExtractResult> {
   const { params, promptHash, model } = built;
-  const response: Message = await anthropic().messages.create(params, {
-    timeout: EXTRACT_REQUEST_TIMEOUT_MS,
-    maxRetries: 1,
-  });
+  const opts = { timeout: EXTRACT_REQUEST_TIMEOUT_MS, maxRetries: 1 };
+  let response: Message;
+  try {
+    response = await anthropic().messages.create(params, opts);
+  } catch (err) {
+    const withoutImages = isImageProcessingError(err) ? stripImageBlocks(params) : null;
+    if (!withoutImages) throw err;
+    if (process.env.EXTRACT_DEBUG) console.error("[extract] image rejected by API — retrying text/PDF only");
+    response = await anthropic().messages.create(withoutImages, opts);
+  }
   const summedUsage: Usage = {
     inputTokens: response.usage.input_tokens,
     outputTokens: response.usage.output_tokens,

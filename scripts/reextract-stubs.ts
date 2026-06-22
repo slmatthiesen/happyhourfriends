@@ -74,6 +74,7 @@ interface Counters {
   stillEmpty: number;
   skippedNoSignal: number;
   spentCents: number;
+  errored: number;
 }
 
 function parseArgs() {
@@ -142,14 +143,22 @@ async function runQuick(
   sql: Sql, cityId: string, cityName: string, month: string, qualified: Qualified[], c: Counters,
 ) {
   for (const q of qualified) {
-    const extracted = await extractHappyHours({
-      venueName: q.venue.name,
-      websiteUrl: q.websiteUrl,
-      otherUrl: null,
-      cityName,
-      priorityUrls: q.priorityUrls,
-    });
-    await persistResult(sql, cityId, month, q.venue, extracted, c);
+    // One venue's failure (e.g. an API-rejected menu image, a network blip) must not abort
+    // the whole city sweep — log it, count it, move on.
+    try {
+      const extracted = await extractHappyHours({
+        venueName: q.venue.name,
+        websiteUrl: q.websiteUrl,
+        otherUrl: null,
+        cityName,
+        priorityUrls: q.priorityUrls,
+      });
+      await persistResult(sql, cityId, month, q.venue, extracted, c);
+    } catch (err) {
+      c.errored++;
+      const msg = err instanceof Error ? err.message : String(err);
+      console.log(`  ✗ ${q.venue.name}: extract failed — ${msg.slice(0, 120)}`);
+    }
   }
 }
 
@@ -332,7 +341,7 @@ async function main() {
   try {
     // Resume mode: persist an already-submitted batch by id (no re-spend).
     if (args.collect) {
-      const c: Counters = { venuesRecovered: 0, windowsLive: 0, windowsHidden: 0, stillEmpty: 0, skippedNoSignal: 0, spentCents: 0 };
+      const c: Counters = { venuesRecovered: 0, windowsLive: 0, windowsHidden: 0, stillEmpty: 0, skippedNoSignal: 0, spentCents: 0, errored: 0 };
       console.log(`[COLLECT] pulling results from ${args.collect}…`);
       await runCollect(sql, args.collect, firstOfCurrentMonth(), c);
       console.log("\n── Collect complete ──────────────────────────────────────");
@@ -346,7 +355,7 @@ async function main() {
     // Operator-targeted mode: extract one venue from explicit URL(s).
     if (args.venue) {
       if (args.urls.length === 0) throw new Error("--venue requires at least one --url <menu/PDF url>");
-      const c: Counters = { venuesRecovered: 0, windowsLive: 0, windowsHidden: 0, stillEmpty: 0, skippedNoSignal: 0, spentCents: 0 };
+      const c: Counters = { venuesRecovered: 0, windowsLive: 0, windowsHidden: 0, stillEmpty: 0, skippedNoSignal: 0, spentCents: 0, errored: 0 };
       // --venue accepts a UUID (city-independent) or a name (needs city slug for ILIKE).
       // Pass args.city as the citySlug fallback; no --state needed for UUID lookups.
       await runVenue(sql, args.city ?? "", args.venue, args.urls, firstOfCurrentMonth(), c);
@@ -417,7 +426,7 @@ async function main() {
     const qualified: Qualified[] = [];
     let socialSkipped = 0;
     for (const v of stubs) {
-      const verdict = await triageSite({ websiteUri: v.website_url, name: v.name, cityName: city.name });
+      const verdict = await triageSite({ websiteUri: v.website_url, name: v.name, cityName: city.name, primaryType: v.primary_type, types: v.type ? [v.type] : null });
       const likelihood = hhLikelihood({ primaryType: v.primary_type, types: null, name: v.name });
       const decided = resolveEnrichAction(verdict, likelihood);
       if (decided.action !== "extract") {
@@ -433,7 +442,7 @@ async function main() {
     }
 
     const month = firstOfCurrentMonth();
-    const c: Counters = { venuesRecovered: 0, windowsLive: 0, windowsHidden: 0, stillEmpty: 0, skippedNoSignal: 0, spentCents: 0 };
+    const c: Counters = { venuesRecovered: 0, windowsLive: 0, windowsHidden: 0, stillEmpty: 0, skippedNoSignal: 0, spentCents: 0, errored: 0 };
 
     if (!args.dryRun) {
       if (args.quick) await runQuick(sql, city.id, city.name, month, qualified, c);
@@ -450,6 +459,7 @@ async function main() {
       console.log(`  windows hidden:          ${c.windowsHidden}`);
       console.log(`  skipped (no HH signal):  ${c.skippedNoSignal}  ($0 — never sent to Claude)`);
       console.log(`  still no window:         ${c.stillEmpty}`);
+      if (c.errored) console.log(`  errored (skipped):       ${c.errored}`);
       console.log(`  spend:                   $${(c.spentCents / 100).toFixed(2)}`);
     } else {
       console.log(

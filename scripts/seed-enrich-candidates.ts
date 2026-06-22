@@ -572,6 +572,8 @@ async function main() {
           websiteUri: siteUrl,
           name: candidate.name,
           cityName: city.name,
+          primaryType: candidate.primary_type,
+          types: candidate.types,
         });
         const likelihood = hhLikelihood({
           primaryType: candidate.primary_type,
@@ -1035,6 +1037,8 @@ async function prepAndSubmit(
       websiteUri: c.website_url ?? null,
       name: c.name,
       cityName: city.name,
+      primaryType: c.primary_type,
+      types: c.types,
     });
     const likelihood = hhLikelihood({ primaryType: c.primary_type, types: c.types, name: c.name });
     const decided = resolveEnrichAction(verdict, likelihood);
