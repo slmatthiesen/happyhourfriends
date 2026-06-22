@@ -33,10 +33,13 @@ const MAX_IMAGE_BYTES = Number(process.env.FETCH_MAX_IMAGE_BYTES) || 7 * 1024 * 
 // Transient-failure retry. Media/discovered-page fetches dropped ~1/3 of runs to a
 // whole-venue 0% recall: a CDN timeout / connection reset / 5xx on the (single) HH PDF or
 // image silently lost the deal source for that run. Retry those — but NOT terminal results
-// (404, robots-block, too-large) or bot walls (401/403/406/429), which the caller's render
-// fallback owns; retrying them would just add latency before the browser tier runs anyway.
+// (404, robots-block, too-large) or auth/forbidden bot walls (401/403/406), which the caller's
+// render fallback owns; retrying those would just add latency before the browser tier runs anyway.
+// 429 is the exception: it's a rate-limit ("too many requests"), not a hard block — backoff
+// CLEARS it (often self-inflicted by our own parallel fetch burst), so we retry it here and only
+// fall through to render if it persists past the backoff schedule.
 const RETRY_DELAYS_MS = [300, 800]; // length = retry count → 3 attempts total
-const RETRYABLE_STATUSES = new Set([408, 425, 500, 502, 503, 504]);
+const RETRYABLE_STATUSES = new Set([408, 425, 429, 500, 502, 503, 504]);
 
 const sleep = (ms: number) => (ms > 0 ? new Promise((r) => setTimeout(r, ms)) : Promise.resolve());
 

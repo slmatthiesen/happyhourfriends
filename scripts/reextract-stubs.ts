@@ -98,6 +98,7 @@ function parseArgs() {
     collect: get("--collect"), // resume: persist an already-ended batch by id
     venue: get("--venue"), // operator-targeted: extract ONE venue (id or name) from given --url(s)
     urls: getAll("--url"), // explicit menu/PDF URL(s) the operator found
+    ids: get("--ids"), // city-sweep, but restricted to these venue UUIDs (comma-separated)
   };
 }
 
@@ -360,6 +361,12 @@ async function main() {
     // Default population: stubs with a website (recoverable; no-site/social-only are
     // filtered by triage below). With --bare instead: venues that ARE live (a happy-hour
     // window) but carry 0 offerings — the "dropped deals" backlog from audit:bare-windows.
+    // Optional: restrict the sweep to a specific set of venue UUIDs. Lets the
+    // discovery+extract path (triageSite finds /happy-hour sub-pages) target a curated
+    // list — e.g. the literal-HH signal bucket — instead of the whole city. $0 unchanged.
+    const idList = args.ids ? args.ids.split(",").map((s) => s.trim()).filter(Boolean) : null;
+    const idFilter = idList ? sql`AND v.id = ANY(${idList})` : sql``;
+
     const stubs = args.bare
       ? await sql<StubVenue[]>`
           SELECT v.id, v.name, v.website_url, v.type::text AS type, sc.primary_type, v.hh_page_url
@@ -378,6 +385,7 @@ async function main() {
               JOIN offerings o ON o.happy_hour_id = h2.id AND o.active = true AND o.deleted_at IS NULL
               WHERE h2.venue_id = v.id AND h2.active = true AND h2.deleted_at IS NULL
             )
+            ${idFilter}
           ORDER BY v.name
           ${args.limit ? sql`LIMIT ${args.limit}` : sql``}
         `
@@ -390,6 +398,7 @@ async function main() {
             AND v.data_completeness = 'stub'
             AND v.website_url IS NOT NULL
             AND v.deleted_at IS NULL
+            ${idFilter}
           ORDER BY v.name
           ${args.limit ? sql`LIMIT ${args.limit}` : sql``}
         `;

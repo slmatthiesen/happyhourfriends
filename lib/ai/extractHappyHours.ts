@@ -494,12 +494,83 @@ export interface NormalisedExtract {
   rawWindowCount: number;
 }
 
+/**
+ * The model sometimes emits the tool input mis-typed: `happyHours` comes back as a STRING
+ * holding JSON — and worse, as the object's INNER content (everything after `"happyHours":`),
+ * e.g. `[ {...windows...} ],"summary":"...","confidence":0.92,"venueType":"bar"`. The
+ * old code just dropped any non-array happyHours, silently losing a fully-correct extraction
+ * (Bourbon & Bones: 2 windows / 16 offerings / conf 0.92, recorded as zero). Salvage it by
+ * (1) re-wrapping the inner content back into an object, (2) parsing it as a bare array, or
+ * (3) extracting the leading balanced `[...]`. Returns the raw unchanged when already valid.
+ */
+export function salvageStringifiedExtract(raw: RawExtract): RawExtract {
+  const hh: unknown = raw.happyHours;
+  if (Array.isArray(hh) || typeof hh !== "string") return raw;
+  const s = hh.trim();
+  // Re-wrap (recovers windows + sibling fields) first, then a bare-array parse.
+  for (const candidate of [`{"happyHours":${s}}`, s]) {
+    try {
+      const parsed = JSON.parse(candidate);
+      const arr = Array.isArray(parsed)
+        ? parsed
+        : Array.isArray((parsed as RawExtract)?.happyHours)
+          ? (parsed as RawExtract).happyHours
+          : null;
+      if (arr) {
+        const obj = (Array.isArray(parsed) ? {} : parsed) as RawExtract;
+        return {
+          happyHours: arr,
+          confidence: typeof obj.confidence === "number" ? obj.confidence : raw.confidence,
+          summary: typeof obj.summary === "string" ? obj.summary : raw.summary,
+          venueType: typeof obj.venueType === "string" ? obj.venueType : raw.venueType,
+        };
+      }
+    } catch {
+      /* try the next candidate */
+    }
+  }
+  // Last resort: pull the leading balanced JSON array out of a string with trailing junk.
+  const arr = extractLeadingJsonArray(s);
+  return arr ? { ...raw, happyHours: arr } : raw;
+}
+
+/** Extract and parse the first balanced top-level `[...]` from `s` (string-aware), or null. */
+function extractLeadingJsonArray(s: string): RawHappyHour[] | null {
+  const start = s.indexOf("[");
+  if (start < 0) return null;
+  let depth = 0;
+  let inStr = false;
+  let esc = false;
+  for (let i = start; i < s.length; i++) {
+    const c = s[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (c === "\\") esc = true;
+      else if (c === '"') inStr = false;
+      continue;
+    }
+    if (c === '"') inStr = true;
+    else if (c === "[") depth++;
+    else if (c === "]" && --depth === 0) {
+      try {
+        const parsed = JSON.parse(s.slice(start, i + 1));
+        return Array.isArray(parsed) ? parsed : null;
+      } catch {
+        return null;
+      }
+    }
+  }
+  return null;
+}
+
 /** §13 normalisation shared by the loop and the batch path. */
-export function normaliseRawExtract(raw: RawExtract): NormalisedExtract {
+export function normaliseRawExtract(rawInput: RawExtract): NormalisedExtract {
   // The model is forced to call record_happy_hours, but it does NOT always honor the
-  // array shape — it occasionally returns happyHours as an object/string/number. Guard
-  // with Array.isArray (a plain `?? []` only catches null/undefined, so a non-array
-  // value reaches .map and throws — which previously aborted the whole batch collect).
+  // array shape — it occasionally returns happyHours as an object/string/number. Salvage a
+  // stringified payload first (see salvageStringifiedExtract), then guard with Array.isArray
+  // (a plain `?? []` only catches null/undefined, so a non-array value reaches .map and
+  // throws — which previously aborted the whole batch collect).
+  const raw = salvageStringifiedExtract(rawInput);
   const rawWindows = Array.isArray(raw.happyHours) ? raw.happyHours : [];
   const happyHours: ExtractedHappyHour[] = rawWindows
     .map(normaliseHappyHour)
