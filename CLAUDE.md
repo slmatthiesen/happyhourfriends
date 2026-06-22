@@ -66,6 +66,19 @@ These rules are non-negotiable:
    --lost-found`, `git log --all`, and every `git worktree list` dir. Confirm against
    `origin/main` (it may be a superset of local).
 
+### Worktree lifecycle (treehouse)
+
+When a task needs an isolated worktree, acquire it with `treehouse get` (handles
+node_modules/.env linking — never `git worktree add` raw). **Close your own loop when
+the task is done:** push the branch / open the PR first, then run
+`treehouse return <path>` to terminate lingering processes (dev server, headless Chrome)
+and return the worktree clean to the pool. Do not abandon a worktree dirty or
+detached — an unreturned worktree blocks pool reuse and looks like lost work. Before
+running `treehouse return --force` or `treehouse destroy` on someone else's dirty
+worktree, content-match its changes against `origin/main` (a differently-named merge
+commit can already contain them) — only `--force` once you've confirmed nothing unique
+is at stake.
+
 ## Neighborhood model
 
 Two-tier recognizability model on the `neighborhoods` table (`tier` + `recognizability`
