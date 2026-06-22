@@ -90,7 +90,7 @@ async function main() {
         // Mirror production: triage discovers the venue's HH/menu pages (and PDFs), then
         // the extractor reads them. Feeding the bare homepage skips discovery and is not
         // the path enrich/reextract actually run.
-        const verdict = await triageSite({ websiteUri: g.url, name: g.name, cityName: null });
+        const verdict = await triageSite({ websiteUri: g.url, name: g.name, cityName: null, primaryType: g.type });
         const decided = resolveEnrichAction(
           verdict,
           hhLikelihood({ primaryType: g.type, types: null, name: g.name }),
