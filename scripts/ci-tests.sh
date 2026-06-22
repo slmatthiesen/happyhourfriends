@@ -73,6 +73,7 @@ TESTS=(
   test:cardinal-districts
   test:hh-text
   test:hh-relevance
+  test:image-sniff
   test:normalize-url
   test:hh-signal-gate
   test:extract-time
