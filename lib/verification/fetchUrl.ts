@@ -19,6 +19,15 @@ import { harvestJsonLdMenu } from "@/lib/places/jsonLdMenu";
 
 const BOT_NAME = "HappyHourFriendsBot";
 const USER_AGENT = `${BOT_NAME}/1.0 (+https://happyhourfriends.com)`;
+// Bot-managed CDNs (Akamai/Cloudflare) reset the connection or 403/406 our honest bot UA but
+// serve real browsers. triageSite already fetches the homepage with this exact browser UA; the
+// content fetch (this file) did not, so such a site PASSED triage — its menu links discovered —
+// then dropped to ZERO pages here (e.g. Tommy Bahama Scottsdale, whose dinner-menu PDF holds the
+// happy hour). We retry a bot-wall failure once with this UA. Distinct from the render fallback:
+// render can't return PDF/image bytes, and HH menus are usually PDFs — so the refetch must happen
+// here. robots.txt is still checked under our honest BOT_NAME, so this respects the same rules.
+const BROWSER_UA =
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36";
 
 const TIMEOUT_MS = 10_000;
 const MAX_CONTENT = 8_000; // default (verifier tool loop); extractor overrides higher.
@@ -74,6 +83,16 @@ function isRetryableFailure(r: FetchResult): boolean {
   if (r.ok || r.blockedByRobots) return false;
   if (r.status != null) return RETRYABLE_STATUSES.has(r.status);
   return r.error != null; // thrown network/timeout error — never reached an HTTP status
+}
+
+/** A bot-wall signature a real-browser User-Agent might clear: a forbidden/not-acceptable/
+ *  unavailable-for-legal status, or a thrown network error with no HTTP status (the TLS
+ *  reset / connection drop an Akamai-style bot manager does to a non-browser UA). Excludes
+ *  robots blocks (we honor those) and successes. */
+function isBotWallFailure(r: FetchResult): boolean {
+  if (r.ok || r.blockedByRobots) return false;
+  if (r.status != null) return r.status === 403 || r.status === 406 || r.status === 451;
+  return r.error != null;
 }
 
 /** Signals that a text window carries menu / happy-hour content. */
@@ -316,14 +335,14 @@ export async function fetchUrl(url: string, opts: FetchOpts = {}): Promise<Fetch
   }
 
   // --- Target fetch + parse (one attempt; a thrown error becomes an {ok:false, error}) ---
-  const attempt = async (): Promise<FetchResult> => {
+  const attempt = async (userAgent: string): Promise<FetchResult> => {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
     try {
       const res = await doFetch(url, {
         signal: controller.signal,
         headers: {
-          "User-Agent": USER_AGENT,
+          "User-Agent": userAgent,
           Accept:
             "text/html,application/xhtml+xml,application/pdf,application/xml;q=0.9,*/*;q=0.8",
         },
@@ -389,10 +408,17 @@ export async function fetchUrl(url: string, opts: FetchOpts = {}): Promise<Fetch
     }
   };
 
-  let result = await attempt();
+  let result = await attempt(USER_AGENT);
   for (let i = 0; i < retryDelays.length && isRetryableFailure(result); i++) {
     await sleep(retryDelays[i]);
-    result = await attempt();
+    result = await attempt(USER_AGENT);
+  }
+  // Bot-wall fallback: our honest bot UA was reset/forbidden but a real browser may be served.
+  // One browser-UA attempt — recovers CDN-walled menus (incl. PDFs the render path can't fetch).
+  // If it also fails we return the bot-UA result so its status still routes the render fallback.
+  if (isBotWallFailure(result)) {
+    const browserResult = await attempt(BROWSER_UA);
+    if (browserResult.ok) return browserResult;
   }
   return result;
 }
