@@ -46,6 +46,28 @@ export function offeringNameKey(name: string | null): string {
     .replace(/\s+/g, " ");
 }
 
+/** Strip a redundant leading absolute-price token from a stored name — "$19 Kamala Llama
+ *  hummus" (price_cents=1900) becomes "Kamala Llama hummus" so the price isn't printed
+ *  twice. Only fires when price_cents is already set (the prefix is redundant, not the
+ *  sole price) and never consumes a "$N off …" discount phrase (that price IS the name). */
+export function stripRedundantPricePrefix(name: string | null, priceCents: number | null): string | null {
+  if (!name || priceCents == null) return name;
+  const stripped = name.replace(/^\$\s*\d+(\.\d+)?\s+(?!off\b)/i, "");
+  return stripped.length ? stripped : name;
+}
+
+/** A bare happy-hour section heading mis-captured as an offering ("HAPPY HOUR AT GLK",
+ *  "Happy Hour Menu") — never a real deal. Tight by design: a deal that merely mentions
+ *  happy hour and names an item ("Happy Hour Lager") does NOT match. */
+export function isHappyHourHeading(name: string | null): boolean {
+  if (!name) return false;
+  const n = name.trim();
+  return (
+    /^happy\s+hour\s+at\b/i.test(n) ||
+    /^happy\s+hour(\s+(menu|specials?|deals?|hours?|time|food|drinks?))?\s*$/i.test(n)
+  );
+}
+
 /** Shared lexicon predicates — also consumed by the audit anomaly rules so persist-time
  *  cleanup and stored-data auditing agree on what "looks like food" / "names a day" means. */
 export function isFoodTextMislabeledAsDrink(text: string): boolean {
@@ -90,7 +112,16 @@ export function sanitizeOfferings(
   const seen = new Set<string>();
   const out: ExtractedOffering[] = [];
 
-  for (const o of offerings) {
+  for (const raw of offerings) {
+    // 0. Normalize the stored name (strip a redundant "$N " price prefix) before anything
+    //    downstream reads it, then drop a happy-hour heading mis-captured as an offering.
+    const cleanName = stripRedundantPricePrefix(raw.name, raw.priceCents);
+    if (isHappyHourHeading(cleanName)) {
+      warnings.push(`dropped section-heading pseudo-offering: ${cleanName}`);
+      continue;
+    }
+    const o = cleanName === raw.name ? raw : { ...raw, name: cleanName };
+
     // 1. Dedupe repeats within this window's batch (name key is case/price-prefix
     //    insensitive so "$5 Wells" and "Wells" at 500¢ collapse).
     const key = `${offeringNameKey(o.name)}|${o.priceCents ?? ""}|${(o.description ?? "").trim().toLowerCase()}`;
