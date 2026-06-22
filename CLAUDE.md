@@ -20,10 +20,15 @@ seed:discover → seed:enrich → [submission] → classify → verify → apply
    and boundary proximity. Excluded primary types (zero confirmed-HH across all cities):
    `indian_restaurant`, `bakery`, `cafe`, `coffee_shop`, `cafeteria`, `thai_restaurant`.
 2. **Enrich** — `seed:enrich` gates on alcohol + website, then runs a single-pass Haiku
-   extractor (`web_search` + `web_fetch`). Extractor uses tiered discovery: anchor links →
-   Wix `pageUriSEO` routes → PDF/image links → path guesses; follows media links one hop
-   under a payload budget; reads PDFs and images natively. Forced `record_happy_hours` tool
-   call → structured output. Venues land even without HH data (become community stubs).
+   extractor. Page content is fetched by our own code (`lib/ai/siteContent`) and passed
+   inline; the model gets ONLY the forced `record_happy_hours` structured-output tool, so it
+   cannot call Anthropic `web_search`/`web_fetch` or incur those charges (cost = input tokens
+   × paid candidates, not searches). Extractor uses tiered discovery: anchor links → Wix
+   `pageUriSEO` routes → PDF/image links → path guesses; follows media links one hop under a
+   payload budget; reads PDFs and images natively → structured output. Venues land even
+   without HH data (become community stubs). (The only real web search in the system is the
+   Stage 2 verifier's free local DuckDuckGo scraper — `lib/verification/webSearch.ts` — never
+   a paid Anthropic tool.)
 3. **Classify (Stage 1)** — pg-boss job on every new submission. Haiku classifier scores
    risk and verdict; low-risk + positive-trust → auto-apply through the engine; high-risk
    or banned → `queued_admin`; else → verify.
