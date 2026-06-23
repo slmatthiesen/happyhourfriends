@@ -53,7 +53,8 @@ import { applyChainHappyHourIfMissing } from "@/lib/recover/applyChainHappyHour"
 import { assignNeighborhoods } from "@/lib/geo/assignNeighborhoods";
 import { PlaceDetailsQuotaError } from "@/lib/places/placeDetails";
 import type { OpenPeriod } from "@/lib/geo/timezone";
-import { isDenylistedChain, isLikelyNoHappyHourFormat, hasAlcoholSignal } from "@/lib/places/chainDenylist";
+import { isDenylistedChain, isLikelyNoHappyHourFormat } from "@/lib/places/chainDenylist";
+import { passesAlcoholGate as sigPassesAlcoholGate, isDeadEndSignal, type AlcoholTypeSignal } from "@/lib/places/stubGate";
 import { slugify, placeIdSuffix } from "@/lib/places/venueSlug";
 import { deriveVenueType, isVenueType, type VenueType } from "@/lib/places/venueType";
 import { triageSite, resolveEnrichAction } from "@/lib/places/siteTriage";
@@ -141,14 +142,22 @@ function killReasonOf(reason: string): KillReason {
   return "no_site";
 }
 
-/** Does this candidate clear the alcohol gate (i.e. is it a plausible HH spot)?
- * Drops only when discovery explicitly captured serves_alcohol=false AND there's no
- * bar-type / alcohol-name signal to override Google's unreliable flag. */
+/** A candidate's alcohol/cuisine signal for the shared stub gate (lib/places/stubGate). */
+function candidateSignal(c: SeedCandidate): AlcoholTypeSignal {
+  return {
+    servesAlcohol: c.serves_alcohol,
+    name: c.name,
+    primaryType: c.primary_type,
+    types: c.types,
+  };
+}
+
+/** Does this candidate clear the alcohol gate (i.e. is it a plausible HH spot)? Delegates to
+ *  the shared gate so enrich, the dead-end-stub suppressor, and the Jina HH-likely gate all
+ *  agree. Drops only when discovery explicitly captured serves_alcohol=false AND there's no
+ *  bar-type / alcohol-name signal to override Google's unreliable flag. */
 function passesAlcoholGate(c: SeedCandidate): boolean {
-  if (c.serves_alcohol === false && !hasAlcoholSignal(c.name, c.primary_type, c.types)) {
-    return false;
-  }
-  return true;
+  return sigPassesAlcoholGate(candidateSignal(c));
 }
 
 /** Build a stub PrepContext from a candidate — no website, no extraction. Used to
@@ -169,6 +178,7 @@ function stubCtxFor(c: SeedCandidate): PrepContext {
     photoName: null,
     primaryType: c.primary_type ?? null,
     types: c.types ?? null,
+    servesAlcohol: c.serves_alcohol,
     googleNeighborhood: c.google_neighborhood ?? null,
   };
 }
@@ -211,9 +221,13 @@ async function insertVenueRow(
     completeness: "complete" | "stub";
     lastVerified: Date | null;
     venueType: VenueType;
+    /** Initial venue_status for a FRESH insert. 'no_happy_hour' hides a dead-end stub from the
+     *  public list (Build A); the persist path re-activates it if an active HH later lands. An
+     *  ON CONFLICT (existing venue) never changes — only brand-new rows take this. */
+    status: "active" | "no_happy_hour";
   },
 ): Promise<string | null> {
-  const { cityId, ctx, completeness, lastVerified, venueType } = args;
+  const { cityId, ctx, completeness, lastVerified, venueType, status } = args;
   const baseSlug = slugify(ctx.name);
 
   const doInsert = async (slug: string) => {
@@ -227,7 +241,7 @@ async function insertVenueRow(
         (${cityId}, ${ctx.name}, ${slug},
          ${ctx.address}, ${ctx.lat}, ${ctx.lng},
          ${ctx.googlePlaceId}, ${ctx.siteUrl}, ${ctx.phone},
-         ${ctx.priceLevel}, ${sql.json((ctx.hoursJson ?? null) as never)}, ${ctx.googleNeighborhood ?? null}, ${venueType}::venue_type, 'active'::venue_status,
+         ${ctx.priceLevel}, ${sql.json((ctx.hoursJson ?? null) as never)}, ${ctx.googleNeighborhood ?? null}, ${venueType}::venue_type, ${status}::venue_status,
          ${completeness}::data_completeness, ${lastVerified}::timestamptz)
       ON CONFLICT (${ctx.googlePlaceId ? sql`google_place_id` : sql`city_id, slug`})
         DO NOTHING
@@ -310,6 +324,18 @@ async function persistExtraction(
   const finalType =
     extracted?.venueType && isVenueType(extracted.venueType) ? extracted.venueType : base;
 
+  // Dead-end stubs (no alcohol / zero-HH cuisine) are created HIDDEN (status='no_happy_hour')
+  // so a new city never surfaces them in the public list (Build A). The persist path below flips
+  // them back to 'active' if an active HH unexpectedly lands. Everything else inserts 'active'.
+  const initialStatus = isDeadEndSignal({
+    servesAlcohol: ctx.servesAlcohol ?? null,
+    name: ctx.name,
+    primaryType: ctx.primaryType,
+    types: ctx.types,
+  })
+    ? "no_happy_hour"
+    : "active";
+
   // Insert the venue as a stub; the canonical persist path promotes it to 'complete' when
   // an active window lands (it never demotes a pre-existing venue). This mirrors the
   // resolveVenue flow exactly, so a stub with no live data simply stays a stub.
@@ -319,6 +345,7 @@ async function persistExtraction(
     completeness: "stub",
     lastVerified: null,
     venueType: finalType,
+    status: initialStatus,
   });
 
   // Set type when the row doesn't have one yet. For a fresh INSERT this is a no-op
@@ -608,6 +635,9 @@ async function main() {
                 otherUrl: null,
                 cityName: city.name,
                 priorityUrls: decided.priorityUrls,
+                // Gate the paid anti-bot (Jina) tier to HH-likely venues — a bot-walled bar is
+                // worth recovering; a no-alcohol / zero-HH-cuisine wall is not.
+                hhLikely: !isDeadEndSignal(candidateSignal(candidate)),
               })
             : null;
 
@@ -634,6 +664,7 @@ async function main() {
           photoName: null,
           primaryType: candidate.primary_type ?? null,
           types: candidate.types ?? null,
+          servesAlcohol: candidate.serves_alcohol,
           googleNeighborhood: candidate.google_neighborhood ?? null,
         };
         const persisted = await persistExtraction(sql, {
@@ -927,6 +958,12 @@ async function runBatch(
           otherUrl: null,
           cityName: city.name,
           priorityUrls: ctx.priorityUrls,
+          hhLikely: !isDeadEndSignal({
+            servesAlcohol: ctx.servesAlcohol ?? null,
+            name: ctx.name,
+            primaryType: ctx.primaryType,
+            types: ctx.types,
+          }),
         });
         if (extracted) {
           tally.fallbackCostCents += extracted.costCents;
@@ -1077,6 +1114,7 @@ async function prepAndSubmit(
       photoName: null,
       primaryType: c.primary_type ?? null,
       types: c.types ?? null,
+      servesAlcohol: c.serves_alcohol,
       googleNeighborhood: c.google_neighborhood ?? null,
       priorityUrls: decided.priorityUrls,
     };
@@ -1102,6 +1140,7 @@ async function prepAndSubmit(
       otherUrl: null,
       cityName: city.name,
       priorityUrls: decided.priorityUrls,
+      hhLikely: !isDeadEndSignal(candidateSignal(c)),
     });
     // We fetch the pages ourselves now; if none were reachable there's nothing to
     // extract — stub it without spending a (batch) token rather than sending empty content.

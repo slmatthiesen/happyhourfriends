@@ -116,6 +116,7 @@ async function persistResult(
   v: StubVenue,
   extracted: ExtractResult,
   c: Counters,
+  opts: { requireOfferings?: boolean } = {},
 ): Promise<void> {
   c.spentCents += extracted.costCents;
   const { windowsLive, windowsHidden, recovered } = await persistExtractedWindows({
@@ -123,6 +124,8 @@ async function persistResult(
     cityId,
     extracted,
     actor: "reextract",
+    // Bare-window heal only attaches missing deals — never add another empty window.
+    requireOfferings: opts.requireOfferings,
   });
   c.windowsLive += windowsLive;
   c.windowsHidden += windowsHidden;
@@ -141,6 +144,7 @@ async function persistResult(
 /** Synchronous path: one live model call per venue (use for small samples). */
 async function runQuick(
   sql: Sql, cityId: string, cityName: string, month: string, qualified: Qualified[], c: Counters,
+  bareMode = false,
 ) {
   for (const q of qualified) {
     // One venue's failure (e.g. an API-rejected menu image, a network blip) must not abort
@@ -153,7 +157,7 @@ async function runQuick(
         cityName,
         priorityUrls: q.priorityUrls,
       });
-      await persistResult(sql, cityId, month, q.venue, extracted, c);
+      await persistResult(sql, cityId, month, q.venue, extracted, c, { requireOfferings: bareMode });
     } catch (err) {
       c.errored++;
       const msg = err instanceof Error ? err.message : String(err);
@@ -242,7 +246,7 @@ async function runBatch(
       promptHash,
       model,
     };
-    await persistResult(sql, cityId, month, v, extracted, c);
+    await persistResult(sql, cityId, month, v, extracted, c, { requireOfferings: bareMode });
   }
 }
 
@@ -445,7 +449,7 @@ async function main() {
     const c: Counters = { venuesRecovered: 0, windowsLive: 0, windowsHidden: 0, stillEmpty: 0, skippedNoSignal: 0, spentCents: 0, errored: 0 };
 
     if (!args.dryRun) {
-      if (args.quick) await runQuick(sql, city.id, city.name, month, qualified, c);
+      if (args.quick) await runQuick(sql, city.id, city.name, month, qualified, c, args.bare);
       else await runBatch(sql, city.id, city.name, month, qualified, c, args.bare);
     }
 

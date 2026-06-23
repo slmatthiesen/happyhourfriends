@@ -1,0 +1,42 @@
+{
+  "city": "Central Phoenix",
+  "slug": "phoenix-central",
+  "dropped": [
+    {
+      "id": "8f867b7b-0144-46c6-b929-4d586be63dbe",
+      "name": "Pita Jungle",
+      "website": "https://pitajungle.com/locations/uptown-phoenix/?utm_source=google&utm_medium=organic&utm_campaign=UptownPhoenix&utm_content=WebsiteLink",
+      "windows": 1,
+      "cause": "text",
+      "pagesFetched": 1,
+      "evidence": "$2"
+    },
+    {
+      "id": "f7fdcf0c-eee5-438c-a1b4-f811fa88e8ae",
+      "name": "The Beaver Bar",
+      "website": "http://www.thebeaverbarphxaz.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 2,
+      "evidence": "$7.50"
+    },
+    {
+      "id": "629cc577-93d1-4368-b028-0fae0bb0926a",
+      "name": "The Rose Garden",
+      "website": "https://therosegardenaz.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 8,
+      "evidence": "$3"
+    },
+    {
+      "id": "79e0da7c-6c9b-4fae-a934-259fbc2c0a7a",
+      "name": "Zipps Sports Grill",
+      "website": "https://www.zippssportsgrills.com/locations/shea/",
+      "windows": 1,
+      "cause": "text",
+      "pagesFetched": 5,
+      "evidence": "$ 3.25"
+    }
+  ]
+}

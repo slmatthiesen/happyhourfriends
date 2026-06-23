@@ -1,0 +1,42 @@
+{
+  "city": "Tacoma",
+  "slug": "tacoma",
+  "dropped": [
+    {
+      "id": "c3e64a2f-5f25-4055-8c79-ca31cb98921c",
+      "name": "bite",
+      "website": "https://www.hotelmuranotacoma.com/dining/bite/",
+      "windows": 1,
+      "cause": "pdf",
+      "pagesFetched": 4,
+      "evidence": null
+    },
+    {
+      "id": "04f29783-881f-4815-9a2d-8a0a6ad6e4cb",
+      "name": "Brewers Row",
+      "website": "http://www.brewersrowtacoma.com/",
+      "windows": 2,
+      "cause": "pdf",
+      "pagesFetched": 3,
+      "evidence": null
+    },
+    {
+      "id": "980af0d3-6bbc-4426-968d-9af26a33d24a",
+      "name": "Loak Toung Thai",
+      "website": "http://loaktoungthai.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 3,
+      "evidence": "$2"
+    },
+    {
+      "id": "fe67af7d-fc9d-4657-b125-fcfa57479a7b",
+      "name": "Pint Defiance Specialty Beers & Taproom",
+      "website": "http://www.pintdefiance.com/",
+      "windows": 1,
+      "cause": "text",
+      "pagesFetched": 3,
+      "evidence": "deal-words"
+    }
+  ]
+}

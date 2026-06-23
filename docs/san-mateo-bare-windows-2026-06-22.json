@@ -1,0 +1,60 @@
+{
+  "city": "San Mateo & Mid-Peninsula",
+  "slug": "san-mateo",
+  "dropped": [
+    {
+      "id": "563c3177-30ca-4042-b0da-6556f05d9ad3",
+      "name": "Amara",
+      "website": "https://www.amararestaurants.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 5,
+      "evidence": null
+    },
+    {
+      "id": "20fb32f9-d73f-4d99-bbc7-54865260ae06",
+      "name": "Benihana - Burlingame",
+      "website": "https://www.benihana.com/locations/burlingame/?utm_source=google&utm_medium=organic&utm_campaign=gbp",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 5,
+      "evidence": null
+    },
+    {
+      "id": "9c0b0d6a-2040-468e-b9b8-e7c91298852a",
+      "name": "Lazy Dog Restaurant & Bar",
+      "website": "https://lazydogrestaurants.com/pages/san-mateo-ca",
+      "windows": 2,
+      "cause": "image",
+      "pagesFetched": 4,
+      "evidence": null
+    },
+    {
+      "id": "1d5bbac5-3706-4d70-9c71-a10905a1a202",
+      "name": "Max's of Burlingame",
+      "website": "https://www.maxsofburlingame.com/",
+      "windows": 1,
+      "cause": "pdf",
+      "pagesFetched": 5,
+      "evidence": null
+    },
+    {
+      "id": "5e455957-80cd-478c-97f3-fdc3b35eeaff",
+      "name": "Pinstripes",
+      "website": "https://pinstripes.com/?utm_source=local&utm_medium=organic&utm_content=gmb",
+      "windows": 1,
+      "cause": "pdf",
+      "pagesFetched": 10,
+      "evidence": "$35"
+    },
+    {
+      "id": "71477f33-dc14-45c8-b520-e5f71d8735de",
+      "name": "Twelvemonth",
+      "website": "https://www.twelvemonthburlingame.com/",
+      "windows": 1,
+      "cause": "text",
+      "pagesFetched": 2,
+      "evidence": "$9"
+    }
+  ]
+}

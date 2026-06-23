@@ -56,6 +56,16 @@ export interface PersistOptions {
    * as a duplicate. Off for background enrich/reextract (conservative full-coverage supersede).
    */
   authoritative?: boolean;
+  /**
+   * Drop any extracted window that carries NO offerings before it is inserted. Used by the
+   * bare-window heal (reextract --bare), whose ONLY job is to attach the missing deals to a
+   * venue that already has a window — a re-extraction that re-derives a schedule but no deals
+   * would otherwise add MORE empty windows (pure noise, the "+windows ≠ offerings" problem).
+   * Existing windows are still enriched (the natural-key upsert), since a matching window with
+   * offerings isn't dropped; only offering-less windows are skipped. Off for fresh stubs, where
+   * a schedule-only window is the legitimate "help wanted" state.
+   */
+  requireOfferings?: boolean;
 }
 
 /** Minimal surface we need from the drizzle client OR a transaction handle. */
@@ -170,6 +180,9 @@ export async function persistExtractedWindows(
   // report, admin) can tell the operator what to review without re-deriving the gates.
   const hiddenReasons = new Set<string>();
   for (const hh of extracted.happyHours) {
+    // Bare-window heal: never add an offering-less window. The venue already has a bare window;
+    // re-deriving a schedule with no deals adds noise, not the deals we came for.
+    if (opts.requireOfferings && (hh.offerings?.length ?? 0) === 0) continue;
     const recon = reconFor(hh);
     const reconActive = recon ? recon.active : true;
     const days = recon ? recon.window.daysOfWeek : [...new Set(hh.daysOfWeek)].sort((a, b) => a - b);
@@ -313,6 +326,13 @@ export async function persistExtractedWindows(
       .update(venues)
       .set({ dataCompleteness: "complete", lastVerifiedAt: new Date(), updatedAt: new Date() })
       .where(eq(venues.id, venueId));
+    // Release a venue Build A had hidden as a dead-end stub: an active HH just landed (Jina
+    // recovery, regate, reextract), so flip status back to 'active'. SCOPED to no_happy_hour —
+    // never overrides an operator's closed/paused.
+    await db
+      .update(venues)
+      .set({ status: "active", updatedAt: new Date() })
+      .where(and(eq(venues.id, venueId), eq(venues.status, "no_happy_hour")));
   }
   return { windowsLive: live, windowsHidden: hidden, recovered, hiddenReasons: [...hiddenReasons] };
 }

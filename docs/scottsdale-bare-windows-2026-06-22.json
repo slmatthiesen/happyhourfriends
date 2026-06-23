@@ -1,0 +1,123 @@
+{
+  "city": "Scottsdale",
+  "slug": "scottsdale",
+  "dropped": [
+    {
+      "id": "7d8bff67-483d-40c9-9185-5aa56313f41b",
+      "name": "Bei Sushi Express",
+      "website": "https://www.beiexpress.com/",
+      "windows": 1,
+      "cause": "pdf",
+      "pagesFetched": 3,
+      "evidence": null
+    },
+    {
+      "id": "a747af60-3a6b-47d6-ae7e-05b97fec9685",
+      "name": "BOURBON STEAK",
+      "website": "https://www.scottsdaleprincess.com/dining/bourbon-steak?utm_source=google+Maps&utm_medium=seo+maps&utm_campaign=seo+maps",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 4,
+      "evidence": null
+    },
+    {
+      "id": "1725c3eb-f42e-4efe-b626-dd528add0b7c",
+      "name": "Giligin's",
+      "website": "http://giliginsbar.com/",
+      "windows": 2,
+      "cause": "pdf",
+      "pagesFetched": 6,
+      "evidence": "deal-words"
+    },
+    {
+      "id": "da74ec78-06ca-4e28-ab39-fbd81dc49c1c",
+      "name": "IL Bosco Pizza",
+      "website": "http://www.ilboscopizza.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 5,
+      "evidence": "$10.9"
+    },
+    {
+      "id": "cb0a7c06-711e-4603-8474-290a29c7b352",
+      "name": "Ingo's Tasty Food",
+      "website": "https://ingostastyfood.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 5,
+      "evidence": null
+    },
+    {
+      "id": "16b7d7b1-93bd-4e8f-bd21-95fda58c21b2",
+      "name": "Ling's Wok Shop",
+      "website": "https://www.lingswokshop.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 6,
+      "evidence": "$2"
+    },
+    {
+      "id": "a9604fd6-7d29-4a26-96bb-0e88578d48f7",
+      "name": "Mastro's City Hall",
+      "website": "https://www.mastrosrestaurants.com/Locations/AZ/City-Hall-Scottsdale/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 8,
+      "evidence": "$ 31"
+    },
+    {
+      "id": "65a764a7-2ab4-4524-9bbc-a04ec1deffd0",
+      "name": "Mastro's Ocean Club",
+      "website": "https://www.mastrosrestaurants.com/Locations/AZ/Scottsdale-Ocean-Club/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 9,
+      "evidence": "$100"
+    },
+    {
+      "id": "f21820b8-bfdb-454f-8731-f47c1a4b2c4b",
+      "name": "Pita Jungle",
+      "website": "https://pitajungle.com/locations/scottsdale-shea/?utm_source=google&utm_medium=organic&utm_campaign=ScottsdaleShea&utm_content=WebsiteLink",
+      "windows": 1,
+      "cause": "text",
+      "pagesFetched": 1,
+      "evidence": "$2"
+    },
+    {
+      "id": "dddf8e75-5dc5-469a-8847-e532b7e9ec9e",
+      "name": "Pita Jungle",
+      "website": "https://pitajungle.com/locations/scottsdale-frank-lloyd-wright/?utm_source=google&utm_medium=organic&utm_campaign=FLW&utm_content=WebsiteLink",
+      "windows": 1,
+      "cause": "text",
+      "pagesFetched": 2,
+      "evidence": "$2"
+    },
+    {
+      "id": "dd945054-cb76-4e29-887f-4303ceabdd85",
+      "name": "Pubblico Italian Eatery",
+      "website": "https://www.pubblicoitalianeatery.com/",
+      "windows": 2,
+      "cause": "image",
+      "pagesFetched": 6,
+      "evidence": "$500"
+    },
+    {
+      "id": "0e27bcd6-f9f5-4758-b7ca-61a337169326",
+      "name": "Sushi Brokers",
+      "website": "http://www.sushibrokers.com/",
+      "windows": 2,
+      "cause": "image",
+      "pagesFetched": 4,
+      "evidence": null
+    },
+    {
+      "id": "29ecd221-27a3-4779-b9ed-c6d7d20ab30c",
+      "name": "Zipps Sports Grill",
+      "website": "https://www.zippssportsgrills.com/locations/frank-lloyd-wright/",
+      "windows": 1,
+      "cause": "text",
+      "pagesFetched": 5,
+      "evidence": "$ 3.25"
+    }
+  ]
+}

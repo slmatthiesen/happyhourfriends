@@ -502,6 +502,24 @@ export async function applySubmission(
       afterJsonb = await readRow(tx, tableName, rowId);
     }
 
+    // Release a venue Build A had hidden as a dead-end stub (status='no_happy_hour') the instant
+    // a crowdsourced active happy hour lands on it. SCOPED to no_happy_hour — never overrides an
+    // operator's closed/paused. Mirrors the persist path's re-activation (lib/recover/resolveVenue).
+    if (
+      tableName === "happy_hours" &&
+      afterJsonb &&
+      (afterJsonb as { active?: boolean }).active === true &&
+      !(afterJsonb as { deletedAt?: unknown }).deletedAt
+    ) {
+      const ownerVenueId = (afterJsonb as { venueId?: string }).venueId;
+      if (ownerVenueId) {
+        await tx
+          .update(venues)
+          .set({ status: "active", updatedAt: new Date() })
+          .where(and(eq(venues.id, ownerVenueId), eq(venues.status, "no_happy_hour")));
+      }
+    }
+
     const reason =
       ctx.reason ??
       (overrideAfter
