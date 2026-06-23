@@ -115,6 +115,32 @@ function isBotWallFailure(r: FetchResult): boolean {
   return r.error != null;
 }
 
+/**
+ * Deterministic anti-bot wall fingerprint. Cloudflare's managed challenge ("Just a moment…"),
+ * Turnstile interstitials, and similar return HTTP 200 with a content-less JS challenge page —
+ * so the status looks fine but the real page (the HH menu) never loads. We detect it from the
+ * HUMAN-FACING challenge copy the interstitial shows the visitor, so the ladder can escalate to
+ * the anti-bot provider (Jina). These phrases don't appear in legitimate restaurant prose, so
+ * the false-positive risk is nil. (Raw script tokens like `cf_chl` / `challenge-platform` were
+ * tried but FALSE-FIRED on content-bearing listing pages that merely embed a Cloudflare script —
+ * e.g. an edan.io listing with real venue text — so they're excluded.) Matched on raw HTML
+ * (pre-strip) AND survives in stripped text, so the same check works on a headless-rendered
+ * challenge page too. Pure + exported.
+ */
+const BOT_WALL_FINGERPRINTS = [
+  "just a moment",
+  "enable javascript and cookies to continue",
+  "checking your browser before",
+  "attention required! | cloudflare",
+  "please verify you are a human",
+  "verifying you are human",
+];
+export function detectBotWall(s: string): boolean {
+  if (!s) return false;
+  const t = s.toLowerCase();
+  return BOT_WALL_FINGERPRINTS.some((f) => t.includes(f));
+}
+
 /** Signals that a text window carries menu / happy-hour content. */
 const MENU_SIGNAL =
   /\$\s?\d|happy[ -]?hour|\b(mon|tue|wed|thu|fri|sat|sun|daily|weekday|weekend)\b|\b\d{1,2}(:\d{2})?\s?(a\.?m\.?|p\.?m\.?|am|pm)\b|\b(menu|special|appetizer|cocktail|martini|draft|draught|wine|beer|spirit|well drink|pint|glass|bottle)\b/gi;
@@ -244,6 +270,12 @@ export interface FetchResult {
   mediaLinks?: string[];
   contentType?: string;
   blockedByRobots?: boolean;
+  /** An anti-bot wall (Cloudflare/Turnstile challenge) answered with a content-less 200. The
+   *  ladder escalates this to the anti-bot provider tier (lib/places/fetchProviders). */
+  blocked?: "bot_wall";
+  /** This result came from the anti-bot provider (Jina) escalation, not a direct fetch. Set by
+   *  siteContent's anti-bot tier so a deliberately-captured screenshot always counts as signal. */
+  fromAntiBot?: boolean;
   error?: string;
 }
 
@@ -471,9 +503,13 @@ export async function fetchUrl(url: string, opts: FetchOpts = {}): Promise<Fetch
       }
 
       const raw = await res.text();
+      // Cloudflare/Turnstile challenge served as a 200 with no real content — flag it so the
+      // ladder escalates to the anti-bot provider (the bot-UA refetch above doesn't clear a
+      // managed JS challenge; only a real browser / cloud reader does).
+      const blocked = detectBotWall(raw) ? ("bot_wall" as const) : undefined;
       const contentText = stripHtml(raw, maxContent);
       const mediaLinks = extractMediaLinks(raw, res.url || url);
-      return { url, ok: true, status: res.status, contentType, contentText, mediaLinks };
+      return { url, ok: true, status: res.status, contentType, contentText, mediaLinks, blocked };
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       return { url, ok: false, error: message };
