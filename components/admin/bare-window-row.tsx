@@ -4,8 +4,10 @@ import { useState, useTransition } from "react";
 import {
   resolveStubAction,
   addOfferingsToWindowAction,
+  dismissBareWindowAction,
   type ResolveStubResult,
   type AddOfferingsActionResult,
+  type ActionResult,
 } from "@/app/admin/actions";
 
 export interface BareWindow {
@@ -136,6 +138,8 @@ export function BareWindowRow({ venue }: { venue: BareVenue }) {
   const [result, setResult] = useState<ResolveStubResult | null>(null);
   const [url, setUrl] = useState("");
   const [openForm, setOpenForm] = useState<string | null>(null); // happyHourId whose add-deals form is open
+  const [dismissed, setDismissed] = useState(false);
+  const [dismissResult, setDismissResult] = useState<ActionResult | null>(null);
 
   function reExtract(withUrl?: string) {
     setResult(null);
@@ -144,7 +148,28 @@ export function BareWindowRow({ venue }: { venue: BareVenue }) {
     });
   }
 
+  function dismiss() {
+    if (!window.confirm(`Mark "${venue.name}" as: cannot find a happy-hour entry? This removes its bare window from the public site (reversible).`)) return;
+    setDismissResult(null);
+    startTransition(async () => {
+      const r = await dismissBareWindowAction(venue.id);
+      setDismissResult(r);
+      if (r.ok) setDismissed(true);
+    });
+  }
+
   const siteUrl = venue.hhPageUrl ?? venue.websiteUrl;
+
+  if (dismissed) {
+    return (
+      <tr className="border-t border-border align-top opacity-60">
+        <td className="px-3 py-2 text-text-muted line-through">{venue.name}</td>
+        <td className="px-3 py-2 text-xs text-text-muted" colSpan={2}>
+          ✓ dismissed — no findable happy hour{dismissResult?.warning ? ` · ${dismissResult.warning}` : ""}
+        </td>
+      </tr>
+    );
+  }
 
   return (
     <tr className="border-t border-border align-top">
@@ -200,7 +225,16 @@ export function BareWindowRow({ venue }: { venue: BareVenue }) {
           >
             Extract from URL
           </button>
+          <button
+            onClick={dismiss}
+            disabled={pending}
+            className="rounded-md border border-border px-2.5 py-1 text-xs text-text-muted hover:bg-row-hover hover:text-accent-hot disabled:opacity-50"
+            title="No findable happy hour — remove this bare window from the queue and the public site (reversible)"
+          >
+            Can&apos;t find HH
+          </button>
         </div>
+        {dismissResult?.error && <div className="mt-1 text-xs text-accent-hot">✗ {dismissResult.error}</div>}
         {result && (
           <div className="mt-1 text-xs">
             {result.error ? (

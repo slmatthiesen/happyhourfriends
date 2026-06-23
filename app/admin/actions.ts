@@ -1,9 +1,9 @@
 "use server";
 
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/client";
-import { auditLog, happyHours, promotionTier, venues } from "@/db/schema";
+import { auditLog, happyHours, offerings, promotionTier, venues } from "@/db/schema";
 import { requireAdmin } from "@/lib/admin/auth";
 import {
   applySubmission,
@@ -176,6 +176,62 @@ export async function deleteStubVenueAction(venueId: string): Promise<ActionResu
     return { ok: true, warning };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Delete failed" };
+  }
+}
+
+/** Bare-window queue: the operator looked and there's no findable happy-hour entry. Soft-delete
+ *  the venue's offering-less ("bare") active windows so the venue drops off /admin/bare-windows
+ *  AND stops claiming an unsubstantiated happy hour on the public site (no active window → it
+ *  reverts to a plain stub). Soft delete is reversible (audit-logged) and the persist path
+ *  respects it — a future re-extraction won't resurrect the exact dismissed window. Windows that
+ *  DO carry deals are never touched. Operator-driven judgment, not a heuristic. */
+export async function dismissBareWindowAction(venueId: string): Promise<ActionResult> {
+  try {
+    const admin = await requireAdmin();
+    const now = new Date();
+    let dismissed = 0;
+    await db.transaction(async (tx) => {
+      // The venue's ACTIVE windows that carry NO active offerings — the bare ones.
+      const bare = await tx
+        .select({ id: happyHours.id })
+        .from(happyHours)
+        .where(
+          and(
+            eq(happyHours.venueId, venueId),
+            eq(happyHours.active, true),
+            isNull(happyHours.deletedAt),
+            sql`NOT EXISTS (SELECT 1 FROM ${offerings} o WHERE o.happy_hour_id = ${happyHours.id} AND o.active = true AND o.deleted_at IS NULL)`,
+          ),
+        );
+      const ids = bare.map((w) => w.id);
+      dismissed = ids.length;
+      if (ids.length === 0) return;
+      await tx
+        .update(happyHours)
+        .set({ active: false, deletedAt: now, updatedAt: now })
+        .where(inArray(happyHours.id, ids));
+      for (const id of ids) {
+        await tx.insert(auditLog).values({
+          tableName: "happy_hours",
+          rowId: id,
+          beforeJsonb: { active: true, deletedAt: null },
+          afterJsonb: { active: false, deletedAt: now.toISOString() },
+          actor: adminActor(admin.email),
+          reason: "operator: cannot find HH entry — bare window dismissed",
+        });
+      }
+    });
+    if (dismissed === 0) return { ok: false, error: "No bare window to dismiss (deals may already exist)." };
+
+    // Propagate to prod so the dismissed window vanishes from the live site too.
+    let warning: string | undefined;
+    const pub = await publishVenueToProd(venueId);
+    if (!pub.ok) warning = `Dismissed locally, but publishing to prod failed: ${pub.error}`;
+
+    revalidatePath("/admin/bare-windows");
+    return { ok: true, warning };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Dismiss failed" };
   }
 }
 
