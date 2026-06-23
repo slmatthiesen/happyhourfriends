@@ -40,6 +40,7 @@ import {
 } from "@/lib/places/chainDenylist";
 import {
   collectAdaptive,
+  collectAdaptiveRegions,
   MAX_DEPTH,
   type Tile,
 } from "@/lib/places/discoveryTiling";
@@ -62,18 +63,17 @@ interface DiscoverArgs {
   noHhRecall: boolean;
   hhRecallOnly: boolean;
   estimate: boolean;
-  subTile: boolean;
   maxCalls: number;
 }
 
 function parseArgs(): DiscoverArgs {
   const argv = process.argv.slice(2);
   // Default ceiling on the HH-recall Text Search pass (NOT the Nearby sweep, which keeps its
-  // own maxTiles guard). Whole-bbox = 3 calls; --sub-tile quadrants = 12; so 30 leaves room.
+  // own maxTiles guard). Overridden by RECALL_MAX_CALLS env var; --max-calls is a runtime alias.
   let maxCalls = 30;
   const FLAGS = new Set([
     "--curated", "--fresh", "--debug-drops",
-    "--hh-recall", "--no-hh-recall", "--hh-recall-only", "--estimate", "--sub-tile",
+    "--hh-recall", "--no-hh-recall", "--hh-recall-only", "--estimate",
   ]);
   // Reject stray args. `seed:discover tucson` (no --city) silently ran Tacoma before — a
   // costly footgun (wrong city / wasted Places quota). The city MUST be --city + --state flags.
@@ -85,7 +85,7 @@ function parseArgs(): DiscoverArgs {
     throw new Error(
       `Unexpected argument "${tok}". Pass the city as flags:\n` +
         `  npm run seed:discover -- --city <slug> --state <code>   (e.g. --city tucson --state az)\n` +
-        `  HH recall runs by DEFAULT. Optional: --no-hh-recall | --hh-recall-only | --estimate | --sub-tile | --max-calls <n>`,
+        `  HH recall runs by DEFAULT. Optional: --no-hh-recall | --hh-recall-only | --estimate | --max-calls <n>`,
     );
   }
   return {
@@ -104,9 +104,6 @@ function parseArgs(): DiscoverArgs {
     hhRecallOnly: argv.includes("--hh-recall-only"),
     // --estimate: print the worst-case call count + cost and exit. Makes ZERO Google calls.
     estimate: argv.includes("--estimate"),
-    // --sub-tile: split the city bbox into quadrants for the recall pass (beats the 60-result
-    // cap for large cities). Off by default — whole-bbox is 3 calls.
-    subTile: argv.includes("--sub-tile"),
     maxCalls: Number.isFinite(maxCalls) && maxCalls > 0 ? maxCalls : 30,
   };
 }
@@ -381,7 +378,7 @@ interface TextSearchResponse {
   nextPageToken?: string;
 }
 
-/** Split a rectangle into 4 quadrants (opt-in --sub-tile, to surface > 60 venues/city). */
+/** Split a rectangle into 4 quadrants (used by the adaptive recall engine for dense regions). */
 function splitRectQuadrants(r: LatLngRect): LatLngRect[] {
   const midLat = (r.low.latitude + r.high.latitude) / 2;
   const midLng = (r.low.longitude + r.high.longitude) / 2;
@@ -765,7 +762,10 @@ async function main() {
       const dLng = COVERAGE_METERS / (111_320 * Math.cos((lat * Math.PI) / 180));
       recallRect = { low: { latitude: lat - dLat, longitude: lng - dLng }, high: { latitude: lat + dLat, longitude: lng + dLng } };
     }
-    const recallRegions: LatLngRect[] = args.subTile ? splitRectQuadrants(recallRect) : [recallRect];
+    // Recall is adaptive: seed with the whole recall rectangle; saturated regions self-subdivide
+    // into dense cores (downtown). `splitRectQuadrants` is now the engine's splitRegion, not a
+    // one-shot opt-in.
+    const recallSeedRegions: LatLngRect[] = [recallRect];
 
     // ---- Nearby seed tiles (free to COMPUTE; only FETCHED if the Nearby sweep runs) ----
     let tiles: { lat: number; lng: number }[];
@@ -819,21 +819,12 @@ async function main() {
     const maxTiles = Math.ceil(seedTiles.length * perSeedTreeMax) + 10;
 
     // ---- Cost plan + --estimate (prints the worst-case call count; makes ZERO calls) ----
-    const plannedRecallCalls = recallEnabled
-      ? recallRegions.length * HH_RECALL_QUERIES.length * TEXT_SEARCH_MAX_PAGES
-      : 0;
     if (recallEnabled) {
       console.log(
-        `  HH recall plan: "${HH_RECALL_QUERIES.join('", "')}" × ${recallRegions.length} region(s) ` +
-          `× ≤${TEXT_SEARCH_MAX_PAGES} pages = ≤${plannedRecallCalls} Text Search call(s) ` +
-          `(~$${(plannedRecallCalls * 0.04).toFixed(2)} @ Enterprise+Atmosphere).`,
+        `  HH recall plan (adaptive): "${HH_RECALL_QUERIES.join('", "')}" — saturated regions ` +
+          `subdivide to a ~${RECALL_FLOOR_METERS}m floor, capped at ${RECALL_MAX_CALLS} Text Search ` +
+          `call(s) (~$${(RECALL_MAX_CALLS * 0.03).toFixed(2)})…`,
       );
-      if (plannedRecallCalls > args.maxCalls) {
-        throw new Error(
-          `HH recall would make ≤${plannedRecallCalls} calls, over --max-calls=${args.maxCalls}. ` +
-            `Raise --max-calls to proceed.`,
-        );
-      }
     }
     if (!args.hhRecallOnly) {
       console.log(`  Nearby sweep plan: ≤${maxTiles} tile call(s) (adaptive — usually far fewer) + 1 airport call.`);
@@ -893,8 +884,38 @@ async function main() {
     }
 
     if (recallEnabled) {
-      const { calls, added } = await collectHhRecall(placesKey, recallRegions, collected);
-      console.log(`  HH recall: ${calls} Text Search call(s) → ${added} unique place(s) added to the pool.`);
+      const before = collected.size;
+      let floorSaturated = 0;
+      let capRemaining = 0;
+      const prune = useBoundary
+        ? async (region: LatLngRect): Promise<boolean> => {
+            const [{ within }] = await sql<{ within: boolean }[]>`
+              SELECT ST_DWithin(
+                g::geography,
+                ST_MakeEnvelope(${region.low.longitude}, ${region.low.latitude},
+                                ${region.high.longitude}, ${region.high.latitude}, 4326)::geography,
+                ${SERVICE_BUFFER_METERS}
+              ) AS within
+              FROM _seed_boundary
+            `;
+            return !within; // prune (true) when the region cannot reach the in-scope boundary
+          }
+        : undefined;
+      const { calls } = await collectAdaptiveRegions<LatLngRect, PlaceResult>({
+        seedRegions: recallSeedRegions,
+        fetchRegion: (region) => fetchRecallRegion(placesKey, region, collected, { prune }),
+        splitRegion: splitRectQuadrants,
+        canSubdivide: (region) => canSubdivideRect(region),
+        maxCalls: RECALL_MAX_CALLS,
+        onFloorSaturated: () => { floorSaturated++; },
+        onCapReached: (remaining) => { capRemaining = remaining; },
+      });
+      const added = collected.size - before;
+      console.log(
+        `  HH recall (adaptive): ${calls} Text Search call(s) → ${added} unique place(s) added` +
+          (floorSaturated > 0 ? `; ${floorSaturated} floor region(s) still saturated (dense hotspot — some may remain)` : ``) +
+          (capRemaining > 0 ? `; ⚠ hit the ${RECALL_MAX_CALLS}-call cap with ${capRemaining} region(s) unvisited (raise RECALL_MAX_CALLS to go deeper)` : ``),
+      );
     }
 
     // Airport points (for the in-terminal exclusion gate). One Places call; [] on error.
