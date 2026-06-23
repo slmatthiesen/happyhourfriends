@@ -314,10 +314,18 @@ export async function fetchPages(
      *  on-demand / admin single-venue path is operator-targeted); the batch enrich sweep passes
      *  false for non-HH-likely candidates so a bot wall there stays $0. */
     hhLikely?: boolean;
+    /** URLs triage CONFIRMED are happy-hour pages (via HH anchor text / slug / Wix route) — the
+     *  venue's own /happy-hour, /menu, etc. When one of these plain-fetches to a JS-SPA shell with
+     *  no concrete deal text (Wix/Squarespace render the menu client-side), we KNOW the deals are
+     *  there one click deep, so we escalate it to render → anti-bot even though it carries junk
+     *  media links a generic page wouldn't escalate on. Bounds the cost to triage-confirmed HH
+     *  pages, not every shell. Hop & Vine's $5/$5/$9 deals live on such a page. */
+    hhContextUrls?: string[];
   } = {},
 ): Promise<FetchedPage[]> {
   const unique = dedupeFetchTargets(urls, max);
   const antiBotAllowed = Boolean(opts.antiBot) && opts.hhLikely !== false;
+  const hhContextKeys = new Set((opts.hhContextUrls ?? []).map(fetchUrlKey));
   // Plain fetch first; fall back to the headless render tier when it can see MORE
   // (see needsBrowserRender); only then escalate to the paid anti-bot provider for a venue
   // worth it (see needsAntiBot + antiBotAllowed).
@@ -329,19 +337,27 @@ export async function fetchPages(
     // content — Rise Woodfire's 403 homepage renders to a 1.8KB consent page with the menu only
     // visible in a screenshot.
     const walledOrigin = isWalledOrigin(plain);
-    // Should `res` escalate to the anti-bot provider? A flagged/short wall (needsAntiBot), OR a
-    // walled-origin / cookie-consent page (Toast) that — even after a render — still carries no
-    // usable HH/menu content. The consent/walled-origin arms catch long-but-contentless pages
-    // needsAntiBot can't distinguish from real content.
+    // This URL is a triage-confirmed happy-hour page (priorityUrls). If it plain-fetches to a
+    // JS-SPA shell with no concrete deal text, the deals are there but client-rendered — escalate
+    // it even though it carries junk media links a generic page wouldn't escalate on.
+    const hhContext = hhContextKeys.has(fetchUrlKey(u));
+    // Should `res` escalate to render / the anti-bot provider? A flagged/short wall (needsAntiBot),
+    // OR a walled-origin / cookie-consent page (Toast) with no usable HH/menu content, OR a
+    // triage-confirmed HH page that still reads as a deal-less SPA shell.
     const shouldEscalate = (res: FetchResult): boolean => {
       if (needsAntiBot(res)) return true;
       // A consent/cookie wall (Toast) links junk that fools hasUsableHhContent — judge it by
       // whether the page itself reads as HH (hasReadableHh), ignoring those links.
       if (looksLikeConsentWall(res.contentText)) return !hasReadableHh(res);
+      // A triage-confirmed HH page that still has no concrete deal text (Wix/Squarespace SPA shell
+      // whose menu renders client-side). Ignore junk media links — the deals are in the JS render.
+      if (hhContext && !hasReadableHh(res)) return true;
       // A bot-walled origin that rendered to no usable content (real menu links would be followed).
       return walledOrigin && !hasUsableHhContent(res);
     };
-    if (needsBrowserRender(r) && opts.render) {
+    // Render when the generic trigger fires OR when a triage-confirmed HH page plain-fetched to a
+    // deal-less shell (the free browser tier alone often recovers a Wix/Squarespace client-render).
+    if ((needsBrowserRender(r) || shouldEscalate(r)) && opts.render) {
       // A render failure must not abort the whole (fail-fast) concurrency pool — fall back
       // to the plain result so one bad page can't drop every other URL for the venue.
       try {
