@@ -63,14 +63,15 @@ interface DiscoverArgs {
   noHhRecall: boolean;
   hhRecallOnly: boolean;
   estimate: boolean;
-  maxCalls: number;
+  /** Explicit --max-calls override for the recall cap; undefined → use RECALL_MAX_CALLS env/default. */
+  maxCalls: number | undefined;
 }
 
 function parseArgs(): DiscoverArgs {
   const argv = process.argv.slice(2);
-  // Default ceiling on the HH-recall Text Search pass (NOT the Nearby sweep, which keeps its
-  // own maxTiles guard). Overridden by RECALL_MAX_CALLS env var; --max-calls is a runtime alias.
-  let maxCalls = 30;
+  // Optional CLI override for the HH-recall Text Search cap (NOT the Nearby sweep, which keeps
+  // its own maxTiles guard). When unset, the recall uses RECALL_MAX_CALLS (env, default 30).
+  let maxCalls: number | undefined;
   const FLAGS = new Set([
     "--curated", "--fresh", "--debug-drops",
     "--hh-recall", "--no-hh-recall", "--hh-recall-only", "--estimate",
@@ -104,7 +105,7 @@ function parseArgs(): DiscoverArgs {
     hhRecallOnly: argv.includes("--hh-recall-only"),
     // --estimate: print the worst-case call count + cost and exit. Makes ZERO Google calls.
     estimate: argv.includes("--estimate"),
-    maxCalls: Number.isFinite(maxCalls) && maxCalls > 0 ? maxCalls : 30,
+    maxCalls: maxCalls !== undefined && Number.isFinite(maxCalls) && maxCalls > 0 ? maxCalls : undefined,
   };
 }
 
@@ -818,12 +819,15 @@ async function main() {
     const perSeedTreeMax = (Math.pow(4, MAX_DEPTH + 1) - 1) / 3;
     const maxTiles = Math.ceil(seedTiles.length * perSeedTreeMax) + 10;
 
+    // Effective recall cap: explicit --max-calls wins, else the RECALL_MAX_CALLS env/default.
+    const recallMaxCalls = args.maxCalls ?? RECALL_MAX_CALLS;
+
     // ---- Cost plan + --estimate (prints the worst-case call count; makes ZERO calls) ----
     if (recallEnabled) {
       console.log(
         `  HH recall plan (adaptive): "${HH_RECALL_QUERIES.join('", "')}" — saturated regions ` +
-          `subdivide to a ~${RECALL_FLOOR_METERS}m floor, capped at ${RECALL_MAX_CALLS} Text Search ` +
-          `call(s) (~$${(RECALL_MAX_CALLS * 0.03).toFixed(2)})…`,
+          `subdivide to a ~${RECALL_FLOOR_METERS}m floor, capped at ${recallMaxCalls} Text Search ` +
+          `call(s) (~$${(recallMaxCalls * 0.03).toFixed(2)})…`,
       );
     }
     if (!args.hhRecallOnly) {
@@ -906,7 +910,7 @@ async function main() {
         fetchRegion: (region) => fetchRecallRegion(placesKey, region, collected, { prune }),
         splitRegion: splitRectQuadrants,
         canSubdivide: (region) => canSubdivideRect(region),
-        maxCalls: RECALL_MAX_CALLS,
+        maxCalls: recallMaxCalls,
         onFloorSaturated: () => { floorSaturated++; },
         onCapReached: (remaining) => { capRemaining = remaining; },
       });
@@ -914,7 +918,7 @@ async function main() {
       console.log(
         `  HH recall (adaptive): ${calls} Text Search call(s) → ${added} unique place(s) added` +
           (floorSaturated > 0 ? `; ${floorSaturated} floor region(s) still saturated (dense hotspot — some may remain)` : ``) +
-          (capRemaining > 0 ? `; ⚠ hit the ${RECALL_MAX_CALLS}-call cap with ${capRemaining} region(s) unvisited (raise RECALL_MAX_CALLS to go deeper)` : ``),
+          (capRemaining > 0 ? `; ⚠ hit the ${recallMaxCalls}-call cap with ${capRemaining} region(s) unvisited (raise --max-calls / RECALL_MAX_CALLS to go deeper)` : ``),
       );
     }
 
