@@ -907,6 +907,8 @@ async function main() {
         : undefined;
       const { calls } = await collectAdaptiveRegions<LatLngRect, PlaceResult>({
         seedRegions: recallSeedRegions,
+        // fetchRecallRegion writes into the shared `collected` pool (source of truth, deduped with
+        // the Nearby results); the engine's own returned map is ignored here — we count via `collected`.
         fetchRegion: (region) => fetchRecallRegion(placesKey, region, collected, { prune }),
         splitRegion: splitRectQuadrants,
         canSubdivide: (region) => canSubdivideRect(region),
