@@ -105,6 +105,7 @@
     "test:gsc-resolve-page": "tsx scripts/test-gsc-resolve-page.ts",
     "test:gsc-report": "tsx scripts/test-gsc-report.ts",
     "test:chain-happy-hours": "tsx scripts/test-chain-happy-hours.ts",
+    "test:chain-denylist": "tsx scripts/test-chain-denylist.ts",
     "test:point-in-polygon": "tsx scripts/test-point-in-polygon.ts",
     "test:harvest": "tsx scripts/test-fetchurl-harvest.ts",
     "test:fetchurl-retry": "tsx scripts/test-fetchurl-retry.ts",
