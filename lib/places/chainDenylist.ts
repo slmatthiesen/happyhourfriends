@@ -21,9 +21,13 @@ const CHAINS: string[] = [
   "jollibee", "loves travel stop", "culvers", "waffle house", "first watch",
   "salad and go", "filibertos", "mesquite fresh", "petes fish chips",
   "petes fish and chips", "lolos chicken waffles", "lolos chicken and waffles",
-  // Casual-dining national chains (operator: ignore Applebee's / Red Lobster types)
-  "applebees", "red lobster", "olive garden", "chilis", "tgi fridays", "fridays",
-  "outback steakhouse", "texas roadhouse", "dennys", "ihop", "red robin",
+  // Casual-dining national chains.
+  // Operator (2026-06-23): Applebee's and Red Robin are now KEPT — common American
+  // sit-down spots with real happy hours. They're removed from here and live in
+  // HH_CHAINS below (Yard House too); that allowlist overrides this denylist. Don't
+  // re-add them here — it's a no-op contradiction, which is the bug this cleaned up.
+  "red lobster", "olive garden", "chilis", "tgi fridays", "fridays",
+  "outback steakhouse", "texas roadhouse", "dennys", "ihop",
   "black angus", "famous daves", "buffalo wild wings", "hooters", "round table pizza",
   "macaroni grill", "claim jumper", "ruby tuesday", "golden corral", "sharis",
   "elmers", "mod sushi", "bjs restaurant", "bjs brewhouse", "the old spaghetti factory",
@@ -64,7 +68,7 @@ export function normalize(name: string): string {
 // targets. They override the denylist so discovery keeps them. Verified: Dave & Buster's
 // extracts Mon–Fri 4–7 PM + late-night with $5 drink offerings. Match style mirrors CHAINS.
 const HH_CHAINS = [
-  "applebees", "chilis", "tgi fridays", "fridays", "outback steakhouse",
+  "applebees", "chilis", "tgi fridays", "fridays", "outback steakhouse", "yard house",
   "bjs restaurant", "bjs brewhouse", "buffalo wild wings", "hooters", "red robin",
   "black angus", "ruby tuesday", "claim jumper", "macaroni grill", "texas de brazil",
   "dave busters", "dave and busters", "round 1", "round1", "bowlero", "main event",

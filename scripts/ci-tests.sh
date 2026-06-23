@@ -98,6 +98,7 @@ TESTS=(
   test:gsc-resolve-page
   test:gsc-report
   test:chain-happy-hours
+  test:chain-denylist
   test:point-in-polygon
   test:plan-supersede
   test:fetch-targets
