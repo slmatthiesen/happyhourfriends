@@ -40,10 +40,10 @@ import {
 import { freeExtractFromPages, shouldEscalateForDroppedDeals } from "@/lib/ai/freeExtract";
 import { closeRenderBrowserSafe } from "@/lib/verification/lazyRender";
 import { costCents } from "@/lib/ai/pricing";
-import { createBatch, pollBatch, streamResults, type BatchRequest } from "@/lib/ai/batch";
+import { createBatch, chunkRequestsBySize, pollBatch, streamResults, type BatchRequest } from "@/lib/ai/batch";
 import {
   writeBatchState,
-  findBatchState,
+  findAllBatchStates,
   deleteBatchState,
   type PrepContext,
   type BatchState,
@@ -793,20 +793,29 @@ async function runBatch(
     noData: [],
   };
 
-  // ---- Resume an in-flight batch if one exists -----------------------------
-  let state = findBatchState(city.slug);
-  if (state) {
-    console.log(`Resuming in-flight batch ${state.batchId} for '${city.slug}'…`);
+  // ---- Resume in-flight batches if any exist -------------------------------
+  // A run is submitted as one or more size-chunked batches (see prepAndSubmit). Drain
+  // every pending chunk before the on-demand fallback + finalize.
+  let states = findAllBatchStates(city.slug);
+  if (states.length > 0) {
+    console.log(`Resuming ${states.length} in-flight batch(es) for '${city.slug}'…`);
   } else {
-    state = await prepAndSubmit(sql, city, args, tally);
-    if (!state) {
+    states = await prepAndSubmit(sql, city, args, tally);
+    if (states.length === 0) {
       console.log("No eligible candidates to batch.");
       await finalize(sql, city, tally);
       return;
     }
   }
 
-  // ---- Poll to completion --------------------------------------------------
+  // model + promptHash are input-independent (prompt template + configured model),
+  // so resolve once for ledger attribution rather than per result.
+  const { model: extractorModel, promptHash } = extractorMetadata();
+
+  const fallback: PrepContext[] = [];
+
+  // ---- Poll + collect each chunk to completion -----------------------------
+  for (const state of states) {
   console.log(`Polling batch ${state.batchId} every 180s until complete…`);
   await pollBatch(state.batchId, {
     intervalMs: 180_000,
@@ -818,12 +827,6 @@ async function runBatch(
       ),
   });
 
-  // ---- Collect + write -----------------------------------------------------
-  // model + promptHash are input-independent (prompt template + configured model),
-  // so resolve once for ledger attribution rather than per result.
-  const { model: extractorModel, promptHash } = extractorMetadata();
-
-  const fallback: PrepContext[] = [];
   for await (const res of streamResults(state.batchId)) {
     const ctx = state.contexts[res.custom_id];
     if (!ctx) continue; // unknown id — skip defensively
@@ -904,6 +907,10 @@ async function runBatch(
     }
   }
 
+    // This chunk is fully collected — drop its state file so a resume won't re-poll it.
+    deleteBatchState(city.slug, state.batchId);
+  }
+
   // ---- On-demand fallback for stragglers -----------------------------------
   if (fallback.length > 0) {
     console.log(`\n${fallback.length} request(s) need on-demand fallback…`);
@@ -952,7 +959,6 @@ async function runBatch(
     }
   }
 
-  deleteBatchState(city.slug, state.batchId);
   await finalize(sql, city, tally);
 }
 
@@ -962,7 +968,7 @@ async function prepAndSubmit(
   city: CityRow,
   args: { limit: number | null; noWebsearch: boolean },
   tally: ReportTally,
-): Promise<BatchState | null> {
+): Promise<BatchState[]> {
   const candidates = await sql<SeedCandidate[]>`
     SELECT id, name, google_place_id, address, lat, lng, source_url,
            primary_type, types, website_url, rating, user_rating_count,
@@ -972,7 +978,7 @@ async function prepAndSubmit(
     ORDER BY created_at ASC
     ${args.limit != null ? sql`LIMIT ${args.limit}` : sql``}
   `;
-  if (candidates.length === 0) return null;
+  if (candidates.length === 0) return [];
   console.log(`Prepping ${candidates.length} candidates for '${city.slug}'…`);
 
   const requests: BatchRequest[] = [];
@@ -1164,14 +1170,26 @@ async function prepAndSubmit(
     contexts[c.id] = ctx;
   }
 
-  if (requests.length === 0) return null;
+  if (requests.length === 0) return [];
 
-  console.log(`Submitting batch of ${requests.length} request(s)…`);
-  const batchId = await createBatch(requests);
-  const state: BatchState = { batchId, citySlug: city.slug, cityId: city.id, contexts };
-  writeBatchState(state); // persist immediately so a crash can resume
-  console.log(`  batch id: ${batchId}`);
-  return state;
+  // Chunk by serialized size: a single createBatch body over 256MB 413s and rejects every
+  // request in it. Media-heavy cities (San Jose: 246 requests of inlined HTML + PDF/image
+  // bytes) need >1 batch. Each chunk is its own resumable state file.
+  const chunks = chunkRequestsBySize(requests);
+  console.log(
+    `Submitting ${requests.length} request(s) in ${chunks.length} batch(es)…`,
+  );
+  const states: BatchState[] = [];
+  for (const chunk of chunks) {
+    const batchId = await createBatch(chunk);
+    const chunkContexts: Record<string, PrepContext> = {};
+    for (const req of chunk) chunkContexts[req.custom_id] = contexts[req.custom_id];
+    const state: BatchState = { batchId, citySlug: city.slug, cityId: city.id, contexts: chunkContexts };
+    writeBatchState(state); // persist immediately so a crash can resume
+    states.push(state);
+    console.log(`  batch id: ${batchId} (${chunk.length} request(s))`);
+  }
+  return states;
 }
 
 async function finalize(sql: Sql, city: CityRow, tally: ReportTally): Promise<void> {
