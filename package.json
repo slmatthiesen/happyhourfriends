@@ -177,7 +177,9 @@
     "test:stub-rank": "tsx scripts/test-stub-rank.ts",
     "test:venue-quality": "tsx scripts/test-venue-quality.ts",
     "test:venue-type": "tsx scripts/test-venue-type.ts",
-    "test:window-reconcile": "tsx scripts/test-window-reconcile.ts"
+    "test:window-reconcile": "tsx scripts/test-window-reconcile.ts",
+    "test:discovery-tiling": "tsx scripts/test-discovery-tiling.ts",
+    "test:recall-rect": "tsx scripts/test-recall-rect.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.99.0",

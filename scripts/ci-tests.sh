@@ -106,6 +106,8 @@ TESTS=(
   test:add-offerings
   test:stub-gate
   test:anti-bot-fetch
+  test:discovery-tiling
+  test:recall-rect
 )
 
 failed=()

@@ -123,3 +123,66 @@ export async function collectAdaptive<T extends TilePlace>(
   }
   return collected;
 }
+
+// ---------------------------------------------------------------------------
+// Region-shape-agnostic adaptive engine (drives the saturation-recursive HH recall).
+// `collectAdaptive` above is the circle-specific Nearby variant; this generalizes the
+// same control structure to ANY region (e.g. lat/lng rectangles for Text Search): fetch
+// a region, and if it came back saturated AND is still above its floor AND we're under the
+// call cap, split it and recurse. Pure + injectable so it unit-tests with no network.
+// ---------------------------------------------------------------------------
+
+export interface RegionFetchResult<T extends TilePlace> {
+  places: T[];
+  /** The region returned MORE than one fetch could surface (truncated) — subdivide it. */
+  saturated: boolean;
+  /** API calls this region's fetch consumed (Text Search paginates → up to N per region). */
+  calls: number;
+}
+
+export interface CollectAdaptiveRegionsOptions<R, T extends TilePlace> {
+  seedRegions: R[];
+  /** Fetch all places for one region (deduped upstream by id). Injected for tests. */
+  fetchRegion: (region: R) => Promise<RegionFetchResult<T>>;
+  /** Split a saturated region into smaller children. */
+  splitRegion: (region: R) => R[];
+  /** True when a saturated region is still allowed to subdivide (above the floor). */
+  canSubdivide: (region: R) => boolean;
+  /** Cost cap: stop once cumulative fetch calls reach this. Default Infinity. */
+  maxCalls?: number;
+  /** Called when a saturated region cannot subdivide (genuine dense hotspot at the floor). */
+  onFloorSaturated?: (region: R) => void;
+  /** Called when maxCalls halts the run, with the number of queued regions left unvisited. */
+  onCapReached?: (remaining: number) => void;
+}
+
+/**
+ * Process seed regions, subdividing saturated ones until each returns un-saturated (or hits
+ * the floor or the call cap). Returns the deduped place map + total calls made.
+ */
+export async function collectAdaptiveRegions<R, T extends TilePlace>(
+  opts: CollectAdaptiveRegionsOptions<R, T>,
+): Promise<{ collected: Map<string, T>; calls: number }> {
+  const maxCalls = opts.maxCalls ?? Infinity;
+  const collected = new Map<string, T>();
+  const queue: R[] = [...opts.seedRegions];
+  let calls = 0;
+
+  while (queue.length > 0) {
+    if (calls >= maxCalls) {
+      opts.onCapReached?.(queue.length);
+      break;
+    }
+    const region = queue.shift() as R;
+    const r = await opts.fetchRegion(region);
+    calls += r.calls;
+    for (const p of r.places) {
+      if (p.id) collected.set(p.id, p);
+    }
+    if (r.saturated) {
+      if (opts.canSubdivide(region)) queue.push(...opts.splitRegion(region));
+      else opts.onFloorSaturated?.(region);
+    }
+  }
+  return { collected, calls };
+}
