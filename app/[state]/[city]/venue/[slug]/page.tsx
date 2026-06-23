@@ -218,7 +218,7 @@ export default async function VenuePage({
           {[venue.neighborhoodName, venue.address].filter(Boolean).join(" · ") ||
             "Address not yet confirmed"}
         </p>
-        <div className="mt-4 flex flex-wrap items-center gap-3">
+        <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">
           {venue.address && <DirectionsButton address={venue.address} />}
           {venue.websiteUrl && (
             <a
