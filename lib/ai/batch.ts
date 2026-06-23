@@ -15,6 +15,40 @@ export interface BatchRequest {
   params: MessageCreateParamsNonStreaming;
 }
 
+/**
+ * The Message Batches API rejects (413 request_too_large) any create() whose HTTP body
+ * exceeds 256MB. Our requests inline page HTML + base64 PDF/image bytes, so a media-heavy
+ * city (San Jose: 246 gated requests) can blow the cap. Pack chunks to ~200MB to leave
+ * headroom for JSON framing and transport overhead under the hard limit.
+ */
+export const MAX_BATCH_REQUEST_BYTES = 200 * 1024 * 1024;
+
+/**
+ * Greedily pack requests into chunks whose serialized size stays under `maxBytes`, preserving
+ * order. A single request that alone exceeds the budget is isolated in its own chunk rather than
+ * dropped — createBatch may still reject that one, but it never poisons its siblings.
+ */
+export function chunkRequestsBySize(
+  requests: BatchRequest[],
+  maxBytes: number = MAX_BATCH_REQUEST_BYTES,
+): BatchRequest[][] {
+  const chunks: BatchRequest[][] = [];
+  let current: BatchRequest[] = [];
+  let currentBytes = 0;
+  for (const req of requests) {
+    const size = Buffer.byteLength(JSON.stringify(req));
+    if (current.length > 0 && currentBytes + size > maxBytes) {
+      chunks.push(current);
+      current = [];
+      currentBytes = 0;
+    }
+    current.push(req);
+    currentBytes += size;
+  }
+  if (current.length > 0) chunks.push(current);
+  return chunks;
+}
+
 /** Submit a batch; returns the batch id. */
 export async function createBatch(requests: BatchRequest[]): Promise<string> {
   const batch = await anthropic().messages.batches.create({ requests });
