@@ -358,9 +358,25 @@ async function fetchNearby(
 
 const HH_RECALL_QUERIES = ["happy hour"] as const;
 // Google caps Text Search at 60 results across pages (3 × pageSize 20). Hard ceiling per
-// query+region — there is NO adaptive recursion (unlike Nearby), so cost is fixed and
-// countable up front: queries × regions × ≤3 pages.
+// query+region — Google hard-caps a query at 60 results (3 × 20) and then stops, giving NO
+// further pageToken. So "more results exist" CANNOT be read from a leftover token (it's always
+// absent at the cap); a query that returns the full 60 is the truncation signal — see
+// isQuerySaturated, which drives adaptive subdivision.
 const TEXT_SEARCH_MAX_PAGES = 3;
+const TEXT_SEARCH_PAGE_SIZE = 20;
+/** Google's hard per-query result ceiling: a query returning this many was truncated. */
+const TEXT_SEARCH_HARD_CAP = TEXT_SEARCH_MAX_PAGES * TEXT_SEARCH_PAGE_SIZE;
+
+/**
+ * Did one "happy hour" query saturate its region (more venues than it could return)? True when
+ * the pagination left a live token (truncated by OUR page cap) OR the query returned Google's
+ * hard cap of results (Google silently truncates past 60 with no token). The second arm is the
+ * real one for Text Search — without it, no region ever looks saturated and recall never
+ * subdivides into dense cores. Pure + exported for unit testing.
+ */
+export function isQuerySaturated(resultsReturned: number, hadNextPageToken: boolean): boolean {
+  return hadNextPageToken || resultsReturned >= TEXT_SEARCH_HARD_CAP;
+}
 
 /** Recall subdivision floor: never recurse a region whose CHILD half-diagonal would be below
  *  this (~downtown-block scale). Env-tunable. */
@@ -455,10 +471,13 @@ async function fetchRecallRegion(
   for (const q of HH_RECALL_QUERIES) {
     let pageToken: string | undefined;
     let page = 0;
+    let qResults = 0;
     do {
       const data = await fetchTextSearchPage(apiKey, q, region, pageToken);
       calls++;
-      for (const p of data.places ?? []) {
+      const got = data.places ?? [];
+      qResults += got.length;
+      for (const p of got) {
         if (!p.id) continue;
         if (!into.has(p.id)) fresh.push(p);
         into.set(p.id, p);
@@ -467,8 +486,9 @@ async function fetchRecallRegion(
       page++;
       await new Promise((r) => setTimeout(r, 40));
     } while (pageToken && page < TEXT_SEARCH_MAX_PAGES);
-    // Loop ended with a pageToken still in hand = there were more results past our page cap.
-    if (pageToken) saturated = true;
+    // A query that returned Google's hard cap (60) was truncated → its region holds more, so it
+    // must subdivide. (A leftover pageToken would also flag it, but Google never gives one at 60.)
+    if (isQuerySaturated(qResults, Boolean(pageToken))) saturated = true;
   }
   return { places: fresh, saturated, calls };
 }
