@@ -1,0 +1,24 @@
+{
+  "city": "Five Cities (Central Coast)",
+  "slug": "five-cities",
+  "dropped": [
+    {
+      "id": "3d5e00fb-e10c-400b-bf13-d5e56a4f42b8",
+      "name": "Pono Pacific Kitchen",
+      "website": "https://www.ponopacifickitchen.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 7,
+      "evidence": "deal-words"
+    },
+    {
+      "id": "35b5a3be-3a21-41aa-a1a4-f2baf999b87f",
+      "name": "Verdad & Lindquist Family Wine Tasting Room",
+      "website": "https://www.verdadandlindquistfamilywines.com/",
+      "windows": 1,
+      "cause": "pdf",
+      "pagesFetched": 5,
+      "evidence": null
+    }
+  ]
+}

@@ -104,6 +104,8 @@ TESTS=(
   test:plan-supersede
   test:fetch-targets
   test:add-offerings
+  test:stub-gate
+  test:anti-bot-fetch
 )
 
 failed=()

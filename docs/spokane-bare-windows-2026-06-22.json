@@ -1,0 +1,69 @@
+{
+  "city": "Spokane",
+  "slug": "spokane",
+  "dropped": [
+    {
+      "id": "ec64e666-d95c-48ad-a1ed-597599cb86e8",
+      "name": "Crazy Train Eatery",
+      "website": "https://www.thegrainshed.coop/",
+      "windows": 2,
+      "cause": "image",
+      "pagesFetched": 5,
+      "evidence": "$ 3.50"
+    },
+    {
+      "id": "5fdda766-8677-4361-84bd-5c1e3e4a395b",
+      "name": "Indicana | Flavors of India X Mexico",
+      "website": "https://indicanaeats.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 4,
+      "evidence": null
+    },
+    {
+      "id": "5762d58b-9f9e-4541-91f6-1c522ef1eb07",
+      "name": "Inland Cider Mill",
+      "website": "https://inlandcidermill.com/",
+      "windows": 1,
+      "cause": "text",
+      "pagesFetched": 3,
+      "evidence": "deal-words"
+    },
+    {
+      "id": "4e0731ba-57d8-4de1-ab10-53e18be08c45",
+      "name": "Remedy Kitchen and Tavern",
+      "website": "https://remedyspokane.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 5,
+      "evidence": null
+    },
+    {
+      "id": "c01715f1-c689-4f19-a2e0-4e63d5960ecd",
+      "name": "South Perry Pizza",
+      "website": "https://southperrypizzaspokane.com/",
+      "windows": 1,
+      "cause": "text",
+      "pagesFetched": 1,
+      "evidence": "$3"
+    },
+    {
+      "id": "c1c76c46-bddd-414e-9dde-ded68673f5c0",
+      "name": "The Centennial Restaurant & Bar",
+      "website": "https://www.davenporthotelcollection.com/the-centennial/restaurants/the-centennial-restaurant/?utm_source=google-gbp&utm_medium=organic&utm_campaign=gbp",
+      "windows": 1,
+      "cause": "pdf",
+      "pagesFetched": 6,
+      "evidence": "$25"
+    },
+    {
+      "id": "f6d72935-31e3-4dbf-b730-2daa8baaebb0",
+      "name": "Wooden City Spokane",
+      "website": "https://www.woodencityspokane.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 7,
+      "evidence": "$20"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "city": "Daly City",
+  "slug": "daly-city",
+  "dropped": [
+    {
+      "id": "3720cb84-a686-43c1-aa30-9be43c52d32b",
+      "name": "Nick & Nora",
+      "website": "https://thenickandnorabar.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 5,
+      "evidence": null
+    }
+  ]
+}

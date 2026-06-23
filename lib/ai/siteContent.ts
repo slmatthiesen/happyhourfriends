@@ -6,9 +6,14 @@
  * extractor (extractHappyHours) and the adversarial reverifier (reverify/adversarial).
  */
 import type { ContentBlockParam } from "@anthropic-ai/sdk/resources/messages";
-import { fetchUrl, type FetchResult, type ImageMediaType } from "@/lib/verification/fetchUrl";
+import { fetchUrl, detectBotWall, type FetchResult, type ImageMediaType } from "@/lib/verification/fetchUrl";
 import { hasHhOrDealSignal, hasPriceOrDealSignal, looksLikeMenuDoc, scoreHhUrl, TIME_RANGE_RE } from "@/lib/places/hhText";
 import { mapWithConcurrency } from "@/lib/async/mapWithConcurrency";
+import {
+  antiBotCallsRemaining,
+  recordAntiBotCall,
+  type FetchProvider,
+} from "@/lib/places/fetchProviders";
 
 // A venue's candidate URLs are nearly all the same host, so firing them all at once
 // (the old Promise.all) rate-limited the server into 429s and the HH page never loaded.
@@ -75,6 +80,10 @@ export interface FetchedPage {
   /** Base64 image bytes — present for image menus, handed over as a vision block. */
   imageBase64?: string;
   imageMediaType?: ImageMediaType;
+  /** This page came from the anti-bot provider (Jina) as a deliberate, HH-likely-gated
+   *  escalation past a bot wall — so it always counts as extractable signal even if its URL
+   *  doesn't look like a menu doc (a screenshot of a walled homepage HH section). */
+  fromAntiBot?: boolean;
 }
 
 /**
@@ -96,7 +105,7 @@ export function pagesHaveExtractableSignal(pages: FetchedPage[]): boolean {
   return pages.some(
     (p) =>
       Boolean(p.pdfBase64) ||
-      (Boolean(p.imageBase64) && looksLikeMenuDoc(p.url)) ||
+      (Boolean(p.imageBase64) && (p.fromAntiBot || looksLikeMenuDoc(p.url))) ||
       (typeof p.text === "string" && hasHhOrDealSignal(p.text)),
   );
 }
@@ -184,6 +193,105 @@ export function needsBrowserRender(r: FetchResult): boolean {
   return !(r.mediaLinks && r.mediaLinks.length); // empty shell with no doc to follow
 }
 
+/** Did the plain fetch hit a bot wall (challenge-as-200 or a forbidden/refused status)? Such an
+ *  origin justifies escalating to the anti-bot provider even when a later render returns a long
+ *  but content-less wall page (Toast/cookie-consent), which needsAntiBot alone can't tell from
+ *  real content. */
+function isWalledOrigin(r: FetchResult): boolean {
+  if (r.blocked === "bot_wall") return true;
+  return !r.ok && r.status != null && BOT_WALL_STATUSES.has(r.status);
+}
+
+/** A cookie/consent interstitial (Toast, OneTrust) served as a 200 whose text is the consent
+ *  banner, not the page — the real menu loads only after consent / client-side, invisible to our
+ *  fetch and render. Effectively a wall: escalate to the anti-bot provider (whose server-side
+ *  render gets past it). Low false-positive — paired with !hasUsableHhContent at the call site, a
+ *  real menu page that merely footnotes "cookies" is never escalated. Rise Woodfire's /hh-menu is
+ *  a Toast consent page (200) hiding the happy-hour menu. */
+const CONSENT_WALL_PHRASES = [
+  "manage your consent",
+  "consent preferences",
+  "we may store or access information",
+  "cookies and similar technologies",
+  "toasttab.com",
+];
+function looksLikeConsentWall(text: string | undefined): boolean {
+  if (!text) return false;
+  const t = text.toLowerCase();
+  return CONSENT_WALL_PHRASES.some((p) => t.includes(p));
+}
+
+/** Does this result carry actual HH/menu/deal content (so the free tiers won and we should NOT
+ *  spend on the anti-bot provider)? A PDF/image doc, a menu link to follow, or HH/deal/price text. */
+function hasUsableHhContent(r: FetchResult): boolean {
+  if (r.isPdf || r.isImage) return true;
+  if (r.mediaLinks && r.mediaLinks.length) return true;
+  return Boolean(r.contentText && (hasHhOrDealSignal(r.contentText) || hasPriceOrDealSignal(r.contentText)));
+}
+
+/** Stricter than hasUsableHhContent: does the page itself READ as HH content — an inline PDF/image
+ *  doc, or text with an HH/deal/price signal? Excludes mediaLinks, because a consent/bot-wall page
+ *  often links junk (Toast ordering buttons, social icons) that look followable but aren't the
+ *  menu — those must NOT block escalation past the wall. */
+function hasReadableHh(r: FetchResult): boolean {
+  if (r.isPdf || r.isImage) return true;
+  return Boolean(r.contentText && (hasHhOrDealSignal(r.contentText) || hasPriceOrDealSignal(r.contentText)));
+}
+
+/**
+ * Should we escalate `r` to the paid anti-bot provider (Jina) — the LAST tier, after plain
+ * fetch AND the headless render both failed to see real content? True when:
+ *   - the result is flagged as a bot wall (Cloudflare/Turnstile), OR
+ *   - even the rendered text still reads as a challenge page (detectBotWall), OR
+ *   - the page was refused outright (bot-wall status), OR
+ *   - it reached us as a content-less SPA shell with no signal and no menu doc to follow.
+ * A page that yielded a usable doc/image, real HH/deal text, or media links is NEVER escalated —
+ * the free tiers already won. Pure + exported for unit testing the ladder ordering.
+ */
+export function needsAntiBot(r: FetchResult): boolean {
+  if (r.blocked === "bot_wall") return true;
+  if (r.contentText && detectBotWall(r.contentText)) return true;
+  if (!r.ok) return r.status != null && BOT_WALL_STATUSES.has(r.status);
+  if (r.isPdf || r.isImage) return false;
+  if (r.mediaLinks && r.mediaLinks.length) return false;
+  if (r.contentText) {
+    return (
+      r.contentText.length < SPA_SHELL_TEXT_FLOOR &&
+      !hasHhOrDealSignal(r.contentText) &&
+      !hasPriceOrDealSignal(r.contentText)
+    );
+  }
+  return true; // reachable but nothing extracted and no doc to follow
+}
+
+/**
+ * Run the anti-bot ladder for one URL (Jina text → screenshot). Text first (cheap): if it
+ * surfaces an HH/deal signal we use it. Otherwise the screenshot (for Toast/image menus the
+ * text read can't see) is fed to the vision extractor. Each provider hit counts against the
+ * per-run cap. Returns null when the provider yields nothing usable. Marks results fromAntiBot
+ * so the signal gate always sends a deliberately-escalated screenshot to the model.
+ */
+async function antiBotFetch(
+  provider: FetchProvider,
+  url: string,
+): Promise<FetchResult | null> {
+  if (antiBotCallsRemaining() <= 0) return null;
+  recordAntiBotCall();
+  const text = await provider.fetchText(url);
+  if (text.ok && text.contentText && (hasHhOrDealSignal(text.contentText) || hasPriceOrDealSignal(text.contentText))) {
+    return { url, ok: true, contentText: text.contentText, fromAntiBot: true };
+  }
+  if (antiBotCallsRemaining() <= 0) return null;
+  recordAntiBotCall();
+  const shot = await provider.fetchScreenshot(url);
+  if (shot.ok && shot.imageBase64 && shot.imageMediaType) {
+    return { url, ok: true, isImage: true, imageBase64: shot.imageBase64, imageMediaType: shot.imageMediaType, fromAntiBot: true };
+  }
+  // Text read succeeded but carried no HH signal — still better than the walled original.
+  if (text.ok && text.contentText) return { url, ok: true, contentText: text.contentText, fromAntiBot: true };
+  return null;
+}
+
 /**
  * Fetch the given URLs over plain HTTP (deduped, capped). Order is preserved, so pass the
  * highest-signal URLs first. Failures (unreachable / robots-blocked / non-HTML-non-PDF)
@@ -199,22 +307,54 @@ export async function fetchPages(
      *  robots-respecting fetch yields nothing usable (a JS-SPA shell or a robots-blocked
      *  shortlink) — so normal venues never pay the browser cost. */
     render?: (url: string) => Promise<FetchResult>;
+    /** Anti-bot provider (Jina) — the LAST, paid tier. Fired only when the plain fetch AND the
+     *  render still hit a bot wall / empty shell, AND the venue is HH-likely (cost gating). */
+    antiBot?: FetchProvider | null;
+    /** Whether this venue is worth the paid anti-bot tier. undefined = treat as likely (the
+     *  on-demand / admin single-venue path is operator-targeted); the batch enrich sweep passes
+     *  false for non-HH-likely candidates so a bot wall there stays $0. */
+    hhLikely?: boolean;
   } = {},
 ): Promise<FetchedPage[]> {
   const unique = dedupeFetchTargets(urls, max);
-  // Plain fetch first; fall back to the headless render tier only when it can see MORE
-  // (see needsBrowserRender).
+  const antiBotAllowed = Boolean(opts.antiBot) && opts.hhLikely !== false;
+  // Plain fetch first; fall back to the headless render tier when it can see MORE
+  // (see needsBrowserRender); only then escalate to the paid anti-bot provider for a venue
+  // worth it (see needsAntiBot + antiBotAllowed).
   const fetchOne = async (u: string): Promise<FetchResult> => {
-    const r = await fetchUrl(u, { maxContent: opts.maxContent });
+    const plain = await fetchUrl(u, { maxContent: opts.maxContent });
+    let r = plain;
+    // A bot-walled ORIGIN justifies the anti-bot tier even if a later render returns a long but
+    // content-less wall page (Toast/cookie-consent) that needsAntiBot can't distinguish from real
+    // content — Rise Woodfire's 403 homepage renders to a 1.8KB consent page with the menu only
+    // visible in a screenshot.
+    const walledOrigin = isWalledOrigin(plain);
+    // Should `res` escalate to the anti-bot provider? A flagged/short wall (needsAntiBot), OR a
+    // walled-origin / cookie-consent page (Toast) that — even after a render — still carries no
+    // usable HH/menu content. The consent/walled-origin arms catch long-but-contentless pages
+    // needsAntiBot can't distinguish from real content.
+    const shouldEscalate = (res: FetchResult): boolean => {
+      if (needsAntiBot(res)) return true;
+      // A consent/cookie wall (Toast) links junk that fools hasUsableHhContent — judge it by
+      // whether the page itself reads as HH (hasReadableHh), ignoring those links.
+      if (looksLikeConsentWall(res.contentText)) return !hasReadableHh(res);
+      // A bot-walled origin that rendered to no usable content (real menu links would be followed).
+      return walledOrigin && !hasUsableHhContent(res);
+    };
     if (needsBrowserRender(r) && opts.render) {
       // A render failure must not abort the whole (fail-fast) concurrency pool — fall back
       // to the plain result so one bad page can't drop every other URL for the venue.
       try {
         const rendered = await opts.render(u);
-        if (rendered.ok) return rendered;
+        if (rendered.ok && !shouldEscalate(rendered)) return rendered;
+        if (rendered.ok) r = rendered;
       } catch {
         /* keep the plain fetch result */
       }
+    }
+    if (antiBotAllowed && opts.antiBot && shouldEscalate(r)) {
+      const recovered = await antiBotFetch(opts.antiBot, u);
+      if (recovered) return recovered;
     }
     return r;
   };
@@ -230,7 +370,7 @@ export async function fetchPages(
     if (r.isPdf || r.isImage) { docs.push(r); continue; }
     // Include the page text only when there is some — JS-shell homepages (Squarespace/Wix)
     // strip to empty.
-    if (r.contentText) pages.push({ url: r.url, text: r.contentText });
+    if (r.contentText) pages.push({ url: r.url, text: r.contentText, fromAntiBot: r.fromAntiBot });
     // Queue PDF/image menu links found in the RAW HTML even when the page stripped to
     // empty text. Those sites render no readable text but DO link their menu/HH PDFs in
     // the served HTML; gating this on contentText is why such venues became stubs despite
@@ -297,9 +437,9 @@ export function selectDocsWithinBudget(
     if (opts.staleDated?.(r.url)) continue;
     const bytes = docRawBytes(r);
     if (picked.length >= opts.maxPages || docBytes + bytes > opts.maxBytes) continue;
-    if (r.isPdf && r.pdfBase64) picked.push({ url: r.url, pdfBase64: r.pdfBase64 });
+    if (r.isPdf && r.pdfBase64) picked.push({ url: r.url, pdfBase64: r.pdfBase64, fromAntiBot: r.fromAntiBot });
     else if (r.isImage && r.imageBase64 && r.imageMediaType)
-      picked.push({ url: r.url, imageBase64: r.imageBase64, imageMediaType: r.imageMediaType });
+      picked.push({ url: r.url, imageBase64: r.imageBase64, imageMediaType: r.imageMediaType, fromAntiBot: r.fromAntiBot });
     else continue;
     docBytes += bytes;
   }

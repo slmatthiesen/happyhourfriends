@@ -1,0 +1,69 @@
+{
+  "city": "San Jose",
+  "slug": "san-jose",
+  "dropped": [
+    {
+      "id": "09431a8f-b9ee-4ac6-93f6-ba67abdf500d",
+      "name": "Britannia Arms Almaden",
+      "website": "https://britanniaarms.com/",
+      "windows": 3,
+      "cause": "text",
+      "pagesFetched": 1,
+      "evidence": "$50"
+    },
+    {
+      "id": "cd01284b-1e6d-4c8b-b248-b2f97b563764",
+      "name": "Buckhorn Tavern",
+      "website": "http://www.thebucktavern.com/",
+      "windows": 2,
+      "cause": "text",
+      "pagesFetched": 5,
+      "evidence": "deal-words"
+    },
+    {
+      "id": "63d017f7-f5c1-4f1f-a782-f68a929ca6fc",
+      "name": "Encanto restaurant bar",
+      "website": "https://encantosj.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 1,
+      "evidence": null
+    },
+    {
+      "id": "09f538fc-cd9e-4676-88fc-6e1072dac699",
+      "name": "Lazy Dog Restaurant & Bar",
+      "website": "https://lazydogrestaurants.com/pages/san-jose-ca",
+      "windows": 2,
+      "cause": "image",
+      "pagesFetched": 4,
+      "evidence": null
+    },
+    {
+      "id": "c32c5204-ee62-4d5b-99f2-aa029679e362",
+      "name": "México Lindo at Silver Creek",
+      "website": "http://www.mexicolindosj.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 6,
+      "evidence": "$20."
+    },
+    {
+      "id": "222b0d57-23d6-49af-8622-5a93a9ed13c0",
+      "name": "Puro Michoacan Restaurant",
+      "website": "http://puromichoacansj.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 1,
+      "evidence": null
+    },
+    {
+      "id": "11572f4f-a1e9-4cfd-92c8-4de53dd826cc",
+      "name": "The Old Wagon Saloon & Grill",
+      "website": "http://www.theoldwagonsaloon.com/",
+      "windows": 1,
+      "cause": "text",
+      "pagesFetched": 5,
+      "evidence": "deal-words"
+    }
+  ]
+}

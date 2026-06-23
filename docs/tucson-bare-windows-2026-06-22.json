@@ -1,0 +1,96 @@
+{
+  "city": "Tucson",
+  "slug": "tucson",
+  "dropped": [
+    {
+      "id": "955a5687-4009-47ef-ba99-acb07bfd2832",
+      "name": "Bear Canyon Pizza on Broadway",
+      "website": "https://bearcanyonpizza.com/",
+      "windows": 1,
+      "cause": "text",
+      "pagesFetched": 2,
+      "evidence": "deal-words"
+    },
+    {
+      "id": "620b6898-8468-4618-ac6e-cf1f6bb1ba67",
+      "name": "Bear Canyon Pizza on Tanque Verde",
+      "website": "https://bearcanyonpizza.com/",
+      "windows": 1,
+      "cause": "text",
+      "pagesFetched": 2,
+      "evidence": "deal-words"
+    },
+    {
+      "id": "5a15c8b6-5335-458c-8c2c-82b4d44df5bd",
+      "name": "El Sur Mexican Restaurant",
+      "website": "http://www.elsurmexicanrestaurant.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 3,
+      "evidence": null
+    },
+    {
+      "id": "73b35300-8d95-48ff-9605-1b432305907e",
+      "name": "Hops Sports Grill",
+      "website": "http://hopssportsgrill.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 4,
+      "evidence": null
+    },
+    {
+      "id": "e561ebe1-8a38-446a-a6a6-0950fe2e41f6",
+      "name": "Lookout Bar and Grill",
+      "website": "https://www.westwardlook.com/dining/palm",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 5,
+      "evidence": "$50"
+    },
+    {
+      "id": "076be829-519e-4d2a-a812-2252ca2ffcfe",
+      "name": "Nightjar",
+      "website": "https://coronettucson.com/nightjar/",
+      "windows": 1,
+      "cause": "text",
+      "pagesFetched": 2,
+      "evidence": "deal-words"
+    },
+    {
+      "id": "6f70909a-6686-4f88-9b38-9f375ad06f45",
+      "name": "OBON Sushi Bar Ramen",
+      "website": "https://www.obonsushi.com/_files/ugd/2f2297_d019460697fe4c53ad84870e740fc228.pdf",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 3,
+      "evidence": null
+    },
+    {
+      "id": "65926341-34a7-488f-92ec-e80b53781334",
+      "name": "St Cruz at The Leo Kent",
+      "website": "https://www.theleokenthotel.com/restaurants-downtown-tucson?utm_source=google&utm_medium=organic&utm_campaign=gbp",
+      "windows": 5,
+      "cause": "image",
+      "pagesFetched": 5,
+      "evidence": null
+    },
+    {
+      "id": "0818f260-cd5c-4b02-8cd5-5836e2570f76",
+      "name": "Sun Flower Cafe",
+      "website": "https://www.casinodelsol.com/dining/sunflower-cafe",
+      "windows": 1,
+      "cause": "pdf",
+      "pagesFetched": 4,
+      "evidence": "$32,000"
+    },
+    {
+      "id": "832323a7-b191-4750-8a57-2fe37e40acc0",
+      "name": "Wooden Nickel Tavern",
+      "website": "https://www.woodennickeltavern.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 5,
+      "evidence": "$12.50"
+    }
+  ]
+}
