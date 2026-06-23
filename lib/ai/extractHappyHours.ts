@@ -467,7 +467,15 @@ export async function buildExtractRequest(input: ExtractInput): Promise<ExtractR
     // Tier-2: menus bury HH deep in big SSR pages — give the extractor a larger,
     // menu-dense budget than the verifier's default 8k (siteContent keeps the
     // highest-signal windows, so this is selected content, not just "more bytes").
-    { maxContent: 28_000, render, antiBot, hhLikely: input.hhLikely },
+    {
+      maxContent: 28_000,
+      render,
+      antiBot,
+      hhLikely: input.hhLikely,
+      // Triage-confirmed HH pages: escalate them to render/anti-bot when they plain-fetch to a
+      // deal-less SPA shell (the deals are one click deep on a JS route — Hop & Vine).
+      hhContextUrls: input.priorityUrls,
+    },
   );
   // Ledger the anti-bot calls this venue made (the vision read of any screenshot is recorded
   // separately by the extractor's own Anthropic usage). Best-effort: never block extraction.

@@ -165,6 +165,31 @@ export function extractHhSignalLinks(html: string, baseUrl: string): string[] {
 }
 
 /**
+ * Links the venue EXPLICITLY labels "happy hour" in their anchor text — the single strongest
+ * signal a page is THE happy-hour page, regardless of its URL slug. A Wix/Squarespace site often
+ * gives that page an opaque slug (Hop & Vine's "Happy Hour" nav points to /catering-zysi-RcQW),
+ * so scoreHhUrl ranks it BELOW generic /menu routes and the cap drops it. These are returned
+ * separately so the caller can rank them at the TOP, ahead of URL-slug ranking and decorative
+ * menu-item images. Pure + exported for unit testing.
+ */
+export function extractHhAnchorLinks(html: string, baseUrl: string): string[] {
+  const out = new Set<string>();
+  const anchorRe = /<a\b[^>]*href\s*=\s*["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = anchorRe.exec(html)) !== null) {
+    const text = m[2].replace(/<[^>]+>/g, " ").trim();
+    if (!/happy[-\s]?hour/i.test(text)) continue;
+    try {
+      out.add(new URL(m[1], baseUrl).toString());
+    } catch {
+      /* skip unresolvable href */
+    }
+    if (out.size >= 4) break;
+  }
+  return [...out];
+}
+
+/**
  * Page routes a JS site declares in its embedded model (Wix `pageUriSEO`, etc.).
  * Catches real pages (e.g. /menu) that are never linked as plain <a href> in the
  * server-rendered HTML — exactly how Bottega's happy-hour page hid from us.
@@ -570,6 +595,10 @@ export function siteVerdictFromFetch(
     // menu (plainly linked) never reached the model. Stable sort keeps page order within a
     // score tier. (sort copies — never mutate extractMediaLinks' result in place.)
     const rankedMedia = [...media].sort((a, b) => scoreHhUrl(b) - scoreHhUrl(a));
+    // Links the venue itself labels "Happy Hour" — the strongest signal. They lead EVERYTHING
+    // (ahead of slug-ranking and menu-item images) so an opaque-slug HH page (/catering-zysi-RcQW)
+    // is never crowded out of the fetch cap by generic /menu routes.
+    const hhAnchors = extractHhAnchorLinks(html, finalUrl);
     const links = extractHhSignalLinks(html, finalUrl);
     // Embedded routes (Wix pageUriSEO): keep keyword pages AND opaque content slugs
     // (/about-3-1) — not just scoreHhUrl>0, which dropped the latter.
@@ -586,8 +615,9 @@ export function siteVerdictFromFetch(
     const guesses = rankCandidates(guessMenuUrls(finalUrl, wantMultilingual), 12);
     // CONFIRMED = linked docs + anchor/route links + sitemap pages (all known to exist).
     // EXCLUDES `guesses` — only confirmed pages may trigger a PAID escalation downstream.
-    confirmedHhUrls = rankCandidates([...rankedMedia, ...confirmed, ...declared], 12);
-    hhSignalUrls = [...new Set([...rankedMedia, ...confirmed, ...declared, ...guesses])].slice(0, 12);
+    // hhAnchors lead and are NOT re-ranked (rankCandidates would demote them by slug again).
+    confirmedHhUrls = [...new Set([...hhAnchors, ...rankCandidates([...rankedMedia, ...confirmed, ...declared], 12)])].slice(0, 12);
+    hhSignalUrls = [...new Set([...hhAnchors, ...rankedMedia, ...confirmed, ...declared, ...guesses])].slice(0, 12);
   } else {
     hhSignalUrls = guessMenuUrls(url, wantMultilingual); // bot-blocked: still probe the obvious paths
     confirmedHhUrls = []; // page unreadable → nothing confirmed (guesses must not escalate)
