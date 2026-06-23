@@ -16,7 +16,7 @@ check("rectHalfDiagonalMeters is positive and in the expected order of magnitude
   assert.ok(m > 500 && m < 1500, `half-diagonal ${m} out of expected range`);
 });
 
-check("canSubdivideRect: a box whose CHILD would stay above the floor may split", () => {
+check("canSubdivideRect: a box whose CHILD would fall below the floor cannot split", () => {
   // Child half-diagonal = parent/2 ≈ 390m; with a 450m floor the child is BELOW floor → cannot split.
   assert.equal(canSubdivideRect(sjBox, 450), false);
 });
