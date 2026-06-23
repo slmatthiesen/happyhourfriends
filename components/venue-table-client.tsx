@@ -260,12 +260,22 @@ export function VenueTableClient({
   // Today's ISO day
   const todayISO = useMemo(() => localISODay(), []);
 
+  // Gate all wall-clock-derived UI (live badges, row muting, clock, live count,
+  // relevance sort) until after hydration. The server and the first client render
+  // both run with `mounted === false`, so they emit identical, time-independent
+  // markup — without this, each side calls `new Date()` and React reports a
+  // hydration mismatch. We flip it on in a post-mount effect, then re-render live.
+  const [mounted, setMounted] = useState(false);
+
   // Re-render every minute so the live badge, ends-in microcopy, and city clock
-  // stay current without a page refresh. A 1s post-mount tick narrows the SSR/CSR
-  // time gap without doing a synchronous setState in the effect body.
+  // stay current without a page refresh.
   const [tick, setTick] = useState(0);
   useEffect(() => {
-    const warmup = setTimeout(() => setTick((t) => t + 1), 1_000);
+    // Defer the flip into a timer rather than calling setState synchronously in
+    // the effect body (the latter trips react-hooks/set-state-in-effect). A 0ms
+    // delay flips it on the next tick, right after the first paint matches the
+    // server.
+    const warmup = setTimeout(() => setMounted(true), 0);
     const id = setInterval(() => setTick((t) => t + 1), 60_000);
     return () => {
       clearTimeout(warmup);
@@ -275,9 +285,11 @@ export function VenueTableClient({
 
   // Cache venueLocalNow per timezone — computed every tick so the live "Now" badge
   // and ends-in microcopy stay live. Includes the city tz so the header clock
-  // shows even on a city with zero venues.
+  // shows even on a city with zero venues. Empty until mounted (see above) so the
+  // first client render matches the server.
   const nowByTz = useMemo(() => {
     const map = new Map<string, ReturnType<typeof venueLocalNow>>();
+    if (!mounted) return map;
     const now = new Date();
     if (cityTimezone && !map.has(cityTimezone)) {
       map.set(cityTimezone, venueLocalNow(cityTimezone, now));
@@ -289,7 +301,7 @@ export function VenueTableClient({
     return map;
     // `tick` participates so we recompute every minute; lint will note it as unused.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [venues, cityTimezone, tick]);
+  }, [venues, cityTimezone, tick, mounted]);
 
   const activeWindow = useCallback(
     (v: VenueListItem): HappyHourRow | null => {
@@ -350,16 +362,19 @@ export function VenueTableClient({
     if (!lastUpdated) return null;
     const d = new Date(lastUpdated);
     if (Number.isNaN(d.getTime())) return null;
+    // Before mount, assume the common same-year case (no `new Date()`) so the
+    // label matches the server; recompute against the real clock once mounted.
     const sameYear =
+      !mounted ||
       new Intl.DateTimeFormat("en-US", { timeZone: cityTimezone, year: "numeric" }).format(d) ===
-      new Intl.DateTimeFormat("en-US", { timeZone: cityTimezone, year: "numeric" }).format(new Date());
+        new Intl.DateTimeFormat("en-US", { timeZone: cityTimezone, year: "numeric" }).format(new Date());
     return new Intl.DateTimeFormat("en-US", {
       timeZone: cityTimezone,
       month: "short",
       day: "numeric",
       ...(sameYear ? {} : { year: "numeric" }),
     }).format(d);
-  }, [lastUpdated, cityTimezone]);
+  }, [lastUpdated, cityTimezone, mounted]);
 
   // Count of venues with a happy hour live right now (across the unfiltered set,
   // so this number reflects the city, not the current filter).
@@ -694,7 +709,7 @@ export function VenueTableClient({
             </span>
             <button
               onClick={toggleToday}
-              aria-pressed={selectedDays.has(todayISO)}
+              aria-pressed={mounted && selectedDays.has(todayISO)}
               className="pill pill-day rounded-full border px-2.5 py-0.5 text-xs font-medium"
             >
               Today
@@ -876,7 +891,10 @@ export function VenueTableClient({
                   const tier = priceTier(v);
                   const live = isNowOpen(v);
                   const today = runsToday(v);
-                  const muted = !promoted && !live && !today;
+                  // Only dim once mounted — pre-mount everything renders at full
+                  // opacity (live/today are both false then), so we'd otherwise
+                  // flash every non-promoted row dim, then brighten on hydration.
+                  const muted = mounted && !promoted && !live && !today;
                   // Promoted styling wins over live styling — they share the warm
                   // left border, and a venue is unlikely to be both anyway.
                   const rowStyle = promoted
