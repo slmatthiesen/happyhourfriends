@@ -7,6 +7,7 @@
 import "dotenv/config";
 import postgres from "postgres";
 import { renderUrl, closeRenderBrowser } from "@/lib/verification/renderUrl";
+import type { FetchResult } from "@/lib/verification/fetchUrl";
 import { extractMenuEmbedUrls } from "@/lib/places/siteTriage";
 
 const CANDIDATE_PATHS = ["/menus/happy-hour", "/happy-hour", "/menu"];
@@ -17,9 +18,9 @@ async function detect(base: string): Promise<{ url: string; host: string } | nul
   for (const p of CANDIDATE_PATHS) {
     const u = origin + p;
     try {
-      const r: any = await Promise.race([
+      const r = await Promise.race<FetchResult>([
         renderUrl(u, { timeoutMs: 15000 }),
-        new Promise((res) => setTimeout(() => res({ ok: false }), 20000)),
+        new Promise<FetchResult>((res) => setTimeout(() => res({ url: u, ok: false }), 20000)),
       ]);
       if (!r?.ok) continue;
       // renderUrl already folds widget text into contentText; also re-detect the host name
