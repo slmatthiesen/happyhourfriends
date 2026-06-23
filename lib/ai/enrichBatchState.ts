@@ -25,6 +25,9 @@ export interface PrepContext {
   photoName: string | null;
   primaryType: string | null;
   types: string[] | null;
+  /** Discovery-captured serves_alcohol mask — feeds the dead-end-stub gate (Build A) so a
+   *  no-alcohol / zero-HH-cuisine stub is created hidden (status='no_happy_hour'). */
+  servesAlcohol?: boolean | null;
   hoursJson: OpenPeriod[] | null;
   googleNeighborhood: string | null;
   /** Venue's own HH/menu pages found by site triage — fetched first by the extractor. */

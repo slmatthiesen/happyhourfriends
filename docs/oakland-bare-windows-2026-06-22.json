@@ -1,0 +1,96 @@
+{
+  "city": "Oakland",
+  "slug": "oakland",
+  "dropped": [
+    {
+      "id": "f6c1f82e-403c-46fe-ac7c-2932ebfc3f25",
+      "name": "9 Julio Empanada Kitchen",
+      "website": "http://www.9julio.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 4,
+      "evidence": "$50"
+    },
+    {
+      "id": "b71fe6d8-1755-4cad-abc6-12c263bd447a",
+      "name": "Bar Shiru",
+      "website": "http://www.barshiru.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 5,
+      "evidence": null
+    },
+    {
+      "id": "79464142-717c-4dc6-a679-4191471a8960",
+      "name": "Bellanico Restaurant and Wine Bar",
+      "website": "https://bellanico.net/",
+      "windows": 1,
+      "cause": "pdf",
+      "pagesFetched": 6,
+      "evidence": "$40"
+    },
+    {
+      "id": "eabdc3e6-b25e-4826-97d2-28443b58c3be",
+      "name": "D.Monaghans On The Hill",
+      "website": "http://dmonaghansoakland.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 3,
+      "evidence": "$20."
+    },
+    {
+      "id": "b38c86f3-4983-4970-8910-1f6336d60366",
+      "name": "Hidden Spot Emeryville",
+      "website": "http://hiddenspot.online/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 7,
+      "evidence": "deal-words"
+    },
+    {
+      "id": "8cb64afc-9281-48cf-8234-4c7a585c13ed",
+      "name": "Pizzaiolo",
+      "website": "http://www.pizzaiolooakland.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 4,
+      "evidence": null
+    },
+    {
+      "id": "acae6769-a74a-4564-b009-0ea102863fb1",
+      "name": "RnR Sushi & Bowls",
+      "website": "https://www.piedmontrnr.com/",
+      "windows": 1,
+      "cause": "text",
+      "pagesFetched": 5,
+      "evidence": "deal-words"
+    },
+    {
+      "id": "c50c3382-a55e-4b6f-8aa0-750591780e7a",
+      "name": "Saucy Oakland",
+      "website": "http://www.saucyoakland.com/",
+      "windows": 2,
+      "cause": "text",
+      "pagesFetched": 1,
+      "evidence": "$10"
+    },
+    {
+      "id": "df017cec-15f8-4c98-b5d9-f9bf1b634785",
+      "name": "The Overlook at Tilden",
+      "website": "https://overlookattilden.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 10,
+      "evidence": "deal-words"
+    },
+    {
+      "id": "bc21ca04-ba7d-458c-8b18-6778b33d038c",
+      "name": "Townhouse",
+      "website": "https://www.townhouseemeryville.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 7,
+      "evidence": "$20."
+    }
+  ]
+}

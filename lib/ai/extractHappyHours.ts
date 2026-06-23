@@ -38,6 +38,14 @@ import type { FetchedPage } from "@/lib/ai/siteContent";
 import { freeExtractFromPages, shouldEscalateForDroppedDeals, reconcileFreeDaysWithModelOfferings } from "@/lib/ai/freeExtract";
 import { classifyHhRelevance, foldRelevanceCost } from "@/lib/ai/hhRelevance";
 import { loadRenderUrl } from "@/lib/verification/lazyRender";
+import { getFetchProvider, antiBotCallsUsed } from "@/lib/places/fetchProviders";
+import { recordUsage } from "@/lib/ai/ledger";
+
+// Conservative per-call cost estimate for the anti-bot (Jina) tier so spend is VISIBLE in the
+// ledger rather than hidden — Jina is token-billed at a few hundredths of a cent per read, but
+// integer cents round that to 0, so we attribute 1¢/call (over-estimate). The real model spend
+// (reading any screenshot via vision) is recorded separately by the extractor's own usage.
+const JINA_COST_CENTS_PER_CALL = Number(process.env.JINA_COST_CENTS_PER_CALL) || 1;
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -56,6 +64,10 @@ export interface ExtractInput {
   /** Skip the internal free-first short-circuit and ALWAYS call the paid model (after
    *  render). Used by audit render-escalation to read JS/PDF HH pages the free parser can't. */
   forcePaid?: boolean;
+  /** Is this venue worth the paid anti-bot (Jina) fetch tier when it hits a bot wall? Set by the
+   *  enrich sweep from the candidate's alcohol/cuisine signal (lib/places/stubGate.isHhLikely).
+   *  undefined = treat as likely (operator-targeted on-demand / admin extract-from-URL). */
+  hhLikely?: boolean;
 }
 
 export interface ExtractedOffering {
@@ -441,6 +453,11 @@ export async function buildExtractRequest(input: ExtractInput): Promise<ExtractR
       render = undefined;
     }
   }
+  // Anti-bot provider (Jina) is the LAST fetch tier — paid + HH-likely-gated. Off for the
+  // pure-HTTP batch sweep (noRender) so batch semantics stay cheap; available on the on-demand
+  // and admin extract-from-URL paths where recovery is the point.
+  const antiBot = input.noRender ? null : getFetchProvider();
+  const antiBotBefore = antiBotCallsUsed();
   const pages = await fetchPages(
     // The venue's OWN page goes FIRST: prepending the (up to 12) discovered priorityUrls
     // would push websiteUrl past MAX_FETCH and it never got fetched — so a site whose HH
@@ -450,8 +467,20 @@ export async function buildExtractRequest(input: ExtractInput): Promise<ExtractR
     // Tier-2: menus bury HH deep in big SSR pages — give the extractor a larger,
     // menu-dense budget than the verifier's default 8k (siteContent keeps the
     // highest-signal windows, so this is selected content, not just "more bytes").
-    { maxContent: 28_000, render },
+    { maxContent: 28_000, render, antiBot, hhLikely: input.hhLikely },
   );
+  // Ledger the anti-bot calls this venue made (the vision read of any screenshot is recorded
+  // separately by the extractor's own Anthropic usage). Best-effort: never block extraction.
+  const antiBotCalls = antiBotCallsUsed() - antiBotBefore;
+  if (antiBotCalls > 0) {
+    await recordUsage({
+      stage: "seed",
+      model: antiBot?.name ?? "anti-bot",
+      usage: { inputTokens: 0, outputTokens: 0 },
+      costCents: antiBotCalls * JINA_COST_CENTS_PER_CALL,
+      promptHash: loaded.hash,
+    }).catch(() => {});
+  }
   const content: ContentBlockParam[] = [
     { type: "text", text: userText },
     {

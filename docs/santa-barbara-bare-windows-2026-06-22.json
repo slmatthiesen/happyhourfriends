@@ -1,0 +1,69 @@
+{
+  "city": "Santa Barbara",
+  "slug": "santa-barbara",
+  "dropped": [
+    {
+      "id": "a796b31b-0be0-480d-aafe-8aa55e3a4e46",
+      "name": "Arnoldi's Cafe",
+      "website": "https://www.arnoldis.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 6,
+      "evidence": "$500"
+    },
+    {
+      "id": "b28c443b-8ba7-4e2f-ab15-b8f6c054a5c5",
+      "name": "Costa Kitchen & Bar",
+      "website": "https://marmontehotel.com/dine/costa-kitchen-bar/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 4,
+      "evidence": null
+    },
+    {
+      "id": "55024dea-051e-4565-8e3b-24881a4c8ec3",
+      "name": "Dutch Garden Restaurant",
+      "website": "https://dutchgardenrestaurant.com/",
+      "windows": 4,
+      "cause": "image",
+      "pagesFetched": 3,
+      "evidence": "deal-words"
+    },
+    {
+      "id": "311cbdd9-5e4b-47a6-9009-d2f03684dcff",
+      "name": "Lion's Tale",
+      "website": "https://www.lionstalebar.com/",
+      "windows": 4,
+      "cause": "image",
+      "pagesFetched": 5,
+      "evidence": null
+    },
+    {
+      "id": "1b209109-f335-4684-8a79-8dee6b5d13ee",
+      "name": "Palapa Restaurant | Mexican",
+      "website": "http://palaparestaurant.com/",
+      "windows": 2,
+      "cause": "image",
+      "pagesFetched": 3,
+      "evidence": null
+    },
+    {
+      "id": "e7455d0d-5132-40b6-a707-befab241f10a",
+      "name": "Paloma",
+      "website": "https://www.lapalomasb.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 5,
+      "evidence": null
+    },
+    {
+      "id": "916f09a3-ca15-4d49-9b79-35fb864e5af1",
+      "name": "Rodeo Room",
+      "website": "http://www.rodeoroom.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 4,
+      "evidence": null
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "city": "Berkeley",
+  "slug": "berkeley",
+  "dropped": [
+    {
+      "id": "d2cc066d-b6fc-43cd-9e87-dbe97ad6d46f",
+      "name": "Acme Bar & Company",
+      "website": "https://www.acmebarandcompany.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 5,
+      "evidence": null
+    },
+    {
+      "id": "2e303665-c86e-4e16-8656-0e58af99b41c",
+      "name": "El Mono | Fresh Flavors of Peru",
+      "website": "http://www.elmonofresh.com/",
+      "windows": 1,
+      "cause": "pdf",
+      "pagesFetched": 7,
+      "evidence": "$1.95."
+    }
+  ]
+}

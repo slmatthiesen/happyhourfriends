@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray, isNull, or, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull, ne, or, sql } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { db } from "@/db/client";
 import { MIN_VENUES_PER_NEIGHBORHOOD } from "@/lib/geo/assignNeighborhoods";
@@ -15,6 +15,16 @@ import {
 
 type CityRow = typeof cities.$inferSelect;
 type VenueRow = typeof venues.$inferSelect;
+
+/**
+ * Public-listing visibility predicate (Build A — dead-end stub suppression). Hides venues a
+ * script/operator marked status='no_happy_hour': no alcohol, or a zero-HH cuisine, and no active
+ * happy hour — they pad the list and make the product read as empty. Applied to PUBLIC queries
+ * (city/neighborhood lists + landing counts) ONLY; admin queries omit it so operators still see
+ * and can recover them. The persist/apply path flips status back to 'active' the instant an
+ * active HH lands, so suppression never traps data. See lib/places/stubGate.
+ */
+const PUBLIC_VISIBLE = ne(venues.status, "no_happy_hour");
 export type HappyHourRow = typeof happyHours.$inferSelect;
 export type OfferingRow = typeof offerings.$inferSelect;
 
@@ -116,7 +126,7 @@ async function listCitiesUncached(): Promise<CityListItem[]> {
         isNull(happyHours.deletedAt),
       ),
     )
-    .where(isNull(venues.deletedAt))
+    .where(and(isNull(venues.deletedAt), PUBLIC_VISIBLE))
     .groupBy(venues.cityId);
   const countByCity = new Map(
     counts.map((c) => [c.cityId, { withHours: c.withHours, stubs: c.stubs }]),
@@ -163,7 +173,7 @@ export async function listNeighborhoods(cityId: string) {
     .from(neighborhoods)
     .leftJoin(
       venues,
-      and(eq(venues.neighborhoodId, neighborhoods.id), isNull(venues.deletedAt)),
+      and(eq(venues.neighborhoodId, neighborhoods.id), isNull(venues.deletedAt), PUBLIC_VISIBLE),
     )
     .where(eq(neighborhoods.cityId, cityId))
     .groupBy(neighborhoods.id, neighborhoods.name, neighborhoods.slug)
@@ -271,6 +281,7 @@ export async function listVenuesForCity(
       and(
         eq(venues.cityId, cityId),
         isNull(venues.deletedAt),
+        PUBLIC_VISIBLE,
         // Hide venues in out-of-scope neighborhoods (operator metro-scope gate). Keep
         // unassigned venues (null neighborhood) and those in in_scope neighborhoods.
         or(isNull(venues.neighborhoodId), eq(neighborhoods.inScope, true)),
