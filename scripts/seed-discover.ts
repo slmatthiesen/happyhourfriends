@@ -437,36 +437,42 @@ async function fetchTextSearchPage(
 }
 
 /**
- * Run the HH-recall Text Search over each region, paginating to the 60-result cap, merging
- * unique places into `into`. Returns calls made (cost accounting) and net-new added to the
- * pool. No recursion — bounded by regions × queries × TEXT_SEARCH_MAX_PAGES.
+ * Fetch ONE recall region: run each "happy hour" query, paginate to the page cap, merge unique
+ * places into `into`. Reports `saturated` (a query hit the page cap with MORE pages available →
+ * the region holds >cap venues, subdivide it) and `calls` (cost). Out-of-boundary regions are
+ * pruned at $0 so we never pay to recurse into a neighbour city (mirrors the Nearby prune).
  */
-async function collectHhRecall(
+async function fetchRecallRegion(
   apiKey: string,
-  regions: LatLngRect[],
+  region: LatLngRect,
   into: Map<string, PlaceResult>,
-): Promise<{ calls: number; added: number }> {
-  let calls = 0;
-  let added = 0;
-  for (const region of regions) {
-    for (const q of HH_RECALL_QUERIES) {
-      let pageToken: string | undefined;
-      let page = 0;
-      do {
-        const data = await fetchTextSearchPage(apiKey, q, region, pageToken);
-        calls++;
-        for (const p of data.places ?? []) {
-          if (!p.id) continue;
-          if (!into.has(p.id)) added++;
-          into.set(p.id, p);
-        }
-        pageToken = data.nextPageToken;
-        page++;
-        await new Promise((r) => setTimeout(r, 40));
-      } while (pageToken && page < TEXT_SEARCH_MAX_PAGES);
-    }
+  opts: { prune?: (region: LatLngRect) => Promise<boolean> },
+): Promise<{ places: PlaceResult[]; saturated: boolean; calls: number }> {
+  if (opts.prune && (await opts.prune(region))) {
+    return { places: [], saturated: false, calls: 0 };
   }
-  return { calls, added };
+  const fresh: PlaceResult[] = [];
+  let calls = 0;
+  let saturated = false;
+  for (const q of HH_RECALL_QUERIES) {
+    let pageToken: string | undefined;
+    let page = 0;
+    do {
+      const data = await fetchTextSearchPage(apiKey, q, region, pageToken);
+      calls++;
+      for (const p of data.places ?? []) {
+        if (!p.id) continue;
+        if (!into.has(p.id)) fresh.push(p);
+        into.set(p.id, p);
+      }
+      pageToken = data.nextPageToken;
+      page++;
+      await new Promise((r) => setTimeout(r, 40));
+    } while (pageToken && page < TEXT_SEARCH_MAX_PAGES);
+    // Loop ended with a pageToken still in hand = there were more results past our page cap.
+    if (pageToken) saturated = true;
+  }
+  return { places: fresh, saturated, calls };
 }
 
 // Genuine airport primary types. The `airport` INCLUDED type also returns places merely
