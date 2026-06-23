@@ -12,7 +12,7 @@
  *
  * Usage:
  *   pnpm tsx scripts/onboard-city.ts --city <slug> --state <code> [--yes] [--estimate]
- *        [--sub-tile] [--debug-drops] [--no-hh-recall] [--limit N]
+ *        [--max-calls N] [--debug-drops] [--no-hh-recall] [--limit N]
  *
  *   --estimate  Preview the discovery call plan ($0) and stop before any paid step.
  *   --yes       Skip the interactive confirm. REQUIRED when run non-interactively (no TTY),
@@ -37,14 +37,17 @@ const state = argValue("--state");
 if (!slug || !state) {
   console.error(
     "Usage: pnpm tsx scripts/onboard-city.ts --city <slug> --state <code> " +
-      "[--yes] [--estimate] [--sub-tile] [--debug-drops] [--no-hh-recall] [--limit N]",
+      "[--yes] [--estimate] [--max-calls N] [--debug-drops] [--no-hh-recall] [--limit N]",
   );
   process.exit(1);
 }
 
 // Flags that pass through to the underlying steps.
 const discoverPass: string[] = [];
-if (hasFlag("--sub-tile")) discoverPass.push("--sub-tile");
+// HH recall is adaptive by default now (saturated regions self-subdivide); the old --sub-tile
+// opt-in is gone. --max-calls forwards the recall cost cap to seed:discover.
+const maxCalls = argValue("--max-calls");
+if (maxCalls) discoverPass.push("--max-calls", maxCalls);
 if (hasFlag("--debug-drops")) discoverPass.push("--debug-drops");
 if (hasFlag("--no-hh-recall")) discoverPass.push("--no-hh-recall");
 const enrichPass: string[] = [];

@@ -40,6 +40,7 @@ import {
 } from "@/lib/places/chainDenylist";
 import {
   collectAdaptive,
+  collectAdaptiveRegions,
   MAX_DEPTH,
   type Tile,
 } from "@/lib/places/discoveryTiling";
@@ -62,18 +63,18 @@ interface DiscoverArgs {
   noHhRecall: boolean;
   hhRecallOnly: boolean;
   estimate: boolean;
-  subTile: boolean;
-  maxCalls: number;
+  /** Explicit --max-calls override for the recall cap; undefined → use RECALL_MAX_CALLS env/default. */
+  maxCalls: number | undefined;
 }
 
 function parseArgs(): DiscoverArgs {
   const argv = process.argv.slice(2);
-  // Default ceiling on the HH-recall Text Search pass (NOT the Nearby sweep, which keeps its
-  // own maxTiles guard). Whole-bbox = 3 calls; --sub-tile quadrants = 12; so 30 leaves room.
-  let maxCalls = 30;
+  // Optional CLI override for the HH-recall Text Search cap (NOT the Nearby sweep, which keeps
+  // its own maxTiles guard). When unset, the recall uses RECALL_MAX_CALLS (env, default 30).
+  let maxCalls: number | undefined;
   const FLAGS = new Set([
     "--curated", "--fresh", "--debug-drops",
-    "--hh-recall", "--no-hh-recall", "--hh-recall-only", "--estimate", "--sub-tile",
+    "--hh-recall", "--no-hh-recall", "--hh-recall-only", "--estimate",
   ]);
   // Reject stray args. `seed:discover tucson` (no --city) silently ran Tacoma before — a
   // costly footgun (wrong city / wasted Places quota). The city MUST be --city + --state flags.
@@ -85,7 +86,7 @@ function parseArgs(): DiscoverArgs {
     throw new Error(
       `Unexpected argument "${tok}". Pass the city as flags:\n` +
         `  npm run seed:discover -- --city <slug> --state <code>   (e.g. --city tucson --state az)\n` +
-        `  HH recall runs by DEFAULT. Optional: --no-hh-recall | --hh-recall-only | --estimate | --sub-tile | --max-calls <n>`,
+        `  HH recall runs by DEFAULT. Optional: --no-hh-recall | --hh-recall-only | --estimate | --max-calls <n>`,
     );
   }
   return {
@@ -104,10 +105,7 @@ function parseArgs(): DiscoverArgs {
     hhRecallOnly: argv.includes("--hh-recall-only"),
     // --estimate: print the worst-case call count + cost and exit. Makes ZERO Google calls.
     estimate: argv.includes("--estimate"),
-    // --sub-tile: split the city bbox into quadrants for the recall pass (beats the 60-result
-    // cap for large cities). Off by default — whole-bbox is 3 calls.
-    subTile: argv.includes("--sub-tile"),
-    maxCalls: Number.isFinite(maxCalls) && maxCalls > 0 ? maxCalls : 30,
+    maxCalls: maxCalls !== undefined && Number.isFinite(maxCalls) && maxCalls > 0 ? maxCalls : undefined,
   };
 }
 
@@ -360,9 +358,32 @@ async function fetchNearby(
 
 const HH_RECALL_QUERIES = ["happy hour"] as const;
 // Google caps Text Search at 60 results across pages (3 × pageSize 20). Hard ceiling per
-// query+region — there is NO adaptive recursion (unlike Nearby), so cost is fixed and
-// countable up front: queries × regions × ≤3 pages.
+// query+region — Google hard-caps a query at 60 results (3 × 20) and then stops, giving NO
+// further pageToken. So "more results exist" CANNOT be read from a leftover token (it's always
+// absent at the cap); a query that returns the full 60 is the truncation signal — see
+// isQuerySaturated, which drives adaptive subdivision.
 const TEXT_SEARCH_MAX_PAGES = 3;
+const TEXT_SEARCH_PAGE_SIZE = 20;
+/** Google's hard per-query result ceiling: a query returning this many was truncated. */
+const TEXT_SEARCH_HARD_CAP = TEXT_SEARCH_MAX_PAGES * TEXT_SEARCH_PAGE_SIZE;
+
+/**
+ * Did one "happy hour" query saturate its region (more venues than it could return)? True when
+ * the pagination left a live token (truncated by OUR page cap) OR the query returned Google's
+ * hard cap of results (Google silently truncates past 60 with no token). The second arm is the
+ * real one for Text Search — without it, no region ever looks saturated and recall never
+ * subdivides into dense cores. Pure + exported for unit testing.
+ */
+export function isQuerySaturated(resultsReturned: number, hadNextPageToken: boolean): boolean {
+  return hadNextPageToken || resultsReturned >= TEXT_SEARCH_HARD_CAP;
+}
+
+/** Recall subdivision floor: never recurse a region whose CHILD half-diagonal would be below
+ *  this (~downtown-block scale). Env-tunable. */
+const RECALL_FLOOR_METERS = Number(process.env.RECALL_FLOOR_METERS) || 450;
+/** Per-city recall cost cap: stop after this many Text Search calls (~$0.03 each → ~$1). The
+ *  adaptive recursion would otherwise scale with density without bound. Env-tunable. */
+const RECALL_MAX_CALLS = Number(process.env.RECALL_MAX_CALLS) || 30;
 
 interface LatLngRect {
   low: { latitude: number; longitude: number };
@@ -374,7 +395,7 @@ interface TextSearchResponse {
   nextPageToken?: string;
 }
 
-/** Split a rectangle into 4 quadrants (opt-in --sub-tile, to surface > 60 venues/city). */
+/** Split a rectangle into 4 quadrants (used by the adaptive recall engine for dense regions). */
 function splitRectQuadrants(r: LatLngRect): LatLngRect[] {
   const midLat = (r.low.latitude + r.high.latitude) / 2;
   const midLng = (r.low.longitude + r.high.longitude) / 2;
@@ -384,6 +405,20 @@ function splitRectQuadrants(r: LatLngRect): LatLngRect[] {
     { low: { latitude: midLat, longitude: r.low.longitude }, high: { latitude: r.high.latitude, longitude: midLng } },
     { low: { latitude: midLat, longitude: midLng }, high: { latitude: r.high.latitude, longitude: r.high.longitude } },
   ];
+}
+
+/** Approx meters of HALF the rectangle's diagonal — the region's "radius" for the floor test. */
+export function rectHalfDiagonalMeters(r: LatLngRect): number {
+  const midLat = (r.low.latitude + r.high.latitude) / 2;
+  const dLatM = (r.high.latitude - r.low.latitude) * 111_320;
+  const dLngM = (r.high.longitude - r.low.longitude) * 111_320 * Math.cos((midLat * Math.PI) / 180);
+  return Math.hypot(dLatM, dLngM) / 2;
+}
+
+/** True when a saturated region may still subdivide: its CHILD (half-size) stays at/above the
+ *  floor. Mirrors discoveryTiling.canSubdivide for circles. */
+export function canSubdivideRect(r: LatLngRect, floorMeters = RECALL_FLOOR_METERS): boolean {
+  return rectHalfDiagonalMeters(r) / 2 >= floorMeters;
 }
 
 async function fetchTextSearchPage(
@@ -416,36 +451,46 @@ async function fetchTextSearchPage(
 }
 
 /**
- * Run the HH-recall Text Search over each region, paginating to the 60-result cap, merging
- * unique places into `into`. Returns calls made (cost accounting) and net-new added to the
- * pool. No recursion — bounded by regions × queries × TEXT_SEARCH_MAX_PAGES.
+ * Fetch ONE recall region: run each "happy hour" query, paginate to the page cap, merge unique
+ * places into `into`. Reports `saturated` (a query hit the page cap with MORE pages available →
+ * the region holds >cap venues, subdivide it) and `calls` (cost). Out-of-boundary regions are
+ * pruned at $0 so we never pay to recurse into a neighbour city (mirrors the Nearby prune).
  */
-async function collectHhRecall(
+async function fetchRecallRegion(
   apiKey: string,
-  regions: LatLngRect[],
+  region: LatLngRect,
   into: Map<string, PlaceResult>,
-): Promise<{ calls: number; added: number }> {
-  let calls = 0;
-  let added = 0;
-  for (const region of regions) {
-    for (const q of HH_RECALL_QUERIES) {
-      let pageToken: string | undefined;
-      let page = 0;
-      do {
-        const data = await fetchTextSearchPage(apiKey, q, region, pageToken);
-        calls++;
-        for (const p of data.places ?? []) {
-          if (!p.id) continue;
-          if (!into.has(p.id)) added++;
-          into.set(p.id, p);
-        }
-        pageToken = data.nextPageToken;
-        page++;
-        await new Promise((r) => setTimeout(r, 40));
-      } while (pageToken && page < TEXT_SEARCH_MAX_PAGES);
-    }
+  opts: { prune?: (region: LatLngRect) => Promise<boolean> },
+): Promise<{ places: PlaceResult[]; saturated: boolean; calls: number }> {
+  if (opts.prune && (await opts.prune(region))) {
+    return { places: [], saturated: false, calls: 0 };
   }
-  return { calls, added };
+  const fresh: PlaceResult[] = [];
+  let calls = 0;
+  let saturated = false;
+  for (const q of HH_RECALL_QUERIES) {
+    let pageToken: string | undefined;
+    let page = 0;
+    let qResults = 0;
+    do {
+      const data = await fetchTextSearchPage(apiKey, q, region, pageToken);
+      calls++;
+      const got = data.places ?? [];
+      qResults += got.length;
+      for (const p of got) {
+        if (!p.id) continue;
+        if (!into.has(p.id)) fresh.push(p);
+        into.set(p.id, p);
+      }
+      pageToken = data.nextPageToken;
+      page++;
+      await new Promise((r) => setTimeout(r, 40));
+    } while (pageToken && page < TEXT_SEARCH_MAX_PAGES);
+    // A query that returned Google's hard cap (60) was truncated → its region holds more, so it
+    // must subdivide. (A leftover pageToken would also flag it, but Google never gives one at 60.)
+    if (isQuerySaturated(qResults, Boolean(pageToken))) saturated = true;
+  }
+  return { places: fresh, saturated, calls };
 }
 
 // Genuine airport primary types. The `airport` INCLUDED type also returns places merely
@@ -738,7 +783,10 @@ async function main() {
       const dLng = COVERAGE_METERS / (111_320 * Math.cos((lat * Math.PI) / 180));
       recallRect = { low: { latitude: lat - dLat, longitude: lng - dLng }, high: { latitude: lat + dLat, longitude: lng + dLng } };
     }
-    const recallRegions: LatLngRect[] = args.subTile ? splitRectQuadrants(recallRect) : [recallRect];
+    // Recall is adaptive: seed with the whole recall rectangle; saturated regions self-subdivide
+    // into dense cores (downtown). `splitRectQuadrants` is now the engine's splitRegion, not a
+    // one-shot opt-in.
+    const recallSeedRegions: LatLngRect[] = [recallRect];
 
     // ---- Nearby seed tiles (free to COMPUTE; only FETCHED if the Nearby sweep runs) ----
     let tiles: { lat: number; lng: number }[];
@@ -791,22 +839,16 @@ async function main() {
     const perSeedTreeMax = (Math.pow(4, MAX_DEPTH + 1) - 1) / 3;
     const maxTiles = Math.ceil(seedTiles.length * perSeedTreeMax) + 10;
 
+    // Effective recall cap: explicit --max-calls wins, else the RECALL_MAX_CALLS env/default.
+    const recallMaxCalls = args.maxCalls ?? RECALL_MAX_CALLS;
+
     // ---- Cost plan + --estimate (prints the worst-case call count; makes ZERO calls) ----
-    const plannedRecallCalls = recallEnabled
-      ? recallRegions.length * HH_RECALL_QUERIES.length * TEXT_SEARCH_MAX_PAGES
-      : 0;
     if (recallEnabled) {
       console.log(
-        `  HH recall plan: "${HH_RECALL_QUERIES.join('", "')}" × ${recallRegions.length} region(s) ` +
-          `× ≤${TEXT_SEARCH_MAX_PAGES} pages = ≤${plannedRecallCalls} Text Search call(s) ` +
-          `(~$${(plannedRecallCalls * 0.04).toFixed(2)} @ Enterprise+Atmosphere).`,
+        `  HH recall plan (adaptive): "${HH_RECALL_QUERIES.join('", "')}" — saturated regions ` +
+          `subdivide to a ~${RECALL_FLOOR_METERS}m floor, capped at ${recallMaxCalls} Text Search ` +
+          `call(s) (~$${(recallMaxCalls * 0.03).toFixed(2)})…`,
       );
-      if (plannedRecallCalls > args.maxCalls) {
-        throw new Error(
-          `HH recall would make ≤${plannedRecallCalls} calls, over --max-calls=${args.maxCalls}. ` +
-            `Raise --max-calls to proceed.`,
-        );
-      }
     }
     if (!args.hhRecallOnly) {
       console.log(`  Nearby sweep plan: ≤${maxTiles} tile call(s) (adaptive — usually far fewer) + 1 airport call.`);
@@ -866,8 +908,40 @@ async function main() {
     }
 
     if (recallEnabled) {
-      const { calls, added } = await collectHhRecall(placesKey, recallRegions, collected);
-      console.log(`  HH recall: ${calls} Text Search call(s) → ${added} unique place(s) added to the pool.`);
+      const before = collected.size;
+      let floorSaturated = 0;
+      let capRemaining = 0;
+      const prune = useBoundary
+        ? async (region: LatLngRect): Promise<boolean> => {
+            const [{ within }] = await sql<{ within: boolean }[]>`
+              SELECT ST_DWithin(
+                g::geography,
+                ST_MakeEnvelope(${region.low.longitude}, ${region.low.latitude},
+                                ${region.high.longitude}, ${region.high.latitude}, 4326)::geography,
+                ${SERVICE_BUFFER_METERS}
+              ) AS within
+              FROM _seed_boundary
+            `;
+            return !within; // prune (true) when the region cannot reach the in-scope boundary
+          }
+        : undefined;
+      const { calls } = await collectAdaptiveRegions<LatLngRect, PlaceResult>({
+        seedRegions: recallSeedRegions,
+        // fetchRecallRegion writes into the shared `collected` pool (source of truth, deduped with
+        // the Nearby results); the engine's own returned map is ignored here — we count via `collected`.
+        fetchRegion: (region) => fetchRecallRegion(placesKey, region, collected, { prune }),
+        splitRegion: splitRectQuadrants,
+        canSubdivide: (region) => canSubdivideRect(region),
+        maxCalls: recallMaxCalls,
+        onFloorSaturated: () => { floorSaturated++; },
+        onCapReached: (remaining) => { capRemaining = remaining; },
+      });
+      const added = collected.size - before;
+      console.log(
+        `  HH recall (adaptive): ${calls} Text Search call(s) → ${added} unique place(s) added` +
+          (floorSaturated > 0 ? `; ${floorSaturated} floor region(s) still saturated (dense hotspot — some may remain)` : ``) +
+          (capRemaining > 0 ? `; ⚠ hit the ${recallMaxCalls}-call cap with ${capRemaining} region(s) unvisited (raise --max-calls / RECALL_MAX_CALLS to go deeper)` : ``),
+      );
     }
 
     // Airport points (for the in-terminal exclusion gate). One Places call; [] on error.
@@ -1126,7 +1200,10 @@ async function main() {
   }
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+// Guard: only run when executed directly (not when imported by tests).
+if (require.main === module) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}
