@@ -40,12 +40,13 @@ async function main() {
       const decided = resolveEnrichAction(verdict, hhLikelihood({ primaryType: v.type, types: null, name: v.name }));
       if (decided.action !== "extract") continue;
       const pages = await fetchPages([verdict.url, ...(decided.priorityUrls ?? [])], 8, { maxContent: 28000, render });
-      const imgs = pages.filter((p: any) => p.imageBase64);
+      const imgs = pages.filter((p) => p.imageBase64);
       if (imgs.length === 0) continue;
       withImage++;
       // would any have 400'd? compare what the URL-ext WOULD declare vs the real sniffed bytes
       let bad = false;
-      for (const im of imgs as any[]) {
+      for (const im of imgs) {
+        if (!im.imageBase64) continue;
         const declared = declaredByExt(im.url);
         const actual = sniffImageMediaType(Buffer.from(im.imageBase64, "base64"));
         if (declared && actual && declared !== actual) bad = true;
