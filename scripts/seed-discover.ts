@@ -364,6 +364,13 @@ const HH_RECALL_QUERIES = ["happy hour"] as const;
 // countable up front: queries × regions × ≤3 pages.
 const TEXT_SEARCH_MAX_PAGES = 3;
 
+/** Recall subdivision floor: never recurse a region whose CHILD half-diagonal would be below
+ *  this (~downtown-block scale). Env-tunable. */
+const RECALL_FLOOR_METERS = Number(process.env.RECALL_FLOOR_METERS) || 450;
+/** Per-city recall cost cap: stop after this many Text Search calls (~$0.03 each → ~$1). The
+ *  adaptive recursion would otherwise scale with density without bound. Env-tunable. */
+const RECALL_MAX_CALLS = Number(process.env.RECALL_MAX_CALLS) || 30;
+
 interface LatLngRect {
   low: { latitude: number; longitude: number };
   high: { latitude: number; longitude: number };
@@ -384,6 +391,20 @@ function splitRectQuadrants(r: LatLngRect): LatLngRect[] {
     { low: { latitude: midLat, longitude: r.low.longitude }, high: { latitude: r.high.latitude, longitude: midLng } },
     { low: { latitude: midLat, longitude: midLng }, high: { latitude: r.high.latitude, longitude: r.high.longitude } },
   ];
+}
+
+/** Approx meters of HALF the rectangle's diagonal — the region's "radius" for the floor test. */
+export function rectHalfDiagonalMeters(r: LatLngRect): number {
+  const midLat = (r.low.latitude + r.high.latitude) / 2;
+  const dLatM = (r.high.latitude - r.low.latitude) * 111_320;
+  const dLngM = (r.high.longitude - r.low.longitude) * 111_320 * Math.cos((midLat * Math.PI) / 180);
+  return Math.hypot(dLatM, dLngM) / 2;
+}
+
+/** True when a saturated region may still subdivide: its CHILD (half-size) stays at/above the
+ *  floor. Mirrors discoveryTiling.canSubdivide for circles. */
+export function canSubdivideRect(r: LatLngRect, floorMeters = RECALL_FLOOR_METERS): boolean {
+  return rectHalfDiagonalMeters(r) / 2 >= floorMeters;
 }
 
 async function fetchTextSearchPage(
@@ -1126,7 +1147,10 @@ async function main() {
   }
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+// Guard: only run when executed directly (not when imported by tests).
+if (require.main === module) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}
