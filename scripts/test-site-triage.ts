@@ -7,6 +7,7 @@ import {
   classifyUrl,
   isParkedHtml,
   extractHhSignalLinks,
+  extractHhAnchorLinks,
   extractMediaLinks,
   fullResImageUrl,
   cappedSquarespaceImageUrl,
@@ -63,6 +64,18 @@ check("finds drink menu + dedupes", () => {
     "https://x.com/",
   );
   assert.deepEqual(links.sort(), ["https://x.com/drink-menu", "https://x.com/menus"]);
+});
+// extractHhAnchorLinks — the "Happy Hour"-labeled-link finder (top-priority signal)
+check("extractHhAnchorLinks: Wix opaque slug labeled 'Happy Hour' is captured (Hop & Vine)", () => {
+  const html =
+    '<a href="/menu"><span>Menu</span></a>' +
+    '<a class="x" aria-current="false" href="/catering-zysi-RcQW"><span data-maglev-id="z">Happy Hour</span></a>' +
+    '<a href="/beer">Beer</a>';
+  assert.deepEqual(extractHhAnchorLinks(html, "https://hopandvinesj.com/"), ["https://hopandvinesj.com/catering-zysi-RcQW"]);
+});
+check("extractHhAnchorLinks: ignores menu/specials anchors (only literal 'happy hour' text)", () => {
+  const html = '<a href="/menu">Menu</a><a href="/specials">Specials</a><a href="/hh">HappyHour</a>';
+  assert.deepEqual(extractHhAnchorLinks(html, "https://x.com/"), ["https://x.com/hh"]);
 });
 check("anchor text 'Happy Hour' counts even with opaque href", () => {
   const links = extractHhSignalLinks('<a href="/p/123">Happy Hour Specials</a>', "https://x.com/");
