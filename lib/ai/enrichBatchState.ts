@@ -49,15 +49,23 @@ export function writeBatchState(state: BatchState): void {
 
 /** Return the first un-collected batch state for a city, or null. */
 export function findBatchState(citySlug: string): BatchState | null {
+  return findAllBatchStates(citySlug)[0] ?? null;
+}
+
+/**
+ * Return every un-collected batch state for a city. A media-heavy run is submitted as
+ * multiple size-chunked batches (one state file each), so resume must drain all of them.
+ */
+export function findAllBatchStates(citySlug: string): BatchState[] {
   let files: string[];
   try {
     files = readdirSync(STATE_DIR);
   } catch {
-    return null;
+    return [];
   }
-  const match = files.find((f) => f.startsWith(`${citySlug}-`) && f.endsWith(".json"));
-  if (!match) return null;
-  return JSON.parse(readFileSync(join(STATE_DIR, match), "utf8")) as BatchState;
+  return files
+    .filter((f) => f.startsWith(`${citySlug}-`) && f.endsWith(".json"))
+    .map((f) => JSON.parse(readFileSync(join(STATE_DIR, f), "utf8")) as BatchState);
 }
 
 export function deleteBatchState(citySlug: string, batchId: string): void {

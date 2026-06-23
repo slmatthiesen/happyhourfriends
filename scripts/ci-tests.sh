@@ -26,6 +26,7 @@ TESTS=(
   test:menu-embed
   test:menu-json
   test:menu-platform
+  test:batch-chunk
   test:venue-quality
   test:harvest
   test:fetchurl-retry
