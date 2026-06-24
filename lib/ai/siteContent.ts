@@ -380,6 +380,10 @@ export async function fetchPages(
   const pages: FetchedPage[] = [];
   const seen = new Set(unique.map(fetchUrlKey));
   const follow: string[] = [];
+  // Docs the PAGE linked under happy-hour context (its anchor said "Happy Hour"): selection
+  // ranks these above filename score, so the menu the page itself labels HH wins the byte
+  // budget even when its filename scores 0 (Lucky Silver's HH.pdf vs DRINK-MENUS.pdf).
+  const hhLinkedKeys = new Set<string>();
   const docs: FetchResult[] = []; // PDF/image results, added later under a budget
   for (const r of results) {
     if (!r.ok) continue;
@@ -395,6 +399,7 @@ export async function fetchPages(
       const k = fetchUrlKey(m);
       if (!seen.has(k)) { seen.add(k); follow.push(m); }
     }
+    for (const m of r.hhContextMediaLinks ?? []) hhLinkedKeys.add(fetchUrlKey(m));
   }
 
   // Follow media links ONE HOP — the menu doc usually lives on a sub-page (e.g. /menus)
@@ -421,6 +426,7 @@ export async function fetchPages(
       maxBytes: MAX_DOC_BYTES,
       maxPages: MAX_DOC_PAGES,
       staleDated: htmlStatesSchedule ? isStaleDatedDocPath : undefined,
+      hhLinkedKeys,
     }),
   );
   return pages;
@@ -433,20 +439,31 @@ function docRawBytes(r: Pick<FetchResult, "pdfBase64" | "imageBase64">): number 
 
 /**
  * Pick the menu docs (PDF/image) to feed the model, under a count + byte budget.
- * Ranking: happy-hour relevance first (scoreHhUrl) so a "happy+hour.PNG" (100) outranks a
- * generic food-menu image (30) — Bei Sushi. For EQUAL score the sort is stable, so it keeps
- * the caller's order — which is HH-context first (extractMediaLinks ranks a doc linked next to
- * "happy hour" page text ahead of one that isn't). That's how Hula Hoops's 6.9MB Happy-Hour
- * Dinner PDF beats its 7.9MB Brunch PDF (both filename-score 0): we spend the budget on the
- * HH-linked doc and never send the irrelevant brunch menu. `staleDated(url)` drops docs
- * superseded by fresh page text (see caller). Pure + exported so the budget math is
- * unit-testable without the network.
+ * Ranking: a doc the PAGE linked under happy-hour context (hhLinkedKeys — its anchor said
+ * "Happy Hour") ranks ABOVE any filename score, because the page's own label beats the file's
+ * name. Without it, Lucky Silver's HH.pdf (filename-score 0) lost the byte budget to its
+ * DRINK-MENUS.pdf (filename-score 60) and the real happy-hour menu was never fed. Then
+ * happy-hour relevance by filename (scoreHhUrl) so a "happy+hour.PNG" (100) outranks a generic
+ * food-menu image (30) — Bei Sushi. For EQUAL score the sort is stable, so it keeps the caller's
+ * order — HH-context first within the doc list. `staleDated(url)` drops docs superseded by fresh
+ * page text (see caller). Pure + exported so the budget math is unit-testable without the network.
  */
 export function selectDocsWithinBudget(
   docs: FetchResult[],
-  opts: { maxBytes: number; maxPages: number; staleDated?: (url: string) => boolean },
+  opts: {
+    maxBytes: number;
+    maxPages: number;
+    staleDated?: (url: string) => boolean;
+    /** fetchUrlKey set of docs the page linked under happy-hour context — ranked first. */
+    hhLinkedKeys?: Set<string>;
+  },
 ): FetchedPage[] {
-  const ranked = [...docs].sort((a, b) => scoreHhUrl(b.url) - scoreHhUrl(a.url));
+  // The page's own "Happy Hour" label dwarfs scoreHhUrl's 0..110 range, so an HH-linked doc
+  // always sorts ahead of a higher-filename-scored sibling.
+  const HH_LINK_BUMP = 1000;
+  const rank = (r: FetchResult) =>
+    (opts.hhLinkedKeys?.has(fetchUrlKey(r.url)) ? HH_LINK_BUMP : 0) + scoreHhUrl(r.url);
+  const ranked = [...docs].sort((a, b) => rank(b) - rank(a));
   const picked: FetchedPage[] = [];
   let docBytes = 0;
   for (const r of ranked) {

@@ -41,6 +41,22 @@ check("higher scoreHhUrl outranks caller order and size", () => {
   ]);
 });
 
+// Lucky Silver: the page links its HH menu under a "Happy Hour" anchor, but the FILENAME
+// ("LUCKY-SILVER-HH.pdf") scores 0 while the drink menu ("…DRINK-MENUS.pdf") scores 60. The
+// page's own label must win — hhLinkedKeys ranks the HH doc first, so the tight byte budget
+// (which fits only one of these big image PDFs) feeds the happy-hour menu, not the drink menu.
+check("hhLinkedKeys outranks filename score and wins the budget (Lucky Silver HH.pdf)", () => {
+  const hh = "https://www.theluckysilver.com/s/LUCKY-SILVER-HH.pdf";
+  const drink = "https://www.theluckysilver.com/s/LUCKY-SILVER-DRINK-MENUS.pdf";
+  const docs = [pdf(drink, 7_600_000), pdf(hh, 5_840_000)]; // drink first (scoreHhUrl 60 > 0)
+  const picked = selectDocsWithinBudget(docs, {
+    maxBytes: 10_000_000,
+    maxPages: 5,
+    hhLinkedKeys: new Set([hh.replace(/\/$/, "")]),
+  });
+  assert.deepEqual(picked.map((p) => p.url), [hh]); // HH ranked first, fits; drink dropped by budget
+});
+
 check("equal score keeps caller order (stable) when both fit", () => {
   const docs = [pdf("https://x.com/a-menu.pdf", 1_000_000), pdf("https://x.com/b-menu.pdf", 1_000_000)];
   const picked = selectDocsWithinBudget(docs, { maxBytes: 10_000_000, maxPages: 5 });

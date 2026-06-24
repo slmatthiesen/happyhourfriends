@@ -260,6 +260,17 @@ export function cappedSquarespaceImageUrl(url: string, maxWidth = 1500): string 
 // Mimosa". Tight so a nearby-but-unrelated section's HH text doesn't bleed onto the wrong doc.
 const HH_CONTEXT_WINDOW = 400;
 
+/** A media (PDF/image) menu link plus whether the PAGE linked it in a happy-hour context
+ *  (the anchor text / alt / nearby source said "happy hour"). hhContext is the page's OWN
+ *  label for the doc — a stronger signal of which doc holds the deals than the filename, so
+ *  downstream budget selection ranks hhContext docs first. (Lucky Silver's HH.pdf, filename-
+ *  score 0, was demoted under DRINK-MENUS.pdf, filename-score 60, and dropped by the byte
+ *  budget — because selection re-ranked by filename and discarded this flag.) */
+export interface MediaLink {
+  url: string;
+  hhContext: boolean;
+}
+
 /**
  * Media (PDF/image) menu links in the page, RANKED so a doc that sits in a happy-hour context
  * comes first. >50% of HH menus are a document, not HTML; when a site links several (dinner,
@@ -267,9 +278,10 @@ const HH_CONTEXT_WINDOW = 400;
  * filename alone sends the wrong menu (Hula Hoops's Brunch PDF outweighed its HH Dinner PDF).
  * Each link is tagged `hhContext` when "happy hour" appears in its anchor text / alt / the
  * source just before it; context links sort first (stable within each group). Callers then
- * spend the doc budget on the HH-linked doc and skip the irrelevant ones.
+ * spend the doc budget on the HH-linked doc and skip the irrelevant ones — and downstream
+ * selection keeps the flag to rank that doc above filename score (see selectDocsWithinBudget).
  */
-export function extractMediaLinks(html: string, baseUrl: string): string[] {
+export function extractMediaLinksDetailed(html: string, baseUrl: string): MediaLink[] {
   // url → hhContext (true if ANY occurrence sits next to happy-hour text). Insertion order
   // preserved by Map, so a stable context-first sort keeps discovery order within each group.
   const found = new Map<string, boolean>();
@@ -364,8 +376,14 @@ export function extractMediaLinks(html: string, baseUrl: string): string[] {
   // HH-context docs first (stable within each group → discovery order preserved), capped at 6.
   return [...found.entries()]
     .sort((a, b) => Number(b[1]) - Number(a[1]))
-    .map(([u]) => u)
+    .map(([url, hhContext]) => ({ url, hhContext }))
     .slice(0, 6);
+}
+
+/** Media (PDF/image) menu link URLs in the page, hhContext-first (see extractMediaLinksDetailed).
+ *  The URL-only view kept for callers that don't need the per-link context flag. */
+export function extractMediaLinks(html: string, baseUrl: string): string[] {
+  return extractMediaLinksDetailed(html, baseUrl).map((m) => m.url);
 }
 
 // Third-party MENU-widget hosts: restaurant sites embed the actual menu (items + prices, often
