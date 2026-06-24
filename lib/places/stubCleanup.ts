@@ -63,6 +63,8 @@ export function classifyStub(sig: StubSignal, policy: StubCleanupPolicy): StubVe
   if (zeroHhType) return { action: "hide", reason: `zero-HH cuisine (${sig.primaryType})` };
 
   // 4. Good-site restaurant (no alcohol evidence, live non-platform site): policy decides.
+  // Exhaustive by construction — every venue not deleted/kept/hidden above has a live site
+  // (step 1 deletes no-site/dead-site no-alcohol venues), so this fork always applies.
   return policy === "alcohol-or-site"
     ? { action: "keep", reason: "restaurant w/ working site (recall-miss candidate)" }
     : { action: "hide", reason: "restaurant w/ working site (alcohol-only policy)" };
