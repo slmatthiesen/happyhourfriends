@@ -101,6 +101,20 @@ check("confidence exactly at the threshold is NOT low_confidence", () => {
   assert.equal(r.reasons.includes("low_confidence"), false);
 });
 
+check("low confidence but KNOWN time + offerings is NOT suspect (Blanco: conf 0.4, M–F 3–6pm, real deals)", () => {
+  const r = assessRealness({
+    allDay: false, dayCount: 5, timeKnown: true, confidence: 0.4,
+    mealSpecial: { startTime: "15:00", endTime: "18:00", notes: null, offerings: [{ name: "House margarita", priceCents: 700 }] },
+  });
+  assert.equal(r.reasons.includes("low_confidence"), false);
+  assert.equal(r.suspect, false);
+});
+
+check("low confidence + KNOWN time but NO offerings still IS low_confidence (no concrete evidence)", () => {
+  const r = assessRealness({ allDay: false, dayCount: 5, timeKnown: true, confidence: 0.4, mealSpecial: { startTime: "15:00", endTime: "18:00", notes: null, offerings: [] } });
+  assert.ok(r.reasons.includes("low_confidence"));
+});
+
 check("multiple signals accumulate distinct reasons", () => {
   const r = assessRealness({ allDay: true, dayCount: 7, timeKnown: false, confidence: 0.1 });
   assert.equal(r.suspect, true);
