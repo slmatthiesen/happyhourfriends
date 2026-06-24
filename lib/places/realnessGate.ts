@@ -66,7 +66,12 @@ export function assessRealness(input: RealnessInput): RealnessVerdict {
     reasons.push("bare_non_hh_window");
   }
   if (!input.timeKnown) reasons.push("no_time_window");
-  if (input.confidence < MIN_CONFIDENCE) reasons.push("low_confidence");
+  // A window with a KNOWN bounded time AND ≥1 offering is concrete evidence the schedule is real
+  // — far stronger than the extractor's self-reported confidence. Never bench such a window on
+  // low confidence alone (Blanco: conf 0.4 but M–F 3–6pm w/ 20 deals). meal_special / op-hours
+  // still apply — those target genuine false positives (a $35 prix-fixe is timed+priced too).
+  const concrete = input.timeKnown && (input.mealSpecial?.offerings.length ?? 0) > 0;
+  if (input.confidence < MIN_CONFIDENCE && !concrete) reasons.push("low_confidence");
   if (input.mealSpecial && mealSpecialEvidence(input.mealSpecial)) reasons.push("meal_special");
   if (input.mealSpecial && bareWindowSuspect(input.mealSpecial)) reasons.push("bare_non_hh_window");
   if (input.mealSpecial && crossesMidnightImplausible(input.mealSpecial.startTime, input.mealSpecial.endTime)) reasons.push("implausible_window_duration");
