@@ -29,6 +29,11 @@ import { hasAlcoholSignal } from "@/lib/places/chainDenylist";
  * Deliberately EXCLUDED despite low rates: hawaiian and taco/mexican spots — the operator
  * confirms those DO run happy hours and must never be suppressed.
  *
+ * Also carries operator HARD-RULE never-HH FORMATS (not just cuisines): family_restaurant
+ * (2026-06-24) — a diner/family format that structurally does not run happy hours. Such formats
+ * are also in chainDenylist.EXCLUDED_PRIMARY_TYPE so they are never seeded again; membership here
+ * makes delete:empty-cuisine-stubs remove any empty stub that slipped in before the rule.
+ *
  * Refreshable. To re-derive:
  *   SELECT sc.primary_type,
  *          count(*) FILTER (WHERE hh.id IS NOT NULL) AS hh,
@@ -42,6 +47,7 @@ export const ZERO_HH_TYPES: ReadonlySet<string> = new Set([
   "korean_restaurant",
   "vietnamese_restaurant",
   "chinese_restaurant",
+  "family_restaurant", // operator hard-rule 2026-06-24 (never-HH format; also discovery-excluded)
 ]);
 
 /** Discovery-captured signal for the alcohol + cuisine gate. All fields nullable — a venue

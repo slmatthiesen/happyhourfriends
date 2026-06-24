@@ -280,6 +280,9 @@ const EXCLUDED_PRIMARY_TYPE = new Set<string>([
   "resort_hotel",
   "buffet_restaurant",
   "breakfast_restaurant",
+  // Operator 2026-06-24 (hard rule): family_restaurant is a diner/family format that does not
+  // run happy hours — never seed it, and delete existing empty stubs (it is also in ZERO_HH_TYPES).
+  "family_restaurant",
   "indian_restaurant",
   "bakery",
   "cafe",
