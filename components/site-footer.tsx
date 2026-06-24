@@ -11,6 +11,7 @@ const FOOTER_LINKS = [
   { href: "/about", label: "About" },
   { href: "/faq", label: "FAQ" },
   { href: "/for-restaurants", label: "For restaurants" },
+  { href: "/terms", label: "Terms" },
 ];
 
 export function SiteFooter({ className }: { className?: string }) {
