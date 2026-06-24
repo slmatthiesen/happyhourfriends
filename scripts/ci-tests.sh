@@ -105,6 +105,7 @@ TESTS=(
   test:fetch-targets
   test:add-offerings
   test:stub-gate
+  test:stub-cleanup
   test:anti-bot-fetch
   test:discovery-tiling
   test:recall-rect
