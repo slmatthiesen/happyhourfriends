@@ -14,7 +14,7 @@
  * can hand them to Claude as a native document block. Never throws.
  */
 
-import { extractMediaLinks, cappedSquarespaceImageUrl } from "@/lib/places/siteTriage";
+import { extractMediaLinksDetailed, cappedSquarespaceImageUrl } from "@/lib/places/siteTriage";
 import { harvestJsonLdMenu } from "@/lib/places/jsonLdMenu";
 
 const BOT_NAME = "HappyHourFriendsBot";
@@ -268,6 +268,11 @@ export interface FetchResult {
   /** PDF/image menu links found in this HTML page's raw markup — the caller follows
    *  them one hop (the menu doc usually lives on a sub-page like /menus). */
   mediaLinks?: string[];
+  /** The subset of mediaLinks the page linked under happy-hour context (anchor text / alt /
+   *  nearby source said "happy hour"). The page's OWN label for which doc holds the deals —
+   *  selection ranks these above filename score so an "HH.pdf" the page calls "Happy Hour"
+   *  beats a higher-filename-scored sibling (lib/ai/siteContent selectDocsWithinBudget). */
+  hhContextMediaLinks?: string[];
   contentType?: string;
   blockedByRobots?: boolean;
   /** An anti-bot wall (Cloudflare/Turnstile challenge) answered with a content-less 200. The
@@ -508,8 +513,10 @@ export async function fetchUrl(url: string, opts: FetchOpts = {}): Promise<Fetch
       // managed JS challenge; only a real browser / cloud reader does).
       const blocked = detectBotWall(raw) ? ("bot_wall" as const) : undefined;
       const contentText = stripHtml(raw, maxContent);
-      const mediaLinks = extractMediaLinks(raw, res.url || url);
-      return { url, ok: true, status: res.status, contentType, contentText, mediaLinks, blocked };
+      const media = extractMediaLinksDetailed(raw, res.url || url);
+      const mediaLinks = media.map((m) => m.url);
+      const hhContextMediaLinks = media.filter((m) => m.hhContext).map((m) => m.url);
+      return { url, ok: true, status: res.status, contentType, contentText, mediaLinks, hhContextMediaLinks, blocked };
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       return { url, ok: false, error: message };

@@ -14,7 +14,7 @@
  */
 import type { APIRequestContext, Browser, BrowserContext } from "playwright";
 import { harvestMenuJson, sniffImageMediaType, type FetchResult } from "@/lib/verification/fetchUrl";
-import { extractMediaLinks, extractMenuEmbedUrls } from "@/lib/places/siteTriage";
+import { extractMediaLinksDetailed, extractMenuEmbedUrls } from "@/lib/places/siteTriage";
 
 const UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 " +
@@ -140,7 +140,9 @@ export async function renderUrl(
       await page.waitForLoadState("networkidle", { timeout: 5_000 }).catch(() => {});
       const html = await page.content();
       const text = await page.innerText("body").catch(() => "");
-      const mediaLinks = extractMediaLinks(html, page.url());
+      const media = extractMediaLinksDetailed(html, page.url());
+      const mediaLinks = media.map((m) => m.url);
+      const hhContextMediaLinks = media.filter((m) => m.hhContext).map((m) => m.url);
       // Cross-origin MENU-widget iframes (SinglePlatform etc.) hold the deals but their content is
       // NOT in body.innerText. Fetch each widget's own HTML as text and fold it in, so a single
       // paid extraction captures the menu instead of leaving a bare window (Finch & Fork SB).
@@ -149,7 +151,7 @@ export async function renderUrl(
       // chunk innerText can't see — reconstruct it so the deals reach the model (Twelvemonth SB).
       const menuJson = harvestMenuJson(html);
       const parts = [text, menuJson, embedText].filter(Boolean);
-      return { url: page.url(), ok: true, status: nav?.status() ?? resp.status(), contentType: ct, contentText: parts.join("\n\n"), mediaLinks };
+      return { url: page.url(), ok: true, status: nav?.status() ?? resp.status(), contentType: ct, contentText: parts.join("\n\n"), mediaLinks, hhContextMediaLinks };
     } finally {
       await page.close().catch(() => {});
     }
