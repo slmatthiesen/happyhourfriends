@@ -175,6 +175,7 @@
     "test:sitemap": "tsx scripts/test-sitemap.ts",
     "test:source-provenance": "tsx scripts/test-source-provenance.ts",
     "test:stub-rank": "tsx scripts/test-stub-rank.ts",
+    "test:stub-cleanup": "tsx scripts/test-stub-cleanup.ts",
     "test:venue-quality": "tsx scripts/test-venue-quality.ts",
     "test:venue-type": "tsx scripts/test-venue-type.ts",
     "test:window-reconcile": "tsx scripts/test-window-reconcile.ts",
