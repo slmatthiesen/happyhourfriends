@@ -25,7 +25,7 @@
 import "dotenv/config";
 import postgres from "postgres";
 import { writeFileSync } from "node:fs";
-import { assessRealness } from "@/lib/places/realnessGate";
+import { assessRealness, qualifiesForAllDayConsistencyRescue } from "@/lib/places/realnessGate";
 import { isOperatingHours } from "@/lib/places/windowReconcile";
 import { isSourceProvenanceSuspect } from "@/lib/recover/sourceProvenance";
 import { HH_RE } from "@/lib/places/hhText";
@@ -107,10 +107,21 @@ async function main() {
     // hhEvidence = strong enough to show LIVE (the venue's own text/source says happy hour, OR
     // there is an actual drink deal). Without it a plausible window is captured for REVIEW, not
     // shown — the operator trusts the time but can't confirm it (their 2026-06-15 directive).
-    type Cand = { row: Row; category: "new_policy_bare" | "stale_hide"; hhEvidence: boolean };
+    type Cand = { row: Row; category: "new_policy_bare" | "stale_hide" | "consistency_rescue"; hhEvidence: boolean };
     const candidates: Cand[] = [];
     const demote: Array<{ row: Row; reasons: string[] }> = [];
     let unchanged = 0;
+
+    // Venues that ALREADY show an all-day deal window (active, all-day, ≥1 offering, <3 days).
+    // Their hidden all-day-deal siblings dropped only for a missing clock time get rescued to
+    // match (the extractor flags time_known inconsistently across a venue's daily specials —
+    // Agua Salada). Built from current stored state before the loop.
+    const venuesWithActiveAllDayDeal = new Set<string>();
+    for (const r of rows) {
+      if (r.active && r.all_day && (r.days_of_week?.length ?? 0) < 3 && (r.offerings?.length ?? 0) > 0) {
+        venuesWithActiveAllDayDeal.add(r.venue_id);
+      }
+    }
 
     for (const r of rows) {
       const days = Array.isArray(r.days_of_week) ? r.days_of_week : [];
@@ -140,7 +151,20 @@ async function main() {
         r.hours_json ?? null,
       );
       const provenanceSuspect = isSourceProvenanceSuspect(r.source_url, r.website_url);
-      const nowActive = !verdict.suspect && !isOpHours && !provenanceSuspect;
+      // Consistency rescue: an all-day deal hidden ONLY for the missing clock time, on a venue
+      // that already shows an all-day deal window. Clears no_time_window only — op-hours /
+      // provenance still bench it.
+      const consistencyRescue =
+        !isOpHours &&
+        !provenanceSuspect &&
+        qualifiesForAllDayConsistencyRescue({
+          reasons: verdict.reasons,
+          allDay: r.all_day,
+          offeringsCount: offerings.length,
+          dayCount: days.length,
+          venueHasActiveAllDayDeal: venuesWithActiveAllDayDeal.has(r.venue_id),
+        });
+      const nowActive = (!verdict.suspect || consistencyRescue) && !isOpHours && !provenanceSuspect;
 
       if (r.active === nowActive) {
         unchanged++;
@@ -149,6 +173,7 @@ async function main() {
 
       if (nowActive) {
         // hidden → passes the gate. Bare (offering-less, no-HH-text) → rescued by time-first;
+        // consistency_rescue → an all-day daily-special sibling un-hidden to match the venue;
         // else a stale hide today's gates already pass.
         const bare = offerings.length === 0 && !HH_RE.test(`${r.notes ?? ""}`);
         const offeringText = (r.offerings ?? []).map((o) => `${o.name ?? ""} ${o.description ?? ""}`).join(" ");
@@ -156,7 +181,8 @@ async function main() {
           HH_RE.test(`${offeringText} ${r.notes ?? ""}`) ||
           HH_RE.test(r.source_url ?? "") ||
           (r.offerings ?? []).some((o) => o.kind === "drink");
-        candidates.push({ row: r, category: bare ? "new_policy_bare" : "stale_hide", hhEvidence });
+        const category = consistencyRescue ? "consistency_rescue" : bare ? "new_policy_bare" : "stale_hide";
+        candidates.push({ row: r, category, hhEvidence });
       } else {
         // live → hidden. Surface which gate now votes it down so the operator can veto.
         const reasons: string[] = [...verdict.reasons];
@@ -259,7 +285,13 @@ async function main() {
       `| ${city} | ${venue.replace(/\|/g, "/")} | **${action}** | ${fmtDays(days)} | ${fmtTime(st, et, allDay)} | ${offs} | ${reason} | ${url ?? ""} |`;
     for (const p of promote) {
       const r = p.row;
-      lines.push(row(r.city, r.venue, "PROMOTE", r.days_of_week, r.start_time, r.end_time, r.all_day, r.offerings?.length ?? 0, p.category === "new_policy_bare" ? "bare→time-first" : "stale-hide (gate already passes)", r.source_url));
+      const reason =
+        p.category === "new_policy_bare"
+          ? "bare→time-first"
+          : p.category === "consistency_rescue"
+            ? "all-day special: sibling already live"
+            : "stale-hide (gate already passes)";
+      lines.push(row(r.city, r.venue, "PROMOTE", r.days_of_week, r.start_time, r.end_time, r.all_day, r.offerings?.length ?? 0, reason, r.source_url));
     }
     for (const rv of review) {
       const r = rv.row;
@@ -282,7 +314,8 @@ async function main() {
     const csvRows: Array<(string | number | boolean | null)[]> = [];
     for (const p of promote) {
       const r = p.row;
-      csvRows.push([r.city, r.venue, "promote", p.category === "new_policy_bare" ? "bare→time-first" : "stale-hide", fmtDays(r.days_of_week), hm(r.start_time) ?? "", hm(r.end_time) ?? "", r.all_day, r.offerings?.length ?? 0, r.source_url, r.id]);
+      const cat = p.category === "new_policy_bare" ? "bare→time-first" : p.category === "consistency_rescue" ? "all-day-sibling-live" : "stale-hide";
+      csvRows.push([r.city, r.venue, "promote", cat, fmtDays(r.days_of_week), hm(r.start_time) ?? "", hm(r.end_time) ?? "", r.all_day, r.offerings?.length ?? 0, r.source_url, r.id]);
     }
     for (const rv of review) {
       const r = rv.row;
