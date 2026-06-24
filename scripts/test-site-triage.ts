@@ -9,6 +9,7 @@ import {
   extractHhSignalLinks,
   extractHhAnchorLinks,
   extractMediaLinks,
+  extractMediaLinksDetailed,
   fullResImageUrl,
   cappedSquarespaceImageUrl,
   resolveEnrichAction,
@@ -277,6 +278,26 @@ check("Squarespace /s/ clickthrough with NO menu signal is ignored", () => {
   const html = `<p>Gift Cards</p>","clickthroughUrl":{"url":"/s/Buy-A-Card"}`;
   assert.deepEqual(extractMediaLinks(html, "https://r.com/"), []);
 });
+// Lucky Silver: the page links several menu PDFs; only the HH one sits under a "Happy Hour"
+// anchor. extractMediaLinksDetailed must flag THAT url hhContext=true (and the others false),
+// so selection can rank the page's own happy-hour menu above filename score downstream.
+check("extractMediaLinksDetailed flags the happy-hour-anchored PDF (Lucky Silver)", () => {
+  // Drink link FIRST (no happy-hour text before it → hhContext false); HH link carries
+  // "Happy Hour" in its own label → hhContext true. Filler keeps the HH label out of the
+  // drink link's 400-char look-behind window.
+  const html =
+    `<a href="/s/LUCKY-SILVER-DRINK-MENUS.pdf"><span>Drink Menu</span></a>` +
+    `<p>${"food and drinks all night. ".repeat(20)}</p>` +
+    `<a href="/s/LUCKY-SILVER-HH.pdf" target="_blank"><span>Happy Hour</span></a>`;
+  const detailed = extractMediaLinksDetailed(html, "https://www.theluckysilver.com/menus");
+  const hh = detailed.find((m) => m.url.endsWith("/LUCKY-SILVER-HH.pdf"));
+  const drink = detailed.find((m) => m.url.endsWith("/LUCKY-SILVER-DRINK-MENUS.pdf"));
+  assert.equal(hh?.hhContext, true);
+  assert.equal(drink?.hhContext, false);
+  // hhContext-first ordering: the HH doc leads the list.
+  assert.ok(detailed[0]?.url.endsWith("/LUCKY-SILVER-HH.pdf"));
+});
+
 // Squarespace CDN images carry a ?format=<N>w width. A high-res menu image (2500w, ~8MB)
 // blows the 10MB-base64 API image cap; cap it at 1500w (the model downscales to ~1568px anyway).
 check("caps an oversized Squarespace CDN image format to 1500w", () => {
