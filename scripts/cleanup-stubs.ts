@@ -18,6 +18,7 @@
  */
 import "dotenv/config";
 import { execFileSync } from "node:child_process";
+import fs from "node:fs";
 import postgres from "postgres";
 import { requireCityArgs } from "@/lib/cities/resolveCity";
 import {
@@ -34,6 +35,7 @@ interface Row {
   types: string[] | null;
   website_url: string | null;
   site_health: string | null;
+  reviews: number | null;
 }
 
 const POLICIES: StubCleanupPolicy[] = ["alcohol-or-site", "alcohol-only"];
@@ -77,7 +79,7 @@ async function main() {
     // false and no zero-HH type; with a website it routes by policy, without one it deletes.
     const rows = await sql<Row[]>`
       SELECT v.id, v.name, c.slug AS city,
-             sc.primary_type, sc.types,
+             sc.primary_type, sc.types, sc.user_rating_count AS reviews,
              v.website_url, v.site_health
       FROM venues v
       JOIN cities c ON c.id = v.city_id
@@ -121,6 +123,25 @@ async function main() {
     const deleteRows = verdicts.filter((x) => x.verdict.action === "delete");
     const keepN = verdicts.filter((x) => x.verdict.action === "keep").length;
     console.log(`\nUnder ${policy}: keep ${keepN}, hide ${hideIds.length}, delete ${deleteRows.length}.`);
+
+    // Always write a review sheet of what WOULD be removed (venue + URL + reviews + reason) so the
+    // operator can scan / spot-check before --apply. Review-before-apply is the safe workflow:
+    // a real HH hiding behind a menu PDF (e.g. Lucky Silver) is caught here, not after the write.
+    const removals = verdicts
+      .filter((x) => x.verdict.action !== "keep")
+      .sort((a, b) =>
+        a.verdict.action.localeCompare(b.verdict.action) || // delete before hide
+        a.row.city.localeCompare(b.row.city) ||
+        (b.row.reviews ?? 0) - (a.row.reviews ?? 0));
+    const esc = (s: unknown) => `"${String(s ?? "").replace(/"/g, '""')}"`;
+    const sheet = ["city,action,venue,primary_type,reviews,website,reason"];
+    for (const { row, verdict } of removals) {
+      sheet.push([esc(row.city), verdict.action, esc(row.name), row.primary_type ?? "",
+        row.reviews ?? "", esc(row.website_url), esc(verdict.reason)].join(","));
+    }
+    const sheetPath = `docs/cleanup-stubs-${policy}${cityArgs ? `-${cityArgs.slug}` : ""}.csv`;
+    fs.writeFileSync(sheetPath, sheet.join("\n"));
+    console.log(`Review sheet (venue + URL + reviews + reason) → ${sheetPath}  (${removals.length} rows)`);
 
     if (verbose) {
       for (const action of ["delete", "hide"] as const) {
