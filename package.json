@@ -62,6 +62,7 @@
     "reverify:all-day": "tsx scripts/reverify-all-day.ts",
     "drop:menu-platform-stubs": "tsx scripts/drop-menu-platform-stubs.ts",
     "suppress:dead-end-stubs": "tsx scripts/suppress-dead-end-stubs.ts",
+    "cleanup:stubs": "tsx scripts/cleanup-stubs.ts",
     "delete:empty-cuisine-stubs": "tsx scripts/delete-empty-cuisine-stubs.ts",
     "test:stub-gate": "tsx scripts/test-stub-gate.ts",
     "test:anti-bot-fetch": "tsx scripts/test-anti-bot-fetch.ts",
