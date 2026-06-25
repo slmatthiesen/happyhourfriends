@@ -11,7 +11,9 @@ import {
   assessRealness,
   windowShouldBeActive,
   mealSpecialEvidence,
+  qualifiesForAllDayConsistencyRescue,
   MIN_CONFIDENCE,
+  type RealnessReason,
 } from "@/lib/places/realnessGate";
 
 let passed = 0;
@@ -567,6 +569,35 @@ check("a normal non-crossing window 16:00→18:00 is NOT a duration problem", ()
 check("an exactly-6h crossing window (22:00→04:00) is allowed (boundary)", () => {
   const r = dur("22:00", "04:00");
   assert.equal(r.reasons.includes("implausible_window_duration"), false);
+});
+
+// ── all-day consistency rescue (Agua Salada: Tue special hidden, Mon shown) ──────
+// The hidden Tuesday all-day special (time_known=false → no_time_window) is rescued
+// because the venue already shows an all-day deal window. No time is fabricated.
+const tueSpecial = { reasons: ["no_time_window"] as RealnessReason[], allDay: true, offeringsCount: 3, dayCount: 1 };
+check("rescues a no_time_window all-day special when the venue shows an all-day-deal sibling", () => {
+  assert.equal(qualifiesForAllDayConsistencyRescue({ ...tueSpecial, venueHasActiveAllDayDeal: true }), true);
+});
+check("does NOT rescue when the venue has no live all-day-deal sibling (nothing to be consistent with)", () => {
+  assert.equal(qualifiesForAllDayConsistencyRescue({ ...tueSpecial, venueHasActiveAllDayDeal: false }), false);
+});
+check("does NOT rescue an offering-less all-day window (no deal to recover)", () => {
+  assert.equal(qualifiesForAllDayConsistencyRescue({ ...tueSpecial, offeringsCount: 0, venueHasActiveAllDayDeal: true }), false);
+});
+check("does NOT rescue a broad all-day window (≥3 days reads as regular pricing)", () => {
+  assert.equal(qualifiesForAllDayConsistencyRescue({ ...tueSpecial, dayCount: 4, venueHasActiveAllDayDeal: true }), false);
+});
+check("does NOT rescue when another suspicion also fired (meal_special stands)", () => {
+  assert.equal(
+    qualifiesForAllDayConsistencyRescue({ ...tueSpecial, reasons: ["no_time_window", "meal_special"] as RealnessReason[], venueHasActiveAllDayDeal: true }),
+    false,
+  );
+});
+check("does NOT rescue a window that wasn't hidden for no_time_window at all", () => {
+  assert.equal(
+    qualifiesForAllDayConsistencyRescue({ ...tueSpecial, reasons: ["low_confidence"] as RealnessReason[], venueHasActiveAllDayDeal: true }),
+    false,
+  );
 });
 
 console.log(`\n${passed} checks passed.`);
