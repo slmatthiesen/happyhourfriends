@@ -14,7 +14,7 @@
  * --apply to commit. Neither direction ever truncates or deletes.
  */
 import postgres from "postgres";
-import { additivePush, upsertPull, publishVenue, pullQueuedSubmissions, type SyncResult } from "@/lib/sync/dbSync";
+import { additivePush, upsertPull, publishVenue, pullQueuedSubmissions, pushDeletions, type SyncResult } from "@/lib/sync/dbSync";
 
 function connect(url: string) {
   // Low ceiling: this is a short batch job, not the app pool.
@@ -35,9 +35,9 @@ async function main() {
   const apply = flags.includes("--apply");
   const dryRun = !apply;
 
-  const VALID = ["push", "pull", "publish-venue", "pull-queue"];
+  const VALID = ["push", "pull", "publish-venue", "pull-queue", "delete-venues"];
   if (!VALID.includes(direction)) {
-    console.error("Usage: db-sync.ts <push|pull|publish-venue|pull-queue> [--apply] [--venue <id>] [--submission <id>]");
+    console.error("Usage: db-sync.ts <push|pull|publish-venue|pull-queue|delete-venues> [--apply] [--venue <id>] [--submission <id>]");
     process.exit(1);
   }
 
@@ -60,6 +60,8 @@ async function main() {
       printResults("prod → local (upsert pull)", await upsertPull(prod, local, { dryRun }), dryRun);
     } else if (direction === "pull-queue") {
       printResults("prod → local (queued_admin submissions)", await pullQueuedSubmissions(prod, local, { dryRun }), dryRun);
+    } else if (direction === "delete-venues") {
+      printResults("local → prod (propagate soft-deletions)", await pushDeletions(local, prod, { dryRun }), dryRun);
     } else {
       const venueId = flagValue("--venue");
       if (!venueId) throw new Error("publish-venue requires --venue <id>");
