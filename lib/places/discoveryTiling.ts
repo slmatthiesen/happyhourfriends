@@ -152,8 +152,10 @@ export interface CollectAdaptiveRegionsOptions<R, T extends TilePlace> {
   maxCalls?: number;
   /** Called when a saturated region cannot subdivide (genuine dense hotspot at the floor). */
   onFloorSaturated?: (region: R) => void;
-  /** Called when maxCalls halts the run, with the number of queued regions left unvisited. */
-  onCapReached?: (remaining: number) => void;
+  /** Called when maxCalls halts the run, with the number of queued regions left unvisited AND
+   *  the regions themselves — so a caller can PERSIST them and resume the sweep later, paying
+   *  only for the dense cores it never reached (see seed-discover recall resume). */
+  onCapReached?: (remaining: number, unvisited: R[]) => void;
 }
 
 /**
@@ -170,7 +172,7 @@ export async function collectAdaptiveRegions<R, T extends TilePlace>(
 
   while (queue.length > 0) {
     if (calls >= maxCalls) {
-      opts.onCapReached?.(queue.length);
+      opts.onCapReached?.(queue.length, queue.slice());
       break;
     }
     const region = queue.shift() as R;
