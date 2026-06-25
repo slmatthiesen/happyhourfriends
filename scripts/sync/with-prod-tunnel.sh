@@ -54,7 +54,7 @@ run_sync() {
   # (city pages 1h, landing counts 1 day). After a real push (push + --apply, not a dry
   # run), tell prod to purge its public cache so the data shows immediately. Best-effort:
   # the data is already written, so a refresh failure must not fail the sync.
-  if [ "$direction" = push ] && printf '%s\n' "$@" | grep -qxF -- --apply; then
+  if { [ "$direction" = push ] || [ "$direction" = delete-venues ]; } && printf '%s\n' "$@" | grep -qxF -- --apply; then
     refresh_prod_cache "$SSH_USER" "$PROD_IP" "$APP_DIR" || \
       echo "⚠ Cache refresh failed — data IS written; pages refresh within the hour, or re-run the refresh."
   fi

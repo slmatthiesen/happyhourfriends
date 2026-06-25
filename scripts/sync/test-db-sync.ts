@@ -14,7 +14,7 @@ import "dotenv/config";
 import { execSync } from "node:child_process";
 import assert from "node:assert/strict";
 import postgres from "postgres";
-import { additivePush, upsertPull, publishVenue, pullQueuedSubmissions } from "@/lib/sync/dbSync";
+import { additivePush, upsertPull, publishVenue, pullQueuedSubmissions, pushDeletions } from "@/lib/sync/dbSync";
 
 const BASE = process.env.DATABASE_URL;
 if (!BASE) throw new Error("DATABASE_URL must be set (local docker DB)");
@@ -257,7 +257,39 @@ async function main() {
       "pullQueuedSubmissions must NOT bring down non-queued_admin rows",
     );
 
-    console.log("✅ db-sync integration test passed (push additive + no-clobber, pull upsert + staged-safe).");
+    // ── 6. pushDeletions: a venue soft-deleted LOCALLY is soft-deleted on prod ─────
+    // Soft-delete vShared locally (matched to prod by google_place_id gp_shared). vNew is
+    // also live on both and NOT deleted locally — it must be left alone.
+    await local`UPDATE venues SET deleted_at = now() WHERE id = ${U.vShared}`;
+    // DRY-RUN writes nothing.
+    await pushDeletions(local, prod, { dryRun: true });
+    assert.equal(
+      Number((await prod`SELECT count(*)::int n FROM venues WHERE id = ${U.vShared} AND deleted_at IS NOT NULL`)[0].n),
+      0,
+      "dry-run delete must not change prod",
+    );
+    // APPLY: prod's matching venue is soft-deleted + its happy hours deactivated.
+    await pushDeletions(local, prod, { dryRun: false });
+    assert.equal(
+      Number((await prod`SELECT count(*)::int n FROM venues WHERE id = ${U.vShared} AND deleted_at IS NOT NULL`)[0].n),
+      1,
+      "pushDeletions must soft-delete the prod venue matched by google_place_id",
+    );
+    assert.equal(
+      Number((await prod`SELECT count(*)::int n FROM happy_hours WHERE venue_id = ${U.vShared} AND active = true`)[0].n),
+      0,
+      "pushDeletions must deactivate the deleted venue's happy hours",
+    );
+    assert.equal(
+      Number((await prod`SELECT count(*)::int n FROM venues WHERE id = ${U.vNew} AND deleted_at IS NULL`)[0].n),
+      1,
+      "pushDeletions must NOT touch a venue that was not deleted locally",
+    );
+    // Idempotent: a second run changes nothing more (already-deleted prod rows are skipped).
+    const second = await pushDeletions(local, prod, { dryRun: false });
+    assert.equal(second.find((r) => r.table === "venues")?.changed, 0, "pushDeletions is idempotent");
+
+    console.log("✅ db-sync integration test passed (push additive + no-clobber, pull upsert + staged-safe, delete-propagation).");
   } finally {
     await local.end({ timeout: 5 });
     await prod.end({ timeout: 5 });
