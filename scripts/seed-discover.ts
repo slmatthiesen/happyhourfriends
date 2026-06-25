@@ -259,6 +259,13 @@ const EXCLUDED_PRIMARY_TYPES = [
   "thai_restaurant",
 ] as const;
 
+// Set form for the shared gate. The Nearby sweep passes EXCLUDED_PRIMARY_TYPES to Google as
+// `excludedPrimaryTypes` (server-side), but the HH-recall Text Search path does NOT send it — so
+// without this gate-side check, recall surfaced thai/grocery/liquor/ice-cream places the Nearby
+// path drops (SLO 2026-06-24: 6 thai + stores). Apply the SAME primary-type exclusion to every
+// collected place so recall and Nearby agree on what's a candidate.
+const EXCLUDED_PRIMARY_TYPES_SET = new Set<string>(EXCLUDED_PRIMARY_TYPES);
+
 /** Grid of search-circle centers covering ~coverage around the city center. */
 function buildTiles(
   centerLat: number,
@@ -980,7 +987,10 @@ async function main() {
         recordDrop("format", place);
         continue;
       }
-      if (isExcludedByPlaceType(place.primaryType, place.types)) {
+      if (
+        isExcludedByPlaceType(place.primaryType, place.types) ||
+        (place.primaryType != null && EXCLUDED_PRIMARY_TYPES_SET.has(place.primaryType))
+      ) {
         typesSkipped++;
         recordDrop("place-type", place);
         continue;
