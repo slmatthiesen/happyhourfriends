@@ -20,10 +20,12 @@ const sig = (s: Partial<AlcoholTypeSignal>): AlcoholTypeSignal => ({
   servesAlcohol: null, name: null, primaryType: null, types: null, ...s,
 });
 
-check("ZERO_HH_TYPES is exactly korean/vietnamese/chinese (taco/hawaiian deliberately excluded)", () => {
-  assert.deepEqual([...ZERO_HH_TYPES].sort(), ["chinese_restaurant", "korean_restaurant", "vietnamese_restaurant"]);
+check("ZERO_HH_TYPES = korean/vietnamese/chinese cuisines + family_restaurant format (taco/hawaiian excluded)", () => {
+  assert.deepEqual([...ZERO_HH_TYPES].sort(), ["chinese_restaurant", "family_restaurant", "korean_restaurant", "vietnamese_restaurant"]);
   assert.ok(!ZERO_HH_TYPES.has("mexican_restaurant"));
   assert.ok(!ZERO_HH_TYPES.has("hawaiian_restaurant"));
+  // family_restaurant is the operator hard-rule never-HH FORMAT (2026-06-24) — deleted as empty stub.
+  assert.ok(ZERO_HH_TYPES.has("family_restaurant"));
 });
 
 check("alcohol gate: explicit serves_alcohol=false with no override fails", () => {

@@ -40,9 +40,19 @@ async function main() {
   const apply = args.includes("--apply");
   const cityArgs = args.includes("--city") ? requireCityArgs() : null;
 
+  // --types <a,b> restricts the delete to a subset of ZERO_HH_TYPES (e.g. just the
+  // operator's new family_restaurant hard-rule) so a scoped run never sweeps the other
+  // empty-cuisine stubs the operator hasn't decided on. Omitted = the full ZERO_HH_TYPES set.
+  const typesIdx = args.indexOf("--types");
+  const typeFilter = typesIdx >= 0 ? new Set((args[typesIdx + 1] ?? "").split(",").map((s) => s.trim()).filter(Boolean)) : null;
+
   const sql = postgres(dbUrl, { max: 1 });
   try {
-    const zeroTypes = [...ZERO_HH_TYPES];
+    const zeroTypes = [...ZERO_HH_TYPES].filter((t) => !typeFilter || typeFilter.has(t));
+    if (zeroTypes.length === 0) {
+      console.error(`--types matched none of ZERO_HH_TYPES (${[...ZERO_HH_TYPES].join(", ")}).`);
+      process.exit(1);
+    }
     // Non-deleted venues whose discovery primary_type is a zero-HH cuisine and that have NO live
     // happy hour. Includes status='no_happy_hour' rows (Build A may already have hidden them) and
     // 'active' — both are deleted here. The primary_type comes from the candidate.
