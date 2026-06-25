@@ -18,7 +18,7 @@
  *   GOOGLE_PLACES_API_KEY  Google Cloud Places API (New) key
  */
 import "dotenv/config";
-import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync, mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import postgres from "postgres";
 import { requireCityArgs } from "@/lib/cities/resolveCity";
@@ -65,6 +65,13 @@ interface DiscoverArgs {
   estimate: boolean;
   /** Explicit --max-calls override for the recall cap; undefined → use RECALL_MAX_CALLS env/default. */
   maxCalls: number | undefined;
+  /** --resume-recall: seed the recall sweep from the dense regions a PRIOR capped run left
+   *  unvisited (persisted in .recall-state/<city>.json) instead of the whole city — so a deeper
+   *  pass pays only for the cores it never reached. */
+  resumeRecall: boolean;
+  /** --bbox minLng,minLat,maxLng,maxLat: restrict the recall sweep to one rectangle (e.g. a
+   *  downtown district) for a focused deep dive. Overrides the whole-city recall rectangle. */
+  bbox: [number, number, number, number] | undefined;
 }
 
 function parseArgs(): DiscoverArgs {
@@ -72,9 +79,10 @@ function parseArgs(): DiscoverArgs {
   // Optional CLI override for the HH-recall Text Search cap (NOT the Nearby sweep, which keeps
   // its own maxTiles guard). When unset, the recall uses RECALL_MAX_CALLS (env, default 30).
   let maxCalls: number | undefined;
+  let bbox: [number, number, number, number] | undefined;
   const FLAGS = new Set([
     "--curated", "--fresh", "--debug-drops",
-    "--hh-recall", "--no-hh-recall", "--hh-recall-only", "--estimate",
+    "--hh-recall", "--no-hh-recall", "--hh-recall-only", "--estimate", "--resume-recall",
   ]);
   // Reject stray args. `seed:discover tucson` (no --city) silently ran Tacoma before — a
   // costly footgun (wrong city / wasted Places quota). The city MUST be --city + --state flags.
@@ -82,11 +90,19 @@ function parseArgs(): DiscoverArgs {
     const tok = argv[i];
     if (tok === "--city" || tok === "--state") { i++; continue; } // these consume their value
     if (tok === "--max-calls") { maxCalls = Number(argv[++i]); continue; }
+    if (tok === "--bbox") {
+      const parts = (argv[++i] ?? "").split(",").map(Number);
+      if (parts.length !== 4 || parts.some((n) => !Number.isFinite(n))) {
+        throw new Error("--bbox needs 4 comma-separated numbers: minLng,minLat,maxLng,maxLat");
+      }
+      bbox = parts as [number, number, number, number];
+      continue;
+    }
     if (FLAGS.has(tok)) continue;
     throw new Error(
       `Unexpected argument "${tok}". Pass the city as flags:\n` +
         `  npm run seed:discover -- --city <slug> --state <code>   (e.g. --city tucson --state az)\n` +
-        `  HH recall runs by DEFAULT. Optional: --no-hh-recall | --hh-recall-only | --estimate | --max-calls <n>`,
+        `  HH recall runs by DEFAULT. Optional: --no-hh-recall | --hh-recall-only | --estimate | --max-calls <n> | --resume-recall | --bbox <minLng,minLat,maxLng,maxLat>`,
     );
   }
   return {
@@ -106,7 +122,47 @@ function parseArgs(): DiscoverArgs {
     // --estimate: print the worst-case call count + cost and exit. Makes ZERO Google calls.
     estimate: argv.includes("--estimate"),
     maxCalls: maxCalls !== undefined && Number.isFinite(maxCalls) && maxCalls > 0 ? maxCalls : undefined,
+    resumeRecall: argv.includes("--resume-recall"),
+    bbox,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Recall resume state — the dense regions a capped recall run left unvisited, so a deeper
+// pass (re-run with --resume-recall) sweeps ONLY those cores instead of re-paying for the
+// whole city. Persisted per city under .recall-state/. Cleared when a run finishes uncapped.
+// ---------------------------------------------------------------------------
+
+interface RecallState {
+  city: string;
+  savedAt: string;
+  /** Regions queued-but-unvisited when the call cap halted the run. */
+  unvisited: LatLngRect[];
+}
+
+const RECALL_STATE_DIR = join(process.cwd(), ".recall-state");
+const recallStatePath = (citySlug: string) => join(RECALL_STATE_DIR, `${citySlug}.json`);
+
+function loadRecallState(citySlug: string): RecallState | null {
+  try {
+    const p = recallStatePath(citySlug);
+    if (!existsSync(p)) return null;
+    return JSON.parse(readFileSync(p, "utf8")) as RecallState;
+  } catch {
+    return null;
+  }
+}
+
+function saveRecallState(citySlug: string, unvisited: LatLngRect[], savedAt: string): void {
+  mkdirSync(RECALL_STATE_DIR, { recursive: true });
+  writeFileSync(recallStatePath(citySlug), JSON.stringify({ city: citySlug, savedAt, unvisited }, null, 2));
+}
+
+function clearRecallState(citySlug: string): void {
+  try {
+    const p = recallStatePath(citySlug);
+    if (existsSync(p)) rmSync(p);
+  } catch { /* best effort */ }
 }
 
 // ---------------------------------------------------------------------------
@@ -785,8 +841,27 @@ async function main() {
     }
     // Recall is adaptive: seed with the whole recall rectangle; saturated regions self-subdivide
     // into dense cores (downtown). `splitRectQuadrants` is now the engine's splitRegion, not a
-    // one-shot opt-in.
-    const recallSeedRegions: LatLngRect[] = [recallRect];
+    // one-shot opt-in. Two overrides change WHERE we seed (not how it subdivides):
+    //   --bbox  → one explicit rectangle (focused deep-dive on a district)
+    //   --resume-recall → the dense regions a prior capped run left unvisited (deeper pass that
+    //                     pays only for the cores it never reached)
+    let recallSeedRegions: LatLngRect[] = [recallRect];
+    let recallSeedSource = "whole city";
+    if (args.bbox) {
+      const [minLng, minLat, maxLng, maxLat] = args.bbox;
+      recallSeedRegions = [{ low: { latitude: minLat, longitude: minLng }, high: { latitude: maxLat, longitude: maxLng } }];
+      recallSeedSource = "--bbox rectangle";
+    } else if (args.resumeRecall) {
+      const saved = loadRecallState(citySlug);
+      if (!saved || saved.unvisited.length === 0) {
+        throw new Error(
+          `--resume-recall: no saved unvisited regions for '${citySlug}'. Run a normal recall first ` +
+            `(it saves the dense cores it couldn't reach within --max-calls).`,
+        );
+      }
+      recallSeedRegions = saved.unvisited;
+      recallSeedSource = `${saved.unvisited.length} unvisited region(s) from ${saved.savedAt}`;
+    }
 
     // ---- Nearby seed tiles (free to COMPUTE; only FETCHED if the Nearby sweep runs) ----
     let tiles: { lat: number; lng: number }[];
@@ -911,6 +986,8 @@ async function main() {
       const before = collected.size;
       let floorSaturated = 0;
       let capRemaining = 0;
+      let unvisitedRegions: LatLngRect[] = [];
+      console.log(`  HH recall seed: ${recallSeedSource}.`);
       const prune = useBoundary
         ? async (region: LatLngRect): Promise<boolean> => {
             const [{ within }] = await sql<{ within: boolean }[]>`
@@ -934,13 +1011,23 @@ async function main() {
         canSubdivide: (region) => canSubdivideRect(region),
         maxCalls: recallMaxCalls,
         onFloorSaturated: () => { floorSaturated++; },
-        onCapReached: (remaining) => { capRemaining = remaining; },
+        onCapReached: (remaining, unvisited) => { capRemaining = remaining; unvisitedRegions = unvisited; },
       });
       const added = collected.size - before;
+      // Persist the dense cores this run couldn't reach so `--resume-recall` can drill them next,
+      // paying only for what's left. A run that finished UNCAPPED clears the state (city is done).
+      // --bbox runs don't touch the city's whole-sweep state (they target an ad-hoc rectangle).
+      if (!args.bbox) {
+        if (unvisitedRegions.length > 0) saveRecallState(citySlug, unvisitedRegions, new Date().toISOString());
+        else clearRecallState(citySlug);
+      }
       console.log(
         `  HH recall (adaptive): ${calls} Text Search call(s) → ${added} unique place(s) added` +
           (floorSaturated > 0 ? `; ${floorSaturated} floor region(s) still saturated (dense hotspot — some may remain)` : ``) +
-          (capRemaining > 0 ? `; ⚠ hit the ${recallMaxCalls}-call cap with ${capRemaining} region(s) unvisited (raise --max-calls / RECALL_MAX_CALLS to go deeper)` : ``),
+          (capRemaining > 0
+            ? `; ⚠ hit the ${recallMaxCalls}-call cap with ${capRemaining} region(s) unvisited` +
+              ` → saved to .recall-state/${citySlug}.json; re-run with --resume-recall to drill them (or raise --max-calls)`
+            : `; ✓ swept to completion (no regions left unvisited)`),
       );
     }
 

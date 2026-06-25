@@ -61,6 +61,21 @@ async function main() {
     assert.ok(capRemaining > 0, "should report queued regions left unvisited");
   });
 
+  await check("onCapReached hands back the ACTUAL unvisited regions (for resume)", async () => {
+    let unvisited: Reg[] = [];
+    let remaining = -1;
+    await collectAdaptiveRegions<Reg, { id?: string }>({
+      seedRegions: [{ lo: 0, hi: 8 }],
+      fetchRegion: async () => ({ places: [], saturated: true, calls: 1 }),
+      splitRegion, canSubdivide,
+      maxCalls: 3,
+      onCapReached: (r, regions) => { remaining = r; unvisited = regions; },
+    });
+    // The count and the region list agree, and the list holds real regions to resume from.
+    assert.equal(unvisited.length, remaining);
+    assert.ok(unvisited.length > 0 && typeof unvisited[0].lo === "number", "unvisited regions are resumable");
+  });
+
   await check("de-dupes places across regions by id", async () => {
     const { collected } = await collectAdaptiveRegions<Reg, { id?: string }>({
       seedRegions: [{ lo: 0, hi: 2 }],
