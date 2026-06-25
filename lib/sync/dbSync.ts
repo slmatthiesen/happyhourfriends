@@ -407,6 +407,54 @@ export async function pullQueuedSubmissions(
   return results;
 }
 
+/**
+ * local → prod, propagate SOFT-DELETIONS only — the deletion counterpart to additivePush
+ * (which only ever INSERTs, so a stub you removed locally would otherwise live on forever on
+ * prod). For every venue soft-deleted locally (deleted_at set) whose google_place_id still
+ * maps to a LIVE prod venue, soft-delete it on prod exactly as the local cleanup does:
+ * venues.deleted_at + deactivate its happy_hours. Matched by google_place_id (the cross-DB
+ * dedup key — local/prod ids can differ for the same place); idempotent (a venue already
+ * deleted on prod is skipped via `deleted_at IS NULL`); reversible (soft-delete, never a hard
+ * DELETE). Returns the per-table changed counts. User data is untouched — only venues YOU
+ * deleted locally are affected, and only their own happy_hours are deactivated.
+ */
+export async function pushDeletions(
+  local: Sql,
+  prod: Sql,
+  opts: { dryRun?: boolean } = {},
+): Promise<SyncResult[]> {
+  const results: SyncResult[] = [];
+  const deletedLocal = await local<{ google_place_id: string }[]>`
+    SELECT google_place_id FROM venues
+    WHERE deleted_at IS NOT NULL AND google_place_id IS NOT NULL`;
+  const placeIds = deletedLocal.map((v) => v.google_place_id);
+
+  await prod.begin(async (tx) => {
+    let venuesChanged = 0;
+    let hhChanged = 0;
+    if (placeIds.length > 0) {
+      const venueRows = await tx<{ id: string }[]>`
+        UPDATE venues SET deleted_at = now(), updated_at = now()
+        WHERE google_place_id = ANY(${placeIds}) AND deleted_at IS NULL
+        RETURNING id`;
+      venuesChanged = venueRows.length;
+      const venueIds = venueRows.map((r) => r.id);
+      if (venueIds.length > 0) {
+        const hhRows = await tx`
+          UPDATE happy_hours SET active = false, updated_at = now()
+          WHERE venue_id = ANY(${venueIds}) AND active = true AND deleted_at IS NULL
+          RETURNING id`;
+        hhChanged = hhRows.length;
+      }
+    }
+    results.push({ table: "venues", changed: venuesChanged });
+    results.push({ table: "happy_hours", changed: hhChanged });
+    if (opts.dryRun) throw new RollbackSignal();
+  }).catch(swallowRollback);
+
+  return results;
+}
+
 // dryRun is implemented by throwing inside the transaction so postgres.js rolls back.
 class RollbackSignal extends Error {}
 function swallowRollback(err: unknown) {
