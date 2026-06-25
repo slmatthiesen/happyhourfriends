@@ -79,6 +79,37 @@ export function assessRealness(input: RealnessInput): RealnessVerdict {
   return { suspect: reasons.length > 0, reasons };
 }
 
+/**
+ * Consistency rescue for all-day daily specials. The extractor assigns `time_known`
+ * INCONSISTENTLY to the same venue's per-day all-day specials — Agua Salada's Monday
+ * "Street Tacos, Tequila" is flagged time-known and shown, while its Tuesday twin is
+ * coerced (time_known=false) and hidden as `no_time_window`. When a window is hidden
+ * ONLY for the missing clock time, is an all-day deal on a narrow day-set, AND the venue
+ * ALREADY shows an all-day deal window, treat it the same — un-hiding the dropped siblings
+ * to match the venue's own accepted data.
+ *
+ * Safety: fabricates NO time (the window stays all-day, displayed as such); never overrides
+ * a real suspicion (meal_special / all_day_many_days / op-hours stand — those keep their own
+ * reasons); and never promotes a window past the bar the venue's existing live windows set
+ * (it only fires when an all-day deal is already live for that venue). The sibling signal is
+ * supplied by the caller, which has the venue's full window set.
+ */
+export function qualifiesForAllDayConsistencyRescue(input: {
+  /** assessRealness().reasons for THIS window. */
+  reasons: RealnessReason[];
+  allDay: boolean;
+  offeringsCount: number;
+  dayCount: number;
+  /** The venue already shows an all-day deal window (active, all-day, ≥1 offering, <3 days). */
+  venueHasActiveAllDayDeal: boolean;
+}): boolean {
+  if (!input.venueHasActiveAllDayDeal) return false;
+  if (!input.allDay || input.offeringsCount === 0) return false;
+  if (input.dayCount >= 3) return false; // broad all-day reads as regular pricing, not a special
+  // The missing clock time must be the ONLY thing holding it back — any other suspicion stands.
+  return input.reasons.length > 0 && input.reasons.every((r) => r === "no_time_window");
+}
+
 // ── meal_special — meal services / events stored as happy hours ─────────────────
 //
 // Born from the 2026-06-12 all-city price scan: ~20 LIVE windows were lunch menus,
