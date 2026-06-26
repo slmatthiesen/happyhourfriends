@@ -528,7 +528,7 @@ async function fetchRecallRegion(
   apiKey: string,
   region: LatLngRect,
   into: Map<string, PlaceResult>,
-  opts: { prune?: (region: LatLngRect) => Promise<boolean> },
+  opts: { prune?: (region: LatLngRect) => Promise<boolean>; seen?: Set<string> },
 ): Promise<{ places: PlaceResult[]; saturated: boolean; calls: number }> {
   if (opts.prune && (await opts.prune(region))) {
     return { places: [], saturated: false, calls: 0 };
@@ -549,6 +549,7 @@ async function fetchRecallRegion(
         if (!p.id) continue;
         if (!into.has(p.id)) fresh.push(p);
         into.set(p.id, p);
+        opts.seen?.add(p.id); // channel attribution: every place recall surfaces (incl. Nearby overlap)
       }
       pageToken = data.nextPageToken;
       page++;
@@ -953,6 +954,11 @@ async function main() {
 
     // ---- Collect places into one pool → the shared gate ladder + boundary + upsert ----
     const collected = new Map<string, PlaceResult>();
+    // Channel attribution (cost instrumentation): record which Google channel surfaced each
+    // place id. A place can be in BOTH (Nearby found it AND it ranks for "happy hour"); we keep
+    // both so the analysis can isolate the live HH reachable ONLY via the expensive Nearby sweep.
+    const seenViaNearby = new Set<string>();
+    const seenViaHhRecall = new Set<string>();
 
     if (!args.hhRecallOnly) {
       // Adaptive collection: each seed tile is queried by NEAREST-20; a saturated tile (20)
@@ -991,7 +997,7 @@ async function main() {
         },
         onFloorSaturated: () => { floorSaturated++; },
       });
-      for (const [k, v] of nearby) collected.set(k, v);
+      for (const [k, v] of nearby) { collected.set(k, v); seenViaNearby.add(k); }
       console.log(
         `  Adaptive tiling: ${tilesFetched} tile fetches → ${nearby.size} unique places` +
           (tilesPruned > 0 ? `; ${tilesPruned} out-of-boundary child tile(s) pruned (no call)` : ``) +
@@ -1023,7 +1029,7 @@ async function main() {
         seedRegions: recallSeedRegions,
         // fetchRecallRegion writes into the shared `collected` pool (source of truth, deduped with
         // the Nearby results); the engine's own returned map is ignored here — we count via `collected`.
-        fetchRegion: (region) => fetchRecallRegion(placesKey, region, collected, { prune }),
+        fetchRegion: (region) => fetchRecallRegion(placesKey, region, collected, { prune, seen: seenViaHhRecall }),
         splitRegion: splitRectQuadrants,
         canSubdivide: (region) => canSubdivideRect(region),
         maxCalls: recallMaxCalls,
@@ -1162,12 +1168,14 @@ async function main() {
         const hoursJson = parseRegularOpeningHours(place.regularOpeningHours);
         const phone = place.nationalPhoneNumber ?? null;
         const googleNeighborhood = pickNeighborhood(place.addressComponents, city.name);
+        const viaNearby = seenViaNearby.has(place.id);
+        const viaHhRecall = seenViaHhRecall.has(place.id);
         await sql`
           INSERT INTO seed_candidates
             (city_id, name, google_place_id, address, lat, lng, source_url,
              primary_type, types, website_url, rating, user_rating_count,
              price_level, business_status, serves_alcohol, hours_json, phone,
-             google_neighborhood)
+             google_neighborhood, seen_via_nearby, seen_via_hh_recall)
           VALUES
             (${city.id}, ${name}, ${place.id}, ${address},
              ${pLat != null ? String(pLat) : null},
@@ -1176,8 +1184,12 @@ async function main() {
              ${place.rating ?? null}, ${place.userRatingCount ?? null},
              ${priceLevel}, ${place.businessStatus ?? null},
              ${servesAlcohol}, ${sql.json((hoursJson ?? null) as never)}, ${phone},
-             ${googleNeighborhood})
+             ${googleNeighborhood}, ${viaNearby}, ${viaHhRecall})
           ON CONFLICT (google_place_id) DO UPDATE SET
+            -- OR-merge channel flags so a later --resume-recall pass adds recall reach
+            -- without clearing the nearby flag from the original sweep.
+            seen_via_nearby    = seed_candidates.seen_via_nearby OR EXCLUDED.seen_via_nearby,
+            seen_via_hh_recall = seed_candidates.seen_via_hh_recall OR EXCLUDED.seen_via_hh_recall,
             name             = EXCLUDED.name,
             address          = EXCLUDED.address,
             lat              = EXCLUDED.lat,
