@@ -245,6 +245,29 @@ const CITIES: CitySeed[] = [
     },
   },
   {
+    // Sacramento, CA — NorCal capital, first inland-valley city (de-risk test before
+    // Seattle). ~260 km², ~525k pop; elongated N–S downtown grid + midtown density.
+    // Boundary mode via data/sacramento-boundary.geojson (OSM relation 6232940) drives
+    // discovery/gate; the boundary + locality gate drop the unincorporated ring
+    // (Arden-Arcade, Carmichael, North Highlands) and neighbor cities (West Sacramento,
+    // Elk Grove, Rancho Cordova, Citrus Heights). centerLat/Lng = bbox center of the
+    // boundary file (fallback map anchor only; the boundary drives real tiling/gate).
+    slug: "sacramento",
+    name: "Sacramento",
+    state: "CA",
+    country: "US",
+    timezone: "America/Los_Angeles",
+    currency: "USD",
+    centerLat: 38.56154,
+    centerLng: -121.46143,
+    seedConfig: {
+      radiusKm: 15, // fallback only; data/sacramento-boundary.geojson drives real tiling/gate
+      cellMeters: 3000,
+      serviceLocalities: ["Sacramento"],
+      serviceBufferMeters: 500,
+    },
+  },
+  {
     // San Luis Obispo, CA — completes the central-coast cluster next to Five Cities
     // (compact, ~34 km², ~47k pop + Cal Poly; dense Higuera St downtown). Boundary mode
     // via data/san-luis-obispo-boundary.geojson (OSM relation 112148) drives discovery;
