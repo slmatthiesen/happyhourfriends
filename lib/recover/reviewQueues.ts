@@ -58,6 +58,10 @@ export interface ReviewWindowEntry {
   venueId: string;
   city: string;
   venue: string;
+  /** Internal listing route parts → venuePath() for the "view live listing" link. */
+  stateSlug: string;
+  citySlug: string;
+  venueSlug: string;
   websiteUrl: string | null;
   daysOfWeek: number[];
   startTime: string | null;
@@ -207,6 +211,9 @@ export async function mealSpecialQueue(): Promise<ReviewWindowEntry[]> {
     venue_id: string;
     city: string;
     venue: string;
+    state: string;
+    city_slug: string;
+    venue_slug: string;
     website_url: string | null;
     days_of_week: number[];
     start_time: string | null;
@@ -218,6 +225,7 @@ export async function mealSpecialQueue(): Promise<ReviewWindowEntry[]> {
     offerings: ReviewOffering[];
   }>(sql`
     SELECT hh.id AS happy_hour_id, v.id AS venue_id, c.name AS city, v.name AS venue,
+           v.slug AS venue_slug, c.slug AS city_slug, c.state AS state,
            v.website_url, hh.days_of_week, hh.start_time, hh.end_time, hh.all_day,
            hh.source_url, hh.notes, hh.created_at,
            coalesce(
@@ -237,7 +245,7 @@ export async function mealSpecialQueue(): Promise<ReviewWindowEntry[]> {
         WHERE al.table_name = 'happy_hours' AND al.row_id = hh.id
           AND al.reason = ${REVIEW_KEEP_REASONS.meal}
       )
-    GROUP BY hh.id, v.id, c.name, v.name, v.website_url
+    GROUP BY hh.id, v.id, c.name, v.name, v.slug, c.slug, c.state, v.website_url
   `);
 
   const entries: ReviewWindowEntry[] = [];
@@ -258,6 +266,9 @@ export async function mealSpecialQueue(): Promise<ReviewWindowEntry[]> {
       venueId: r.venue_id,
       city: r.city,
       venue: r.venue,
+      stateSlug: r.state,
+      citySlug: r.city_slug,
+      venueSlug: r.venue_slug,
       websiteUrl: r.website_url,
       daysOfWeek: r.days_of_week,
       startTime: r.start_time,
@@ -292,6 +303,9 @@ export async function hiddenWindowQueue(): Promise<ReviewWindowEntry[]> {
     venue_id: string;
     city: string;
     venue: string;
+    state: string;
+    city_slug: string;
+    venue_slug: string;
     website_url: string | null;
     days_of_week: number[];
     start_time: string | null;
@@ -305,6 +319,7 @@ export async function hiddenWindowQueue(): Promise<ReviewWindowEntry[]> {
     offerings: ReviewOffering[];
   }>(sql`
     SELECT hh.id AS happy_hour_id, v.id AS venue_id, c.name AS city, v.name AS venue,
+           v.slug AS venue_slug, c.slug AS city_slug, c.state AS state,
            v.website_url, v.hours_json, hh.days_of_week, hh.start_time, hh.end_time,
            hh.all_day, hh.time_known, hh.source_url, hh.notes, hh.created_at,
            coalesce(
@@ -329,7 +344,7 @@ export async function hiddenWindowQueue(): Promise<ReviewWindowEntry[]> {
         WHERE al.table_name = 'happy_hours' AND al.row_id = hh.id
           AND al.reason = ${REVIEW_KEEP_REASONS.hidden}
       )
-    GROUP BY hh.id, v.id, c.name, v.name, v.website_url, v.hours_json
+    GROUP BY hh.id, v.id, c.name, v.name, v.slug, c.slug, c.state, v.website_url, v.hours_json
     ORDER BY c.name, v.name, hh.start_time NULLS LAST
   `);
 
@@ -351,6 +366,9 @@ export async function hiddenWindowQueue(): Promise<ReviewWindowEntry[]> {
       venueId: r.venue_id,
       city: r.city,
       venue: r.venue,
+      stateSlug: r.state,
+      citySlug: r.city_slug,
+      venueSlug: r.venue_slug,
       websiteUrl: r.website_url,
       daysOfWeek: r.days_of_week,
       startTime: r.start_time,
