@@ -20,6 +20,11 @@ import {
  * /admin (auth-gated), _next assets, and crawlable infra (sitemap/robots/llms/icons).
  */
 export function proxy(request: NextRequest) {
+  // Never throttle local development. A single dev page load fans out into many RSC /
+  // prefetch sub-requests, all from 127.0.0.1, which blows the per-IP budget and self-429s
+  // the operator out of their own site. This limiter is a prod origin backstop only.
+  if (process.env.NODE_ENV !== "production") return NextResponse.next();
+
   // Never throttle legit search/social crawlers — SEO and link unfurls depend on it.
   if (isAllowedCrawler(request.headers.get("user-agent"))) {
     return NextResponse.next();
@@ -27,8 +32,9 @@ export function proxy(request: NextRequest) {
 
   const ip = clientIpFromHeaders(request.headers);
   // Fail open when we can't identify the client (no proxy headers) — better to serve a
-  // page than to block a real user over a header quirk.
-  if (!ip) return NextResponse.next();
+  // page than to block a real user over a header quirk. Loopback (same-box request) is
+  // never a scraper, so exempt it even in production.
+  if (!ip || ip === "127.0.0.1" || ip === "::1") return NextResponse.next();
 
   const { limited, retryAfterSec } = hitPageLimit(`page:${ip}`);
   if (limited) {
