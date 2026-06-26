@@ -20,8 +20,13 @@ const COMBO_CUISINE_TYPES = [
   "noodle_shop", "dumpling_restaurant", "sichuan_restaurant", "cantonese_restaurant",
   "asian_restaurant", "shabu_shabu_restaurant",
 ];
-/** Name fallback when the google primary_type is missing/generic. */
-const COMBO_NAME_RE = /chinese|dim\s?sum|hot\s?pot|szechuan|sichuan|mandarin|hunan|cantonese|\bwok\b|dumpling|jiaozi|noodle|ramen|shabu/i;
+/** Name fallback when the google primary_type is missing/generic. Matched in Postgres via
+ *  `~*`, so it MUST be word-boundary anchored: unanchored, `ramen` matches inside "Sac-ramen-to"
+ *  (every "… Sacramento" venue) and would bench real HH. Postgres ARE uses `\y` for a word
+ *  boundary — `\b` there means a backspace char, so the old `\bwok\b` never worked. */
+const COMBO_NAME_TOKENS =
+  "chinese|dim\\s?sum|hot\\s?pot|szechuan|sichuan|mandarin|hunan|cantonese|wok|dumpling|jiaozi|noodle|ramen|shabu";
+const COMBO_NAME_SQL = `\\y(${COMBO_NAME_TOKENS})\\y`;
 const HH_RE = /happy.?hour|\bhh\b|drink special|cocktail special|well drink|draft special|\$\d+\s*(beer|wine|cocktail|sake|soju|margarita)/i;
 
 const APPLY = process.argv.includes("--apply");
@@ -45,7 +50,7 @@ async function main() {
     JOIN cities ci ON ci.id=v.city_id
     LEFT JOIN seed_candidates sc ON sc.resulting_venue_id=v.id
     WHERE ci.id=${c.id} AND h.deleted_at IS NULL
-      AND ( sc.primary_type = ANY(${COMBO_CUISINE_TYPES}) OR v.name ~* ${COMBO_NAME_RE.source} )
+      AND ( sc.primary_type = ANY(${COMBO_CUISINE_TYPES}) OR v.name ~* ${COMBO_NAME_SQL} )
     ORDER BY v.name, h.start_time`;
 
   type Row = (typeof rows)[number];
