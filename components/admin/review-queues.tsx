@@ -8,6 +8,7 @@ import {
 } from "@/app/admin/actions";
 import type { ReviewWindowEntry, SiblingWindow } from "@/lib/recover/reviewQueues";
 import { formatDays } from "@/lib/format";
+import { venuePath } from "@/lib/routes";
 
 type QueueKind = "meal" | "hidden";
 
@@ -237,6 +238,14 @@ export function ReviewQueues({ meal, hidden }: { meal: ReviewWindowEntry[]; hidd
                   {e.venue}
                 </a>
                 <div className="text-xs text-text-muted">{e.city}</div>
+                <a
+                  href={venuePath(e.stateSlug, e.citySlug, e.venueSlug)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs text-accent-cool hover:underline"
+                >
+                  view live listing ↗
+                </a>
               </td>
               <td className="py-2 pr-2">
                 {formatDays(e.daysOfWeek)} {timeLabel(e)}
