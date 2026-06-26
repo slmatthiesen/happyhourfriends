@@ -428,13 +428,16 @@ export async function deleteWindowForReview(
 
   await dbx
     .update(happyHours)
-    .set({ deletedAt: new Date(), updatedAt: new Date() })
+    // active:false is REQUIRED — the happy_hours_deleted_inactive CHECK forbids a
+    // deleted row from staying active, so deleting a live window (e.g. a meal-queue
+    // entry) without this throws. A deleted window is inactive by definition anyway.
+    .set({ active: false, deletedAt: new Date(), updatedAt: new Date() })
     .where(eq(happyHours.id, happyHourId));
   await dbx.insert(auditLog).values({
     tableName: "happy_hours",
     rowId: happyHourId,
     beforeJsonb: { deletedAt: null, active: win.active },
-    afterJsonb: { deletedAt: "now" },
+    afterJsonb: { deletedAt: "now", active: false },
     actor: adminActor(adminEmail),
     reason,
   });
