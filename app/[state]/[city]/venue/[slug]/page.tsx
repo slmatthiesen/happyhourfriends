@@ -336,6 +336,13 @@ export default async function VenuePage({
           Happy hours
         </h2>
 
+        {activeHours.length > 0 && (
+          <p className="mt-2 text-xs text-text-muted">
+            Happy hours change and we&apos;re not always told, so this may be out of date.
+            Help your friends keep it fresh — snap a photo of the current menu.
+          </p>
+        )}
+
         {activeHours.length === 0 ? (
           <div id="add-happy-hour" className="mt-4 rounded-lg border border-border bg-bg-surface p-6">
             <p className="text-text-muted">
