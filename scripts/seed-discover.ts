@@ -444,7 +444,12 @@ export function isQuerySaturated(resultsReturned: number, hadNextPageToken: bool
 /** Recall subdivision floor: never recurse a region whose CHILD half-diagonal would be below
  *  this (~downtown-block scale). Env-tunable. */
 const RECALL_FLOOR_METERS = Number(process.env.RECALL_FLOOR_METERS) || 450;
-/** Per-city recall cost cap: stop after this many Text Search calls (~$0.03 each → ~$1). The
+/** Google Places (New) per-call price for our field mask. searchNearby + the HH-recall
+ *  searchText both request Atmosphere fields (servesBeer/Wine/Cocktails + hours + priceLevel)
+ *  to feed the alcohol gate in one call, which bills the Enterprise+Atmosphere SKU at
+ *  $40/1000 = $0.040/call (NOT the $0.032 Pro SKU). Used only for the --estimate quote. */
+const PLACES_CALL_USD = Number(process.env.PLACES_CALL_USD) || 0.04;
+/** Per-city recall cost cap: stop after this many Text Search calls (~$0.04 each → ~$1.2). The
  *  adaptive recursion would otherwise scale with density without bound. Env-tunable. */
 const RECALL_MAX_CALLS = Number(process.env.RECALL_MAX_CALLS) || 30;
 
@@ -929,11 +934,16 @@ async function main() {
       console.log(
         `  HH recall plan (adaptive): "${HH_RECALL_QUERIES.join('", "')}" — saturated regions ` +
           `subdivide to a ~${RECALL_FLOOR_METERS}m floor, capped at ${recallMaxCalls} Text Search ` +
-          `call(s) (~$${(recallMaxCalls * 0.03).toFixed(2)})…`,
+          `call(s) (~$${(recallMaxCalls * PLACES_CALL_USD).toFixed(2)})…`,
       );
     }
     if (!args.hhRecallOnly) {
-      console.log(`  Nearby sweep plan: ≤${maxTiles} tile call(s) (adaptive — usually far fewer) + 1 airport call.`);
+      // Dense cities subdivide toward the ceiling (Sacramento: 243 tiles), sparse ones stay
+      // near the base grid — so quote the worst case at the Atmosphere SKU, not a sunny guess.
+      console.log(
+        `  Nearby sweep plan: ≤${maxTiles} tile call(s) (adaptive — fewer in sparse cities) + 1 airport call ` +
+          `· worst case ~$${(maxTiles * PLACES_CALL_USD).toFixed(2)} at $${PLACES_CALL_USD.toFixed(3)}/call.`,
+      );
     }
     if (args.estimate) {
       console.log(`  --estimate: no Google calls made. Re-run without --estimate to execute.`);
