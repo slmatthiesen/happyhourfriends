@@ -96,6 +96,14 @@ export const seedCandidates = pgTable("seed_candidates", {
   hoursJson: jsonb("hours_json"),
   /** Google nationalPhoneNumber. */
   phone: text("phone"),
+  // Discovery-channel attribution (cost instrumentation, 2026-06-26): which Google channel
+  // surfaced this candidate. The Nearby sweep is the expensive channel (~$0.040/tile × hundreds
+  // of tiles in a dense city); HH-recall Text Search is cheap (~30 calls). Tagging both lets us
+  // measure live-HH yield per channel — specifically how many live HH are reachable ONLY via the
+  // sweep — so we can cap the Nearby budget with evidence instead of guessing. OR-merged across
+  // re-runs (a later --resume-recall pass adds the recall flag without clearing nearby).
+  seenViaNearby: boolean("seen_via_nearby").notNull().default(false),
+  seenViaHhRecall: boolean("seen_via_hh_recall").notNull().default(false),
   processedAt: timestamp("processed_at", { withTimezone: true }),
   outcome: seedOutcome("outcome"),
   resultingVenueId: uuid("resulting_venue_id").references(() => venues.id),

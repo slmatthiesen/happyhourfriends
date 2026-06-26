@@ -190,6 +190,13 @@
       "when": 1781936683570,
       "tag": "0026_material_angel",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1782497347388,
+      "tag": "0027_mute_thunderbolts",
+      "breakpoints": true
     }
   ]
 }

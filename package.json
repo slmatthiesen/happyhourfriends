@@ -30,6 +30,7 @@
     "backfill:neighborhood-tiers": "tsx scripts/backfill-neighborhood-tiers.ts",
     "backfill:google-neighborhoods": "tsx scripts/backfill-google-neighborhoods.ts",
     "analyze:neighborhood-coverage": "tsx scripts/analyze-neighborhood-coverage.ts",
+    "analyze:discovery-channels": "tsx scripts/analyze-discovery-channels.ts",
     "report:neighborhood-merges": "tsx scripts/report-neighborhood-merges.ts",
     "restore:neighborhoods": "tsx scripts/restore-neighborhoods.ts",
     "backfill:timezones": "tsx scripts/backfill-timezones.ts",
