@@ -1,0 +1,2 @@
+ALTER TABLE "seed_candidates" ADD COLUMN "seen_via_nearby" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+ALTER TABLE "seed_candidates" ADD COLUMN "seen_via_hh_recall" boolean DEFAULT false NOT NULL;
