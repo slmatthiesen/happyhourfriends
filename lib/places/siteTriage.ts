@@ -11,7 +11,7 @@
  * times stays a stub — that is the extractor-recall-gap safety net.
  */
 
-import { HH_RE, scoreHhUrl } from "@/lib/places/hhText";
+import { HH_RE, scoreHhUrl, looksLikeMenuDoc } from "@/lib/places/hhText";
 import { discoverSitemapUrls, type TextFetcher } from "@/lib/places/sitemap";
 
 export type SiteKind = "real" | "social_only" | "none";
@@ -217,6 +217,15 @@ export function extractPageRoutes(html: string, baseUrl: string): string[] {
  */
 const MEDIA_SIGNAL = /menu|happy|hour|\bbar\b|drink|cocktail|special|food|dinner|lunch|brunch|vermut|aperitivo|apericena/i;
 
+// A media URL/filename is menu-ish if MEDIA_SIGNAL matches OR looksLikeMenuDoc does. The two
+// historically disagreed: MEDIA_SIGNAL tests the RAW filename for the full words happy/hour/menu,
+// while looksLikeMenuDoc normalizes punctuation+digits first, so it also catches the `hh`
+// abbreviation (\bhh\b), social/power hour, prix-fixe, tasting, wine/beer. A Squarespace HH banner
+// named `hh3.26.png` matched the escalation gate (looksLikeMenuDoc) but NOT discovery (MEDIA_SIGNAL),
+// so the image was never fetched and the deals — which lived only in that image — never reached the
+// model: a $0 bare window the operator couldn't recover even by pasting the exact URL. Unify the two.
+const isMenuishMediaUrl = (url: string) => MEDIA_SIGNAL.test(url) || looksLikeMenuDoc(url);
+
 /**
  * Wix (and similar) embed a tiny BLURRED thumbnail in the served HTML —
  * `…/media/<id>~mv2.jpg/v1/fill/w_147,h_190,…,blur_2,…/Happy-Hour.jpg` — which the vision
@@ -301,7 +310,7 @@ export function extractMediaLinksDetailed(html: string, baseUrl: string): MediaL
     const text = m[2].replace(/<[^>]+>/g, " ");
     const isPdf = /\.pdf(\?|#|$)/i.test(href);
     const isImg = /\.(jpe?g|png|webp)(\?|#|$)/i.test(href);
-    if (isPdf || (isImg && (MEDIA_SIGNAL.test(href) || MEDIA_SIGNAL.test(text)))) {
+    if (isPdf || (isImg && (isMenuishMediaUrl(href) || MEDIA_SIGNAL.test(text)))) {
       const u = abs(isPdf ? href : fullResImageUrl(href)); // signal matched on original; fetch full-res
       add(u, hhNear(html, m.index, text));
     }
@@ -313,7 +322,7 @@ export function extractMediaLinksDetailed(html: string, baseUrl: string): MediaL
     const src = tag.match(/\bsrc\s*=\s*["']([^"']+)["']/i)?.[1];
     const alt = tag.match(/\balt\s*=\s*["']([^"']*)["']/i)?.[1] ?? "";
     if (!src || !/\.(jpe?g|png|webp)(\?|#|$)/i.test(src)) continue;
-    if (MEDIA_SIGNAL.test(src) || MEDIA_SIGNAL.test(alt)) {
+    if (isMenuishMediaUrl(src) || MEDIA_SIGNAL.test(alt)) {
       const u = abs(fullResImageUrl(src)); // signal matched on original src; fetch full-res
       add(u, hhNear(html, m.index, alt));
     }
@@ -351,7 +360,7 @@ export function extractMediaLinksDetailed(html: string, baseUrl: string): MediaL
   let qm: RegExpExecArray | null;
   while ((qm = QUOTED_MEDIA.exec(unescaped)) !== null) {
     const raw = (qm[1] + (qm[2] ?? "")).replace(/&amp;/gi, "&");
-    if (MEDIA_NOISE.test(raw) || !MEDIA_SIGNAL.test(raw)) continue;
+    if (MEDIA_NOISE.test(raw) || !isMenuishMediaUrl(raw)) continue;
     const isPdf = /\.pdf(\?|$)/i.test(raw);
     const u = abs(isPdf ? raw : fullResImageUrl(raw));
     add(u, hhNear(unescaped, qm.index));
@@ -369,7 +378,7 @@ export function extractMediaLinksDetailed(html: string, baseUrl: string): MediaL
     if (!SQSP_FILE_LINK.test(href)) continue;
     if (/\.(jpe?g|png|webp|gif)(\?|#|$)/i.test(href)) continue; // an image target is handled above
     const label = html.slice(Math.max(0, m.index - 160), m.index).replace(/<[^>]+>/g, " ");
-    if (MEDIA_SIGNAL.test(href) || MEDIA_SIGNAL.test(label)) {
+    if (isMenuishMediaUrl(href) || MEDIA_SIGNAL.test(label)) {
       add(abs(href), hhNear(html, m.index, href + " " + label));
     }
   }
