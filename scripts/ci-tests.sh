@@ -37,6 +37,7 @@ TESTS=(
   test:stub-rank
   test:extract
   test:extract-image-fallback
+  test:glm-routing
   test:realness-gate
   test:jsonld-menu
   test:signal-gate
