@@ -38,9 +38,19 @@ Model-id-prefixed client routing — minimal, keeps Anthropic SDK shapes everywh
 2. **`lib/ai/pricing.ts`** — add `{ match: "glm", inputPerM: 0, outputPerM: 0 }` (top of list)
    so GLM calls cost $0 in the ledger.
 3. **`lib/ai/extractHappyHours.ts`** — route the extractor's `messages.create` through
-   `clientForModel(params.model)`. When the model is a non-vision GLM id, strip image/pdf
-   content blocks before the call (reuse the existing image-removal helper) so a text model
-   never 400s on an image block — it just extracts from available text.
+   `clientForModel`. **Vision fallback (recall-safe):** a text-only GLM model reads pure-text
+   venues for free, but whenever the fetched pages include an image/PDF the whole extraction is
+   sent to the Anthropic vision model (`MODELS.visionFallback`, default Haiku) with the doc
+   intact — never dropped.
+
+   > **Rejected variant — GLM text-first escalation.** We tried reading page text with GLM first
+   > and only escalating to the vision model when the text pass found no priced window. The eval
+   > caught a regression: **windows 79% / deals 62%** (vs 100% / 96%). A partial text answer
+   > ("resolved deals") pre-empted the menu-doc read on venues whose real deals lived in the
+   > PDF/image (District Oakland, Milestone Tavern). Conclusion: **when a doc is present you must
+   > read it** — GLM can't know the doc is redundant. Reverted; vision spend on doc venues is
+   > unavoidable in a recall-first pipeline. GLM's production savings are therefore limited to
+   > pure-text venues; the larger win is the free eval/iteration loop.
 4. Model selection is already env-overridable via `ANTHROPIC_MODEL_EXTRACTOR`
    (`lib/ai/models.ts`). Setting it to `glm-4.5-flash` + routing = GLM extractor. No new wiring.
 
