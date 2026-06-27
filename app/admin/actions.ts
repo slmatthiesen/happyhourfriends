@@ -414,6 +414,7 @@ export interface ResolveStubResult extends ActionResult {
   recovered?: boolean;
   windowsLive?: number;
   windowsHidden?: number;
+  offeringsAdded?: number;
   costCents?: number;
   summary?: string;
 }
@@ -446,6 +447,7 @@ export async function resolveStubAction(
       recovered: r.recovered,
       windowsLive: r.windowsLive,
       windowsHidden: r.windowsHidden,
+      offeringsAdded: r.offeringsAdded,
       costCents: r.costCents,
       summary: r.summary,
     };
