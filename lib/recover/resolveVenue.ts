@@ -31,6 +31,7 @@ export interface ResolveResult {
   recovered: boolean; // a venue went live (>=1 active window)
   windowsLive: number;
   windowsHidden: number;
+  offeringsAdded: number; // deals INSERTED this run (0 on a no-op re-find of an existing window)
   costCents: number;
   summary: string;
   fetchedUrls: string[]; // the priority URLs we tried
@@ -127,7 +128,7 @@ export async function supersedeBareWindowsForVenue(
  */
 export async function persistExtractedWindows(
   opts: PersistOptions,
-): Promise<{ windowsLive: number; windowsHidden: number; recovered: boolean; hiddenReasons: string[] }> {
+): Promise<{ windowsLive: number; windowsHidden: number; offeringsAdded: number; recovered: boolean; hiddenReasons: string[] }> {
   const { venueId, cityId, extracted, actor } = opts;
 
   await db.insert(aiUsageLedger).values({
@@ -176,6 +177,10 @@ export async function persistExtractedWindows(
 
   let live = 0;
   let hidden = 0;
+  // Offerings (deals) actually INSERTED this run — distinct from `live` (windows that exist). A
+  // re-find of a pre-existing bare window has live>0 but offeringsAdded=0; the admin UI keys its
+  // success message off this so a $0 no-op never claims "deals found — refresh to see them".
+  let offeringsAdded = 0;
   // Why each hidden window was hidden — surfaced in the return so callers (seed:enrich
   // report, admin) can tell the operator what to review without re-deriving the gates.
   const hiddenReasons = new Set<string>();
@@ -291,6 +296,7 @@ export async function persistExtractedWindows(
       const offKey = `${offeringNameKey(off.name)}|${off.priceCents ?? ""}`;
       if (seenOff.has(offKey)) continue;
       seenOff.add(offKey);
+      offeringsAdded++;
       await db.insert(offerings).values({
         happyHourId: row.id,
         kind: off.kind as typeof offerings.$inferInsert["kind"],
@@ -334,13 +340,13 @@ export async function persistExtractedWindows(
       .set({ status: "active", updatedAt: new Date() })
       .where(and(eq(venues.id, venueId), eq(venues.status, "no_happy_hour")));
   }
-  return { windowsLive: live, windowsHidden: hidden, recovered, hiddenReasons: [...hiddenReasons] };
+  return { windowsLive: live, windowsHidden: hidden, offeringsAdded, recovered, hiddenReasons: [...hiddenReasons] };
 }
 
 export async function resolveVenue(opts: ResolveOptions): Promise<ResolveResult> {
   const actor = opts.actor ?? "admin";
   const empty: ResolveResult = {
-    ok: false, recovered: false, windowsLive: 0, windowsHidden: 0, costCents: 0, summary: "", fetchedUrls: [],
+    ok: false, recovered: false, windowsLive: 0, windowsHidden: 0, offeringsAdded: 0, costCents: 0, summary: "", fetchedUrls: [],
   };
 
   const [venue] = await db
@@ -375,9 +381,12 @@ export async function resolveVenue(opts: ResolveOptions): Promise<ResolveResult>
     otherUrl: null,
     cityName,
     priorityUrls,
+    // A deliberate operator paste asserts "the HH is on this page" — guarantee escalation past a
+    // $0 bare window (resolveStubAction's contract: one operator click = one paid call if needed).
+    assertHasHappyHour: operatorSupplied,
   });
 
-  const { windowsLive, windowsHidden, recovered } = await persistExtractedWindows({
+  const { windowsLive, windowsHidden, offeringsAdded, recovered } = await persistExtractedWindows({
     venueId: venue.id,
     cityId: venue.cityId,
     extracted,
@@ -389,6 +398,7 @@ export async function resolveVenue(opts: ResolveOptions): Promise<ResolveResult>
     recovered,
     windowsLive,
     windowsHidden,
+    offeringsAdded,
     costCents: extracted.costCents,
     summary: extracted.summary,
     fetchedUrls: priorityUrls,

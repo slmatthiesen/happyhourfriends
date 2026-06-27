@@ -35,7 +35,7 @@ import { MODELS } from "@/lib/ai/models";
 import { loadPrompt, splitPrompt } from "@/lib/ai/promptHash";
 import { fetchPages, renderPagesAsBlocks, pagesHaveExtractableSignal } from "@/lib/ai/siteContent";
 import type { FetchedPage } from "@/lib/ai/siteContent";
-import { freeExtractFromPages, shouldEscalateForDroppedDeals, reconcileFreeDaysWithModelOfferings } from "@/lib/ai/freeExtract";
+import { freeExtractFromPages, shouldEscalateForDroppedDeals, freeLacksOfferings, reconcileFreeDaysWithModelOfferings } from "@/lib/ai/freeExtract";
 import { classifyHhRelevance, foldRelevanceCost } from "@/lib/ai/hhRelevance";
 import { loadRenderUrl } from "@/lib/verification/lazyRender";
 import { getFetchProvider, antiBotCallsUsed } from "@/lib/places/fetchProviders";
@@ -64,6 +64,13 @@ export interface ExtractInput {
   /** Skip the internal free-first short-circuit and ALWAYS call the paid model (after
    *  render). Used by audit render-escalation to read JS/PDF HH pages the free parser can't. */
   forcePaid?: boolean;
+  /** The caller asserts this URL really has a happy hour — an operator deliberately pasted it
+   *  into admin "Extract from URL". Keep the free $0 read first, but if it returns a BARE window
+   *  (no offerings) or no clean window at all, GUARANTEE escalation to the paid model — bypassing
+   *  the pagesShowDroppedDeals page-signal heuristic and the relevance gate. Without this, a menu
+   *  whose deals the discovery scanners missed re-derives a $0 bare window and reports false
+   *  success, so the operator can never recover it even by handing us the exact page. */
+  assertHasHappyHour?: boolean;
   /** Is this venue worth the paid anti-bot (Jina) fetch tier when it hits a bot wall? Set by the
    *  enrich sweep from the candidate's alcohol/cuisine signal (lib/places/stubGate.isHhLikely).
    *  undefined = treat as likely (operator-targeted on-demand / admin extract-from-URL). */
@@ -779,8 +786,13 @@ export async function extractHappyHours(
     // recover them. Without this the shared path (admin "Extract from URL", reextract:stubs,
     // audit) re-derives the same bare window at $0 and reports false success — a venue can
     // never leave /admin/bare-windows. Mirrors the enrich free-first gate (seed-enrich-candidates.ts).
-    if (shouldEscalateForDroppedDeals(free, pages)) {
-      if (process.env.EXTRACT_DEBUG) console.error(`[extract] free parse dropped deals → escalating to paid extractor`);
+    // assertHasHappyHour (operator pasted this URL) drops the page-signal requirement: escalate
+    // on ANY bare window, even when discovery missed the menu doc so there's no detectable signal.
+    const escalate = input.assertHasHappyHour
+      ? freeLacksOfferings(free)
+      : shouldEscalateForDroppedDeals(free, pages);
+    if (escalate) {
+      if (process.env.EXTRACT_DEBUG) console.error(`[extract] free parse bare window → escalating to paid extractor`);
       // Keep the free parse's stable DAYS (from explicit recurring text) and take only the
       // model's OFFERINGS — so a dated-events site (SpotHopper) can't flicker the day-set.
       const paid = await runExtractModel(built);
@@ -789,6 +801,10 @@ export async function extractHappyHours(
     if (process.env.EXTRACT_DEBUG) console.error(`[extract] free parse hit: ${free.happyHours.length} window(s), $0`);
     return free;
   }
+
+  // free is null (no clean window). An operator who pasted this URL asserted the HH is here —
+  // don't let the relevance gate skip it; read the page with the paid model.
+  if (input.assertHasHappyHour) return runExtractModel(built);
 
   // Doc fast-path: a PDF/image IS the happy-hour lead. Send it straight to the (vision)
   // extractor — a separate vision relevance read would re-pay the expensive doc input on

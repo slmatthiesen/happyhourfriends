@@ -239,10 +239,12 @@ export function BareWindowRow({ venue }: { venue: BareVenue }) {
           <div className="mt-1 text-xs">
             {result.error ? (
               <span className="text-accent-hot">✗ {result.error}</span>
-            ) : result.recovered ? (
-              <span className="text-accent-cool">✓ {result.windowsLive} window(s) · {result.costCents}¢ — refresh to see deals</span>
+            ) : (result.offeringsAdded ?? 0) > 0 ? (
+              <span className="text-accent-cool">✓ added {result.offeringsAdded} deal(s) · {result.costCents}¢ — refresh to see them</span>
+            ) : (result.windowsLive ?? 0) > 0 ? (
+              <span className="text-text-muted">found a schedule but no deals — still a bare window ({result.costCents}¢){result.summary ? ` — ${result.summary.slice(0, 100)}` : ""}</span>
             ) : (
-              <span className="text-text-muted">no new deals found ({result.costCents}¢){result.summary ? ` — ${result.summary.slice(0, 100)}` : ""}</span>
+              <span className="text-text-muted">no happy hour found ({result.costCents}¢){result.summary ? ` — ${result.summary.slice(0, 100)}` : ""}</span>
             )}
           </div>
         )}
