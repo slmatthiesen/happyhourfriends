@@ -27,7 +27,7 @@ import type {
   ToolUseBlock,
 } from "@anthropic-ai/sdk/resources/messages";
 
-import { anthropic, parseJsonResponse } from "@/lib/ai/anthropic";
+import { clientForModel, isTextOnlyGlmModel, parseJsonResponse } from "@/lib/ai/anthropic";
 import { isDenylistedSource } from "@/lib/ai/sourceDenylist";
 import type { Usage } from "@/lib/ai/anthropic";
 import { costCents as calcCostCents } from "@/lib/ai/pricing";
@@ -703,17 +703,48 @@ export function stripImageBlocks(params: MessageCreateParamsNonStreaming): Messa
   return removed ? { ...params, messages } : null;
 }
 
+/** Drop image AND document (PDF) blocks. A text-only GLM model 400s on either, so we strip
+ *  both before routing an extraction through it — it reads whatever page text remains. */
+export function stripVisionBlocks(params: MessageCreateParamsNonStreaming): MessageCreateParamsNonStreaming {
+  const messages = params.messages.map((m) => {
+    if (!Array.isArray(m.content)) return m;
+    return { ...m, content: m.content.filter((b) => b.type !== "image" && b.type !== "document") };
+  });
+  return { ...params, messages };
+}
+
+/** True when any message carries an image or document (PDF) block — i.e. the extraction
+ *  needs a vision-capable model to read it. */
+export function paramsHaveVisionBlocks(params: MessageCreateParamsNonStreaming): boolean {
+  return params.messages.some(
+    (m) => Array.isArray(m.content) && m.content.some((b) => b.type === "image" || b.type === "document"),
+  );
+}
+
 export async function runExtractModel(built: ExtractRequest): Promise<ExtractResult> {
-  const { params, promptHash, model } = built;
+  const { promptHash } = built;
   const opts = { timeout: EXTRACT_REQUEST_TIMEOUT_MS, maxRetries: 1 };
+  // Hybrid routing: a text-only GLM extractor (free) reads text venues, but it can't see an
+  // image/PDF — so any extraction that includes vision blocks is sent to the Anthropic vision
+  // fallback (Haiku) with the doc intact, rather than dropped. Text-only venues stay on GLM.
+  const useVisionFallback = isTextOnlyGlmModel(built.model) && paramsHaveVisionBlocks(built.params);
+  const model = useVisionFallback ? MODELS.visionFallback : built.model;
+  // On the GLM text path, defensively strip any stray vision block (a text-only GLM 400s on one).
+  const params = isTextOnlyGlmModel(model)
+    ? stripVisionBlocks({ ...built.params, model })
+    : { ...built.params, model };
+  const client = clientForModel(model);
+  if (process.env.EXTRACT_DEBUG && useVisionFallback) {
+    console.error(`[extract] image/PDF present → vision fallback to ${model} (GLM can't read it)`);
+  }
   let response: Message;
   try {
-    response = await anthropic().messages.create(params, opts);
+    response = await client.messages.create(params, opts);
   } catch (err) {
     const withoutImages = isImageProcessingError(err) ? stripImageBlocks(params) : null;
     if (!withoutImages) throw err;
     if (process.env.EXTRACT_DEBUG) console.error("[extract] image rejected by API — retrying text/PDF only");
-    response = await anthropic().messages.create(withoutImages, opts);
+    response = await client.messages.create(withoutImages, opts);
   }
   const summedUsage: Usage = {
     inputTokens: response.usage.input_tokens,
@@ -721,7 +752,7 @@ export async function runExtractModel(built: ExtractRequest): Promise<ExtractRes
   };
   if (process.env.EXTRACT_DEBUG) {
     console.error(
-      `[extract] stop=${response.stop_reason} fetched=${built.fetchedUrls.length} blocks=[${response.content
+      `[extract] stop=${response.stop_reason} model=${model} fetched=${built.fetchedUrls.length} blocks=[${response.content
         .map((b) => (b.type === "tool_use" ? `tool_use:${b.name}` : b.type))
         .join(", ")}]`,
     );
