@@ -40,6 +40,25 @@ interface CitySeed {
 
 const CITIES: CitySeed[] = [
   {
+    // Santa Cruz, CA — GLM-extractor test city (2026-06-27). OSM boundary relation 111737
+    // (municipal; ~9×15km bbox incl. detached annexations). serviceLocalities kept to the
+    // city itself — Capitola/Soquel/Live Oak are separate towns, add later if wanted.
+    slug: "santa-cruz",
+    name: "Santa Cruz",
+    state: "CA",
+    country: "US",
+    timezone: "America/Los_Angeles",
+    currency: "USD",
+    centerLat: 36.9741,
+    centerLng: -122.0308,
+    seedConfig: {
+      radiusKm: 8,
+      cellMeters: 3000,
+      serviceLocalities: ["Santa Cruz"],
+      serviceBufferMeters: 500,
+    },
+  },
+  {
     // Santa Barbara, CA — operator launch city (2026-06-16). OSM boundary relation 112224
     // (mainland metro; ~20×14km bbox). Montecito kept as an enclave; Goleta is a separate city.
     slug: "santa-barbara",
