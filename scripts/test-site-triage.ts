@@ -197,6 +197,18 @@ check("Wix image de-thumbnailed to full-res; signal matched on original name (Sh
   // a non-Wix url is untouched
   assert.equal(fullResImageUrl("https://x.com/menu.jpg"), "https://x.com/menu.jpg");
 });
+check("hh-abbreviation menu image is discovered (Cervecería hh3.26.png bug)", () => {
+  // Squarespace HH banner named with the `hh` abbreviation, not the full words. The discovery
+  // filter (MEDIA_SIGNAL) didn't recognize `hh` while the escalation gate (looksLikeMenuDoc) did,
+  // so the image was never fetched and its deals never reached the model — a $0 bare window.
+  const src = "https://images.squarespace-cdn.com/content/v1/634d/1612-4c63/hh3.26.png";
+  const links = extractMediaLinks(`<img src="${src}" alt="happy hour banner">`, "https://www.cerveceria916.com/");
+  assert.ok(links.some((u) => u.includes("hh3.26.png")), `expected hh3.26.png discovered, got ${JSON.stringify(links)}`);
+});
+check("decorative image without a menu signal is still NOT discovered", () => {
+  // Guard against over-broadening: a hero/team photo with no menu/HH token must stay dropped.
+  assert.deepEqual(extractMediaLinks(`<img src="https://x.com/team-photo-2024.jpg" alt="our team">`, "https://x.com/"), []);
+});
 check("JSON-LD MenuSection image is harvested (Limón / getbento bug)", () => {
   // The HH menu lives in schema.org JSON-LD as an image on a CDN — no <a>/<img> tag for the
   // old scanner to find. extractMediaLinks must read ld+json menu blocks.
