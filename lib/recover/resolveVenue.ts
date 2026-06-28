@@ -308,6 +308,7 @@ export async function persistExtractedWindows(
         priceCents: off.priceCents,
         originalPriceCents: off.originalPriceCents,
         discountCents: off.discountCents,
+        discountPercent: off.discountPercent,
         description: off.description,
         conditions: off.conditions,
         sourceUrl: off.sourceUrl,

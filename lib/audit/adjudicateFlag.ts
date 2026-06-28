@@ -132,6 +132,7 @@ export function screenVenue(input: AdjudicationInput): ScreenFindings {
       priceCents: o.priceCents,
       originalPriceCents: null,
       discountCents: null,
+      discountPercent: null,
       description: o.description,
       conditions: null,
       sourceUrl: w.sourceUrl ?? "",

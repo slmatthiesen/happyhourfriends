@@ -86,7 +86,7 @@ export default async function VenuePage({
     offerings
       .map(
         (o) =>
-          `${o.name ?? o.category}|${o.priceCents ?? ""}|${o.discountCents ?? ""}|${o.conditions ?? ""}|${o.currencyCode ?? ""}`,
+          `${o.name ?? o.category}|${o.priceCents ?? ""}|${o.discountCents ?? ""}|${o.discountPercent ?? ""}|${o.conditions ?? ""}|${o.currencyCode ?? ""}`,
       )
       .sort()
       .join(";");
@@ -377,19 +377,30 @@ export default async function VenuePage({
                         formatPrice(o.priceCents, o.currencyCode ?? currency) ??
                         (o.discountCents
                           ? `${formatPrice(o.discountCents, o.currencyCode ?? currency)} off`
-                          : null);
+                          : o.discountPercent
+                            ? `${o.discountPercent}% off`
+                            : null);
+                      // Don't repeat a description that just restates the name (case-insensitive).
+                      const showDesc =
+                        o.description &&
+                        o.description.trim().toLowerCase() !== (o.name ?? "").trim().toLowerCase();
                       return (
-                        <li key={o.id} className="flex justify-between">
-                          <span className="text-text-primary">
-                            {o.name ?? o.category}
-                            {o.conditions && (
-                              <span className="text-text-muted"> · {o.conditions}</span>
-                            )}
-                          </span>
-                          {price && (
-                            <span className="tabular-nums text-accent-warm">
-                              {price}
+                        <li key={o.id} className="flex flex-col gap-0.5">
+                          <div className="flex justify-between">
+                            <span className="text-text-primary">
+                              {o.name ?? o.category}
+                              {o.conditions && (
+                                <span className="text-text-muted"> · {o.conditions}</span>
+                              )}
                             </span>
+                            {price && (
+                              <span className="tabular-nums text-accent-warm">
+                                {price}
+                              </span>
+                            )}
+                          </div>
+                          {showDesc && (
+                            <span className="text-xs text-text-muted">{o.description}</span>
                           )}
                         </li>
                       );
