@@ -84,6 +84,8 @@ export interface ExtractedOffering {
   priceCents: number | null;
   originalPriceCents: number | null;
   discountCents: number | null;
+  /** "20% off drafts" → 20. A percentage discount with no absolute price. */
+  discountPercent: number | null;
   description: string | null;
   conditions: string | null;
   /** URL actually fetched this run that mentions this item. Required by §13. */
@@ -139,6 +141,7 @@ interface RawOffering {
   priceCents?: number | null;
   originalPriceCents?: number | null;
   discountCents?: number | null;
+  discountPercent?: number | null;
   description?: string | null;
   conditions?: string | null;
   sourceUrl?: string;
@@ -223,6 +226,7 @@ const RECORD_TOOL: ToolUnion = {
                   priceCents: { type: ["integer", "null"] },
                   originalPriceCents: { type: ["integer", "null"] },
                   discountCents: { type: ["integer", "null"], description: '"$3 off" → 300' },
+                  discountPercent: { type: ["integer", "null"], description: '"20% off drafts" → 20; "half off" → 50' },
                   description: { type: ["string", "null"] },
                   conditions: { type: ["string", "null"] },
                   sourceUrl: { type: "string" },
@@ -308,6 +312,10 @@ function normaliseOffering(raw: RawOffering): ExtractedOffering | null {
         : null,
     discountCents:
       typeof raw.discountCents === "number" ? Math.round(raw.discountCents) : null,
+    discountPercent:
+      typeof raw.discountPercent === "number" && raw.discountPercent > 0 && raw.discountPercent < 100
+        ? Math.round(raw.discountPercent)
+        : null,
     description: raw.description ?? null,
     conditions: raw.conditions ?? null,
     sourceUrl,

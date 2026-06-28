@@ -23,6 +23,7 @@ function off(partial: Partial<ExtractedOffering>): ExtractedOffering {
     priceCents: null,
     originalPriceCents: null,
     discountCents: null,
+    discountPercent: null,
     description: null,
     conditions: null,
     sourceUrl: "https://example.com",

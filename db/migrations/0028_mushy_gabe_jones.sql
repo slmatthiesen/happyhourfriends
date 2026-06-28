@@ -1,0 +1,1 @@
+ALTER TABLE "offerings" ADD COLUMN "discount_percent" smallint;

@@ -64,7 +64,7 @@ const HAPPY_HOUR_FIELDS = [
 
 const OFFERING_FIELDS = [
   "happyHourId", "kind", "category", "name", "priceCents", "originalPriceCents",
-  "discountCents", "currencyCode", "description", "conditions",
+  "discountCents", "discountPercent", "currencyCode", "description", "conditions",
   "locationRestriction", "sourceUrl", "active",
 ] as const;
 
