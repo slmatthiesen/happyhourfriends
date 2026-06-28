@@ -242,7 +242,7 @@ const ALCOHOL_SIGNAL_PRIMARY = new Set<string>([
 const ALCOHOL_NAME_WORDS = new Set<string>([
   "beer", "biergarten", "pub", "tavern", "taproom", "saloon", "winery", "distillery",
   "cocktail", "cocktails", "alehouse", "meadery", "cidery", "speakeasy", "mezcaleria",
-  "cantina", "sake", "apero", "aperitivo",
+  "cantina", "sake", "apero", "aperitivo", "tequila", "izakaya",
 ]);
 const ALCOHOL_NAME_PREFIXES = ["brew"]; // brewery, brewing, brewpub, brewhouse, brews
 // Phrases matched against the NORMALIZED name (punctuation→space), so "Bar & Grill" is "bar grill".
@@ -273,6 +273,21 @@ export function hasAlcoholSignal(
 }
 
 /**
+ * True for bowling alleys — operator rule (2026-06-28): never feature them, anywhere, even when
+ * they have a bar. Match on Google type OR name ("bowling"/"lanes"). Bare "bowl(s)" is excluded
+ * on purpose so poke/açaí/grain-bowl restaurants ("The Curl Bowls & Rolls") are not caught.
+ */
+export function isBowlingAlley(
+  name: string | null | undefined,
+  primaryType: string | null | undefined,
+  types?: string[] | null,
+): boolean {
+  if (primaryType === "bowling_alley" || types?.includes("bowling_alley")) return true;
+  const words = normalize(name ?? "").split(" ");
+  return words.includes("bowling") || words.includes("lanes");
+}
+
+/**
  * Excluded when it is the venue's PRIMARY type.
  *
  * Operator 2026-05-30 (Tucson calibration) added indian_restaurant, bakery, cafe,
@@ -284,6 +299,8 @@ export function hasAlcoholSignal(
  * curated-import candidates that never went through the Places query.
  */
 const EXCLUDED_PRIMARY_TYPE = new Set<string>([
+  // Operator 2026-06-28: bowling alleys are never featured anywhere (even with a bar).
+  "bowling_alley",
   "food_court",
   "food_store",
   "juice_shop",

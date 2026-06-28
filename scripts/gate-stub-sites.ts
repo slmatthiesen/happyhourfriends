@@ -19,7 +19,7 @@ import { requireCityArgs } from "@/lib/cities/resolveCity";
 import { fetchUrl } from "@/lib/verification/fetchUrl";
 import { mapWithConcurrency } from "@/lib/async/mapWithConcurrency";
 import { classifyStubSite, type StubSiteVerdict } from "@/lib/places/stubSiteGate";
-import { hasAlcoholSignal } from "@/lib/places/chainDenylist";
+import { hasAlcoholSignal, isBowlingAlley } from "@/lib/places/chainDenylist";
 
 interface Row {
   id: string;
@@ -61,11 +61,33 @@ async function fetchSiteText(row: Row): Promise<{ reachable: boolean; text: stri
 async function main() {
   const { slug, state } = requireCityArgs();
   const apply = process.argv.includes("--apply");
+  const undo = process.argv.includes("--undo");
   const limit = arg("--limit") ? parseInt(arg("--limit")!, 10) : null;
   const concurrency = Number(arg("--concurrency") ?? "6");
 
   const sql = postgres(process.env.DATABASE_URL!, { max: 1 });
   try {
+    // --undo: restore every venue THIS gate hid in the city back to a visible stub. Lets us
+    // re-baseline after a policy change without manual SQL. Audit-logged.
+    if (undo) {
+      const restored = await sql<{ id: string; name: string }[]>`
+        UPDATE venues v SET status = 'active', updated_at = now()
+        FROM cities c
+        WHERE v.city_id = c.id AND lower(c.slug) = ${slug} AND lower(c.state) = ${state.toLowerCase()}
+          AND v.status = 'no_happy_hour'
+          AND EXISTS (
+            SELECT 1 FROM audit_log a
+            WHERE a.table_name = 'venues' AND a.row_id = v.id AND a.reason LIKE 'gate-stub-sites hide%'
+          )
+        RETURNING v.id, v.name
+      `;
+      for (const r of restored) {
+        await sql`INSERT INTO audit_log (table_name, row_id, before_jsonb, after_jsonb, actor, reason)
+          VALUES ('venues', ${r.id}, ${sql.json({ status: "no_happy_hour" })}, ${sql.json({ status: "active" })}, 'script', 'gate-stub-sites undo')`;
+      }
+      console.log(`--undo: restored ${restored.length} venue(s) to active stubs in ${slug}/${state}.`);
+      return;
+    }
     const rows = await sql<Row[]>`
       SELECT v.id, v.name, v.website_url, v.hh_page_url, sc.primary_type, sc.types
       FROM venues v
@@ -89,12 +111,15 @@ async function main() {
       rows,
       concurrency,
       async (row): Promise<{ row: Row; verdict: StubSiteVerdict }> => {
-        // Alcohol-positive by type/name → keep without fetching (protected regardless of site
-        // state, and it saves a request).
+        // Decide without a fetch where possible. Bowling alleys always hide; alcohol-positive and
+        // no-site venues are kept as crowdsource stubs (conservative policy — only dead/parked hide).
+        if (isBowlingAlley(row.name, row.primary_type, row.types)) {
+          return { row, verdict: { action: "hide", reason: "bowling alley (excluded type)" } };
+        }
         if (hasAlcoholSignal(row.name, row.primary_type, row.types)) {
           return { row, verdict: { action: "keep", reason: "alcohol-positive type/name" } };
         }
-        if (!row.website_url) return { row, verdict: { action: "hide", reason: "no website" } };
+        if (!row.website_url) return { row, verdict: { action: "keep", reason: "no website — crowdsource stub" } };
         const { reachable, text, unreadable } = await fetchSiteText(row);
         const verdict = classifyStubSite({
           name: row.name, primaryType: row.primary_type, types: row.types,
