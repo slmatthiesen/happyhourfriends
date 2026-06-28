@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Happy Hour Friends — every happy hour, none of the fluff",
   description:
-    "The simplest happy hour site around. Just the data you want: sort it, filter it, find your spot. Snap a pic to add a spot or fix a deal — we keep each other in the loop.",
+    "Find happy hours near you — sortable by time, day, and deal, every deal sourced and kept fresh. No fluff, just the data.",
 };
 
 export default async function Home() {
