@@ -18,6 +18,7 @@
  * Pure, no I/O — golden cases in scripts/test-offering-sanity.ts.
  */
 import type { ExtractedOffering } from "@/lib/ai/extractHappyHours";
+import { classifyOfferingJunk } from "@/lib/recover/offeringJunk";
 
 const FOOD_TOKENS =
   /\b(burgers?|tacos?|wings?|pizzas?|nachos?|fries|sliders?|shareables?|appetizers?|apps?|flatbreads?|quesadillas?|sandwich(es)?|hot ?dogs?|pretzels?|mozzarella|calamari|dumplings?|egg ?rolls?|tots)\b/i;
@@ -142,6 +143,18 @@ export function sanitizeOfferings(
       continue;
     }
     const o = cleanName === raw.name ? raw : { ...raw, name: cleanName };
+
+    // 0b. Drop page-scrape noise: nav bar, bare soft drinks, price-only names (offeringJunk).
+    const junk = classifyOfferingJunk({
+      name: o.name,
+      priceCents: o.priceCents,
+      description: o.description,
+      kind: o.kind,
+    });
+    if (junk) {
+      warnings.push(`dropped junk offering (${junk.rule}): ${o.name ?? o.description ?? "(unnamed)"}`);
+      continue;
+    }
 
     // 1. Dedupe repeats within this window's batch (name key is case/price-prefix
     //    insensitive so "$5 Wells" and "Wells" at 500¢ collapse).
