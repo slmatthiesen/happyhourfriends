@@ -88,6 +88,7 @@ export function buildChainExtractResult(c: ChainHappyHour): ExtractResult {
     priceCents: null,
     originalPriceCents: null,
     discountCents: null,
+    discountPercent: null,
     description: o.description ?? null,
     conditions: null,
     sourceUrl: c.sourceUrl,

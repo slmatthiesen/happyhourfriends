@@ -102,7 +102,7 @@ check("operator-paste contrast: a NO-SIGNAL bare page stays $0 in batch but WOUL
 // ── reconcileFreeDaysWithModelOfferings: free DAYS win, model supplies OFFERINGS ──────────
 const off = (p: Partial<ExtractedOffering>): ExtractedOffering => ({
   kind: "food", category: "appetizer", name: null, priceCents: null, originalPriceCents: null,
-  discountCents: null, description: null, conditions: null, sourceUrl: "https://x.com/hh", ...p,
+  discountCents: null, discountPercent: null, description: null, conditions: null, sourceUrl: "https://x.com/hh", ...p,
 });
 const win = (p: Partial<ExtractedHappyHour>): ExtractedHappyHour => ({
   daysOfWeek: [2, 3, 4, 5], allDay: false, startTime: "16:00", endTime: "18:00", timeKnown: true,
