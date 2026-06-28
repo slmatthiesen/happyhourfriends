@@ -23,6 +23,12 @@ assert.equal(classifyOfferingJunk(inp({ name: "Order Online" }))?.rule, "nav-boi
 check("flags 'Order Online'");
 assert.equal(classifyOfferingJunk(inp({ name: "Reservations" })), null);
 check("single nav word is NOT flagged (too thin a signal to be sure)");
+assert.equal(classifyOfferingJunk(inp({ name: "Order Online Call Us", priceCents: 1700 }))?.rule, "nav-boilerplate");
+check("flags 'Order Online Call Us' CTA strip (Akamaru Scottsdale)");
+assert.equal(classifyOfferingJunk(inp({ name: "Call Us Now" }))?.rule, "nav-boilerplate");
+check("flags 'Call Us Now' CTA");
+assert.equal(classifyOfferingJunk(inp({ name: "Last Call Wells", priceCents: 500 })), null);
+check("keeps 'Last Call Wells' (a real late-night drink deal — 'last' isn't chrome)");
 
 // ── junk: bare-soft-drink ──────────────────────────────────────────────
 assert.equal(classifyOfferingJunk(inp({ name: "COKE" }))?.rule, "bare-soft-drink");
