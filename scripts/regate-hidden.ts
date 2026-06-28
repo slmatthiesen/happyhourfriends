@@ -129,6 +129,7 @@ async function main() {
         name: o.name,
         description: o.description,
         priceCents: o.priceCents,
+        kind: o.kind,
       }));
       const confidence = r.extract_confidence != null ? Number(r.extract_confidence) : 1;
 
@@ -142,6 +143,8 @@ async function main() {
           endTime: r.end_time,
           notes: r.notes,
           sourceUrl: r.source_url,
+          daysOfWeek: days,
+          hoursJson: r.hours_json ?? null,
           offerings,
         },
       });

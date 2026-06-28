@@ -201,10 +201,13 @@ export async function persistExtractedWindows(
         endTime: hh.endTime,
         notes: hh.notes,
         sourceUrl: hh.sourceUrl,
+        daysOfWeek: days,
+        hoursJson: venueRow?.hoursJson ?? null,
         offerings: hh.offerings.map((o) => ({
           name: o.name,
           description: o.description,
           priceCents: o.priceCents,
+          kind: o.kind,
         })),
       },
     });

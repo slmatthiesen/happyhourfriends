@@ -13,6 +13,7 @@
  */
 
 import { HH_RE } from "@/lib/places/hhText";
+import type { OpenPeriod } from "@/lib/geo/timezone";
 
 /** Below this overall extractor confidence, a window is hidden for review. */
 export const MIN_CONFIDENCE = 0.5;
@@ -132,6 +133,26 @@ export const MEAL_AVG_PRICE_CENTS = 1200;
 /** 1–2 priced items all at/above this → combo/entrée pricing, not a deal list. */
 export const MEAL_EXPENSIVE_ITEM_CENTS = 3000;
 
+/** A food-only window must START at or after this to read as dinner service (not a midday
+ *  menu, which the lunch-band rule owns). 15:00 — Arrivederci's "happy hour" opens 16:00. */
+export const FOOD_MENU_MIN_START_MIN = 15 * 60;
+
+/** A window whose end lands within this many minutes of (or past) the venue's closing time
+ *  "runs to close". A happy hour ends well before close to fill slow hours; a window that
+ *  runs the whole evening service to closing is the dinner menu (Arrivederci 4–9pm vs an
+ *  8:30pm close). 45min absorbs rounding and last-call slack. */
+export const ENDS_AT_CLOSE_TOLERANCE_MIN = 45;
+
+/** The food-menu signal needs a LIST (a menu), not a single weekly special — a lone "$12
+ *  burger night" is a real deal. Arrivederci's dinner menu had a dozen entrées. */
+export const MEAL_MENU_MIN_ITEMS = 3;
+
+/** Alcohol named in an offering means it is not a pure food menu — it is a combo deal that
+ *  includes a discounted drink ("board + bottle of wine", "burger + draft beer"), which is a
+ *  real happy-hour shape. Used to spare those from the food-menu signal. */
+const ALCOHOL_IN_TEXT =
+  /\b(wine|beer|draft|draught|ipa|lager|ale|stout|pilsner|cocktail|martini|margarita|mimosa|sangria|spritz|bottle of wine|tequila|vodka|whiske?y|bourbon|gin|rum|champagne|prosecco|mule|seltzer|cider)\b/i;
+
 export interface MealSpecialInput {
   /** 24-hour "HH:MM[:SS]" or null. */
   startTime: string | null;
@@ -144,13 +165,73 @@ export interface MealSpecialInput {
     name: string | null;
     description?: string | null;
     priceCents: number | null;
+    /** 'food' / 'drink' — enables the food-menu-at-service-hours signal. Omit to skip it. */
+    kind?: string | null;
   }>;
+  /** ISO weekdays (1=Mon..7=Sun) the window covers — paired with hoursJson to detect a
+   *  window that runs to the venue's closing time. Omit to skip that signal. */
+  daysOfWeek?: number[];
+  /** The venue's operating-hours periods, for the runs-to-close signal. Omit to skip it. */
+  hoursJson?: OpenPeriod[] | null;
 }
 
 function toMinutes(t: string | null | undefined): number | null {
   if (!t) return null;
   const m = /^(\d{1,2}):(\d{2})/.exec(t);
   return m ? Number(m[1]) * 60 + Number(m[2]) : null;
+}
+
+/** The venue's closing minute on ISO day `d`, normalized past midnight (a 02:00 close on a
+ *  day that opens at 17:00 → 1560). Null when hours data doesn't cover the day or has no close. */
+function closeMinForDay(d: number, hoursJson: OpenPeriod[] | null | undefined): number | null {
+  if (!hoursJson) return null;
+  const p = hoursJson.find((x) => x.openDay === d);
+  if (!p || p.closeMin == null) return null;
+  return p.closeMin <= p.openMin ? p.closeMin + 24 * 60 : p.closeMin;
+}
+
+/**
+ * The window runs to the venue's closing time — its BOUNDED end sits within
+ * ENDS_AT_CLOSE_TOLERANCE of (or past) close on a strict majority of the covered days that
+ * have hours data. Requires a dinner-service start (≥ FOOD_MENU_MIN_START_MIN) so a midday
+ * menu can't trip it. An open-ended window ("until close") does NOT qualify — "X pm until
+ * close" is a real happy-hour shape (Postino's 8pm board & bottle); only a venue that
+ * explicitly bounds the window AT its close reads as the dinner service. Returns false
+ * without usable hours_json (never guesses).
+ */
+function runsToClose(input: MealSpecialInput): boolean {
+  const start = toMinutes(input.startTime);
+  if (start == null || start < FOOD_MENU_MIN_START_MIN) return false;
+  if (input.endTime == null) return false; // "until close" is a real HH shape, not a tell
+  let end = toMinutes(input.endTime);
+  if (end == null) return false;
+  if (end <= start) end += 24 * 60; // crosses midnight
+  const days = input.daysOfWeek ?? [];
+  let covered = 0;
+  let atClose = 0;
+  for (const d of days) {
+    const close = closeMinForDay(d, input.hoursJson);
+    if (close == null) continue;
+    covered += 1;
+    if (end >= close - ENDS_AT_CLOSE_TOLERANCE_MIN) atClose += 1;
+  }
+  return covered > 0 && atClose * 2 > covered;
+}
+
+/** A full-price food MENU, not a happy hour: ≥ MEAL_MENU_MIN_ITEMS priced items, every one
+ *  food (no drinks at all — a real HH discounts drinks), none naming alcohol (so combo deals
+ *  like "burger + draft beer" are spared), with an average above the meal-price line. The
+ *  multi-item floor spares a single weekly special ("$12 burger night"). */
+function isFullPriceFoodMenu(input: MealSpecialInput): boolean {
+  if (input.offerings.length === 0) return false;
+  if (!input.offerings.every((o) => o.kind === "food")) return false;
+  if (input.offerings.some((o) => ALCOHOL_IN_TEXT.test(`${o.name ?? ""} ${o.description ?? ""}`))) return false;
+  const priced = input.offerings
+    .map((o) => o.priceCents)
+    .filter((p): p is number => p != null && p > 0);
+  if (priced.length < MEAL_MENU_MIN_ITEMS) return false;
+  const avg = priced.reduce((a, b) => a + b, 0) / priced.length;
+  return avg >= MEAL_AVG_PRICE_CENTS;
 }
 
 /**
@@ -163,6 +244,9 @@ function toMinutes(t: string | null | undefined): number | null {
  *   2. meal-shaped clock window (lunch ≤12:00→≤16:00, or dinner ≥17:00→≥21:00)
  *      AND average offering price above $12 — either alone is common in real HH
  *   3. only 1–2 priced items, ALL ≥ $30 — combo/entrée pricing, not a deal list
+ *   4. all-food (no discounted drinks), above the meal-price line, running the venue's
+ *      whole evening service to its closing time — a dinner menu, NOT URL-vetoable
+ *      (signals 1 and 4 fire through a /happy-hour page slug; signals 2, 3 are cleared by it)
  *
  * Veto: explicit happy-hour text anywhere (offering names, notes, source URL) clears
  * all signals — a venue calling it a happy hour is evidence we keep (the D.Monaghans
@@ -191,6 +275,16 @@ export function mealSpecialEvidence(input: MealSpecialInput): string | null {
   // Meal-period TOKEN — not URL-vetoable (an explicit "Dinner Special" is a meal, page slug aside).
   const token = MEAL_SPECIAL_RE.exec(windowText);
   if (token) evidence.push(`meal-service language ("${token[0]}")`);
+
+  // Full-price food menu running the venue's whole evening service to close — also NOT
+  // URL-vetoable. The biggest tell that a window is dinner service, not a happy hour, is
+  // that its hours ARE the venue's dinner hours (Arrivederci's 4–9pm "happy hour" is an
+  // all-food, $14–22 entrée list ending at the 8:30pm close, scraped off /menu/happy-hour).
+  // A real happy hour discounts drinks and ends before close, so requiring all-food + above
+  // the meal-price line + runs-to-close keeps genuine late food specials live.
+  if (isFullPriceFoodMenu(input) && runsToClose(input)) {
+    evidence.push("full-price food menu running to the venue's closing time (dinner service)");
+  }
 
   // Ambiguous price/timing signals — a happy-hour source URL clears these (a HH menu legitimately
   // carries upscale items and midday windows).
