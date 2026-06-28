@@ -107,6 +107,7 @@ TESTS=(
   test:add-offerings
   test:stub-gate
   test:stub-cleanup
+  test:stub-site-gate
   test:anti-bot-fetch
   test:discovery-tiling
   test:recall-rect
