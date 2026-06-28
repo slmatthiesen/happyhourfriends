@@ -6,6 +6,7 @@ import type { Usage } from "./anthropic";
  * (e.g. claude-haiku-4-5-20250101) still match.
  */
 const PRICES: { match: string; inputPerM: number; outputPerM: number }[] = [
+  { match: "glm", inputPerM: 0, outputPerM: 0 }, // free Haiku-tier (z.ai compat endpoint)
   { match: "haiku", inputPerM: 1, outputPerM: 5 },
   { match: "sonnet", inputPerM: 3, outputPerM: 15 },
   { match: "opus", inputPerM: 15, outputPerM: 75 },

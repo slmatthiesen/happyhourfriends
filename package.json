@@ -108,6 +108,7 @@
     "test:free-extract": "tsx scripts/test-free-extract.ts",
     "test:extract-salvage": "tsx scripts/test-extract-salvage.ts",
     "test:extract-image-fallback": "tsx scripts/test-extract-image-fallback.ts",
+    "test:glm-routing": "tsx scripts/test-glm-routing.ts",
     "test:group-by-state": "tsx scripts/test-group-by-state.ts",
     "test:gsc-resolve-page": "tsx scripts/test-gsc-resolve-page.ts",
     "test:gsc-report": "tsx scripts/test-gsc-report.ts",
