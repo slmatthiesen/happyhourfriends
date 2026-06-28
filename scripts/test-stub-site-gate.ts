@@ -34,6 +34,12 @@ check("KEEP: widened name signals (public house, tasting room, sake, apéro, bar
   }
 });
 
+check("KEEP: alive-but-unreadable (bot-wall/robots) is uncertain, not hidden", () => {
+  assert.equal(classifyStubSite({ name: "X", primaryType: "restaurant", types: [], siteReachable: false, siteText: "", siteUnreadable: true }).action, "keep");
+  // but if we DID read content despite a blocked sub-page, classify on the content (no free pass)
+  assert.equal(classifyStubSite({ name: "X", primaryType: "restaurant", types: [], siteReachable: true, siteText: "lunch only" + " filler".repeat(60), siteUnreadable: true }).action, "hide");
+});
+
 check("HIDE: dead / parked / empty site (option 3)", () => {
   assert.equal(classifyStubSite({ name: "X", primaryType: "restaurant", types: [], siteReachable: false, siteText: "" }).action, "hide");
   assert.equal(classifyStubSite(LIVE("Website is ready. The content is to be added.")).action, "hide");
