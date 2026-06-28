@@ -52,7 +52,7 @@ const NAV_WORDS = new Set([
   "follow", "sign", "up", "newsletter", "catering", "event", "events", "private",
   "direction", "directions", "career", "careers", "shop", "book", "booking", "gallery",
   "story", "team", "press", "faq", "faqs", "blog", "login", "account", "search", "more",
-  "info", "view", "our", "us", "and", "the", "find",
+  "info", "view", "our", "us", "and", "the", "find", "call", "now",
   // Online-store chrome — a name made ENTIRELY of these is a product grid / store nav
   // mis-captured as a deal ("Quick View", "Add To Cart"). The leading-label rule below
   // catches the cases where a real product name trails the button text.
