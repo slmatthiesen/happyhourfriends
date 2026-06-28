@@ -65,6 +65,7 @@ export function freeExtractFromPages(
         priceCents: o.priceCents,
         originalPriceCents: null,
         discountCents: o.discountCents,
+        discountPercent: null,
         description: null,
         conditions: null,
         sourceUrl: o.sourceUrl,
