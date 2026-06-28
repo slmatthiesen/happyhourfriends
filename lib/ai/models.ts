@@ -12,4 +12,8 @@ export const MODELS = {
   // gates the (more expensive) extractor: kills wasted extractions of soft-404 catch-alls,
   // covid notices, operating hours, and hotel-package pages. Haiku by default.
   relevance: process.env.ANTHROPIC_MODEL_RELEVANCE ?? "claude-haiku-4-5",
+  // When `extractor` is a text-only GLM model, an extraction that includes an image/PDF
+  // can't be read by it — those calls fall back to this (vision-capable) Anthropic model
+  // instead of dropping the doc. Ignored when the extractor is already Anthropic.
+  visionFallback: process.env.ANTHROPIC_MODEL_VISION_FALLBACK ?? "claude-haiku-4-5",
 } as const;

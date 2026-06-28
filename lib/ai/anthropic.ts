@@ -15,6 +15,33 @@ export function anthropic(): Anthropic {
   return client;
 }
 
+let glmClient: Anthropic | undefined;
+
+/** GLM (Zhipu) speaks the Anthropic wire protocol via z.ai's compat endpoint, so the same
+ *  SDK + message shapes work with only the baseURL + key swapped. Free Haiku-tier model. */
+function glm(): Anthropic {
+  if (glmClient) return glmClient;
+  const apiKey = process.env.GLM_API_KEY;
+  if (!apiKey) throw new Error("GLM_API_KEY is not set");
+  const baseURL = process.env.GLM_BASE_URL ?? "https://api.z.ai/api/anthropic";
+  glmClient = new Anthropic({ apiKey, baseURL });
+  return glmClient;
+}
+
+/** True for GLM model ids that read text only (no vision) — image/PDF blocks must be
+ *  stripped before such a call or the request 400s on the unsupported block. The vision
+ *  GLMs (glm-4.5v / glm-4.6v) are excluded so they keep their image blocks. */
+export function isTextOnlyGlmModel(model: string): boolean {
+  return /^glm/i.test(model) && !/glm-4\.\dv/i.test(model);
+}
+
+/** Pick the client a model id belongs to. `glm-*` → GLM (z.ai), everything else → Anthropic.
+ *  Lets a single env model override (e.g. ANTHROPIC_MODEL_EXTRACTOR=glm-4.5-flash) route a
+ *  whole stage to GLM without touching its call shape. */
+export function clientForModel(model: string): Anthropic {
+  return /^glm/i.test(model) ? glm() : anthropic();
+}
+
 /** Token counts returned by a model call, used to price the call for the ledger. */
 export interface Usage {
   inputTokens: number;
