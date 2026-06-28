@@ -46,6 +46,26 @@ check("flags '$12' with no description");
 assert.equal(classifyOfferingJunk(inp({ name: "$5", priceCents: 500, description: "Well drinks" })), null);
 check("keeps a price-name when a description carries the deal");
 
+// ── junk: ecommerce-chrome (Central Coast Brewing online-shop scrape) ───
+assert.equal(
+  classifyOfferingJunk(inp({ name: "Quick View Pete's Pilsner", kind: "drink", priceCents: 1499 }))?.rule,
+  "ecommerce-chrome",
+);
+check("flags 'Quick View Pete's Pilsner' (trailing drink word can't spare it)");
+assert.equal(classifyOfferingJunk(inp({ name: "Quick View", kind: "drink", priceCents: 1899 }))?.rule, "ecommerce-chrome");
+check("flags bare 'Quick View'");
+assert.equal(
+  classifyOfferingJunk(inp({ name: "Shop Beer Shop Merch", kind: "drink", priceCents: 1799 }))?.rule,
+  "ecommerce-chrome",
+);
+check("flags 'Shop Beer Shop Merch' (repeated shop nav)");
+assert.equal(classifyOfferingJunk(inp({ name: "Add to Cart", kind: "drink" }))?.rule, "ecommerce-chrome");
+check("flags 'Add to Cart'");
+assert.equal(classifyOfferingJunk(inp({ name: "Sold Out — IPA", kind: "drink" }))?.rule, "ecommerce-chrome");
+check("flags 'Sold Out — IPA'");
+assert.equal(classifyOfferingJunk(inp({ name: "Shop House Wines", kind: "drink", priceCents: 600 })), null);
+check("keeps 'Shop House Wines' (single shop, real deal — only repeated/leading-label fires)");
+
 // ── NOT junk: real patterns from the live data ─────────────────────────
 assert.equal(classifyOfferingJunk(inp({ name: null, description: "$2 off beers" })), null);
 check("keeps empty name WITH description (description is the deal)");
