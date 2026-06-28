@@ -43,7 +43,10 @@ function selectOfferings(sql: postgres.Sql, venueId: string | null) {
     JOIN happy_hours hh ON hh.id = o.happy_hour_id
     JOIN venues v ON v.id = hh.venue_id
     JOIN cities c ON c.id = v.city_id
-    WHERE o.active AND o.deleted_at IS NULL AND hh.active AND hh.deleted_at IS NULL
+    -- Sweep junk on hidden windows too, not just live ones: junk is junk regardless of the
+    -- window's visibility, the /admin/reviews hidden queue surfaces it, and a hidden window
+    -- that later gets promoted (e.g. by regate) would otherwise resurrect the junk it carries.
+    WHERE o.active AND o.deleted_at IS NULL AND hh.deleted_at IS NULL
       ${venueFilter}
     ORDER BY c.slug, v.name`;
 }
