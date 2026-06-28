@@ -27,13 +27,12 @@ export default async function Home() {
         className="text-balance text-4xl font-semibold text-text-primary sm:text-5xl"
         style={{ fontFamily: "var(--font-serif)" }}
       >
-        The simplest happy hour site around.
+        Every happy hour, none of the fluff.
       </h1>
 
       <p className="mt-6 max-w-xl text-balance text-lg text-text-muted">
-        Just the data you want — none of the fluff, no extra pages. Sort it,
-        filter it, find your spot. Snap a pic to add a spot or fix a deal — we
-        keep each other in the loop.
+        Just the data you want. Sort it, filter it, find your spot. Snap a pic
+        to add a spot or fix a deal — we keep each other in the loop.
       </p>
       <p className="mt-3 text-lg font-medium text-text-primary">
         Find your spot:

@@ -102,7 +102,7 @@ export default async function CityPage({
           className="text-4xl font-semibold text-text-primary"
           style={{ fontFamily: "var(--font-serif)" }}
         >
-          {city.name} happy hours
+          Happy Hours in {city.name}
         </h1>
         <p className="mt-2 text-text-muted">
           {withHours > 0 ? (
