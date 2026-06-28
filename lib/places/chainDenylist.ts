@@ -53,6 +53,12 @@ const CHAINS: string[] = [
 export function normalize(name: string): string {
   return name
     .toLowerCase()
+    // Fold diacritics to the base letter (é→e, ñ→n) BEFORE the alphanum pass — otherwise an
+    // accented letter becomes a space and splits a word ("apéro"→"ap ro", "café"→"caf "),
+    // losing both denylist and alcohol-signal matches on accented names. \u escapes (combining
+    // diacritical marks U+0300–U+036F) per the same editor-safety reason noted below.
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
     // Strip apostrophes (straight U+0027, right curly U+2019, left curly U+2018).
     // MUST be done BEFORE the alphanum-to-space pass — otherwise "Culver's" with a
     // curly apostrophe becomes "culver s" (with a space), losing the match against
@@ -236,10 +242,14 @@ const ALCOHOL_SIGNAL_PRIMARY = new Set<string>([
 const ALCOHOL_NAME_WORDS = new Set<string>([
   "beer", "biergarten", "pub", "tavern", "taproom", "saloon", "winery", "distillery",
   "cocktail", "cocktails", "alehouse", "meadery", "cidery", "speakeasy", "mezcaleria",
-  "cantina",
+  "cantina", "sake", "apero", "aperitivo",
 ]);
 const ALCOHOL_NAME_PREFIXES = ["brew"]; // brewery, brewing, brewpub, brewhouse, brews
-const ALCOHOL_NAME_PHRASES = ["beer garden", "bier garten", "wine bar", "ale house", "tap room"];
+// Phrases matched against the NORMALIZED name (punctuation→space), so "Bar & Grill" is "bar grill".
+const ALCOHOL_NAME_PHRASES = [
+  "beer garden", "bier garten", "wine bar", "ale house", "tap room",
+  "public house", "tasting room", "beer hall", "bar grill",
+];
 
 /**
  * True when name OR Google place type signals the venue serves alcohol — the override the
