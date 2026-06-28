@@ -62,6 +62,9 @@ export interface StubSiteSignals {
   siteReachable: boolean;
   /** Concatenated text fetched from the venue's own page(s); "" when unreachable. */
   siteText: string;
+  /** Site is alive but we couldn't READ it (bot-wall / robots-blocked / 403). Not "dead" —
+   *  we just can't assess it, so we don't hide on a guess. */
+  siteUnreadable?: boolean;
 }
 
 /** Minimum real-content length below which a "reachable" page is treated as empty/placeholder. */
@@ -73,6 +76,12 @@ export function classifyStubSite(s: StubSiteSignals): StubSiteVerdict {
   // dead/parked: a known bar with a dormant website is still worth listing (operator steer).
   if (hasAlcoholSignal(s.name, s.primaryType, s.types)) {
     return { action: "keep", reason: "alcohol-positive type/name" };
+  }
+
+  // KEEP — alive but unreadable (bot-wall / robots / 403): we can't assess it, so never hide
+  // on a guess. A Cloudflare-challenged page is not a dead site.
+  if (s.siteUnreadable && !s.siteText.trim()) {
+    return { action: "keep", reason: "site unreadable (bot-walled/robots) — uncertain, not hidden" };
   }
 
   // HIDE [option 3] — no real first-party presence to crowdsource from.

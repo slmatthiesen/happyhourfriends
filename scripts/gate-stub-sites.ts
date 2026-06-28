@@ -35,9 +35,10 @@ const arg = (f: string) => {
   return i >= 0 ? process.argv[i + 1] : undefined;
 };
 
-async function fetchSiteText(row: Row): Promise<{ reachable: boolean; text: string }> {
+async function fetchSiteText(row: Row): Promise<{ reachable: boolean; text: string; unreadable: boolean }> {
   const urls = [row.website_url, row.hh_page_url].filter((u): u is string => !!u);
   let reachable = false;
+  let unreadable = false; // alive but couldn't read (bot-wall / robots / 403) — not "dead"
   let text = "";
   for (const u of urls) {
     try {
@@ -46,13 +47,15 @@ async function fetchSiteText(row: Row): Promise<{ reachable: boolean; text: stri
         reachable = true;
         text += " " + r.contentText;
       } else if (r.ok) {
-        reachable = true; // 200 but empty/binary — counts as reachable, classifier treats thin text as parked
+        reachable = true; // 200 but empty/binary — classifier treats thin text as parked
+      } else if (r.blocked === "bot_wall" || r.blockedByRobots || r.status === 403 || r.status === 406 || r.status === 451) {
+        unreadable = true;
       }
     } catch {
       /* network error → leave unreachable unless another url succeeds */
     }
   }
-  return { reachable, text };
+  return { reachable, text, unreadable };
 }
 
 async function main() {
@@ -92,10 +95,10 @@ async function main() {
           return { row, verdict: { action: "keep", reason: "alcohol-positive type/name" } };
         }
         if (!row.website_url) return { row, verdict: { action: "hide", reason: "no website" } };
-        const { reachable, text } = await fetchSiteText(row);
+        const { reachable, text, unreadable } = await fetchSiteText(row);
         const verdict = classifyStubSite({
           name: row.name, primaryType: row.primary_type, types: row.types,
-          siteReachable: reachable, siteText: text,
+          siteReachable: reachable, siteText: text, siteUnreadable: unreadable,
         });
         return { row, verdict };
       },
