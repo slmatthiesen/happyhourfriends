@@ -325,6 +325,41 @@ const CITIES: CitySeed[] = [
       serviceBufferMeters: 500,
     },
   },
+  {
+    // Silicon Valley, CA — aggregate of 9 South Bay/Peninsula municipalities (2026-06-29).
+    // Merged OSM relations: Palo Alto 1544955, Mountain View 1544956, Sunnyvale 112145,
+    // Santa Clara 2221647, Cupertino 2221709, Los Altos 1545000, Los Altos Hills 1552032,
+    // Menlo Park 1544957 (San Mateo County — Meta HQ; claimed here so the future Peninsula
+    // market won't double-claim via global place_id), Campbell 7617165. San Jose is
+    // deliberately excluded (standalone city's worth of venues; widen later as its own scope).
+    // center: bbox center of data/silicon-valley-boundary.geojson, which drives real
+    // tiling/gate; radiusKm is fallback only. Towns surface as neighborhood filters.
+    slug: "silicon-valley",
+    name: "Silicon Valley",
+    state: "CA",
+    country: "US",
+    timezone: "America/Los_Angeles",
+    currency: "USD",
+    centerLat: 37.3937,
+    centerLng: -122.0732,
+    seedConfig: {
+      radiusKm: 16, // fallback only; data/silicon-valley-boundary.geojson drives real tiling/gate
+      cellMeters: 3000,
+      serviceLocalities: [
+        "Palo Alto",
+        "Mountain View",
+        "Sunnyvale",
+        "Santa Clara",
+        "Cupertino",
+        "Los Altos",
+        "Los Altos Hills",
+        "Menlo Park",
+        "Campbell",
+        "Stanford",
+      ],
+      serviceBufferMeters: 500,
+    },
+  },
 ];
 
 async function main() {
