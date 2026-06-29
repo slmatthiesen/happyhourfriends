@@ -1,5 +1,5 @@
 /**
- * Validates the merged Silicon Valley boundary GeoJSON (7 OSM relations → 1 MultiPolygon).
+ * Validates the merged Silicon Valley boundary GeoJSON (9 OSM relations → 1 MultiPolygon).
  * Pure (no DB). Run: pnpm tsx scripts/test-silicon-valley-boundary.ts
  */
 import assert from "node:assert/strict";
@@ -16,8 +16,8 @@ assert.equal(
 const geom = fc.features[0].geometry;
 assert.equal(geom.type, "MultiPolygon", `expected MultiPolygon, got ${geom.type}`);
 assert.ok(
-  geom.coordinates.length >= 7,
-  `expected >=7 polygon parts, got ${geom.coordinates.length}`,
+  geom.coordinates.length >= 9,
+  `expected >=9 polygon parts, got ${geom.coordinates.length}`,
 );
 
 // Inside: one representative point per municipality (city centers / downtowns).
@@ -29,20 +29,22 @@ const inside: Array<[string, number, number]> = [
   ["Cupertino", -122.0322, 37.323],
   ["Los Altos", -122.1141, 37.3852],
   ["Los Altos Hills", -122.1372, 37.3797],
+  ["Menlo Park", -122.1817, 37.453],
+  ["Campbell", -121.95, 37.2872],
 ];
 for (const [name, lng, lat] of inside) {
   assert.ok(pointInPolygon([lng, lat], geom), `${name} center should be INSIDE the boundary`);
 }
 
-// Outside: deliberately-excluded neighbors.
+// Outside: deliberately-excluded neighbors (San Jose core; Redwood City up the Peninsula).
 const outside: Array<[string, number, number]> = [
   ["San Jose", -121.8863, 37.3382],
-  ["Menlo Park", -122.1817, 37.453],
+  ["Redwood City", -122.2364, 37.4852],
 ];
 for (const [name, lng, lat] of outside) {
   assert.ok(!pointInPolygon([lng, lat], geom), `${name} should be OUTSIDE the boundary`);
 }
 
 console.log(
-  `✓ silicon-valley boundary OK — 1 feature, ${geom.coordinates.length} parts, 7 inside / 2 outside checks passed`,
+  `✓ silicon-valley boundary OK — 1 feature, ${geom.coordinates.length} parts, 9 inside / 2 outside checks passed`,
 );
