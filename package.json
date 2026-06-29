@@ -147,6 +147,7 @@
     "test:menu-embed": "tsx scripts/test-menu-embed.ts",
     "test:menu-json": "tsx scripts/test-menu-json.ts",
     "test:menu-platform": "tsx scripts/test-menu-platform.ts",
+    "test:popmenu-menu": "tsx scripts/test-popmenu-menu.ts",
     "test:batch-chunk": "tsx scripts/test-batch-chunk.ts",
     "test:name-primary": "tsx scripts/test-name-primary-assignment.ts",
     "test:neighborhood-canonical": "tsx scripts/test-neighborhood-canonical.ts",
