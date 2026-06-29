@@ -9,6 +9,7 @@ import type { ContentBlockParam } from "@anthropic-ai/sdk/resources/messages";
 import { fetchUrl, detectBotWall, type FetchResult, type ImageMediaType } from "@/lib/verification/fetchUrl";
 import { hasHhOrDealSignal, hasPriceOrDealSignal, looksLikeMenuDoc, scoreHhUrl, TIME_RANGE_RE } from "@/lib/places/hhText";
 import { mapWithConcurrency } from "@/lib/async/mapWithConcurrency";
+import { isPopmenuContent, extractPopmenuHappyHourRoutes } from "@/lib/places/popmenu";
 import {
   antiBotCallsRemaining,
   recordAntiBotCall,
@@ -400,6 +401,32 @@ export async function fetchPages(
       if (!seen.has(k)) { seen.add(k); follow.push(m); }
     }
     for (const m of r.hhContextMediaLinks ?? []) hhLinkedKeys.add(fetchUrlKey(m));
+  }
+
+  // Popmenu serves the actual happy-hour items (names + prices) on a same-origin SPA route —
+  // /menus/web-happy-hour?location=<loc> — injected client-side, so it's neither in the static
+  // HTML nor a cross-origin <iframe> (anchor/media/iframe discovery all miss it). When a fetched
+  // page reads as Popmenu, harvest its happy-hour route(s) and follow them as PAGES (text) so the
+  // deals reach the model. HH-scoped (not web-food/web-drinks) to avoid regular-menu over-capture.
+  // Reunion Kitchen SB extracted a bare 2:30–6pm window until this followed /menus/web-happy-hour.
+  const popmenuRoutes: string[] = [];
+  for (const p of pages) {
+    if (!p.text || !isPopmenuContent(p.text)) continue;
+    for (const route of extractPopmenuHappyHourRoutes(p.text, p.url)) {
+      const k = fetchUrlKey(route);
+      if (!seen.has(k)) { seen.add(k); popmenuRoutes.push(route); }
+    }
+  }
+  if (popmenuRoutes.length > 0) {
+    const routePages = await mapWithConcurrency(
+      popmenuRoutes.slice(0, 3), FETCH_CONCURRENCY, (u) => fetchOne(u),
+      { minSpacingMs: FETCH_SPACING_MS },
+    );
+    for (const r of routePages) {
+      if (!r.ok) continue;
+      if (r.isPdf || r.isImage) { docs.push(r); continue; }
+      if (r.contentText) pages.push({ url: r.url, text: r.contentText, fromAntiBot: r.fromAntiBot });
+    }
   }
 
   // Follow media links ONE HOP — the menu doc usually lives on a sub-page (e.g. /menus)
