@@ -7,6 +7,7 @@
  */
 import assert from "node:assert";
 import { matchesHappyHour, scoreHhUrl, HH_RE, hasPriceOrDealSignal, looksLikeMenuDoc } from "@/lib/places/hhText";
+import { extractMediaLinksDetailed } from "@/lib/places/siteTriage";
 
 let passed = 0;
 function check(name: string, fn: () => void) { fn(); passed++; console.log(`  ✓ ${name}`); }
@@ -75,6 +76,21 @@ check("HH_RE rebranded-hour synonyms (Pausa 'Spritz Hour' PDF, San Mateo 2026-06
   // term, not an HH rebrand, so it would systematically false-escalate non-HH pages.
   assert.ok(!HH_RE.test("enjoy the golden hour on our rooftop"), "poetic 'golden hour' excluded");
   assert.ok(!HH_RE.test("open 24 hours a day"), "bare 'hours' still must not match");
+});
+
+check("Spritz Hour anchor ranks its PDF first (the Pausa doc-budget bug, end-to-end)", () => {
+  // Two menu PDFs; only the one the page labels "Spritz Hour" holds the HH deal. Before HH_RE
+  // learned "spritz hour" its anchor scored 0, so the Dinner PDF won the byte budget and we
+  // extracted nothing. This locks the anchor-context ranking, not just the regex.
+  const html = `<p>Our menus</p>
+    <a href="/s/Pausa-Dinner.pdf">Dinner Menu</a>
+    <a href="/s/Bar-Menu-Hour.pdf">Spritz Hour Menu</a>`;
+  const links = extractMediaLinksDetailed(html, "http://www.pausasanmateo.com/");
+  const spritz = links.find((l) => l.url.includes("Bar-Menu-Hour"));
+  const dinner = links.find((l) => l.url.includes("Dinner"));
+  assert.ok(spritz?.hhContext, "Spritz Hour anchor → hhContext=true");
+  assert.ok(!dinner?.hhContext, "Dinner anchor → hhContext=false");
+  assert.equal(links[0].url, spritz?.url, "HH-context PDF ranks first, wins the byte budget");
 });
 
 check("hasPriceOrDealSignal fires on real prices/deals (enrich escalation trigger)", () => {
