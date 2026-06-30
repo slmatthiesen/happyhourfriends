@@ -68,7 +68,7 @@ import { mapWithConcurrency } from "@/lib/async/mapWithConcurrency";
 // Arg parsing
 // ---------------------------------------------------------------------------
 
-function parseArgs(): { limit: number | null; batch: boolean; noWebsearch: boolean } {
+function parseArgs(): { limit: number | null; batch: boolean; noWebsearch: boolean; retryKilled: boolean } {
   const argv = process.argv.slice(2);
   const getFlag = (f: string) => {
     const i = argv.indexOf(f);
@@ -81,6 +81,11 @@ function parseArgs(): { limit: number | null; batch: boolean; noWebsearch: boole
     // --no-websearch: don't pay web_search to chase candidates with no captured website.
     // Defer them (skip, unprocessed) and bubble them up to a report for manual review.
     noWebsearch: argv.includes("--no-websearch"),
+    // --retry-killed: re-queue candidates that previously ended killed_no_site/error (they set
+    // processed_at and were never retried). Fetch/triage has since gained redirect-following and
+    // bot-wall fallback, so a site killed under old code (e.g. a bare 301) now triages live. A
+    // truly-dead site is simply re-killed at ~$0 (kill happens before the paid extractor).
+    retryKilled: argv.includes("--retry-killed"),
   };
 }
 
@@ -454,6 +459,22 @@ async function main() {
     // ---- Resolve city row --------------------------------------------------
     const { slug, state } = requireCityArgs();
     const city = await resolveCity(sql, slug, state);
+
+    // ---- Re-queue prior kills/errors before loading (both paths read processed_at IS NULL).
+    // A candidate that ended killed_no_site/error set processed_at and never retried, so a venue
+    // killed under older fetch code (no redirect-follow / bot-wall fallback) stays frozen even
+    // though it now triages live. Reset only those with NO venue, so we never disturb successes.
+    if (args.retryKilled) {
+      const reset = await sql`
+        UPDATE seed_candidates SET processed_at = NULL, updated_at = now()
+        WHERE city_id = ${city.id}
+          AND outcome IN ('killed_no_site', 'error')
+          AND NOT EXISTS (
+            SELECT 1 FROM venues v WHERE v.google_place_id = seed_candidates.google_place_id
+          )
+      `;
+      console.log(`--retry-killed: re-queued ${reset.count} killed/errored candidate(s) for '${city.slug}'.`);
+    }
 
     // ---- Batch path branches off here --------------------------------------
     if (args.batch) {
