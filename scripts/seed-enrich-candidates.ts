@@ -309,6 +309,10 @@ async function persistExtraction(
     cityId: string;
     ctx: PrepContext;
     extracted: ExtractResult | null;
+    /** Killed-site safety net: force the stub HIDDEN ('no_happy_hour') for operator review
+     *  instead of public. A dead website usually means closed, but an OPERATIONAL alcohol venue
+     *  is worth a review stub rather than a silent drop (Mortar & Pestle: 404 deep-link, yet open). */
+    reviewStub?: boolean;
   },
 ): Promise<{
   venueId: string | null;
@@ -332,14 +336,16 @@ async function persistExtraction(
   // Dead-end stubs (no alcohol / zero-HH cuisine) are created HIDDEN (status='no_happy_hour')
   // so a new city never surfaces them in the public list (Build A). The persist path below flips
   // them back to 'active' if an active HH unexpectedly lands. Everything else inserts 'active'.
-  const initialStatus = isDeadEndSignal({
-    servesAlcohol: ctx.servesAlcohol ?? null,
-    name: ctx.name,
-    primaryType: ctx.primaryType,
-    types: ctx.types,
-  })
-    ? "no_happy_hour"
-    : "active";
+  const initialStatus =
+    args.reviewStub ||
+    isDeadEndSignal({
+      servesAlcohol: ctx.servesAlcohol ?? null,
+      name: ctx.name,
+      primaryType: ctx.primaryType,
+      types: ctx.types,
+    })
+      ? "no_happy_hour"
+      : "active";
 
   // Insert the venue as a stub; the canonical persist path promotes it to 'complete' when
   // an active window lands (it never demotes a pre-existing venue). This mirrors the
@@ -615,6 +621,25 @@ async function main() {
 
         const siteUrl = candidate.website_url ?? null;
 
+        // Built before triage so the kill branch can also persist a review stub from it.
+        const ctx: PrepContext = {
+          candidateId: candidate.id,
+          name: candidate.name,
+          address: candidate.address,
+          lat: candidate.lat,
+          lng: candidate.lng,
+          googlePlaceId: candidate.google_place_id,
+          siteUrl,
+          phone: candidate.phone ?? null,
+          priceLevel: candidate.price_level ?? null,
+          hoursJson: candidate.hours_json ?? null,
+          photoName: null,
+          primaryType: candidate.primary_type ?? null,
+          types: candidate.types ?? null,
+          servesAlcohol: candidate.serves_alcohol,
+          googleNeighborhood: candidate.google_neighborhood ?? null,
+        };
+
         // ---- Site triage: kill dead/parked/no-site; point extractor at HH links --
         const verdict = await triageSite({
           websiteUri: siteUrl,
@@ -631,8 +656,14 @@ async function main() {
         const decided = resolveEnrichAction(verdict, likelihood);
 
         if (decided.action === "kill") {
-          say(`  ✗ kill — ${decided.reason}`);
-          await markProcessed(sql, candidate.id, "killed_no_site", null);
+          // A killed SITE means the website is dead/unreadable — not necessarily the venue. An
+          // OPERATIONAL alcohol venue (all of these passed the alcohol gate above) is kept as a
+          // HIDDEN 'for review' stub, not dropped: a dead site usually means closed, so it stays
+          // out of the public list, but the operator can confirm-closed or find the real URL
+          // rather than the venue vanishing silently (Mortar & Pestle: 404 deep-link, yet open).
+          const review = await persistExtraction(sql, { cityId: city.id, ctx, extracted: null, reviewStub: true });
+          say(`  ✗ kill → hidden review stub — ${decided.reason}`);
+          await markProcessed(sql, candidate.id, "killed_no_site", review.venueId);
           return {
             kind: "killed",
             killEntry: {
@@ -671,23 +702,6 @@ async function main() {
           say("  → stub (social/ordering link only)");
         }
 
-        const ctx: PrepContext = {
-          candidateId: candidate.id,
-          name: candidate.name,
-          address: candidate.address,
-          lat: candidate.lat,
-          lng: candidate.lng,
-          googlePlaceId: candidate.google_place_id,
-          siteUrl,
-          phone: candidate.phone ?? null,
-          priceLevel: candidate.price_level ?? null,
-          hoursJson: candidate.hours_json ?? null,
-          photoName: null,
-          primaryType: candidate.primary_type ?? null,
-          types: candidate.types ?? null,
-          servesAlcohol: candidate.serves_alcohol,
-          googleNeighborhood: candidate.google_neighborhood ?? null,
-        };
         const persisted = await persistExtraction(sql, {
           cityId: city.id,
           ctx,
@@ -1107,19 +1121,6 @@ async function prepAndSubmit(
     const likelihood = hhLikelihood({ primaryType: c.primary_type, types: c.types, name: c.name });
     const decided = resolveEnrichAction(verdict, likelihood);
 
-    if (decided.action === "kill") {
-      await markProcessed(sql, c.id, "killed_no_site", null);
-      tally.killed++;
-      tally.killEntries.push({
-        name: c.name,
-        neighborhood: null,
-        reason: killReasonOf(verdict.reason),
-        urlTried: verdict.url,
-        likelihood,
-      });
-      continue;
-    }
-
     const ctx: PrepContext = {
       candidateId: c.id,
       name: c.name,
@@ -1139,6 +1140,24 @@ async function prepAndSubmit(
       googleNeighborhood: c.google_neighborhood ?? null,
       priorityUrls: decided.priorityUrls,
     };
+
+    if (decided.action === "kill") {
+      // Killed SITE ≠ dead venue. An OPERATIONAL alcohol venue (passed the alcohol gate above)
+      // is kept as a HIDDEN 'for review' stub, not dropped — out of the public list (a dead site
+      // usually means closed), but recoverable by the operator instead of vanishing silently
+      // (Mortar & Pestle: 404 deep-link, yet open with a 4-6pm HH).
+      const review = await persistExtraction(sql, { cityId: city.id, ctx, extracted: null, reviewStub: true });
+      await markProcessed(sql, c.id, "killed_no_site", review.venueId);
+      tally.killed++;
+      tally.killEntries.push({
+        name: c.name,
+        neighborhood: null,
+        reason: killReasonOf(verdict.reason),
+        urlTried: verdict.url,
+        likelihood,
+      });
+      continue;
+    }
 
     // social_only → write a stub now, no AI (the FB/IG URL stays on the venue via
     // ctx.siteUrl). A no-site go-for-it (action extract, ctx.siteUrl null) falls
