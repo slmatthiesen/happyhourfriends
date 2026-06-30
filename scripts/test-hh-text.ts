@@ -6,7 +6,7 @@
  * Run: tsx scripts/test-hh-text.ts
  */
 import assert from "node:assert";
-import { matchesHappyHour, scoreHhUrl, HH_RE, hasPriceOrDealSignal } from "@/lib/places/hhText";
+import { matchesHappyHour, scoreHhUrl, HH_RE, hasPriceOrDealSignal, looksLikeMenuDoc } from "@/lib/places/hhText";
 
 let passed = 0;
 function check(name: string, fn: () => void) { fn(); passed++; console.log(`  ✓ ${name}`); }
@@ -60,6 +60,21 @@ check("HH_RE synonyms from the 2026-06-11 review corpus", () => {
   assert.ok(scoreHhUrl("https://www.pyrophx.com/social-hour") >= 100);
   assert.ok(!HH_RE.test("open 24 hours"), "plain 'hours' must not match");
   assert.ok(!HH_RE.test("rush hour traffic"), "'rush hour' must not match");
+});
+
+check("HH_RE rebranded-hour synonyms (Pausa 'Spritz Hour' PDF, San Mateo 2026-06-29)", () => {
+  // Pausa publishes its HH as "Spritz Hour" in a PDF; the page's "Spritz Hour Menu" anchor
+  // must mark that PDF as hhContext (siteTriage uses HH_RE) so it wins the byte budget.
+  assert.ok(HH_RE.test("Spritz Hour in the parklet, 3-6pm daily")); // Pausa Bar & Cookery
+  assert.ok(HH_RE.test("Join us for Sunset Hour"));
+  assert.ok(HH_RE.test("Sundowners on the patio, $8 spritzes"));
+  // Filename/URL ranking: a spritz-hour doc scores like a happy-hour doc and reads as a menu.
+  assert.ok(scoreHhUrl("https://www.pausasanmateo.com/s/spritz-hour.pdf") >= 100);
+  assert.ok(looksLikeMenuDoc("https://x.com/Spritz-Hour.pdf"));
+  // Boundary: "golden hour" is deliberately EXCLUDED — it's overwhelmingly a photography/patio
+  // term, not an HH rebrand, so it would systematically false-escalate non-HH pages.
+  assert.ok(!HH_RE.test("enjoy the golden hour on our rooftop"), "poetic 'golden hour' excluded");
+  assert.ok(!HH_RE.test("open 24 hours a day"), "bare 'hours' still must not match");
 });
 
 check("hasPriceOrDealSignal fires on real prices/deals (enrich escalation trigger)", () => {
