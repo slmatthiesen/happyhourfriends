@@ -1,7 +1,7 @@
 # AWS Go-Live Runbook (Phase 1)
 
 Operator-run. Nothing here is executed by Claude. Prereqs: AWS account with a billing
-budget/alert, an Amazon Linux 2023 **arm64** AMI id, and a GitHub read-only deploy key.
+budget/alert, an Ubuntu 24.04 LTS **arm64** AMI id, and a GitHub read-only deploy key.
 
 ## 0. Secrets (AWS Secrets Manager: `budget/secrets`)
 Store a flat JSON object mirroring `.env.example`, plus: `PGPASSWORD` (the `hhf` DB
@@ -51,7 +51,7 @@ The box comes back up with real secrets and starts hhf-web + caddy. Terraform wi
 overwrite the secret on future applies (`ignore_changes`).
 
 ## 5. Verify the new stack (before touching prod DNS)
-- SSM into the box: `systemctl status hhf-web caddy postgresql-17 hhf-backup.timer`.
+- SSM into the box: `systemctl status hhf-web caddy postgresql hhf-backup.timer`.
 - Caddy obtained a cert: `journalctl -u caddy | grep -i certificate`.
 - Direct origin check: `curl -I https://origin.happyhourfriends.com` -> `200`.
 - CloudFront check: `curl -I https://<distribution>.cloudfront.net` -> `200`, app HTML.

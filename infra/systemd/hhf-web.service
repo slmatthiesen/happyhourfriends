@@ -1,8 +1,8 @@
 [Unit]
 Description=Happy Hour Friends web + pg-boss workers
-After=network-online.target postgresql-17.service
+After=network-online.target postgresql.service
 Wants=network-online.target
-Requires=postgresql-17.service
+Requires=postgresql.service
 
 [Service]
 Type=simple
