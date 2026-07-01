@@ -3,7 +3,16 @@
  */
 export const MODELS = {
   classifier: process.env.ANTHROPIC_MODEL_CLASSIFIER ?? "claude-haiku-4-5",
-  verifier: process.env.ANTHROPIC_MODEL_VERIFIER ?? "claude-sonnet-4-6",
+  // Stage-2 verifier LOOP + verdict model. Drives fetch_url/web_search and emits the
+  // confirm/contradict JSON over *text only* — every image/PDF is transcribed first by
+  // `verifierVision` (below), so this stays on cheap Haiku. Verdict-on-text is a
+  // classification task well within Haiku's range; gated by `eval:verifier`.
+  verifier: process.env.ANTHROPIC_MODEL_VERIFIER ?? "claude-haiku-4-5",
+  // Vision sidecar for the verifier: reads uploaded menu photos/PDFs and any image/PDF
+  // the loop fetches, transcribing HH-relevant content to text for the loop model. Sonnet
+  // because menu-image reading is where model quality actually pays off.
+  verifierVision:
+    process.env.ANTHROPIC_MODEL_VERIFIER_VISION ?? "claude-sonnet-4-6",
   // Seed happy-hour extraction. Haiku by default — "read a menu, emit JSON" is well
   // within its range, and it's ~3× cheaper than Sonnet (matters since web_fetch pulls
   // page text in as input tokens). Override with ANTHROPIC_MODEL_EXTRACTOR if needed.
