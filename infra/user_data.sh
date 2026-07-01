@@ -45,7 +45,7 @@ aws secretsmanager get-secret-value --secret-id "${secret_id}" \
   --region "${aws_region}" --query SecretString --output text > /etc/happyhour/secrets.json
 # secrets.json is a flat JSON object of KEY: value pairs mirroring .env.example.
 # Render it to a systemd EnvironmentFile, and append box-derived values.
-jq -r 'to_entries[] | "\(.key)=\(.value)"' /etc/happyhour/secrets.json > "$ENV_FILE"
+jq -r 'del(.DEPLOY_KEY) | to_entries[] | "\(.key)=\(.value)"' /etc/happyhour/secrets.json > "$ENV_FILE"
 {
   echo "BACKUP_BUCKET=${backup_bucket}"
   echo "MEDIA_BUCKET=${media_bucket}"
