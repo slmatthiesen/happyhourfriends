@@ -250,11 +250,19 @@ resource "aws_security_group" "ec2_box" {
 # =============================================================================
 
 resource "aws_instance" "ec2_box" {
-  ami                    = var.ami_id
-  instance_type          = "t4g.medium"
-  subnet_id              = aws_subnet.public_a.id
-  vpc_security_group_ids = [aws_security_group.ec2_box.id]
-  iam_instance_profile   = aws_iam_instance_profile.ec2_box.name
+  ami                         = var.ami_id
+  instance_type               = "t4g.medium"
+  subnet_id                   = aws_subnet.public_a.id
+  vpc_security_group_ids      = [aws_security_group.ec2_box.id]
+  iam_instance_profile        = aws_iam_instance_profile.ec2_box.name
+  user_data_replace_on_change = true
+  user_data = base64encode(templatefile("${path.module}/user_data.sh", {
+    origin_domain = var.origin_domain
+    secret_id     = aws_secretsmanager_secret.secrets.id
+    aws_region    = var.aws_region
+    backup_bucket = aws_s3_bucket.s3_backups.id
+    media_bucket  = aws_s3_bucket.s3_assets.id
+  }))
 
   # IMDSv2 required (no v1 fallback).
   metadata_options {
@@ -342,6 +350,17 @@ resource "aws_s3_bucket_public_access_block" "s3_backups" {
 resource "aws_s3_bucket_versioning" "s3_backups" {
   bucket = aws_s3_bucket.s3_backups.id
   versioning_configuration { status = "Enabled" }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "s3_backups" {
+  bucket = aws_s3_bucket.s3_backups.id
+  rule {
+    id     = "expire-pgdumps-14d"
+    status = "Enabled"
+    filter { prefix = "pgdump/" }
+    expiration { days = 14 }
+    noncurrent_version_expiration { noncurrent_days = 14 }
+  }
 }
 
 resource "aws_s3_bucket_policy" "s3_backups" {
