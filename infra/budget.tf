@@ -42,7 +42,7 @@ variable "aws_region" {
 
 variable "ami_id" {
   type        = string
-  description = "Machine image for the application box (Amazon Linux 2023 recommended)."
+  description = "Machine image for the application box (Ubuntu 24.04 LTS, arm64)."
 }
 
 variable "domain_name" {

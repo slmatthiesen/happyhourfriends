@@ -1,6 +1,6 @@
 [Unit]
 Description=Happy Hour Friends nightly pg_dump → S3
-After=network-online.target postgresql-17.service
+After=network-online.target postgresql.service
 
 [Service]
 Type=oneshot
