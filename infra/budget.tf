@@ -169,6 +169,18 @@ resource "aws_iam_role_policy" "ec2_box_inline" {
         ]
       },
       {
+        Sid    = "S3_s3_backups"
+        Effect = "Allow"
+        Action = [
+          "s3:PutObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          aws_s3_bucket.s3_backups.arn,
+          "${aws_s3_bucket.s3_backups.arn}/*"
+        ]
+      },
+      {
         Sid      = "Secret_secrets"
         Effect   = "Allow"
         Action   = "secretsmanager:GetSecretValue"
@@ -460,6 +472,9 @@ resource "aws_secretsmanager_secret_version" "secrets" {
     username = "REPLACE_ME"
     password = "REPLACE_ME" # inject out-of-band; do not commit a real secret
   })
+  lifecycle {
+    ignore_changes = [secret_string]
+  }
 }
 
 # =============================================================================

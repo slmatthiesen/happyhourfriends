@@ -42,6 +42,14 @@ terraform apply tf.plan
 ACM DNS validation and the CloudFront distribution can take 15-40 min. The box boots and
 runs `user_data.sh`; watch `/var/log/hhf-bootstrap.log` via SSM Session Manager.
 
+IMPORTANT (secret ordering): `terraform apply` creates the `budget/secrets` container
+with placeholder values, so the instance's first bootstrap will FAIL to clone/start
+(expected). After apply completes: (1) populate `budget/secrets` in Secrets Manager with
+the real flat-JSON values (all `.env.example` keys + `PGPASSWORD` + `DEPLOY_KEY`), then
+(2) re-run bootstrap on the box via SSM: `sudo cloud-init clean --logs && sudo reboot`.
+The box comes back up with real secrets and starts hhf-web + caddy. Terraform will not
+overwrite the secret on future applies (`ignore_changes`).
+
 ## 5. Verify the new stack (before touching prod DNS)
 - SSM into the box: `systemctl status hhf-web caddy postgresql-17 hhf-backup.timer`.
 - Caddy obtained a cert: `journalctl -u caddy | grep -i certificate`.
