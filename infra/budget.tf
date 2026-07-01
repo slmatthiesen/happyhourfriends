@@ -384,20 +384,6 @@ resource "aws_s3_bucket_policy" "s3_assets" {
             "aws:SecureTransport" = "false"
           }
         }
-      },
-      {
-        Sid    = "AllowCloudFrontOAC"
-        Effect = "Allow"
-        Principal = {
-          Service = "cloudfront.amazonaws.com"
-        }
-        Action   = "s3:GetObject"
-        Resource = "${aws_s3_bucket.s3_assets.arn}/*"
-        Condition = {
-          StringEquals = {
-            "AWS:SourceArn" = aws_cloudfront_distribution.cf.arn
-          }
-        }
       }
     ]
   })
@@ -664,13 +650,6 @@ resource "aws_s3_bucket_acl" "cf_logs" {
   }
 }
 
-resource "aws_cloudfront_origin_access_control" "s3_assets" {
-  name                              = "budget-s3-assets-oac"
-  origin_access_control_origin_type = "s3"
-  signing_behavior                  = "always"
-  signing_protocol                  = "sigv4"
-}
-
 resource "aws_cloudfront_distribution" "cf" {
   enabled             = true
   is_ipv6_enabled     = true
@@ -680,11 +659,6 @@ resource "aws_cloudfront_distribution" "cf" {
   web_acl_id          = aws_wafv2_web_acl.cf.arn
   aliases             = [var.domain_name]
 
-  origin {
-    domain_name              = aws_s3_bucket.s3_assets.bucket_regional_domain_name
-    origin_id                = "s3-s3_assets"
-    origin_access_control_id = aws_cloudfront_origin_access_control.s3_assets.id
-  }
   # EC2 origin over a custom domain with a TLS cert (NOT a raw AWS DNS name — rule cloudfront-origin-tls).
   origin {
     domain_name = var.origin_domain
@@ -712,8 +686,8 @@ resource "aws_cloudfront_distribution" "cf" {
     max_ttl     = 0
   }
   ordered_cache_behavior {
-    path_pattern           = "/static/*"
-    target_origin_id       = "s3-s3_assets"
+    path_pattern           = "/_next/static/*"
+    target_origin_id       = "origin-ec2_box"
     viewer_protocol_policy = "redirect-to-https"
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
