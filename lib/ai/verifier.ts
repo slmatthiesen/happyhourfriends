@@ -14,12 +14,12 @@ import type {
   ToolResultBlockParam,
 } from "@anthropic-ai/sdk/resources/messages";
 
-import { anthropic, parseJsonResponse } from "@/lib/ai/anthropic";
+import { clientForModel, parseJsonResponse } from "@/lib/ai/anthropic";
 import type { Usage } from "@/lib/ai/anthropic";
 import { costCents as calcCostCents } from "@/lib/ai/pricing";
 import { MODELS } from "@/lib/ai/models";
 import { loadPrompt, splitPrompt } from "@/lib/ai/promptHash";
-import { fetchUrl } from "@/lib/verification/fetchUrl";
+import { fetchUrl, type FetchResult } from "@/lib/verification/fetchUrl";
 import { webSearch } from "@/lib/verification/webSearch";
 
 // ---------------------------------------------------------------------------
@@ -157,6 +157,101 @@ function normaliseEvidence(raw: RawEvidence[]): Evidence[] {
 }
 
 // ---------------------------------------------------------------------------
+// Vision sidecar + cost accounting
+// ---------------------------------------------------------------------------
+
+/**
+ * Accumulates token usage per model across a verify() run so a mixed Haiku-loop +
+ * Sonnet-vision pass is priced correctly (each model at its own rate) and the ledger
+ * gets one combined row. `label()` names the model(s) actually used.
+ */
+class SpendAccount {
+  private readonly byModel = new Map<string, Usage>();
+  add(model: string, u: { input_tokens: number; output_tokens: number }): void {
+    const cur = this.byModel.get(model) ?? { inputTokens: 0, outputTokens: 0 };
+    cur.inputTokens += u.input_tokens;
+    cur.outputTokens += u.output_tokens;
+    this.byModel.set(model, cur);
+  }
+  usage(): Usage {
+    const total: Usage = { inputTokens: 0, outputTokens: 0 };
+    for (const u of this.byModel.values()) {
+      total.inputTokens += u.inputTokens;
+      total.outputTokens += u.outputTokens;
+    }
+    return total;
+  }
+  costCents(): number {
+    let cents = 0;
+    for (const [model, u] of this.byModel) cents += calcCostCents(model, u);
+    return cents;
+  }
+  label(): string {
+    return [...this.byModel.keys()].join("+");
+  }
+}
+
+const VISION_PROMPT =
+  "Transcribe this venue menu/flyer image. List verbatim any happy-hour, drink-special, " +
+  "or food-special content: days, times, item names, prices, and any stated conditions " +
+  '(e.g. "dine-in only"). Quote exact printed text; do not infer, summarise, or add anything ' +
+  "not printed. If it contains no happy-hour or special-pricing content, reply with exactly " +
+  "NO_HAPPY_HOUR_CONTENT.";
+
+function mediaBlock(media: EvidenceMedia): ContentBlockParam {
+  return media.kind === "document"
+    ? {
+        type: "document",
+        source: { type: "base64", media_type: "application/pdf", data: media.base64 },
+      }
+    : {
+        type: "image",
+        source: { type: "base64", media_type: media.mediaType, data: media.base64 },
+      };
+}
+
+/**
+ * Read one image/PDF with the vision model and return its transcribed HH-relevant text,
+ * so the (cheap, text-only) loop model never has to process pixels. Resilient: a vision
+ * failure yields a sentinel the loop can reason about rather than aborting the whole run.
+ */
+async function describeMedia(
+  media: EvidenceMedia,
+  spend: SpendAccount,
+): Promise<string> {
+  const visionModel = MODELS.verifierVision;
+  try {
+    const res = await clientForModel(visionModel).messages.create({
+      model: visionModel,
+      max_tokens: 1024,
+      messages: [
+        { role: "user", content: [{ type: "text", text: VISION_PROMPT }, mediaBlock(media)] },
+      ],
+    });
+    spend.add(visionModel, res.usage);
+    for (const b of res.content) if (b.type === "text") return b.text.trim();
+    return "[vision returned no text]";
+  } catch {
+    return "[vision extraction failed — could not read the attached media]";
+  }
+}
+
+/** Build an EvidenceMedia from a fetch_url result that returned a PDF or image, else null. */
+function mediaFromFetch(result: FetchResult): EvidenceMedia | null {
+  if (result.isPdf && result.pdfBase64) {
+    return { kind: "document", base64: result.pdfBase64 };
+  }
+  if (result.isImage && result.imageBase64 && result.imageMediaType) {
+    return {
+      kind: "image",
+      base64: result.imageBase64,
+      mediaType: result.imageMediaType,
+    };
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
 // Main export
 // ---------------------------------------------------------------------------
 
@@ -167,46 +262,31 @@ export async function verify(input: VerifyInput): Promise<VerifyResult> {
   const system = fillPlaceholders(rawSystem, input);
   const userText = fillPlaceholders(rawUser, input);
 
-  // When the submitter attached a menu photo or PDF, hand it to the model as primary
-  // evidence (vision / native PDF). Otherwise the initial turn is plain text.
+  const spend = new SpendAccount();
+  const model = MODELS.verifier;
+
+  // Every image/PDF is transcribed to text by the vision sidecar so the loop model stays
+  // text-only. When the submitter attached a menu photo/PDF, read it up front and fold the
+  // transcription into the opening turn as first-party evidence.
   let initialContent: string | ContentBlockParam[] = userText;
   if (input.evidenceMedia) {
-    const note =
+    const transcript = await describeMedia(input.evidenceMedia, spend);
+    const kind = input.evidenceMedia.kind === "document" ? "PDF" : "photo";
+    initialContent =
       userText +
-      "\n\nThe submitter attached a " +
-      (input.evidenceMedia.kind === "document" ? "PDF" : "photo") +
-      " of the venue's happy-hour menu as primary evidence. Read it directly; if it " +
-      'supports the change, treat it as a first-party source (cite it with source "other" ' +
-      'and url "submitted-menu").';
-    const mediaBlock: ContentBlockParam =
-      input.evidenceMedia.kind === "document"
-        ? {
-            type: "document",
-            source: {
-              type: "base64",
-              media_type: "application/pdf",
-              data: input.evidenceMedia.base64,
-            },
-          }
-        : {
-            type: "image",
-            source: {
-              type: "base64",
-              media_type: input.evidenceMedia.mediaType,
-              data: input.evidenceMedia.base64,
-            },
-          };
-    initialContent = [{ type: "text", text: note }, mediaBlock];
+      `\n\nThe submitter attached a ${kind} of the venue's happy-hour menu as primary ` +
+      "evidence. A vision model transcribed it verbatim as:\n\n" +
+      transcript +
+      '\n\nIf this supports the change, treat it as a first-party source (cite it with ' +
+      'source "other" and url "submitted-menu").';
   }
 
   const messages: MessageParam[] = [{ role: "user", content: initialContent }];
 
-  const summedUsage: Usage = { inputTokens: 0, outputTokens: 0 };
-  const model = MODELS.verifier;
   let finalText = "";
 
   for (let turn = 0; turn < MAX_TURNS; turn++) {
-    const response = await anthropic().messages.create({
+    const response = await clientForModel(model).messages.create({
       model,
       max_tokens: 2048,
       system,
@@ -214,9 +294,7 @@ export async function verify(input: VerifyInput): Promise<VerifyResult> {
       messages,
     });
 
-    // Accumulate token usage
-    summedUsage.inputTokens += response.usage.input_tokens;
-    summedUsage.outputTokens += response.usage.output_tokens;
+    spend.add(model, response.usage);
 
     if (response.stop_reason !== "tool_use") {
       // Final text response
@@ -241,32 +319,23 @@ export async function verify(input: VerifyInput): Promise<VerifyResult> {
           const { url } = block.input as { url: string };
           const result = await fetchUrl(url);
 
-          // A PDF (common for menus): hand the bytes back as a native document
-          // block so Claude reads it (text + OCR) instead of choking on raw bytes.
-          if (result.ok && result.isPdf && result.pdfBase64) {
+          // A PDF or image (common for menus): transcribe it via the vision sidecar and
+          // hand the loop model plain text, so it never has to process pixels itself.
+          const media = result.ok ? mediaFromFetch(result) : null;
+          if (media) {
+            const kind = media.kind === "document" ? "PDF" : "image";
+            const transcript = await describeMedia(media, spend);
             return {
               type: "tool_result" as const,
               tool_use_id: block.id,
-              content: [
-                {
-                  type: "text" as const,
-                  text: `Fetched a PDF from ${url}. Reading it as a document:`,
-                },
-                {
-                  type: "document" as const,
-                  source: {
-                    type: "base64" as const,
-                    media_type: "application/pdf" as const,
-                    data: result.pdfBase64,
-                  },
-                },
-              ],
+              content: `Fetched a ${kind} from ${url}. Vision transcription:\n\n${transcript}`,
             };
           }
 
           const output = {
             ...result,
             pdfBase64: undefined,
+            imageBase64: undefined,
             contentText: result.contentText
               ? truncate(result.contentText, MAX_TOOL_CONTENT)
               : undefined,
@@ -321,9 +390,9 @@ export async function verify(input: VerifyInput): Promise<VerifyResult> {
     evidence,
     confidence,
     summary: raw.summary ?? "",
-    usage: summedUsage,
-    costCents: calcCostCents(model, summedUsage),
+    usage: spend.usage(),
+    costCents: spend.costCents(),
     promptHash: loaded.hash,
-    model,
+    model: spend.label() || model,
   };
 }
