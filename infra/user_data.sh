@@ -21,7 +21,7 @@ mount -a
 
 # --- 2. packages ------------------------------------------------------------
 dnf -y install postgresql17-server postgresql17-contrib postgis34_17 \
-  nodejs20 git tar xz jq chromium unzip
+  nodejs20 git tar xz jq unzip
 corepack enable
 corepack prepare pnpm@latest --activate
 id hhf >/dev/null 2>&1 || useradd --system --create-home --shell /usr/sbin/nologin hhf
@@ -72,6 +72,11 @@ sudo -u hhf git clone git@github.com:slmatthiesen/happyhourfriends.git "$APP_DIR
   (cd "$APP_DIR" && sudo -u hhf git pull --ff-only)
 cd "$APP_DIR"
 sudo -u hhf --preserve-env=HOME env HOME=/home/hhf pnpm install --frozen-lockfile
+# The app renders via playwright chromium.launch() (NOT a system chromium package).
+# install-deps (root) adds the shared libraries; the browser build itself installs into
+# the hhf user's ~/.cache/ms-playwright so the hhf-web service can launch it.
+pnpm exec playwright install-deps chromium
+sudo -u hhf --preserve-env=HOME env HOME=/home/hhf pnpm exec playwright install chromium
 sudo -u hhf --preserve-env=HOME env HOME=/home/hhf bash -c 'set -a; . /etc/happyhour/.env; set +a; pnpm build && pnpm db:migrate'
 
 # --- 6. caddy (route53 DNS-01 build) ---------------------------------------
