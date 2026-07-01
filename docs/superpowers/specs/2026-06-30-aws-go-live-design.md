@@ -109,11 +109,20 @@ cloudtrail); Secrets Manager; SNS + EC2 CPU alarm; CloudTrail; CloudWatch log gr
 
 ## Prerequisites to confirm (operator)
 
-- **DNS authority for `happyhourfriends.com`.** This design assumes Route53 is (or becomes)
-  the authoritative zone (`var.route53_zone_id`). If the apex is currently fronted by
-  **Cloudflare** (noted as a prior anti-scrape TODO), going live on CloudFront **replaces**
-  that — decide CloudFront-vs-Cloudflare and migrate the zone to Route53 before cutover.
-  This design standardizes on **CloudFront + WAF** as the edge.
+- **DNS migration Cloudflare → Route53 (confirmed).** The apex is currently fronted by
+  **Cloudflare** (DNS + proxy + Universal SSL). Operator confirmed migrating is fine (low
+  traffic). This design **replaces** Cloudflare with **CloudFront + WAF** as the edge; the
+  anti-scrape role moves to the WAF rate-limit + managed rules. Migration steps (in the
+  runbook), done **before** the app cutover:
+  1. Create the Route53 hosted zone for `happyhourfriends.com`.
+  2. **Copy every existing Cloudflare record into Route53** — especially email:
+     Resend's `friend.happyhourfriends.com` records (CNAME/DKIM), plus any MX / SPF /
+     DMARC / verification TXT. Missing these silently breaks email.
+  3. Lower TTLs at Cloudflare ahead of time; change nameservers at the registrar to the
+     Route53 NS set; wait for propagation before the apex is served by CloudFront.
+  4. Turn off the Cloudflare proxy (grey-cloud) / retire the zone once Route53 is
+     authoritative. Note: this exposes the origin EIP — the SG (CloudFront-prefix-list-only
+     ingress) is what keeps the box locked down post-migration.
 - AWS account ready with a billing budget/alert set (the `.tf` header warns about this).
 - An Amazon Linux 2023 **arm64** AMI id for `var.ami_id`.
 
