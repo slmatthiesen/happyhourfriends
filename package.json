@@ -162,6 +162,7 @@
     "test:supersede": "tsx scripts/test-supersede-bare-window.ts",
     "test:plan-supersede": "tsx scripts/test-plan-supersede.ts",
     "eval:extractor": "tsx scripts/eval-extractor.ts",
+    "eval:verifier": "tsx scripts/eval-verifier.ts",
     "test:queued-email": "tsx scripts/test-queued-email.ts",
     "test:realness-gate": "tsx scripts/test-realness-gate.ts",
     "test:signal-rate-limit": "tsx scripts/test-signal-rate-limit.ts",
