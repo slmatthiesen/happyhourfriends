@@ -184,6 +184,21 @@ resource "aws_iam_role_policy" "ec2_box_inline" {
           "logs:DescribeLogStreams"
         ]
         Resource = "arn:${local.partition}:logs:${local.region}:${local.account_id}:log-group:/budget/*"
+      },
+      {
+        Sid      = "Route53ACMEChange"
+        Effect   = "Allow"
+        Action   = "route53:ChangeResourceRecordSets"
+        Resource = "arn:${local.partition}:route53:::hostedzone/${var.route53_zone_id}"
+      },
+      {
+        Sid    = "Route53ACMERead"
+        Effect = "Allow"
+        Action = [
+          "route53:ListResourceRecordSets",
+          "route53:GetChange"
+        ]
+        Resource = "*"
       }
     ]
   })
@@ -255,6 +270,26 @@ resource "aws_instance" "ec2_box" {
   }
 
   tags = { Name = "budget-ec2-box" }
+}
+
+# =============================================================================
+# ORIGIN ADDRESS + DNS (CloudFront https-only origin)
+# =============================================================================
+
+resource "aws_eip" "ec2_box" {
+  domain   = "vpc"
+  instance = aws_instance.ec2_box.id
+  tags     = { Name = "budget-ec2-box-eip" }
+}
+
+# origin.<domain> → the box; CloudFront's origin_domain points here and Caddy
+# terminates TLS with a Let's Encrypt cert for this exact hostname.
+resource "aws_route53_record" "origin" {
+  zone_id = var.route53_zone_id
+  name    = var.origin_domain
+  type    = "A"
+  ttl     = 60
+  records = [aws_eip.ec2_box.public_ip]
 }
 
 # =============================================================================
