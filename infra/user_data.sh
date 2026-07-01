@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Templated by Terraform (templatefile): ${origin_domain} ${secret_id}
-# ${aws_region} ${backup_bucket} ${media_bucket}
+# ${aws_region} ${backup_bucket} ${media_bucket} ${acme_email}
 set -euo pipefail
 exec > >(tee /var/log/hhf-bootstrap.log) 2>&1
 
@@ -11,7 +11,7 @@ ENV_FILE=/etc/happyhour/.env
 
 # --- 1. mount the Postgres EBS volume; format ONLY if blank -----------------
 data_dev="$(lsblk -dpbno NAME,SIZE | awk '$2==53687091200 {print $1; exit}')"
-: "${data_dev:?could not find 50GiB data volume}"
+: "$${data_dev:?could not find 50GiB data volume}"
 if ! blkid "$data_dev" >/dev/null 2>&1; then
   mkfs.xfs "$data_dev"
 fi
@@ -49,7 +49,7 @@ jq -r 'to_entries[] | "\(.key)=\(.value)"' /etc/happyhour/secrets.json > "$ENV_F
 {
   echo "BACKUP_BUCKET=${backup_bucket}"
   echo "MEDIA_BUCKET=${media_bucket}"
-  echo "ACME_EMAIL=ops@${origin_domain#origin.}"
+  echo "ACME_EMAIL=${acme_email}"
   echo "ORIGIN_DOMAIN=${origin_domain}"
   echo "NODE_ENV=production"
 } >> "$ENV_FILE"
