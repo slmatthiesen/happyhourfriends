@@ -1,0 +1,13 @@
+{
+	email {$ACME_EMAIL}
+}
+
+{$ORIGIN_DOMAIN} {
+	tls {
+		dns route53 {
+			max_retries 10
+		}
+	}
+	encode zstd gzip
+	reverse_proxy localhost:3000
+}
