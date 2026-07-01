@@ -1,37 +1,58 @@
 #!/usr/bin/env bash
 # Templated by Terraform (templatefile): ${origin_domain} ${secret_id}
 # ${aws_region} ${backup_bucket} ${media_bucket} ${acme_email}
+# Target image: Ubuntu 24.04 LTS (noble), arm64. Runs once via cloud-init as root.
 set -euo pipefail
 exec > >(tee /var/log/hhf-bootstrap.log) 2>&1
+export DEBIAN_FRONTEND=noninteractive
 
 APP_DIR=/opt/happyhourfriends
-PG_BIN=/usr/bin
-PG_DATA=/var/lib/pgsql/data
+PG_DATA_ROOT=/var/lib/postgresql
 ENV_FILE=/etc/happyhour/.env
 
-# --- 1. mount the Postgres EBS volume; format ONLY if blank -----------------
+# --- 1. mount the Postgres EBS volume BEFORE installing Postgres ------------
+# Format ONLY if the volume is blank (never reformat a volume that holds data).
+# Mounting the empty volume here means the postgresql package creates its cluster
+# directly on the durable EBS volume.
 data_dev="$(lsblk -dpbno NAME,SIZE | awk '$2==53687091200 {print $1; exit}')"
 : "$${data_dev:?could not find 50GiB data volume}"
 if ! blkid "$data_dev" >/dev/null 2>&1; then
-  mkfs.xfs "$data_dev"
+  mkfs.ext4 -L pgdata "$data_dev"
 fi
-mkdir -p /var/lib/pgsql
-grep -q "$data_dev" /etc/fstab || echo "$data_dev /var/lib/pgsql xfs defaults,nofail 0 2" >> /etc/fstab
+mkdir -p "$PG_DATA_ROOT"
+grep -q "$data_dev" /etc/fstab || echo "$data_dev $PG_DATA_ROOT ext4 defaults,nofail 0 2" >> /etc/fstab
 mount -a
+# NOTE: re-provisioning onto a volume that ALREADY holds a cluster needs manual
+# cluster registration — the fresh-volume first-boot path is what this handles.
 
 # --- 2. packages ------------------------------------------------------------
-dnf -y install postgresql17-server postgresql17-contrib postgis34_17 \
-  nodejs20 git tar xz jq unzip
-corepack enable
-corepack prepare pnpm@latest --activate
-id hhf >/dev/null 2>&1 || useradd --system --create-home --shell /usr/sbin/nologin hhf
-chown -R postgres:postgres /var/lib/pgsql
+apt-get update
+apt-get install -y curl ca-certificates gnupg lsb-release git jq unzip
 
-# --- 3. postgres init (only on a fresh volume) ------------------------------
-if [ ! -f "$PG_DATA/PG_VERSION" ]; then
-  sudo -u postgres "$PG_BIN/initdb" -D "$PG_DATA"
-fi
-systemctl enable --now postgresql-17
+# PostgreSQL 17 + PostGIS from the official PGDG apt repo (first-class noble/arm64 builds).
+install -d /usr/share/postgresql-common/pgdg
+curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+  -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc
+echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+  > /etc/apt/sources.list.d/pgdg.list
+
+# Node.js 20 from NodeSource.
+curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+
+apt-get update
+apt-get install -y postgresql-17 postgresql-17-postgis-3 nodejs
+npm install -g pnpm@latest
+
+# AWS CLI v2 (needed for Secrets Manager + S3).
+curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o /tmp/awscliv2.zip
+unzip -q -o /tmp/awscliv2.zip -d /tmp
+/tmp/aws/install --update
+
+id hhf >/dev/null 2>&1 || useradd --system --create-home --shell /usr/sbin/nologin hhf
+
+# --- 3. postgres role/db/extension (the package already created + started the
+#        cluster on the mounted volume) -------------------------------------
+systemctl enable --now postgresql
 until sudo -u postgres psql -c '\q' 2>/dev/null; do sleep 2; done
 sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='hhf'" | grep -q 1 || \
   sudo -u postgres psql -c "CREATE ROLE hhf LOGIN PASSWORD 'PLACEHOLDER_REPLACED_BELOW'"
@@ -75,8 +96,7 @@ sudo -u hhf --preserve-env=HOME env HOME=/home/hhf pnpm install --frozen-lockfil
 # The app renders via playwright chromium.launch() (NOT a system chromium package).
 # install-deps (root) adds the shared libraries; the browser build itself installs into
 # the hhf user's ~/.cache/ms-playwright so the hhf-web service can launch it.
-pnpm exec playwright install-deps chromium
-sudo -u hhf --preserve-env=HOME env HOME=/home/hhf pnpm exec playwright install chromium
+sudo -u hhf --preserve-env=HOME env HOME=/home/hhf pnpm exec playwright install --with-deps chromium
 sudo -u hhf --preserve-env=HOME env HOME=/home/hhf bash -c 'set -a; . /etc/happyhour/.env; set +a; pnpm build && pnpm db:migrate'
 
 # --- 6. caddy (route53 DNS-01 build) ---------------------------------------
@@ -102,6 +122,7 @@ User=hhf
 EnvironmentFile=/etc/happyhour/.env
 ExecStart=/usr/bin/caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
 Restart=always
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
 AmbientCapabilities=CAP_NET_BIND_SERVICE
 [Install]
 WantedBy=multi-user.target
