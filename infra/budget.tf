@@ -274,7 +274,7 @@ resource "aws_instance" "ec2_box" {
     aws_region    = var.aws_region
     backup_bucket = aws_s3_bucket.s3_backups.id
     media_bucket  = aws_s3_bucket.s3_assets.id
-    acme_email    = format("ops@%s", trimprefix(var.origin_domain, "origin."))
+    acme_email    = var.ops_email
   }))
 
   # IMDSv2 required (no v1 fallback).
