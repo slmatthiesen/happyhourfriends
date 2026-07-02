@@ -7,6 +7,10 @@
 		dns route53 {
 			max_retries 10
 		}
+		# Use public resolvers for the ACME DNS-01 propagation check. The box's own
+		# resolver caches NXDOMAIN for the challenge name from pre-delegation attempts
+		# (zone negative-cache TTL is 24h), which stalls issuance otherwise.
+		resolvers 8.8.8.8 1.1.1.1
 	}
 	encode zstd gzip
 	reverse_proxy localhost:3000

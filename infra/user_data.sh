@@ -14,8 +14,23 @@ ENV_FILE=/etc/happyhour/.env
 # Format ONLY if the volume is blank (never reformat a volume that holds data).
 # Mounting the empty volume here means the postgresql package creates its cluster
 # directly on the durable EBS volume.
-data_dev="$(lsblk -dpbno NAME,SIZE | awk '$2==53687091200 {print $1; exit}')"
-: "$${data_dev:?could not find 50GiB data volume}"
+# Identify the dedicated data volume as the non-root physical disk (NOT by size —
+# the OS root disk is also 20GiB, so size can't disambiguate). Wait for it to attach
+# (the EBS attachment can race cloud-init on a fresh/replaced instance).
+# Relax pipefail/errexit here: the detection pipeline uses `head`, which closes the
+# pipe early and makes upstream commands exit non-zero — under `set -eo pipefail`
+# that would abort the whole script even on success.
+set +e +o pipefail
+root_src="$(findmnt -no SOURCE /)"
+root_disk="/dev/$(lsblk -no PKNAME "$root_src" | head -1)"
+data_dev=""
+for _ in $(seq 1 30); do
+  data_dev="$(lsblk -dpno NAME,TYPE | awk '$2=="disk"{print $1}' | grep -vx "$root_disk" | grep -v loop | head -1)"
+  [ -n "$data_dev" ] && break
+  sleep 5
+done
+set -e -o pipefail
+: "$${data_dev:?no dedicated data volume found after waiting 150s}"
 if ! blkid "$data_dev" >/dev/null 2>&1; then
   mkfs.ext4 -L pgdata "$data_dev"
 fi
@@ -41,7 +56,8 @@ curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
 
 apt-get update
 apt-get install -y postgresql-17 postgresql-17-postgis-3 nodejs
-npm install -g pnpm@latest
+# The app is installed/built with npm against the committed package-lock.json
+# (pnpm-lock.yaml is gitignored; npm is the prod/CI toolchain). npm ships with Node.
 
 # AWS CLI v2 (needed for Secrets Manager + S3).
 curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o /tmp/awscliv2.zip
@@ -92,12 +108,13 @@ ssh-keyscan github.com >> /home/hhf/.ssh/known_hosts 2>/dev/null
 sudo -u hhf git clone git@github.com:slmatthiesen/happyhourfriends.git "$APP_DIR" || \
   (cd "$APP_DIR" && sudo -u hhf git pull --ff-only)
 cd "$APP_DIR"
-sudo -u hhf --preserve-env=HOME env HOME=/home/hhf pnpm install --frozen-lockfile
+sudo -u hhf --preserve-env=HOME env HOME=/home/hhf npm ci
 # The app renders via playwright chromium.launch() (NOT a system chromium package).
 # install-deps (root) adds the shared libraries; the browser build itself installs into
 # the hhf user's ~/.cache/ms-playwright so the hhf-web service can launch it.
-sudo -u hhf --preserve-env=HOME env HOME=/home/hhf pnpm exec playwright install --with-deps chromium
-sudo -u hhf --preserve-env=HOME env HOME=/home/hhf bash -c 'set -a; . /etc/happyhour/.env; set +a; pnpm build && pnpm db:migrate'
+npx --yes playwright install-deps chromium
+sudo -u hhf --preserve-env=HOME env HOME=/home/hhf npx --yes playwright install chromium
+sudo -u hhf --preserve-env=HOME env HOME=/home/hhf bash -c 'set -a; . /etc/happyhour/.env; set +a; npm run build && npm run db:migrate'
 
 # --- 6. caddy (route53 DNS-01 build) ---------------------------------------
 curl -fsSL -o /usr/bin/caddy \
