@@ -1,0 +1,60 @@
+{
+  "city": "San Luis Obispo",
+  "slug": "san-luis-obispo",
+  "dropped": [
+    {
+      "id": "13dad8db-45bc-4c47-8e2d-1bc099d37bbf",
+      "name": "1865 Craft House & Kitchen",
+      "website": "https://www.1865slo.com/",
+      "windows": 2,
+      "cause": "image",
+      "pagesFetched": 7,
+      "evidence": "$500"
+    },
+    {
+      "id": "e4d2c5eb-3026-4010-a335-743cd19cc9bf",
+      "name": "Laguna Grill",
+      "website": "http://lagunagrillslo.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 6,
+      "evidence": "deal-words"
+    },
+    {
+      "id": "925ba9bb-289d-4c6e-bcec-3da5cae106ae",
+      "name": "Old Slo BBQ Co.",
+      "website": "https://oldsanluisbbq.com/?y_source=1_MTcxNDU4NzgtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D",
+      "windows": 1,
+      "cause": "text",
+      "pagesFetched": 3,
+      "evidence": "deal-words"
+    },
+    {
+      "id": "290ae642-5c73-4b88-aa75-cc7b1f849cfc",
+      "name": "Petra Mediterranean Pizza & Grill",
+      "website": "http://eatpetra.com/",
+      "windows": 1,
+      "cause": "pdf",
+      "pagesFetched": 3,
+      "evidence": null
+    },
+    {
+      "id": "e9716599-5853-4bb8-ac28-8754e7530a3b",
+      "name": "Petra Mediterranean Pizza & Grill",
+      "website": "https://www.eatpetra.com/",
+      "windows": 1,
+      "cause": "pdf",
+      "pagesFetched": 3,
+      "evidence": null
+    },
+    {
+      "id": "9880181a-f02f-4c9d-95a7-d61f8dacb9bb",
+      "name": "Sidecar",
+      "website": "https://www.sidecarcocktail.company/",
+      "windows": 2,
+      "cause": "image",
+      "pagesFetched": 9,
+      "evidence": "$14"
+    }
+  ]
+}

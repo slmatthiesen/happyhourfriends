@@ -126,8 +126,7 @@ export default async function CityPage({
         <p className="leading-snug">
           <span className="font-medium text-text-primary">See something wrong?</span>{" "}
           Snap a pic of the happy-hour menu and submit it on the venue&apos;s page —
-          your photo becomes the shared source of truth for everyone in your
-          neighborhood.
+          your photo becomes the shared source of truth for everyone.
         </p>
       </aside>
 

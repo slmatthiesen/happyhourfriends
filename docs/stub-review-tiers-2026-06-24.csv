@@ -1,0 +1,962 @@
+city,name,primary_type,reviews,rating,action,outcome,website
+berkeley,"Cheese Board Collective Pizzeria",pizza_restaurant,3905,4.8,hide,no_hh_found,http://cheeseboardcollective.coop/
+berkeley,"Chez Panisse",californian_restaurant,2448,4.6,hide,no_hh_found,http://www.chezpanisse.com/
+berkeley,"La Mission",mexican_restaurant,1938,4.5,hide,no_hh_found,https://la-mission.shop/
+berkeley,"Picante",mexican_restaurant,1934,4.2,hide,no_hh_found,http://www.picanteberkeley.com/
+berkeley,"Artichoke Basille's Pizza",pizza_restaurant,1153,4.5,hide,no_hh_found,http://www.artichokepizza.com/
+berkeley,"Crepevine",restaurant,1128,4.3,hide,no_hh_found,https://crepevine.com/?y_source=1_MTQ3MjMwNjUtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D
+berkeley,"Juan's Place",mexican_restaurant,980,4.4,hide,no_hh_found,https://www.ubereats.com/store/juans-place/P7ldpTloQrmx2hwdZzwucw
+berkeley,"900 Grayson",restaurant,949,4.6,hide,no_hh_found,http://www.900grayson.com/
+berkeley,"Bowl'd Korean Rice Bar",korean_restaurant,803,4.5,hide,no_hh_found,http://www.bowldbbq.com/albany
+berkeley,"Barney's Gourmet Hamburgers",hamburger_restaurant,799,4.4,hide,no_hh_found,http://www.barneyshamburgers.com/
+berkeley,"La Mediterranee",mediterranean_restaurant,798,4.3,hide,no_hh_found,http://cafelamedberkeley.com/
+berkeley,"Chengdu Style Restaurant",chinese_restaurant,798,4.3,hide,no_hh_found,https://chengdustylerestaurant.com/
+berkeley,"Gordo Taquería",burrito_restaurant,778,4.4,hide,no_hh_found,http://gordotaqueria.co/
+berkeley,"China Village",chinese_restaurant,736,4.3,hide,no_hh_found,https://chinavillagecatogo.com/
+berkeley,"The Berkeley Boathouse",restaurant,569,4.0,hide,no_hh_found,https://www.berkeleyboathouse.com/?SEO_id=GMB--R-JBKCADT-1&y_source=1_MTAxOTg4NzQ3Ny03MTUtbG9jYXRpb24ud2Vic2l0ZQ%3D%3D
+berkeley,"Yo Sushi",sushi_restaurant,470,4.2,delete,no_hh_found,https://yosushialbany.menu11.com/
+berkeley,"AKEMI",sushi_restaurant,462,4.3,hide,no_hh_found,http://www.akemiberkeley.com/
+berkeley,"KamadoSushi (Omakase)",sushi_restaurant,386,4.5,hide,no_hh_found,https://www.toasttab.com/kamado-sushi
+berkeley,"Cugini",italian_restaurant,368,4.3,hide,no_hh_found,http://www.cuginirestaurant.com/
+berkeley,"Troy",greek_restaurant,363,4.4,hide,no_hh_found,http://www.troygreek.com/
+berkeley,"Fish & Bird Sousaku Izakaya",japanese_restaurant,354,4.3,hide,no_hh_found,http://fishbirdizakaya.com/
+berkeley,"Lo Coco's",italian_restaurant,341,4.6,hide,no_hh_found,http://lococosinberkeley.com/
+berkeley,"Musashi",japanese_restaurant,341,4.5,hide,no_hh_found,https://musashiofberkeley.com/
+berkeley,"Mint Leaf",vietnamese_restaurant,319,4.2,hide,no_hh_found,http://www.mintleafvr.com/
+berkeley,"Inn Kensington Restaurant",american_restaurant,303,4.7,hide,no_hh_found,http://www.innkensington.com/
+berkeley,"Mercado 925",mexican_restaurant,298,4.7,hide,no_hh_found,http://www.mercado925.com/
+berkeley,"Pyeong Chang Tofu Berkeley 버클리 평창 순두부",korean_restaurant,298,4.4,hide,no_hh_found,https://www.pctofu.com/
+berkeley,"Korean Superette",korean_restaurant,260,4.7,hide,no_hh_found,http://korean-superette.com/
+berkeley,"Dumpling Time",dumpling_restaurant,227,4.0,hide,no_hh_found,https://www.dumplingtime.com/
+berkeley,"Sakana Sushi & Roll",sushi_restaurant,216,4.9,hide,no_hh_found,http://ordersakana.com/
+berkeley,"Lao Thai Kitchen",restaurant,194,4.8,hide,no_hh_found,https://laothaikitchen.com/
+berkeley,"Mainichi Sushi",japanese_restaurant,175,4.6,delete,no_hh_found,https://mainichisushi.menu11.com/berkeley/order
+berkeley,"Mexicana",mexican_restaurant,106,4.6,hide,no_hh_found,http://mexicanataqueria.com/
+berkeley,"Tarocco",restaurant,104,4.7,hide,no_hh_found,https://mytarocco.com/
+berkeley,"Kathmandu Restaurant",restaurant,90,4.1,hide,no_hh_found,https://kathmandurestaurantca.com/
+berkeley,"Renee's Place",chinese_restaurant,81,4.5,hide,no_hh_found,http://www.reneesplacerestaurant.com/
+berkeley,"Itani Sushi - Berkeley",japanese_restaurant,62,4.2,hide,no_hh_found,https://itanisushi.com/
+berkeley,"Nagoya Sushi",japanese_restaurant,25,4.8,hide,no_hh_found,https://www.nagoyasushiberkeley.com/?utm_source=google&utm_medium=search
+daly-city,"Original Joe’s Westlake",italian_restaurant,4543,4.5,hide,no_hh_found,https://originaljoes.com/westlake/
+daly-city,"Boulevard Cafe",american_restaurant,2867,4.3,hide,no_hh_found,http://theboulevardcafe.com/
+daly-city,"Nation's Giant Hamburgers & Great Pies",hamburger_restaurant,2577,4.5,hide,no_hh_found,http://nationsrestaurants.com/
+daly-city,"Celia's",mexican_restaurant,1165,4.1,hide,no_hh_found,http://www.celiasrestaurants.com/
+daly-city,"Tomo Sushi & Teriyaki",japanese_restaurant,525,4.4,hide,no_hh_found,https://tomosushiteriyaki.shop/
+daly-city,"El Zocalo Restaurant",restaurant,451,3.7,hide,no_hh_found,https://www.facebook.com/pages/El-Zocalo-Restaurant/109674275734558
+daly-city,"POGU",korean_restaurant,411,3.8,hide,no_hh_found,https://www.instagram.com/jagalchi_official/
+daly-city,"Spiral",japanese_restaurant,406,3.9,hide,no_hh_found,http://spiraljapanesecuisine.com/
+daly-city,"Ming Yuan Restaurant",chinese_restaurant,323,3.9,hide,no_hh_found,http://mingyuan.us/
+daly-city,"Majikku Ramen",japanese_restaurant,206,4.0,hide,no_hh_found,https://majikkuramen.net/
+daly-city,"Extreme Pizza",pizza_restaurant,186,4.0,hide,no_hh_found,http://extremepizzaorder.com/
+daly-city,"Tom San Ramen",japanese_restaurant,123,4.0,hide,no_hh_found,http://www.tomsanramendalycity.com/?utm_source=gmb&utm_medium=website
+daly-city,"Yokohama Iekei Ramen Daly City",ramen_restaurant,97,4.2,hide,no_hh_found,https://yokohamaiekei.net/
+daly-city,"Marufuku Ramen Serramonte",ramen_restaurant,90,4.5,hide,no_hh_found,https://www.marufukuramen.com/
+daly-city,"Iguana Azul",mexican_restaurant,61,3.2,hide,no_hh_found,http://www.blueiguana415.com/
+daly-city,"UNI Pizzeria & Grill",pizza_restaurant,59,4.4,hide,no_hh_found,https://unipizzeria.com/
+five-cities,"Splash Café",seafood_restaurant,7489,4.5,hide,no_hh_found,https://www.splashcafe.com/?y_source=1_MTQ2OTg4NTUtNzE1LWxvY2F0aW9uLndlYnNpdGU=
+five-cities,"Cracked Crab",seafood_restaurant,2750,4.5,hide,no_hh_found,http://www.crackedcrab.com/
+five-cities,"Cool Cat Cafe",hamburger_restaurant,2740,4.5,hide,no_hh_found,http://www.coolcatcafe.com/
+five-cities,"Fin's Bar & Grill",seafood_restaurant,2093,4.3,hide,no_hh_found,https://www.finsbarandgrill.com/
+five-cities,"Huckleberry's",american_restaurant,2023,4.3,hide,no_hh_found,http://www.huckleberrys.com/
+five-cities,"Brad's Restaurant",seafood_restaurant,1947,4.3,hide,no_hh_found,http://bradsofpismo.com/
+five-cities,"Ada’s Fish House",seafood_restaurant,1770,4.6,hide,no_hh_found,https://www.adasfishhouse.com/
+five-cities,"Giuseppe's Cucina Italiana",italian_restaurant,1755,4.5,hide,no_hh_found,http://www.giuseppesrestaurant.com/
+five-cities,"Hoagies Sandwiches & Grill, Pismo Beach",barbecue_restaurant,1722,4.5,hide,no_hh_found,https://hoagiesca.com/
+five-cities,"Oyster Loft",seafood_restaurant,1152,4.7,hide,no_hh_found,https://oysterloft.com/
+five-cities,"Mo's SmokeHouse BBQ",barbecue_restaurant,1139,4.3,hide,no_hh_found,http://www.mosbbq.com/
+five-cities,"Klondike Pizza",pizza_restaurant,1033,4.5,hide,no_hh_found,https://klondikepizza.com/
+five-cities,"Pizmo Cafe | Ristorante & Pizzeria",restaurant,999,4.4,hide,no_hh_found,http://www.pizmocafe.com/
+five-cities,"Vista Steak and Seafood",steak_house,974,4.5,hide,no_hh_found,https://www.vistapismobeach.com/
+five-cities,"Giuseppe’s Express",italian_restaurant,902,4.5,hide,no_hh_found,http://www.giuseppesrestaurant.com/
+five-cities,"Yanagi Sushi & Grill",japanese_restaurant,892,4.3,hide,no_hh_found,https://www.yanagisushingrill.com/
+five-cities,"Papi's Grill",mexican_restaurant,835,4.6,hide,no_hh_found,https://www.facebook.com/papisgrillpismo/
+five-cities,"Del's Pizzeria",pizza_restaurant,818,4.5,hide,no_hh_found,http://delspizzeria.com/
+five-cities,"Sushi 805",sushi_restaurant,767,4.3,hide,no_hh_found,https://www.805sakesushi.com/
+five-cities,"Old Village Grill",american_restaurant,765,4.5,hide,no_hh_found,http://oldvillagegrill.biz/
+five-cities,"Francisco's Country Kitchen",family_restaurant,702,4.3,hide,no_hh_found,https://www.franciscoscountrykitchen.com/
+five-cities,"Gino's Pizza",pizza_restaurant,660,4.6,hide,no_hh_found,https://ginospizzaslo.com/ginospizzapismo?utm_source=google
+five-cities,"Kanpai Sushi",japanese_restaurant,551,4.4,hide,no_hh_found,http://kanpaibythesea.com/
+five-cities,"Gina's Italian Cuisine",italian_restaurant,542,4.5,hide,no_hh_found,https://www.ginasitaliancuisine.com/
+five-cities,"Coronas Mexican Restaurant",mexican_restaurant,533,4.1,hide,no_hh_found,https://www.facebook.com/CoronasMexFood/
+five-cities,"Mei's | Chinese Restaurant",chinese_restaurant,468,4.3,hide,no_hh_found,http://www.meischineserestaurants.com/
+five-cities,"La Tapatía Market & Deli",mexican_restaurant,462,4.7,hide,no_hh_found,https://www.facebook.com/LaTapatiaMarket2
+five-cities,"Palo Mesa",pizza_restaurant,406,4.7,hide,no_hh_found,https://www.palomesapizza.com/ag-village
+five-cities,"SUSHI KOKKU & Ramen",sushi_restaurant,399,4.3,hide,no_hh_found,http://www.sushikokkuslo.com/
+five-cities,"Izakaya Raku",japanese_izakaya_restaurant,325,4.4,hide,no_hh_found,https://www.izakayarakugrover.com/
+five-cities,"Jalapenos Mexican Restaurant",mexican_restaurant,300,4.2,hide,no_hh_found,https://www.wegodelivers.com/restaurant/jalapenosgroverbeach
+five-cities,"Me-n-Ed's Pizzeria and Crafthouse",pizza_restaurant,286,4.3,hide,no_hh_found,https://menedscentralcoast.com/pismo-beach/
+five-cities,"Bee House Thai Cuisine",restaurant,286,4.8,hide,no_hh_found,https://www.toasttab.com/the-bee-house-245-west-grand-av
+five-cities,"The Green Olive | Pismo Beach",mediterranean_restaurant,280,4.8,hide,no_hh_found,https://www.orderthegreenolivepismobeach.com/
+five-cities,"Perfetto Caffe",bistro,262,4.8,hide,no_hh_found,http://www.8575perfettocaffe.com/
+five-cities,"Villa Del Mar",seafood_restaurant,262,4.3,hide,no_hh_found,https://www.villadelmarmexican.com/
+five-cities,"Palo Mesa Pizza II",pizza_restaurant,205,4.4,hide,no_hh_found,https://www.palomesapizza.com/
+five-cities,"LA COSTA GRILL",mexican_restaurant,203,4.6,hide,no_hh_found,https://lacostagrillca.com/
+five-cities,"Sidewalk Café",restaurant,181,4.7,hide,no_hh_found,http://sidewalkcafeag.smartonlineorder.com/
+five-cities,"Luca's Deli & Wine",restaurant,109,4.8,hide,no_hh_found,https://www.lucasdeliandwine.com/
+five-cities,"Mariscos El Picosito PB",mexican_restaurant,98,4.7,hide,no_hh_found,https://www.mariscoselpicosito805.com/pismo-beach
+five-cities,"Pismo Coast Village Grill",restaurant,57,3.9,hide,no_hh_found,https://www.rockandrolldiner.com/pcvg-menu.html
+oakland,"MENSHO",ramen_restaurant,2812,4.9,hide,no_hh_found,https://www.menshopiedmont.com/
+oakland,"Guadalajara",mexican_restaurant,2556,4.3,hide,no_hh_found,http://www.guadalajaraoakland.com/
+oakland,"Cholita Linda",latin_american_restaurant,2059,4.6,hide,no_hh_found,https://www.cholitalinda.com/
+oakland,"Kansai",sushi_restaurant,1898,4.2,hide,no_hh_found,http://orderkansai.com/
+oakland,"Hong Kong East Ocean Seafood Restaurant",chinese_restaurant,1688,4.1,hide,no_hh_found,https://www.hkeo.com/
+oakland,"Smellys Creole Catering LLC.",restaurant,718,4.2,hide,no_hh_found,https://www.order.store/store/chef-smellys/Qmf4xMiSXCeH2577-QRJLw
+oakland,"Square Pie Guys",pizza_restaurant,691,4.4,hide,no_hh_found,https://squarepieguys.com/
+oakland,"The Italian Homemade Company",italian_restaurant,675,4.3,hide,no_hh_found,http://www.italianhomemadecompany.com/
+oakland,"alaMar Dominican Kitchen",restaurant,595,4.4,hide,no_hh_found,http://alamaroakland.com/
+oakland,"Shimizu Cuisine",japanese_restaurant,592,4.6,delete,no_hh_found,http://shimizu.menu11.com/
+oakland,"Huangcheng Noodle House 山西刀削面",chinese_noodle_restaurant,548,4.4,hide,no_hh_found,http://www.huangchengnoodleca.com/
+oakland,"Top Hatters Kitchen and Bar",restaurant,538,4.5,hide,no_hh_found,http://www.tophatterskitchen.com/
+oakland,"La casa de Maria",mexican_restaurant,500,4.1,hide,no_hh_found,http://lacasamaria.net/
+oakland,"The Landing Café",american_restaurant,483,3.8,hide,no_hh_found,https://www.oaklandzoo.org/dining
+oakland,"June's Pizza",pizza_restaurant,478,4.7,hide,no_hh_found,https://www.instagram.com/junes_pizza/
+oakland,"World Champion Smokehouse & Market",barbecue_restaurant,473,4.3,hide,no_hh_found,http://worldchampionsmokehouse.com/
+oakland,"Manpuku",japanese_restaurant,473,4.4,hide,no_hh_found,https://manpukuorder.com/
+oakland,"Oriental Tea House 碧贵园/碧桂园",chinese_restaurant,457,3.7,hide,no_hh_found,http://orientalteahouse.us/
+oakland,"JAVI’S COOKING ""Empanadas Argentinas""",argentinian_restaurant,394,4.7,hide,no_hh_found,https://javiscooking.com/?utm_source=google
+oakland,"Phnom Penh",cambodian_restaurant,374,4.7,hide,no_hh_found,http://www.phnompenhhouse.com/
+oakland,"Graffiti Pizza",pizza_restaurant,355,4.3,hide,no_hh_found,https://graffitipizza.square.site/
+oakland,"Lo Coco's",italian_restaurant,349,4.6,hide,no_hh_found,http://www.lococospiedmont.com/
+oakland,"Persian Nights",persian_restaurant,347,4.5,hide,no_hh_found,http://www.persiannights.co/
+oakland,"Los Olivos Restaurant",restaurant,342,4.2,hide,no_hh_found,http://losolivos-restaurant.com/menu
+oakland,"Lemat Ethiopian Restaurant",ethiopian_restaurant,335,4.4,hide,no_hh_found,http://www.lemateats.com/
+oakland,"Lovely’s",restaurant,317,4.4,hide,no_hh_found,https://www.lovelysburgers.com/
+oakland,"Obelisco Restaurant",mexican_restaurant,310,4.6,hide,no_hh_found,http://obeliscorestaurant.com/
+oakland,"Blackberry Bistro",bistro,304,4.4,hide,no_hh_found,https://www.blackberrybistrocafe.com/
+oakland,"Creekwood Restaurant",italian_restaurant,295,4.6,hide,no_hh_found,https://www.creekwoodrestaurant.com/
+oakland,"Lin Jia Asian Kitchen",asian_restaurant,289,4.7,hide,no_hh_found,https://www.linjiakitchen.com/
+oakland,"Pho Anh Dao",vietnamese_restaurant,283,4.2,hide,no_hh_found,https://phoanhdaooakland.com/
+oakland,"T'chaka a Taste of Haiti",caribbean_restaurant,274,4.7,hide,no_hh_found,http://www.tchakaoak.online/
+oakland,"Pizza Ponte",pizza_restaurant,269,4.7,hide,no_hh_found,http://ponte.pizza/
+oakland,"Leaning Tower",pizza_restaurant,268,4.4,hide,no_hh_found,http://www.leaningtowertogo.com/
+oakland,"Ly-Luck",chinese_restaurant,257,4.4,hide,no_hh_found,https://www.lyluckrestaurantonline.com/
+oakland,"King Yen",chinese_restaurant,254,4.4,hide,no_hh_found,https://www.kingyenrestaurant.com/
+oakland,"Joodooboo",korean_restaurant,233,4.8,hide,no_hh_found,http://www.joodooboo.co/
+oakland,"Pizzeria Violetta, Piedmont Ave",pizza_restaurant,204,4.6,hide,no_hh_found,http://www.pizzeria-violetta.com/
+oakland,"Willows & Pine",restaurant,202,4.7,hide,no_hh_found,https://www.willowsandpine-restaurant.com/
+oakland,"Hanami",japanese_restaurant,189,4.6,hide,no_hh_found,http://www.hanami377.com/
+oakland,"Fire Wings Oakland",chicken_wings_restaurant,178,3.7,hide,no_hh_found,http://firewings.com/
+oakland,"Red Boy Pizza Redwood Road",pizza_restaurant,174,4.2,hide,no_hh_found,http://www.redboypizza.com/
+oakland,"Hashi Gawa",japanese_restaurant,173,4.5,hide,no_hh_found,http://5102275187.com/
+oakland,"Kakui Sushi",sushi_restaurant,170,4.4,hide,no_hh_found,https://gokakuisushi.com/?utm_source=google
+oakland,"TGI Oni Sushi",japanese_restaurant,165,4.5,delete,no_hh_found,https://tgioni.menu11.com/
+oakland,"Kotobuki Japanese Restaurant",japanese_restaurant,164,4.5,hide,no_hh_found,https://www.clover.com/online-ordering/kotobuki-new-oakland
+oakland,"Messob Ethiopian Restaurant",ethiopian_restaurant,158,4.4,hide,no_hh_found,http://ordermessobethiopianrestaurant.com/
+oakland,"Red Boy Pizza on Leimert",pizza_restaurant,148,4.4,hide,no_hh_found,http://www.redboypizza.com/
+oakland,"State Flour Pizza Company",pizza_restaurant,147,4.9,hide,no_hh_found,https://stateflourpizza.com/
+oakland,"Slice Pizza & Krunchy Chicken",pizza_restaurant,146,4.3,hide,no_hh_found,https://spandkc.com/?utm_source=google
+oakland,"Bistro 4293",mediterranean_restaurant,136,4.9,hide,no_hh_found,https://bistro4293.com/
+oakland,"Bacogai",hot_pot_restaurant,129,4.6,hide,no_hh_found,http://bacogai.com/
+oakland,"Terrace Café - Oakland Hills",restaurant,121,4.6,hide,no_hh_found,http://www.terracegiftsandcoffee.com/
+oakland,"Cafe Jolie Petit",restaurant,109,4.4,hide,no_hh_found,http://www.cafejolies.com/
+oakland,"Calabash",restaurant,105,4.4,hide,no_hh_found,https://calabasheats.com/
+oakland,"Oh G Burger",restaurant,67,4.3,hide,no_hh_found,http://ohgburger.com/
+oakland,"Pizzeria Violetta, Prescott Market Hall",pizza_restaurant,55,4.7,hide,no_hh_found,http://www.pizzeria-violetta.com/
+oakland,"Sun Moon Studio",restaurant,53,5.0,hide,no_hh_found,http://sunmoonstudio.com/
+oakland,"Tea Shop",restaurant,46,3.9,hide,no_hh_found,https://nudining.com/dining/
+oakland,"Woo Can Cook",restaurant,46,3.7,hide,no_hh_found,https://woocancook.com/eats
+oakland,"Ashby Eatery",restaurant,43,4.9,hide,no_hh_found,http://www.ashbyeatery.com/
+oakland,"East Bay Provisions",restaurant,39,4.3,hide,no_hh_found,https://www.claremontresortandclub.com/dine/east-bay-provisions/
+phoenix-central,"Pappadeaux Seafood Kitchen",seafood_restaurant,12212,4.6,hide,no_hh_found,https://pappadeaux.com/
+phoenix-central,"Pizzeria Bianco",pizza_restaurant,4836,4.4,hide,no_hh_found,http://www.pizzeriabianco.com/
+phoenix-central,"Taco Boy's",mexican_restaurant,4060,4.6,hide,no_hh_found,https://taco-boys.shop/
+phoenix-central,"Luci's at the Orchard",restaurant,3671,4.5,hide,no_hh_found,http://www.lucisgoodness.com/
+phoenix-central,"Carolina's Mexican Food - Cactus",mexican_restaurant,3614,4.3,hide,no_hh_found,http://www.carolinasmexicanfood.com/
+phoenix-central,"Tacos Chiwas",mexican_restaurant,3325,4.5,hide,no_hh_found,http://tacoschiwas.com/
+phoenix-central,"Green New American Vegetarian",vegan_restaurant,2877,4.7,hide,no_hh_found,http://greenvegetarian.com/
+phoenix-central,"China Chili",chinese_restaurant,2838,4.5,hide,no_hh_found,http://www.chinachilirestaurant.com/
+phoenix-central,"Knock Kneed Lobster",seafood_restaurant,2830,4.3,hide,no_hh_found,http://knockkneedlobster.menutoeat.com/
+phoenix-central,"Hillstone Restaurant",american_restaurant,2729,4.5,hide,no_hh_found,https://hillstone.com/
+phoenix-central,"Gadzooks Enchiladas and Soup",mexican_restaurant,2670,4.5,hide,no_hh_found,http://gadzooksaz.com/
+phoenix-central,"Los Reyes De La Torta",mexican_restaurant,2638,4.4,hide,no_hh_found,https://losreyesaz.com/locations/north-phoenix
+phoenix-central,"Different Pointe of View",fine_dining_restaurant,2625,4.5,hide,no_hh_found,http://www.tapatiocliffshilton.com/dining/different-pointe-of-view/
+phoenix-central,"Pizzeria Bianco",italian_restaurant,2563,4.4,hide,no_hh_found,https://www.pizzeriabianco.com/pizzeria-bianco-town-country
+phoenix-central,"Durant's",steak_house,2391,4.6,hide,no_hh_found,https://www.durantsaz.com/?utm_source=google&utm_medium=organic&utm_campaign=gmb
+phoenix-central,"Ziggys Magic Pizza Shop",pizza_restaurant,2205,4.5,hide,no_hh_found,http://www.ziggyspizzaphx.com/
+phoenix-central,"Blanco Tacos and Tequilas",mexican_restaurant,2164,3.8,hide,no_hh_found,http://blancotacostequila.com/
+phoenix-central,"Spinato's Pizzeria and Family Kitchen",italian_restaurant,2081,4.6,hide,no_hh_found,https://www.spinatospizzeria.com/central-phoenix-location
+phoenix-central,"Glai Baan",thai_restaurant,1871,4.7,hide,no_hh_found,https://www.glaibaanaz.com/
+phoenix-central,"The Tamale Store",mexican_restaurant,1656,4.6,hide,no_hh_found,http://www.thetamalestore.com/
+phoenix-central,"Krachai Thai Kitchen",thai_restaurant,1612,4.5,hide,no_hh_found,http://phoenixbestthaifood.com/index.htm
+phoenix-central,"Presidio Cocina Mexicana",mexican_restaurant,1587,4.5,hide,no_hh_found,https://www.presidiophx.com/
+phoenix-central,"Ace of wingz",chicken_wings_restaurant,1510,4.5,hide,no_hh_found,http://aceofwingz.com/
+phoenix-central,"Original ChopShop",restaurant,1500,4.6,hide,no_hh_found,https://originalchopshop.com/menu/
+phoenix-central,"Barro's Pizza",pizza_restaurant,1462,4.3,hide,no_hh_found,https://barrospizza.com/
+phoenix-central,"Barro's Pizza",pizza_restaurant,1444,4.4,hide,no_hh_found,https://barrospizza.com/
+phoenix-central,"Wong's Chinese Dining",chinese_restaurant,1375,4.5,hide,no_hh_found,http://wongs-chinesedining.com/
+phoenix-central,"Pei Wei Asian Kitchen",chinese_restaurant,1365,4.0,hide,no_hh_found,https://www.peiwei.com/arizona/163-phoenix-mcdowell/
+phoenix-central,"Jewel's Bakery & Cafe",restaurant,1343,4.5,hide,no_hh_found,http://www.jewelsbakeryandcafe.com/
+phoenix-central,"Tacos Veganos",vegan_restaurant,1302,4.7,hide,no_hh_found,http://aztacosveganos.com/
+phoenix-central,"Flower Child",american_restaurant,1248,4.6,hide,no_hh_found,https://www.iamaflowerchild.com/locations/phoenix-az-arcadia/?utm_source=Google&utm_medium=Organic&utm_campaign=Maps
+phoenix-central,"Barro's Pizza",pizza_restaurant,1168,4.4,hide,no_hh_found,https://barrospizza.com/
+phoenix-central,"Centrico",mexican_restaurant,1168,4.8,hide,no_hh_found,http://centricophx.com/
+phoenix-central,"Tacos Calafia North",mexican_restaurant,1144,4.7,hide,no_hh_found,https://tacoscalafia.com/
+phoenix-central,"Via Delosantos",mexican_restaurant,1121,4.5,hide,no_hh_found,http://viadelosantosaz.com/
+phoenix-central,"Pizza A Metro",italian_restaurant,1119,4.8,hide,no_hh_found,https://www.pizzametroaz.com/
+phoenix-central,"Someburros",restaurant,1034,4.3,hide,no_hh_found,https://www.someburros.com/
+phoenix-central,"Tutti Santi Ristorante by Nina",italian_restaurant,1005,4.7,hide,no_hh_found,https://www.tuttisantiphoenix.com/
+phoenix-central,"Gus's World Famous Fried Chicken",chicken_restaurant,1000,4.6,hide,no_hh_found,http://gusfriedchicken.com/
+phoenix-central,"Pizza By Napoli",pizza_restaurant,989,4.5,hide,no_hh_found,https://pizzabynapoliphoenix.com/?utm_source=gbp
+phoenix-central,"Barro's Pizza",pizza_restaurant,941,4.4,hide,no_hh_found,https://barrospizza.com/
+phoenix-central,"Abacus Inn Chinese Restaurant",chinese_restaurant,930,4.3,hide,no_hh_found,https://www.theabacusinn.com/
+phoenix-central,"Soup & Sausage Bistro",ukrainian_restaurant,911,4.7,hide,no_hh_found,https://soupnsausagebistro.com/
+phoenix-central,"Just Tacos and More",mexican_restaurant,903,4.8,hide,no_hh_found,https://www.justtacosandmore.com/
+phoenix-central,"Dragon Palace",chinese_restaurant,888,4.3,hide,no_hh_found,https://www.dragonpalacephoenix.com/
+phoenix-central,"The Spice Sea",seafood_restaurant,843,4.7,hide,no_hh_found,https://www.thespiceseaaz.com/
+phoenix-central,"Rubio's Coastal Grill",mexican_restaurant,838,4.1,hide,no_hh_found,https://www.rubios.com/restaurant-locations/arizona/phoenix-bell-rd
+phoenix-central,"Taco Viva",restaurant,833,4.7,hide,no_hh_found,https://www.tacoviva.com/
+phoenix-central,"Pinos Pizza Al Centro",italian_restaurant,828,4.6,hide,no_hh_found,http://www.pinospizzaalcentrophoenix.com/
+phoenix-central,"Rusconi's American Kitchen",american_restaurant,799,4.7,hide,no_hh_found,http://rusconiskitchen.com/
+phoenix-central,"Chase Sapphire Lounge by The Club PHX",restaurant,785,2.2,hide,no_hh_found,http://chase.com/sapphireairportlounge?y_source=1_MTA4NjYwNDMwMi03MTUtbG9jYXRpb24ud2Vic2l0ZQ%3D%3D
+phoenix-central,"Via Della Slice Shop",pizza_restaurant,783,4.7,hide,no_hh_found,http://viadellapizza.com/
+phoenix-central,"L'amore Italian Restaurant",italian_restaurant,764,4.6,hide,no_hh_found,http://www.lamoreitalian.com/
+phoenix-central,"TEG Torta Shop - Tortas El Güero",mexican_restaurant,753,4.6,hide,no_hh_found,http://tegtortashop.com/
+phoenix-central,"Irma's Kitchen LLC",mexican_restaurant,750,4.6,hide,no_hh_found,https://irmaskitchonline.com/
+phoenix-central,"Mariscos El Tiburon Seafood Restaurant",seafood_restaurant,705,3.9,hide,no_hh_found,https://www.mariscoseltiburonllc.com/
+phoenix-central,"Pane Bianco Central",italian_restaurant,692,4.6,hide,no_hh_found,http://www.pizzeriabianco.com/
+phoenix-central,"Bacanora PHX",mexican_restaurant,679,4.4,hide,no_hh_found,https://www.bacanoraphx.com/
+phoenix-central,"Sala Thai North Phoenix",thai_restaurant,678,4.4,hide,no_hh_found,http://salathaiaz.com/
+phoenix-central,"El Super Taco",taco_restaurant,665,4.8,hide,no_hh_found,https://elsupertacoaz.com/
+phoenix-central,"Gus's World Famous Fried Chicken",chicken_restaurant,662,4.6,hide,no_hh_found,https://www.gusfriedchicken.com/
+phoenix-central,"théa",mediterranean_restaurant,645,4.6,hide,no_hh_found,https://www.globalambassadorhotel.com/restaurants/thea
+phoenix-central,"Cornish Pasty Co",british_restaurant,629,4.6,hide,no_hh_found,http://www.cornishpastyco.com/
+phoenix-central,"Taco Night & Tequila",mexican_restaurant,609,4.3,hide,no_hh_found,https://taconighttequilaaz.com/
+phoenix-central,"Michelina's Italian Restaurant",italian_restaurant,592,4.8,hide,no_hh_found,http://michelinasrestaurant.com/
+phoenix-central,"El Zaguan Bistro",mexican_restaurant,552,4.8,hide,no_hh_found,https://www.elzaguanbistro.com/
+phoenix-central,"California Fish Grill",seafood_restaurant,546,4.5,hide,no_hh_found,https://www.cafishgrill.com/
+phoenix-central,"Nee House Chinese Restaurant",chinese_restaurant,511,4.1,hide,no_hh_found,https://www.neehousechinese.com/
+phoenix-central,"Le Âme",steak_house,507,4.6,hide,no_hh_found,https://www.globalambassadorhotel.com/restaurants/leame
+phoenix-central,"Mensho Ramen",japanese_restaurant,491,4.7,hide,no_hh_found,https://mensho.com/
+phoenix-central,"Arizona American Italian Club",restaurant,484,4.5,hide,no_hh_found,http://azaiclub.com/
+phoenix-central,"Yin's Chinese Restaurant",chinese_restaurant,479,3.9,hide,no_hh_found,http://www.yinschinesephoenix.com/
+phoenix-central,"King Salmon Midtown",sushi_restaurant,465,4.8,hide,no_hh_found,http://www.kingsalmonsushi.com/
+phoenix-central,"Corazón de Agave",mexican_restaurant,415,4.6,hide,no_hh_found,https://corazondeagaverestaurant.com/
+phoenix-central,"Nami Korean Kitchen & Sushi",korean_restaurant,374,4.8,hide,no_hh_found,https://www.nami-koreankitchenaz.com/
+phoenix-central,"Maskadores Taco Shop",mexican_restaurant,348,4.6,hide,no_hh_found,https://www.clover.com/online-ordering/maskadores-taco-shop-8-phoenix
+phoenix-central,"El Chullo Peruvian Restaurant & Bar",peruvian_restaurant,336,4.7,hide,no_hh_found,https://www.elchullorestaurant.com/
+phoenix-central,"Angel Thai Bistro",thai_restaurant,283,4.6,hide,no_hh_found,http://www.angelthaiaz.com/
+phoenix-central,"Fly Bye",pizza_restaurant,266,4.5,hide,no_hh_found,https://flybyetogo.com/locations/phoenix-az-arcadia/?utm_source=Google&utm_medium=Organic&utm_campaign=Maps
+phoenix-central,"Szechwan Kitchen",chinese_restaurant,225,4.4,hide,no_hh_found,https://www.szechwan-kitchen.com/
+phoenix-central,"Soy Hibachi",japanese_restaurant,193,4.0,hide,no_hh_found,https://www.soyhibachi.com/
+phoenix-central,"Pointe In Tyme",brunch_restaurant,175,4.0,hide,no_hh_found,https://tapatiocliffshilton.com/dining/pointe-in-tyme/
+phoenix-central,"Lydia's Kitchen & Market",restaurant,140,4.4,hide,no_hh_found,http://www.lydiasphx.com/
+phoenix-central,"Flower Child",american_restaurant,135,4.4,hide,no_hh_found,https://www.iamaflowerchild.com/locations/flower-child-paradise-valley/
+phoenix-central,"Tortas El Rey",,0,,hide,no_hh_found,http://tortaselreyphoenix.com/
+phoenix-central,"Vayal's Indian kitchen (RESTAURANT & CATERING)",,0,,hide,no_hh_found,https://www.vayalskitchen.com/
+san-jose,"LUNA Mexican Kitchen - San Jose",mexican_restaurant,3747,4.5,hide,no_hh_found,http://www.lunamexicankitchen.com/
+san-jose,"Urban Plates",american_restaurant,3407,4.8,hide,no_hh_found,https://urbanplates.com/
+san-jose,"Smoking Pig BBQ",barbecue_restaurant,3375,4.3,hide,no_hh_found,https://www.smokingpigbbq.net/
+san-jose,"Eataly",italian_restaurant,3291,4.0,hide,no_hh_found,https://www.eataly.com/us_en/stores/silicon-valley
+san-jose,"Dish N Dash",middle_eastern_restaurant,2988,4.5,hide,no_hh_found,http://www.dishdash.com/
+san-jose,"Henry's World Famous Hi-Life",steak_house,2615,4.6,hide,no_hh_found,http://www.henryshilife.com/
+san-jose,"Mariscos Costa Alegre",mexican_restaurant,2326,4.7,hide,no_hh_found,http://www.mariscoscostaalegre.com/
+san-jose,"Gen Korean BBQ House",korean_barbecue_restaurant,2315,4.0,hide,no_hh_found,http://genkoreanbbq.com/
+san-jose,"Black Angus Steakhouse",steak_house,2192,4.2,hide,no_hh_found,https://blackangus.com/store/1083/Black%20Angus%20Blossom%20Hill
+san-jose,"Kenji Sushi",sushi_restaurant,2113,4.3,hide,no_hh_found,https://order.mealkeyway.com/customer/release/index?mid=5676317252685a62315854444269395a636a704c54773d3d#/main
+san-jose,"Kukar's House Of Pizza",pizza_restaurant,1994,4.2,hide,no_hh_found,http://kukarshouseofpizza.com/
+san-jose,"Cicero's Pizza",pizza_restaurant,1645,4.6,hide,no_hh_found,http://cicerospizza.com/
+san-jose,"The Kickin Crab",seafood_restaurant,1570,4.3,hide,no_hh_found,https://thekickincrab.com/
+san-jose,"King's Fish House",seafood_restaurant,1450,4.3,hide,no_hh_found,https://www.kingsfishhouse.com/sanjose
+san-jose,"Sam's Bar-B-Que",barbecue_restaurant,1432,4.4,hide,no_hh_found,http://samsbbq.com/
+san-jose,"Cha Cha Sushi",sushi_restaurant,1407,4.4,hide,no_hh_found,http://www.chachasushi.com/
+san-jose,"Mariscos Costa Alegre - Alum Rock",seafood_restaurant,1388,4.8,hide,no_hh_found,https://www.mariscoscostaalegre.com/
+san-jose,"Las Cazuelas Restaurant",mexican_restaurant,1356,4.2,hide,no_hh_found,http://lascazuelasrestaurants.com/
+san-jose,"Okayama Sushi #1",sushi_restaurant,1318,4.0,hide,no_hh_found,https://okayamasushi.com/
+san-jose,"La Cueva",mexican_restaurant,1313,4.6,hide,no_hh_found,https://la-cueva-mex-grill.restaurants-world.com/
+san-jose,"Gen Korean BBQ House",korean_barbecue_restaurant,1284,4.0,hide,no_hh_found,https://www.genkoreanbbq.com/
+san-jose,"Giorgio's Italian Food and Pizzeria",italian_restaurant,1233,4.4,hide,no_hh_found,https://www.giorgiositalianfood.com/
+san-jose,"Goku Korean BBQ & Hot Pot",hot_pot_restaurant,1227,4.3,hide,no_hh_found,https://www.gokusanjose.com/
+san-jose,"TOSTADAS",mexican_restaurant,1172,4.2,hide,no_hh_found,http://www.tostadassj.com/
+san-jose,"Kazoo Sushi Boat – Japantown San Jose",sushi_restaurant,1160,4.3,hide,no_hh_found,http://www.kazoorestaurant.com/
+san-jose,"Jake’s of Saratoga",pizza_restaurant,1158,4.5,hide,no_hh_found,https://www.jakessouthbay.com/
+san-jose,"Dia De Pesca",seafood_restaurant,1148,4.3,hide,no_hh_found,http://www.diadepesca.net/
+san-jose,"Ramen Taka",ramen_restaurant,1147,4.4,hide,no_hh_found,https://ramen-taka.shop/
+san-jose,"Bill's Cafe",american_restaurant,1139,4.4,hide,no_hh_found,http://www.billscafe.com/
+san-jose,"Kumako Den",ramen_restaurant,1136,4.8,hide,no_hh_found,https://www.kumakoramenden.com/
+san-jose,"Antipasto's By De Rose",italian_restaurant,1092,4.7,hide,no_hh_found,http://www.antipastosdeli.com/
+san-jose,"Mendoza's Restaurant",mexican_restaurant,1091,4.1,hide,no_hh_found,https://mendozasrestaurant.shop/
+san-jose,"JINYA Ramen Bar - San Jose",restaurant,1032,4.1,hide,no_hh_found,https://www.jinyaramenbar.com/locations/san-jose/?utm_medium=soci&utm_source=gmb
+san-jose,"Cali Spartan Mexican Kitchen",mexican_restaurant,1026,4.3,hide,no_hh_found,https://www.instagram.com/mexican.kitchen.est.2014?igsh=MzRlODBiNWFlZA==
+san-jose,"Terra",italian_restaurant,1001,4.4,hide,no_hh_found,https://www.eataly.com/us_en/stores/silicon-valley/restaurants/terra-silicon-valley
+san-jose,"Mini Gourmet",american_restaurant,984,4.1,hide,no_hh_found,http://minigourmet599.com/
+san-jose,"Bibo's NY Pizza",pizza_restaurant,970,4.5,hide,no_hh_found,https://www.bibosnypizza.com/
+san-jose,"The City Fish",seafood_restaurant,946,4.5,hide,no_hh_found,https://www.cityfishco.com/
+san-jose,"Frank & Furter’s Handcrafted Hot Dogs",hot_dog_restaurant,936,4.5,hide,no_hh_found,https://frank-furters.com/?olonwp=JjBtp_vMLk25gkYh_bnoiQ
+san-jose,"Bijan Bakery And Cafe",restaurant,878,4.0,hide,no_hh_found,https://bijanbakery.com/
+san-jose,"Yas Restaurant",persian_restaurant,850,4.3,hide,no_hh_found,https://yasrestaurant.net/
+san-jose,"El Taco de Oro",mexican_restaurant,835,4.3,hide,no_hh_found,http://www.eltacodeoro.com/
+san-jose,"Jack's Restaurant & Bar",american_restaurant,766,4.6,hide,no_hh_found,https://www.ilovejacks.com/san-jose
+san-jose,"Castillo's Mexican Restaurant",mexican_restaurant,751,4.2,hide,no_hh_found,https://www.castillosmexrestaurant.com/
+san-jose,"Mariscos Pura Vitamina “Riviera”",seafood_restaurant,738,4.2,hide,no_hh_found,http://laceibapromotion.com/
+san-jose,"John's of Willow Glen restaurant",american_restaurant,737,4.4,hide,no_hh_found,https://www.johnsofwg.com/
+san-jose,"Café San José",restaurant,731,4.5,hide,no_hh_found,https://www.cafesanjose.com/
+san-jose,"Laksana Thai Cuisine",thai_restaurant,725,4.0,hide,no_hh_found,http://laksanathaicuisine.weebly.com/
+san-jose,"Toast Cafe & Grill",brunch_restaurant,722,4.3,hide,no_hh_found,https://toastcafeandgrill.com/
+san-jose,"Tony & Alba’s Pizza and Pasta",italian_restaurant,717,4.5,hide,no_hh_found,https://tonyandalbaspizza.com/?utm_source=google
+san-jose,"California Fish Grill",seafood_restaurant,714,4.3,hide,no_hh_found,https://order.cafishgrill.com/menu/?restaurantId=85
+san-jose,"Maya's Cafe",restaurant,703,4.4,hide,no_hh_found,http://www.mayas-cafe.com/
+san-jose,"Dan Izakaya Restaurant",japanese_izakaya_restaurant,698,4.4,hide,no_hh_found,http://danizakayasanjose.com/
+san-jose,"Pizza California",restaurant,694,4.4,hide,no_hh_found,http://pizzacalifornia.com/
+san-jose,"Sanraku",japanese_restaurant,687,4.5,hide,no_hh_found,http://www.sanraku.com/
+san-jose,"Udon Mugizo",japanese_restaurant,675,4.5,hide,no_hh_found,http://mugizo-us.com/
+san-jose,"Doña María",mexican_restaurant,670,4.3,hide,no_hh_found,http://dona-maria-restaurant.com/
+san-jose,"Sushi Heaven",sushi_restaurant,661,4.5,hide,no_hh_found,http://www.sushiheavenca.com/
+san-jose,"Tacos al Carbón Bar & Grill",mexican_restaurant,661,4.0,delete,no_hh_found,
+san-jose,"Three Flames",american_restaurant,658,4.2,hide,no_hh_found,http://3flamesrestaurant.com/
+san-jose,"Sorelle Italian Bistro",italian_restaurant,654,4.6,hide,no_hh_found,http://www.sorelleitalianbistro.com/
+san-jose,"Liuyishou Hot Pot (San Jose) 刘一手(圣何塞)",hot_pot_restaurant,651,4.5,hide,no_hh_found,https://www.liuyishouna.com/
+san-jose,"Blue Mango",thai_restaurant,648,4.2,hide,no_hh_found,https://bluemangocuisine.com/?utm_source=google
+san-jose,"The Pizza Box",pizza_restaurant,646,4.7,hide,no_hh_found,http://thepizzaboxsanjose.com/
+san-jose,"Senro Sushi",sushi_restaurant,646,4.2,hide,no_hh_found,http://www.senrosushi.com/
+san-jose,"四姐 Special Noodle",chinese_noodle_restaurant,642,4.6,hide,no_hh_found,https://www.ganjingworld.com/zh-CN/channel/1h336eehnq03M8tzRJNzsqn1G17i0c?&utm_medium=bestfood&utm_source=business&utm_campaign=channel
+san-jose,"Poke House",hawaiian_restaurant,629,4.3,hide,no_hh_found,https://www.poke.house/locations/poke-hostetter-san-jose
+san-jose,"Khaosan Thai Restaurant",thai_restaurant,625,4.3,hide,no_hh_found,https://www.khaosanthaisj.com/
+san-jose,"La Foret",french_restaurant,624,4.5,hide,no_hh_found,https://www.laforetrestaurant.com/
+san-jose,"Premier Pizza",pizza_restaurant,621,4.4,hide,no_hh_found,https://premier-pizza.com/
+san-jose,"Country Inn Cafe",diner,617,4.5,hide,no_hh_found,https://www.countryinncafe.com/
+san-jose,"SUSHI KOYA",japanese_restaurant,617,4.5,hide,no_hh_found,https://www.sushikoyasj.com/
+san-jose,"Ramen Hajime",ramen_restaurant,616,4.5,hide,no_hh_found,https://order.toasttab.com/online/ramen-hajime-5229-stevens-creek-blvd/
+san-jose,"Orale Baja Mexican Restaurant",mexican_restaurant,615,4.5,hide,no_hh_found,https://www.oralebaja.com/
+san-jose,"El bumangues",colombian_restaurant,609,4.7,hide,no_hh_found,https://elbumanguesca.com/
+san-jose,"Nick the Greek",greek_restaurant,605,4.4,hide,no_hh_found,http://www.nickthegreek.com/
+san-jose,"TGI's Sushi",sushi_restaurant,590,4.3,hide,no_hh_found,http://www.tgisushi.com/
+san-jose,"Kategna Ethiopian Restaurant",ethiopian_restaurant,587,4.5,hide,no_hh_found,https://www.kategna.com/
+san-jose,"5 Spot Chivas Grill",mexican_restaurant,587,4.4,delete,no_hh_found,
+san-jose,"Tomato Thyme",italian_restaurant,568,4.3,hide,no_hh_found,https://www.tomato-thyme.com/
+san-jose,"Back A Yard Caribbean Grill",restaurant,567,4.5,hide,no_hh_found,https://backayard.net/restaurantmenu/
+san-jose,"Birria Patro Jaramillo",mexican_restaurant,565,4.4,hide,no_hh_found,https://m.facebook.com/birriapatrojaramillo/
+san-jose,"El Amigo Burrito",mexican_restaurant,552,4.1,hide,no_hh_found,http://www.elamigoburrito.com/
+san-jose,"The Cup & Saucer",diner,546,4.4,hide,no_hh_found,http://cupandsaucersanjose.com/
+san-jose,"Pizza My Heart",pizza_restaurant,536,4.5,hide,no_hh_found,https://www.pizzamyheart.com/
+san-jose,"Fish's Wild",seafood_restaurant,531,4.5,hide,no_hh_found,https://fishiswild.com/fishswildsanjose?utm_source=google
+san-jose,"Tacos al Pastor",mexican_restaurant,526,4.3,hide,no_hh_found,http://www.tacosalpastorsj.com/
+san-jose,"Okayama Express",japanese_restaurant,505,4.2,hide,no_hh_found,https://www.okayama2587.com/
+san-jose,"TacoMania",taco_restaurant,496,3.8,hide,no_hh_found,https://tacomaniainc.com/tacomaniaedenvale-19s0tk?utm_source=google
+san-jose,"Curry Pizza House San Jose Evergreen",pizza_restaurant,492,4.4,hide,no_hh_found,https://evergreen.mycurrypizza.com/
+san-jose,"Mesquite and Oak",restaurant,492,4.6,hide,no_hh_found,http://www.mesquiteandoak.com/
+san-jose,"Ramen Champ",japanese_restaurant,484,4.4,hide,no_hh_found,https://order.spoton.com/so-ramen-champ-24077/san-jose-ca/683de27b5472bdc4a4d2fec8
+san-jose,"Mariscos Costa Alegre Monterey Hwy",mexican_restaurant,484,4.6,hide,no_hh_found,http://www.mariscoscostaalegre.com/
+san-jose,"La Grullensa Restaurant",mexican_restaurant,479,3.7,hide,no_hh_found,http://lagrullensa.com/
+san-jose,"Sushi Boat Town",sushi_restaurant,478,4.3,delete,no_hh_found,https://sushiboattown.menu11.com/
+san-jose,"Freedom Burrito",mexican_restaurant,470,4.0,hide,no_hh_found,https://freedomburrito.com/?utm_source=google
+san-jose,"Ristorante da Maria",italian_restaurant,459,4.4,hide,no_hh_found,https://pizzadamaria.com/?utm_source=google
+san-jose,"Tacos Al Pastor 2",mexican_restaurant,453,4.1,hide,no_hh_found,http://tacosalpastorsj.com/index.html
+san-jose,"Al Castello Ristorante Italiano",italian_restaurant,450,4.5,hide,no_hh_found,http://www.alcastelloristorante.com/
+san-jose,"Mojo Burger",restaurant,444,4.2,hide,no_hh_found,http://www.mojoburger.com/?y_source=1_MTQ2OTg4NDctNzE1LWxvY2F0aW9uLndlYnNpdGU%3D
+san-jose,"Nick the Greek",greek_restaurant,440,4.4,hide,no_hh_found,https://www.nickthegreek.com/
+san-jose,"Tulum Mexican Kitchen",mexican_restaurant,425,3.9,hide,no_hh_found,http://tulummexicankitchensanjose.com/
+san-jose,"La Terraza Grill & Bar",colombian_restaurant,420,3.9,hide,no_hh_found,https://laterrazagrillsanjose.com/
+san-jose,"Tandoori Pizza - San Jose",pizza_restaurant,396,4.0,hide,no_hh_found,http://www.tandooripizza.com/
+san-jose,"Momo Grill",asian_fusion_restaurant,394,4.6,hide,no_hh_found,https://themomogrillca.com/
+san-jose,"Gojo Ethiopian Restaurant",restaurant,383,4.5,hide,no_hh_found,http://gojoethiopiarestaurantsj.com/
+san-jose,"Jess's Place",peruvian_restaurant,380,3.7,hide,no_hh_found,http://jesssplace.com/
+san-jose,"Armando's Restaurant + Bar",mexican_restaurant,375,4.1,hide,no_hh_found,https://www.toasttab.com/armandos-2223-business-circle/v3
+san-jose,"BackAYard Caribbean Grill",restaurant,374,4.3,hide,no_hh_found,https://backayard.net/
+san-jose,"Ginza Sushi",sushi_restaurant,370,4.3,hide,no_hh_found,http://www.sushimakesuhappy.com/
+san-jose,"Anchors Fish and Chips and Seafood Grill",restaurant,369,4.3,hide,no_hh_found,https://anchorsgrill.com/wg
+san-jose,"Max's Restaurant Milpitas, Cuisine of the Philippines",filipino_restaurant,368,3.5,hide,no_hh_found,https://www.maxsrestaurantna.com/
+san-jose,"Bossman's Pizza",pizza_restaurant,368,4.6,hide,no_hh_found,https://www.bossmanspizza.com/?utm_source=gbp
+san-jose,"Baja Fresh",mexican_restaurant,367,4.0,hide,no_hh_found,https://www.bajafresh.com/stores/mexican-food-san-jose/30676?utm_source=gmb&utm_medium=gmb&utm_campaign=gmb&utm_id=gmb
+san-jose,"Caminos de Michoacán",mexican_restaurant,360,4.3,hide,no_hh_found,http://cdmrsjc.com/
+san-jose,"Legends Pizza Co",pizza_restaurant,348,4.5,hide,no_hh_found,https://legends-pizza.com/
+san-jose,"Shabuway",japanese_restaurant,346,4.4,hide,no_hh_found,https://www.shabuway.com/
+san-jose,"Pizza My Heart",pizza_restaurant,346,4.4,hide,no_hh_found,https://www.pizzamyheart.com/
+san-jose,"Pizza My Heart",pizza_restaurant,344,4.6,hide,no_hh_found,https://www.pizzamyheart.com/
+san-jose,"Kizuna sushi Japanese Restaurant",japanese_restaurant,337,4.5,hide,no_hh_found,https://www.kizunasushisj.com/
+san-jose,"Pizza My Heart",pizza_restaurant,332,4.5,hide,no_hh_found,https://www.pizzamyheart.com/
+san-jose,"Amato Pizzeria",pizza_restaurant,328,4.5,hide,no_hh_found,http://www.amatopizzeria.com/
+san-jose,"Sushi Masa",sushi_restaurant,324,4.4,hide,no_hh_found,https://sushimasasj.com/
+san-jose,"Burrito Factory",mexican_restaurant,317,4.0,hide,no_hh_found,http://www.burritofactorysanjose.com/
+san-jose,"My-Kitchen",american_restaurant,314,4.3,hide,no_hh_found,http://www.my-kitchen.org/
+san-jose,"The Stand - American Classics Redefined",restaurant,308,4.7,hide,no_hh_found,http://www.thestand.com/?y_source=1_MjAyMjI5ODkzMy03MTUtbG9jYXRpb24ud2Vic2l0ZQ%3D%3D
+san-jose,"AJITO",japanese_izakaya_restaurant,305,4.4,hide,no_hh_found,http://ajito.us/
+san-jose,"Tokyo Sushi",sushi_restaurant,305,4.3,hide,no_hh_found,https://www.tokyosushisj.com/
+san-jose,"El Palacio Del Sabor",restaurant,304,4.3,hide,no_hh_found,https://elpalaciodelsaborca.com/
+san-jose,"Sendo Sushi",sushi_restaurant,301,4.3,hide,no_hh_found,http://sjsendosushi.com/
+san-jose,"Gaku Restaurant",japanese_restaurant,297,4.4,hide,no_hh_found,https://gakurestaurant.com/
+san-jose,"Burrito Factory",mexican_restaurant,294,4.0,hide,no_hh_found,https://www.burritofactorysanjose.com/
+san-jose,"Miyakko Japanese Cuisine",japanese_restaurant,291,4.3,hide,no_hh_found,http://mymiyakkosj.com/
+san-jose,"The Eden Gardens (Indian Delicacy)",restaurant,289,4.2,hide,no_hh_found,http://www.theedengardens.com/
+san-jose,"Greek Spot",greek_restaurant,284,4.5,hide,no_hh_found,http://www.greek-spot.com/
+san-jose,"La Playita",mexican_restaurant,279,4.4,hide,no_hh_found,https://www.facebook.com/La-Playita-Restaurant-870596083043895/
+san-jose,"Burma Choice",burmese_restaurant,277,4.6,hide,no_hh_found,http://www.burmachoice.com/
+san-jose,"El Aguachile Restaurant",seafood_restaurant,267,4.5,hide,no_hh_found,http://orderelaguachilerestaurant.mobile-webview2.com/
+san-jose,"Taste of Heaven Bistro",american_restaurant,256,4.1,hide,no_hh_found,https://link.eliteone.io/taste
+san-jose,"Shan Tandoori Pizza",pizza_restaurant,251,4.1,hide,no_hh_found,http://shantandooripizza.com/
+san-jose,"El Buen Sazón",mexican_restaurant,249,4.4,hide,no_hh_found,https://fromtherestaurant.com/el-buen-sazon/
+san-jose,"Yuri Japanese Restaurant",japanese_restaurant,237,4.4,hide,no_hh_found,http://www.yurirestaurant.com/
+san-jose,"Sushi Jae",sushi_restaurant,234,4.6,hide,no_hh_found,http://www.sushijae.com/
+san-jose,"Bistro Tupaz",restaurant,231,4.6,hide,no_hh_found,http://www.bistrotupaz.com/
+san-jose,"Acopio Restaurant",mexican_restaurant,224,4.7,hide,no_hh_found,http://www.acopiosj.com/
+san-jose,"After Bar & Grill",restaurant,223,4.2,delete,no_hh_found,
+san-jose,"Sushi Town",sushi_restaurant,218,4.6,hide,no_hh_found,https://order.mealkeyway.com/customer/release/index?mid=507a7835767736453061514d49386b75646146656f673d3d#/main
+san-jose,"Inka’s restaurant",restaurant,218,4.5,hide,no_hh_found,https://freshwok.shop/
+san-jose,"Almaden Sushi",sushi_restaurant,217,4.3,delete,no_hh_found,http://www.almadensushisj.menu11.com/
+san-jose,"El Papucho Mexican Food",mexican_restaurant,214,4.3,hide,no_hh_found,https://www.facebook.com/pages/El-Papucho-Mexican-Food/118078258204735
+san-jose,"Shima Sushi",sushi_restaurant,212,4.5,hide,no_hh_found,http://shimasushisj.com/
+san-jose,"Almaden Tacos al Pastor",mexican_restaurant,209,3.4,hide,no_hh_found,https://www.tacosalpastoralmaden.com/
+san-jose,"Gloria's Burritos",mexican_restaurant,206,4.3,hide,no_hh_found,https://www.facebook.com/Glorias-Burritos-133595613428294/
+san-jose,"Pho Tay Do",restaurant,206,4.6,hide,no_hh_found,https://photaydo.com/
+san-jose,"Bamboo Fish",sushi_restaurant,193,4.4,hide,no_hh_found,http://bamboofishsj.com/
+san-jose,"Fonda Colombiana #2",restaurant,192,4.2,hide,no_hh_found,https://fondacolombianasj.com/
+san-jose,"Puerta Del Sol Restaurant",spanish_restaurant,187,4.6,hide,no_hh_found,https://puertadelsol.us/
+san-jose,"The Barbeque Pit",restaurant,185,4.3,hide,no_hh_found,https://thebarbequepit.com/
+san-jose,"Demiya",japanese_restaurant,181,4.0,hide,no_hh_found,https://www.demiya.restaurant/
+san-jose,"Stackers Pizzeria",pizza_restaurant,170,4.7,hide,no_hh_found,https://www.stackerspizzeriaca.com/
+san-jose,"Anchors Fish and Chips | Seafood Grill | San Jose CA",seafood_restaurant,167,4.0,hide,no_hh_found,https://anchorsgrill.com/
+san-jose,"Luna del Mar Restaurant",seafood_restaurant,167,4.7,hide,no_hh_found,https://www.lunadelmarrestaurantca.com/
+san-jose,"Five Star Pizza",pizza_restaurant,161,4.2,hide,no_hh_found,https://www.orderfivestarpizzamenu.com/?utm_source=gbp
+san-jose,"Mimosas Cafe Willow Glen",restaurant,161,4.2,hide,no_hh_found,http://mimosasofwillowglen.com/
+san-jose,"Fire Wings",restaurant,154,4.2,hide,no_hh_found,https://www.firewings.com/san-jose-ca-95130
+san-jose,"KAI Japanese Restaurant",japanese_restaurant,152,4.4,hide,no_hh_found,http://kaisushi4u.com/
+san-jose,"Una Mas Mexican Grill San Jose",mexican_restaurant,142,3.6,hide,no_hh_found,https://unamassanjose.com/
+san-jose,"Vons Saratoga",chicken_restaurant,139,4.2,hide,no_hh_found,https://order.toasttab.com/online/vonssaratoga
+san-jose,"Medallo Restaurant LLC",colombian_restaurant,138,2.9,hide,no_hh_found,https://medallorestaurantllc.com/
+san-jose,"Latin and Asian Hospitality Group",restaurant,136,4.9,hide,no_hh_found,http://www.latin-asian-fusion.com/
+san-jose,"Pizza Maria",pizza_restaurant,133,4.5,hide,no_hh_found,http://pizzamaria.com/
+san-jose,"Noodle Net",restaurant,133,4.8,hide,no_hh_found,https://www.noodlenetca.com/
+san-jose,"Milan Italian Restaurant",italian_restaurant,124,4.3,hide,no_hh_found,http://milanwillowglen.com/
+san-jose,"lelé kitchen",restaurant,123,4.7,hide,no_hh_found,https://lelekitchen.com/
+san-jose,"The Club On Post",american_restaurant,99,4.6,hide,no_hh_found,http://theclubonpostca.com/
+san-jose,"One Pot Shabu Shabu - San Jose",japanese_restaurant,98,4.2,hide,no_hh_found,https://www.onepotshabushabu.com/
+san-jose,"Los Arcos Restaurant",mexican_restaurant,96,3.5,hide,no_hh_found,https://losarcosrestaurantca.com/
+san-jose,"Casa en el Aire",colombian_restaurant,94,4.4,hide,no_hh_found,https://casaenelaireca.com/
+san-jose,"Secco Restaurant & Bar",californian_restaurant,91,3.8,hide,no_hh_found,https://seccorestaurant.com/
+san-jose,"ABVE The Basics",restaurant,87,4.8,hide,no_hh_found,http://www.abvethebasics.com/
+san-jose,"Casa Lupe Real",mexican_restaurant,74,4.4,hide,no_hh_found,http://casalupereal.com/
+san-jose,"Nagoya Sushi",japanese_restaurant,74,4.5,hide,no_hh_found,https://www.nagoyasushiorder.com/
+san-jose,"Khao Thai Restaurant",restaurant,74,4.2,hide,no_hh_found,http://www.khaothaisj.com/
+san-jose,"California Fish Grill",seafood_restaurant,74,4.1,hide,no_hh_found,https://www.cafishgrill.com/
+san-jose,"Goku Sushi",japanese_restaurant,73,4.7,hide,no_hh_found,https://www.gokusushisj.com/
+san-jose,"Trifecta",restaurant,73,4.5,hide,no_hh_found,https://www.trifectaomakase.com/
+san-jose,"Kakuna Sushi",restaurant,73,4.1,delete,no_hh_found,https://kakuna.menu11.com/
+san-jose,"Locanda Ischia",italian_restaurant,71,4.6,hide,no_hh_found,https://www.locandarestaurants.com/
+san-jose,"My Thai Street Food",restaurant,66,4.5,hide,no_hh_found,https://mythaistreetfood.us/
+san-jose,"Pizza Me",pizza_restaurant,63,4.5,hide,no_hh_found,https://www.pizzasme.com/
+san-jose,"Fish & Things Poke Bar",hawaiian_restaurant,57,4.3,hide,no_hh_found,http://www.fishnthings.net/
+san-jose,"AJI Bar & Robata",restaurant,44,4.4,hide,no_hh_found,https://www.hilton.com/en/hotels/sjcsmsa-signia-san-jose/dining/aji-bar-and-robata/?y_source=1_NjU2MTk3ODMtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D
+san-jose,"Bibo's Pizza & Pasta",pizza_restaurant,44,4.8,hide,no_hh_found,https://www.bibosnypizza.com/
+san-jose,"Must Be Thai and Bar",thai_restaurant,40,4.3,hide,no_hh_found,https://www.mustbethaiandbar.com/
+san-jose,"Empire Armadillo BBQ & Deli",barbecue_restaurant,39,4.5,hide,no_hh_found,http://empirearmadillo.com/
+san-jose,"Toro Mambo",restaurant,31,4.2,hide,no_hh_found,https://toromambo.us/
+san-luis-obispo,"Alex Madonna’s Gold Rush Steak House",steak_house,810,4.4,hide,no_hh_found,http://madonnainn.com/
+san-luis-obispo,"Gino's Pizza SLO",pizza_restaurant,797,4.6,hide,no_hh_found,https://ginospizzaslo.com/ginospizzaslo?utm_source=google
+san-luis-obispo,"Raku Ramen",ramen_restaurant,759,4.4,hide,no_hh_found,http://www.raku-ramen.com/
+san-luis-obispo,"Taco King",mexican_restaurant,739,4.5,hide,no_hh_found,https://www.instagram.com/tacoking_slo/profilecard/?igsh=NTc4MTIwNjQ2YQ==
+san-luis-obispo,"Cool Cat Café | San Luis Obispo",hamburger_restaurant,727,4.6,hide,no_hh_found,http://www.coolcatcafe.com/
+san-luis-obispo,"Rib Line | BBQ Restaurant",barbecue_restaurant,693,4.4,hide,no_hh_found,https://ribline.com/?utm_source=google
+san-luis-obispo,"Taco Roco",mexican_restaurant,647,4.4,hide,no_hh_found,https://tacoroco.net/
+san-luis-obispo,"Buona Tavola",italian_restaurant,612,4.5,hide,no_hh_found,http://www.btslo.com/
+san-luis-obispo,"Efren's San Luis Obispo",mexican_restaurant,608,4.3,hide,no_hh_found,http://www.efrensslo.com/
+san-luis-obispo,"Shin's Sushi",sushi_restaurant,537,4.1,hide,no_hh_found,https://www.shinssushibar.com/
+san-luis-obispo,"Sushi Kokku & Ramen",japanese_restaurant,474,4.5,hide,no_hh_found,http://www.sushikokkuslo.com/
+san-luis-obispo,"Pancho's Mexican Food",mexican_restaurant,431,4.4,hide,no_hh_found,http://www.panchossrestaurant.com/
+san-luis-obispo,"HaHa Sushi And Ramen",japanese_restaurant,415,4.3,hide,no_hh_found,https://hahasushiandramen.com/
+san-luis-obispo,"Yanagi Sushi",sushi_restaurant,396,4.4,hide,no_hh_found,https://www.yanagisushislo.com/
+san-luis-obispo,"Nate's on Marsh - A NRL Food Group Restaurant",restaurant,381,4.6,hide,no_hh_found,https://www.natesonmarsh.com/
+san-luis-obispo,"Golden Gong Chinese Restaurant",chinese_restaurant,369,3.6,hide,no_hh_found,http://www.goldengongslo.com/
+san-luis-obispo,"Sushiya",sushi_restaurant,338,4.0,hide,no_hh_found,https://sushiyaslo.com/
+san-luis-obispo,"Lahainas",seafood_restaurant,309,4.4,hide,no_hh_found,https://lahainas805.com/
+san-luis-obispo,"Ox and Anchor",steak_house,284,4.7,hide,no_hh_found,https://oxandanchor.com/
+san-luis-obispo,"Mee Heng Low | Noodle House",chinese_restaurant,242,4.3,hide,no_hh_found,http://www.meehenglow.com/
+san-luis-obispo,"Bear & The Wren",restaurant,223,4.6,hide,no_hh_found,http://bearandthewren.com/
+san-luis-obispo,"My Friend Mike's",pizza_restaurant,206,4.8,hide,no_hh_found,http://myfriendmikes.com/
+san-luis-obispo,"Palo Mesa Pizza III",pizza_restaurant,183,4.4,hide,no_hh_found,https://www.palomesapizza.com/san-luis-obispo
+san-luis-obispo,"Kitchen & Vine",american_restaurant,177,4.5,hide,no_hh_found,https://www.kitchennvine.com/
+san-luis-obispo,"Shekamoo Grill",restaurant,162,4.8,hide,no_hh_found,http://shekamoogrill.com/
+san-luis-obispo,"Gold Land BBQ",barbecue_restaurant,142,4.7,hide,no_hh_found,http://goldlandbbq.com/
+san-luis-obispo,"Feral Kitchen & Lounge",restaurant,125,4.4,hide,no_hh_found,https://www.feralkitchenandlounge.com/
+san-luis-obispo,"Nomo Domo",restaurant,121,4.6,hide,no_hh_found,http://nomodomo.com/
+san-luis-obispo,"Press Quesadilla Grill",restaurant,87,4.9,hide,no_hh_found,http://pressqg.com/
+san-luis-obispo,"Condesa",restaurant,85,4.6,hide,no_hh_found,https://condesabarslo.com/
+san-luis-obispo,"Humble Oven",italian_restaurant,77,4.6,hide,no_hh_found,https://www.humbleovenco.com/
+san-mateo,"Jack's Restaurant & Bar",american_restaurant,2209,4.4,hide,no_hh_found,https://www.ilovejacks.com/
+san-mateo,"Waterfront Pizza",pizza_restaurant,1972,4.3,hide,no_hh_found,https://waterfrontpizza.com/?utm_source=google
+san-mateo,"Grand Harbor Seafood and Dimsum Restaurant",cantonese_restaurant,1669,3.9,hide,no_hh_found,https://grandharbor.shop/
+san-mateo,"Taishoken Ramen",ramen_restaurant,1308,4.5,hide,no_hh_found,https://www.taishokenusa.com/
+san-mateo,"Maverick Jack's San Mateo",hamburger_restaurant,1240,4.5,hide,no_hh_found,https://www.maverickjacks.com/
+san-mateo,"Liuyishou Hotpot (San Mateo)",hot_pot_restaurant,1187,4.3,hide,no_hh_found,http://liuyishouna.com/
+san-mateo,"Cuban Kitchen",latin_american_restaurant,1120,4.6,hide,no_hh_found,http://www.cubankitchen.org/
+san-mateo,"Peter's Cafe",diner,1110,4.4,hide,no_hh_found,https://peterscafe.shop/
+san-mateo,"Armadillo Willy's BBQ",barbecue_restaurant,1069,4.2,hide,no_hh_found,https://www.armadillowillys.com/mobile-site/locations.asp
+san-mateo,"HL Peninsula Pearl",cantonese_restaurant,1021,3.9,hide,no_hh_found,https://www.hlpeninsula.com/
+san-mateo,"Celia's",mexican_restaurant,1019,4.3,hide,no_hh_found,http://www.celiasrestaurants.com/san-mateo-peninsula-ave/
+san-mateo,"Mokutanya",yakitori_restaurant,971,4.2,hide,no_hh_found,https://mokutanya.shop/
+san-mateo,"Starbird Chicken",chicken_restaurant,950,4.3,hide,no_hh_found,http://starbirdchicken.com/
+san-mateo,"Foreigner Cafe",restaurant,808,4.4,hide,no_hh_found,https://www.foreignercafe.com/
+san-mateo,"Maverick Jack's",restaurant,780,4.4,hide,no_hh_found,http://www.maverickjacks.com/?y_source=1_MTU3MDI1MjMtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D
+san-mateo,"Neal's Coffee Shop",restaurant,722,4.4,hide,no_hh_found,https://www.nealscoffeeshop.net/
+san-mateo,"Broadway Prime",steak_house,674,4.2,hide,no_hh_found,http://broadwayprime.com/
+san-mateo,"Guadalajara Grill",mexican_restaurant,635,4.3,hide,no_hh_found,https://themenustar2.com/webspace/menus.php?code=orderguadalajaragrill.com
+san-mateo,"Mediterranean Kitchen Burlingame",mediterranean_restaurant,593,4.6,hide,no_hh_found,http://www.mkburlingame.com/
+san-mateo,"Rainbow Pizza",pizza_restaurant,591,4.6,hide,no_hh_found,http://rainbowpizza.com/
+san-mateo,"SaltYard Restaurant and Bar",american_restaurant,578,4.3,hide,no_hh_found,https://www.saltyardrestaurant.com/
+san-mateo,"Taste of Shaxian",chinese_restaurant,578,4.4,hide,no_hh_found,http://tasteofshaxian.com/
+san-mateo,"Curry Hyuga",japanese_curry_restaurant,575,4.7,hide,no_hh_found,https://curryhyuga.com/
+san-mateo,"Hobee's Restaurant",brunch_restaurant,563,4.4,hide,no_hh_found,https://hobees.com/locations/redwood-shores/
+san-mateo,"Izakaya Fusion Grill Keitan",yakitori_restaurant,474,4.5,hide,no_hh_found,https://qrcode.chowbus.com/?code=UZNzey
+san-mateo,"Ipoh Garden Malaysian Cuisine",malaysian_restaurant,453,4.5,hide,no_hh_found,https://smorefood.com/order-online/ipoh-garden-malaysian-cuisine-millbrae-94030-kv9ifbyu?utm_source=gmb&utm_medium=website
+san-mateo,"Myung Dong Tofu Cabin",korean_restaurant,440,4.3,hide,no_hh_found,http://www.tofucabin.com/
+san-mateo,"Pizza My Heart",pizza_restaurant,437,4.4,hide,no_hh_found,https://www.pizzamyheart.com/
+san-mateo,"Himali Bistro",restaurant,411,4.9,hide,no_hh_found,https://www.himalibistro.com/
+san-mateo,"Sushi Monster",japanese_restaurant,404,4.5,hide,no_hh_found,http://sushi-monster.com/
+san-mateo,"Ping‘s Bistro",chinese_restaurant,401,4.6,hide,no_hh_found,https://order.mealkeyway.com/customer/release/index?mid=61366250313953396b592f44686177644e344a494a513d3d
+san-mateo,"Joy Restaurant",taiwanese_restaurant,383,4.3,hide,no_hh_found,http://joystw.com/
+san-mateo,"SAKAE Sushi",sushi_restaurant,382,4.4,hide,no_hh_found,http://sakaesushi.com/
+san-mateo,"Capo Mediterranean Kitchen",greek_restaurant,381,4.7,hide,no_hh_found,https://www.capobelmont.com/
+san-mateo,"Sole Ristorante Italiano",italian_restaurant,381,4.6,hide,no_hh_found,http://www.soleristorante.com/?_escaped_fragment_=catering/c1w8b
+san-mateo,"Divino Ristorante",italian_restaurant,375,4.6,hide,no_hh_found,https://divinoristorante.com/
+san-mateo,"Royal Feast",chinese_restaurant,372,4.4,hide,no_hh_found,https://order.mealkeyway.com/customer/release/index?mid=4a5458796474666a4c555975506e64707071754957513d3d
+san-mateo,"Village Host Pizza & Grill",pizza_restaurant,360,4.2,hide,no_hh_found,https://order.spoton.com/so-village-host-pizza-1454/burlingame-ca/65f1f8aeedc35f16f823cfea
+san-mateo,"Cheung Hing",chinese_restaurant,359,3.6,hide,no_hh_found,https://cheunghingtogo.com/
+san-mateo,"Kiroro Sushi",japanese_restaurant,351,4.4,hide,no_hh_found,https://www.kirorosushi.com/
+san-mateo,"Slice House by Tony Gemignani",pizza_restaurant,331,4.4,hide,no_hh_found,https://slicehouse.com/belmont/
+san-mateo,"Village Host Pizza & Grill - Belmont",pizza_restaurant,330,4.3,hide,no_hh_found,https://order.spoton.com/so-village-host-pizza-1454/belmont-ca/629e61449adef315cc6b7b20
+san-mateo,"Farm & Vine American Bistro",restaurant,325,4.4,hide,no_hh_found,https://www.farmandvinebistro.com/
+san-mateo,"Soon's Tofu & Korean BBQ",korean_restaurant,322,4.1,hide,no_hh_found,http://www.soonstofu.com/
+san-mateo,"SAMIKCHA MOMO Indian-Nepali Cuisine",restaurant,320,4.5,hide,no_hh_found,https://www.samikchamomo.com/
+san-mateo,"Centro Pizza",pizza_restaurant,315,4.6,hide,no_hh_found,http://broadwaycentro.com/
+san-mateo,"PJ's Pizza Co.",pizza_restaurant,312,4.7,hide,no_hh_found,https://pjspizza.co/?utm_source=google
+san-mateo,"La Lanterna Ristorante",italian_restaurant,290,4.4,hide,no_hh_found,http://lalanternasanmateo.com/
+san-mateo,"Kenta Ramen",japanese_restaurant,283,4.3,hide,no_hh_found,https://order.online/business/kenta-ramen-324610
+san-mateo,"Nick The Greek",greek_restaurant,282,4.5,hide,no_hh_found,http://nickthegreek.com/
+san-mateo,"California Fish Grill",seafood_restaurant,276,4.3,hide,no_hh_found,https://www.cafishgrill.com/
+san-mateo,"Park & Howard Bistro",bistro,274,4.5,hide,no_hh_found,http://www.parkhowardbistro.com/
+san-mateo,"Mumu Hot Pot",hot_pot_restaurant,264,4.5,hide,no_hh_found,https://mumuhotpot.com/
+san-mateo,"Yangon",burmese_restaurant,262,4.5,hide,no_hh_found,http://yangon-restaurant.com/
+san-mateo,"Yuzu",sushi_restaurant,258,4.5,hide,no_hh_found,http://www.yuzusushisanmateo.com/
+san-mateo,"Aldo's Pizza",pizza_restaurant,255,4.4,hide,no_hh_found,http://aldospizzamenu.com/?utm_source=gbp
+san-mateo,"Young Can Wok Chinese Bistro",chinese_restaurant,220,4.2,hide,no_hh_found,https://youngcanwokchinesebistro.com/?utm_source=google
+san-mateo,"Plucky's Cafe",restaurant,216,4.6,hide,no_hh_found,https://www.pluckyscafe.com/
+san-mateo,"Brothers Cafe",brunch_restaurant,214,4.5,hide,no_hh_found,http://brotherscafes.com/
+san-mateo,"La Ronda Restaurant Peruvian Cuisine",peruvian_restaurant,211,4.6,hide,no_hh_found,http://www.larondamarina.com/
+san-mateo,"The Toss, San Carlos",restaurant,208,4.5,hide,no_hh_found,http://www.thetosssancarlos.com/
+san-mateo,"Wakuriya",japanese_restaurant,206,4.7,hide,no_hh_found,http://www.wakuriya.com/
+san-mateo,"Capri Lasagneria",italian_restaurant,193,4.5,hide,no_hh_found,https://www.caprilasagneria.com/
+san-mateo,"Akizu Sushi Bar & Grill",sushi_restaurant,190,4.3,hide,no_hh_found,https://akizusushibargrillca.com/
+san-mateo,"Rin-Tei",asian_fusion_restaurant,184,4.4,hide,no_hh_found,https://rin-tei.com/
+san-mateo,"Kobeya",japanese_restaurant,179,4.4,hide,no_hh_found,http://www.kobeyasanmateo.us/
+san-mateo,"37 North",restaurant,174,4.1,hide,no_hh_found,https://www.hilton.com/en/hotels/sfoaodt-doubletree-san-francisco-airport/dining/?SEO_id=GMB--R-SFOAODT&y_source=1_MTk1OTQ3MjctNzE1LWxvY2F0aW9uLndlYnNpdGU%3D
+san-mateo,"Shiki Japanese Restaurant",japanese_restaurant,167,4.4,hide,no_hh_found,https://shikilaurelwood.com/
+san-mateo,"Fuumi",japanese_restaurant,167,4.4,hide,no_hh_found,https://fuumikitchen.com/?utm_source=google
+san-mateo,"Yama Sushi Belmont",sushi_restaurant,166,3.9,hide,no_hh_found,http://yamasushi889.com/
+san-mateo,"MJ Sushi Foster City",restaurant,166,4.2,hide,no_hh_found,https://mj-sushi-foster-city.cloveronline.com/
+san-mateo,"Bellini Bistro",italian_restaurant,163,4.7,hide,no_hh_found,http://www.bistrobellini.com/
+san-mateo,"Cafe Florian Restaurant",brunch_restaurant,160,4.1,hide,no_hh_found,https://www.eventscp.com/dining/cafe-florian
+san-mateo,"Curry Pizza House Foster City",pizza_restaurant,131,4.5,hide,no_hh_found,https://currypizzahouse.com/locations/foster-city/
+san-mateo,"Soko Soko Japanese Cuisine",restaurant,130,4.5,hide,no_hh_found,http://sokosokosc.com/
+san-mateo,"Sushi Kuu",japanese_restaurant,86,4.6,hide,no_hh_found,http://www.sushikuubelmont.com/
+san-mateo,"Bistro Arancini",italian_restaurant,77,4.7,hide,no_hh_found,http://www.bistroarancini.com/
+san-mateo,"Marketplace Café at Nordstrom",american_restaurant,65,4.2,hide,no_hh_found,https://www.nordstrom.com/store-details/nordstrom-hillsdale-shopping-center?utm_source=google&utm_medium=organic&utm_campaign=food&utm_content=32420&utm_channel=low_nd_seo_local&sp_source=google&sp_campaign=food
+san-mateo,"Bahche",restaurant,61,4.5,hide,no_hh_found,https://www.bahchesf.com/
+san-mateo,"Lobster Chef",seafood_restaurant,47,4.5,hide,no_hh_found,http://lobsterchefca.com/
+san-mateo,"The Hollō Cafe",american_restaurant,39,4.7,hide,no_hh_found,https://thehollocafe.com/
+san-mateo,"808 Zone - Asian Pacific Fusion",restaurant,36,4.6,hide,no_hh_found,http://808-zone.com/
+san-mateo,"Dumpling Kitchen - Factory",dumpling_restaurant,29,4.4,hide,no_hh_found,https://www.dumplingkitchenca.com/
+santa-barbara,"Santa Barbara Shellfish Company",seafood_restaurant,4126,4.5,hide,no_hh_found,http://www.shellfishco.com/
+santa-barbara,"East Beach Tacos",taco_restaurant,1417,4.7,hide,no_hh_found,http://www.eastbeachtacos.com/
+santa-barbara,"Super Cucas",mexican_restaurant,1203,4.5,hide,no_hh_found,http://www.supercucasrestaurant.com/
+santa-barbara,"Toma Restaurant & Bar",italian_restaurant,1180,4.6,hide,no_hh_found,http://tomarestaurant.com/
+santa-barbara,"Luna Grill Santa Barbara",mediterranean_restaurant,1081,4.5,hide,no_hh_found,https://order.lunagrill.com/?y_source=1_MTQ0NDgxMTYtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D
+santa-barbara,"Jeannine's Restaurant & Bakery",american_restaurant,862,4.6,hide,no_hh_found,http://jeannines.com/
+santa-barbara,"On The Alley Santa Barbara",restaurant,719,4.5,hide,no_hh_found,https://www.onthealley.com/
+santa-barbara,"Lito's Mexican Restaurant",mexican_restaurant,639,4.5,hide,no_hh_found,https://www.litossb.com/
+santa-barbara,"Secret Bao",asian_restaurant,637,4.7,hide,no_hh_found,http://secretbaosb.com/
+santa-barbara,"Natural Cafe",restaurant,633,4.5,hide,no_hh_found,http://www.thenaturalcafe.com/
+santa-barbara,"Buena Onda Empanadas | Restaurant • Catering • Events",argentinian_restaurant,628,4.8,hide,no_hh_found,http://www.buenaondasb.com/
+santa-barbara,"Noodle City | Vietnamese Restaurant",vietnamese_restaurant,561,4.3,hide,no_hh_found,http://noodlecitygoleta.com/
+santa-barbara,"Meet Up Chinese Cuisine 遇见音乐餐厅",chinese_restaurant,500,4.5,hide,no_hh_found,http://www.meetuprestaurant.com/
+santa-barbara,"Tre Lune",italian_restaurant,456,4.6,hide,no_hh_found,http://www.trelunesb.com/
+santa-barbara,"Rusty's Pizza Parlor",pizza_restaurant,455,4.3,hide,no_hh_found,http://www.rustyspizza.com/
+santa-barbara,"Rosales Mexican Restaurant",mexican_restaurant,411,4.4,hide,no_hh_found,http://rosalesmexicanrestaurant.com/
+santa-barbara,"Sun Sushi",sushi_restaurant,390,4.6,hide,no_hh_found,http://sbsunsushi.com/
+santa-barbara,"Mandarin Palace",chinese_restaurant,371,4.1,hide,no_hh_found,https://www.mandarinpalacetogo.com/
+santa-barbara,"Rusty's Pizza Parlor",pizza_restaurant,361,4.3,hide,no_hh_found,http://www.rustyspizza.com/
+santa-barbara,"Rascal's",vegan_restaurant,329,4.6,hide,no_hh_found,http://www.rascalsvegan.com/
+santa-barbara,"Altamirano’s Mexican Grill",mexican_restaurant,317,4.3,hide,no_hh_found,http://orderaltamiranosmexicangrill.com/
+santa-barbara,"China Palace Restaurant",chinese_restaurant,308,4.2,hide,no_hh_found,https://chinapalaceca.com/
+santa-barbara,"El Rincon Bohemio",mexican_restaurant,279,4.4,hide,no_hh_found,http://orderelrinconbohemio.com/
+santa-barbara,"Ichiban Sushi",sushi_restaurant,277,4.1,hide,no_hh_found,https://ichibansushisb.com/
+santa-barbara,"Sushi Go Go",sushi_restaurant,261,4.3,hide,no_hh_found,http://www.sushigogotogo.com/
+santa-barbara,"Sakana Sushi Bar & Japanese",japanese_restaurant,233,4.4,hide,no_hh_found,https://www.sakana-santabarbara.biz/
+santa-barbara,"Saint Bibiana",pizza_restaurant,197,4.8,hide,no_hh_found,http://stbibiana.toast.site/
+santa-barbara,"Szechuan Restaurant",chinese_restaurant,187,4.3,hide,no_hh_found,http://www.szechuanrestaurantsb.com/
+santa-barbara,"Yoichi's | Japanese Cuisine",japanese_restaurant,172,4.8,hide,no_hh_found,http://www.yoichis.com/
+santa-barbara,"Ca' Dario Montecito",italian_restaurant,169,4.5,hide,no_hh_found,https://www.cadariorestaurants.com/montecito
+santa-barbara,"Revolver",restaurant,159,4.5,hide,no_hh_found,http://revolversb.com/
+santa-barbara,"Sushi by Scratch Restaurants: Montecito",sushi_restaurant,158,4.8,hide,no_hh_found,https://www.sushibyscratchrestaurants.com/montecito
+santa-barbara,"Bossie's Kitchen",restaurant,149,4.5,hide,no_hh_found,http://www.bossieskitchen.com/
+santa-barbara,"Sazón Latino & Catering",family_restaurant,112,4.5,hide,no_hh_found,https://sazonlatinorestaurante.com/
+santa-barbara,"Alma Fonda Fina",restaurant,88,4.6,hide,no_hh_found,http://almamontecito.com/
+santa-barbara,"Petros",mediterranean_restaurant,38,4.6,hide,no_hh_found,https://www.petrosbrand.com/locations/petros-santa-barbara
+scottsdale,"Fogo de Chão Brazilian Steakhouse",brazilian_restaurant,15795,4.6,hide,no_hh_found,https://fogodechao.com/location/scottsdale/
+scottsdale,"Lo-Lo's Chicken and Waffles",soul_food_restaurant,6060,4.2,hide,no_hh_found,https://loloschickenandwaffles.com/location/scottsdale/
+scottsdale,"SumoMaya",asian_fusion_restaurant,2894,4.3,hide,no_hh_found,https://www.sumomaya.com/
+scottsdale,"SugarJam The Southern Kitchen",american_restaurant,2376,4.5,hide,no_hh_found,https://www.sjsouthernkitchen.com/
+scottsdale,"Ocean 44",fine_dining_restaurant,2342,4.7,hide,no_hh_found,https://www.ocean44.com/
+scottsdale,"Green New American Vegetarian",vegan_restaurant,2219,4.7,hide,no_hh_found,http://greenvegetarian.com/
+scottsdale,"Randy's Restaurant & Ice Cream",american_restaurant,2174,4.6,hide,no_hh_found,http://randysrestaurantaz.com/
+scottsdale,"The Thumb",barbecue_restaurant,2169,4.4,hide,no_hh_found,https://www.thethumb.com/
+scottsdale,"Los Sombreros",mexican_restaurant,2070,4.4,hide,no_hh_found,https://www.lossombreros.com/
+scottsdale,"Flower Child",american_restaurant,1915,4.6,hide,no_hh_found,https://www.iamaflowerchild.com/locations/scottsdale-az/?utm_source=Google&utm_medium=Organic&utm_campaign=Maps
+scottsdale,"Maui Fish House",hawaiian_restaurant,1841,4.7,hide,no_hh_found,https://www.mauifishhouse.com/
+scottsdale,"Andreoli Italian Grocer",italian_restaurant,1812,4.7,hide,no_hh_found,http://www.andreoli-grocer.com/
+scottsdale,"Frank & Lupe's Old Mexico",mexican_restaurant,1728,4.2,hide,no_hh_found,http://www.frankandlupesaz.com/
+scottsdale,"Pomo Pizzeria Napoletana",italian_restaurant,1617,4.5,hide,no_hh_found,https://pomopizzeria.com/
+scottsdale,"Cafe Monarch",fine_dining_restaurant,1533,4.8,hide,no_hh_found,https://www.cafemonarch.com/
+scottsdale,"Gertrude's by Tarbell's",american_restaurant,1496,4.3,hide,no_hh_found,https://dbg.org/visit/dining/
+scottsdale,"Isabella's Kitchen",american_restaurant,1485,4.5,hide,no_hh_found,https://grayhawkgolf.com/dining-overview/isabellas-kitchen/
+scottsdale,"Guido's Chicago Meats & Deli",italian_restaurant,1480,4.7,hide,no_hh_found,https://www.guidosofchicago.com/
+scottsdale,"Flo's",chinese_restaurant,1356,4.5,hide,no_hh_found,https://madebyflo.com/
+scottsdale,"Yo Pauly's New York Pizza Co",pizza_restaurant,1113,4.6,hide,no_hh_found,http://yopaulysnypc.com/
+scottsdale,"Mastro's Steakhouse",fine_dining_restaurant,1090,4.6,hide,no_hh_found,https://www.mastrosrestaurants.com/Locations/AZ/North-Scottsdale/
+scottsdale,"Merci French Cafe",restaurant,954,4.5,hide,no_hh_found,http://www.mercifc.com/
+scottsdale,"Barro's Pizza",pizza_restaurant,948,4.3,hide,no_hh_found,https://barrospizza.com/
+scottsdale,"Pangaea Dinosaur Grill",restaurant,929,3.9,hide,no_hh_found,https://pangaeadinosaurgrill.com/
+scottsdale,"Pei Wei Asian Kitchen",chinese_restaurant,909,3.9,hide,no_hh_found,https://www.peiwei.com/arizona/236-scottsdale
+scottsdale,"Alo Cafe",bistro,854,4.6,hide,no_hh_found,https://alocafeaz.com/
+scottsdale,"UNiQ Burger",vegan_restaurant,814,4.9,hide,no_hh_found,https://www.uniqburger.com/
+scottsdale,"Kitchen18",restaurant,796,4.7,hide,no_hh_found,http://www.thekitchen18.com/
+scottsdale,"PINO",italian_restaurant,785,4.4,hide,no_hh_found,http://pizzapino.us/
+scottsdale,"Spa Avania",restaurant,778,4.8,hide,no_hh_found,https://www.hyatt.com/grand-hyatt/en-US/scott-grand-hyatt-scottsdale-resort/spa?src=vanity_spaavania.com&utm_source=google&utm_medium=lastmile&utm_campaign=scott-s-avan
+scottsdale,"Sizzle Korean Barbecue",korean_barbecue_restaurant,762,4.5,hide,no_hh_found,http://www.sizzlekoreanbbq.com/
+scottsdale,"Luci's at the Grove",restaurant,743,4.5,hide,no_hh_found,http://lucisgoodness.com/
+scottsdale,"Veneto Trattoria",italian_restaurant,727,4.6,hide,no_hh_found,http://venetotrattoria.com/
+scottsdale,"Maui Fish House",hawaiian_restaurant,714,4.7,hide,no_hh_found,https://www.mauifishhouse.com/
+scottsdale,"Local Bistro",bistro,699,4.4,hide,no_hh_found,http://localbistroaz.com/
+scottsdale,"Il Capo Pizzeria",italian_restaurant,675,4.6,hide,no_hh_found,https://www.ilcapoaz.com/
+scottsdale,"Caramba Mexican Food",mexican_restaurant,671,4.3,hide,no_hh_found,http://carambamex.com/
+scottsdale,"NakedQ BBQ",barbecue_restaurant,654,4.5,hide,no_hh_found,http://www.nakedq.com/
+scottsdale,"Enzo's Italian Kitchen",pizza_restaurant,638,4.4,hide,no_hh_found,https://enzositaliankitchen.com/?utm_source=google
+scottsdale,"The Eleanor",brunch_restaurant,605,4.7,hide,no_hh_found,http://theeleanoraz.com/
+scottsdale,"Lamp Pizzeria",pizza_restaurant,603,4.7,hide,no_hh_found,http://lamppizza.com/
+scottsdale,"Ristorante Giuseppe",italian_restaurant,590,4.6,hide,no_hh_found,http://giuseppesofscottsdale.com/
+scottsdale,"Streets of New York",pizza_restaurant,579,4.1,hide,no_hh_found,https://www.streetsofnewyork.com/
+scottsdale,"El Pollo Loco",mexican_restaurant,572,4.1,hide,no_hh_found,https://restaurants.elpolloloco.com/az/scottsdale/15540-n-hayden-rd?utm_source=gmb&utm_medium=yext
+scottsdale,"Barro's Pizza",pizza_restaurant,567,4.4,hide,no_hh_found,https://barrospizza.com/
+scottsdale,"Fata Morgana Mediterranean Cuisine",mediterranean_restaurant,558,4.7,hide,no_hh_found,https://www.fatamorganaaz.com/
+scottsdale,"Basil & Garlic",italian_restaurant,552,4.7,hide,no_hh_found,https://basilngarlicbistro.com/
+scottsdale,"The House Brasserie",fine_dining_restaurant,551,4.5,hide,no_hh_found,https://thehousebrasserie.com/
+scottsdale,"Barro's Pizza",pizza_restaurant,545,4.3,hide,no_hh_found,https://barrospizza.com/
+scottsdale,"Rudy's ""Country Store"" and Bar-B-Q",barbecue_restaurant,536,4.3,hide,no_hh_found,https://rudysbbq.com/location/detail/scottsdale-az
+scottsdale,"New China Gate",chinese_restaurant,534,4.2,hide,no_hh_found,https://www.ordernewchinagate.com/
+scottsdale,"Slanted Rice",vietnamese_restaurant,529,4.4,hide,no_hh_found,http://www.slantedrice.com/
+scottsdale,"Angry Crab Shack",seafood_restaurant,524,4.2,hide,no_hh_found,https://www.angrycrabshack.com/talking-stick-way-scottsdale
+scottsdale,"Koi Poke - DC Ranch",hawaiian_restaurant,513,4.7,hide,no_hh_found,https://koipoke.com/
+scottsdale,"Valley Wings",restaurant,512,4.6,hide,no_hh_found,http://www.valleywingsonline.com/
+scottsdale,"Chef J Dim Sum & Chinese Bistro",asian_restaurant,475,4.1,hide,no_hh_found,https://www.chefjscottsdale.com/
+scottsdale,"PitaDale",mediterranean_restaurant,471,4.6,hide,no_hh_found,http://www.pitadaleaz.com/
+scottsdale,"sneakybird",restaurant,467,4.6,hide,no_hh_found,https://sneakybird.com/menu
+scottsdale,"Outrider Rooftop Lounge",restaurant,433,4.2,hide,no_hh_found,http://www.outriderrooftop.com/?SEO_id=GMB--R-PHXOTPY-1&y_source=1_Mjg5MTMwOTMtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D
+scottsdale,"La Torretta Ristorante",italian_restaurant,429,4.5,hide,no_hh_found,http://www.latorrettaaz.com/
+scottsdale,"George & Son's Asian Cuisine",asian_restaurant,424,4.3,hide,no_hh_found,http://georgeandsonsasiancuisine.com/
+scottsdale,"INDIBAR",restaurant,404,4.6,hide,no_hh_found,https://theindibar.com/
+scottsdale,"Pei Wei Asian Kitchen",chinese_restaurant,388,3.8,hide,no_hh_found,https://www.peiwei.com/arizona/7-grayhawk
+scottsdale,"EGGstasy",restaurant,386,4.4,hide,no_hh_found,http://www.eggstasyaz.com/
+scottsdale,"Saigon District Pho and Boba",vietnamese_restaurant,375,4.1,hide,no_hh_found,http://www.saigondistrictphoboba.com/
+scottsdale,"Pars Persian Cuisine",persian_restaurant,362,4.3,hide,no_hh_found,http://parspersiancuisine.com/
+scottsdale,"Gordos Tacos",restaurant,354,4.5,hide,no_hh_found,https://www.tacosgordos.com/
+scottsdale,"Vito’s Pizza & Italian Ristorante",restaurant,332,4.5,hide,no_hh_found,https://vitospizza.com/locations/scottsdale/
+scottsdale,"La Fogata",restaurant,317,4.4,hide,no_hh_found,https://www.thescottsdaleresort.com/dine-drink/la-fogata
+scottsdale,"Nick’s Italian restaurant - Pima",italian_restaurant,314,4.4,hide,no_hh_found,http://www.nicks-italian.com/
+scottsdale,"Rubio's Coastal Grill",mexican_restaurant,310,4.2,hide,no_hh_found,https://www.rubios.com/restaurant-locations/arizona/scottsdale-n-scottsdale-rd
+scottsdale,"BIRRIA'S MEXICAN FOOD & BAR",mexican_restaurant,307,4.9,hide,no_hh_found,https://birriasmexicanfoodandbar.com/
+scottsdale,"Señor Taco Express Scottsdale",mexican_restaurant,306,4.2,hide,no_hh_found,http://senortacoexpress.com/
+scottsdale,"Voila French Bistro",restaurant,271,4.7,hide,no_hh_found,http://www.voilafrenchbistro.com/
+scottsdale,"Streets of New York",pizza_restaurant,270,4.2,hide,no_hh_found,https://www.streetsofnewyork.com/
+scottsdale,"Pizzería Virtu",pizza_restaurant,263,4.6,hide,no_hh_found,https://www.virtuscottsdale.com/pizzeria-virtu/
+scottsdale,"Metropolis",american_restaurant,247,4.5,hide,no_hh_found,http://www.metropolisaz.com/
+scottsdale,"Little Snitch",brunch_restaurant,236,4.5,hide,no_hh_found,https://www.littlesnitchscottsdale.com/
+scottsdale,"Catch",restaurant,236,4.3,hide,no_hh_found,https://www.catchrestaurants.com/location/catch-scottsdale/
+scottsdale,"Hot N Juicy Crawfish",restaurant,230,3.7,hide,no_hh_found,http://www.hotnjuicycrawfish.com/
+scottsdale,"The Pony Express Café",restaurant,205,4.6,hide,no_hh_found,http://theponyexpresscafe.com/?utm_source=google&utm_medium=wix_google_business_profile&utm_campaign=12532497004063623685
+scottsdale,"Course Restaurant",restaurant,199,4.7,hide,no_hh_found,https://courserestaurantaz.com/
+scottsdale,"Sushi Ko",sushi_restaurant,197,4.4,hide,no_hh_found,http://sushikoscottsdale.com/
+scottsdale,"Checo's Taco Shop",mexican_restaurant,192,4.5,hide,no_hh_found,https://checostacoshop.getbento.com/
+scottsdale,"Blossom Kitchen",restaurant,182,4.5,hide,no_hh_found,http://blossomkitchenaz.com/
+scottsdale,"The Grill Kitchen and Bar",restaurant,176,4.1,hide,no_hh_found,https://www.hilton.com/en/hotels/phxrsqq-boulders-resort-and-spa-scottsdale/dining/?SEO_id=GMB--R-PHXRSQQ-3&y_source=1_MjY1ODk0MTAtNzE1LWxvY2F0aW9uLndlYnNpdGU%3D
+scottsdale,"Atlas Bistro",fine_dining_restaurant,170,4.7,hide,no_hh_found,http://www.atlasbistrobyob.com/
+scottsdale,"SORRENTO ITALIAN RESTAURANT PIZZERIA",italian_restaurant,170,4.6,hide,no_hh_found,https://sorrentoscottsdale.com/
+scottsdale,"Giovanna's Pizza",pizza_restaurant,160,4.8,hide,no_hh_found,https://giovannapizza.wixsite.com/giovanna
+scottsdale,"Veda Indian Cuisine",restaurant,154,4.4,hide,no_hh_found,http://vedacuisine.com/
+scottsdale,"SWAN Sushi Seafood Bar",sushi_restaurant,141,4.4,hide,no_hh_found,https://www.swansushi.com/
+scottsdale,"Ni Hao Bao Dumpling House",restaurant,133,4.4,hide,no_hh_found,http://www.nihaobaodumplinghouse.com/
+scottsdale,"Hai Noon",japanese_restaurant,132,4.7,hide,no_hh_found,https://hainoonaz.com/
+scottsdale,"Ironwood American Kitchen at The Fairmont Scottsdale Princess",restaurant,118,4.2,hide,no_hh_found,https://www.fairmont.com/scottsdale/dining/ironwood-american-kitchen/?utm_source=google+Maps&utm_medium=seo+maps&utm_campaign=seo+maps
+scottsdale,"Corso Italia Restaurant & Market",italian_restaurant,115,4.3,hide,no_hh_found,http://corsoitalia1.com/
+scottsdale,"Piñon Grill",restaurant,107,4.0,hide,no_hh_found,https://www.millenniumhotels.com/en/scottsdale/the-mccormick-scottsdale/dining-information/
+scottsdale,"AGAVE Southwest Bar & Grill",american_restaurant,102,4.4,hide,no_hh_found,http://www.marriott.com/hotels/hotel-information/restaurant/phxno-scottsdale-marriott-at-mcdowell-mountains/
+scottsdale,"Sushiholic Scottsdale",japanese_restaurant,100,4.5,hide,no_hh_found,https://sushiholicscottsdale.carrd.co/
+scottsdale,"Hashi Sushi",sushi_restaurant,99,4.8,hide,no_hh_found,http://www.hashi-scottsdale.com/
+scottsdale,"Good Fortune Chinese Restaurant",restaurant,99,4.4,hide,no_hh_found,http://www.goodfortunescottsdale.com/
+scottsdale,"Marketplace Café at Nordstrom",american_restaurant,87,4.3,hide,no_hh_found,https://www.nordstrom.com/store-details/nordstrom-scottsdale-fashion-square?utm_source=google&utm_medium=organic&utm_campaign=food&utm_content=32380&utm_channel=low_nd_seo_local&sp_source=google&sp_campaign=food
+scottsdale,"Quill Creek Cafe",restaurant,86,4.4,hide,no_hh_found,https://grayhawkgolf.com/dining/quill-creek-cafe/
+scottsdale,"bb.q Chicken North Scottsdale",restaurant,86,4.7,hide,no_hh_found,https://bbqchicken.com/
+scottsdale,"La Zozzona",restaurant,84,4.0,hide,no_hh_found,https://lazozzona.com/?utm_source=google&utm_medium=lastmile&utm_campaign=scott-r-lazo
+scottsdale,"BLU Seafood Scottsdale",seafood_restaurant,69,4.8,hide,no_hh_found,https://blu-seafood.com/bluseafoodscottsdale?utm_source=google
+scottsdale,"Reserve",fine_dining_restaurant,64,4.8,hide,no_hh_found,http://reservescottsdale.com/
+scottsdale,"Authentic EthioAfrican Kitchen & Bar",ethiopian_restaurant,62,4.8,hide,no_hh_found,https://authenticethioafrican.com/
+spokane,"Tomato Street North Division",italian_restaurant,4737,4.5,hide,no_hh_found,https://tomatostreet.com/
+spokane,"Atilano's Mexican Food - Downtown",mexican_restaurant,2947,4.1,hide,no_hh_found,https://www.atilanosmexicanfood.com/
+spokane,"South Hill Grill",american_restaurant,1783,4.4,hide,no_hh_found,http://www.southhillgrillspokane.com/
+spokane,"Tecate Grill",mexican_restaurant,1777,4.4,hide,no_hh_found,https://www.tecate2go.com/index.html
+spokane,"The Milk Bottle",diner,1656,4.6,hide,no_hh_found,http://marylous.org/
+spokane,"Atilano's Mexican Food - Francis",mexican_restaurant,1611,4.1,hide,no_hh_found,http://atilanosmexicanfood.com/
+spokane,"Market Street Pizza",pizza_restaurant,1608,4.6,hide,no_hh_found,https://marketstreetpizzeriaspokane.com/
+spokane,"Gerardo's Authentic Mexican Food",mexican_restaurant,1549,4.3,hide,no_hh_found,https://gerardosauthenticmexicanfood.shop/
+spokane,"Casa de Oro",mexican_restaurant,1503,4.4,hide,no_hh_found,https://casadeoronorth.com/
+spokane,"Red Dragon Northside",chinese_restaurant,1439,4.3,hide,no_hh_found,https://www.reddragonspokane.com/
+spokane,"Versalia Pizza Kendall Yards",pizza_restaurant,1423,4.6,hide,no_hh_found,https://versaliapizza.com/versaliapizzakendallyards-42rb8l?utm_source=google
+spokane,"The Barrel Steak & Seafood House",seafood_restaurant,1408,4.5,hide,no_hh_found,http://thebarrelspokane.com/
+spokane,"Rancho Chico",mexican_restaurant,1352,4.5,hide,no_hh_found,https://ranchochicomexican.com/
+spokane,"Vieux Carre NOLA Kitchen",cajun_restaurant,1336,4.5,hide,no_hh_found,https://vieuxcarrespokane.com/
+spokane,"baba Spokane",mediterranean_restaurant,1245,4.5,hide,no_hh_found,https://babaspokane.com/
+spokane,"Mustard Seed",restaurant,1172,4.1,hide,no_hh_found,http://www.mustardseedweb.com/
+spokane,"Rincón Tapatío",mexican_restaurant,1169,4.7,hide,no_hh_found,https://rincontapatiomarket.com/
+spokane,"Ferraro's Restaurant and Bar | Italian",italian_restaurant,1165,4.4,hide,no_hh_found,http://www.ferrarosfamilyitalian.com/
+spokane,"Rancho Chico",mexican_restaurant,1131,4.5,hide,no_hh_found,https://www.ranchochicospokane.com/
+spokane,"Tacos El Sol",mexican_restaurant,1131,4.6,hide,no_hh_found,https://tacoselsolwa.com/
+spokane,"Umi Kitchen and Sushi Bar | Japanese",japanese_restaurant,1127,4.5,hide,no_hh_found,https://www.umispokane.com/
+spokane,"QQ Sushi & Kitchen",sushi_restaurant,1098,4.4,hide,no_hh_found,https://www.qqsushiandkitchen.com/
+spokane,"Nudo Ramen House",ramen_restaurant,1018,4.4,hide,no_hh_found,http://www.nudoramen.com/
+spokane,"Allie's Vegan Pizzeria & Cafe",vegan_restaurant,1012,4.8,hide,no_hh_found,https://order.toasttab.com/online/allies-vegan-pizzeria
+spokane,"Elliotts an urban kitchen",american_restaurant,913,4.7,hide,no_hh_found,https://www.facebook.com/Elliotts-an-urban-kitchen-177958009611150/
+spokane,"De Leon’s Taco & Bar #2 GU",mexican_restaurant,907,4.3,hide,no_hh_found,http://www.deleonstacoandbar.com/
+spokane,"Pho Thinh",vietnamese_restaurant,885,4.3,hide,no_hh_found,https://phothinhwa.com/
+spokane,"Bennidito's Pizza | Italian",pizza_restaurant,821,4.2,hide,no_hh_found,http://benniditos.com/
+spokane,"Indigenous Eats",restaurant,807,4.9,hide,no_hh_found,https://www.iespokane.com/
+spokane,"Screaming Yak",restaurant,794,4.2,hide,no_hh_found,http://www.screamingyak.com/
+spokane,"Sushi Blossom",sushi_restaurant,776,4.8,hide,no_hh_found,https://www.sushiblossomwa.com/
+spokane,"Red Dragon Spokane",chinese_restaurant,692,3.6,hide,no_hh_found,http://www.reddragonspokane.com/
+spokane,"El Comalon Mexican Restaurant",restaurant,691,4.1,hide,no_hh_found,https://order.spoton.com/so-el-comalon-mexican-restaurant-25355/spokane-wa/68d1bbcbe28cad7337b5223d
+spokane,"Lebanon Restaurant & Cafe",mediterranean_restaurant,631,4.4,hide,no_hh_found,https://lebanonspokane.com/
+spokane,"Burrito House",mexican_restaurant,624,4.5,hide,no_hh_found,http://www.burritohousespokanewa.com/
+spokane,"Casa de la Birria Spokane",mexican_restaurant,624,4.3,hide,no_hh_found,https://casadelabirriaspokanewa.com/
+spokane,"Ruins Restaurant",restaurant,580,4.4,hide,no_hh_found,https://sites.google.com/view/ruinsspokane
+spokane,"DiNardi's Pizza & Pasta",pizza_restaurant,567,4.5,hide,no_hh_found,https://www.dinardispizzapasta.com/?utm_source=gbp
+spokane,"Taco Vado | Mexican",taco_restaurant,555,4.7,hide,no_hh_found,https://tacovado.com/
+spokane,"Rincon Tapatio",mexican_restaurant,554,4.5,hide,no_hh_found,https://rincontapatio.net/
+spokane,"Dave's Hot Chicken",chicken_restaurant,504,4.4,hide,no_hh_found,https://restaurants.daveshotchicken.com/wa/spokane/spicy-chicken-sandwich-division-st/?utm_campaign=google_maps&utm_medium=organic&utm_source=google&utm_content=website&utm_keyword=1307
+spokane,"Rancho Viejo",mexican_restaurant,499,4.3,hide,no_hh_found,http://www.ranchoviejomexican.net/
+spokane,"Los Habaneros",mexican_restaurant,492,4.7,hide,no_hh_found,https://sites.google.com/view/loshabanerostaqueria/inicio
+spokane,"Feast World Kitchen",restaurant,489,4.9,hide,no_hh_found,https://www.feastworldkitchen.org/
+spokane,"Little noodle spokane",asian_restaurant,487,4.0,hide,no_hh_found,https://www.littlenoodlespokane.com/
+spokane,"Ferrante's Cafe",italian_restaurant,481,4.4,hide,no_hh_found,https://ferrantescafe.com/
+spokane,"Zozo's Sandwich House",restaurant,480,4.7,hide,no_hh_found,http://zozossandwichhouse.com/
+spokane,"Maracas Mexican Grill South Hill",mexican_restaurant,448,4.4,hide,no_hh_found,https://maracassouthhill.com/
+spokane,"Avocado Roll Sushi",japanese_restaurant,440,4.7,hide,no_hh_found,http://www.avocadoroll.app/
+spokane,"Kismet",restaurant,385,4.7,hide,no_hh_found,http://www.kismetspokane.com/
+spokane,"De Leon's Taco & Bar #3",taco_restaurant,381,4.2,hide,no_hh_found,http://www.deleonstacoandbar.com/
+spokane,"Betty Jean's BBQ",barbecue_restaurant,317,4.5,hide,no_hh_found,https://bettyjeansbbq.podia.com/
+spokane,"Shelby's Burgers",restaurant,309,4.1,hide,no_hh_found,https://shelbysburgers.com/
+spokane,"Cantarito Mexican Restaurant",mexican_restaurant,297,4.7,hide,no_hh_found,https://cantaritospokanewa.com/
+spokane,"Hang 10 Hawaiian BBQ & Catering",restaurant,279,4.0,hide,no_hh_found,https://hang10bbq.com/
+spokane,"Saranac Commons",restaurant,274,4.7,hide,no_hh_found,https://www.facebook.com/Saranac-Commons-971182832912566
+spokane,"Patron Mexican Restaurant",mexican_restaurant,273,4.6,hide,no_hh_found,https://www.patronspokane.com/
+spokane,"JEWEL OF THE NORTH Neighborhood Gastropub",restaurant,272,4.7,hide,no_hh_found,http://www.jotnspokane.com/
+spokane,"Chan's Dragon Inn | Chinese",chinese_restaurant,208,3.9,hide,no_hh_found,http://chans-dragon-inn.edan.io/
+spokane,"Uno Más Tacos & Tequila",mexican_restaurant,194,4.4,hide,no_hh_found,https://www.unomastacoshop.com/
+spokane,"Kindred Public House",restaurant,182,4.6,hide,no_hh_found,http://www.kindredpubhouse.com/
+spokane,"Gerardo's Authentic Mexican Food",mexican_restaurant,151,4.0,hide,no_hh_found,https://m.facebook.com/GerardosAuthenticMexicanFood/
+spokane,"Atilano’s Mexican Food - Divison/Lincoln",restaurant,99,3.6,hide,no_hh_found,https://atilanosmexicanfood.com/
+spokane,"Doña-Magnolia",restaurant,50,3.6,hide,no_hh_found,https://www.facebook.com/donamagnoliaspokane
+spokane,"Mojarra Mia! Mexican Seafood Restaurant",mexican_restaurant,49,4.2,hide,no_hh_found,https://mojarramiamexicanseafoodrestaurantwa.com/
+spokane,"Pizza Rita",pizza_restaurant,35,4.5,hide,no_hh_found,https://pizzarita.net/
+spokane,"The Bistro - Eat. Drink. Connect.®",bistro,34,4.5,hide,no_hh_found,https://www.marriott.com/en-us/hotels/gegch-courtyard-spokane-downtown-at-the-convention-center/dining/?scid=f2ae0541-1279-4f24-b197-a979c79310b0
+spokane,"It's Just Wings",chicken_wings_restaurant,32,2.6,hide,no_hh_found,https://locations.itsjustwings.com/wa/spokane/spokane-downtown-its-just-wings?utm_source=google&utm_medium=local&utm_campaign=IJW
+tacoma,"Gyro Bites",greek_restaurant,3041,4.7,hide,no_hh_found,https://www.eatgyrobites.com/
+tacoma,"Ezell's Famous Chicken",chicken_restaurant,1950,3.8,hide,no_hh_found,https://www.ezellschicken.com/
+tacoma,"Kizuki Ramen & Izakaya (Tacoma Mall)",ramen_restaurant,1857,4.6,hide,no_hh_found,https://www.kizuki.com/
+tacoma,"Alfred's Cafe",restaurant,1445,4.5,hide,no_hh_found,http://alfredscafetacoma.com/
+tacoma,"Cuerno Bravo Steakhouse",steak_house,1398,4.6,hide,no_hh_found,http://www.cuernobravo.com/
+tacoma,"Vuelve a la Vida - Tacoma",mexican_restaurant,1237,4.3,hide,no_hh_found,http://www.vuelvealavidawa.com/
+tacoma,"Tonala Mexican Restaurant",mexican_restaurant,1179,4.5,hide,no_hh_found,http://www.tonalamexicanrestaurant.com/
+tacoma,"Indo Asian Street Eatery",asian_restaurant,1177,4.5,hide,no_hh_found,http://indostreeteatery.com/
+tacoma,"Zen Ramen & Sushi Burrito - Downtown Tacoma",asian_fusion_restaurant,1152,4.5,hide,no_hh_found,http://zenramenbrothers.com/
+tacoma,"Crab King Cajun Boil & Bar",cajun_restaurant,888,4.2,hide,no_hh_found,https://www.crabkingwa.com/
+tacoma,"Le Sel Bistro",restaurant,822,4.4,hide,no_hh_found,http://www.leselbistro.com/
+tacoma,"Pho Saigon House",vietnamese_restaurant,769,4.6,hide,no_hh_found,http://www.phosaigonhouse.com/
+tacoma,"Side Piece Kitchen",brunch_restaurant,766,4.7,hide,no_hh_found,http://www.sidepiecekitchen.com/home
+tacoma,"Dickey's Barbecue Pit",restaurant,700,3.7,hide,no_hh_found,https://www.dickeys.com/locations/Washington/Tacoma/6th-ave
+tacoma,"Harbor City Tacoma Restaurant",chinese_restaurant,658,4.3,hide,no_hh_found,https://harborcitytacoma.com/
+tacoma,"LA ILUSION AL CARBON",mexican_restaurant,652,4.7,hide,no_hh_found,https://lailusionalcarbonwa.com/
+tacoma,"VK Viet Kitchen Tacoma",vietnamese_restaurant,644,4.6,hide,no_hh_found,https://vkvietkitchentacoma.com/
+tacoma,"Fujiya Japanese Restaurant",sushi_restaurant,638,4.5,hide,no_hh_found,https://www.facebook.com/fujiyatacoma/
+tacoma,"Manny's Place",restaurant,590,4.7,hide,no_hh_found,http://www.mannysplacetacoma.com/
+tacoma,"La Perla Del Mar",mexican_restaurant,553,4.2,hide,no_hh_found,https://www.doordash.com/store/934598?utm_source=mx_share
+tacoma,"Berliner Beerhall",german_restaurant,489,4.6,hide,no_hh_found,http://www.berlinerbeerhall.com/
+tacoma,"Chez Lafayette Creole Brasserie",american_restaurant,476,4.6,hide,no_hh_found,https://chezlafayette.com/
+tacoma,"Taco Street",taco_restaurant,474,4.5,hide,no_hh_found,http://www.tacostreetfood.com/
+tacoma,"Gari of Sushi",japanese_restaurant,464,4.6,hide,no_hh_found,http://gariofsushi.com/
+tacoma,"Taquería la Michoacana",mexican_restaurant,461,4.5,hide,no_hh_found,https://taquerialamichoacanawa.smartonlineorder.com/
+tacoma,"Souper Pho",restaurant,460,4.7,hide,no_hh_found,http://souperphorestaurant.com/
+tacoma,"Flying Sushi",sushi_restaurant,394,4.4,hide,no_hh_found,https://www.flyingsushiwa.com/
+tacoma,"Sushi Tama Restaurant",sushi_restaurant,392,4.6,hide,no_hh_found,http://sushitamarestaurant.com/
+tacoma,"Sake Sushi + Grill",japanese_restaurant,362,4.5,hide,no_hh_found,https://sakesushigrilltacoma.com/?utm_source=google
+tacoma,"Thyme Well Spent Cafe",restaurant,336,5.0,hide,no_hh_found,https://www.thymewellspentinc.com/
+tacoma,"Vecindad Mexican Restaurant",mexican_restaurant,316,4.4,hide,no_hh_found,https://vecindaddeseattle.com/
+tacoma,"KIMCHI BOX",restaurant,298,4.7,hide,no_hh_found,https://www.clover.com/online-ordering/kimchi-box-tacoma-2
+tacoma,"The Fuzion Cafe",asian_restaurant,281,4.6,hide,no_hh_found,https://fuzioncafe.toast.site/
+tacoma,"Zen ramen & sushi burrito",ramen_restaurant,276,4.6,hide,no_hh_found,https://www.cdsmnm.com/ordering/restaurant/menu?restaurant_uid=27a9f737-11ad-4d71-b75a-f8b97abc496d&client_is_mobile=true&return_url=https%3A%2F%2Fwww.zenramenbrothers.com%2F
+tacoma,"Joy Teriyaki - 6th Ave",japanese_restaurant,260,3.6,hide,no_hh_found,https://www.joyteriyaki6thave.com/
+tacoma,"Lechon Loco",filipino_restaurant,169,4.5,hide,no_hh_found,https://www.lechonlocorestaurant.com/
+tacoma,"Fresh Rolls Fircrest",vietnamese_restaurant,143,4.4,hide,no_hh_found,https://ilovefreshrolls.com/
+tacoma,"Adela's Authentic Mexican Restaurant",mexican_restaurant,113,4.4,hide,no_hh_found,http://orderadelasauthenticmexicanrestaurant.mobile-webview4.com/
+tacoma,"Sapp Sapp Thai Noodle House",restaurant,72,4.5,hide,no_hh_found,http://sappsapptacoma.com/
+tacoma,"We Be Smok'n bbq",restaurant,31,4.6,hide,no_hh_found,https://www.webesmokinbbq.com/
+tacoma,"Tower Lanes Entertainment Center",,0,,hide,no_hh_found,https://www.towerlanes.net/
+tucson,"El Charro Café Downtown",mexican_restaurant,7164,4.3,hide,no_hh_found,https://www.elcharrocafe.com/
+tucson,"Cheddar's Scratch Kitchen",american_restaurant,5927,4.4,hide,no_hh_found,https://www.cheddars.com/locations/az/tucson/tucson/2111?cmpid=br:csk_ag:ie_ch:loc_ca:CSKGMB_sn:gmb_gt:tucson-az-2111_pl:locurl_rd:1090
+tucson,"La Chingada Cocina Mexicana",mexican_restaurant,4679,4.6,hide,no_hh_found,https://lachingadacocina.com/
+tucson,"La Frida Mexican Grill & Seafood",mexican_restaurant,4343,4.8,hide,no_hh_found,https://www.lafridamexicangrill.com/
+tucson,"BK Carne Asada & Hot Dogs 12th Ave",taco_restaurant,3440,4.4,hide,no_hh_found,http://www.bktacos.com/
+tucson,"Tacos Apson",mexican_restaurant,3238,4.4,hide,no_hh_found,http://tacosapson.com/
+tucson,"Angry Crab Shack",seafood_restaurant,3198,4.1,hide,no_hh_found,https://www.angrycrabshack.com/grant-rd-tucson-az
+tucson,"Baja Cafe on Broadway",southwestern_us_restaurant,3102,4.7,hide,no_hh_found,https://www.bajacafetucson.com/
+tucson,"Serial Grillers (Speedway Blvd.)",pizza_restaurant,3058,4.5,hide,no_hh_found,http://www.serialgrillersaz.com/
+tucson,"Taquería Juanitos",mexican_restaurant,2955,4.6,hide,no_hh_found,http://juanitostaqueria.com/
+tucson,"Tohono Chul Botanical Gardens, Galleries, and Bistro",botanical_garden,2933,4.7,hide,no_hh_found,https://tohonochul.org/
+tucson,"TACO GIRO - Craycroft",mexican_restaurant,2696,4.6,hide,no_hh_found,https://tacogiro.com/
+tucson,"Blue Willow Restaurant & Gift Shop",restaurant,2620,4.6,hide,no_hh_found,https://www.bluewillowtucson.com/
+tucson,"Vivace Restaurant",italian_restaurant,2379,4.7,hide,no_hh_found,https://www.vivacetucson.com/?utm_source=google&utm_medium=organic&utm_campaign=gmb
+tucson,"El Molinito",mexican_restaurant,2312,4.1,hide,no_hh_found,http://el-molinito.com/
+tucson,"Raijin Ramen",ramen_restaurant,2294,4.7,hide,no_hh_found,http://www.raijinramen.com/
+tucson,"La Parrilla Suiza",mexican_restaurant,2188,4.0,hide,no_hh_found,https://laparrillasuiza.com/
+tucson,"Zayna Mediterranean Restaurant",mediterranean_restaurant,2057,4.7,hide,no_hh_found,http://www.zaynamediterranean.com/
+tucson,"Miss Saigon",vietnamese_restaurant,1898,4.5,hide,no_hh_found,https://www.misssaigontucson.com/
+tucson,"Sushi-Ten Japanese restaurant",sushi_restaurant,1874,4.4,hide,no_hh_found,http://sushitenaz.com/
+tucson,"El Charro Cafe Ventana",mexican_restaurant,1816,4.3,hide,no_hh_found,http://www.elcharrocafe.com/
+tucson,"El Minuto Cafe",mexican_restaurant,1803,4.4,hide,no_hh_found,http://www.elminutotucson.com/
+tucson,"Main Event Tucson",restaurant,1774,4.5,hide,no_hh_found,https://www.mainevent.com/
+tucson,"Daisy Mae's Steak House",steak_house,1738,4.3,hide,no_hh_found,http://www.daisymaessteakhouse.com/
+tucson,"El Molinito",mexican_restaurant,1717,4.1,hide,no_hh_found,http://el-molinito.com/
+tucson,"Barro's Pizza",pizza_restaurant,1710,4.6,hide,no_hh_found,https://barrospizza.com/
+tucson,"Barro's Pizza",pizza_restaurant,1688,4.5,hide,no_hh_found,https://barrospizza.com/
+tucson,"Indian Twist",indian_restaurant,1682,4.6,hide,no_hh_found,http://indiantwistaz.com/
+tucson,"Micha's Restaurant",mexican_restaurant,1658,4.1,hide,no_hh_found,https://www.michascatering.com/
+tucson,"Piazza Gavi",italian_restaurant,1647,4.5,hide,no_hh_found,http://www.gavicucina.com/
+tucson,"Jun Dynasty Chinese Restaurant",chinese_restaurant,1628,4.6,hide,no_hh_found,http://jundynasty.com/
+tucson,"Mariscos Chihuahua on Grande",seafood_restaurant,1587,4.4,hide,no_hh_found,http://www.mariscoschihuahua.com/
+tucson,"Rudy's ""Country Store"" and Bar-B-Q",barbecue_restaurant,1569,4.2,hide,no_hh_found,http://www.rudys.com/
+tucson,"Miss Saigon",vietnamese_restaurant,1539,4.5,hide,no_hh_found,http://www.misssaigontucson.com/
+tucson,"Tacotote!",mexican_restaurant,1535,4.2,hide,no_hh_found,http://www.tacotote.com/
+tucson,"Laffs Comedy Caffé",comedy_club,1484,4.6,hide,no_hh_found,http://www.laffstucson.com/
+tucson,"Serial Grillers",restaurant,1450,4.4,hide,no_hh_found,https://www.serialgrillersaz.com/houghtonordering
+tucson,"NYPD New York Pizza Department",pizza_restaurant,1437,4.3,hide,no_hh_found,http://nypizzadepartment.com/
+tucson,"Sakura Teppan Steak & Sushi",japanese_restaurant,1431,4.2,hide,no_hh_found,https://sakurateppansteaksushi.shop/
+tucson,"Maru Plus Japanese Restaurant",japanese_restaurant,1422,4.3,hide,no_hh_found,http://maruplus.com/
+tucson,"Salsa Verde Restaurant",mexican_restaurant,1415,4.4,hide,no_hh_found,http://www.salsaverdemx.com/
+tucson,"The Bamboo Terrace",chinese_restaurant,1398,4.3,hide,no_hh_found,https://thebambooterrace.com/
+tucson,"Kiwami Ramen",japanese_restaurant,1377,4.6,hide,no_hh_found,http://kiwami-ramenbar.com/
+tucson,"Azian",asian_restaurant,1350,3.6,hide,no_hh_found,https://www.aziansushitucson.com/
+tucson,"El Molinito",mexican_restaurant,1313,4.1,hide,no_hh_found,http://el-molinito.com/
+tucson,"Mama's Famous Pizza & Italian Eats",pizza_restaurant,1302,4.3,hide,no_hh_found,http://www.mamasfamous.com/
+tucson,"The Barnyard Crafthouse & Eatery",restaurant,1292,4.2,hide,no_hh_found,https://barnyardaz.com/
+tucson,"Angry Crab Shack",seafood_restaurant,1284,4.1,hide,no_hh_found,https://www.angrycrabshack.com/broadway-blvd-tucson
+tucson,"Argenziano's",italian_restaurant,1280,4.5,hide,no_hh_found,https://argenzianos.shop/
+tucson,"La Parrilla Suiza",mexican_restaurant,1268,4.0,hide,no_hh_found,https://laparrillasuiza.com/
+tucson,"Karichimaka Restaurant",mexican_restaurant,1239,4.5,hide,no_hh_found,http://www.karichimaka.com/
+tucson,"Teaspoon",brunch_restaurant,1220,4.4,hide,no_hh_found,http://teaspoontucson.com/
+tucson,"Shish Kebab House of Tucson",mediterranean_restaurant,1167,4.4,hide,no_hh_found,https://shishkebabaz.com/
+tucson,"Ba-Dar Chinese Restaurant",chinese_restaurant,1163,4.4,hide,no_hh_found,https://www.ba-dartucson.com/
+tucson,"Upper Crust Pizza",pizza_restaurant,1163,4.5,hide,no_hh_found,http://uppercrustpizzatucson.com/
+tucson,"Saigon Blossoms | Miss Saigon Downtown ~ Evolved",vietnamese_restaurant,1081,4.3,hide,no_hh_found,http://www.saigonblossoms.com/
+tucson,"Toast 101",brunch_restaurant,1077,3.8,hide,no_hh_found,http://www.toast101.com/
+tucson,"JA Ramen",ramen_restaurant,1060,4.4,hide,no_hh_found,https://jaramen.us/
+tucson,"Persian Room Fine Dining",persian_restaurant,1009,4.5,hide,no_hh_found,https://www.persianroom.com/
+tucson,"Pei Wei Asian Kitchen",chinese_restaurant,999,4.2,hide,no_hh_found,https://www.peiwei.com/arizona/30-williams-center
+tucson,"Great Village Chinese Restaurant",chinese_restaurant,998,4.4,hide,no_hh_found,https://www.facebook.com/GreatVillageRestaurant/
+tucson,"Gourmet Girls Gluten Free Bakery/Bistro",restaurant,990,4.6,hide,no_hh_found,https://www.gourmetgirlsglutenfree.com/?utm_source=google&utm_medium=organic&utm_campaign=gmb
+tucson,"Chariot Pizza",pizza_restaurant,973,4.3,hide,no_hh_found,http://www.chariotpizza.com/
+tucson,"Tito and Pep",restaurant,958,4.6,hide,no_hh_found,https://www.titoandpep.com/
+tucson,"Kazoku - Sushi & Japanese Cuisine",sushi_restaurant,947,4.6,hide,no_hh_found,https://www.kazokusushitucson.com/
+tucson,"Chef Wang 状元楼",chinese_restaurant,936,4.4,hide,no_hh_found,https://chefwang.xyz/?utm_source=google
+tucson,"Renee's Tucson",pizza_restaurant,932,4.5,hide,no_hh_found,http://reneestucson.com/
+tucson,"Taco Fish",seafood_restaurant,901,4.5,hide,no_hh_found,https://tacofishtucson.com/
+tucson,"La Chaiteria",latin_american_restaurant,860,4.8,hide,no_hh_found,https://www.lachaiteria.com/
+tucson,"El Torero Restaurant",mexican_restaurant,811,4.5,hide,no_hh_found,http://www.eltorerotucson.com/
+tucson,"Plazita México Café",mexican_restaurant,809,4.7,hide,no_hh_found,https://linktr.ee/plazitamexicocafe
+tucson,"Fresh Sushi & Pho Restaurant Tucson AZ",sushi_restaurant,782,4.3,hide,no_hh_found,https://freshsushipho.com/
+tucson,"Chef Alisah's Restaurant",european_restaurant,772,4.7,hide,no_hh_found,https://www.alisahrestaurant.com/
+tucson,"Coronet Restaurant",american_restaurant,765,4.4,hide,no_hh_found,http://www.coronettucson.com/
+tucson,"Cielos",american_restaurant,759,4.3,hide,no_hh_found,https://www.cielostucson.com/
+tucson,"Delicias Express",mexican_restaurant,746,4.6,hide,no_hh_found,https://deliciasexpress.shop/
+tucson,"El Antojo Poblano",mexican_restaurant,745,4.6,hide,no_hh_found,https://elantojopoblanoaz.com/
+tucson,"Zio Peppe",italian_restaurant,744,4.5,hide,no_hh_found,https://ziopeppeaz.com/?utm_source=google&utm_medium=organic&utm_campaign=gmb
+tucson,"Maru Japanese Noodle Shop",japanese_restaurant,713,4.3,hide,no_hh_found,https://www.marunoodle.com/
+tucson,"Zemam's Ethiopian Cuisine",ethiopian_restaurant,709,4.8,hide,no_hh_found,http://zemamsrestaurants.com/
+tucson,"Korea House Restaurant",korean_restaurant,709,4.5,hide,no_hh_found,https://koreahouseaz.com/
+tucson,"Great Wall China",chinese_restaurant,705,4.0,hide,no_hh_found,https://www.greatwallchinesetucson.com/
+tucson,"Ha Long Bay",vietnamese_restaurant,701,4.5,hide,no_hh_found,https://www.orderhalongbay.com/#/
+tucson,"Tuk Tuk Thai Campbell",thai_restaurant,689,4.4,hide,no_hh_found,https://tuktukcampbell.com/?utm_source=google
+tucson,"China Szechwan",chinese_restaurant,668,4.4,hide,no_hh_found,http://www.chinaszechwan.com/
+tucson,"Mariscos Chihuahua",seafood_restaurant,650,4.3,hide,no_hh_found,http://www.mariscoschihuahua.com/
+tucson,"Med Cuisine Restaurant & Bar",mediterranean_restaurant,640,4.4,hide,no_hh_found,https://www.medcuisineusa.com/
+tucson,"Sinbad's Restaurant",restaurant,634,4.3,hide,no_hh_found,http://www.turkishkebabhouse.us/
+tucson,"Jason's Mexican Restaurant",mexican_restaurant,628,4.2,hide,no_hh_found,https://jasonsmexicanrestaurant.shop/
+tucson,"Los Olivos",pizza_restaurant,607,4.7,hide,no_hh_found,https://orderlosolivos.com/
+tucson,"Arizona Pizza Company",pizza_restaurant,591,4.4,hide,no_hh_found,https://azpizzacompany.com/
+tucson,"Perche' No",italian_restaurant,560,4.7,hide,no_hh_found,https://www.perchenobistro.com/
+tucson,"Mama's Famous Pizza & Italian Eats",pizza_restaurant,545,3.9,hide,no_hh_found,https://mamasfamous.com/
+tucson,"KUKAI",japanese_restaurant,529,4.6,hide,no_hh_found,http://eatkukai.com/
+tucson,"Midtown Vegan Deli & Market",vegan_restaurant,529,4.8,hide,no_hh_found,https://www.midtownvegandeli.com/
+tucson,"Ginza Sushi & Izakaya",sushi_restaurant,517,4.6,hide,no_hh_found,http://ginzatucson.com/
+tucson,"Flower Child",american_restaurant,515,4.4,hide,no_hh_found,https://www.iamaflowerchild.com/locations/flower-child-tucson/?utm_source=google&utm_medium=organic&utm_campaign=maps
+tucson,"Maria Bonita Mexican Kitchen",mexican_restaurant,499,4.3,hide,no_hh_found,https://mariabonitamexicankitchenaz.com/
+tucson,"Frankie's South Philly Cheesesteaks",american_restaurant,486,4.4,hide,no_hh_found,http://frankiescheesesteaks.com/
+tucson,"The Blacktop Grill (Award-Winning Street Food)",mexican_restaurant,480,4.6,hide,no_hh_found,https://theblacktopgrill.com/?utm_source=google
+tucson,"O Sushi Restaurant",sushi_restaurant,473,4.6,hide,no_hh_found,https://www.facebook.com/osushitucson
+tucson,"Penelope Pizza",pizza_restaurant,463,4.5,hide,no_hh_found,http://www.penelopepizza.com/
+tucson,"Diamond Cafe",steak_house,445,4.2,hide,no_hh_found,http://www.ddcaz.com/tucson/dining-nightlife/diamond-cafe/
+tucson,"Spice Garden Indian Cuisine",restaurant,435,4.4,hide,no_hh_found,https://spicegardenaz.com/
+tucson,"Bazil's",italian_restaurant,433,4.3,hide,no_hh_found,http://bazilstucson.com/
+tucson,"Kotu Korean BBQ",korean_barbecue_restaurant,427,4.4,hide,no_hh_found,https://kotukbbq.flipdish.menu/?utm_source=GBP.website&utm_medium=GBP&utm_campaign=br12301-website
+tucson,"Indian Twist Airport",indian_restaurant,426,4.7,hide,no_hh_found,http://indiantwistairport.com/
+tucson,"Phở Cần Thơ Vietnamese Cuisine",vietnamese_restaurant,419,4.1,hide,no_hh_found,https://www.phocanthotucson.com/#menu
+tucson,"Casa Pita",restaurant,411,4.8,hide,no_hh_found,https://online.skytab.com/89676db9e223ec487235bb1855b0884d
+tucson,"Golden Dragon Chinese Restaurant",chinese_restaurant,411,3.5,delete,no_hh_found,https://goldendragon.kwickmenu.com/
+tucson,"Mariscos Baja Mar",seafood_restaurant,409,4.5,hide,no_hh_found,https://www.facebook.com/bajamarofficial/
+tucson,"Turkish Kebab House",turkish_restaurant,406,4.6,hide,no_hh_found,https://www.turkishkebabhouse.us/
+tucson,"KINTOKI SUSHI HOUSE & BAR",sushi_restaurant,400,4.8,hide,no_hh_found,https://www.kintokisushihouse.com/
+tucson,"Samurai",japanese_restaurant,398,4.4,hide,no_hh_found,https://www.samuraitucsonaz.com/
+tucson,"Pure Poke and Prep",restaurant,392,4.6,hide,no_hh_found,http://purepokeprep.com/
+tucson,"Kintaro Sushi and Hibachi",asian_restaurant,384,4.1,hide,no_hh_found,https://kintarotucson.com/
+tucson,"Cheng's Beijing Chinese Restaurant",chinese_restaurant,383,4.3,hide,no_hh_found,http://www.chengsbeijingtucson.com/
+tucson,"Sky Dragon Chinese Cuisine",chinese_restaurant,382,4.0,hide,no_hh_found,http://skydragonchinese.wixsite.com/tucson
+tucson,"Salsa Verde Restaurant",mexican_restaurant,381,4.8,hide,no_hh_found,http://www.salsaverdemx.com/
+tucson,"Sushi Zona",sushi_restaurant,366,4.5,hide,no_hh_found,http://www.sushizona.com/
+tucson,"Happy Wok",chinese_restaurant,363,4.2,hide,no_hh_found,https://www.happywoktucsonaz.com/
+tucson,"Woops! Bakeshop (Main Gate Square)",restaurant,358,4.7,hide,no_hh_found,https://www.bywoops.com/shop-local?location=main+gate
+tucson,"New Asia Chinese Restaurant",chinese_restaurant,352,4.4,hide,no_hh_found,http://www.newasiatucson.com/
+tucson,"Tacos y Mariscos Jaliscos",restaurant,330,4.6,hide,no_hh_found,https://tacosymariscosjaliscoaz.com/
+tucson,"Cocteleria La Palma Mariscos Y Mas",seafood_restaurant,316,4.8,hide,no_hh_found,http://cocteleria-lapalma.com/
+tucson,"Ni's Asian Bistro & Sushi Bar",asian_restaurant,295,4.4,hide,no_hh_found,http://www.nisasianbistro.com/
+tucson,"Rosati's Pizza",pizza_restaurant,286,4.1,hide,no_hh_found,https://myrosatis.com/tucsontanqueverde/
+tucson,"Toro Bravo",mexican_restaurant,267,4.6,hide,no_hh_found,https://www.torobravoaz.com/
+tucson,"Golden Dragon Chinese Restaurant",chinese_restaurant,256,4.1,hide,no_hh_found,http://goldendragontucson.com/
+tucson,"The Moonstone",restaurant,231,4.2,hide,no_hh_found,https://www.moonstonerooftop.com/?SEO_id=GMB--R-TUSGTGU-1&y_source=1_MjAwMjkzMTAyNS03MTUtbG9jYXRpb24ud2Vic2l0ZQ%3D%3D
+tucson,"The Gardens at Bear Canyon",restaurant,230,4.5,hide,no_hh_found,https://the-gardens-bar-and-grill.mypagecloud.com/
+tucson,"Signature Grill with Patio Dining",american_restaurant,220,4.2,hide,no_hh_found,https://www.marriott.com/en-us/hotels/tussp-jw-marriott-tucson-starr-pass-resort-and-spa/dining/?scid=feed67b0-9a2f-4de1-8df6-114544116108
+tucson,"La Placita Cafe",mexican_restaurant,209,4.4,hide,no_hh_found,http://laplacitatucson.com/
+tucson,"WHOLE SLVCE Pizza",pizza_restaurant,204,4.7,hide,no_hh_found,https://www.wholeslvcepizza.com/
+tucson,"Forty Niner - Rincon Mountain Grill",american_restaurant,196,4.4,hide,no_hh_found,http://www.fortyninercc.com/
+tucson,"Agave House",restaurant,183,4.4,hide,no_hh_found,http://www.agavehousetucson.com/
+tucson,"La Perla Del Pacífico",mexican_restaurant,181,4.7,hide,no_hh_found,http://laperlatucson.com/
+tucson,"Teaspoon Foothills",brunch_restaurant,179,4.6,hide,no_hh_found,https://teaspoontucson.com/
+tucson,"Noy’S TukTukThai On Sunrise",asian_restaurant,149,4.2,hide,no_hh_found,https://tuktukthai2990.com/
+tucson,"All American Burger",american_restaurant,142,3.8,hide,no_hh_found,https://tucsonmall.com/store/all-american-burger/
+tucson,"Wilbur's Grill",american_restaurant,134,4.0,hide,no_hh_found,http://www.viscountsuite.com/
+tucson,"Samurai Sombrero",restaurant,131,4.8,hide,no_hh_found,https://samuraisombrero.com/
+tucson,"Tio Ben's Mexican Grill",mexican_restaurant,100,4.6,hide,no_hh_found,http://tiobensmexicangrill.com/
+tucson,"Seis Kitchen",mexican_restaurant,92,4.2,hide,no_hh_found,https://www.seiskitchen.com/
+tucson,"Sisters restaurant & bar",restaurant,80,4.5,hide,no_hh_found,https://sisterstucson.com/
+tucson,"The Flight Grill",restaurant,77,3.9,hide,no_hh_found,http://www.pimaair.org/
+tucson,"REDS TACOS & MORE",mexican_restaurant,65,4.6,hide,no_hh_found,http://redstacos.com/
+tucson,"Flamingo Grill at Reid Park Zoo",american_restaurant,64,3.8,hide,no_hh_found,https://www.postermywall.com/index.php/v/d/39FD
+tucson,"Cactus Rose",steak_house,55,4.1,hide,no_hh_found,http://doubletree3.hilton.com/en/hotels/arizona/doubletree-by-hilton-hotel-tucson-reid-park-TUSBTDT/
+tucson,"It's Just Wings",chicken_wings_restaurant,49,2.8,hide,no_hh_found,https://locations.itsjustwings.com/az/tucson/tucson-its-just-wings?utm_source=google&utm_medium=local&utm_campaign=IJW
+tucson,"Salud",restaurant,46,4.4,hide,no_hh_found,https://www.marriott.com/en-us/hotels/tussp-jw-marriott-tucson-starr-pass-resort-and-spa/dining/?scid=feed67b0-9a2f-4de1-8df6-114544116108
+tucson,"Arizona Inn - Main Dining Room",american_restaurant,36,4.4,hide,no_hh_found,http://arizonainn.com/
+tucson,"La Luz Restaurant",restaurant,33,3.6,hide,no_hh_found,https://laluztucson.com/
+tucson,"It's Just Wings",chicken_wings_restaurant,28,4.0,hide,no_hh_found,https://locations.itsjustwings.com/az/tucson/valencia-its-just-wings?utm_source=google&utm_medium=local&utm_campaign=IJW
+tucson,"The Glowbal Restaurant & Bar",restaurant,28,3.8,hide,no_hh_found,http://www.theglowbal.com/
