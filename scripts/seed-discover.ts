@@ -266,6 +266,13 @@ interface SeedConfig {
   // in-scope (captures contiguous suburbs the city line doesn't annex — e.g. Casas Adobes
   // for Tucson). MUST match scope:venues' buffer for the same city. Tune per city.
   serviceBufferMeters?: number;
+  // BOUNDARY mode: how far a tile center may sit from in-scope land (buffered boundary minus
+  // the open-space mask) and still be searched. Since a kept tile searches its full cellMeters
+  // radius, this can be well below cellMeters — a tile whose center is farther than this from
+  // any venue-eligible land is dropped, but neighbours' search circles still cover the gap.
+  // Default DEFAULT_TILE_PRUNE_METERS. Raise toward cellMeters for sprawling low-density cities
+  // whose peripheral venues we can't pre-verify. Tuning is $0: see the prune coverage sweep.
+  tilePruneMeters?: number;
 }
 const DEFAULT_SEED_CONFIG: SeedConfig = {
   radiusKm: 7,
@@ -276,6 +283,12 @@ const DEFAULT_SEED_CONFIG: SeedConfig = {
 // adjacent storefronts — NOT a metro radius. Cities with large unincorporated suburbs
 // (Tucson → Casas Adobes) override this upward in seed_config.serviceBufferMeters.
 const DEFAULT_SERVICE_BUFFER_METERS = 1500;
+// Default tile-prune distance (see SeedConfig.tilePruneMeters). Calibrated against the
+// candidate→venue coverage of 6 onboarded cities (Scottsdale/Tucson/Santa Barbara/Sacramento/
+// Silicon Valley/Oakland): 1500m dropped 15–25% of tiles with zero Nearby-sourced venues
+// uncovered (verified against Silicon Valley's channel-tagged set down to 500m). Below the
+// 3000m cellMeters because kept tiles still search their full radius and overlap heavily.
+const DEFAULT_TILE_PRUNE_METERS = 1500;
 
 // We search broad (anything that could host a happy hour) but exclude junk PRIMARY
 // types at the Google query level — so 7-Elevens (convenience_store), Chick-fil-A /
@@ -741,6 +754,7 @@ async function main() {
     const useBoundary = existsSync(boundaryFile);
     const SERVICE_BUFFER_METERS =
       cfg.serviceBufferMeters ?? DEFAULT_SERVICE_BUFFER_METERS;
+    const TILE_PRUNE_METERS = cfg.tilePruneMeters ?? DEFAULT_TILE_PRUNE_METERS;
     if (useBoundary) {
       // Load the boundary into a temp table ONCE; the bbox + per-candidate gate query
       // against it. Accepts a Feature, FeatureCollection (first feature), or bare geometry.
@@ -921,8 +935,9 @@ async function main() {
       // Tile the boundary's buffered bbox, then drop tiles whose search circle can't reach any
       // in-scope venue land (open desert / mountains / Saguaro NP outside the line, or an
       // in-boundary preserve subtracted into _seed_tilescope). Keep a tile iff scope-land lies
-      // within one search radius (CELL_METERS) of its center — edge cells still cover the buffer
-      // ring because _seed_tilescope is already the boundary buffered by the service radius.
+      // within TILE_PRUNE_METERS of its center. _seed_tilescope is already the boundary buffered
+      // by the service radius, so edge cells still cover the buffer ring; the prune distance is
+      // below cellMeters because kept tiles search their full radius and overlap (see calibration).
       const [bb] = await sql<
         { xmin: number; ymin: number; xmax: number; ymax: number }[]
       >`
@@ -939,14 +954,14 @@ async function main() {
         WHERE ST_DWithin(
           b.g::geography,
           ST_SetSRID(ST_MakePoint(v.lng, v.lat), 4326)::geography,
-          ${CELL_METERS}
+          ${TILE_PRUNE_METERS}
         )
       `);
       const keep = new Set(near.map((r) => Number(r.i)));
       tiles = all.filter((_, i) => keep.has(i));
       console.log(
-        `  BOUNDARY mode: ${tiles.length} tiles (of ${all.length} bbox, desert pruned); ` +
-          `gate = within ${SERVICE_BUFFER_METERS}m of ${boundaryFile}; ` +
+        `  BOUNDARY mode: ${tiles.length} tiles (of ${all.length} bbox, pruned ≥${TILE_PRUNE_METERS}m ` +
+          `from in-scope land); gate = within ${SERVICE_BUFFER_METERS}m of ${boundaryFile}; ` +
           `excluding ${EXCLUDED_PRIMARY_TYPES.length} junk primary types…`,
       );
     } else {
