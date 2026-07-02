@@ -53,7 +53,6 @@ TESTS=(
   test:site-triage
   test:site-health
   test:signal-rate-limit
-  test:page-rate-limit
   test:signal-request
   test:turnstile-verify
   test:resolve-website-url
