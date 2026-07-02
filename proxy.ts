@@ -4,6 +4,7 @@ import {
   clientIpFromHeaders,
   hitPageLimit,
   isAllowedCrawler,
+  isPrefetchRequest,
 } from "@/lib/trust/pageRateLimit";
 
 /**
@@ -29,6 +30,13 @@ export function proxy(request: NextRequest) {
   if (isAllowedCrawler(request.headers.get("user-agent"))) {
     return NextResponse.next();
   }
+
+  // Never throttle router prefetch subrequests. A single city page fans out into dozens
+  // (one per venue <Link> entering the viewport); counting them self-429s a real user
+  // mid-scroll. This is the prod analog of the dev-mode bypass above — the same fan-out
+  // that "blows the per-IP budget" happens in every production browser, not just at
+  // 127.0.0.1. A bulk scraper fetches documents/RSC and never emits this header.
+  if (isPrefetchRequest(request.headers)) return NextResponse.next();
 
   const ip = clientIpFromHeaders(request.headers);
   // Fail open when we can't identify the client (no proxy headers) — better to serve a
