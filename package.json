@@ -166,7 +166,6 @@
     "test:queued-email": "tsx scripts/test-queued-email.ts",
     "test:realness-gate": "tsx scripts/test-realness-gate.ts",
     "test:signal-rate-limit": "tsx scripts/test-signal-rate-limit.ts",
-    "test:page-rate-limit": "tsx scripts/test-page-rate-limit.ts",
     "test:signal-request": "tsx scripts/test-signal-request.ts",
     "test:site-health": "tsx scripts/test-site-health.ts",
     "test:turnstile-verify": "tsx scripts/test-turnstile-verify.ts",
