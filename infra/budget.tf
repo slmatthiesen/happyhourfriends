@@ -155,7 +155,7 @@ resource "aws_iam_role_policy" "ec2_box_inline" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid    = "S3_s3_assets"
+        Sid    = "S3Assets"
         Effect = "Allow"
         Action = [
           "s3:GetObject",
@@ -169,7 +169,7 @@ resource "aws_iam_role_policy" "ec2_box_inline" {
         ]
       },
       {
-        Sid    = "S3_s3_backups"
+        Sid    = "S3Backups"
         Effect = "Allow"
         Action = [
           "s3:PutObject",
@@ -181,7 +181,7 @@ resource "aws_iam_role_policy" "ec2_box_inline" {
         ]
       },
       {
-        Sid      = "Secret_secrets"
+        Sid      = "SecretsGetValue"
         Effect   = "Allow"
         Action   = "secretsmanager:GetSecretValue"
         Resource = aws_secretsmanager_secret.secrets.arn
@@ -208,7 +208,11 @@ resource "aws_iam_role_policy" "ec2_box_inline" {
         Effect = "Allow"
         Action = [
           "route53:ListResourceRecordSets",
-          "route53:GetChange"
+          "route53:GetChange",
+          # caddy-dns/route53 looks up the zone id by name before writing the
+          # ACME challenge record; without these it gets 403 and never gets a cert.
+          "route53:ListHostedZones",
+          "route53:ListHostedZonesByName"
         ]
         Resource = "*"
       }
@@ -321,7 +325,7 @@ resource "aws_route53_record" "origin" {
 # exposed). Its data lives on a dedicated KMS-encrypted gp3 EBS volume.
 resource "aws_ebs_volume" "postgres" {
   availability_zone = "us-east-1a"
-  size              = 50
+  size              = 20
   type              = "gp3"
   encrypted         = true
   tags              = { Name = "budget-postgres" }
@@ -724,7 +728,9 @@ resource "aws_cloudfront_distribution" "cf" {
   enabled             = true
   is_ipv6_enabled     = true
   http_version        = "http2and3"
-  default_root_object = "index.html"
+  # SSR Next.js app has no static index.html — a default root object makes CloudFront
+  # rewrite "/" to "/index.html", which the origin 404s. Leave empty so "/" hits the app.
+  default_root_object = ""
   price_class         = "PriceClass_100"
   web_acl_id          = aws_wafv2_web_acl.cf.arn
   aliases             = [var.domain_name]
