@@ -9,6 +9,7 @@ import {
   evaluatePageWindow,
   hitPageLimit,
   isAllowedCrawler,
+  isPrefetchRequest,
   __resetPageLimiter,
   type RateWindow,
 } from "@/lib/trust/pageRateLimit";
@@ -108,6 +109,13 @@ check("clientIpFromHeaders: prefers cf-connecting-ip, then XFF first hop, then x
   );
   assert.equal(clientIpFromHeaders(new Headers({ "x-real-ip": "3.3.3.3" })), "3.3.3.3");
   assert.equal(clientIpFromHeaders(new Headers()), null, "no proxy headers → null (fail open)");
+});
+
+check("isPrefetchRequest: Next router prefetch subrequests are detected (and exempted)", () => {
+  assert.ok(isPrefetchRequest(new Headers({ "next-router-prefetch": "1" })));
+  // A real read (document nav or clicked RSC) has no prefetch header → still counted.
+  assert.ok(!isPrefetchRequest(new Headers({ rsc: "1" })));
+  assert.ok(!isPrefetchRequest(new Headers()));
 });
 
 console.log(`\n${passed} checks passed.`);
