@@ -22,6 +22,7 @@
     "reset:city-venues": "tsx scripts/reset-city-venues.ts",
     "import:neighborhoods": "tsx scripts/import-neighborhoods.ts",
     "import:osm-neighborhoods": "tsx scripts/import-osm-neighborhoods.ts",
+    "import:osm-open-space": "tsx scripts/fetch-open-space.ts",
     "import:locality-neighborhoods": "tsx scripts/import-locality-neighborhoods.ts",
     "gen:onboarding-review": "tsx scripts/gen-onboarding-review.ts",
     "generate:cardinal-districts": "tsx scripts/generate-cardinal-districts.ts",
