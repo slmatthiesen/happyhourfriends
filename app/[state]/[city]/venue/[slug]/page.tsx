@@ -12,6 +12,7 @@ import { cityPath, venuePath } from "@/lib/routes";
 import { breadcrumbListLd } from "@/lib/seo/structuredData";
 import { labelForVenueType } from "@/lib/places/venueType";
 import { uiFlags } from "@/lib/ui/flags";
+import { sourceMeta } from "@/lib/ui/sourceLink";
 
 // Absolute base so the copied link is canonical, not request-host-relative.
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -111,6 +112,9 @@ export default async function VenuePage({
     activeHours.find((h) => h.sourceUrl)?.sourceUrl ??
     venue.happyHours.find((h) => h.sourceUrl)?.sourceUrl ??
     null;
+  // Name WHAT the source is (reader photo / menu image / PDF / web page) so the reader
+  // knows where the link goes before clicking.
+  const source = sourceUrl ? sourceMeta(sourceUrl) : null;
 
   // Schema.org recurring Event per happy-hour window (PRD §6.5). A weekly Schedule
   // models the recurrence; offerings become the event description.
@@ -290,12 +294,12 @@ export default async function VenuePage({
               {venue.phone}
             </a>
           )}
-          {sourceUrl && (
+          {sourceUrl && source && (
             <a
               href={sourceUrl}
               target="_blank"
               rel="noopener noreferrer"
-              title="Where this listing's happy hour info was sourced from"
+              title={source.title}
               className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-sm text-text-muted hover:border-accent-cool hover:text-accent-cool"
             >
               <svg
@@ -309,12 +313,26 @@ export default async function VenuePage({
                 strokeLinejoin="round"
                 aria-hidden="true"
               >
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <path d="M14 2v6h6" />
-                <path d="M16 13H8" />
-                <path d="M16 17H8" />
+                {source.kind === "reader-photo" || source.kind === "image" ? (
+                  <>
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                    <circle cx="12" cy="13" r="4" />
+                  </>
+                ) : source.kind === "pdf" ? (
+                  <>
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <path d="M14 2v6h6" />
+                  </>
+                ) : (
+                  <>
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <path d="M14 2v6h6" />
+                    <path d="M16 13H8" />
+                    <path d="M16 17H8" />
+                  </>
+                )}
               </svg>
-              Source
+              {source.label}
             </a>
           )}
         </div>

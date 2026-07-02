@@ -17,7 +17,7 @@ Key facts:
   --query "Reservations[].Instances[].InstanceId" --output text`.
 - Box Postgres is **localhost-only** (`hhf`@`localhost:5432`, db `hhf`). No public PG, no SSH
   (SSM only). PGPASSWORD lives in Secrets Manager `budget/secrets`.
-- All AWS CLI uses profile `hhfriends-deployer` (account 955887581749, us-east-1).
+- All AWS CLI uses profile `hhfriends-deployer` (us-east-1).
 
 ---
 
