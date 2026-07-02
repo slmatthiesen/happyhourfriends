@@ -12,8 +12,23 @@
 [extend]
 useDefault = true
 
+# ONE [allowlist] block (singular — the pinned CI gitleaks 8.24.3 silently ignores the
+# [[allowlists]] plural array form, which unsuppresses everything). Conditions OR by default.
+# All entries are content/path-based ON PURPOSE: .gitleaksignore suppressions are keyed on
+# commit SHA + line number, so they rot on every history rewrite / line move (the reason the
+# same FPs kept re-firing). These key on WHAT the finding is, so they survive both.
+#   - scripts/fixtures/: captured third-party venue HTML — sites' OWN public client keys.
+#   - REPLACE_ME: placeholder credential sentinels (e.g. infra/budget.tf password), injected
+#     out-of-band — never a real secret.
+#   - rwg_token=: Google Reserve-with-Google redirect tokens in public restaurant-ordering
+#     URLs inside audit-dump JSON — public by construction, not our keys.
 [allowlist]
-description = "Captured third-party venue HTML test fixtures — sites' own public client keys, not our secrets"
+description = "Reviewed false positives — third-party fixtures, placeholder sentinels, public rwg_token URLs"
+regexTarget = "match"
 paths = [
   '''scripts/fixtures/''',
+]
+regexes = [
+  '''(?i)REPLACE_ME''',
+  '''rwg_token=''',
 ]

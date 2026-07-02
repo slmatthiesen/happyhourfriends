@@ -1,16 +1,4 @@
-# Reviewed gitleaks false positives (fingerprint = commit:file:rule:startline).
-# gitleaks auto-loads this file from the scan root; it suppresses ONLY these exact
-# findings and leaves every detection rule active. Each was manually verified NOT to be
-# a live secret — see the note per line. Reviewed 2026-07-01.
-#
-# infra/budget.tf: literal placeholder `password = "REPLACE_ME"` (comment on the line
-# says "inject out-of-band; do not commit a real secret"). No real credential.
-eddc26892c190617e18738d93958526477faafe2:infra/budget.tf:hashicorp-tf-password:625
-#
-# docs/*.json (audit dumps, files since deleted from the tree): the flagged 100-char
-# strings are `rwg_token=...` values inside public restaurant ordering URLs (Toast Tab,
-# Graze Craze) — Google "Reserve with Google" redirect tokens carried in a URL, not API
-# keys. Public by construction.
-2ad63230c3a52ab0c0d48c049a0d398590334522:docs/audits/flag-adjudication-queue-2026-06-11.json:generic-api-key:3172
-d9278d0dae252511cfb9bb6d112d7eeaabd0445b:docs/audits/flag-adjudication-queue-2026-06-11.json:generic-api-key:3172
-bc33b4fc552e32a86c17b0b96ef8fefba2e48e62:docs/scottsdale-discovery-drops.json:generic-api-key:4469
+# Intentionally empty. All reviewed false positives are now allowlisted in .gitleaks.toml
+# by CONTENT/PATH, not by commit-SHA fingerprint. Fingerprint suppressions (commit:file:rule:line)
+# silently rot on every history rewrite or line move — which is why the same FPs kept re-firing.
+# Add new reviewed FPs to .gitleaks.toml [[allowlists]] instead of here.
