@@ -114,6 +114,19 @@ export function isAllowedCrawler(userAgent: string | null | undefined): boolean 
   return ALLOWED_CRAWLER_UAS.some((bot) => ua.includes(bot));
 }
 
+/**
+ * A Next App Router prefetch subrequest (`next-router-prefetch` header). One page view
+ * fans out into dozens of these — the router speculatively prefetches every `<Link>` that
+ * enters the viewport (a dense city table has 30–40 venue links). They are browser warming,
+ * NOT reads, and counting them against a per-IP budget self-429s a real user mid-scroll (the
+ * same fan-out the dev-mode bypass already guards against). A bulk scraper cloning the
+ * dataset fetches documents/RSC directly and never emits this header, so exempting prefetch
+ * doesn't weaken the anti-scrape wall.
+ */
+export function isPrefetchRequest(headers: Headers): boolean {
+  return headers.get("next-router-prefetch") != null;
+}
+
 // ── Client IP extraction ──────────────────────────────────────────────────────
 
 /**
