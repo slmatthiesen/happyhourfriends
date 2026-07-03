@@ -1,12 +1,19 @@
 /**
- * Build a single-MultiPolygon boundary GeoJSON by merging several OSM admin relations.
- * Used for aggregate cities (five-cities, silicon-valley) where one HHF "city" spans
- * multiple municipalities. Output shape matches what seed:discover expects: a
- * FeatureCollection whose FIRST (only) feature is a MultiPolygon covering every relation
- * (the loader reads features[0] only — separate features would be silently dropped).
+ * Build a single-MultiPolygon boundary GeoJSON by merging several OSM admin/census
+ * boundaries. Used for aggregate cities (five-cities, silicon-valley, santa-cruz)
+ * where one HHF "city" spans multiple municipalities / unincorporated CDPs. Output
+ * shape matches what seed:discover expects: a FeatureCollection whose FIRST (only)
+ * feature is a MultiPolygon covering every input (the loader reads features[0] only —
+ * separate features would be silently dropped).
+ *
+ * Each ref may be prefixed `r:` (relation, the default) or `w:` (way). The way form
+ * is needed because some Census CDPs exist in OSM only as standalone closed ways with
+ * no relation wrapper (e.g. Live Oak and Rio del Mar, CA — both `boundary=census` ways).
  *
  *   tsx scripts/build-aggregate-boundary.ts --slug silicon-valley \
  *     --relations 1544955,1544956,112145,2221647,2221709,1545000,1552032
+ *   tsx scripts/build-aggregate-boundary.ts --slug santa-cruz \
+ *     --relations r:111737,r:3574370,r:7063032,r:9408781,r:9408782,w:33167234,w:33167250
  */
 import { writeFileSync } from "node:fs";
 import osmtogeojson from "osmtogeojson";
@@ -18,15 +25,17 @@ function arg(name: string): string {
 }
 
 const slug = arg("slug");
-const relationIds = arg("relations")
+const refs = arg("relations")
   .split(",")
   .map((s) => s.trim())
   .filter(Boolean);
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-async function fetchRelationGeometry(id: string): Promise<number[][][][]> {
-  const query = `[out:json][timeout:90];rel(${id});out geom;`;
+async function fetchBoundaryGeometry(ref: string): Promise<number[][][][]> {
+  const isWay = ref.startsWith("w:");
+  const id = ref.replace(/^[wr]:/, "");
+  const query = `[out:json][timeout:90];${isWay ? "way" : "rel"}(${id});out geom;`;
   // Overpass rate-limits rapid sequential calls (429); retry with backoff.
   let res: Response | undefined;
   for (let attempt = 0; attempt < 5; attempt++) {
@@ -42,7 +51,7 @@ async function fetchRelationGeometry(id: string): Promise<number[][][][]> {
     if (res.status !== 429 && res.status !== 504) break;
     await sleep(5000 * (attempt + 1));
   }
-  if (!res || !res.ok) throw new Error(`Overpass ${res?.status} for relation ${id}`);
+  if (!res || !res.ok) throw new Error(`Overpass ${res?.status} for ${ref}`);
   const osm = await res.json();
   const gj = osmtogeojson(osm) as {
     features: Array<{ geometry: { type: string; coordinates: unknown } | null }>;
@@ -52,7 +61,10 @@ async function fetchRelationGeometry(id: string): Promise<number[][][][]> {
       f.geometry &&
       (f.geometry.type === "Polygon" || f.geometry.type === "MultiPolygon"),
   );
-  if (polys.length === 0) throw new Error(`no polygon geometry for relation ${id}`);
+  if (polys.length === 0)
+    throw new Error(
+      `no polygon geometry for ${ref} (got ${gj.features.map((f) => f.geometry?.type).join(",") || "none"} — not a closed area?)`,
+    );
   // Flatten every Polygon/MultiPolygon into MultiPolygon members ([rings][]).
   const members: number[][][][] = [];
   for (const f of polys) {
@@ -65,9 +77,9 @@ async function fetchRelationGeometry(id: string): Promise<number[][][][]> {
 
 async function main(): Promise<void> {
   const allMembers: number[][][][] = [];
-  for (const id of relationIds) {
-    const members = await fetchRelationGeometry(id);
-    console.log(`relation ${id}: ${members.length} polygon part(s)`);
+  for (const ref of refs) {
+    const members = await fetchBoundaryGeometry(ref);
+    console.log(`${ref}: ${members.length} polygon part(s)`);
     allMembers.push(...members);
     await sleep(2000); // be polite to the public Overpass endpoint
   }
@@ -77,7 +89,7 @@ async function main(): Promise<void> {
     features: [
       {
         type: "Feature",
-        properties: { slug, relations: relationIds },
+        properties: { slug, relations: refs },
         geometry: { type: "MultiPolygon", coordinates: allMembers },
       },
     ],
@@ -85,7 +97,7 @@ async function main(): Promise<void> {
   const out = `data/${slug}-boundary.geojson`;
   writeFileSync(out, JSON.stringify(fc));
   console.log(
-    `✓ wrote ${out} — ${allMembers.length} total polygon part(s) from ${relationIds.length} relation(s)`,
+    `✓ wrote ${out} — ${allMembers.length} total polygon part(s) from ${refs.length} input(s)`,
   );
 }
 
