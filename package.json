@@ -83,6 +83,7 @@
     "sync:to-prod": "bash scripts/sync-data-to-prod.sh",
     "push:data": "bash scripts/push-data-to-prod.sh",
     "push:data:additive": "bash scripts/push-data-additive.sh",
+    "push:data:additive:ssm": "bash scripts/push-data-additive-ssm.sh",
     "push:deletions": "bash scripts/push-deletions.sh",
     "pull:data": "bash scripts/pull-data-from-prod.sh",
     "pull:data:upsert": "bash scripts/pull-data-upsert.sh",
