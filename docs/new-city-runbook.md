@@ -199,6 +199,15 @@ pnpm run analyze:neighborhood-coverage -- --city <slug> --state <code>
 would say. Spokane hit 99.5% on cardinal districts alone (0 OSM polygons — a data gap,
 not a failure).
 
+> **Cross-city gate — run periodically, not just at onboarding.** `pnpm run
+> analyze:neighborhood-coverage` (no `--city`) audits **every** city and exits 1 if any is
+> below 95%. The `poly` column is the tell: **a FAILing city with `poly 0` had the
+> `generate:cardinal-districts` step skipped** — it's coasting on Google vernacular names,
+> so the snap stages never fired (this is how Tempe/San Jose/Santa Cruz slipped through). The
+> tool prints the exact `generate:cardinal-districts` FIX line for those. A city with no
+> `data/<slug>-boundary.geojson` (San Jose was missing one) can't cut districts — source the
+> boundary from OSM/Nominatim first.
+
 > `backfill:neighborhoods` is **often a no-op** — enrich assigns at venue creation and
 > `generate:cardinal-districts` reassigns affected venues as it cuts the districts (Berkeley:
 > backfill assigned 0). Run it anyway as the safety net; 0 assigned is expected, not a failure.
@@ -241,6 +250,9 @@ Phase 5 DB spot-check from the cheat sheet (`with_hours` vs `stubs` per city).
 ---
 
 ## Phase 8 — Flip live
+
+**Precondition:** `pnpm run analyze:neighborhood-coverage -- --city <slug> --state <code>`
+PASSes (≥95%, `poly > 0`). Don't flip a city live on Google-names-only coverage.
 
 ```bash
 PGPASSWORD=hhf docker compose exec -T db psql -U hhf -d happyhourfriends -c \
