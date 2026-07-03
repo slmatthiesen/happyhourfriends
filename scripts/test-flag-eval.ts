@@ -27,12 +27,14 @@ const keptNowSilent = mkCase({
   },
 });
 
-// kept but rules still flag (homepage-sourced) — a false alarm to mine.
+// kept but rules still flag — a window sourced from a THIRD-PARTY homepage root. Since
+// 2026-07-02 a FIRST-party homepage is hard truth (not flagged); homepage_sourced_hh now
+// fires only when the homepage is on a foreign domain. A false alarm to mine.
 const keptStillFlagged = mkCase({
   label: "kept",
   input: {
     websiteUrl: "https://alarm.example.com", hoursJson: null,
-    windows: [{ daysOfWeek: [1, 2, 3, 4, 5], startTime: "16:00:00", endTime: "19:00:00", allDay: false, active: true, sourceUrl: "https://alarm.example.com/", notes: null }],
+    windows: [{ daysOfWeek: [1, 2, 3, 4, 5], startTime: "16:00:00", endTime: "19:00:00", allDay: false, active: true, sourceUrl: "https://aggregator.example.net/", notes: null }],
   },
 });
 
