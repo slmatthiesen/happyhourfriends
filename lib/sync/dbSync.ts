@@ -455,6 +455,72 @@ export async function pushDeletions(
   return results;
 }
 
+/**
+ * Per-venue `max(updated_at)` across the curation subtree (venue + happy_hours +
+ * offerings + exceptions). The change-detection signal for publishChanged: a venue whose
+ * subtree is newer locally than on prod has local edits worth pushing. `updated_at` is
+ * bumped by every write path (apply engine, admin actions, soft-deletes), so an offering
+ * hidden on a live venue moves the venue's timestamp even though venues.updated_at itself
+ * didn't change.
+ */
+async function subtreeTimestamps(sql: Sql): Promise<Map<string, number>> {
+  const rows = await sql<{ id: string; ts: string | Date }[]>`
+    SELECT id, max(ts) AS ts FROM (
+      SELECT id, updated_at AS ts FROM venues
+      UNION ALL
+      SELECT venue_id, updated_at FROM happy_hours
+      UNION ALL
+      SELECT hh.venue_id, o.updated_at
+        FROM offerings o JOIN happy_hours hh ON hh.id = o.happy_hour_id
+      UNION ALL
+      SELECT hh.venue_id, e.updated_at
+        FROM happy_hour_exceptions e JOIN happy_hours hh ON hh.id = e.happy_hour_id
+    ) x GROUP BY id`;
+  return new Map(rows.map((r) => [r.id, new Date(r.ts).getTime()]));
+}
+
+/**
+ * local → prod, UPDATE existing venues whose local curation changed. The update
+ * counterpart to additivePush (new venues) and pushDeletions (removed venues): for every
+ * venue that ALREADY exists on prod and whose local subtree is newer (by max updated_at),
+ * re-publish it via publishVenue — a PK upsert of the whole subtree, soft-deletes and all,
+ * so a window's edited source_url or a hidden offering both land. Venues where PROD is
+ * newer (a user edited them there) are SKIPPED, so user-applied changes are never
+ * clobbered. Curation tables only; user tables (edit_submissions, flags, audit_log) are
+ * never touched. Each venue publishes in its own transaction (dryRun rolls each back).
+ * Returns the per-venue results so the CLI can list exactly what moved.
+ */
+export async function publishChanged(
+  local: Sql,
+  prod: Sql,
+  opts: { dryRun?: boolean; sinceHours?: number } = {},
+): Promise<{ venueId: string; results: SyncResult[] }[]> {
+  // Bound to a recent curation window. Prod has only ever received additive INSERTs, so
+  // EVERY venue edited on any city since its last full push reads as "newer on local"
+  // forever — comparing all ~4k venues would try to re-publish that entire historical
+  // drift one transaction at a time. The window scopes the push to the session you just
+  // worked on (default 24h), which is what "push my latest edits" means.
+  const sinceHours = opts.sinceHours ?? 24;
+  const cutoff = Date.now() - sinceHours * 3600_000;
+
+  const [localTs, prodTs] = await Promise.all([subtreeTimestamps(local), subtreeTimestamps(prod)]);
+
+  const staleVenueIds: string[] = [];
+  for (const [id, ts] of localTs) {
+    if (ts < cutoff) continue; // not touched in the window — leave it
+    const prodTsForId = prodTs.get(id);
+    // Publish only when prod HAS the venue (new venues are additivePush's job) and local is
+    // strictly newer — so a venue a user edited more recently on prod is never clobbered.
+    if (prodTsForId !== undefined && ts > prodTsForId) staleVenueIds.push(id);
+  }
+
+  const out: { venueId: string; results: SyncResult[] }[] = [];
+  for (const venueId of staleVenueIds) {
+    out.push({ venueId, results: await publishVenue(local, prod, { venueId, dryRun: opts.dryRun }) });
+  }
+  return out;
+}
+
 // dryRun is implemented by throwing inside the transaction so postgres.js rolls back.
 class RollbackSignal extends Error {}
 function swallowRollback(err: unknown) {
