@@ -1,0 +1,7 @@
+# Copy to terraform.tfvars and fill in. Do NOT commit terraform.tfvars.
+aws_region      = "us-east-1"
+ami_id          = "ami-REPLACE"                     # Ubuntu 24.04 LTS, arm64
+domain_name     = "happyhourfriends.com"            # CloudFront viewer host
+origin_domain   = "origin.happyhourfriends.com"     # EC2 origin host (Caddy cert)
+route53_zone_id = "ZREPLACE"                         # Route53 hosted zone id
+ops_email       = "steven.matthiesen@gmail.com"     # SNS ops alerts

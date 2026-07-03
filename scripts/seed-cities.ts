@@ -40,6 +40,25 @@ interface CitySeed {
 
 const CITIES: CitySeed[] = [
   {
+    // Santa Cruz, CA — GLM-extractor test city (2026-06-27). OSM boundary relation 111737
+    // (municipal; ~9×15km bbox incl. detached annexations). serviceLocalities kept to the
+    // city itself — Capitola/Soquel/Live Oak are separate towns, add later if wanted.
+    slug: "santa-cruz",
+    name: "Santa Cruz",
+    state: "CA",
+    country: "US",
+    timezone: "America/Los_Angeles",
+    currency: "USD",
+    centerLat: 36.9741,
+    centerLng: -122.0308,
+    seedConfig: {
+      radiusKm: 8,
+      cellMeters: 3000,
+      serviceLocalities: ["Santa Cruz"],
+      serviceBufferMeters: 500,
+    },
+  },
+  {
     // Santa Barbara, CA — operator launch city (2026-06-16). OSM boundary relation 112224
     // (mainland metro; ~20×14km bbox). Montecito kept as an enclave; Goleta is a separate city.
     slug: "santa-barbara",
@@ -245,6 +264,31 @@ const CITIES: CitySeed[] = [
     },
   },
   {
+    // Tempe, AZ — ASU college town, densest young (20–40) market in the Phoenix metro
+    // (Mill Ave / downtown). ~104 km², ~185k pop. Boundary mode via
+    // data/tempe-boundary.geojson (OSM relation 110833) drives discovery/gate. Tightly
+    // ringed by Phoenix, Scottsdale, Mesa, Chandler, Guadalupe — a SMALL 500m service
+    // buffer keeps border leakage down; Scottsdale's boundary auto-drops its side, and
+    // global google_place_id dedup covers venues Phoenix already claimed (phoenix-central
+    // runs RADIUS mode with no boundary file, so it can't point-in-polygon-drop). Mesa/
+    // Chandler/Guadalupe aren't onboarded → their border venues are an operator review call.
+    // centerLat/Lng = boundary bbox center (fallback map anchor only).
+    slug: "tempe",
+    name: "Tempe",
+    state: "AZ",
+    country: "US",
+    timezone: "America/Phoenix",
+    currency: "USD",
+    centerLat: 33.392,
+    centerLng: -111.928,
+    seedConfig: {
+      radiusKm: 8, // fallback only; data/tempe-boundary.geojson drives real tiling/gate
+      cellMeters: 3000,
+      serviceLocalities: ["Tempe"],
+      serviceBufferMeters: 500,
+    },
+  },
+  {
     // Sacramento, CA — NorCal capital, first inland-valley city (de-risk test before
     // Seattle). ~260 km², ~525k pop; elongated N–S downtown grid + midtown density.
     // Boundary mode via data/sacramento-boundary.geojson (OSM relation 6232940) drives
@@ -303,6 +347,41 @@ const CITIES: CitySeed[] = [
       radiusKm: 10, // fallback only; data/san-mateo-boundary.geojson drives real tiling/gate
       cellMeters: 3000,
       serviceLocalities: ["San Mateo", "Belmont", "San Carlos", "Foster City", "Burlingame"],
+      serviceBufferMeters: 500,
+    },
+  },
+  {
+    // Silicon Valley, CA — aggregate of 9 South Bay/Peninsula municipalities (2026-06-29).
+    // Merged OSM relations: Palo Alto 1544955, Mountain View 1544956, Sunnyvale 112145,
+    // Santa Clara 2221647, Cupertino 2221709, Los Altos 1545000, Los Altos Hills 1552032,
+    // Menlo Park 1544957 (San Mateo County — Meta HQ; claimed here so the future Peninsula
+    // market won't double-claim via global place_id), Campbell 7617165. San Jose is
+    // deliberately excluded (standalone city's worth of venues; widen later as its own scope).
+    // center: bbox center of data/silicon-valley-boundary.geojson, which drives real
+    // tiling/gate; radiusKm is fallback only. Towns surface as neighborhood filters.
+    slug: "silicon-valley",
+    name: "Silicon Valley",
+    state: "CA",
+    country: "US",
+    timezone: "America/Los_Angeles",
+    currency: "USD",
+    centerLat: 37.3937,
+    centerLng: -122.0732,
+    seedConfig: {
+      radiusKm: 16, // fallback only; data/silicon-valley-boundary.geojson drives real tiling/gate
+      cellMeters: 3000,
+      serviceLocalities: [
+        "Palo Alto",
+        "Mountain View",
+        "Sunnyvale",
+        "Santa Clara",
+        "Cupertino",
+        "Los Altos",
+        "Los Altos Hills",
+        "Menlo Park",
+        "Campbell",
+        "Stanford",
+      ],
       serviceBufferMeters: 500,
     },
   },

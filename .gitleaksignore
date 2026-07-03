@@ -1,0 +1,4 @@
+# Intentionally empty. All reviewed false positives are now allowlisted in .gitleaks.toml
+# by CONTENT/PATH, not by commit-SHA fingerprint. Fingerprint suppressions (commit:file:rule:line)
+# silently rot on every history rewrite or line move — which is why the same FPs kept re-firing.
+# Add new reviewed FPs to .gitleaks.toml [[allowlists]] instead of here.

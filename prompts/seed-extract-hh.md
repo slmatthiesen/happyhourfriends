@@ -151,6 +151,9 @@ HARD RULES — violations produce unusable data and will be discarded:
 - `priceCents`, `originalPriceCents`, `discountCents` are integer cents or `null`.
   Example: $4.50 → 450. Never convert a range (e.g. "$4–$6") to a single value;
   put the range text in `description` and leave `priceCents` null.
+- `discountPercent` is a whole-number percentage for a percentage-off deal with no
+  absolute price: "20% off drafts" → 20, "half off wine" → 50. Leave `null` when the
+  deal states a dollar price or amount instead.
 - `kind` MUST be one of: "food", "drink", "other".
 - `category` MUST be one of: "beer", "wine", "cocktail", "spirit", "appetizer",
   "entree", "dessert", "other".

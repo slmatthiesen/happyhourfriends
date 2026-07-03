@@ -211,6 +211,139 @@ check("MEAL: events are caught by lexicon (50 Shades 'Paint and Sip', 'Girl Dinn
   assert.ok(mealSpecialEvidence({ startTime: null, endTime: null, offerings: [off("Girl Dinner", 20)] }));
 });
 
+// ── food-menu-at-service-hours — a window that IS the venue's dinner service ─────
+// Arrivederci's "happy hour" (4–9pm, every day) is an all-food, $14–22 entrée list ending
+// at the 8:30pm close, scraped off /menu/happy-hour. The biggest tell is the hours: they're
+// the dinner-service hours, so the window runs to close. Must fire even through the
+// /happy-hour url slug (which clears the ambiguous price/timing signals).
+const foodOff = (name: string, dollars: number | null, description: string | null = null) => ({
+  ...off(name, dollars, description),
+  kind: "food",
+});
+const drinkOff = (name: string, dollars: number | null) => ({ ...off(name, dollars, null), kind: "drink" });
+const closesAt = (closeMin: number) =>
+  [1, 2, 3, 4, 5, 6, 7].map((d) => ({ openDay: d, openMin: 11 * 60, closeDay: d, closeMin }));
+
+check("MEAL: all-food entrée list running to close fires THROUGH a /happy-hour url (Arrivederci)", () => {
+  const ev = mealSpecialEvidence({
+    startTime: "16:00",
+    endTime: "21:00", // ends past the 20:30 close
+    daysOfWeek: [1, 2, 3, 4, 5, 6, 7],
+    hoursJson: closesAt(20 * 60 + 30),
+    sourceUrl: "https://www.arrivederci.restaurant/menu/happy-hour",
+    offerings: [foodOff("Salmon Piccata", 14), foodOff("Cioppino", 20), foodOff("Pollo Pizzaiola", 22)],
+  });
+  assert.ok(ev, "expected dinner-service evidence through the url veto");
+  assert.match(ev, /closing time/);
+});
+
+check("NOT MEAL: real brewery HH with drinks running to close stays live (CCB shape)", () => {
+  assert.equal(
+    mealSpecialEvidence({
+      startTime: "16:00",
+      endTime: "21:00",
+      daysOfWeek: [4, 5, 6],
+      hoursJson: closesAt(21 * 60),
+      sourceUrl: "https://example.com/happy-hour",
+      offerings: [drinkOff("Draft Pint", 4), foodOff("Pretzel", 6)],
+    }),
+    null,
+  );
+});
+
+check("NOT MEAL: all-food but cheap (avg < $12) running to close stays live", () => {
+  assert.equal(
+    mealSpecialEvidence({
+      startTime: "16:00",
+      endTime: "21:00",
+      daysOfWeek: [1, 2, 3, 4, 5],
+      hoursJson: closesAt(21 * 60),
+      offerings: [foodOff("Sliders", 8), foodOff("Wings", 9)],
+    }),
+    null,
+  );
+});
+
+check("NOT MEAL: all-food high-price but ends well before close stays live (4–6pm HH)", () => {
+  assert.equal(
+    mealSpecialEvidence({
+      startTime: "16:00",
+      endTime: "18:00",
+      daysOfWeek: [1, 2, 3, 4, 5],
+      hoursJson: closesAt(22 * 60),
+      sourceUrl: "https://example.com/happy-hour",
+      offerings: [foodOff("Flatbread", 14), foodOff("Calamari", 15)],
+    }),
+    null,
+  );
+});
+
+check("NOT MEAL: explicit 'happy hour' wording clears the food-menu signal (ownVeto)", () => {
+  assert.equal(
+    mealSpecialEvidence({
+      startTime: "16:00",
+      endTime: "21:00",
+      daysOfWeek: [1, 2, 3, 4, 5],
+      hoursJson: closesAt(20 * 60 + 30),
+      offerings: [foodOff("Happy Hour Entrée Sampler", 15)],
+    }),
+    null,
+  );
+});
+
+check("NOT MEAL: open-ended 'until close' deal stays live (Postino 8pm board & bottle)", () => {
+  assert.equal(
+    mealSpecialEvidence({
+      startTime: "20:00",
+      endTime: null, // until close — a real HH shape, not a dinner-service tell
+      daysOfWeek: [1, 2],
+      hoursJson: closesAt(22 * 60),
+      offerings: [foodOff("Board of bruschetta & bottle of wine", 25, "Board + Bottle deal")],
+    }),
+    null,
+  );
+});
+
+check("NOT MEAL: single weekly food special stays live (Wicked 6 $12 burger Thu)", () => {
+  assert.equal(
+    mealSpecialEvidence({
+      startTime: "17:00",
+      endTime: "20:00",
+      daysOfWeek: [4],
+      hoursJson: closesAt(20 * 60),
+      offerings: [foodOff("Burger and French fries", 12)],
+    }),
+    null,
+  );
+});
+
+check("NOT MEAL: combo naming alcohol is a real HH deal, not a food menu (burger + draft beer)", () => {
+  assert.equal(
+    mealSpecialEvidence({
+      startTime: "16:00",
+      endTime: "21:00",
+      daysOfWeek: [1, 2, 3, 4, 5],
+      hoursJson: closesAt(20 * 60 + 30),
+      offerings: [foodOff("Genuine cheeseburger + draft beer", 15), foodOff("Sliders + house wine", 16), foodOff("Tacos + margarita", 14)],
+    }),
+    null,
+  );
+});
+
+check("NOT MEAL: food-menu signal needs hours data — no hoursJson, bounded end → stays live", () => {
+  assert.equal(
+    mealSpecialEvidence({
+      startTime: "16:00",
+      endTime: "21:00",
+      daysOfWeek: [1, 2, 3, 4, 5],
+      hoursJson: null,
+      sourceUrl: "https://example.com/happy-hour",
+      offerings: [foodOff("Salmon", 18), foodOff("Steak", 24), foodOff("Pasta", 19)],
+    }),
+    null,
+  );
+});
+
 check("MEAL: 'Early-Bird Dinner specials' fires (CJ's Cafe)", () => {
   assert.ok(
     mealSpecialEvidence({

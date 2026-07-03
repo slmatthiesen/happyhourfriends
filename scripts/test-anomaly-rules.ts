@@ -34,9 +34,21 @@ check("london: flags assumed_days_avoidable", () => {
   const codes = auditVenue(london).map((f) => f.code);
   assert.ok(codes.includes("assumed_days_avoidable"));
 });
-check("london: flags homepage_sourced_hh (the '/' window)", () => {
+check("london: a first-party homepage ('/') is hard truth — NO homepage_sourced_hh flag", () => {
   const codes = auditVenue(london).map((f) => f.code);
-  assert.ok(codes.includes("homepage_sourced_hh"));
+  assert.ok(!codes.includes("homepage_sourced_hh"), `unexpected homepage_sourced_hh: ${JSON.stringify(codes)}`);
+});
+check("homepage_sourced_hh: a FOREIGN homepage root still flags (and trips third_party too)", () => {
+  const codes = auditVenue({
+    websiteUrl: "https://londonbargrill.com",
+    hoursJson: null,
+    windows: [{
+      daysOfWeek: [1, 2, 3, 4, 5], startTime: "16:00:00", endTime: "19:00:00", allDay: false,
+      active: true, sourceUrl: "https://someaggregator.com/", notes: null,
+    }],
+  }).map((f) => f.code);
+  assert.ok(codes.includes("homepage_sourced_hh"), `expected homepage_sourced_hh, got: ${JSON.stringify(codes)}`);
+  assert.ok(codes.includes("third_party_source"), `expected third_party_source, got: ${JSON.stringify(codes)}`);
 });
 check("london: flags overlapping_windows (16–19 vs 18–21 on Mon–Fri)", () => {
   const codes = auditVenue(london).map((f) => f.code);
@@ -317,14 +329,15 @@ check("hasAutoFixable returns true when a duplicate_windows flag is present", ()
   assert.ok(hasAutoFixable(flags));
 });
 
-// hasAutoFixable: false when the only flag is report-severity (homepage_sourced_hh).
-// Single window, real days, notes=null, plausible duration (≤6h), homepage URL.
-check("hasAutoFixable returns false when the only flag is report-severity (homepage_sourced_hh)", () => {
+// hasAutoFixable: false when the only flags are report-severity (homepage_sourced_hh +
+// third_party_source). Single window, real days, notes=null, plausible duration (≤6h),
+// foreign homepage URL (a first-party homepage is hard truth and yields no flag).
+check("hasAutoFixable returns false when the only flags are report-severity (foreign homepage)", () => {
   const flags = auditVenue({
     websiteUrl: "https://report-only.com", hoursJson: null,
     windows: [{
       daysOfWeek: [1, 2, 3, 4, 5], startTime: "16:00:00", endTime: "19:00:00", allDay: false,
-      active: true, sourceUrl: "https://report-only.com/", notes: null,
+      active: true, sourceUrl: "https://some-directory.com/", notes: null,
     }],
   });
   // Verify this truly yields only report-severity flags.

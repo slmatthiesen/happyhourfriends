@@ -17,6 +17,8 @@ export interface QueueItem {
   aiVerdict: string | null;
   /** Stage-1/Stage-2 reasoning — the AI's approve/don't-approve opinion. */
   aiReasoning?: string | null;
+  /** Stage-2 verifier outcome: true = confirmed, false = contradicted, null = never verified. */
+  confirmed?: boolean | null;
   status: string;
   submitterEmail: string | null;
   createdAt: string;
@@ -64,12 +66,14 @@ export function SubmissionCard({ item }: { item: QueueItem }) {
     Object.keys(after).length === 0 ||
     Object.values(after).every((v) => v === null || v === undefined || v === "");
   const onlyNote = Object.keys(after).length === 1 && "note" in after;
-  const reasoning = (item.aiReasoning ?? "").toLowerCase();
+  // Drive off structured signals, not verifier prose: a confirmed Stage-2 result
+  // must never be flagged (the old regex matched "no contradicting text" as bad).
   const looksBad =
-    item.aiVerdict === "reject" ||
-    afterIsEmpty ||
-    onlyNote ||
-    /contradict|reject|could not map|no .* change|too large/.test(reasoning);
+    item.confirmed !== true &&
+    (item.aiVerdict === "reject" ||
+      item.confirmed === false ||
+      afterIsEmpty ||
+      onlyNote);
 
   function run(fn: () => Promise<{ ok: boolean; error?: string; warning?: string }>) {
     setError(null);

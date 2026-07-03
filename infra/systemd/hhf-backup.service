@@ -1,0 +1,8 @@
+[Unit]
+Description=Happy Hour Friends nightly pg_dump → S3
+After=network-online.target postgresql.service
+
+[Service]
+Type=oneshot
+User=hhf
+ExecStart=/usr/local/bin/pg-backup.sh

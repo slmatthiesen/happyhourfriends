@@ -26,6 +26,7 @@ TESTS=(
   test:menu-embed
   test:menu-json
   test:menu-platform
+  test:popmenu-menu
   test:batch-chunk
   test:venue-quality
   test:harvest
@@ -37,6 +38,7 @@ TESTS=(
   test:stub-rank
   test:extract
   test:extract-image-fallback
+  test:glm-routing
   test:realness-gate
   test:jsonld-menu
   test:signal-gate
@@ -51,7 +53,7 @@ TESTS=(
   test:site-triage
   test:site-health
   test:signal-rate-limit
-  test:page-rate-limit
+  test:source-link
   test:signal-request
   test:turnstile-verify
   test:resolve-website-url
@@ -88,6 +90,7 @@ TESTS=(
   test:hh-golden
   test:resolve-city
   test:offering-sanity
+  test:offering-junk
   test:own-site-hh-priority
   test:own-site-hh-probe
   test:persist-unified
@@ -107,6 +110,7 @@ TESTS=(
   test:add-offerings
   test:stub-gate
   test:stub-cleanup
+  test:stub-site-gate
   test:anti-bot-fetch
   test:discovery-tiling
   test:recall-rect

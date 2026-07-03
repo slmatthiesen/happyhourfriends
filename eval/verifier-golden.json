@@ -1,0 +1,53 @@
+{
+  "_comment": "Golden set for eval:verifier. Seeded from REAL submissions that already ran through the Stage-2 verifier (see id). `expected` is the target verdict; `truth: true` marks cases independently verified against the evidence (hard ground truth), `truth: false` marks agreement references (the prior all-Sonnet verdict) where divergence warrants a look, not an automatic fail. Evidence files live in public/uploads/evidence.",
+  "goldens": [
+    {
+      "name": "Cheers Bar & Grill — menu photo confirms",
+      "id": "75143632-82a5-4529-a4f7-550eb3551ad0",
+      "venueName": "Cheers Bar & Grill",
+      "websiteUrl": "https://cheerstacoma.com/home",
+      "otherUrl": null,
+      "diffSummary": "New Monday–Friday 3–6pm happy hour with food items",
+      "evidenceFile": { "url": "/uploads/evidence/806b945b-bf69-4517-a235-1435bba91eac.jpg", "mime": "image/jpeg" },
+      "expected": "confirmed",
+      "truth": true,
+      "note": "Uploaded menu card explicitly states 'Available Monday to Friday from 3pm to 6pm' with $10/$12 food items. Vision path (image) → confirm."
+    },
+    {
+      "name": "Blue Line Pizza — closed claim contradicted",
+      "id": "16b0d4ac-2265-4fbe-bbcc-1229afe3c0f5",
+      "venueName": "Blue Line Pizza",
+      "websiteUrl": "http://www.bluelinepizza.com/",
+      "otherUrl": null,
+      "diffSummary": "Venue is closed",
+      "evidenceFile": null,
+      "expected": "contradicted",
+      "truth": false,
+      "note": "Text/web path — the live site shows the venue operating, contradicting a 'closed' claim. Reference verdict from prior Sonnet run."
+    },
+    {
+      "name": "Ojos Locos — vague Sunday change, PDF, unconfirmed",
+      "id": "320e676d-5090-48a5-9d59-cd9045cbb62a",
+      "venueName": "Ojos Locos Sports Cantina (Tucson, AZ)",
+      "websiteUrl": "http://www.ojoslocos.com/",
+      "otherUrl": null,
+      "diffSummary": "Change Sunday",
+      "evidenceFile": { "url": "/uploads/evidence/afaa13f1-f838-4f2d-8a34-9bdf28d39def.pdf", "mime": "application/pdf" },
+      "expected": "unconfirmed",
+      "truth": false,
+      "note": "PDF vision path. Change too vague to pin to the PDF content → null. Reference verdict."
+    },
+    {
+      "name": "Barro's Pizza — vague photo, unconfirmed",
+      "id": "8f8a76c7-5d4f-4ecf-abf9-793e13bee3a9",
+      "venueName": "Barro's Pizza",
+      "websiteUrl": "https://barrospizza.com/",
+      "otherUrl": null,
+      "diffSummary": "I think this is their happy hour",
+      "evidenceFile": { "url": "/uploads/evidence/907c8869-48f3-4223-ad45-04ab69c75d18.png", "mime": "image/png" },
+      "expected": "unconfirmed",
+      "truth": false,
+      "note": "Image vision path with an under-specified change → null. Reference verdict."
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+[Unit]
+Description=Happy Hour Friends web + pg-boss workers
+After=network-online.target postgresql.service
+Wants=network-online.target
+Requires=postgresql.service
+
+[Service]
+Type=simple
+User=hhf
+WorkingDirectory=/opt/happyhourfriends
+EnvironmentFile=/etc/happyhour/.env
+ExecStart=/usr/bin/pnpm start
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

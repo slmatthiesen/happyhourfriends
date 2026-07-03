@@ -81,6 +81,10 @@ export default async function AdminQueue() {
       aiRiskLevel: r.aiRiskLevel,
       aiVerdict: r.aiVerdict,
       aiReasoning: r.aiClassifierReasoning,
+      confirmed:
+        r.aiEvidenceJsonb && typeof r.aiEvidenceJsonb === "object"
+          ? ((r.aiEvidenceJsonb as { confirmed?: boolean }).confirmed ?? null)
+          : null,
       status: r.status,
       submitterEmail: r.submitterEmail,
       createdAt: r.createdAt.toISOString(),

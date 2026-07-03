@@ -53,6 +53,12 @@ const CHAINS: string[] = [
 export function normalize(name: string): string {
   return name
     .toLowerCase()
+    // Fold diacritics to the base letter (é→e, ñ→n) BEFORE the alphanum pass — otherwise an
+    // accented letter becomes a space and splits a word ("apéro"→"ap ro", "café"→"caf "),
+    // losing both denylist and alcohol-signal matches on accented names. \u escapes (combining
+    // diacritical marks U+0300–U+036F) per the same editor-safety reason noted below.
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
     // Strip apostrophes (straight U+0027, right curly U+2019, left curly U+2018).
     // MUST be done BEFORE the alphanum-to-space pass — otherwise "Culver's" with a
     // curly apostrophe becomes "culver s" (with a space), losing the match against
@@ -236,10 +242,14 @@ const ALCOHOL_SIGNAL_PRIMARY = new Set<string>([
 const ALCOHOL_NAME_WORDS = new Set<string>([
   "beer", "biergarten", "pub", "tavern", "taproom", "saloon", "winery", "distillery",
   "cocktail", "cocktails", "alehouse", "meadery", "cidery", "speakeasy", "mezcaleria",
-  "cantina",
+  "cantina", "sake", "apero", "aperitivo", "tequila", "izakaya",
 ]);
 const ALCOHOL_NAME_PREFIXES = ["brew"]; // brewery, brewing, brewpub, brewhouse, brews
-const ALCOHOL_NAME_PHRASES = ["beer garden", "bier garten", "wine bar", "ale house", "tap room"];
+// Phrases matched against the NORMALIZED name (punctuation→space), so "Bar & Grill" is "bar grill".
+const ALCOHOL_NAME_PHRASES = [
+  "beer garden", "bier garten", "wine bar", "ale house", "tap room",
+  "public house", "tasting room", "beer hall", "bar grill",
+];
 
 /**
  * True when name OR Google place type signals the venue serves alcohol — the override the
@@ -263,6 +273,21 @@ export function hasAlcoholSignal(
 }
 
 /**
+ * True for bowling alleys — operator rule (2026-06-28): never feature them, anywhere, even when
+ * they have a bar. Match on Google type OR name ("bowling"/"lanes"). Bare "bowl(s)" is excluded
+ * on purpose so poke/açaí/grain-bowl restaurants ("The Curl Bowls & Rolls") are not caught.
+ */
+export function isBowlingAlley(
+  name: string | null | undefined,
+  primaryType: string | null | undefined,
+  types?: string[] | null,
+): boolean {
+  if (primaryType === "bowling_alley" || types?.includes("bowling_alley")) return true;
+  const words = normalize(name ?? "").split(" ");
+  return words.includes("bowling") || words.includes("lanes");
+}
+
+/**
  * Excluded when it is the venue's PRIMARY type.
  *
  * Operator 2026-05-30 (Tucson calibration) added indian_restaurant, bakery, cafe,
@@ -274,6 +299,8 @@ export function hasAlcoholSignal(
  * curated-import candidates that never went through the Places query.
  */
 const EXCLUDED_PRIMARY_TYPE = new Set<string>([
+  // Operator 2026-06-28: bowling alleys are never featured anywhere (even with a bar).
+  "bowling_alley",
   "food_court",
   "food_store",
   "juice_shop",

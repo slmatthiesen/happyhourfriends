@@ -27,7 +27,7 @@ import type {
   ToolUseBlock,
 } from "@anthropic-ai/sdk/resources/messages";
 
-import { anthropic, parseJsonResponse } from "@/lib/ai/anthropic";
+import { clientForModel, isTextOnlyGlmModel, parseJsonResponse } from "@/lib/ai/anthropic";
 import { isDenylistedSource } from "@/lib/ai/sourceDenylist";
 import type { Usage } from "@/lib/ai/anthropic";
 import { costCents as calcCostCents } from "@/lib/ai/pricing";
@@ -35,7 +35,7 @@ import { MODELS } from "@/lib/ai/models";
 import { loadPrompt, splitPrompt } from "@/lib/ai/promptHash";
 import { fetchPages, renderPagesAsBlocks, pagesHaveExtractableSignal } from "@/lib/ai/siteContent";
 import type { FetchedPage } from "@/lib/ai/siteContent";
-import { freeExtractFromPages, shouldEscalateForDroppedDeals, reconcileFreeDaysWithModelOfferings } from "@/lib/ai/freeExtract";
+import { freeExtractFromPages, shouldEscalateForDroppedDeals, freeLacksOfferings, reconcileFreeDaysWithModelOfferings } from "@/lib/ai/freeExtract";
 import { classifyHhRelevance, foldRelevanceCost } from "@/lib/ai/hhRelevance";
 import { loadRenderUrl } from "@/lib/verification/lazyRender";
 import { getFetchProvider, antiBotCallsUsed } from "@/lib/places/fetchProviders";
@@ -64,6 +64,13 @@ export interface ExtractInput {
   /** Skip the internal free-first short-circuit and ALWAYS call the paid model (after
    *  render). Used by audit render-escalation to read JS/PDF HH pages the free parser can't. */
   forcePaid?: boolean;
+  /** The caller asserts this URL really has a happy hour — an operator deliberately pasted it
+   *  into admin "Extract from URL". Keep the free $0 read first, but if it returns a BARE window
+   *  (no offerings) or no clean window at all, GUARANTEE escalation to the paid model — bypassing
+   *  the pagesShowDroppedDeals page-signal heuristic and the relevance gate. Without this, a menu
+   *  whose deals the discovery scanners missed re-derives a $0 bare window and reports false
+   *  success, so the operator can never recover it even by handing us the exact page. */
+  assertHasHappyHour?: boolean;
   /** Is this venue worth the paid anti-bot (Jina) fetch tier when it hits a bot wall? Set by the
    *  enrich sweep from the candidate's alcohol/cuisine signal (lib/places/stubGate.isHhLikely).
    *  undefined = treat as likely (operator-targeted on-demand / admin extract-from-URL). */
@@ -77,6 +84,8 @@ export interface ExtractedOffering {
   priceCents: number | null;
   originalPriceCents: number | null;
   discountCents: number | null;
+  /** "20% off drafts" → 20. A percentage discount with no absolute price. */
+  discountPercent: number | null;
   description: string | null;
   conditions: string | null;
   /** URL actually fetched this run that mentions this item. Required by §13. */
@@ -132,6 +141,7 @@ interface RawOffering {
   priceCents?: number | null;
   originalPriceCents?: number | null;
   discountCents?: number | null;
+  discountPercent?: number | null;
   description?: string | null;
   conditions?: string | null;
   sourceUrl?: string;
@@ -216,6 +226,7 @@ const RECORD_TOOL: ToolUnion = {
                   priceCents: { type: ["integer", "null"] },
                   originalPriceCents: { type: ["integer", "null"] },
                   discountCents: { type: ["integer", "null"], description: '"$3 off" → 300' },
+                  discountPercent: { type: ["integer", "null"], description: '"20% off drafts" → 20; "half off" → 50' },
                   description: { type: ["string", "null"] },
                   conditions: { type: ["string", "null"] },
                   sourceUrl: { type: "string" },
@@ -301,6 +312,10 @@ function normaliseOffering(raw: RawOffering): ExtractedOffering | null {
         : null,
     discountCents:
       typeof raw.discountCents === "number" ? Math.round(raw.discountCents) : null,
+    discountPercent:
+      typeof raw.discountPercent === "number" && raw.discountPercent > 0 && raw.discountPercent < 100
+        ? Math.round(raw.discountPercent)
+        : null,
     description: raw.description ?? null,
     conditions: raw.conditions ?? null,
     sourceUrl,
@@ -696,17 +711,48 @@ export function stripImageBlocks(params: MessageCreateParamsNonStreaming): Messa
   return removed ? { ...params, messages } : null;
 }
 
+/** Drop image AND document (PDF) blocks. A text-only GLM model 400s on either, so we strip
+ *  both before routing an extraction through it — it reads whatever page text remains. */
+export function stripVisionBlocks(params: MessageCreateParamsNonStreaming): MessageCreateParamsNonStreaming {
+  const messages = params.messages.map((m) => {
+    if (!Array.isArray(m.content)) return m;
+    return { ...m, content: m.content.filter((b) => b.type !== "image" && b.type !== "document") };
+  });
+  return { ...params, messages };
+}
+
+/** True when any message carries an image or document (PDF) block — i.e. the extraction
+ *  needs a vision-capable model to read it. */
+export function paramsHaveVisionBlocks(params: MessageCreateParamsNonStreaming): boolean {
+  return params.messages.some(
+    (m) => Array.isArray(m.content) && m.content.some((b) => b.type === "image" || b.type === "document"),
+  );
+}
+
 export async function runExtractModel(built: ExtractRequest): Promise<ExtractResult> {
-  const { params, promptHash, model } = built;
+  const { promptHash } = built;
   const opts = { timeout: EXTRACT_REQUEST_TIMEOUT_MS, maxRetries: 1 };
+  // Hybrid routing: a text-only GLM extractor (free) reads text venues, but it can't see an
+  // image/PDF — so any extraction that includes vision blocks is sent to the Anthropic vision
+  // fallback (Haiku) with the doc intact, rather than dropped. Text-only venues stay on GLM.
+  const useVisionFallback = isTextOnlyGlmModel(built.model) && paramsHaveVisionBlocks(built.params);
+  const model = useVisionFallback ? MODELS.visionFallback : built.model;
+  // On the GLM text path, defensively strip any stray vision block (a text-only GLM 400s on one).
+  const params = isTextOnlyGlmModel(model)
+    ? stripVisionBlocks({ ...built.params, model })
+    : { ...built.params, model };
+  const client = clientForModel(model);
+  if (process.env.EXTRACT_DEBUG && useVisionFallback) {
+    console.error(`[extract] image/PDF present → vision fallback to ${model} (GLM can't read it)`);
+  }
   let response: Message;
   try {
-    response = await anthropic().messages.create(params, opts);
+    response = await client.messages.create(params, opts);
   } catch (err) {
     const withoutImages = isImageProcessingError(err) ? stripImageBlocks(params) : null;
     if (!withoutImages) throw err;
     if (process.env.EXTRACT_DEBUG) console.error("[extract] image rejected by API — retrying text/PDF only");
-    response = await anthropic().messages.create(withoutImages, opts);
+    response = await client.messages.create(withoutImages, opts);
   }
   const summedUsage: Usage = {
     inputTokens: response.usage.input_tokens,
@@ -714,7 +760,7 @@ export async function runExtractModel(built: ExtractRequest): Promise<ExtractRes
   };
   if (process.env.EXTRACT_DEBUG) {
     console.error(
-      `[extract] stop=${response.stop_reason} fetched=${built.fetchedUrls.length} blocks=[${response.content
+      `[extract] stop=${response.stop_reason} model=${model} fetched=${built.fetchedUrls.length} blocks=[${response.content
         .map((b) => (b.type === "tool_use" ? `tool_use:${b.name}` : b.type))
         .join(", ")}]`,
     );
@@ -779,8 +825,13 @@ export async function extractHappyHours(
     // recover them. Without this the shared path (admin "Extract from URL", reextract:stubs,
     // audit) re-derives the same bare window at $0 and reports false success — a venue can
     // never leave /admin/bare-windows. Mirrors the enrich free-first gate (seed-enrich-candidates.ts).
-    if (shouldEscalateForDroppedDeals(free, pages)) {
-      if (process.env.EXTRACT_DEBUG) console.error(`[extract] free parse dropped deals → escalating to paid extractor`);
+    // assertHasHappyHour (operator pasted this URL) drops the page-signal requirement: escalate
+    // on ANY bare window, even when discovery missed the menu doc so there's no detectable signal.
+    const escalate = input.assertHasHappyHour
+      ? freeLacksOfferings(free)
+      : shouldEscalateForDroppedDeals(free, pages);
+    if (escalate) {
+      if (process.env.EXTRACT_DEBUG) console.error(`[extract] free parse bare window → escalating to paid extractor`);
       // Keep the free parse's stable DAYS (from explicit recurring text) and take only the
       // model's OFFERINGS — so a dated-events site (SpotHopper) can't flicker the day-set.
       const paid = await runExtractModel(built);
@@ -789,6 +840,10 @@ export async function extractHappyHours(
     if (process.env.EXTRACT_DEBUG) console.error(`[extract] free parse hit: ${free.happyHours.length} window(s), $0`);
     return free;
   }
+
+  // free is null (no clean window). An operator who pasted this URL asserted the HH is here —
+  // don't let the relevance gate skip it; read the page with the paid model.
+  if (input.assertHasHappyHour) return runExtractModel(built);
 
   // Doc fast-path: a PDF/image IS the happy-hour lead. Send it straight to the (vision)
   // extractor — a separate vision relevance read would re-pay the expensive doc input on

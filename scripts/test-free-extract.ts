@@ -3,7 +3,7 @@
  * Run: pnpm tsx scripts/test-free-extract.ts
  */
 import assert from "node:assert/strict";
-import { freeExtractFromPages, shouldEscalateForDroppedDeals, reconcileFreeDaysWithModelOfferings } from "@/lib/ai/freeExtract";
+import { freeExtractFromPages, shouldEscalateForDroppedDeals, freeLacksOfferings, reconcileFreeDaysWithModelOfferings } from "@/lib/ai/freeExtract";
 import type { ExtractResult, ExtractedHappyHour, ExtractedOffering } from "@/lib/ai/extractHappyHours";
 
 let passed = 0;
@@ -81,10 +81,28 @@ check("DO NOT escalate when there is no free window (null → normal paid path h
   assert.equal(shouldEscalateForDroppedDeals(null, [{ url: "https://x.com", text: "$5 beers all day" }]), false);
 });
 
+// freeLacksOfferings: the operator-asserted (deliberate URL paste) escalation predicate. It drops
+// the pagesShowDroppedDeals page-signal requirement so a bare window escalates even when discovery
+// missed the menu doc — the Cervecería case (deals only in an undetected banner image).
+check("freeLacksOfferings: bare window → true; with offerings → false; null → false", () => {
+  const bare = freeExtractFromPages([bareSchedule], META);
+  const priced = freeExtractFromPages([{ url: "https://x.com/hh", text: "Happy Hour 3-6pm: $5 beer, $7 wine" }], META);
+  assert.equal(freeLacksOfferings(bare), true);
+  assert.equal(freeLacksOfferings(priced), false);
+  assert.equal(freeLacksOfferings(null), false);
+});
+check("operator-paste contrast: a NO-SIGNAL bare page stays $0 in batch but WOULD escalate on assert", () => {
+  const free = freeExtractFromPages([bareSchedule], META);
+  // Batch sweep: no page signal → keep the $0 bare window (cost control across thousands).
+  assert.equal(shouldEscalateForDroppedDeals(free, [bareSchedule]), false);
+  // Operator pasted this exact URL asserting the HH is here → escalate regardless of signal.
+  assert.equal(freeLacksOfferings(free), true);
+});
+
 // ── reconcileFreeDaysWithModelOfferings: free DAYS win, model supplies OFFERINGS ──────────
 const off = (p: Partial<ExtractedOffering>): ExtractedOffering => ({
   kind: "food", category: "appetizer", name: null, priceCents: null, originalPriceCents: null,
-  discountCents: null, description: null, conditions: null, sourceUrl: "https://x.com/hh", ...p,
+  discountCents: null, discountPercent: null, description: null, conditions: null, sourceUrl: "https://x.com/hh", ...p,
 });
 const win = (p: Partial<ExtractedHappyHour>): ExtractedHappyHour => ({
   daysOfWeek: [2, 3, 4, 5], allDay: false, startTime: "16:00", endTime: "18:00", timeKnown: true,

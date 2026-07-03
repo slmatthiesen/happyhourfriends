@@ -65,6 +65,7 @@ export function freeExtractFromPages(
         priceCents: o.priceCents,
         originalPriceCents: null,
         discountCents: o.discountCents,
+        discountPercent: null,
         description: null,
         conditions: null,
         sourceUrl: o.sourceUrl,
@@ -94,9 +95,18 @@ export function freeExtractFromPages(
  * stays for $0 and is never re-touched.
  */
 export function shouldEscalateForDroppedDeals(free: ExtractResult | null, pages: FetchedPage[]): boolean {
-  if (!free) return false;
-  const hasOfferings = free.happyHours.some((w) => w.offerings.length > 0);
-  return !hasOfferings && pagesShowDroppedDeals(pages);
+  return freeLacksOfferings(free) && pagesShowDroppedDeals(pages);
+}
+
+/**
+ * True when the free parse produced window(s) but NONE carry an offering — a "bare window".
+ * The operator-asserted extract path (a deliberate URL paste) escalates on this alone, WITHOUT
+ * the pagesShowDroppedDeals page-signal requirement: the operator has asserted the deals are on
+ * the page, so even when the discovery scanners missed the menu doc (no fetched signal to detect),
+ * we still pay the model to read what we have rather than return a false-success $0 bare window.
+ */
+export function freeLacksOfferings(free: ExtractResult | null): boolean {
+  return !!free && !free.happyHours.some((w) => w.offerings.length > 0);
 }
 
 const MIN_PER_DAY = 1440;

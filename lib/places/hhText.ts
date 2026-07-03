@@ -16,9 +16,14 @@
  *  Multilingual terms (2026-06-16, Iberia's /vermut-hour/ was missed twice): ethnic venues
  *  label HH in their own language — "vermut hour" / "hora del vermut" / "hora feliz" (Spanish),
  *  "aperitivo" / "apericena" (Italian). Anchored to avoid false hits ("vermut hour" not bare
- *  "vermouth" the ingredient; "hora" only with feliz/vermut). High-value for diverse metros + SF. */
+ *  "vermouth" the ingredient; "hora" only with feliz/vermut). High-value for diverse metros + SF.
+ *  Aperitif-time rebrands (2026-06-29, Pausa Bar & Cookery, San Mateo): upscale bars rebrand HH as
+ *  "Spritz Hour" / "Sunset Hour" / "Sundowners" and put the deal in a PDF — Google's "happy hour"
+ *  search FOUND Pausa, but its "Spritz Hour Menu" anchor scored 0 here, so the PDF lost the byte
+ *  budget and we extracted nothing. "Golden hour" is deliberately omitted — it's a photography/patio
+ *  term far more often than an HH name, so it would systematically false-escalate. */
 export const HH_RE =
-  /happ(?:y|ier)[-_ ]?hours?|social[-_ ]?hour|power[-_ ]?hour|vermut[-_ ]?hours?|hora[-_ ]?(?:feliz|del[-_ ]?vermut)|aperitivo|apericena/i;
+  /happ(?:y|ier)[-_ ]?hours?|social[-_ ]?hour|power[-_ ]?hour|spritz[-_ ]?hours?|sunset[-_ ]?hours?|sundowners?|vermut[-_ ]?hours?|hora[-_ ]?(?:feliz|del[-_ ]?vermut)|aperitivo|apericena/i;
 
 /** True when the text mentions happy hour in any common spelling/case. */
 export function matchesHappyHour(text: string): boolean {
@@ -123,7 +128,7 @@ export function scoreHhUrl(url: string): number {
  *  does not. Operator vocabulary, 2026-06-20. Anchored with word boundaries to avoid false hits
  *  (barbecue ≠ bar). */
 const MENU_DOC_RE =
-  /happ(?:y|ier)[-_ ]?hours?|social[-_ ]?hour|power[-_ ]?hour|\bhh\b|special|\bmenu\b|\bdrinks?\b|cocktail|\bbar\b|\bwine\b|\bbeer\b|aperitivo|vermut|apericena|hora[-_ ]?(?:feliz|del[-_ ]?vermut)|prix[-_ ]?fixe|tasting/i;
+  /happ(?:y|ier)[-_ ]?hours?|social[-_ ]?hour|power[-_ ]?hour|spritz[-_ ]?hours?|sundowners?|\bhh\b|special|\bmenu\b|\bdrinks?\b|cocktail|\bbar\b|\bwine\b|\bbeer\b|aperitivo|vermut|apericena|hora[-_ ]?(?:feliz|del[-_ ]?vermut)|prix[-_ ]?fixe|tasting/i;
 
 /**
  * True when a media file's NAME marks it a menu/HH/drink document worth a paid read — as opposed

@@ -258,8 +258,12 @@ export function auditVenue(input: VenueAuditInput, now: Date = new Date()): Anom
     if (isAssumedDays(w.notes)) {
       flags.push(flag("assumed_days_avoidable", `${w.sourceUrl ?? "?"} — ${w.notes}`));
     }
-    if (isHomepageSource(w.sourceUrl)) {
-      flags.push(flag("homepage_sourced_hh", `HH window sourced from homepage: ${w.sourceUrl}`));
+    // A bare-domain source on the venue's OWN site is hard-truth first-party provenance
+    // (operator policy 2026-07-02): "if it's on their website, that IS what it is." Only a
+    // homepage on a FOREIGN domain is suspect — and that already trips third_party_source
+    // below; the extra flag just marks it as the root rather than a deep page.
+    if (isHomepageSource(w.sourceUrl) && isThirdPartySource(w.sourceUrl, input.websiteUrl)) {
+      flags.push(flag("homepage_sourced_hh", `HH window sourced from a third-party homepage: ${w.sourceUrl}`));
     }
     if (isThirdPartySource(w.sourceUrl, input.websiteUrl)) {
       flags.push(flag("third_party_source", `source domain differs from venue website (${input.websiteUrl}): ${w.sourceUrl}`));

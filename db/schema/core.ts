@@ -286,6 +286,7 @@ export const offerings = pgTable(
     priceCents: integer("price_cents"),
     originalPriceCents: integer("original_price_cents"),
     discountCents: integer("discount_cents"),
+    discountPercent: smallint("discount_percent"), // "20% off drafts" → 20; no absolute price
     currencyCode: char("currency_code", { length: 3 }), // defaulted from city at insert
     description: text("description"),
     conditions: text("conditions"),
