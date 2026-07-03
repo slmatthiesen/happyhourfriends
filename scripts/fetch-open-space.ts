@@ -81,8 +81,11 @@ function bboxFromBoundaryFile(slug: string): string | undefined {
     }
     for (const x of c) walk(x);
   };
+  // Accept FeatureCollection, Feature, or a bare geometry ({type,coordinates}) — the
+  // boundary files in data/ are bare geometries, so fall back to the top-level coordinates.
   const feats = raw.features ?? [raw as GeoJsonFeature];
-  for (const f of feats) walk(f.geometry?.coordinates);
+  for (const f of feats)
+    walk(f.geometry?.coordinates ?? (f as { coordinates?: unknown }).coordinates);
   if (!Number.isFinite(minLat)) return undefined;
   return `${minLat},${minLng},${maxLat},${maxLng}`;
 }

@@ -264,6 +264,31 @@ const CITIES: CitySeed[] = [
     },
   },
   {
+    // Tempe, AZ — ASU college town, densest young (20–40) market in the Phoenix metro
+    // (Mill Ave / downtown). ~104 km², ~185k pop. Boundary mode via
+    // data/tempe-boundary.geojson (OSM relation 110833) drives discovery/gate. Tightly
+    // ringed by Phoenix, Scottsdale, Mesa, Chandler, Guadalupe — a SMALL 500m service
+    // buffer keeps border leakage down; Scottsdale's boundary auto-drops its side, and
+    // global google_place_id dedup covers venues Phoenix already claimed (phoenix-central
+    // runs RADIUS mode with no boundary file, so it can't point-in-polygon-drop). Mesa/
+    // Chandler/Guadalupe aren't onboarded → their border venues are an operator review call.
+    // centerLat/Lng = boundary bbox center (fallback map anchor only).
+    slug: "tempe",
+    name: "Tempe",
+    state: "AZ",
+    country: "US",
+    timezone: "America/Phoenix",
+    currency: "USD",
+    centerLat: 33.392,
+    centerLng: -111.928,
+    seedConfig: {
+      radiusKm: 8, // fallback only; data/tempe-boundary.geojson drives real tiling/gate
+      cellMeters: 3000,
+      serviceLocalities: ["Tempe"],
+      serviceBufferMeters: 500,
+    },
+  },
+  {
     // Sacramento, CA — NorCal capital, first inland-valley city (de-risk test before
     // Seattle). ~260 km², ~525k pop; elongated N–S downtown grid + midtown density.
     // Boundary mode via data/sacramento-boundary.geojson (OSM relation 6232940) drives
