@@ -70,7 +70,7 @@ run_sync() {
   # engine that busts the public read cache, so new rows sit behind ISR (city 1h, counts 1d)
   # until this fires. Best-effort over SSM — the data is already written, so a refresh failure
   # must not fail the sync (and the send-command may be gated; re-run the refresh if so).
-  if { [ "$direction" = push ] || [ "$direction" = delete-venues ]; } && printf '%s\n' "$@" | grep -qxF -- --apply; then
+  if { [ "$direction" = push ] || [ "$direction" = push-updates ] || [ "$direction" = delete-venues ]; } && printf '%s\n' "$@" | grep -qxF -- --apply; then
     refresh_prod_cache_ssm "$INSTANCE_ID" \
       || echo "⚠ Cache refresh skipped/failed — data IS written; pages refresh within the hour."
   fi

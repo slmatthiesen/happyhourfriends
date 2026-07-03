@@ -14,7 +14,7 @@
  * --apply to commit. Neither direction ever truncates or deletes.
  */
 import postgres from "postgres";
-import { additivePush, upsertPull, publishVenue, pullQueuedSubmissions, pushDeletions, type SyncResult } from "@/lib/sync/dbSync";
+import { additivePush, upsertPull, publishVenue, publishChanged, pullQueuedSubmissions, pushDeletions, type SyncResult } from "@/lib/sync/dbSync";
 
 function connect(url: string) {
   // Low ceiling: this is a short batch job, not the app pool.
@@ -35,9 +35,9 @@ async function main() {
   const apply = flags.includes("--apply");
   const dryRun = !apply;
 
-  const VALID = ["push", "pull", "publish-venue", "pull-queue", "delete-venues"];
+  const VALID = ["push", "push-updates", "pull", "publish-venue", "pull-queue", "delete-venues"];
   if (!VALID.includes(direction)) {
-    console.error("Usage: db-sync.ts <push|pull|publish-venue|pull-queue|delete-venues> [--apply] [--venue <id>] [--submission <id>]");
+    console.error("Usage: db-sync.ts <push|push-updates|pull|publish-venue|pull-queue|delete-venues> [--apply] [--venue <id>] [--submission <id>]");
     process.exit(1);
   }
 
@@ -56,6 +56,22 @@ async function main() {
   try {
     if (direction === "push") {
       printResults("local → prod (additive push)", await additivePush(local, prod, { dryRun }), dryRun);
+    } else if (direction === "push-updates") {
+      // Complete up-sync of curation: insert new venues, then re-publish existing ones
+      // whose local subtree changed (edited windows, hidden offerings, …). User data is
+      // never touched, and venues a user edited more recently on prod are skipped.
+      printResults("local → prod (additive push — new venues)", await additivePush(local, prod, { dryRun }), dryRun);
+      const published = await publishChanged(local, prod, { dryRun });
+      console.log(`\nlocal → prod (update changed venues)${dryRun ? " (DRY RUN — nothing written)" : ""}`);
+      if (published.length === 0) {
+        console.log("  (no existing venue is newer locally than on prod)");
+      } else {
+        for (const p of published) {
+          const rows = p.results.reduce((n, r) => n + r.changed, 0);
+          console.log(`  ${p.venueId}  ${rows} row(s)`);
+        }
+        console.log(`  ${"TOTAL VENUES".padEnd(24)} ${published.length}`);
+      }
     } else if (direction === "pull") {
       printResults("prod → local (upsert pull)", await upsertPull(prod, local, { dryRun }), dryRun);
     } else if (direction === "pull-queue") {
