@@ -66,11 +66,21 @@ async function fetchBoundaryGeometry(ref: string): Promise<number[][][][]> {
       `no polygon geometry for ${ref} (got ${gj.features.map((f) => f.geometry?.type).join(",") || "none"} — not a closed area?)`,
     );
   // Flatten every Polygon/MultiPolygon into MultiPolygon members ([rings][]).
+  // GeoJSON + PostGIS/GEOS require each ring closed (first point === last). osmtogeojson
+  // usually closes ring 0 but occasionally leaves a ring open when the OSM source has a
+  // gap; close defensively so ST_Buffer/ST_Difference don't reject the boundary downstream.
+  const closeRing = (ring: number[][]): number[][] =>
+    ring.length >= 2 && ring[0] !== ring[ring.length - 1]
+      ? [...ring, ring[0]]
+      : ring;
   const members: number[][][][] = [];
   for (const f of polys) {
     const g = f.geometry!;
-    if (g.type === "Polygon") members.push(g.coordinates as number[][][]);
-    else for (const m of g.coordinates as number[][][][]) members.push(m);
+    if (g.type === "Polygon")
+      members.push((g.coordinates as number[][][]).map(closeRing));
+    else
+      for (const m of g.coordinates as number[][][][])
+        members.push(m.map(closeRing));
   }
   return members;
 }
