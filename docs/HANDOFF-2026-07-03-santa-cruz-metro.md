@@ -1,7 +1,33 @@
 # Handoff — Santa Cruz greater-metro coverage (2026-07-03)
 
 **Branch:** `feat/santa-cruz-coverage` (off `origin/main`).
-**Status:** boundary + constituent neighborhoods DONE & verified locally. Discovery / enrich / stub-fix NOT started (paid). **Work is uncommitted — commit first (step 0).**
+**City id:** `82c753fb-ef7e-413b-a71b-9f6cf80ec1bd`.
+
+---
+
+## ⭐ RESUME HERE (2026-07-04) — latest state
+
+**4 commits pushed to origin — all work safe.** Discovery DONE; enrich BLOCKED on a batch-size bug; rest not started.
+
+**Done this round:**
+- ✅ **Boundary bug fixed:** one of the 7 OSM inputs (Soquel, 2nd ring) had an unclosed ring — turf auto-closes (PIP test passed) but PostGIS/GEOS rejected it and **discovery hard-crashed**. Fixed generically in `build-aggregate-boundary.ts` (defensive ring-closure). Boundary rebuilt, committed.
+- ✅ **Discovery ran on a TEMP 6-town boundary** (SC city `r:111737` excluded — already discovered, avoids re-tiling it): 27 tiles, ~75 Google calls, **~$3**, **+103 candidates**. FB-target venues all landed: Zelda's, Britannia Arms, Margaritaville, Venus Spirits ×3, Shadowbrook. **7-town boundary then restored + committed** (production boundary is the full metro).
+- ❌ **Enrich PARTIAL/FAILED.** `--batch` prep finished (14 free-parse promotions: venues 119→142, live HH 34→36), but the **paid batch Haiku call crashed: `request_too_large` (>50 MB API body)** — $0 billed (rejected pre-flight). **112 candidates still pending paid extraction.**
+
+**⚠️ THE BLOCKER — `seed:enrich --batch` bundles ALL candidates' website content into ONE Haiku call; ~103 candidates (big PDF menus) exceeded Anthropic's 50 MB request limit. Will fail every time at this volume.** Three unblock options for the fresh context:
+1. **Chunk via `--ids` (recommended):** run `seed:enrich --batch --ids "<20 comma-sep candidate ids>"` in loops of ~20 — same cheap batch rate, each call stays well under 50 MB, no code change. Get the ids from `SELECT id FROM seed_candidates WHERE city_id='82c753fb...' AND outcome IS NULL AND serves_alcohol AND website_url IS NOT NULL`.
+2. **Non-batch:** omit `--batch` (per-venue calls, no accumulation), ~$2.60 (2× batch rate, still cheap). Memory says always-batch — user call.
+3. **Proper fix:** add payload chunking to `scripts/seed-enrich-candidates.ts` (split batch into sub-calls under 50 MB). Helps every future city.
+
+**Then the rest (cheap / free):**
+4. `pnpm backfill:neighborhoods --city santa-cruz --state CA` + `pnpm analyze:neighborhood-coverage --city santa-cruz --state CA` (free) — assign eastern-town venues to the locality polygons.
+5. Reextract 4 stubs: `jack-o-neill-restaurant-lounge`, `aldo-s`, `low-tide-bar-grill`, `venus-spirits-cocktails-kitchen-westside`, `venus-spirits-tasting-room`.
+6. Stagnaro: delete wrong-entity venue `stagnaro-bros-seafood-inc` (the wholesale INC); find the real wharf one. Süda (Soquel Ave, SC city): targeted Google-Place seed (recall miss). Shenanigans (Aptos): never surfaced — confirm defunct/renamed vs needs targeted seed.
+7. `pnpm reconcile:windows --city santa-cruz --state CA --apply` + `pnpm regate --city santa-cruz --state CA` → verify coverage vs the FB list → `gh pr create` → `gh pr merge --merge` when green.
+
+**$ spent this round:** ~$3 (discovery) + $0 (enrich failed). Enrich unblock adds ~$1.50 (chunked-batch) to ~$2.60 (non-batch).
+
+**Original handoff (boundary build playbook for the next 2 cities) ↓**
 
 ---
 
