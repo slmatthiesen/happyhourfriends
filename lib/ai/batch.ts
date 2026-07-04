@@ -16,12 +16,14 @@ export interface BatchRequest {
 }
 
 /**
- * The Message Batches API rejects (413 request_too_large) any create() whose HTTP body
- * exceeds 256MB. Our requests inline page HTML + base64 PDF/image bytes, so a media-heavy
- * city (San Jose: 246 gated requests) can blow the cap. Pack chunks to ~200MB to leave
- * headroom for JSON framing and transport overhead under the hard limit.
+ * The inline `batches.create({ requests: [...] })` endpoint rejects (413 request_too_large)
+ * any POST body over 50 MB — the server returns "Maximum size is 52428800 bytes". (The
+ * documented 256 MB limit applies only to the separate file-upload batch flow, which we
+ * don't use.) Our requests inline page HTML + base64 PDF/image bytes, so a media-heavy city
+ * can blow the cap. Pack chunks to ~45 MB to leave headroom for the `{"requests":[…]}`
+ * wrapper and transport overhead under the hard 50 MB limit.
  */
-export const MAX_BATCH_REQUEST_BYTES = 200 * 1024 * 1024;
+export const MAX_BATCH_REQUEST_BYTES = 45 * 1024 * 1024;
 
 /**
  * Greedily pack requests into chunks whose serialized size stays under `maxBytes`, preserving
