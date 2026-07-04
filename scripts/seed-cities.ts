@@ -40,9 +40,14 @@ interface CitySeed {
 
 const CITIES: CitySeed[] = [
   {
-    // Santa Cruz, CA — GLM-extractor test city (2026-06-27). OSM boundary relation 111737
-    // (municipal; ~9×15km bbox incl. detached annexations). serviceLocalities kept to the
-    // city itself — Capitola/Soquel/Live Oak are separate towns, add later if wanted.
+    // Santa Cruz, CA — greater-Santa-Cruz coast metro (expanded 2026-07-03 from municipal to
+    // a dissolved union of 7 OSM boundaries): Santa Cruz city rel 111737 + Capitola rel 3574370
+    // + Twin Lakes rel 7063032 + Soquel rel 9408781 + Aptos rel 9408782 + Live Oak way 33167234
+    // + Rio del Mar way 33167250 (the last two are boundary=census WAYS, not relations — see
+    // build-aggregate-boundary.ts `w:` prefix). Scotts Valley / Watsonville / Davenport are
+    // deliberately excluded (inland city / separate ag city / rural). Towns surface as
+    // neighborhood filters via add-metro-locality-neighborhoods.ts (Nominatim-by-name misresolves
+    // the unincorporated CDPs, so we insert the exact OSM polygons by ref instead).
     slug: "santa-cruz",
     name: "Santa Cruz",
     state: "CA",
@@ -52,10 +57,18 @@ const CITIES: CitySeed[] = [
     centerLat: 36.9741,
     centerLng: -122.0308,
     seedConfig: {
-      radiusKm: 8,
+      radiusKm: 12, // fallback only; data/santa-cruz-boundary.geojson drives real tiling/gate
       cellMeters: 3000,
-      serviceLocalities: ["Santa Cruz"],
-      serviceBufferMeters: 500,
+      serviceLocalities: [
+        "Santa Cruz",
+        "Capitola",
+        "Twin Lakes",
+        "Soquel",
+        "Aptos",
+        "Live Oak",
+        "Rio del Mar",
+      ],
+      serviceBufferMeters: 1500,
     },
   },
   {
@@ -382,6 +395,31 @@ const CITIES: CitySeed[] = [
         "Campbell",
         "Stanford",
       ],
+      serviceBufferMeters: 500,
+    },
+  },
+  {
+    // San Francisco, CA — flagship Bay Area market. STRICT City & County boundary (NOT a
+    // Bay-Area metro scope): Oakland/Berkeley/San Jose/Silicon Valley/San Mateo are all
+    // separate onboarded cities, so a metro union would overlap them and waste tiles; the
+    // crossover point-in-polygon drop + the global google_place_id gate cover the buffer
+    // bleed into Daly City (south). Boundary mode via data/san-francisco-boundary.geojson:
+    // OSM relation 111968 (City & County of San Francisco) with the Farallon Islands polygon
+    // dropped and the maritime-jurisdiction wings clipped to the urban land envelope; the
+    // Phase-1 open-space water mask subtracts the near-shore Pacific/Bay before PAID discovery.
+    // centerLat/Lng = recognizable Civic Center (fallback map anchor only; boundary drives gate).
+    slug: "san-francisco",
+    name: "San Francisco",
+    state: "CA",
+    country: "US",
+    timezone: "America/Los_Angeles",
+    currency: "USD",
+    centerLat: 37.7749,
+    centerLng: -122.4194,
+    seedConfig: {
+      radiusKm: 10, // fallback only; data/san-francisco-boundary.geojson drives real tiling/gate
+      cellMeters: 3000,
+      serviceLocalities: ["San Francisco"],
       serviceBufferMeters: 500,
     },
   },
