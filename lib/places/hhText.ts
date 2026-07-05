@@ -74,6 +74,21 @@ export function hhOrDealMatch(text: string): string | null {
 /** A concrete dollar amount like "$9" / "$ 12" / "$5.50" (some sites render "$ 9"). */
 export const PRICE_TOKEN_RE = /\$\s?\d/;
 
+/** Global price matcher for counting — "$8", "$ 9", "$5.50", but not the "$5" inside a URL slug. */
+const PRICE_TOKEN_GLOBAL = /\$\s?\d+(?:\.\d{2})?/g;
+
+/**
+ * Count distinct dollar-prices in page CONTENT (URLs stripped first, so a "$5" buried in a
+ * query string or CDN path doesn't inflate the tally). This is the under-capture signal: a
+ * block-menu page (Wix OOI / Squarespace / Toast) lists many priced HH items, and when the
+ * free parser captures only a fraction of them we escalate to the paid extractor. See
+ * [[freeUndercapturedOfferings]].
+ */
+export function countPriceTokens(text: string): number {
+  const content = signalText(text);
+  return (content.match(PRICE_TOKEN_GLOBAL) ?? []).length;
+}
+
 /** Worded deal signals that imply an actual DISCOUNT or priced offering, NOT a mere
  *  schedule. Deliberately omits the bare time-range, bare "daily", and bare "happy hour"
  *  that DEAL_RE/HH_RE allow — those describe WHEN, not WHAT, so a time-only page never trips

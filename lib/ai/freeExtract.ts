@@ -10,7 +10,7 @@
 import { pagesShowDroppedDeals, type FetchedPage } from "@/lib/ai/siteContent";
 import type { ExtractResult, ExtractedHappyHour } from "@/lib/ai/extractHappyHours";
 import { parseHappyHours, type ParsedWindow } from "@/lib/places/parseHhText";
-import { scoreHhUrl } from "@/lib/places/hhText";
+import { scoreHhUrl, countPriceTokens } from "@/lib/places/hhText";
 import { hhmmToMin } from "@/lib/places/windowReconcile";
 
 /**
@@ -107,6 +107,34 @@ export function shouldEscalateForDroppedDeals(free: ExtractResult | null, pages:
  */
 export function freeLacksOfferings(free: ExtractResult | null): boolean {
   return !!free && !free.happyHours.some((w) => w.offerings.length > 0);
+}
+
+/**
+ * Did the free parse UNDER-capture? The zero-offering case is [[freeLacksOfferings]]; this
+ * catches the partial case that defeated escalation on Sevy's (Wix OOI block menu): the free
+ * parser captured ONE offering (the beverage deal sitting in the same segment as the time
+ * range) while the page listed many more priced HH items in sibling segments the single-
+ * segment scan structurally cannot reach. Result was a false-success $0 parse and 8 lost
+ * food offerings.
+ *
+ * Fires when a clean window exists with ≥1 offering, yet the page(s) that PRODUCED a window
+ * carry materially more priced items than the free parse captured. The floor (≥4 prices) and
+ * margin (> captured + 2) keep a bare "$5 drafts 3-6pm" page and a fully-captured 2-item HH
+ * at $0; a real block menu escalates. Tunable — lean recall (operator stance on
+ * capture-everything); the realness + meal-special gates filter any model over-extraction.
+ *
+ * Scoped to window-bearing pages so an incidental homepage full of dinner prices cannot, by
+ * itself, force an escalate a focused HH page doesn't need.
+ */
+export function freeUndercapturedOfferings(free: ExtractResult | null, pages: FetchedPage[]): boolean {
+  if (!free || free.happyHours.length === 0) return false;
+  const captured = free.happyHours.reduce((n, w) => n + w.offerings.length, 0);
+  if (captured === 0) return false; // freeLacksOfferings owns the zero case
+  const windowSources = new Set(free.happyHours.map((w) => w.sourceUrl));
+  const pricesOnWindowPages = pages
+    .filter((p) => windowSources.has(p.url) && typeof p.text === "string")
+    .reduce((n, p) => n + countPriceTokens(p.text as string), 0);
+  return pricesOnWindowPages >= 4 && pricesOnWindowPages > captured + 2;
 }
 
 const MIN_PER_DAY = 1440;
