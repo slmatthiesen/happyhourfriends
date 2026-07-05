@@ -7,7 +7,7 @@
  * Connections:
  *   DATABASE_URL       local dev DB (from .env)
  *   PROD_DATABASE_URL  prod DB — normally pointed at an SSH tunnel by the bash
- *                      wrappers (scripts/push-data-additive.sh / pull-data-upsert.sh),
+ *                      wrappers (scripts/push-data-additive-ssm.sh / push-updates-ssm.sh),
  *                      so prod credentials are never persisted on disk.
  *
  * Defaults to a DRY RUN (rolls back, prints the counts that WOULD change). Pass

@@ -306,6 +306,15 @@ export async function applySubmission(
       if (!values.slug) values.slug = slugify(String(values.name));
       // New venues default to a stub until happy hours are confirmed.
       if (!values.dataCompleteness) values.dataCompleteness = "stub";
+      // A null timezone silently disables "happening now" / the Now badge for the
+      // venue, so default it from the city when the submission omits one.
+      if (!values.timezone) {
+        const [city] = await tx
+          .select({ tz: cities.defaultTimezone })
+          .from(cities)
+          .where(eq(cities.id, cityId));
+        values.timezone = city?.tz ?? null;
+      }
       const [inserted] = await tx
         .insert(venues)
         .values({ ...values, cityId } as typeof venues.$inferInsert)

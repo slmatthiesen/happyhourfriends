@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Shared helper: open an SSH tunnel to prod's Postgres, derive PROD_DATABASE_URL from
 # the droplet's own .env (so prod credentials are NEVER written to local disk), then
-# exec the db-sync CLI. Sourced by push-data-additive.sh / pull-data-upsert.sh.
+# exec the db-sync CLI. Sourced by push-deletions.sh / pull-queue-from-prod.sh / publish-venue-to-prod.sh.
 #
 # Usage (from a wrapper): run_sync <push|pull> "$@"
 # Env: PROD_IP (from .env or inline); SSH_USER=root, APP_DIR=/home/happyhourfriends, TUNNEL_PORT=6543.

@@ -1,8 +1,8 @@
 /**
  * flagEval — score the CURRENT rule catalog (lib/audit/anomalyRules) against the
- * operator-labeled flag-review corpus (data/flag-review-goldens.json, written by
- * scripts/export-flag-labels.ts). Pure, $0, no DB/network — consumed by
- * scripts/eval-flag-rules.ts (report-only) and unit-tested in scripts/test-flag-eval.ts.
+ * operator-labeled flag-review corpus (data/flag-review-goldens.json, written by the
+ * retired export-flag-labels script). Pure, $0, no DB/network — unit-tested in
+ * scripts/test-flag-eval.ts.
  *
  * Label semantics (from /admin/flags):
  *   kept   — operator judged the flagged data CORRECT → any flag the current rules

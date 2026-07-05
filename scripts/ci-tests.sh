@@ -35,7 +35,6 @@ TESTS=(
   test:section-scoping-fixtures
   test:hidden-review
   test:review-siblings
-  test:stub-rank
   test:extract
   test:extract-image-fallback
   test:glm-routing

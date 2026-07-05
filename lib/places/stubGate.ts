@@ -8,7 +8,6 @@
  * docs/san-jose-extraction-postmortem-2026-06-22.md).
  *
  * This is the ONE source of truth for that judgement, reused by:
- *   - scripts/suppress-dead-end-stubs.ts   (HIDE: status='no_happy_hour', reversible)
  *   - scripts/seed-enrich-candidates.ts    (set the status at stub creation)
  *   - lib/ai/extractHappyHours.ts           (its inverse, isHhLikely, gates the paid Jina tier)
  *
