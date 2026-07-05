@@ -356,8 +356,7 @@ export default async function VenuePage({
 
         {activeHours.length > 0 && (
           <p className="mt-2 text-xs text-text-muted">
-            Happy hours change and we&apos;re not always told, so this may be out of date.
-            Help your friends keep it fresh — snap a photo of the current menu.
+            Happy hours change. If we are behind, please help your friends — snap a pic and upload a photo of the current menu 📸
           </p>
         )}
 

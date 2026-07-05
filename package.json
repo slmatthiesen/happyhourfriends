@@ -55,6 +55,7 @@
     "audit:provenance": "tsx scripts/audit-provenance.ts",
     "audit:quality": "tsx scripts/audit-quality.ts",
     "audit:bare-windows": "tsx scripts/audit-bare-windows.ts",
+    "audit:weak-offerings": "tsx scripts/audit-weak-offerings.ts",
     "audit:venue-sites": "tsx scripts/audit-venue-sites.ts",
     "cleanup:duplicate-windows": "tsx scripts/cleanup-duplicate-windows.ts",
     "audit:fix": "tsx scripts/audit-fix.ts",
