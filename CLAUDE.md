@@ -178,5 +178,5 @@ lib/queries/venues.ts  data-access layer
 prompts/               versioned prompt templates (classifier, verifier, interpreter, extractor)
 scripts/               seed-cities, import-neighborhoods, reextract-stubs, debug-extract, …
 data/                  city boundary + neighborhood GeoJSONs (public domain / ODbL)
-docs/                  pipeline-flow.md, new-city-runbook.md, OPERATOR-CHEATSHEET.md
+docs/                  OPERATIONS.md (operator index), runbook-onboard-city.md, runbook-audit-city.md
 ```

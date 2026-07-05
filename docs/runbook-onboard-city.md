@@ -1,4 +1,7 @@
-# New-city onboarding runbook
+# Runbook — onboard a new city
+
+> One of the two operator runbooks. The other is `docs/runbook-audit-city.md`
+> (the recurring health cycle for cities already live). Index: `docs/OPERATIONS.md`.
 
 The end-to-end path for taking a city from nothing to live on production. Each phase has
 the exact commands, what "done" looks like, and what it costs. Run phases in order — the
@@ -101,6 +104,11 @@ Opt out with `--no-hh-recall` (legacy Nearby-only). To backfill an already-disco
 cheaply, `--hh-recall-only` skips the Nearby sweep. Always preview spend with `--estimate`
 ($0, prints the worst-case call count).
 
+⚠️ **If the run reports it hit the call cap with regions unvisited, `--resume-recall` until
+it sweeps to completion — this is mandatory, not optional.** A capped run false-negatives
+the catch rate (Spokane: capped run caught 3/22 Reddit-recommended venues; resuming the 4
+saved downtown regions caught 9/22 including the #1 rec).
+
 **Done when:** candidate count looks sane for the city's size (Spokane: ~200–300) and the
 out-of-boundary localities you expected to drop (suburbs, neighbor cities) were dropped.
 
@@ -123,7 +131,7 @@ pnpm run seed:enrich -- --city <slug> --state <code> --batch
 
 Every candidate becomes a venue — confirmed-HH or a help-wanted **stub** (a high stub rate
 is inherent, not a bug; crowdsourcing fills it post-launch). Optional stub recovery passes
-afterward, cheapest first — see `docs/OPERATOR-CHEATSHEET.md` §1–2:
+afterward, cheapest first — see `docs/runbook-audit-city.md` Step 7:
 
 ```bash
 pnpm run reextract:stubs:free -- --city <slug> --state <code>           # dry-run, $0
@@ -173,6 +181,11 @@ San Mateo: 5/8 recovered for ~$0.15 (NEL, Lazy Dog, American Bull, Amici's, John
 (JS-walled / no clear HH on the page) stay hidden for crowdsource. Manual entry is gated to
 `hh_probe_status='blocked'` venues only (readable sites must be fixed via the extractor, by design).
 
+**Hidden-window review (part of every heal):** `pnpm review:hidden` — report → edit → apply.
+It roughly DOUBLED Santa Cruz's live-HH yield for $0 (2026-07-04). Triage by where the
+default suggestion is most likely wrong; an own-site `/happy-hour` page is the top rescue
+signal (re-extract from that URL rather than promoting the junk hidden row).
+
 **Done when:** you've eyeballed the live windows and each one is a real happy hour with a
 plausible source. A misextracted venue means **fix the extractor/gate, never hand-patch
 the venue** (memory `feedback_no_manual_venue_patching`).
@@ -217,7 +230,7 @@ not a failure).
 ## Phase 6 — Data audit
 
 Catches cross-venue contamination, wrong-city sources, implausible windows, third-party
-source URLs. Full procedure: `docs/all-cities-audit-runbook.md`.
+source URLs. Full procedure: `docs/runbook-audit-city.md`.
 
 ```bash
 pnpm run audit:data -- --city <slug> --state <code>
@@ -231,8 +244,21 @@ pnpm run audit:bare-windows -- --city <slug> --state <code>     # $0 detector + 
 pnpm run reextract:stubs -- --city <slug> --state <code> --bare # PAID heal (BATCH, skips no-deal pages at $0)
 ```
 
-**Done when:** flags are adjudicated (keep/hide), high-confidence fixes applied, and
-`audit:bare-windows` reports ~0 dropped-deal venues (or the rest are genuinely time-only).
+Also run the content-quality scan and stub-junk curation before go-live:
+
+```bash
+pnpm audit:weak-offerings -- --city <slug> --state <code>   # $0 — deal-only names, bare windows, time anomalies
+pnpm cleanup:stubs -- --city <slug> --state <code>          # $0 report → edit tiers → --apply (hide/delete junk stubs)
+pnpm gate:stub-sites -- --city <slug> --state <code>        # $0 — hides no-alcohol/dead-site stubs (never touches published HH)
+```
+
+A new city ships with its stub list already curated — a page with 50 live venues and 200
+junk "needs info" stubs looks broken. Quality bar stays STRICT: drop = no-live-HH stub AND
+(no alcohol evidence OR dead site). Hide is reversible; deletes never resurrect.
+
+**Done when:** flags are adjudicated (keep/hide), high-confidence fixes applied,
+`audit:bare-windows` reports ~0 dropped-deal venues (or the rest are genuinely time-only),
+and `pnpm doctor -- --city <slug> --state <code>` has no unexplained FAIL.
 
 ---
 
@@ -269,14 +295,14 @@ Only `live` cities render in the UI, sitemap, and `/llms.txt`.
 ## Phase 9 — Push to prod (additive — post-launch safe)
 
 ```bash
-pnpm run push:data:additive              # DRY RUN — preview insert counts
-pnpm run push:data:additive -- --apply   # commit
+pnpm push:prod              # PREVIEW (dry run — writes nothing)
+pnpm push:prod -- --apply   # commit
 ```
 
-(`PROD_IP` comes from `.env`.) Additive push INSERTs only what prod doesn't have —
-the new city + its venues/HH subtree, deduped on `google_place_id` — and **never modifies
-an existing prod venue**, so user edits are safe. Full detail:
-`docs/data-sync-runbook.md` → "Additive push".
+`push:prod` runs over SSM (the AWS box has no open ports) — it INSERTs what prod doesn't
+have and re-publishes venues whose local curation changed, deduped on `google_place_id`.
+It **never overwrites a venue a user edited more recently on prod** (prod wins). Don't
+pull-first. Full detail: `docs/pushing-data-to-prod.md`.
 
 If the code PR included schema/app changes, deploy the CODE channel first
 (droplet: `git pull` → `npm ci` → `npm run db:migrate` → build → restart).
