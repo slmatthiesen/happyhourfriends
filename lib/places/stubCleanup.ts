@@ -59,7 +59,7 @@ export function classifyStub(sig: StubSignal, policy: StubCleanupPolicy): StubVe
   // 2. KEEP — the alcohol-positive crowdsource bet (bars/pubs/breweries by type or name).
   if (alcoholPositive) return { action: "keep", reason: "alcohol-positive" };
 
-  // 3. HIDE — zero-HH cuisine. Hard delete of these stays in delete-empty-cuisine-stubs.ts.
+  // 3. HIDE — zero-HH cuisine. Hard delete of these was a one-off sweep (delete-empty-cuisine-stubs, retired).
   if (zeroHhType) return { action: "hide", reason: `zero-HH cuisine (${sig.primaryType})` };
 
   // 4. Good-site restaurant (no alcohol evidence, live non-platform site): policy decides.

@@ -73,8 +73,7 @@ export interface GatedCluster extends PlannedCluster {
 /**
  * Build the stage-0 plan for one city: cluster the city's Google neighborhood names by
  * canonical key (spelling variants fold together), propose synonym/curated merges, and
- * run the containment gate on inferred synonyms. Pure read — shared by assignNeighborhoods
- * and the $0 report script (scripts/report-neighborhood-merges.ts).
+ * run the containment gate on inferred synonyms. Pure read.
  */
 export async function planCityNeighborhoods(sql: Sql, city: CityRef): Promise<GatedCluster[]> {
   const googleNames = await sql<{ name: string; venues: number }[]>`

@@ -4,7 +4,7 @@
  *
  * Operator 2026-06-13: these are not real first-party venues worth featuring — when a
  * stub's website is one of these AND it has no live happy hour, soft-delete it
- * (scripts/drop-menu-platform-stubs.ts). This DELIBERATELY reverses the older
+ * (the drop-menu-platform-stubs sweep — retired, in git history). This DELIBERATELY reverses the older
  * siteTriage "keep ordering/social links as crowdsource stubs" stance for this narrow
  * class of pure menu-display hosts.
  *
