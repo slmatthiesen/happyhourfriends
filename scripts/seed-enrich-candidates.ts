@@ -37,7 +37,7 @@ import {
   parseRecordedExtract,
   type ExtractResult,
 } from "@/lib/ai/extractHappyHours";
-import { freeExtractFromPages, shouldEscalateForDroppedDeals } from "@/lib/ai/freeExtract";
+import { freeExtractFromPages, shouldEscalateForDroppedDeals, freeUndercapturedOfferings } from "@/lib/ai/freeExtract";
 import { closeRenderBrowserSafe } from "@/lib/verification/lazyRender";
 import { costCents } from "@/lib/ai/pricing";
 import { createBatch, chunkRequestsBySize, pollBatch, streamResults, type BatchRequest } from "@/lib/ai/batch";
@@ -1215,10 +1215,12 @@ async function prepAndSubmit(
     const free = freeExtractFromPages(built.pages, { model: "deterministic-html-v1", promptHash: built.promptHash });
     // ...UNLESS the free parse captured a window but ZERO offerings while the page carries
     // real deal content the text parser can't reach (Santo Mezcal: "$9 cocktails / $7 wine"
-    // dropped to a bare window; or deals that live in a menu PDF/image). Fall through to the
-    // paid extractor to recover them. A genuinely bare "Mon–Fri 3–6pm, no prices, no menu
-    // doc" page has no deal signal and still short-circuits for $0 below.
-    const escalateForDeals = shouldEscalateForDroppedDeals(free, built.pages);
+    // dropped to a bare window; or deals that live in a menu PDF/image), OR captured a PARTIAL
+    // set while the page lists materially more priced items in sibling segments the single-
+    // segment scan can't reach (Wix OOI / Squarespace / Toast block menu — Sevy's: 1 of 9).
+    // Fall through to the paid extractor to recover them. A genuinely bare "Mon–Fri 3–6pm,
+    // no prices, no menu doc" page has no deal signal and still short-circuits for $0 below.
+    const escalateForDeals = shouldEscalateForDroppedDeals(free, built.pages) || freeUndercapturedOfferings(free, built.pages);
     if (free && !escalateForDeals) {
       const persisted = await persistExtraction(sql, { cityId: city.id, ctx, extracted: free });
       await markProcessed(sql, c.id, persisted.outcome, persisted.venueId);
@@ -1238,7 +1240,7 @@ async function prepAndSubmit(
       continue;
     }
     if (escalateForDeals) {
-      console.log(`  ↑ ${c.name}: free window had 0 offerings but page shows deals → paid extract`);
+      console.log(`  ↑ ${c.name}: free parse under-captured deals vs page → paid extract`);
     }
     // NOTE: the --batch path applies the free hasSignal + deterministic-parse gates but NOT the
     // Haiku relevance gate (that lives in the on-demand extractHappyHours wrapper; it's a sync

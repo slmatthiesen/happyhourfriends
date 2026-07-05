@@ -35,7 +35,7 @@ import { MODELS } from "@/lib/ai/models";
 import { loadPrompt, splitPrompt } from "@/lib/ai/promptHash";
 import { fetchPages, renderPagesAsBlocks, pagesHaveExtractableSignal } from "@/lib/ai/siteContent";
 import type { FetchedPage } from "@/lib/ai/siteContent";
-import { freeExtractFromPages, shouldEscalateForDroppedDeals, freeLacksOfferings, reconcileFreeDaysWithModelOfferings } from "@/lib/ai/freeExtract";
+import { freeExtractFromPages, shouldEscalateForDroppedDeals, freeLacksOfferings, freeUndercapturedOfferings, reconcileFreeDaysWithModelOfferings } from "@/lib/ai/freeExtract";
 import { classifyHhRelevance, foldRelevanceCost } from "@/lib/ai/hhRelevance";
 import { loadRenderUrl } from "@/lib/verification/lazyRender";
 import { getFetchProvider, antiBotCallsUsed } from "@/lib/places/fetchProviders";
@@ -827,9 +827,15 @@ export async function extractHappyHours(
     // never leave /admin/bare-windows. Mirrors the enrich free-first gate (seed-enrich-candidates.ts).
     // assertHasHappyHour (operator pasted this URL) drops the page-signal requirement: escalate
     // on ANY bare window, even when discovery missed the menu doc so there's no detectable signal.
+    //
+    // freeUndercapturedOfferings extends this to the PARTIAL case: the free parse captured ≥1
+    // offering (so freeLacksOfferings is false) but the window-bearing page lists materially
+    // more priced items in sibling segments the single-segment scan can't reach — a Wix OOI /
+    // Squarespace / Toast block menu (Sevy's: 1 of 9 captured). Without it the partial parse is
+    // a false success and the food offerings are lost.
     const escalate = input.assertHasHappyHour
-      ? freeLacksOfferings(free)
-      : shouldEscalateForDroppedDeals(free, pages);
+      ? freeLacksOfferings(free) || freeUndercapturedOfferings(free, pages)
+      : shouldEscalateForDroppedDeals(free, pages) || freeUndercapturedOfferings(free, pages);
     if (escalate) {
       if (process.env.EXTRACT_DEBUG) console.error(`[extract] free parse bare window → escalating to paid extractor`);
       // Keep the free parse's stable DAYS (from explicit recurring text) and take only the
