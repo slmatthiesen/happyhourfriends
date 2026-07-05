@@ -80,6 +80,21 @@
       "offeringKeywords": [
         "roadside slider", "avocado eggroll", "tex mex eggroll", "pot sticker", "fried calamari"
       ]
+    },
+    {
+      "name": "Sevy's Bar + Kitchen",
+      "url": "https://www.sevysbarandkitchen.com/menu?location=Old+Dominion+Court&menu=happy-hour",
+      "type": "bar",
+      "verifiedOn": "2026-07-04",
+      "pageKind": "Wix OOI block menu — free parse captures only the $1-off drink deal in the time segment (1 of ~9); the priced HH food items live in sibling block segments only the paid model reaches. v23 enumerate-vs-consolidate case (prompt must NOT fold these into \"$8-$14\"); also exercises freeUndercapturedOfferings escalation on the assertHasHappyHour path.",
+      "expectWindows": [
+        { "days": [1, 2, 3, 4, 7], "start": "15:00", "end": "18:00" },
+        { "days": [2], "start": "15:00", "end": "22:00" }
+      ],
+      "offeringKeywords": [
+        "house wine", "draught beer", "well drink",
+        "chowder", "chips", "sliders", "garlic", "tacos", "wings", "spinach", "deviled eggs"
+      ]
     }
   ]
 }
