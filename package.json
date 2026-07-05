@@ -29,6 +29,7 @@
     "backfill:neighborhood-tiers": "tsx scripts/backfill-neighborhood-tiers.ts",
     "analyze:neighborhood-coverage": "tsx scripts/analyze-neighborhood-coverage.ts",
     "restore:neighborhoods": "tsx scripts/restore-neighborhoods.ts",
+    "doctor": "tsx scripts/doctor.ts",
     "regate": "tsx scripts/regate-hidden.ts",
     "reconcile:windows": "tsx scripts/reconcile-windows.ts",
     "audit:data": "tsx scripts/audit-data.ts",

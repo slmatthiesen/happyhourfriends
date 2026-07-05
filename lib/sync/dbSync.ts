@@ -7,7 +7,7 @@
  *  - additivePush (local → prod): inserts only NEW venues (by id / google_place_id)
  *    and their full subtree, plus any missing cities/neighbourhoods/chains/tags/
  *    candidates. Existing prod venues are never modified — editing a live venue is a
- *    prod-side operation (see docs/data-sync-runbook.md). This is how you promote a
+ *    prod-side operation (see docs/pushing-data-to-prod.md). This is how you promote a
  *    city you curated locally without clobbering anything users contributed.
  *
  *  - upsertPull (prod → local): for every row on prod, upsert it into local by PK.
