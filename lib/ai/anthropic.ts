@@ -28,6 +28,27 @@ function glm(): Anthropic {
   return glmClient;
 }
 
+let batchClient: Anthropic | undefined;
+
+/**
+ * Dedicated client for the Message Batches API. The default `anthropic()` client inherits
+ * `ANTHROPIC_BASE_URL` (the z.ai proxy in this project), and z.ai exposes no
+ * `/messages/batches` route (FastAPI 404 with an `x-process-time` header) — so batch calls
+ * must bypass the proxy and hit real Anthropic directly. The same `ANTHROPIC_API_KEY`
+ * authenticates at `api.anthropic.com` (it is a genuine Anthropic key; z.ai only proxies
+ * `/v1/messages` with it). Override the target with `ANTHROPIC_BATCH_BASE_URL` if a different
+ * batch host is ever needed. NOTE: requests submitted through this client must name a real
+ * Anthropic model (e.g. `claude-haiku-4-5`), not a `glm-*` id — those only exist at z.ai.
+ */
+export function batchAnthropic(): Anthropic {
+  if (batchClient) return batchClient;
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not set (the Batches API requires it)");
+  const baseURL = process.env.ANTHROPIC_BATCH_BASE_URL ?? "https://api.anthropic.com";
+  batchClient = new Anthropic({ apiKey, baseURL });
+  return batchClient;
+}
+
 /** True for GLM model ids that read text only (no vision) — image/PDF blocks must be
  *  stripped before such a call or the request 400s on the unsupported block. The vision
  *  GLMs (glm-4.5v / glm-4.6v) are excluded so they keep their image blocks. */

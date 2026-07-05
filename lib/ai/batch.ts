@@ -8,7 +8,7 @@ import type {
   MessageCreateParamsNonStreaming,
 } from "@anthropic-ai/sdk/resources/messages";
 
-import { anthropic } from "@/lib/ai/anthropic";
+import { batchAnthropic } from "@/lib/ai/anthropic";
 
 export interface BatchRequest {
   custom_id: string;
@@ -53,7 +53,7 @@ export function chunkRequestsBySize(
 
 /** Submit a batch; returns the batch id. */
 export async function createBatch(requests: BatchRequest[]): Promise<string> {
-  const batch = await anthropic().messages.batches.create({ requests });
+  const batch = await batchAnthropic().messages.batches.create({ requests });
   return batch.id;
 }
 
@@ -68,7 +68,7 @@ export async function pollBatch(
 ): Promise<MessageBatch> {
   const intervalMs = opts?.intervalMs ?? 300_000;
   for (;;) {
-    const batch = await anthropic().messages.batches.retrieve(id);
+    const batch = await batchAnthropic().messages.batches.retrieve(id);
     opts?.onTick?.(batch);
     if (batch.processing_status === "ended") return batch;
     await new Promise((r) => setTimeout(r, intervalMs));
@@ -79,7 +79,7 @@ export async function pollBatch(
 export async function* streamResults(
   id: string,
 ): AsyncGenerator<MessageBatchIndividualResponse> {
-  for await (const result of await anthropic().messages.batches.results(id)) {
+  for await (const result of await batchAnthropic().messages.batches.results(id)) {
     yield result;
   }
 }
