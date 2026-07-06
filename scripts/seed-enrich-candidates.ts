@@ -75,6 +75,22 @@ function parseArgs(): { limit: number | null; batch: boolean; noWebsearch: boole
     return i >= 0 ? argv[i + 1] : undefined;
   };
   const limitStr = getFlag("--limit");
+  // Reject unrecognized flags. This script has no dry-run/--estimate mode — every candidate
+  // it touches costs real money (free-first parse, then a paid Haiku call on escalation) — so
+  // a typo'd or invented flag (e.g. an assumed --estimate) must NOT silently no-op into a full
+  // real run. It cost $22.44 doing exactly that on San Francisco's onboarding.
+  const KNOWN_FLAGS = new Set(["--batch", "--no-websearch", "--retry-killed"]);
+  for (let i = 0; i < argv.length; i++) {
+    const tok = argv[i];
+    if (tok === "--city" || tok === "--state") { i++; continue; }
+    if (tok === "--limit") { i++; continue; }
+    if (KNOWN_FLAGS.has(tok)) continue;
+    throw new Error(
+      `Unexpected argument "${tok}". This script has no --estimate/dry-run mode; every run is ` +
+        `real and can cost money. Known flags: --city, --state, --limit <n>, ` +
+        `${[...KNOWN_FLAGS].join(", ")}.`,
+    );
+  }
   return {
     limit: limitStr != null ? parseInt(limitStr, 10) : null,
     batch: argv.includes("--batch"),
