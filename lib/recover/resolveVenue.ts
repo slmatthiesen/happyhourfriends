@@ -330,6 +330,22 @@ export async function persistExtractedWindows(
         active: true,
       });
     }
+    // Operator-asserted authoritative resolve: retire any existing offering this window still
+    // carries that the fresh read didn't mention AT ALL (by name, any price) — not just a
+    // price-changed match. Prelude SF: a stale extraction had attached the "Bar Bites" anytime
+    // menu (Caviar $79, Nashville Hot Oysters $29, ...) to the Social Hour time window instead
+    // of Social Hour's own actual snacks (Deviled Egg $3, Stuffed Chicken Wing $10, ...) — same
+    // page, wrong tab-section. An additive-only re-extraction can never remove a wrong item that
+    // isn't superseded by a same-named fresh one, so operator authority is required to fully
+    // trust the new read over the old rather than merely supplement it.
+    if (opts.authoritative) {
+      const freshNameKeys = new Set(sanitized.offerings.map((o) => offeringNameKey(o.name)));
+      for (const ex of existingOff) {
+        if (!freshNameKeys.has(offeringNameKey(ex.name))) {
+          await db.update(offerings).set({ active: false }).where(eq(offerings.id, ex.id));
+        }
+      }
+    }
     const reasonNotes: string[] = [];
     if (sanitized.warnings.length > 0) reasonNotes.push(`offering sanity: ${sanitized.warnings.join("; ")}`);
     if (provenanceSuspect) reasonNotes.push(`source provenance: hidden, ${hh.sourceUrl} is not the venue's own site`);
