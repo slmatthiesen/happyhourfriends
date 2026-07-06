@@ -188,9 +188,31 @@ const NO_HH_FORMAT_PATTERNS = [
 // normalizes to one token, and Masonic lodges use "Tucson Lodge No. 4" naming.
 const MEMBER_ONLY_ORG_REGEXES = [/\belks ?\d/, /\blodge no ?\d/];
 
-export function isLikelyNoHappyHourFormat(name: string): boolean {
+// A member-only post's own bar sometimes gets a locally-branded name that carries no
+// fraternal-org wording at all (e.g. "Chappie's Lounge Post 1" — an AMVETS Post 1 bar,
+// caught 2026-07-06 during a Tacoma audit). The affiliation only shows up in the
+// venue's website domain (amvetswa.org), not its display name, so the name-only check
+// above misses it. This is a second, domain-based signal for the same org list.
+const MEMBER_ONLY_ORG_DOMAIN_KEYWORDS = [
+  "amvets", "vfw", "americanlegion", "eagleslodge", "eaglesclub", "mooselodge",
+  "elkslodge", "masoniclodge", "masonictemple", "knightsofcolumbus", "oddfellows",
+];
+
+function hostnameIsMemberOnlyOrg(websiteUrl: string | null | undefined): boolean {
+  if (!websiteUrl) return false;
+  let host: string;
+  try {
+    host = new URL(websiteUrl).hostname.toLowerCase();
+  } catch {
+    return false;
+  }
+  return MEMBER_ONLY_ORG_DOMAIN_KEYWORDS.some((k) => host.includes(k));
+}
+
+export function isLikelyNoHappyHourFormat(name: string, websiteUrl?: string | null): boolean {
   const n = normalize(name);
   if (MEMBER_ONLY_ORG_REGEXES.some((re) => re.test(n))) return true;
+  if (hostnameIsMemberOnlyOrg(websiteUrl)) return true;
   // Word-boundary match — substring would let "deli" match "delicias", "acai" match
   // "açaí" variations, etc. (2026-05-28: dropped "Las Delicias Restaurant" by mistake).
   return NO_HH_FORMAT_PATTERNS.some(

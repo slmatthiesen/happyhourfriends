@@ -563,7 +563,7 @@ async function main() {
         }
 
         // Format gate: buffets / AYCE — these don't run happy hours.
-        if (isLikelyNoHappyHourFormat(candidate.name)) {
+        if (isLikelyNoHappyHourFormat(candidate.name, candidate.website_url)) {
           say("  ↷ skip — buffet/AYCE format");
           await markProcessed(sql, candidate.id, "no_hh_found", null, { skipOutcome: true });
           return { kind: "filtered" };
@@ -1060,7 +1060,7 @@ async function prepAndSubmit(
     const c = candidates[i];
     console.log(`[${i + 1}/${candidates.length}] prep ${c.name}…`);
 
-    if (isDenylistedChain(c.name) || isLikelyNoHappyHourFormat(c.name)) {
+    if (isDenylistedChain(c.name) || isLikelyNoHappyHourFormat(c.name, c.website_url)) {
       await markProcessed(sql, c.id, "no_hh_found", null, { skipOutcome: true });
       tally.filtered++;
       continue;

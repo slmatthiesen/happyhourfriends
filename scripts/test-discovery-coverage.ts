@@ -209,6 +209,17 @@ async function main() {
       assert.equal(isLikelyNoHappyHourFormat("Post Malone's Tavern"), false);
       assert.equal(isLikelyNoHappyHourFormat("Oddfellows Cafe & Bar"), false); // lodge-form only
     });
+    check("member-only orgs caught by website DOMAIN even with a non-fraternal name", () => {
+      // Tacoma 2026-07-06: "Chappie's Lounge Post 1" is an AMVETS Post 1 bar — the
+      // affiliation only shows up in the domain, not the name.
+      assert.equal(isLikelyNoHappyHourFormat("Chappie's Lounge Post 1", "https://www.amvetswa.org/post1chappies"), true);
+      assert.equal(isLikelyNoHappyHourFormat("The Barrel Room", "https://vfwpost1234.org/bar"), true);
+      assert.equal(isLikelyNoHappyHourFormat("Legion Hall Tavern", "http://americanlegion-post99.org/"), true);
+      // A normal bar with an unrelated domain is unaffected.
+      assert.equal(isLikelyNoHappyHourFormat("The Barrel Room", "https://thebarrelroom.com/"), false);
+      // No website on file — domain check is a no-op, name check still applies.
+      assert.equal(isLikelyNoHappyHourFormat("The Barrel Room", null), false);
+    });
   }
 
   // --- Daly City review: junk-type excludes + hard review gate --------------------
