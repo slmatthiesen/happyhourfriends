@@ -223,6 +223,17 @@ export async function additivePush(
         rows = rows.filter((r) => newHhIds.has(r.happy_hour_id as string));
       } else if (table === "venue_tags") {
         rows = rows.filter((r) => newVenueIds.has(r.venue_id as string));
+      } else if (table === "seed_candidates") {
+        // resulting_venue_id can point at a venue this push excluded (already in prod
+        // under a different id via google_place_id match) — null it rather than drop
+        // the whole candidate row, or the FK insert fails the entire transaction.
+        rows = rows.map((r) => {
+          const rv = r.resulting_venue_id as string | null;
+          if (rv !== null && !prodVenueIds.has(rv) && !newVenueIds.has(rv)) {
+            return { ...r, resulting_venue_id: null };
+          }
+          return r;
+        });
       }
 
       if (table === "neighborhoods") rows = topoSortNeighborhoods(rows);
