@@ -83,6 +83,7 @@ function parseArgs(): DiscoverArgs {
   const FLAGS = new Set([
     "--curated", "--fresh", "--debug-drops",
     "--hh-recall", "--no-hh-recall", "--hh-recall-only", "--estimate", "--resume-recall",
+    "--allow-resweep",
   ]);
   // Reject stray args. `seed:discover tucson` (no --city) silently ran Tacoma before — a
   // costly footgun (wrong city / wasted Places quota). The city MUST be --city + --state flags.
@@ -105,6 +106,20 @@ function parseArgs(): DiscoverArgs {
         `  HH recall runs by DEFAULT. Optional: --no-hh-recall | --hh-recall-only | --estimate | --max-calls <n> | --resume-recall | --bbox <minLng,minLat,maxLng,maxLat>`,
     );
   }
+  const resumeRecall = argv.includes("--resume-recall");
+  const hhRecallOnly = argv.includes("--hh-recall-only");
+  // --resume-recall exists to cheaply finish a capped recall pass. Without --hh-recall-only it
+  // ALSO re-runs the full paid Nearby sweep from scratch (same tiles, same money, again) — a
+  // real footgun that has actually cost real dollars. Force the intent to be explicit: pair
+  // --resume-recall with --hh-recall-only, or with --allow-resweep if a full re-sweep is truly
+  // wanted (e.g. the type/area filters changed since the last Nearby pass).
+  if (resumeRecall && !hhRecallOnly && !argv.includes("--allow-resweep")) {
+    throw new Error(
+      `--resume-recall re-runs the paid Nearby sweep too unless paired with --hh-recall-only ` +
+        `(resuming a capped recall pass almost never wants to re-pay for the whole Nearby sweep). ` +
+        `Add --hh-recall-only, or pass --allow-resweep if you deliberately want both.`,
+    );
+  }
   return {
     curated: argv.includes("--curated"),
     // --fresh: clear this city's existing candidates first (re-discover from scratch,
@@ -118,11 +133,11 @@ function parseArgs(): DiscoverArgs {
     // Nearby) — for cheaply backfilling an already-discovered city. (--hh-recall is now a no-op
     // alias, accepted for back-compat since recall is the default.)
     noHhRecall: argv.includes("--no-hh-recall"),
-    hhRecallOnly: argv.includes("--hh-recall-only"),
+    hhRecallOnly,
     // --estimate: print the worst-case call count + cost and exit. Makes ZERO Google calls.
     estimate: argv.includes("--estimate"),
     maxCalls: maxCalls !== undefined && Number.isFinite(maxCalls) && maxCalls > 0 ? maxCalls : undefined,
-    resumeRecall: argv.includes("--resume-recall"),
+    resumeRecall,
     bbox,
   };
 }
