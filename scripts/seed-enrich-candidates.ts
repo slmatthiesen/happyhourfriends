@@ -79,7 +79,7 @@ function parseArgs(): { limit: number | null; batch: boolean; noWebsearch: boole
   // it touches costs real money (free-first parse, then a paid Haiku call on escalation) — so
   // a typo'd or invented flag (e.g. an assumed --estimate) must NOT silently no-op into a full
   // real run. It cost $22.44 doing exactly that on San Francisco's onboarding.
-  const KNOWN_FLAGS = new Set(["--batch", "--no-websearch", "--retry-killed"]);
+  const KNOWN_FLAGS = new Set(["--batch", "--no-batch", "--no-websearch", "--retry-killed"]);
   for (let i = 0; i < argv.length; i++) {
     const tok = argv[i];
     if (tok === "--city" || tok === "--state") { i++; continue; }
@@ -91,9 +91,16 @@ function parseArgs(): { limit: number | null; batch: boolean; noWebsearch: boole
         `${[...KNOWN_FLAGS].join(", ")}.`,
     );
   }
+  if (argv.includes("--batch") && argv.includes("--no-batch")) {
+    throw new Error(`--batch and --no-batch are contradictory — pass at most one.`);
+  }
   return {
     limit: limitStr != null ? parseInt(limitStr, 10) : null,
-    batch: argv.includes("--batch"),
+    // Batch (Message Batches API, ~50% cheaper) is the DEFAULT, not opt-in — this whole stage's
+    // cost model is built around it. --batch is accepted as a no-op for muscle memory; the real
+    // lever is --no-batch, which must be explicit since it silently doubles the per-city bill.
+    // (A forgotten --batch flag ran San Francisco's enrich at full price: $22.44 instead of ~$11.)
+    batch: !argv.includes("--no-batch"),
     // --no-websearch: don't pay web_search to chase candidates with no captured website.
     // Defer them (skip, unprocessed) and bubble them up to a report for manual review.
     noWebsearch: argv.includes("--no-websearch"),
