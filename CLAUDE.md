@@ -15,6 +15,14 @@ seed:discover → seed:enrich → [submission] → classify → verify → apply
                                          reextract:stubs (stub recovery)
 ```
 
+**Full city onboarding runs ONLY through `scripts/onboard-city.ts`** (`pnpm tsx
+scripts/onboard-city.ts --city <slug> --state <code>`). It hardcodes every flag a paid step
+needs (`--batch` on enrich, auto-looped `--resume-recall --hh-recall-only` until a dense
+city's recall pass finishes) behind one cost confirm. Never hand-drive `seed-discover.ts` /
+`seed-enrich-candidates.ts` as separate commands for a full onboarding — that's how a
+forgotten `--batch` or a mis-flagged recall resume happens (cost San Francisco's onboarding
+~$16 in avoidable overspend before this rule existed).
+
 1. **Seed discovery** — `seed:discover` tiles the city boundary (PostGIS), calls Google
    Places searchNearby, and inserts `seed_candidates` filtered by type, alcohol service,
    and boundary proximity. Excluded primary types (zero confirmed-HH across all cities):
