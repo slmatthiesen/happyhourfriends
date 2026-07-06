@@ -368,7 +368,7 @@ export function stripHtml(html: string, maxContent: number = MAX_CONTENT): strin
   //     (bare-token prices are skipped). PREPEND the reconstructed HH menu so it leads
   //     the payload and is always kept by the budget trim below (windows[0]). Spencer's:
   //     12 real HH items instead of a stray "$42" Sunday-Supper entrée.
-  const jsonLdMenu = harvestJsonLdMenu(html);
+  const jsonLdMenu = harvestJsonLdMenu(html, text);
   if (jsonLdMenu) text = text ? `${jsonLdMenu}\n\n${text}` : jsonLdMenu;
 
   // 4d. Inline framework menu JSON (Next.js RSC / Squarespace): the full menu, including Happy

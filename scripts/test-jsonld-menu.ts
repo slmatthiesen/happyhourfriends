@@ -160,4 +160,39 @@ check("multiple ld+json blocks: HH menu found even when other blocks are unrelat
   assert.ok(harvestJsonLdMenu(html).includes("Well Liquor"));
 });
 
+// Lilac Montecito, 2026-07-06: JSON-LD said Baked Oysters $19, the rendered menu had
+// moved to $24 (the venue edited the visible page, not the structured data). A retry
+// re-reads the same stale JSON-LD forever, so the fix has to compare against the page's
+// own visible text at harvest time.
+const OYSTERS = {
+  "@type": "Menu",
+  name: "Happy Hour",
+  hasMenuItem: [
+    { "@type": "MenuItem", name: "Baked Oysters", offers: { "@type": "Offer", price: "19.00", priceCurrency: "USD" } },
+  ],
+};
+
+check("JSON-LD price stale vs. visible text → visible text wins", () => {
+  const html = wrap(OYSTERS);
+  const visibleText = "Small Plates\nBaked Oysters $24 garlic herb butter, parmesan breadcrumbs";
+  const text = harvestJsonLdMenu(html, visibleText);
+  assert.ok(text.includes("Baked Oysters"));
+  assert.ok(text.includes("$24.00"), `expected the visible $24, got: ${text}`);
+  assert.ok(!text.includes("$19.00"), "must not keep the stale JSON-LD price");
+});
+
+check("JSON-LD price matches visible text → unchanged, no false 'conflict'", () => {
+  const html = wrap(OYSTERS);
+  const visibleText = "Small Plates\nBaked Oysters $19 garlic herb butter, parmesan breadcrumbs";
+  assert.ok(harvestJsonLdMenu(html, visibleText).includes("$19.00"));
+});
+
+check("item not mentioned in visible text → JSON-LD price kept as-is (Spencer's case)", () => {
+  assert.ok(harvestJsonLdMenu(wrap(OYSTERS), "totally unrelated page text").includes("$19.00"));
+});
+
+check("no visibleText argument at all → behaves exactly as before (back-compat)", () => {
+  assert.ok(harvestJsonLdMenu(wrap(OYSTERS)).includes("$19.00"));
+});
+
 console.log(`\n${passed} checks passed.`);
