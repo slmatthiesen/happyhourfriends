@@ -322,6 +322,14 @@ export async function fetchPages(
      *  media links a generic page wouldn't escalate on. Bounds the cost to triage-confirmed HH
      *  pages, not every shell. Hop & Vine's $5/$5/$9 deals live on such a page. */
     hhContextUrls?: string[];
+    /** Operator assertion: render every fetched URL regardless of needsBrowserRender/shouldEscalate.
+     *  Those heuristics judge a page by whether it has ANY readable HH content — they correctly
+     *  skip render when a page already looks content-rich, but that same richness can hide a page
+     *  where ONE item's price is injected client-side while everything else is server-rendered
+     *  (Lilac Montecito: JSON-LD had a stale price, plenty of other real content, so neither
+     *  heuristic fired, and a plain re-fetch could never see the corrected price). Same pattern as
+     *  ExtractInput.assertHasHappyHour, applied to the render tier instead of the paid-model tier. */
+    forceRender?: boolean;
   } = {},
 ): Promise<FetchedPage[]> {
   const unique = dedupeFetchTargets(urls, max);
@@ -357,8 +365,9 @@ export async function fetchPages(
       return walledOrigin && !hasUsableHhContent(res);
     };
     // Render when the generic trigger fires OR when a triage-confirmed HH page plain-fetched to a
-    // deal-less shell (the free browser tier alone often recovers a Wix/Squarespace client-render).
-    if ((needsBrowserRender(r) || shouldEscalate(r)) && opts.render) {
+    // deal-less shell (the free browser tier alone often recovers a Wix/Squarespace client-render),
+    // OR the caller explicitly asserted this page needs it regardless (forceRender).
+    if ((opts.forceRender || needsBrowserRender(r) || shouldEscalate(r)) && opts.render) {
       // A render failure must not abort the whole (fail-fast) concurrency pool — fall back
       // to the plain result so one bad page can't drop every other URL for the venue.
       try {

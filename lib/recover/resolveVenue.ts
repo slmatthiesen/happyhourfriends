@@ -44,6 +44,11 @@ export interface ResolveOptions {
   urls?: string[];
   /** Who triggered it (admin email or 'script'), for the audit log. */
   actor?: string;
+  /** Force headless-render on every fetched URL regardless of the normal escalation heuristics —
+   *  see ExtractInput.forceRender. For a known case of a client-side-only price/detail on an
+   *  otherwise content-rich page, where the automatic gate correctly (for the general case)
+   *  judges no render is needed. */
+  forceRender?: boolean;
 }
 
 export interface PersistOptions {
@@ -398,6 +403,7 @@ export async function resolveVenue(opts: ResolveOptions): Promise<ResolveResult>
     // A deliberate operator paste asserts "the HH is on this page" — guarantee escalation past a
     // $0 bare window (resolveStubAction's contract: one operator click = one paid call if needed).
     assertHasHappyHour: operatorSupplied,
+    forceRender: opts.forceRender,
   });
 
   const { windowsLive, windowsHidden, offeringsAdded, recovered } = await persistExtractedWindows({

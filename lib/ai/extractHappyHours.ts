@@ -71,6 +71,10 @@ export interface ExtractInput {
    *  whose deals the discovery scanners missed re-derives a $0 bare window and reports false
    *  success, so the operator can never recover it even by handing us the exact page. */
   assertHasHappyHour?: boolean;
+  /** Operator assertion: render every fetched page regardless of the normal escalation
+   *  heuristics (see fetchPages' forceRender). For a page that reads as content-rich overall
+   *  but has one item whose price is injected client-side only. */
+  forceRender?: boolean;
   /** Is this venue worth the paid anti-bot (Jina) fetch tier when it hits a bot wall? Set by the
    *  enrich sweep from the candidate's alcohol/cuisine signal (lib/places/stubGate.isHhLikely).
    *  undefined = treat as likely (operator-targeted on-demand / admin extract-from-URL). */
@@ -490,6 +494,7 @@ export async function buildExtractRequest(input: ExtractInput): Promise<ExtractR
       // Triage-confirmed HH pages: escalate them to render/anti-bot when they plain-fetch to a
       // deal-less SPA shell (the deals are one click deep on a JS route — Hop & Vine).
       hhContextUrls: input.priorityUrls,
+      forceRender: input.forceRender,
     },
   );
   // Ledger the anti-bot calls this venue made (the vision read of any screenshot is recorded
