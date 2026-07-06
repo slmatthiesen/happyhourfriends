@@ -286,12 +286,18 @@ export async function persistExtractedWindows(
     // Insert only offerings not already on this window (key by name+price) — re-extraction must
     // not duplicate the existing set, but must add any the prior pass missed.
     const existingOff = await db
-      .select({ name: offerings.name, priceCents: offerings.priceCents })
+      .select({ id: offerings.id, name: offerings.name, priceCents: offerings.priceCents })
       .from(offerings)
       .where(and(eq(offerings.happyHourId, row.id), eq(offerings.active, true)));
     // Key matches sanitizeOfferings' dedupe identity (case/price-prefix-insensitive) so a
     // re-extraction's "All shareables" doesn't duplicate a stored "All Shareables".
     const seenOff = new Set(existingOff.map((o) => `${offeringNameKey(o.name)}|${o.priceCents ?? ""}`));
+    // Same name, different price → the venue changed its price since the last extraction, not
+    // a distinct item. Indexed by name only so a re-extraction can find the stale row and retire
+    // it instead of leaving both prices live side by side (Lilac Montecito: Baked Oysters
+    // $19 stayed live next to a freshly-extracted $24 because the old insert-only key was
+    // name+price, so a price change never matched anything to replace).
+    const existingByName = new Map(existingOff.map((o) => [offeringNameKey(o.name), o]));
     // $0 deterministic cleanup: dedupe exact repeats, re-kind food mislabeled as drink,
     // and flag day-specific items that don't match this window's days (warn-only).
     const sanitized = sanitizeOfferings(hh.offerings, days, { priceLevel: venueRow?.priceLevel ?? null });
@@ -299,6 +305,10 @@ export async function persistExtractedWindows(
       const offKey = `${offeringNameKey(off.name)}|${off.priceCents ?? ""}`;
       if (seenOff.has(offKey)) continue;
       seenOff.add(offKey);
+      const stale = existingByName.get(offeringNameKey(off.name));
+      if (stale && stale.priceCents !== off.priceCents) {
+        await db.update(offerings).set({ active: false }).where(eq(offerings.id, stale.id));
+      }
       offeringsAdded++;
       await db.insert(offerings).values({
         happyHourId: row.id,
