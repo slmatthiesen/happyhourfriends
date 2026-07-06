@@ -4,8 +4,16 @@
  * Runs the full PAID pipeline behind a SINGLE upfront cost confirm, then stops at the operator
  * review / go-live gate. Sequence:
  *   1. seed:discover  — Nearby sweep + HH-recall (default), all gates, boundary, metadata capture
- *   2. seed:enrich --batch — free-first HTML parse, then the paid extractor; assigns neighborhoods
- *   3. summary — city-wide live / stub / review-window counts + the /admin/reviews pointer
+ *   2. resume recall  — auto-loops --resume-recall --hh-recall-only until .recall-state/<slug>.json
+ *      is gone (dense cities cap the recall pass; this is the step that gets skipped by hand)
+ *   3. seed:enrich --batch — free-first HTML parse, then the paid extractor; assigns neighborhoods
+ *   4. summary — city-wide live / stub / review-window counts + the /admin/reviews pointer
+ *
+ * This is the ONLY supported entry point for a full city run — do not hand-drive seed-discover.ts
+ * / seed-enrich-candidates.ts as separate manual commands for an onboarding. Every flag a paid
+ * step needs (--batch, --hh-recall-only on resume, etc.) is hardcoded here so a human/agent never
+ * has to remember it; hand-driving the substeps is exactly how a forgotten --batch or a
+ * duplicate-cost --resume-recall (without --hh-recall-only) happens.
  *
  * It does NOT flip the city live and does NOT touch prod — both are operator-only (per the
  * standing rules). The single confirm satisfies the per-run $-OK gate for the whole pipeline.
@@ -22,6 +30,7 @@
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { createInterface } from "node:readline/promises";
+import { join } from "node:path";
 import postgres from "postgres";
 
 function argValue(name: string): string | null {
@@ -142,6 +151,32 @@ async function main() {
     "--state", state!,
     ...discoverPass,
   ]);
+
+  // A dense city can hit the recall call cap before every region is visited — seed-discover.ts
+  // then persists the leftover regions to .recall-state/<slug>.json and prints "re-run with
+  // --resume-recall". Left as a manual follow-up, that step gets skipped (it did on San
+  // Francisco: 11 regions went unswept until a human noticed and re-ran it by hand — twice,
+  // once WITHOUT --hh-recall-only, which re-paid for the entire Nearby sweep by mistake). Loop
+  // it here instead: the state file's existence IS the "still capped" signal, so keep resuming
+  // recall-only passes until it's gone. Capped at 10 rounds as a runaway backstop.
+  const recallStatePath = join(process.cwd(), ".recall-state", `${slug}.json`);
+  for (let round = 0; existsSync(recallStatePath) && round < 10; round++) {
+    await runStep(`Resume HH recall (round ${round + 1}, recall-only)`, [
+      "scripts/seed-discover.ts",
+      "--city", slug!,
+      "--state", state!,
+      "--resume-recall",
+      "--hh-recall-only",
+      ...discoverPass,
+    ]);
+  }
+  if (existsSync(recallStatePath)) {
+    console.log(
+      `\n⚠ recall still capped after 10 rounds — ${recallStatePath} left in place; ` +
+        `some dense cores may be unswept. Investigate before assuming full coverage.`,
+    );
+  }
+
   await runStep("Enrich (batch)", [
     "scripts/seed-enrich-candidates.ts",
     "--city", slug!,
