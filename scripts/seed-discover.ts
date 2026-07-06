@@ -1140,7 +1140,7 @@ async function main() {
         recordDrop("chain", place);
         continue;
       }
-      if (isLikelyNoHappyHourFormat(name)) {
+      if (isLikelyNoHappyHourFormat(name, place.websiteUri)) {
         formatsSkipped++;
         recordDrop("format", place);
         continue;
