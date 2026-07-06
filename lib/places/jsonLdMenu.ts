@@ -130,12 +130,42 @@ export function parseJsonLdMenuSections(html: string): JsonLdMenuSection[] {
   return sections;
 }
 
+/** "$19.00" | "$19" | "19.00" → cents, from a raw regex-matched price substring. */
+function parseDollarMatch(raw: string): number | null {
+  const n = parseFloat(raw.replace(/[^0-9.]/g, ""));
+  return Number.isFinite(n) && n > 0 ? Math.round(n * 100) : null;
+}
+
+/**
+ * A site's JSON-LD schema markup and its visible rendered menu are two independently
+ * edited surfaces — a restaurant can update one and forget the other (Lilac Montecito,
+ * 2026-07-06: visible menu moved Baked Oysters to $24, JSON-LD still said $19; every
+ * future re-extraction kept reading the stale structured price since a retry never
+ * touches the site). Look for THIS item's name in the plain visible text and, if a price
+ * appears within a short window after it and disagrees with the JSON-LD price, trust the
+ * visible text instead — it's the surface a customer (and, in practice, the site owner)
+ * actually looks at. No visible mention, or only the same price → JSON-LD stands as-is.
+ */
+function reconcilePriceWithVisibleText(item: JsonLdMenuItem, visibleText: string): JsonLdMenuItem {
+  if (item.priceCents == null || !visibleText) return item;
+  const escaped = item.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = new RegExp(`${escaped}[^$]{0,80}?\\$\\s?(\\d[\\d,]*(?:\\.\\d{2})?)`, "i").exec(visibleText);
+  if (!match) return item;
+  const visiblePriceCents = parseDollarMatch(match[1]);
+  if (visiblePriceCents == null || visiblePriceCents === item.priceCents) return item;
+  return { ...item, priceCents: visiblePriceCents };
+}
+
 /**
  * Clean text for the extractor's payload: the happy-hour menu's items with their exact
  * names and prices, paired the way the structured data already pairs them. Empty string
  * when the page has no HH-named menu in its JSON-LD (the common case — costs nothing).
+ *
+ * `visibleText` (the same page's stripped rendered text, if available) is used to catch
+ * and correct a JSON-LD price that has drifted stale from what the page actually shows —
+ * see reconcilePriceWithVisibleText. Purely a $0 string cross-check, no extra fetch/call.
  */
-export function harvestJsonLdMenu(html: string): string {
+export function harvestJsonLdMenu(html: string, visibleText?: string): string {
   const hh = parseJsonLdMenuSections(html).filter((s) => s.isHappyHour && s.items.length > 0);
   if (hh.length === 0) return "";
 
@@ -144,9 +174,10 @@ export function harvestJsonLdMenu(html: string): string {
   for (const s of hh) {
     const header = [s.name, s.description].filter(Boolean).join(" — ");
     if (header) lines.push(header);
-    for (const it of s.items) {
+    for (const raw of s.items) {
       if (count >= MAX_ITEMS) break;
       count++;
+      const it = visibleText ? reconcilePriceWithVisibleText(raw, visibleText) : raw;
       const price = it.priceCents != null ? ` — $${(it.priceCents / 100).toFixed(2)}` : "";
       const desc = it.description ? ` (${it.description})` : "";
       lines.push(`- ${it.name}${price}${desc}`);
