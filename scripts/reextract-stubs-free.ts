@@ -80,6 +80,7 @@ async function main() {
       LEFT JOIN seed_candidates sc ON sc.resulting_venue_id = v.id
       WHERE v.city_id = ${city.id}
         AND v.status = 'active'
+        AND v.deleted_at IS NULL
         AND v.data_completeness = 'stub'
         AND v.website_url IS NOT NULL
       ORDER BY v.name
