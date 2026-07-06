@@ -418,12 +418,20 @@ async function assembleVenueDetail(venue: VenueRow): Promise<VenueDetail> {
     .orderBy(asc(happyHours.allDay), asc(happyHours.startTime));
 
   const hourIds = hours.map((h) => h.id);
+  // Windows are deliberately active-or-not here (a hidden window still needs to render for
+  // admin review), but a superseded OFFERING (e.g. a stale price a fresh authoritative resolve
+  // retired — see lib/recover/resolveVenue.ts) must never leak in next to its live replacement,
+  // on either the admin or the public venue page (they share this assembly).
   const offers = hourIds.length
     ? await db
         .select()
         .from(offerings)
         .where(
-          and(inArray(offerings.happyHourId, hourIds), isNull(offerings.deletedAt)),
+          and(
+            inArray(offerings.happyHourId, hourIds),
+            eq(offerings.active, true),
+            isNull(offerings.deletedAt),
+          ),
         )
     : [];
 
