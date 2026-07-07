@@ -13,8 +13,29 @@
  * Defaults to a DRY RUN (rolls back, prints the counts that WOULD change). Pass
  * --apply to commit. Neither direction ever truncates or deletes.
  */
+import { readFileSync, writeFileSync } from "node:fs";
 import postgres from "postgres";
 import { additivePush, upsertPull, publishVenue, publishChanged, pullQueuedSubmissions, pushDeletions, type SyncResult } from "@/lib/sync/dbSync";
+
+// Persists when push-updates last successfully applied, so the next run only re-scans
+// venues touched since then instead of a fixed rolling window (which either reprocesses
+// the same recent edits every run, or silently misses edits older than the window if
+// push-updates hasn't run in a while). Gitignored — local runtime state, not repo state.
+const WATERMARK_PATH = "./.push-prod-state.json";
+
+function readWatermarkMs(): number | undefined {
+  try {
+    const { lastPushedAt } = JSON.parse(readFileSync(WATERMARK_PATH, "utf8"));
+    const ms = Date.parse(lastPushedAt);
+    return Number.isNaN(ms) ? undefined : ms;
+  } catch {
+    return undefined; // first run, or file missing/corrupt — caller falls back to sinceHours
+  }
+}
+
+function writeWatermarkMs(ms: number) {
+  writeFileSync(WATERMARK_PATH, JSON.stringify({ lastPushedAt: new Date(ms).toISOString() }, null, 2));
+}
 
 function connect(url: string) {
   // Low ceiling: this is a short batch job, not the app pool.
@@ -61,8 +82,14 @@ async function main() {
       // whose local subtree changed (edited windows, hidden offerings, …). User data is
       // never touched, and venues a user edited more recently on prod are skipped.
       printResults("local → prod (additive push — new venues)", await additivePush(local, prod, { dryRun }), dryRun);
-      const published = await publishChanged(local, prod, { dryRun });
-      console.log(`\nlocal → prod (update changed venues)${dryRun ? " (DRY RUN — nothing written)" : ""}`);
+
+      const runStartedAt = Date.now();
+      const watermarkMs = readWatermarkMs();
+      const published = await publishChanged(local, prod, { dryRun, cutoffMs: watermarkMs });
+      const scopeNote = watermarkMs
+        ? `since last push (${new Date(watermarkMs).toISOString()})`
+        : "since last push — no watermark yet, defaulting to last 24h";
+      console.log(`\nlocal → prod (update changed venues, ${scopeNote})${dryRun ? " (DRY RUN — nothing written)" : ""}`);
       if (published.length === 0) {
         console.log("  (no existing venue is newer locally than on prod)");
       } else {
@@ -72,6 +99,9 @@ async function main() {
         }
         console.log(`  ${"TOTAL VENUES".padEnd(24)} ${published.length}`);
       }
+      // Advance the watermark only on a real apply, to the moment this run started (not
+      // finished) — so any edit made mid-run is still caught by the next push.
+      if (!dryRun) writeWatermarkMs(runStartedAt);
     } else if (direction === "pull") {
       printResults("prod → local (upsert pull)", await upsertPull(prod, local, { dryRun }), dryRun);
     } else if (direction === "pull-queue") {
