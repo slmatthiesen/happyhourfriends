@@ -63,6 +63,7 @@
     "cleanup:evidence": "tsx scripts/cleanup-evidence.ts",
     "ai:spend": "tsx scripts/ai-spend.ts",
     "gsc:pull": "tsx scripts/gsc-pull.ts",
+    "deploy:prod": "bash scripts/deploy-prod.sh",
     "push:prod": "bash scripts/push-prod.sh",
     "push:data:additive:ssm": "bash scripts/push-data-additive-ssm.sh",
     "push:updates:ssm": "bash scripts/push-updates-ssm.sh",
