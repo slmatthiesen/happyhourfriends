@@ -46,7 +46,7 @@ export function ContactModal({ className }: { className?: string }) {
               Get in touch
             </h2>
             <p className="mt-2 text-sm text-text-muted">
-              Questions, a dead link, a happy hour we're missing — just email:
+              Questions, a dead link, a happy hour we&apos;re missing — just email:
             </p>
             <a
               href={`mailto:${CONTACT_EMAIL}`}
