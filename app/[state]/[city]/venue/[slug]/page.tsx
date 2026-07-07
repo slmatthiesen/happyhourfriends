@@ -190,7 +190,7 @@ export default async function VenuePage({
         </Link>
       </nav>
 
-      <header className="mt-3">
+      <header className="mt-3 rounded-lg border border-border bg-bg-surface p-6">
         <div className="flex items-start justify-between gap-4">
           <h1
             className="text-4xl font-semibold text-text-primary"
