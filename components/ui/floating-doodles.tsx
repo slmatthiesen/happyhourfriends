@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { uiFlags } from "@/lib/ui/flags";
 
 /* Decorative emoji drifting up behind all content (personality round).
@@ -27,12 +28,19 @@ export function FloatingDoodles() {
       {DOODLES.map((d, i) => (
         <span
           key={i}
-          style={{
-            left: d.left,
-            fontSize: d.size,
-            animationDuration: d.duration,
-            animationDelay: d.delay,
-          }}
+          // Every other doodle is desktop-only — the same 14 %-left offsets that read as
+          // an airy field on a wide viewport pack ~2x tighter on a narrow one, so mobile
+          // gets half the count. `--doodle-size` feeds the clamp() in globals.css that
+          // scales the emoji itself down with viewport width instead of a fixed px.
+          className={i % 2 === 1 ? "hidden sm:inline" : undefined}
+          style={
+            {
+              left: d.left,
+              "--doodle-size": d.size,
+              animationDuration: d.duration,
+              animationDelay: d.delay,
+            } as CSSProperties
+          }
         >
           {d.emoji}
         </span>
