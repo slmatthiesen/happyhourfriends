@@ -97,7 +97,7 @@ async function main() {
     FROM cities c
     WHERE ${
       cityArg
-        ? sql`c.slug = ${cityArg} AND c.state = ${stateArg!.toLowerCase()}`
+        ? sql`c.slug = ${cityArg} AND lower(c.state) = ${stateArg!.toLowerCase()}`
         : sql`c.status = 'live'`
     }
     ORDER BY c.state, c.slug`;
