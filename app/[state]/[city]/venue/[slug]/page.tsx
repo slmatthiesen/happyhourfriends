@@ -181,10 +181,10 @@ export default async function VenuePage({
       />
 
       <nav className="mb-8 flex items-center justify-between gap-4">
-        <SiteWordmark />
+        <SiteWordmark className="text-base font-semibold text-text-primary" />
         <Link
           href={cityPath(city.state, city.slug)}
-          className="shrink-0 text-sm text-accent-cool hover:underline"
+          className="shrink-0 text-base font-semibold text-accent-cool hover:underline"
         >
           ← All {city.name}
         </Link>

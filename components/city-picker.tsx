@@ -93,13 +93,13 @@ export function CityPicker({ cities }: { cities: CityListItem[] }) {
         <p className="text-center text-sm uppercase tracking-wide text-text-muted">
           {hasCoords ? "or pick a city" : "Pick a city"}
         </p>
-        <div className="mt-5 flex flex-col gap-7">
+        <div className="mx-auto mt-5 flex max-w-2xl flex-col gap-7">
           {stateGroups.map((group) => (
             <div key={group.code || "other"}>
-              <p className="text-center text-xs font-medium uppercase tracking-[0.15em] text-text-muted/70">
+              <p className="text-sm font-semibold uppercase tracking-[0.06em] text-text-muted">
                 {group.name}
               </p>
-              <ul className="mt-3 flex flex-wrap justify-center gap-3">
+              <ul className="mt-2 grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3">
                 {group.cities.map((c) => (
                   <li key={c.id}>
                     <Link

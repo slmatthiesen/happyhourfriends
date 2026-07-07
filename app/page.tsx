@@ -9,7 +9,7 @@ import { webSiteLd } from "@/lib/seo/structuredData";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Happy Hour Friends — every happy hour, none of the fluff",
+  title: "Happy Hour Friends — the simplest way to find happy hour near you",
   description:
     "Find happy hours near you — sortable by time, day, and deal, every deal sourced and kept fresh. No fluff, just the data.",
 };
@@ -27,7 +27,7 @@ export default async function Home() {
         className="text-balance text-4xl font-semibold text-text-primary sm:text-5xl"
         style={{ fontFamily: "var(--font-serif)" }}
       >
-        Every happy hour, none of the fluff.
+        The simplest way to find happy hour near you.
       </h1>
 
       <p className="mt-6 max-w-xl text-balance text-lg text-text-muted">
