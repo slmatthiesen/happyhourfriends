@@ -54,10 +54,18 @@ systemctl is-active --quiet hhf-web && echo "hhf-web: active" || { echo "hhf-web
 curl -fsS -o /dev/null -w "homepage: %{http_code}\n" http://127.0.0.1:3000/
 '
 
+# A real JSON params file, not the `commands=[...]` shorthand — shorthand double-wraps
+# the already-JSON-encoded multiline script into a nested list, which AWS CLI rejects
+# with a "Parameter validation failed" client-side error (never reaches AWS).
+PARAMS_FILE="$(mktemp -t hhf-deploy-params.XXXXXX.json)"
+trap 'rm -f "$PARAMS_FILE"' EXIT
+node -e 'process.stdout.write(JSON.stringify({commands:[process.argv[1]]}))' "$REMOTE_SCRIPT" > "$PARAMS_FILE"
+
 CID="$(aws ssm send-command --instance-ids "$PROD_INSTANCE_ID" --document-name AWS-RunShellScript \
-      --parameters "commands=[$(node -e 'process.stdout.write(JSON.stringify([process.argv[1]]))' "$REMOTE_SCRIPT")]" \
+      --parameters "file://$PARAMS_FILE" \
       --timeout-seconds 900 \
       --query Command.CommandId --output text)"
+[ -n "$CID" ] || { echo "✗ send-command failed — no CommandId returned"; exit 1; }
 echo "▶ Command sent (${CID}), waiting…"
 
 STATUS="InProgress"
