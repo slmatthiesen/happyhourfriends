@@ -81,10 +81,17 @@ run_sync() {
 refresh_prod_cache_ssm() {
   local instance_id="$1"
   local script='set -e; ENV=/etc/happyhour/.env; SECRET=$(sudo sed -n "s/^REVALIDATE_SECRET=//p" "$ENV" | head -1 | tr -d "\"'"'"'"); PATHS=$(sudo -u postgres psql -d hhf -At -c "SELECT '"'"'/'"'"'||lower(state)||'"'"'/'"'"'||slug FROM cities WHERE status='"'"'live'"'"' ORDER BY slug;" | sed "s/.*/\"&\"/" | paste -sd, -); curl -fsS -X POST http://127.0.0.1:3000/api/internal/revalidate -H "content-type: application/json" -H "x-revalidate-secret: $SECRET" -d "{\"all\":true,\"paths\":[$PATHS],\"tags\":[\"cities-summary\"]}" >/dev/null && echo REVALIDATED'
+  # A real JSON params file, not the `commands=[...]` shorthand — shorthand double-wraps the
+  # already-JSON-encoded script into a nested list, which AWS CLI rejects client-side before
+  # ever reaching AWS (silently, since callers redirect stderr away and treat this as best-effort).
+  local params_file
+  params_file="$(mktemp -t hhf-cache-refresh-params.XXXXXX.json)"
+  node -e 'process.stdout.write(JSON.stringify({commands:[process.argv[1]]}))' "$script" > "$params_file"
   local cid
   cid="$(aws ssm send-command --instance-ids "$instance_id" --document-name AWS-RunShellScript \
-        --parameters "commands=[$(node -e 'process.stdout.write(JSON.stringify([process.argv[1]]))' "$script")]" \
-        --query Command.CommandId --output text 2>/dev/null)" || return 1
+        --parameters "file://$params_file" \
+        --query Command.CommandId --output text 2>/dev/null)" || { rm -f "$params_file"; return 1; }
+  rm -f "$params_file"
   [ -n "$cid" ] || return 1
   sleep 6
   aws ssm get-command-invocation --command-id "$cid" --instance-id "$instance_id" \
