@@ -35,7 +35,7 @@ echo "▶ deploy:prod — deploying main to ${PROD_INSTANCE_ID}…"
 # staying consistent with how infra/user_data.sh originally provisioned the box) so file
 # ownership under /opt/happyhourfriends never drifts to root.
 REMOTE_SCRIPT='
-set -euo pipefail
+set -eu
 cd /opt/happyhourfriends
 BEFORE_SHA="$(sudo -u hhf git rev-parse --short HEAD)"
 sudo -u hhf git fetch origin
