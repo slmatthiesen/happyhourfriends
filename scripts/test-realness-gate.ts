@@ -360,6 +360,24 @@ check("MEAL: 'Bottomless Bubbles' brunch fires on token even with a null start (
   );
 });
 
+check("GOLDEN Lilac Montecito: meal tokens in a DESCRIPTION (tea blend names) do NOT fire", () => {
+  // "Tea Time" is the item's real name; "Bottomless tea: British Brunch, Lord Bergamot, ..."
+  // is its description, listing tea BLEND names, not a claim about the window itself.
+  const ev = mealSpecialEvidence({
+    startTime: "15:00",
+    endTime: "17:00",
+    offerings: [
+      off("Truffle Fries", 12),
+      off(
+        "Tea Time",
+        65,
+        "Bottomless tea: British Brunch, Lord Bergamot, Fez, Jasmine Silver Tip, Meadow, or Peppermint Leaves.",
+      ),
+    ],
+  });
+  assert.equal(ev, null, `expected no meal-special evidence, got: ${ev}`);
+});
+
 check("NOT MEAL: Postino $25 board + bottle after 8pm stays live", () => {
   assert.equal(
     mealSpecialEvidence({

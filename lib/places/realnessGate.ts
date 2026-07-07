@@ -272,8 +272,15 @@ export function mealSpecialEvidence(input: MealSpecialInput): string | null {
 
   const evidence: string[] = [];
 
-  // Meal-period TOKEN — not URL-vetoable (an explicit "Dinner Special" is a meal, page slug aside).
-  const token = MEAL_SPECIAL_RE.exec(windowText);
+  // Meal-period TOKEN — not URL-vetoable (an explicit "Dinner Special" is a meal, page slug
+  // aside). Scoped to offering NAMES + notes, NOT descriptions: a name is a deliberate label
+  // ("Early-Bird Dinner specials"), but a free-text description can contain an incidental match
+  // that says nothing about the window itself — Lilac Montecito's Tea Time item lists tea
+  // BLENDS in its description ("Bottomless tea: British Brunch, Lord Bergamot, ...") which
+  // matched both "bottomless" and "brunch" and demoted an 18-item, clearly-real happy hour
+  // over two tea-flavor proper nouns (2026-07-07).
+  const nameText = `${input.offerings.map((o) => o.name ?? "").join(" | ")} ${input.notes ?? ""}`;
+  const token = MEAL_SPECIAL_RE.exec(nameText);
   if (token) evidence.push(`meal-service language ("${token[0]}")`);
 
   // Full-price food menu running the venue's whole evening service to close — also NOT
