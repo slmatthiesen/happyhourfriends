@@ -725,7 +725,13 @@ check("an exactly-6h crossing window (22:00→04:00) is allowed (boundary)", () 
 // ── implausible duration WITHOUT a midnight crossing (Brothers Pizza, 2026-07-06) ───
 // "00:00 → 21:30" never crosses midnight (21:30 >= 00:00) so the old crossing-only check
 // let a 21.5h "happy hour" (really the venue's Mon/Tue operating hours around a slice
-// special) straight through. Same-day windows need the same >6h duration check.
+// special) straight through. Same-day windows need a duration check too — see the
+// SAME_DAY_MAX_HOURS note above crossesMidnightImplausible for why it's a HIGHER bar
+// (8.5h) than the crossing case (6h): real bar/grill happy hours commonly run 7-8h
+// (Aunt Chilada's, Moon Valley Grill, Doc & Eddy's, Freely Taproom — all verified against
+// their own sites, 2026-07-07), while the confirmed-fake analogs (Showtime Pizzeria,
+// Your Mom's House — daily rotating promos, not happy hours, per their own copy) start
+// at 9h.
 check("GOLDEN Brothers Pizza: 00:00→21:30 (21.5h, no midnight crossing) IS suspect", () => {
   const r = dur("00:00", "21:30");
   assert.equal(r.suspect, true);
@@ -735,12 +741,20 @@ check("a normal same-day window 16:00→18:00 (2h) is NOT a duration problem", (
   const r = dur("16:00", "18:00");
   assert.equal(r.reasons.includes("implausible_window_duration"), false);
 });
-check("an exactly-6h same-day window (11:00→17:00) is allowed (boundary)", () => {
-  const r = dur("11:00", "17:00");
+check("GOLDEN Moon Valley Grill shape: 11:00→19:00 (8h, verified real) is NOT suspect", () => {
+  const r = dur("11:00", "19:00");
   assert.equal(r.reasons.includes("implausible_window_duration"), false);
 });
-check("a same-day window just over 6h (11:00→17:01) IS suspect (boundary)", () => {
-  const r = dur("11:00", "17:01");
+check("an exactly-8.5h same-day window (11:00→19:30) is allowed (boundary)", () => {
+  const r = dur("11:00", "19:30");
+  assert.equal(r.reasons.includes("implausible_window_duration"), false);
+});
+check("a same-day window just over 8.5h (11:00→19:31) IS suspect (boundary)", () => {
+  const r = dur("11:00", "19:31");
+  assert.ok(r.reasons.includes("implausible_window_duration"));
+});
+check("GOLDEN Showtime Pizzeria shape: 11:00→20:00 (9h, verified fake — daily promos) IS suspect", () => {
+  const r = dur("11:00", "20:00");
   assert.ok(r.reasons.includes("implausible_window_duration"));
 });
 
