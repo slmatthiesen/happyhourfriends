@@ -648,8 +648,10 @@ export function VenueTableClient({
 
       {/* Filter bar */}
       <div className="sticky top-0 z-10 rounded-lg border border-border bg-bg-surface p-3 shadow-sm">
-        {/* Row 1: search + sort */}
-        <div className="flex flex-wrap items-center gap-2">
+        {/* Row 1: search + sort — stacked on mobile so the sort dropdown never
+            squeezes the search input down to a sliver (its placeholder was
+            clipping to "Search ve" at 375px). */}
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
           <input
             type="search"
             placeholder="Search venues or deals…"
@@ -663,7 +665,7 @@ export function VenueTableClient({
             <select
               value={sortKey}
               onChange={(e) => setSortKey(e.target.value as SortKey)}
-              className="rounded border border-border bg-bg-elevated px-2 py-1.5 text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-cool"
+              className="flex-1 rounded border border-border bg-bg-elevated px-2 py-1.5 text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-cool sm:flex-none"
               aria-label="Sort venues"
             >
               <option value="now">Happening now</option>
@@ -753,7 +755,8 @@ export function VenueTableClient({
             )}
             {(geo.status === "denied" || geo.status === "unavailable") && (
               <span className="ml-1 text-xs text-text-muted">
-                Location unavailable — check browser permissions
+                Location unavailable — check your OS location settings for this browser
+                (not just the browser&apos;s site permission)
               </span>
             )}
           </div>

@@ -178,7 +178,7 @@ export function Contribute({
               onChange={(e) => setNote(e.target.value)}
               placeholder={
                 hasHappyHour
-                  ? "e.g. Tacos are $3 now, not $2 · They added $5 wings to happy hour · Happy hour runs til close now · This place closed"
+                  ? "e.g. Tacos are $3 now, not $2"
                   : "e.g. Mon–Fri 3–6 PM, $4 drafts and $2 off cocktails"
               }
             />
