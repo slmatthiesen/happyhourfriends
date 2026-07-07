@@ -64,6 +64,7 @@
     "ai:spend": "tsx scripts/ai-spend.ts",
     "gsc:pull": "tsx scripts/gsc-pull.ts",
     "deploy:prod": "bash scripts/deploy-prod.sh",
+    "diagnose:prod-git": "bash scripts/diagnose-prod-git.sh",
     "push:prod": "bash scripts/push-prod.sh",
     "push:data:additive:ssm": "bash scripts/push-data-additive-ssm.sh",
     "push:updates:ssm": "bash scripts/push-updates-ssm.sh",
