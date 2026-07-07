@@ -363,20 +363,31 @@ export const BARE_OPERATING_HOURS_MIN = 6 * 60;
 export const BARE_DAYTIME_START_MAX = 12 * 60; // noon
 export const BARE_DAYTIME_END = 16 * 60; // 4pm
 
+/** Same-day (non-crossing) windows get a HIGHER bar than midnight-crossing ones (below).
+ *  An "11am–7pm" happy hour is unusual but real and common in casual bar/grill culture —
+ *  verified directly against source sites for Aunt Chilada's, Moon Valley Grill, Doc &
+ *  Eddy's, Freely Taproom (all exactly 7–8h) after the first same-day threshold (6h, same
+ *  as the crossing case) wrongly demoted all of them in the 2026-07-07 regate sweep. The
+ *  confirmed-FAKE analogs (Showtime Pizzeria, Your Mom's House — both venues' own words:
+ *  "not... happy hour periods", just rotating daily promos) start at 9h, so 8.5h cleanly
+ *  separates the two with margin on both sides. */
+const SAME_DAY_MAX_HOURS = 8.5;
+const CROSSING_MAX_HOURS = 6;
+
 /**
- * A window whose stored clock spans an implausibly long duration (> 6h), whether or not
- * it crosses midnight. Real HH is short: even a generous late-night one (9pm–3am) is 6h;
- * a 23:00→14:00 "window" is a parse error (The Backyard's "11pm–2pm", diagnosis bucket
- * #3) and a 00:00→21:30 "window" (Brothers Pizza's Mon/Tue slice special, 2026-07-06) is
- * the venue's near-all-day operating hours, not a discrete deal window — same failure
- * mode, just without a midnight crossing to flag it under the old crossing-only check.
+ * A window whose stored clock spans an implausibly long duration, whether or not it
+ * crosses midnight — but crossing windows are held to a tighter bar (real late-night HH
+ * caps around 9pm–3am, 6h) than same-day ones (see SAME_DAY_MAX_HOURS above). A
+ * 23:00→14:00 "window" is a parse error (The Backyard's "11pm–2pm", diagnosis bucket #3)
+ * and a 00:00→21:30 "window" (Brothers Pizza's Mon/Tue slice special, 2026-07-06) is the
+ * venue's near-all-day operating hours, not a discrete deal window.
  */
 function crossesMidnightImplausible(startTime: string | null, endTime: string | null): boolean {
   const s = toMinutes(startTime);
   const e = toMinutes(endTime);
   if (s == null || e == null) return false;
-  const durationMinutes = e >= s ? e - s : e + 24 * 60 - s;
-  return durationMinutes > 6 * 60;
+  if (e >= s) return e - s > SAME_DAY_MAX_HOURS * 60;
+  return e + 24 * 60 - s > CROSSING_MAX_HOURS * 60;
 }
 
 /** True when a bare window (no offerings, no HH wording) does NOT look like a happy hour:
