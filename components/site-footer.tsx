@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ContactModal } from "@/components/contact-modal";
 import { cn } from "@/lib/utils";
 
 /**
@@ -27,6 +28,7 @@ export function SiteFooter({ className }: { className?: string }) {
           {l.label}
         </Link>
       ))}
+      <ContactModal />
     </footer>
   );
 }

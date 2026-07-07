@@ -96,25 +96,25 @@ export function CityPicker({ cities }: { cities: CityListItem[] }) {
         <div className="mx-auto mt-5 flex max-w-2xl flex-col gap-7">
           {stateGroups.map((group) => (
             <div key={group.code || "other"}>
-              <p className="text-sm font-semibold uppercase tracking-[0.06em] text-text-muted">
+              <p className="text-base font-semibold uppercase tracking-[0.06em] text-text-muted">
                 {group.name}
               </p>
-              <ul className="mt-2 grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-3">
+              <ul className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {group.cities.map((c) => (
                   <li key={c.id}>
                     <Link
                       href={cityPath(c.state, c.slug)}
-                      className="flex items-baseline gap-2 rounded-lg border border-border bg-bg-surface px-4 py-2 transition-colors hover:bg-row-hover"
+                      title={c.name}
+                      className="flex h-full min-h-[3.5rem] flex-col justify-center gap-0.5 rounded-lg border border-border bg-bg-surface px-4 py-2 transition-colors hover:bg-row-hover"
                     >
-                      <span className="font-medium text-text-primary">
+                      <span className="line-clamp-2 font-medium leading-tight text-text-primary">
                         {c.name}
-                        {c.state ? `, ${c.state}` : ""}
                       </span>
-                      {c.venueCount > 0 && (
-                        <span className="text-sm text-text-muted">
-                          {c.venueCount} {c.venueCount === 1 ? "spot" : "spots"}
-                        </span>
-                      )}
+                      <span className="text-sm text-text-muted">
+                        {c.venueCount > 0
+                          ? `${c.venueCount} ${c.venueCount === 1 ? "spot" : "spots"}`
+                          : " "}
+                      </span>
                     </Link>
                   </li>
                 ))}
