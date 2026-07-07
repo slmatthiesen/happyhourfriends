@@ -704,6 +704,28 @@ check("an exactly-6h crossing window (22:00→04:00) is allowed (boundary)", () 
   assert.equal(r.reasons.includes("implausible_window_duration"), false);
 });
 
+// ── implausible duration WITHOUT a midnight crossing (Brothers Pizza, 2026-07-06) ───
+// "00:00 → 21:30" never crosses midnight (21:30 >= 00:00) so the old crossing-only check
+// let a 21.5h "happy hour" (really the venue's Mon/Tue operating hours around a slice
+// special) straight through. Same-day windows need the same >6h duration check.
+check("GOLDEN Brothers Pizza: 00:00→21:30 (21.5h, no midnight crossing) IS suspect", () => {
+  const r = dur("00:00", "21:30");
+  assert.equal(r.suspect, true);
+  assert.ok(r.reasons.includes("implausible_window_duration"));
+});
+check("a normal same-day window 16:00→18:00 (2h) is NOT a duration problem", () => {
+  const r = dur("16:00", "18:00");
+  assert.equal(r.reasons.includes("implausible_window_duration"), false);
+});
+check("an exactly-6h same-day window (11:00→17:00) is allowed (boundary)", () => {
+  const r = dur("11:00", "17:00");
+  assert.equal(r.reasons.includes("implausible_window_duration"), false);
+});
+check("a same-day window just over 6h (11:00→17:01) IS suspect (boundary)", () => {
+  const r = dur("11:00", "17:01");
+  assert.ok(r.reasons.includes("implausible_window_duration"));
+});
+
 // ── all-day consistency rescue (Agua Salada: Tue special hidden, Mon shown) ──────
 // The hidden Tuesday all-day special (time_known=false → no_time_window) is rescued
 // because the venue already shows an all-day deal window. No time is fabricated.

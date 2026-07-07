@@ -357,16 +357,19 @@ export const BARE_DAYTIME_START_MAX = 12 * 60; // noon
 export const BARE_DAYTIME_END = 16 * 60; // 4pm
 
 /**
- * A window whose stored clock crosses midnight (end < start) with an implausibly long
- * wrap-around span (> 6h). Real late-night HH that crosses midnight is short (11pm–2am);
+ * A window whose stored clock spans an implausibly long duration (> 6h), whether or not
+ * it crosses midnight. Real HH is short: even a generous late-night one (9pm–3am) is 6h;
  * a 23:00→14:00 "window" is a parse error (The Backyard's "11pm–2pm", diagnosis bucket
- * #3). > 6h, so a generous 9pm–3am still passes; only absurd spans hide.
+ * #3) and a 00:00→21:30 "window" (Brothers Pizza's Mon/Tue slice special, 2026-07-06) is
+ * the venue's near-all-day operating hours, not a discrete deal window — same failure
+ * mode, just without a midnight crossing to flag it under the old crossing-only check.
  */
 function crossesMidnightImplausible(startTime: string | null, endTime: string | null): boolean {
   const s = toMinutes(startTime);
   const e = toMinutes(endTime);
-  if (s == null || e == null || e >= s) return false; // not a crossing window
-  return e + 24 * 60 - s > 6 * 60;
+  if (s == null || e == null) return false;
+  const durationMinutes = e >= s ? e - s : e + 24 * 60 - s;
+  return durationMinutes > 6 * 60;
 }
 
 /** True when a bare window (no offerings, no HH wording) does NOT look like a happy hour:
