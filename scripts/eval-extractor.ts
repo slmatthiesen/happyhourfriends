@@ -33,6 +33,9 @@ interface Golden {
   pageKind: string;
   expectWindows: { days: number[]; start: string | null; end: string | null }[];
   offeringKeywords: string[];
+  /** Lowercase substrings that must appear in some window's `notes` — for blanket-deal
+   *  summaries ("7 items for $7 each") that never become itemized offerings. Optional. */
+  notesKeywords?: string[];
 }
 
 function arg(flag: string): string | undefined {
@@ -70,6 +73,17 @@ function offeringRecall(g: Golden, r: ExtractResult): number {
   return hit / g.offeringKeywords.length;
 }
 
+/** Fraction of expected notes keywords present (case-insensitive) in any window's notes. */
+function notesRecall(g: Golden, r: ExtractResult): number {
+  if (!g.notesKeywords || g.notesKeywords.length === 0) return 1;
+  const hay = r.happyHours
+    .map((h) => h.notes ?? "")
+    .join(" | ")
+    .toLowerCase();
+  const hit = g.notesKeywords.filter((k) => hay.includes(k.toLowerCase())).length;
+  return hit / g.notesKeywords.length;
+}
+
 const pct = (n: number) => `${Math.round(n * 100)}%`;
 const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
 
@@ -80,11 +94,12 @@ async function main() {
   const set = ONLY ? goldens.filter((g) => g.name.toLowerCase().includes(ONLY.toLowerCase())) : goldens;
 
   console.log(`\nExtractor eval — ${set.length} golden(s) × ${RUNS} run(s)\n`);
-  const overall: { win: number[]; off: number[] } = { win: [], off: [] };
+  const overall: { win: number[]; off: number[]; notes: number[] } = { win: [], off: [], notes: [] };
 
   for (const g of set) {
     const win: number[] = [];
     const off: number[] = [];
+    const notesR: number[] = [];
     for (let i = 0; i < RUNS; i++) {
       try {
         // Mirror production: triage discovers the venue's HH/menu pages (and PDFs), then
@@ -104,6 +119,7 @@ async function main() {
         const wr = windowRecall(g, r);
         win.push(wr);
         off.push(offeringRecall(g, r));
+        notesR.push(notesRecall(g, r));
         if (wr < 1 && process.argv.includes("--dump")) {
           console.log(
             `    · got windows: ${JSON.stringify(
@@ -115,6 +131,7 @@ async function main() {
         console.log(`  ! ${g.name} run ${i + 1} errored: ${(err as Error).message}`);
         win.push(0);
         off.push(0);
+        notesR.push(0);
       }
     }
     const wRuns = win.map(pct).join(" ");
@@ -123,11 +140,15 @@ async function main() {
     console.log(`  ${g.name}  [${g.pageKind}]`);
     console.log(`    windows  mean ${pct(mean(win))}   runs: ${wRuns}`);
     console.log(`    deals    mean ${pct(mean(off))}   runs: ${oRuns}${flaky ? "   ⚠ FLAKY" : ""}`);
+    if (g.notesKeywords?.length) {
+      console.log(`    notes    mean ${pct(mean(notesR))}   runs: ${notesR.map(pct).join(" ")}`);
+    }
     overall.win.push(...win);
     overall.off.push(...off);
+    overall.notes.push(...notesR);
   }
 
-  console.log(`\n  OVERALL  windows ${pct(mean(overall.win))}   deals ${pct(mean(overall.off))}\n`);
+  console.log(`\n  OVERALL  windows ${pct(mean(overall.win))}   deals ${pct(mean(overall.off))}   notes ${pct(mean(overall.notes))}\n`);
 }
 
 main()

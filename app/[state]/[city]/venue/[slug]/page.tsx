@@ -385,7 +385,8 @@ export default async function VenuePage({
                   {lines.map((ln) => (
                     <div key={ln.days.join(",")} className="flex items-baseline justify-between">
                       <span className="font-medium text-text-primary">
-                        {formatDaysLong(ln.days)}
+                        <span className="sm:hidden">{formatDays(ln.days)}</span>
+                        <span className="hidden sm:inline">{formatDaysLong(ln.days)}</span>
                       </span>
                       <span className="tabular-nums text-accent-warm">{ln.bounds}</span>
                     </div>

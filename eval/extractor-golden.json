@@ -95,6 +95,19 @@
         "house wine", "draught beer", "well drink",
         "chowder", "chips", "sliders", "garlic", "tacos", "wings", "spinach", "deviled eggs"
       ]
+    },
+    {
+      "name": "Big Finish Wine Tavern",
+      "url": "http://www.bigfinishsf.com/",
+      "type": "bar",
+      "verifiedOn": "2026-07-06",
+      "pageKind": "static Squarespace homepage — states a blanket '7x7' deal (7 items for $7 each) with no itemized list on any fetched page; the item list lives only in a linked PDF ('FOOD & DRINK MENU') the extractor doesn't fetch. v24 blanket-deal-notes case: offerings stay [], but the deal mechanic must survive into `notes` instead of vanishing.",
+      "expectWindows": [
+        { "days": [1, 2, 3, 4, 5], "start": "17:00", "end": "18:00" },
+        { "days": [1, 2, 3, 4, 5], "start": "22:00", "end": null }
+      ],
+      "offeringKeywords": [],
+      "notesKeywords": ["7", "$7"]
     }
   ]
 }

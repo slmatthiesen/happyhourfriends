@@ -119,7 +119,7 @@ export default async function CityPage({
       {/* How-it-works nudge: the photo loop is the social engine — the more people
           snap menus when they spot drift, the better the listings get for everyone. */}
       <aside
-        className="mt-6 flex items-start gap-3 rounded-lg border border-accent-cool/30 bg-accent-cool/5 px-4 py-3 text-sm text-text-muted"
+        className="mt-6 hidden items-start gap-3 rounded-lg border border-accent-cool/30 bg-accent-cool/5 px-4 py-3 text-sm text-text-muted md:flex"
         aria-label="How submissions work"
       >
         <span aria-hidden="true" className="text-lg leading-none">📸</span>
