@@ -526,8 +526,11 @@ export async function buildExtractRequest(input: ExtractInput): Promise<ExtractR
     params: {
       model: MODELS.extractor,
       // Generous: a full menu's structured record_happy_hours call can be large, and
-      // running out mid-tool-call truncates the JSON to nothing (the 0-rows bug).
-      max_tokens: 8192,
+      // running out mid-tool-call truncates the JSON to nothing (the 0-rows bug). 8192 still
+      // wasn't enough for venues with several fetched pages/images (Lost Lake Cafe hit
+      // stop_reason=max_tokens at exactly 8192 with a multi-page, multi-image request).
+      // 16000 stays under the ~16k non-streaming ceiling (this call is non-streaming).
+      max_tokens: 16000,
       system,
       tools: TOOLS,
       tool_choice: FORCE_RECORD,

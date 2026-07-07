@@ -356,7 +356,13 @@ export function extractMediaLinksDetailed(html: string, baseUrl: string): MediaL
   // any quoted media path whose name carries a menu/HH signal (NOISE filter still drops
   // logos/heroes). The HH heading sits in the JSON just before the link, so context ranks it.
   const unescaped = html.replace(/\\\//g, "/");
-  const QUOTED_MEDIA = /["']([^"'<>]+?\.(?:pdf|jpe?g|png|webp))(\?[^"'<>]*)?["']/gi;
+  // Excludes commas from both groups (spaces stay allowed in the path group for filenames like
+  // "Dinner Menu PDF.pdf") — without it, this matched an entire `srcset="url 100w, url 300w, …"`
+  // attribute as one "URL", since a srcset has no internal quote to stop at. cappedSquarespaceImageUrl
+  // then silently "repaired" that garbage into the SAME clean URL a normal src/data-src scan already
+  // found, so the image got attached to the model twice (Lost Lake Cafe's happy-hour menu image was
+  // sent in duplicate, padding the request enough to help trip the extractor's max_tokens ceiling).
+  const QUOTED_MEDIA = /["']([^"'<>,]+?\.(?:pdf|jpe?g|png|webp))(\?[^"'<>,\s]*)?["']/gi;
   let qm: RegExpExecArray | null;
   while ((qm = QUOTED_MEDIA.exec(unescaped)) !== null) {
     const raw = (qm[1] + (qm[2] ?? "")).replace(/&amp;/gi, "&");
