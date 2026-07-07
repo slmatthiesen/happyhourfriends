@@ -423,6 +423,28 @@ const CITIES: CitySeed[] = [
       serviceBufferMeters: 500,
     },
   },
+  {
+    // Seattle, WA — OSM boundary relation 237385 (city limits). Bbox ~26x28km, includes
+    // substantial water (Puget Sound west, Lake Washington east, Lake Union/ship canal
+    // through downtown); the Phase-1 open-space mask (natural=water) subtracts it before
+    // PAID discovery so those tiles never get billed. No neighboring HHF city onboarded
+    // yet, so a modest buffer is fine. centerLat/Lng = boundary bbox center (fallback map
+    // anchor only; boundary drives gate).
+    slug: "seattle",
+    name: "Seattle",
+    state: "WA",
+    country: "US",
+    timezone: "America/Los_Angeles",
+    currency: "USD",
+    centerLat: 47.60758,
+    centerLng: -122.34206,
+    seedConfig: {
+      radiusKm: 15, // fallback only; data/seattle-boundary.geojson drives real tiling/gate
+      cellMeters: 3000,
+      serviceLocalities: ["Seattle"],
+      serviceBufferMeters: 500,
+    },
+  },
 ];
 
 async function main() {
