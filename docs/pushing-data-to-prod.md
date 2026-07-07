@@ -40,16 +40,18 @@ every live city, so changes show up immediately instead of within the hour.
 1. **Additive insert** — new local venues (and their happy hours / offerings / neighborhoods)
    that prod doesn't have yet. INSERT-only; never modifies an existing prod row.
 2. **Re-publish changed** — for every venue that already exists on prod and whose local
-   curation subtree is **newer** (edited in the last 24h), upsert its whole subtree
-   (including `neighborhood_id`, its city row, and any new neighborhood polygons it points at).
+   curation subtree is **newer than your last push**, upsert its whole subtree (including
+   `neighborhood_id`, its city row, and any new neighborhood polygons it points at).
 
 Safety rails:
 
 - A venue a **user edited more recently on prod is skipped** — prod wins, so user-applied
   changes are never overwritten.
 - Only **curation tables** move. `edit_submissions`, flags, and `audit_log` are never touched.
-- The 24h window scopes the push to the session you just worked on (override with the
-  underlying `push:updates:ssm` if you need a wider window).
+- The "changed" scan is bounded by a **local watermark** (`.push-prod-state.json`, gitignored —
+  the timestamp of your last successful `--apply`), not a fixed window. First run ever (no
+  watermark yet) falls back to the last 24h. A push touches only venues edited since you last
+  pushed, so it stays fast regardless of how much unrelated pipeline activity happened earlier.
 
 ## Do NOT `pull` first for a fresh curation push
 
@@ -62,7 +64,10 @@ Only pull first when you specifically need to reconcile user edits made on prod.
 ## Other push tools (rarely needed)
 
 - `pnpm push:deletions -- --apply` — propagate local soft-deletions (removed stubs) to prod.
-- `pnpm publish:venue -- --venue <id> --apply` — publish a single venue (e.g. after approving
-  one submission locally).
+- `pnpm publish:venue -- --venue <id> --apply` — publish a single venue instantly (one PK
+  upsert of just that subtree, no venue scan at all). This is what the admin `/admin` Apply
+  button calls automatically after you approve a submission — use it by hand too when you
+  hand-edited exactly one venue locally and don't want to wait on the broader `push:prod` scan.
 
-`push:prod` is the everyday path; reach for the others only for those specific cases.
+`push:prod` is the everyday path for "publish everything I changed this session"; reach for
+`publish:venue` when you know the single venue id and want it live immediately.

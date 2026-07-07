@@ -48,6 +48,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# local watermark for push:prod (last-applied timestamp; machine-specific runtime state)
+.push-prod-state.json
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

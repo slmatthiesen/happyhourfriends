@@ -504,15 +504,14 @@ async function subtreeTimestamps(sql: Sql): Promise<Map<string, number>> {
 export async function publishChanged(
   local: Sql,
   prod: Sql,
-  opts: { dryRun?: boolean; sinceHours?: number } = {},
+  opts: { dryRun?: boolean; sinceHours?: number; cutoffMs?: number } = {},
 ): Promise<{ venueId: string; results: SyncResult[] }[]> {
   // Bound to a recent curation window. Prod has only ever received additive INSERTs, so
   // EVERY venue edited on any city since its last full push reads as "newer on local"
   // forever — comparing all ~4k venues would try to re-publish that entire historical
-  // drift one transaction at a time. The window scopes the push to the session you just
-  // worked on (default 24h), which is what "push my latest edits" means.
-  const sinceHours = opts.sinceHours ?? 24;
-  const cutoff = Date.now() - sinceHours * 3600_000;
+  // drift one transaction at a time. cutoffMs (the CLI's persisted last-push watermark)
+  // takes precedence; sinceHours is the fallback for a first run with no watermark yet.
+  const cutoff = opts.cutoffMs ?? Date.now() - (opts.sinceHours ?? 24) * 3600_000;
 
   const [localTs, prodTs] = await Promise.all([subtreeTimestamps(local), subtreeTimestamps(prod)]);
 

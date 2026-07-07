@@ -13,15 +13,15 @@ export interface PublishResult {
 
 /**
  * Publish one locally-approved venue UP to prod by shelling out to the existing
- * tunnel script (which reads prod credentials off the box — never from local disk).
- * No-ops cleanly when PROD_IP is unset so local dev without prod config still works.
- * Only ever runs locally (prod has no /admin), so spawning bash here is fine.
+ * tunnel script (which reads prod credentials via SSM — never from local disk).
+ * No-ops cleanly when PROD_INSTANCE_ID is unset so local dev without prod config
+ * still works. Only ever runs locally (prod has no /admin), so spawning bash is fine.
  */
 export async function publishVenueToProd(
   venueId: string,
   submissionId?: string,
 ): Promise<PublishResult> {
-  if (!process.env.PROD_IP) return { ok: true, skipped: true };
+  if (!process.env.PROD_INSTANCE_ID) return { ok: true, skipped: true };
 
   const args = ["scripts/publish-venue-to-prod.sh", "--venue", venueId, "--apply"];
   if (submissionId) args.push("--submission", submissionId);
