@@ -10,6 +10,7 @@ should be able to run the product from these three documents alone.
 | Health-check / heal a city that's already live | `docs/runbook-audit-city.md` |
 | Diff a Reddit/FB "best happy hours" thread against the DB | `docs/social-list-coverage-audit.md` |
 | Push local curation to prod | `docs/pushing-data-to-prod.md` (`pnpm push:prod`) |
+| Ship merged code (main) to prod | `docs/deploying-code-to-prod.md` (`pnpm deploy:prod`) |
 | Understand the AI pipeline end-to-end | `docs/pipeline-flow.md`, `PRD.md` |
 
 The single health entry point is **`pnpm doctor`** — $0, one PASS/FAIL row per live
@@ -28,7 +29,9 @@ city, every FAIL names the runbook step that fixes it.
 - **$5 combined spend gate.** Sum ALL in-flight paid jobs (`pnpm ai:spend` spans
   sessions); STOP ≥$5 and get sign-off.
 - **Prod is additive-only user data.** No full reloads; `push:prod` skips prod-newer
-  venues. Operator handles deploys — merging ≠ deploying.
+  venues. Operator handles deploys — merging ≠ deploying. `pnpm deploy:prod` is the
+  one-command ship (git pull → build → migrate → restart over SSM); Claude builds/edits
+  this tooling but does not run it against prod unasked.
 - **One branch per task off `origin/main`; integrate only via GitHub PRs.**
 
 ## Script map (the ~40 you'll actually run)
@@ -60,6 +63,10 @@ slugs only), `generate:cardinal-districts` (always pass `--downtown`),
 **Flags & evidence:** `adjudicate:flags` · `apply:adjudications` · `cleanup:evidence`
 
 **Ops:** `ai:spend` (ledger, month-to-date) · `gsc:pull` (Search Console, report-only)
+
+**Deploy code (SSM):** `deploy:prod` — the one-command ship (git pull → build →
+migrate → restart, run as a single non-interactive SSM RunCommand; no manual
+paste-into-shell)
 
 **Prod sync (SSM — the AWS box has no open ports):** `push:prod` (THE command:
 additive + republish-changed) · `push:data:additive:ssm` (insert-only subset) ·
