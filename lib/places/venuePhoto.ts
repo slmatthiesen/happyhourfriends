@@ -12,11 +12,14 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import sharp from "sharp";
 
-const PUBLIC_BASE = process.env.VENUE_IMG_PUBLIC_BASE ?? "/uploads/venues";
+// `||` not `??`: prod's rendered .env can supply an unset optional key as an empty
+// string, which `??` would keep — breaking the URL / making mkdir('') fail. See the
+// same fix in lib/submit/evidenceStore.ts.
+const PUBLIC_BASE = process.env.VENUE_IMG_PUBLIC_BASE || "/uploads/venues";
 
 function imgDir(): string {
   return (
-    process.env.VENUE_IMG_DIR ??
+    process.env.VENUE_IMG_DIR ||
     join(/* turbopackIgnore: true */ process.cwd(), "public", "uploads", "venues")
   );
 }

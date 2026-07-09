@@ -82,7 +82,10 @@ aws secretsmanager get-secret-value --secret-id "${secret_id}" \
   --region "${aws_region}" --query SecretString --output text > /etc/happyhour/secrets.json
 # secrets.json is a flat JSON object of KEY: value pairs mirroring .env.example.
 # Render it to a systemd EnvironmentFile, and append box-derived values.
-jq -r 'del(.DEPLOY_KEY) | to_entries[] | "\(.key)=\(.value)"' /etc/happyhour/secrets.json > "$ENV_FILE"
+# SKIP empty/null values: an unset optional key must stay UNSET (undefined), not become
+# `KEY=` (empty string). Empty strings defeat `process.env.X ?? default` fallbacks across
+# the app (e.g. EVIDENCE_UPLOAD_DIR="" → mkdir('') → every photo upload 500s).
+jq -r 'del(.DEPLOY_KEY) | to_entries[] | select(.value != null and .value != "") | "\(.key)=\(.value)"' /etc/happyhour/secrets.json > "$ENV_FILE"
 {
   echo "BACKUP_BUCKET=${backup_bucket}"
   echo "MEDIA_BUCKET=${media_bucket}"

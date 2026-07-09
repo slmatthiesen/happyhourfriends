@@ -32,13 +32,18 @@ export interface StoredEvidence {
   bytes: number;
 }
 
-const PUBLIC_BASE = process.env.EVIDENCE_PUBLIC_BASE ?? "/uploads/evidence";
+// `||` not `??`: prod renders its .env from Secrets Manager (mirroring .env.example), so
+// an unset optional key arrives as an EMPTY STRING, not undefined. `??` would keep "" and
+// break the path; `||` falls back to the default for both empty and undefined.
+const PUBLIC_BASE = process.env.EVIDENCE_PUBLIC_BASE || "/uploads/evidence";
 
 // Resolved lazily (not at module load) so Next's file tracer doesn't treat a
 // build-time process.cwd() as a reason to bundle the whole project.
 function uploadDir(): string {
+  // `||` not `??`: an unset EVIDENCE_UPLOAD_DIR arrives from prod's rendered .env as an
+  // empty string, and `??` would keep it — making mkdir('') throw ENOENT on every upload.
   return (
-    process.env.EVIDENCE_UPLOAD_DIR ??
+    process.env.EVIDENCE_UPLOAD_DIR ||
     join(/* turbopackIgnore: true */ process.cwd(), "public", "uploads", "evidence")
   );
 }
