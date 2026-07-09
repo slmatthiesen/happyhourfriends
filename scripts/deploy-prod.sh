@@ -28,6 +28,10 @@ if [ "${#missing[@]}" -gt 0 ]; then
   exit 1
 fi
 export AWS_REGION="${AWS_REGION:-us-east-1}"
+# AWS CLI v2 pipes output through a pager (`less`) by default — that's the vi-like screen
+# you had to `:q` out of. This script captures and prints the output itself, so disable the
+# pager and let it stream straight to the terminal.
+export AWS_PAGER=""
 
 echo "▶ deploy:prod — deploying main to ${PROD_INSTANCE_ID}…"
 
