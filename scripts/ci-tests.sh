@@ -79,6 +79,7 @@ TESTS=(
   test:hh-relevance
   test:image-sniff
   test:normalize-url
+  test:evidence-store
   test:hh-signal-gate
   test:extract-time
   test:sitemap

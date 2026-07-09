@@ -95,6 +95,7 @@
     "test:email": "tsx scripts/test-email.ts",
     "test:evidence-cleanup": "tsx scripts/test-evidence-cleanup.ts",
     "test:evidence-relevance": "tsx scripts/test-evidence-relevance.ts",
+    "test:evidence-store": "tsx scripts/test-evidence-store.ts",
     "test:extract": "tsx scripts/test-extract-allday.ts",
     "test:extract-image-fallback": "tsx scripts/test-extract-image-fallback.ts",
     "test:extract-salvage": "tsx scripts/test-extract-salvage.ts",
