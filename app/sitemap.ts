@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { and, eq, isNull, exists } from "drizzle-orm";
 import { db } from "@/db/client";
 import { cities, venues, happyHours } from "@/db/schema";
+import { PUBLIC_VISIBLE } from "@/lib/queries/venues";
 import { cityPath, venuePath } from "@/lib/routes";
 
 // Generated at request time so `next build` doesn't depend on the DB being reachable.
@@ -33,6 +34,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         and(
           eq(venues.cityId, c.id),
           isNull(venues.deletedAt),
+          // Only 'active' venues are indexable — never a closed/paused/no_happy_hour row,
+          // even one that still carries an active HH (shared with the public listing).
+          PUBLIC_VISIBLE,
           exists(
             db
               .select({ id: happyHours.id })

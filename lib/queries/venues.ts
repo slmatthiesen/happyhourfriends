@@ -28,7 +28,7 @@ type VenueRow = typeof venues.$inferSelect;
  * back to 'active' the instant an active HH lands, so suppression never traps data. See
  * lib/places/stubGate.
  */
-const PUBLIC_VISIBLE = notInArray(venues.status, ["no_happy_hour", "closed", "paused"]);
+export const PUBLIC_VISIBLE = notInArray(venues.status, ["no_happy_hour", "closed", "paused"]);
 export type HappyHourRow = typeof happyHours.$inferSelect;
 export type OfferingRow = typeof offerings.$inferSelect;
 
