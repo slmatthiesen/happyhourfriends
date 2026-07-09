@@ -18,6 +18,9 @@ if [ "${#missing[@]}" -gt 0 ]; then
   exit 1
 fi
 export AWS_REGION="${AWS_REGION:-us-east-1}"
+# Disable AWS CLI v2's default pager (`less`) so output streams instead of trapping you
+# in a vi-like screen you have to `:q` out of.
+export AWS_PAGER=""
 
 REMOTE_SCRIPT='
 set -eu

@@ -19,6 +19,10 @@ set -euo pipefail
 run_sync() {
   local direction="$1"; shift
 
+  # Disable AWS CLI v2's default pager (`less`) so its output streams instead of dropping
+  # the caller into a vi-like screen they have to `:q` out of.
+  export AWS_PAGER=""
+
   # Local DB URL from .env (same value the app + db:migrate use locally).
   set -a; source ./.env; set +a
   : "${DATABASE_URL:?DATABASE_URL missing from .env}"
