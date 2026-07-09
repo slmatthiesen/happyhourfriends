@@ -385,6 +385,47 @@ export async function publishVenue(
  * resolve. Idempotent — re-running is safe, and a submission that has since been
  * resolved on prod (status flipped) simply stops matching. Never deletes local rows.
  */
+/**
+ * Print a one-line-per-submission breakdown of what a queued-pull will bring down, so the
+ * operator can see WHICH venues/changes are in the queue without opening /admin. Resolves
+ * venue + city names from prod (the target_id, or the venueId inside a new_happy_hour diff);
+ * the human `summary` on each diff describes the change. Best-effort — a name lookup failure
+ * never blocks the pull.
+ */
+async function logQueuedBreakdown(prod: Sql, rows: Record<string, unknown>[]): Promise<void> {
+  const createdMs = (r: Record<string, unknown>) => {
+    const t = new Date(r.created_at as string | Date).getTime();
+    return Number.isNaN(t) ? 0 : t;
+  };
+  const queued = rows
+    .filter((r) => r.status === "queued_admin")
+    .sort((a, b) => createdMs(a) - createdMs(b));
+  if (queued.length === 0) return;
+
+  const diffOf = (r: Record<string, unknown>) =>
+    (r.diff_jsonb ?? {}) as { summary?: string; after?: { venueId?: string } };
+  const venueIdOf = (r: Record<string, unknown>) =>
+    (r.target_id as string | null) ?? diffOf(r).after?.venueId ?? null;
+
+  const ids = [...new Set(queued.map(venueIdOf).filter((id): id is string => id != null))];
+  const names = new Map<string, string>();
+  if (ids.length > 0) {
+    const venues = await prod<{ id: string; name: string; state: string; slug: string }[]>`
+      SELECT v.id, v.name, c.state, c.slug
+        FROM venues v JOIN cities c ON c.id = v.city_id
+       WHERE v.id = ANY(${ids})`;
+    for (const v of venues) names.set(v.id, `${v.name} (${v.state}/${v.slug})`);
+  }
+
+  console.log(`\n  Queued for review (${queued.length}):`);
+  for (const r of queued) {
+    const id = venueIdOf(r);
+    const where = (id && names.get(id)) ?? "(unknown venue)";
+    const summary = diffOf(r).summary?.trim() || "(no summary)";
+    console.log(`    ${String(r.target_type ?? "?").padEnd(16)} ${where} — ${summary}`);
+  }
+}
+
 export async function pullQueuedSubmissions(
   prod: Sql,
   local: Sql,
@@ -404,6 +445,8 @@ export async function pullQueuedSubmissions(
              WHERE status = 'queued_admin' AND parent_submission_id IS NOT NULL
           )`;
     rows = topoSortByParent(rows, "parent_submission_id");
+
+    await logQueuedBreakdown(prod, rows);
 
     const nonPk = meta.columns.filter((c) => !meta.pk.includes(c));
     const changed = await insertRows(tx, "edit_submissions", meta.columns, rows, {
