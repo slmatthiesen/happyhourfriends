@@ -41,16 +41,22 @@ export async function generateMetadata({
   if (!c || c.status !== "live") return { title: "Not found · Happy Hour Friends" };
   const v = await getVenueBySlug(c.id, slug);
   if (!v) return { title: "Not found · Happy Hour Friends" };
-  // Stubs (no active happy hour) are thin "help-wanted" pages with nothing to answer a
-  // search. The sitemap already omits them, but Google still finds them via internal
-  // links — noindex actively keeps them out of the index. follow:true preserves link
-  // equity to the real pages they link to.
+  // Only an active venue with a real, live happy hour earns indexing. Stubs (no active HH)
+  // are thin "help-wanted" pages, and closed/paused venues answer no search — the sitemap
+  // omits both, but Google still finds them via internal links, so noindex keeps them out.
+  // follow:true preserves link equity to the real pages they link to.
   const hasActiveHappyHour = v.happyHours.some((h) => h.active && !h.deletedAt);
+  const isClosed = v.status === "closed";
+  const indexable = v.status === "active" && hasActiveHappyHour;
   return {
-    title: `${v.name} Happy Hour · ${c.name} · Happy Hour Friends`,
-    description: `Happy hour times and deals for ${v.name}${v.address ? ` — ${v.address}` : ""}.`,
+    title: isClosed
+      ? `${v.name} — Permanently closed · ${c.name} · Happy Hour Friends`
+      : `${v.name} Happy Hour · ${c.name} · Happy Hour Friends`,
+    description: isClosed
+      ? `${v.name}${v.address ? ` (${v.address})` : ""} is permanently closed.`
+      : `Happy hour times and deals for ${v.name}${v.address ? ` — ${v.address}` : ""}.`,
     alternates: { canonical: venuePath(c.state, c.slug, v.slug) },
-    ...(hasActiveHappyHour ? {} : { robots: { index: false, follow: true } }),
+    ...(indexable ? {} : { robots: { index: false, follow: true } }),
   };
 }
 
@@ -66,6 +72,7 @@ export default async function VenuePage({
   if (!venue) notFound();
 
   const activeHours = venue.happyHours.filter((h) => h.active && !h.deletedAt);
+  const isClosed = venue.status === "closed";
   const currency = city.currencyCode ?? "USD";
 
   // "Last updated" reflects any change to the displayed data, not just the venue row:
@@ -191,6 +198,15 @@ export default async function VenuePage({
           ← All {city.name}
         </Link>
       </nav>
+
+      {isClosed && (
+        <div
+          role="status"
+          className="mt-3 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm font-medium text-red-800"
+        >
+          Permanently closed — {venue.name} has closed and is no longer serving happy hours.
+        </div>
+      )}
 
       <header className="mt-3 rounded-lg border border-border bg-bg-surface p-6">
         <div className="flex items-start justify-between gap-4">
@@ -348,6 +364,7 @@ export default async function VenuePage({
         )}
       </header>
 
+      {!isClosed && (
       <section className="mt-10">
         <h2
           className="text-2xl text-text-primary"
@@ -443,8 +460,9 @@ export default async function VenuePage({
           </ul>
         )}
       </section>
+      )}
 
-      {activeHours.length > 0 && (
+      {!isClosed && activeHours.length > 0 && (
         <section className="mt-12 border-t border-border pt-8">
           <h2 className="text-xl text-text-primary" style={{ fontFamily: "var(--font-serif)" }}>
             Keep this listing accurate
