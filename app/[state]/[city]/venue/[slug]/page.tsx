@@ -6,6 +6,7 @@ import { DirectionsButton } from "@/components/directions-button";
 import { SignalButton } from "@/components/signal/signal-button";
 import { SiteWordmark } from "@/components/site-wordmark";
 import { Contribute } from "@/components/submit/contribute";
+import { ReportClosed } from "@/components/submit/report-closed";
 import { formatDays, formatDaysLong, formatPrice, formatWindowByDay } from "@/lib/format";
 import { getCityByPath, getVenueBySlug } from "@/lib/queries/venues";
 import { cityPath, venuePath } from "@/lib/routes";
@@ -368,6 +369,9 @@ export default async function VenuePage({
             <div className="mt-4">
               <Contribute venueId={venue.id} venueName={venue.name} hasHappyHour={false} />
             </div>
+            <div className="mt-4 border-t border-border pt-4">
+              <ReportClosed venueId={venue.id} venueName={venue.name} />
+            </div>
           </div>
         ) : (
           <ul className="mt-4 space-y-4">
@@ -449,6 +453,9 @@ export default async function VenuePage({
             the details and a human approves it before anything goes live.
           </p>
           <Contribute venueId={venue.id} venueName={venue.name} hasHappyHour={true} />
+          <div className="mt-4">
+            <ReportClosed venueId={venue.id} venueName={venue.name} />
+          </div>
         </section>
       )}
     </main>

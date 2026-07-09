@@ -224,7 +224,13 @@ export function SubmissionForm({
   function onPickImage(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith("image/") && file.type !== "application/pdf") {
+    // Mobile camera/photo pickers frequently report an EMPTY file.type — reject only when
+    // the type is present AND clearly not an image/PDF, or (for empty types) the extension
+    // doesn't look like one. Otherwise a phone photo gets silently refused at pick time.
+    const type = file.type || "";
+    const hasSupportedType = type.startsWith("image/") || type === "application/pdf";
+    const hasSupportedExt = /\.(jpe?g|png|gif|webp|heic|heif|pdf)$/i.test(file.name);
+    if (!hasSupportedType && !(type === "" && hasSupportedExt)) {
       setError("Please choose an image or PDF file.");
       return;
     }

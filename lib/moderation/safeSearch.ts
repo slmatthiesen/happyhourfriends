@@ -31,8 +31,13 @@ export interface ModerationResult {
 export async function moderateImage(base64: string, _mime: string): Promise<ModerationResult> {
   const key = process.env.GOOGLE_VISION_API_KEY;
   if (!key) {
+    // No SafeSearch key configured → SKIP moderation rather than reject every upload.
+    // A missing optional key must never silently swallow legitimate submissions: evidence
+    // images only reach the admin queue, and the AI relevance gate + human review still
+    // apply. Set GOOGLE_VISION_API_KEY to enable SafeSearch screening. (A key that IS
+    // present but errors still fails closed in prod — see the catch below.)
     if (process.env.NODE_ENV === "production") {
-      return { allowed: false, reason: "Image moderation unavailable." };
+      console.warn("GOOGLE_VISION_API_KEY unset — skipping SafeSearch; submission allowed.");
     }
     return { allowed: true };
   }

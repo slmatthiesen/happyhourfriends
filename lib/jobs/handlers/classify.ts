@@ -151,16 +151,25 @@ export async function handleClassify(submissionId: string): Promise<void> {
     return;
   }
 
+  // Marking a venue closed / no-happy-hour is inherently critical (it de-lists a place):
+  // never let the classifier's risk score auto-apply it on one anonymous report. Force a
+  // human, deterministically — mirrors the same check in the verify handler.
+  const afterStatus = (diff.after as Record<string, unknown> | undefined)?.status;
+  const criticalStatusChange =
+    sub.targetType === "venue" &&
+    typeof afterStatus === "string" &&
+    (afterStatus === "closed" || afterStatus === "no_happy_hour");
+
   // Banned submitters: stored, never applied (PRD §5.1.4). Critical: always a human
   // (PRD §4.2/§4.4) — no Stage 2 spend.
-  if (banned || result.riskLevel === "critical") {
+  if (banned || result.riskLevel === "critical" || criticalStatusChange) {
     await queueForReview(
       sub,
       { status: "queued_admin" },
       {
         reason: banned
           ? "Submitter is banned — stored, never applied (PRD §5.1.4)."
-          : `Critical-risk change — always a human call. ${result.reasoning}`,
+          : `Critical change — always a human call. ${result.reasoning}`,
       },
     );
     return;

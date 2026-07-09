@@ -26,6 +26,12 @@ check("trims whitespace", () => {
   assert.equal(normalizeUrl("  www.x.com  "), "https://www.x.com/");
 });
 
+check("strips whitespace injected mid-string (mobile autocorrect)", () => {
+  assert.equal(normalizeUrl("google. com"), "https://google.com/");
+  assert.equal(normalizeUrl("www. google.com"), "https://www.google.com/");
+  assert.equal(normalizeUrl("https://google. com/menu"), "https://google.com/menu");
+});
+
 check("empty / blank → null", () => {
   assert.equal(normalizeUrl(""), null);
   assert.equal(normalizeUrl("   "), null);
