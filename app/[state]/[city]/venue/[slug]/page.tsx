@@ -117,8 +117,12 @@ export default async function VenuePage({
   // knows where the link goes before clicking.
   const source = sourceUrl ? sourceMeta(sourceUrl) : null;
 
-  // Schema.org recurring Event per happy-hour window (PRD §6.5). A weekly Schedule
-  // models the recurrence; offerings become the event description.
+  // Restaurant structured data. We intentionally do NOT emit schema.org `Event` nodes for
+  // happy-hour windows: Event requires a `startDate` (a dated occurrence), which a perpetual
+  // weekly happy hour doesn't have — that mismatch is what Google Search Console flags as a
+  // missing-startDate error, with organizer/performer/eventStatus/image/offers as warnings.
+  // A recurring restaurant deal isn't the dated, ticketed thing Event models, so we describe
+  // the venue with real fields we actually hold and leave the HH windows as on-page content.
   const SCHEMA_DOW: Record<number, string> = {
     1: "Monday",
     2: "Tuesday",
@@ -128,31 +132,23 @@ export default async function VenuePage({
     6: "Saturday",
     7: "Sunday",
   };
-  const events = activeHours.map((h) => ({
-    "@type": "Event",
-    name: `Happy Hour — ${formatDays(h.daysOfWeek)}`,
-    eventSchedule: {
-      "@type": "Schedule",
-      repeatFrequency: "P1W",
-      byDay: h.daysOfWeek.map((d) => `https://schema.org/${SCHEMA_DOW[d]}`),
-      ...(h.allDay
-        ? {}
-        : {
-            // "open until X" windows have a null start (begins at open) — emit only
-            // the bounds we actually know; never .slice() a null.
-            ...(h.startTime ? { startTime: h.startTime.slice(0, 5) } : {}),
-            ...(h.endTime ? { endTime: h.endTime.slice(0, 5) } : {}),
-          }),
-    },
-    location: {
-      "@type": "Restaurant",
-      name: venue.name,
-      ...(venue.address ? { address: venue.address } : {}),
-    },
-    ...(h.offerings.length
-      ? { description: h.offerings.map((o) => o.name ?? o.category).join(", ") }
-      : {}),
-  }));
+  const hhmm = (min: number) =>
+    `${String(Math.floor(min / 60)).padStart(2, "0")}:${String(min % 60).padStart(2, "0")}`;
+  // Google Place price tier 1–4 → the $–$$$$ range Google recognizes.
+  const priceRange =
+    venue.priceLevel && venue.priceLevel >= 1 && venue.priceLevel <= 4
+      ? "$".repeat(venue.priceLevel)
+      : null;
+  // Only periods with a known close map cleanly to opens/closes; skip 24h/unknown-close ones
+  // rather than guess a close time.
+  const openingHoursSpecification = (venue.hoursJson ?? [])
+    .filter((p) => p.closeMin != null && SCHEMA_DOW[p.openDay])
+    .map((p) => ({
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: `https://schema.org/${SCHEMA_DOW[p.openDay]}`,
+      opens: hhmm(p.openMin),
+      closes: hhmm(p.closeMin as number),
+    }));
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -161,7 +157,12 @@ export default async function VenuePage({
     ...(venue.address ? { address: venue.address } : {}),
     ...(venue.websiteUrl ? { url: venue.websiteUrl } : {}),
     ...(venue.phone ? { telephone: venue.phone } : {}),
-    ...(events.length ? { event: events } : {}),
+    ...(venue.lat && venue.lng
+      ? { geo: { "@type": "GeoCoordinates", latitude: venue.lat, longitude: venue.lng } }
+      : {}),
+    ...(priceRange ? { priceRange } : {}),
+    ...(venue.heroImageUrl ? { image: `${SITE_URL}${venue.heroImageUrl}` } : {}),
+    ...(openingHoursSpecification.length ? { openingHoursSpecification } : {}),
   };
 
   const breadcrumbLd = breadcrumbListLd([
