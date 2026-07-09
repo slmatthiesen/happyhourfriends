@@ -8,7 +8,11 @@
  * leniency applies regardless of where the value comes from.
  */
 export function normalizeUrl(raw: string | null | undefined): string | null {
-  const trimmed = (raw ?? "").trim();
+  // Strip whitespace anywhere in the string, not just the ends: mobile keyboards and
+  // autocorrect routinely inject a stray space ("google. com", "www. site.com"), and a
+  // real web URL never contains a literal space. Without this, such input fails to parse
+  // and the whole submission is rejected.
+  const trimmed = (raw ?? "").replace(/\s+/g, "");
   if (!trimmed) return null;
 
   // Reject dangerous / non-web schemes outright — a stored source_url is later rendered

@@ -41,7 +41,13 @@ export function Contribute({
   function onPickImage(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith("image/") && file.type !== "application/pdf") {
+    // Mobile camera/photo pickers frequently report an EMPTY file.type — reject only when
+    // the type is present AND clearly not an image/PDF, or (for empty types) the extension
+    // doesn't look like one. Otherwise a phone photo gets silently refused at pick time.
+    const type = file.type || "";
+    const hasSupportedType = type.startsWith("image/") || type === "application/pdf";
+    const hasSupportedExt = /\.(jpe?g|png|gif|webp|heic|heif|pdf)$/i.test(file.name);
+    if (!hasSupportedType && !(type === "" && hasSupportedExt)) {
       setError("Please choose an image or PDF file.");
       return;
     }
@@ -65,9 +71,13 @@ export function Contribute({
     const noteTrimmed = note.trim();
     const normalizedUrl = normalizeUrl(sourceUrl);
 
-    // A typed-but-unparseable link (e.g. a typo) shouldn't be silently dropped.
-    if (sourceUrl.trim() && !normalizedUrl) {
-      setError("That link doesn't look right — include the full address, e.g. example.com");
+    // A typed-but-unparseable link (e.g. a typo) shouldn't silently drop the submission —
+    // but only block on it when there's no photo/PDF to fall back on. With a photo attached,
+    // just ignore the bad link (the photo is the evidence) rather than refusing to submit.
+    if (sourceUrl.trim() && !normalizedUrl && !imageDataUrl) {
+      setError(
+        "That link doesn't look right — include the full address, e.g. example.com, or add a photo instead.",
+      );
       return;
     }
     // Every contribution must be backed by evidence — a link or a photo/PDF of the
