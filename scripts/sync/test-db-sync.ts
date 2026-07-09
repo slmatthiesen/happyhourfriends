@@ -14,7 +14,7 @@ import "dotenv/config";
 import { execSync } from "node:child_process";
 import assert from "node:assert/strict";
 import postgres from "postgres";
-import { additivePush, upsertPull, publishVenue, pullQueuedSubmissions, pushDeletions } from "@/lib/sync/dbSync";
+import { additivePush, upsertPull, publishVenue, pullQueuedSubmissions, markSubmissionRejected, pushDeletions } from "@/lib/sync/dbSync";
 
 const BASE = process.env.DATABASE_URL;
 if (!BASE) throw new Error("DATABASE_URL must be set (local docker DB)");
@@ -256,6 +256,26 @@ async function main() {
       0,
       "pullQueuedSubmissions must NOT bring down non-queued_admin rows",
     );
+
+    // ── 5b. markSubmissionRejected: a local reject flips prod's row to 'rejected' ───
+    // U.subQueued is still queued_admin on prod here. Dry-run must not touch it.
+    await markSubmissionRejected(prod, U.subQueued, { dryRun: true });
+    assert.equal(
+      (await prod`SELECT status FROM edit_submissions WHERE id = ${U.subQueued}`)[0].status,
+      "queued_admin",
+      "dry-run reject must not change prod",
+    );
+    // APPLY: prod's row leaves queued_admin so it stops reappearing on pull:queue.
+    const rej = await markSubmissionRejected(prod, U.subQueued, { dryRun: false });
+    assert.equal(rej[0].changed, 1, "markSubmissionRejected must report the flipped row");
+    assert.equal(
+      (await prod`SELECT status FROM edit_submissions WHERE id = ${U.subQueued}`)[0].status,
+      "rejected",
+      "markSubmissionRejected must set prod status = 'rejected'",
+    );
+    // Guarded to queued_admin → a second call is a no-op (never clobbers an already-decided row).
+    const rej2 = await markSubmissionRejected(prod, U.subQueued, { dryRun: false });
+    assert.equal(rej2[0].changed, 0, "markSubmissionRejected must not re-touch an already-rejected row");
 
     // ── 6. pushDeletions: a venue soft-deleted LOCALLY is soft-deleted on prod ─────
     // Soft-delete vShared locally (matched to prod by google_place_id gp_shared). vNew is

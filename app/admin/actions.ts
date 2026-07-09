@@ -12,6 +12,7 @@ import {
   venueIdForRow,
 } from "@/lib/apply/engine";
 import { publishVenueToProd } from "@/lib/sync/publishVenueToProd";
+import { rejectSubmissionToProd } from "@/lib/sync/rejectSubmissionToProd";
 import { adminActor } from "@/lib/apply/types";
 import { classifySiteHealth } from "@/lib/places/siteHealth";
 import { probeUrl } from "@/lib/places/probeUrl";
@@ -67,7 +68,12 @@ export async function rejectAction(
       reason,
     });
     revalidatePath("/admin");
-    return { ok: true };
+
+    // Propagate the rejection UP to prod so its row leaves queued_admin — otherwise it
+    // reappears on every pull:queue (mirrors applyAction's publishVenueToProd).
+    const pub = await rejectSubmissionToProd(submissionId);
+    const warning = pub.ok ? undefined : `Rejected locally, but syncing to prod failed: ${pub.error}`;
+    return { ok: true, warning };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Reject failed" };
   }

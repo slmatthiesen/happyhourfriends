@@ -72,6 +72,7 @@
     "pull:data": "bash scripts/pull-data-from-prod.sh",
     "pull:queue": "bash scripts/pull-queue-from-prod.sh",
     "publish:venue": "bash scripts/publish-venue-to-prod.sh",
+    "reject:submission": "bash scripts/reject-submission-on-prod.sh",
     "eval:extractor": "tsx scripts/eval-extractor.ts",
     "eval:verifier": "tsx scripts/eval-verifier.ts",
     "test:active": "tsx scripts/test-timezone-active.ts",

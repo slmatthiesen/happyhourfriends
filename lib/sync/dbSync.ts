@@ -462,6 +462,30 @@ export async function pullQueuedSubmissions(
 }
 
 /**
+ * Mark ONE submission 'rejected' on prod — the reject counterpart to publishVenue's
+ * `status='applied'` flip. A rejection in local /admin writes only the LOCAL row, so
+ * without this prod keeps the submission `queued_admin` and it reappears on every
+ * pull:queue. Touches only edit_submissions (a reject can have no venue change); guarded
+ * to `queued_admin` so an already-decided prod row is never clobbered. Idempotent.
+ */
+export async function markSubmissionRejected(
+  prod: Sql,
+  submissionId: string,
+  opts: { dryRun?: boolean } = {},
+): Promise<SyncResult[]> {
+  const results: SyncResult[] = [];
+  await prod.begin(async (tx) => {
+    const rows = await tx`
+      UPDATE edit_submissions SET status = 'rejected', decided_at = now()
+       WHERE id = ${submissionId} AND status = 'queued_admin'
+       RETURNING id`;
+    results.push({ table: "edit_submissions" as SyncTable, changed: rows.length });
+    if (opts.dryRun) throw new RollbackSignal();
+  }).catch(swallowRollback);
+  return results;
+}
+
+/**
  * local → prod, propagate SOFT-DELETIONS only — the deletion counterpart to additivePush
  * (which only ever INSERTs, so a stub you removed locally would otherwise live on forever on
  * prod). For every venue soft-deleted locally (deleted_at set) whose google_place_id still
