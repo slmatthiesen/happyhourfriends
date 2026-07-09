@@ -15,7 +15,7 @@
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import postgres from "postgres";
-import { additivePush, upsertPull, publishVenue, publishChanged, pullQueuedSubmissions, pushDeletions, type SyncResult } from "@/lib/sync/dbSync";
+import { additivePush, upsertPull, publishVenue, publishChanged, pullQueuedSubmissions, markSubmissionRejected, pushDeletions, type SyncResult } from "@/lib/sync/dbSync";
 
 // Persists when push-updates last successfully applied, so the next run only re-scans
 // venues touched since then instead of a fixed rolling window (which either reprocesses
@@ -56,9 +56,9 @@ async function main() {
   const apply = flags.includes("--apply");
   const dryRun = !apply;
 
-  const VALID = ["push", "push-updates", "pull", "publish-venue", "pull-queue", "delete-venues"];
+  const VALID = ["push", "push-updates", "pull", "publish-venue", "pull-queue", "reject-submission", "delete-venues"];
   if (!VALID.includes(direction)) {
-    console.error("Usage: db-sync.ts <push|push-updates|pull|publish-venue|pull-queue|delete-venues> [--apply] [--venue <id>] [--submission <id>]");
+    console.error("Usage: db-sync.ts <push|push-updates|pull|publish-venue|pull-queue|reject-submission|delete-venues> [--apply] [--venue <id>] [--submission <id>]");
     process.exit(1);
   }
 
@@ -106,6 +106,10 @@ async function main() {
       printResults("prod → local (upsert pull)", await upsertPull(prod, local, { dryRun }), dryRun);
     } else if (direction === "pull-queue") {
       printResults("prod → local (queued_admin submissions)", await pullQueuedSubmissions(prod, local, { dryRun }), dryRun);
+    } else if (direction === "reject-submission") {
+      const submissionId = flagValue("--submission");
+      if (!submissionId) throw new Error("reject-submission requires --submission <id>");
+      printResults("prod (mark submission rejected)", await markSubmissionRejected(prod, submissionId, { dryRun }), dryRun);
     } else if (direction === "delete-venues") {
       printResults("local → prod (propagate soft-deletions)", await pushDeletions(local, prod, { dryRun }), dryRun);
     } else {
