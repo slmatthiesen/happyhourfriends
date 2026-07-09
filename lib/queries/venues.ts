@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray, isNull, ne, or, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull, notInArray, or, sql } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { db } from "@/db/client";
 import { MIN_VENUES_PER_NEIGHBORHOOD } from "@/lib/geo/assignNeighborhoods";
@@ -17,14 +17,18 @@ type CityRow = typeof cities.$inferSelect;
 type VenueRow = typeof venues.$inferSelect;
 
 /**
- * Public-listing visibility predicate (Build A — dead-end stub suppression). Hides venues a
- * script/operator marked status='no_happy_hour': no alcohol, or a zero-HH cuisine, and no active
- * happy hour — they pad the list and make the product read as empty. Applied to PUBLIC queries
- * (city/neighborhood lists + landing counts) ONLY; admin queries omit it so operators still see
- * and can recover them. The persist/apply path flips status back to 'active' the instant an
- * active HH lands, so suppression never traps data. See lib/places/stubGate.
+ * Public-listing visibility predicate (Build A — dead-end stub suppression). Only 'active'
+ * venues are public; every other status is hidden:
+ *   - 'no_happy_hour' — script/operator-marked dead-end stub (no alcohol / zero-HH cuisine,
+ *     no active HH); pads the list and makes the product read as empty.
+ *   - 'closed'        — permanently closed (operator or confirmed user report).
+ *   - 'paused'        — temporarily withheld.
+ * Applied to PUBLIC queries (city/neighborhood lists + landing counts) ONLY; admin queries
+ * omit it so operators still see and can recover them. The persist/apply path flips status
+ * back to 'active' the instant an active HH lands, so suppression never traps data. See
+ * lib/places/stubGate.
  */
-const PUBLIC_VISIBLE = ne(venues.status, "no_happy_hour");
+const PUBLIC_VISIBLE = notInArray(venues.status, ["no_happy_hour", "closed", "paused"]);
 export type HappyHourRow = typeof happyHours.$inferSelect;
 export type OfferingRow = typeof offerings.$inferSelect;
 
