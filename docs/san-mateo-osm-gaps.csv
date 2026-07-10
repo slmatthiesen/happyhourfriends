@@ -1,0 +1,155 @@
+name,amenity,cuisine,website,lat,lng,osm_id
+Aji Limo,restaurant,peruvian,https://www.caprinos.com,37.5190025,-122.277305,node/1312467595
+Attic,restaurant,asian,https://atticrestaurant.com/,37.5658335,-122.3230076,node/2452609224
+Belmont Deli,restaurant,,https://belmontdelico.com/,37.51966,-122.2770776,node/13433487107
+Cafe Bliss,restaurant,,http://cafeblissbelmont.com/,37.5120511,-122.2930813,way/341923036
+Cafe Tsui Wah (翠華茶餐廳),restaurant,chinese,www.cafetsuiwah.com,37.5449166,-122.2853834,way/392014576
+Caffé Central,restaurant,coffee_shop,https://www.caffecentral.com/burlingame-menu,37.5781369,-122.3481792,way/237813584
+Central Park Bistro,restaurant,,https://www.centralparkbistro.com/,37.5642091,-122.3228414,way/237353905
+Chan Wei Bistro,restaurant,,https://www.chanweibistroca.com/,37.5546929,-122.3109496,way/387072127
+Daeho Kalbijjim and Beef Soup,restaurant,korean,http://www.daeho-kalbijjim.com,37.5660902,-122.3237881,node/13991036101
+Dahlia Mexican Grill,restaurant,mexican,https://www.dahliamexicangrill.com/,37.5662933,-122.3234643,node/8428072926
+Daiki Sushi,restaurant,japanese;sushi,https://daikisushi.com/,37.5478332,-122.3089975,node/6861293085
+Dumpling Kitchen & Bar,restaurant,,https://dumplingkitchenbar.kwickmenu.com/,37.5791831,-122.3459888,node/12572783479
+Elia,restaurant,greek,https://www.eliarestaurants.com,37.5050467,-122.2591761,node/12497441000
+Esposto's Borel Deli,restaurant,deli,http://www.espostos.com/,37.5503788,-122.313867,node/5771526703
+Fieldwork Brewing Company,biergarten,,https://fieldworkbrewing.com,37.5410559,-122.298966,node/4851042475
+H.L. Peninsula Pearl,restaurant,chinese,https://www.hlpeninsula.com/pearl,37.5995057,-122.3664993,way/30408350
+Honey Berry,restaurant,,https://www.facebook.com/HoneyBerrySanMateo,37.5640471,-122.3229286,node/2453806737
+iGuey,restaurant,mexican,https://igueytaqueria.com/,37.4965102,-122.2480216,way/116789901
+Kajiken,restaurant,japanese,https://kajikenusa.com,37.5667655,-122.3239868,node/11112724717
+King Chuan,restaurant,chinese,https://www.kingchuanchinese.com/,37.506813,-122.2613122,node/8334886019
+La Corneta,restaurant,mexican,https://lacorneta.com/,37.5792341,-122.3459001,node/12572783480
+Le Croissant Café,restaurant,breakfast;brunch;french,http://www.lecroissantcafe.com/,37.5866371,-122.3640967,node/3145881293
+Little China Kitchen,restaurant,chinese,https://www.littlechinakitchen.com/,37.5653055,-122.3229861,node/2452609235
+Little Shanghai,restaurant,chinese,https://lshfood.wixsite.com/lshfood/menu,37.5449784,-122.3053422,node/6505131562
+Lulu's,restaurant,mexican,https://www.lulusmexicanfood.com/,37.5027536,-122.256892,node/12770919992
+Meet Fresh,restaurant,taiwanese,https://www.meetfresh.us/,37.5657445,-122.322354,node/2452609230
+New York Pizza,restaurant,pizza,https://newyorkpizza.biz/,37.5661634,-122.3228373,node/2452609237
+North Beach Pizza,restaurant,pizza,https://www.northbeachpizzamenu.com/,37.5653102,-122.3224295,node/2453851667
+Nursel,restaurant,central_asian,https://nurselcuisine.com,37.5077773,-122.2594129,node/13482573085
+O'Neill's Irish Pub,pub,,https://www.oneillssanmateo.com/,37.5671059,-122.3243973,node/2452206222
+Ox 9 Lanzhou Hand Pulled Noodles,restaurant,chinese;noodle,https://www.39miles.com/z/09688759,37.5676271,-122.3245099,node/12130997817
+Pancho Villa Taqueria,restaurant,mexican,https://smpanchovilla.com/,37.5650552,-122.3216036,way/237502763
+Pizza My Heart,restaurant,pizza,http://pizzamyheart.com/Pizza_My_Heart_Locations.html#SanMateo,37.5637557,-122.322686,node/2455032290
+Pokeatery,restaurant,hawaiian,https://www.pokeatery.com/,37.5646287,-122.3212522,node/5773831094
+Porterhouse,restaurant,,https://porterhousesanmateo.com,37.563532,-122.3245154,node/5217515425
+Pranzi,restaurant,,https://www.pranzisc.com/,37.5043831,-122.2583205,node/12688703723
+Rangoon Ruby,restaurant,burmese,https://rangoonruby.com/,37.5052332,-122.2598967,node/4033408607
+Ravioli House,restaurant,italian,https://theraviolihouse.com/,37.564035,-122.3206059,node/5773787753
+Restaurant Bay Watch,restaurant,,http://www.restaurantbaywatch.com/,37.5659629,-122.3239719,node/2452609338
+Ryoshin Sushi,restaurant,sushi,https://ryoshinsushi.com/,37.5142875,-122.269014,node/1160497033
+SAJJ Mediterranean,restaurant,mediterranean,https://www.sajjstreeteats.com/location/san-mateo/,37.5654731,-122.322721,node/6645545183
+Shabuway,restaurant,japanese,https://www.shabuway.com/,37.5646262,-122.3239301,node/2452609340
+Spasso,restaurant,italian;mediterranean,https://spassosc.com/,37.5044389,-122.2583812,node/8526620223
+Stamp Bar & Grill,restaurant,american;italian,https://www.stampbarandgrill.com/,37.504346,-122.258249,way/385954459
+Sushi Sam's Edomata,restaurant,japanese,https://www.sushisams.com/,37.5651155,-122.3227139,node/2453851672
+Tenka Japanese Restaurant,restaurant,japanese,https://www.facebook.com/pages/Tenka-Japanese-Restaurant/113262068706928,37.565724,-122.3228887,node/2452609342
+The Barrel Bistro,restaurant,,http://www.thebarrelbistro.com/,37.5656608,-122.322811,node/4469410989
+The Cask,restaurant,,https://www.thecaskwinebar.com/,37.5040933,-122.2585835,node/12688681166
+The Duo Entourage,restaurant,regional,http://magdalunacafe.com/,37.5863212,-122.3643265,node/3145890670
+Tianfu Restaurant,restaurant,hotpot,https://pos.chowbus.com/online-ordering/store/3241,37.5654069,-122.3234195,node/10037829454
+Tomatina,restaurant,italian;pizza,https://www.tomatina.com/,37.5647419,-122.3213622,node/5773802736
+Town,restaurant,,https://www.townsc.com/,37.5047899,-122.2595405,way/385954454
+Trapeze,restaurant,european,https://www.trapezerestaurant.com/,37.5790625,-122.34556,way/237686128
+Treasure 中餐厅,restaurant,chinese,https://www.treasurebelmont.com/,37.5257549,-122.2826623,node/13647099009
+Tuna Kahuna,restaurant,japanese,https://www.tunakahuna.co/,37.5792939,-122.3458001,node/12193402672
+Uncle Chen,restaurant,chinese,http://unclechenrestaurant.com,37.5301046,-122.2904624,way/98283330
+West Park Bistro,restaurant,,https://westparkbistro.com/,37.5039284,-122.2583827,node/12688653652
+Whisper,restaurant,korean;brunch,https://whisperfusion.com/,37.5672877,-122.3245999,node/6818990138
+Whispers Café & Crêperie,restaurant,crepe;sandwich;breakfast,https://whisperscafe.com/,37.526363,-122.28437,node/1435910947
+Windy City Pizza and BBQ,restaurant,barbecue;italian;pizza,https://www.windycitypizza.com/,37.5507275,-122.313631,node/5771518811
+Asian Box,restaurant,asian;vietnamese,,37.5777058,-122.3481022,node/13417418963
+Bar & Grill,restaurant,,,37.5721815,-122.2829099,node/9964109934
+Belcampo,restaurant,,,37.5392579,-122.3009446,node/8939933180
+Belmont Gyros House,restaurant,greek,,37.5174893,-122.2721444,node/1160559867
+Bistro Mitte,restaurant,german,,37.5047098,-122.2587855,node/12501961551
+Blue Line Pizza,restaurant,pizza,,37.5063296,-122.2612097,node/5353994510
+Bonchon Chicken,restaurant,chicken;korean;sushi,,37.5659516,-122.323099,node/4469401952
+Broiler Express,restaurant,american,,37.5027452,-122.2564766,node/11841369707
+Buri Tara Thai Cuisine,restaurant,,,37.544559,-122.2706391,node/6125611185
+Carlos Club,bar,,,37.506854,-122.2601879,node/12425246754
+Champagne Seafood Restaurant,restaurant,chinese,,37.5632302,-122.3233029,node/2975371309
+Charlie's Taqueria,restaurant,mexican,,37.5623984,-122.3188128,node/5773711739
+Chef Zhao,restaurant,chinese,,37.5445543,-122.3060705,node/6505131563
+China Bee,restaurant,,,37.5674349,-122.3242701,node/4469410887
+China Village Seafood Restaurant,restaurant,chinese;hong_kong;dim_sum,,37.5218394,-122.2747454,way/93677009
+Christie’s,restaurant,american;breakfast,,37.579113,-122.3447294,node/12193402680
+Cobani Kebab,restaurant,,,37.5442803,-122.3060758,node/4469348783
+Cooking Papa,restaurant,chinese,,37.5446792,-122.270447,way/104943492
+Crepe Stop,restaurant,crepe;bubble_tea;ice_cream;gelato,,37.503006,-122.2572111,node/8334886018
+Curry Pizza House,restaurant,pizza,,37.5667874,-122.3235937,node/13411860108
+Denny's,restaurant,american,,37.5454738,-122.2853784,way/288731620
+Dockside Cafe,restaurant,,,37.59044,-122.3361479,node/9586557749
+Drakes,restaurant,,,37.5069562,-122.2602924,node/12425246755
+El Charrito,restaurant,mexican,,37.5085502,-122.262163,way/118261071
+El Nayarita,restaurant,,,37.5672524,-122.3194038,node/3713141807
+Elephant Bar,restaurant,american,,37.5999075,-122.3669302,way/30408351
+Everyday Beijing Restaurant,restaurant,chinese,,37.5630506,-122.3195209,node/5773746990
+Faith & Spirits,bar,,,37.504528,-122.2584407,way/385954456
+Fish Market,restaurant,seafood,,37.5551468,-122.2919956,node/6505131570
+Fish Market Restaurant,restaurant,seafood,,37.5559499,-122.2929168,node/281562226
+Fish With You,restaurant,,,37.5664655,-122.3236381,node/13411860110
+Flight Wings Cafe,restaurant,,,37.5897944,-122.3358213,node/9586557751
+Godfather's Burger Lounge,restaurant,burger,,37.5161131,-122.2711635,node/5626556960
+IHOP,restaurant,breakfast;pancake,,37.5626315,-122.270476,way/100106222
+Impasto,restaurant,pizza,,37.50718,-122.2598788,node/12425246753
+Izakaya Mai,restaurant,japanese,,37.5659393,-122.3234816,node/2452609233
+Jack's Prime,restaurant,,,37.5339872,-122.2937231,node/6359899085
+Kabul,restaurant,,,37.5123777,-122.2659225,node/1538697612
+Kingston Cafe,restaurant,,,37.5746835,-122.3169702,node/5465995622
+La Cumbre,restaurant,mexican,,37.5680353,-122.3247304,node/4469410990
+Lighting Bolt BBQ Cafe,restaurant,,,37.5888139,-122.3363771,node/9586557753
+Little Sichuan Restaurant,restaurant,chinese,,37.5637906,-122.3223852,way/237622053
+Lorenzo's Sandwich Shop,restaurant,sandwich,,37.5127466,-122.2933974,node/1812051233
+Los Primos Taqueria,restaurant,mexican,,37.5691572,-122.3263639,node/7436842109
+Lou's Cafe,restaurant,sandwich,,37.5024526,-122.2565083,node/12770919995
+Mama Coco,restaurant,mexican,,37.5046542,-122.2586891,node/12501961552
+Mama Vietnames,restaurant,vietnamese,,37.5444418,-122.3059347,node/2930516326
+Mountain Mike's,restaurant,pizza,,37.5270048,-122.2846013,node/10293831851
+Mountain Mike's,restaurant,pizza,,37.5664109,-122.323581,node/13411860109
+My Dumpling,restaurant,dumplings,,37.5668903,-122.3241127,node/13411860112
+No. 5 House,restaurant,taiwanese,,37.5671148,-122.3248755,node/4469401950
+Orchid Room,bar,,,37.5052628,-122.2599334,node/4033452382
+Otra Vez Mexican Kitchen,restaurant,mexican,,37.5062733,-122.26055,node/12559556682
+Pasta Primavera Restaurant & Bar,restaurant,italian,,37.5625461,-122.3243419,node/2455032282
+Peacock Indian restaurant,restaurant,,,37.5240144,-122.2737989,node/4112528973
+Peking Alley,restaurant,chinese,,37.5301004,-122.2902793,node/9043959917
+Philly's cheese steak shop,restaurant,,,37.5824987,-122.3521044,node/334406060
+Pylos,restaurant,greek,,37.5062202,-122.260483,node/12559556683
+Ramen Dojo,restaurant,japanese;ramen,,37.562172,-122.3185593,node/5772401508
+Ramen Parlor,restaurant,japanese;ramen,,37.561792,-122.3176328,way/609413218
+Round Table Pizza,restaurant,pizza,,37.5340179,-122.32687,node/1119622740
+Round Table Pizza,restaurant,pizza,,37.4982311,-122.249986,node/11300158317
+Royal Donut Cafe,restaurant,donut;breakfast;burger,,37.5865814,-122.364172,node/5446511509
+Russian Ridge Winery,restaurant,,,37.4988122,-122.2442518,node/12962933814
+Rustic House Oyster Bar And Grill - San Carlos,restaurant,american;seafood,,37.5026295,-122.255103,way/118261011
+Safari,restaurant,kebab,,37.5875549,-122.3638476,way/388647075
+Saigon City,restaurant,vietnamese,,37.5663079,-122.3209492,way/237502753
+Samikacha Momo,restaurant,indonesian;chinese,,37.5644875,-122.3236152,node/1761388862
+Shiki,restaurant,japanese,,37.5446412,-122.291555,node/12084136471
+Shoreway Cafe,restaurant,,,37.5240881,-122.2661197,node/2609970307
+Siamese Kitchen,restaurant,,,37.5060198,-122.2602368,node/4128552790
+Side Shore Del Mar Cafe,restaurant,,,37.5903393,-122.3368308,node/9586557748
+Sneakers American Grill,restaurant,american,,37.5055599,-122.2602812,node/12559556675
+Sourdough & Co.,restaurant,sandwich,,37.518636,-122.2742514,node/1162023247
+Spicy Empire Szechuan,restaurant,,,37.5435973,-122.3072792,node/4469379357
+Spiedo Restaurant,restaurant,,,37.5646974,-122.3219748,node/2453851671
+Taqueria Las Palomas,restaurant,mexican,,37.5640258,-122.3242679,node/13139962344
+The Counter,restaurant,burger,,37.5357129,-122.298141,node/1199004437
+The Omelette House,restaurant,breakfast,,37.5120889,-122.2671103,way/100400501
+The Refuge,pub,,,37.5381067,-122.3020255,node/12316370101
+The Spot on 25th,restaurant,salad;sandwich;juice;smoothie,,37.5438036,-122.3077778,node/4469367534
+The Vans,restaurant,,,37.5272218,-122.2864183,way/887357582
+Three,restaurant,asian,,37.5635795,-122.324904,node/4451265444
+TLT BBQ,restaurant,chinese,,37.5634952,-122.3255643,node/3875122066
+Tom San,restaurant,japanese,,37.5855575,-122.3650027,node/9795910524
+Town of Dumplings,restaurant,chinese,,37.5310611,-122.2875583,node/6359898784
+Usagi,restaurant,japanese,,37.5677309,-122.3215036,node/4188313858
+Vespucci,restaurant,italian,,37.5646632,-122.3238768,node/11036190956
+Yaprak Doner,restaurant,turkish,,37.5863955,-122.3642927,node/5446511507
+Yu-Raku,restaurant,,,37.5640447,-122.3273397,node/6252400585
+Yumi Yogurt,restaurant,frozen_yogurt;ice_cream,,37.5326692,-122.2919621,way/115687500
+Yuppie Bar,bar,,,37.5626344,-122.3190622,node/5773707965
+zabuzabu,restaurant,chinese,,37.5640846,-122.3241647,node/4008628589
+Zhangliang Malatang,restaurant,,,37.5666987,-122.323495,node/4469402645

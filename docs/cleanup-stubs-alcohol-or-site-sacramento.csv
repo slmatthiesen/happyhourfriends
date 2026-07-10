@@ -1,0 +1,5 @@
+city,action,venue,primary_type,reviews,website,reason
+"sacramento",delete,"Ramen & more",ramen_restaurant,460,"https://ramenandmore.menu11.com/","menu-platform-only site"
+"sacramento",delete,"CHEESESTEAKS",american_restaurant,240,"","no alcohol signal + no site"
+"sacramento",delete,"Kampala Café",american_restaurant,38,"","no alcohol signal + no site"
+"sacramento",hide,"BULLTA Korean BBQ & Sushi",korean_restaurant,347,"https://www.bulltabbq.com/","zero-HH cuisine (korean_restaurant)"

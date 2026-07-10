@@ -1,0 +1,96 @@
+{
+  "city": "Central Phoenix",
+  "slug": "phoenix-central",
+  "dropped": [
+    {
+      "id": "335530f4-29e5-4d20-b22e-7a84eda482e4",
+      "name": "Carcara",
+      "website": "https://www.carcararestaurant.com/?scid=feed67b0-9a2f-4de1-8df6-114544116108",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 7,
+      "evidence": "$8"
+    },
+    {
+      "id": "c036daa9-6d25-494a-b591-bb9d4a94d34d",
+      "name": "CASA DE JULIA RESTAURANT BAR",
+      "website": "https://www.casadejuliaphx.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 7,
+      "evidence": "$500"
+    },
+    {
+      "id": "a1107f66-bac1-48a2-a4d1-9f6233ecf864",
+      "name": "LATHA",
+      "website": "https://www.lathaphx.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 6,
+      "evidence": "$ 15"
+    },
+    {
+      "id": "6da2eb47-6d07-4348-90a7-07ce16665ec7",
+      "name": "Pa'La Wood Fired Cooking",
+      "website": "http://palakitchen.com/downtown",
+      "windows": 1,
+      "cause": "pdf",
+      "pagesFetched": 4,
+      "evidence": "deal-words"
+    },
+    {
+      "id": "d8d980d0-986e-4de0-a957-26e67116ca0f",
+      "name": "Pat O's Bunkhouse Saloon",
+      "website": "http://www.bunkhousesaloonphx.com/",
+      "windows": 1,
+      "cause": "text",
+      "pagesFetched": 2,
+      "evidence": "$6"
+    },
+    {
+      "id": "ad75ef3e-c91f-4669-a9d0-df2ae13c3ff7",
+      "name": "Pita Jungle",
+      "website": "https://pitajungle.com/locations/downtown-phoenix/?utm_source=google&utm_medium=organic&utm_campaign=DowntownPhoenix&utm_content=WebsiteLink",
+      "windows": 1,
+      "cause": "text",
+      "pagesFetched": 1,
+      "evidence": "$2"
+    },
+    {
+      "id": "8f867b7b-0144-46c6-b929-4d586be63dbe",
+      "name": "Pita Jungle",
+      "website": "https://pitajungle.com/locations/uptown-phoenix/?utm_source=google&utm_medium=organic&utm_campaign=UptownPhoenix&utm_content=WebsiteLink",
+      "windows": 2,
+      "cause": "text",
+      "pagesFetched": 1,
+      "evidence": "$2"
+    },
+    {
+      "id": "80963aec-21d1-4b07-8645-4e3219967fdd",
+      "name": "Taco Guild",
+      "website": "http://tacoguild.com/",
+      "windows": 2,
+      "cause": "image",
+      "pagesFetched": 7,
+      "evidence": "$2"
+    },
+    {
+      "id": "f7fdcf0c-eee5-438c-a1b4-f811fa88e8ae",
+      "name": "The Beaver Bar",
+      "website": "http://www.thebeaverbarphxaz.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 2,
+      "evidence": "$7.50"
+    },
+    {
+      "id": "79e0da7c-6c9b-4fae-a934-259fbc2c0a7a",
+      "name": "Zipps Sports Grill",
+      "website": "https://www.zippssportsgrills.com/locations/shea/",
+      "windows": 1,
+      "cause": "text",
+      "pagesFetched": 5,
+      "evidence": "$ 3.25"
+    }
+  ]
+}

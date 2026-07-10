@@ -1,0 +1,177 @@
+{
+  "city": "Oakland",
+  "slug": "oakland",
+  "dropped": [
+    {
+      "id": "f6c1f82e-403c-46fe-ac7c-2932ebfc3f25",
+      "name": "9 Julio Empanada Kitchen",
+      "website": "http://www.9julio.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 4,
+      "evidence": "$50"
+    },
+    {
+      "id": "c3351611-cdfa-45eb-a0d1-34d2240a283b",
+      "name": "A16",
+      "website": "http://www.a16pizza.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 5,
+      "evidence": "$45"
+    },
+    {
+      "id": "b71fe6d8-1755-4cad-abc6-12c263bd447a",
+      "name": "Bar Shiru",
+      "website": "http://www.barshiru.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 5,
+      "evidence": null
+    },
+    {
+      "id": "eabdc3e6-b25e-4826-97d2-28443b58c3be",
+      "name": "D.Monaghans On The Hill",
+      "website": "http://dmonaghansoakland.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 5,
+      "evidence": "$20."
+    },
+    {
+      "id": "b38c86f3-4983-4970-8910-1f6336d60366",
+      "name": "Hidden Spot Emeryville",
+      "website": "http://hiddenspot.online/",
+      "windows": 1,
+      "cause": "text",
+      "pagesFetched": 3,
+      "evidence": "deal-words"
+    },
+    {
+      "id": "c65ff486-ea10-452d-8e9e-e4fe9ae20f65",
+      "name": "Iron & Oak",
+      "website": "https://www.marriott.com/en-us/hotels/oakdt-oakland-marriott-city-center/dining/?scid=feed67b0-9a2f-4de1-8df6-114544116108",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 5,
+      "evidence": "$23,000"
+    },
+    {
+      "id": "852a332f-9aea-4093-ae0b-eac205bdb1df",
+      "name": "Las Guerreras",
+      "website": "https://lasguerrerascocina.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 5,
+      "evidence": null
+    },
+    {
+      "id": "cace3560-381a-4664-862b-f2dc81d42d04",
+      "name": "Lucuma Kitchen and Bar",
+      "website": "https://www.lucumakitchen.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 6,
+      "evidence": "$25"
+    },
+    {
+      "id": "29ac81ce-a0f1-4eb6-806c-a3433ca3e55d",
+      "name": "Lucy Blue",
+      "website": "http://lucybluebar.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 5,
+      "evidence": null
+    },
+    {
+      "id": "8cb64afc-9281-48cf-8234-4c7a585c13ed",
+      "name": "Pizzaiolo",
+      "website": "http://www.pizzaiolooakland.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 4,
+      "evidence": null
+    },
+    {
+      "id": "65e60634-6bee-4ae6-992f-fde7d129ab32",
+      "name": "Plank",
+      "website": "http://www.plankoakland.com/",
+      "windows": 1,
+      "cause": "text",
+      "pagesFetched": 3,
+      "evidence": "$4"
+    },
+    {
+      "id": "acae6769-a74a-4564-b009-0ea102863fb1",
+      "name": "RnR Sushi & Bowls",
+      "website": "https://www.piedmontrnr.com/",
+      "windows": 1,
+      "cause": "text",
+      "pagesFetched": 5,
+      "evidence": "deal-words"
+    },
+    {
+      "id": "c50c3382-a55e-4b6f-8aa0-750591780e7a",
+      "name": "Saucy Oakland",
+      "website": "http://www.saucyoakland.com/",
+      "windows": 2,
+      "cause": "image",
+      "pagesFetched": 2,
+      "evidence": "$10"
+    },
+    {
+      "id": "1a92f174-dbd4-4220-a2ea-95240626911d",
+      "name": "Sláinte Irish Pub Oakland",
+      "website": "https://slainteoakland.com/",
+      "windows": 1,
+      "cause": "pdf",
+      "pagesFetched": 3,
+      "evidence": null
+    },
+    {
+      "id": "e95af00b-aec1-40a1-a711-7e038d488ee3",
+      "name": "The Cat House",
+      "website": "http://thecathousebar.com/",
+      "windows": 1,
+      "cause": "text",
+      "pagesFetched": 1,
+      "evidence": "$14"
+    },
+    {
+      "id": "3f9b3c28-1662-4655-bf1c-a1406289c94a",
+      "name": "The Legionnaire Karaoke Saloon",
+      "website": "https://legionnairesaloon.com/",
+      "windows": 1,
+      "cause": "pdf",
+      "pagesFetched": 6,
+      "evidence": "deal-words"
+    },
+    {
+      "id": "df017cec-15f8-4c98-b5d9-f9bf1b634785",
+      "name": "The Overlook at Tilden",
+      "website": "https://overlookattilden.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 10,
+      "evidence": "deal-words"
+    },
+    {
+      "id": "cad3bb13-9f53-41ed-a8a8-8b9d839581c2",
+      "name": "The Saap Avenue",
+      "website": "https://thesaapavenue.com/?utm_source=google",
+      "windows": 1,
+      "cause": "text",
+      "pagesFetched": 5,
+      "evidence": "$30.00"
+    },
+    {
+      "id": "bc21ca04-ba7d-458c-8b18-6778b33d038c",
+      "name": "Townhouse",
+      "website": "https://www.townhouseemeryville.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 7,
+      "evidence": "$20."
+    }
+  ]
+}

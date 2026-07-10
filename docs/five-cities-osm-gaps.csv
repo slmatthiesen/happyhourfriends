@@ -1,0 +1,44 @@
+name,amenity,cuisine,website,lat,lng,osm_id
+Cape Cod Eatery and Taphouse,restaurant,seafood,https://www.capecodeatery.com/,35.1568638,-120.6708418,node/7251975554
+Del's Pizzeria & Italian,restaurant,italian,https://delspizzeria.com/,35.1552977,-120.666689,node/3530633956
+Denny's,restaurant,american,https://www.dennys.com/,35.1351548,-120.6213891,way/163128043
+ManRock Brewing Company,pub,,https://manrockbrewing.com,35.1294305,-120.6082845,node/3160559222
+Old Juan’s Cantina,restaurant,mexican,https://www.oldjuanscantina.com/,35.1073865,-120.6240502,node/13363875193
+Steamers of Pismo,restaurant,,http://www.steamerspismobeach.com,35.1449317,-120.6458555,way/160262503
+Sylvester's Burgers,restaurant,american,https://www.sylvestersburgers.com/,35.099394,-120.6128782,way/160153770
+T’s Red Tacos,restaurant,mexican,https://www.tsredtacos.com,35.1406513,-120.6409731,way/117988377
+The Quarterdeck Bar & Gril,restaurant,,https://www.quarterdeckseafood.com,35.1299113,-120.6033769,way/162504690
+Virtjuice,restaurant,juice,https://www.virtjuice.com/,35.1209763,-120.5993555,node/4106255113
+At The Pier,restaurant,mediterranean,,35.1395509,-120.6415313,node/12466256123
+Blaze Pizza,restaurant,pizza,,35.1287736,-120.5967256,way/469594567
+Branch Street Deli,restaurant,,,35.1240603,-120.5777076,node/13427066619
+Breezeway Cafe,restaurant,,,35.1401126,-120.641897,node/12466256120
+Calilove,bar,wine,,35.1396966,-120.6424038,node/12467683882
+Car lands burgers,restaurant,,,35.1217619,-120.6225435,node/13228062396
+Chachos Mexican Food,restaurant,mexican,,35.0983177,-120.6106205,way/161082215
+Coco's Bakery,restaurant,american,,35.1364269,-120.6250599,way/163125351
+Doughboy's Pizza,restaurant,italian;pizza,,35.1204886,-120.6083211,way/1527896630
+El Mirador,restaurant,mexican,,35.1399748,-120.642473,node/5254757785
+F Mclintocks Saloon and Dining House,restaurant,,,35.1571686,-120.667918,way/160174144
+HotShots,pub,,,35.140389,-120.6415222,node/3969282117
+La Parrilla,restaurant,mexican,,35.1205863,-120.6063003,node/12464246961
+Mattie's Bar and Grill,restaurant,,,35.1421079,-120.6401959,node/5258277160
+Moreno’s Taqueria,restaurant,mexican,,35.141072,-120.6413439,node/12466036972
+Orcutt Burger,restaurant,burger,,35.1213019,-120.6099629,node/5226757506
+Oscars,bar,,,35.0999506,-120.6023498,node/4675441771
+Pasta Bella Ristorante,restaurant,italian,,35.1404388,-120.6413394,node/12476316788
+Pequín,restaurant,,,35.1383092,-120.6419386,node/12466480470
+Pier101,restaurant,,,35.1217325,-120.6216965,node/13228042094
+Pismo Brewing Company,pub,,,35.139037,-120.6409548,node/12466233188
+Pismo Fish & Chips,restaurant,,,35.1386348,-120.6408868,node/12466233157
+Rib Line by the Beach,restaurant,american,,35.1220766,-120.6268789,node/2213368979
+Rock and Roll Diner,restaurant,burger;greek,,35.105452,-120.6226486,way/160150367
+Round Table Pizza,restaurant,pizza,,35.1208329,-120.6113799,node/6184409315
+Shell Cafe,restaurant,american,,35.1453345,-120.6442751,way/160264555
+Taqueria,restaurant,mexican,,35.1216302,-120.6269909,node/12119301209
+Taqueria El Güero,restaurant,mexican,,35.1407008,-120.6416467,node/2255950560
+The Moose Deli & Brew,restaurant,,,35.1432365,-120.6414951,node/5226910781
+Urnane Cafe,restaurant,,,35.1265974,-120.5955281,node/13135040220
+Weenie World,restaurant,,,35.140322,-120.6416078,node/12466256118
+Y'Not Organic,restaurant,,,35.1320504,-120.6072016,way/383655144
+Yamato Sushi,restaurant,sushi,,35.1213754,-120.610101,node/5226757505

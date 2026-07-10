@@ -1,0 +1,87 @@
+{
+  "city": "Sacramento",
+  "slug": "sacramento",
+  "dropped": [
+    {
+      "id": "64993b89-d5c8-48bd-8d27-a1a6f11f527d",
+      "name": "Blue House Korean BBQ",
+      "website": "https://bluehousekbbq.com/",
+      "windows": 3,
+      "cause": "image",
+      "pagesFetched": 8,
+      "evidence": "$79"
+    },
+    {
+      "id": "396a083a-3edd-4833-8f8f-a273ae23cf31",
+      "name": "House Kitchen & Bar",
+      "website": "http://www.housekitchenandbar.com/",
+      "windows": 1,
+      "cause": "pdf",
+      "pagesFetched": 3,
+      "evidence": null
+    },
+    {
+      "id": "f999e22b-330d-459b-8ab5-357328123590",
+      "name": "Miyagi | Bar & Sushi",
+      "website": "http://www.miyagibarsushi.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 2,
+      "evidence": null
+    },
+    {
+      "id": "fb344d29-8326-4f87-a7d6-e365454d7a88",
+      "name": "Piatti",
+      "website": "https://sacramento.piatti.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 3,
+      "evidence": null
+    },
+    {
+      "id": "caa3dc3b-f9e3-4b11-b3e2-1defa96855b4",
+      "name": "Pitch and Fiddle",
+      "website": "http://www.fiddlelariv.com/",
+      "windows": 1,
+      "cause": "text",
+      "pagesFetched": 2,
+      "evidence": "$ 11"
+    },
+    {
+      "id": "7339616f-26ca-4b60-a532-feffb4cfc853",
+      "name": "Sac City Brews Neighborhood Tap House",
+      "website": "http://www.saccitybrews.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 5,
+      "evidence": null
+    },
+    {
+      "id": "0fa5d633-0c41-4306-a07e-655dc2e12d80",
+      "name": "Streets Pub and Grub",
+      "website": "http://streetspubandgrub.com/",
+      "windows": 1,
+      "cause": "text",
+      "pagesFetched": 4,
+      "evidence": "$2"
+    },
+    {
+      "id": "48a78ec6-8f3d-4236-b38b-98d38a37a490",
+      "name": "Tipsy Putt",
+      "website": "https://tipsyputt.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 1,
+      "evidence": null
+    },
+    {
+      "id": "f1a888f9-04f8-4ad9-b1f9-128a04698eff",
+      "name": "Twisted Track Station",
+      "website": "https://www.twistedtrackstation.life/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 8,
+      "evidence": null
+    }
+  ]
+}

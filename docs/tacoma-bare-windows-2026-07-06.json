@@ -1,0 +1,60 @@
+{
+  "city": "Tacoma",
+  "slug": "tacoma",
+  "dropped": [
+    {
+      "id": "c3e64a2f-5f25-4055-8c79-ca31cb98921c",
+      "name": "bite",
+      "website": "https://www.hotelmuranotacoma.com/dining/bite/",
+      "windows": 1,
+      "cause": "pdf",
+      "pagesFetched": 4,
+      "evidence": null
+    },
+    {
+      "id": "9e8b682d-db81-4734-a144-bf0a237e7979",
+      "name": "GRANN",
+      "website": "https://www.eatatgrann.com/",
+      "windows": 1,
+      "cause": "pdf",
+      "pagesFetched": 7,
+      "evidence": "$10"
+    },
+    {
+      "id": "980af0d3-6bbc-4426-968d-9af26a33d24a",
+      "name": "Loak Toung Thai",
+      "website": "http://loaktoungthai.com/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 3,
+      "evidence": "$2"
+    },
+    {
+      "id": "32d67463-bb4f-42d6-a82f-384d7f6d9282",
+      "name": "Lucky Silver Tavern",
+      "website": "https://www.theluckysilver.com/",
+      "windows": 2,
+      "cause": "pdf",
+      "pagesFetched": 3,
+      "evidence": "$3.00"
+    },
+    {
+      "id": "1c316068-5700-4fff-b52a-2ca44264b7a6",
+      "name": "Melting Pot",
+      "website": "https://www.meltingpot.com/tacoma-wa/",
+      "windows": 1,
+      "cause": "image",
+      "pagesFetched": 6,
+      "evidence": "$24"
+    },
+    {
+      "id": "fe67af7d-fc9d-4657-b125-fcfa57479a7b",
+      "name": "Pint Defiance Specialty Beers & Taproom",
+      "website": "http://www.pintdefiance.com/",
+      "windows": 1,
+      "cause": "text",
+      "pagesFetched": 3,
+      "evidence": "deal-words"
+    }
+  ]
+}

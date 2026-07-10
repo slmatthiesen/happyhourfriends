@@ -1,0 +1,11 @@
+city,action,venue,primary_type,reviews,website,reason
+"phoenix-central",delete,"Guy Fieri’s DTPHX Kitchen + Bar",american_restaurant,689,"","no alcohol signal + no site"
+"phoenix-central",hide,"China Chili",chinese_restaurant,2838,"http://www.chinachilirestaurant.com/","zero-HH cuisine (chinese_restaurant)"
+"phoenix-central",hide,"Wong's Chinese Dining",chinese_restaurant,1375,"http://wongs-chinesedining.com/","zero-HH cuisine (chinese_restaurant)"
+"phoenix-central",hide,"Pei Wei Asian Kitchen",chinese_restaurant,1365,"https://www.peiwei.com/arizona/163-phoenix-mcdowell/","zero-HH cuisine (chinese_restaurant)"
+"phoenix-central",hide,"Abacus Inn Chinese Restaurant",chinese_restaurant,930,"https://www.theabacusinn.com/","zero-HH cuisine (chinese_restaurant)"
+"phoenix-central",hide,"Dragon Palace",chinese_restaurant,888,"https://www.dragonpalacephoenix.com/","zero-HH cuisine (chinese_restaurant)"
+"phoenix-central",hide,"Nee House Chinese Restaurant",chinese_restaurant,511,"https://www.neehousechinese.com/","zero-HH cuisine (chinese_restaurant)"
+"phoenix-central",hide,"Yin's Chinese Restaurant",chinese_restaurant,479,"http://www.yinschinesephoenix.com/","zero-HH cuisine (chinese_restaurant)"
+"phoenix-central",hide,"Nami Korean Kitchen & Sushi",korean_restaurant,374,"https://www.nami-koreankitchenaz.com/","zero-HH cuisine (korean_restaurant)"
+"phoenix-central",hide,"Szechwan Kitchen",chinese_restaurant,225,"https://www.szechwan-kitchen.com/","zero-HH cuisine (chinese_restaurant)"

@@ -1,0 +1,160 @@
+name,amenity,cuisine,website,lat,lng,osm_id
+Bitters Cocktail Bar & Food,pub,,https://bittersbar.com/,33.4644586,-111.9256075,node/10558776966
+Blanco Tacos + Tequilla,restaurant,mexican,https://www.blancococinacantina.com/locations/scottsdale-az/,33.5280683,-111.926597,way/920945060
+Blue Adobe Santa Fe Grille,restaurant,mexican,https://www.blueadobegrille.com/,33.5852725,-111.8347785,way/586136934
+Breakfast Club,restaurant,breakfast,https://www.breakfastclub.us/,33.5000654,-111.9263486,node/4840570436
+CAKE Nightclub,restaurant,,https://cakenightclub.com/,33.5007946,-111.921961,node/10213572484
+Clever Ramen,restaurant,ramen,https://www.cleverramen.com/,33.4642328,-111.9255903,node/10558776969
+Cobre Kitchen + Cocktails,restaurant,regional,https://www.cobrekitchen.com,33.492418,-111.9280329,node/8698089531
+DeFalco's Italian Eatery and Grocery,restaurant,italian;pizza;sandwich;pasta;salad,https://defalcosdeli.com/,33.4740546,-111.926576,node/13312660496
+El Hefe Scottsdale,restaurant,,https://elhefe.com/,33.5013144,-111.9220126,node/10225392589
+First Watch,restaurant,breakfast,https://firstwatch.com/,33.5271585,-111.9246436,node/13521084201
+FnB,restaurant,,http://www.fnbrestaurant.com,33.4979014,-111.9272565,node/4860843165
+Frank And Lupe's Restaurant and Bar,restaurant,mexican,https://frankandlupes.com/,33.4952409,-111.9287411,node/4840570434
+Giligins,restaurant,american,http://giliginsbar.com,33.4981078,-111.9250339,node/4840570397
+Hokkaido Sushi Asian Bistro,restaurant,asian;chinese;sushi;japanese,https://hokkaido-sushi-asian-bistro.com,33.4654845,-111.914145,node/13055183999
+JoJo's shakeBAR,restaurant,,https://www.jojosshakebar.com/scottsdale,33.6233617,-111.9236378,node/12671196700
+La Fonda Del Sol,restaurant,mexican,https://www.lafondadelsoltogo.com/,33.5818002,-111.9248395,node/7819098450
+La Locanda Italian Bistro,restaurant,italian,https://www.lalocandaaz.com,33.4929509,-111.9258829,node/5173661316
+Liberty Station,restaurant,american,https://libertystationtavern.com/,33.6749926,-111.8884604,node/7206701449
+Liz Modern Asian,restaurant,asian;hong_kong,https://lizmodernasianrestaurant.com/,33.6251122,-111.9235986,node/10022849590
+Mendocino Farms,restaurant,,https://mendocinofarms.com,33.564837,-111.9254558,node/13723847292
+New York Bagels 'N Bialys,restaurant,european;polish;ashkenazi_jewish;jewish;eastern_european;eastern_european_jewish,https://nybagelsnbialys.com/#location-3,33.671931,-111.9060781,node/13403736570
+NYPD Pizza,restaurant,pizza,https://www.aznypdpizza.com/,33.5815753,-111.9255855,node/7818416634
+Pizza Hut,restaurant,pizza,https://locations.pizzahut.com/az/scottsdale/10320-n-scottsdale-rd,33.5795724,-111.9267157,node/7818446331
+Pizza Hut,restaurant,pizza,https://locations.pizzahut.com/az/scottsdale/7790-e-mcdowell-road,33.4661539,-111.9120053,node/11715520417
+Pizzeria Virtù,restaurant,pizza,https://pizzeriavirtu.com/,33.4932501,-111.9310159,way/567996092
+Problem Lounge,restaurant,italian;steak_house,https://www.facebook.com/ProblemLounge/,33.49873,-111.9229,node/10990319094
+Randy’s Restuarant,restaurant,american;breakfast;diner,http://Randysrestaurantaz.com,33.5096946,-111.9115784,node/13521084101
+Riot Hospitality Group,restaurant,,https://riothg.com/,33.501937,-111.9194748,node/10239573049
+Riot House,restaurant,,https://riothouse.com/,33.5014113,-111.9220188,node/10559291811
+Santé Restaurant,restaurant,,https://www.lovesante.com/,33.6283298,-111.9248902,node/9386653125
+Scottsdale Burger Bar,restaurant,burger,https://scottsdale-burger-bar-107445.square.site/,33.6999523,-111.924711,node/6859172137
+Someburros,restaurant,mexican,https://someburros.com/locations/,33.6361337,-111.9185129,node/12056186693
+The Clean Counter,restaurant,,https://thecleancounter.com/,33.6501352,-111.924543,node/10295009355
+The Root and Soul,restaurant,regional,https://therootandsoul.com,33.6130389,-111.8649904,node/6534542406
+Trevor's Bar & Lounge,bar,,https://www.trevors.com/mcdowell-beer-wine-bar-lounge,33.4662928,-111.9228223,node/10558543635
+Twisted Lizard Tavern & Grille,restaurant,regional,https://www.twistedlizardtavern.com/,33.6272789,-111.8546793,node/5593442915
+Twisted Vine Pool Bar & Grill,restaurant,,https://www.thescottsdaleresort.com/fine-dining-scottsdale/twisted-vine,33.5483631,-111.9162385,way/1279045923
+Volanti,restaurant,,https://volantiscottsdale.com/,33.618504,-111.920707,node/12980317892
+Zinburger Wine & Burger Bar,restaurant,burger,https://zinburgeraz.com/,33.6244614,-111.9235697,node/5887067560
+AZ 88,restaurant,american,,33.49276,-111.9230519,node/3319443362
+Bandera,restaurant,,,33.4924267,-111.9259019,node/5173661311
+bandolero cocina de Mexico,restaurant,mexican,,33.5664307,-111.9244266,node/8775341717
+Best Life Nutrition,restaurant,,,33.4965793,-111.9305796,node/13309265607
+Blaze Pizza,restaurant,pizza,,33.6335549,-111.924961,node/8005379688
+Bootleggers American Smokehouse,restaurant,barbecue,,33.4920408,-111.925564,node/5173662831
+Boss Pizza Kitchen,restaurant,burger;pizza;sandwich,,33.4909793,-111.927562,node/4734925774
+Bowl of Greens,restaurant,,,33.6356911,-111.923925,node/8005379569
+Brathaus,restaurant,,,33.4900419,-111.9263373,way/548635057
+bru haüs,biergarten,,,33.4901585,-111.9263043,way/548635056
+Butterfields,restaurant,breakfast,,33.5827065,-111.9222602,way/222962003
+Butters Pancakes & Cafe,restaurant,,,33.6198906,-111.8973365,way/1071367102
+Cafe Forté,restaurant,,,33.4932371,-111.92946,node/5173661303
+Café Paris,restaurant,french,,33.6228516,-111.9029257,node/10786026649
+Caliente Mexican Grill,restaurant,mexican,,33.6276149,-111.8969503,node/10796212886
+Carrabba's Italian Grill,restaurant,italian,,33.6389796,-111.9243608,way/307098292
+Casa Amigos,bar,,,33.5016874,-111.9230352,way/668822870
+Casablanca,bar,,,33.4993683,-111.9277862,node/4797331471
+Charleston's,restaurant,,,33.6392011,-111.9245539,way/307098288
+Cold Beer & Cheeseburgers,restaurant,,,33.4975553,-111.9264033,node/4840570419
+Copper Mule Kitchen & Bar,bar,,,33.6980827,-111.924696,node/7993516589
+Counter Intuitive,bar,,,33.4992385,-111.9274267,node/4840570386
+Crab & Mermaid,restaurant,,,33.4974208,-111.9263992,node/4840570406
+Crust,restaurant,italian;pizza,,33.5380294,-111.9057805,node/2819399052
+Culinary Gangster,restaurant,burger,,33.6213262,-111.8964278,node/11403904643
+Cullinary Drop Out,restaurant,,,33.6242189,-111.9231197,node/13768519631
+Daily Dose,restaurant,,,33.4943641,-111.9263517,node/5173662909
+Darcy's Ristorante,restaurant,italian,,33.7278649,-111.8537757,way/672725318
+Denny's,restaurant,american,,33.580599,-111.9264868,way/151298176
+Dickey's Barbecue Pit,restaurant,barbecue,,33.6196803,-111.8923443,node/10767521808
+Drunk Munk,restaurant,,,33.4991449,-111.9275222,node/4840570394
+Eddie Merlot's Prime Aged Beef & Seafood,restaurant,steak_house,,33.6971467,-111.923876,node/7993516682
+Egg N' Joe,restaurant,breakfast,,33.6981627,-111.922932,node/7993516659
+Elephante,restaurant,,,33.5027915,-111.9289288,node/13797637282
+First Watch,restaurant,american;breakfast,,33.6354547,-111.922363,node/8005379491
+First Watch,restaurant,american;breakfast,,33.7978309,-111.9292356,node/8893289667
+First Watch,restaurant,american;breakfast,,33.5820913,-111.8797682,way/286998366
+FitChoice Foods,restaurant,,,33.465016,-111.911802,way/992744714
+Flemming's,restaurant,,,33.5308278,-111.9247717,node/2746620385
+Franco's Italian Caffe,restaurant,,,33.4993227,-111.9258851,node/4840570410
+Geisha A Go Go,restaurant,,,33.498967,-111.9267066,node/4840570442
+Grimaldi's Pizzeria,restaurant,pizza,,33.6236575,-111.9235825,node/13768484477
+Gyros Plus,restaurant,greek,,33.6239026,-111.8966561,node/10780808500
+Habaneros Mexican Grill,restaurant,mexican,,33.621556,-111.8990423,node/10783507388
+Hacienda's Mexican Grill,restaurant,mexican,,33.7805032,-111.9240966,way/963503648
+Hash Kitchen,restaurant,american,,33.5651079,-111.9254584,node/13723920392
+Hash Kitchen North Scottsdale,restaurant,,,33.6202877,-111.8746814,way/1167470075
+HB Wellness,restaurant,,,33.6395759,-111.8864068,node/10938618086
+Hi-Fi Kitchen & Cocktails,bar,,,33.5012362,-111.9223804,node/3046814765
+IHOP,restaurant,breakfast;pancake,,33.5755335,-111.8863966,way/199753942
+Ironwood American Kitchen,restaurant,,,33.6455616,-111.9191105,node/8004688910
+Isabelle’s Kitchen,restaurant,,,33.6758998,-111.8965263,way/77848883
+Kazimierz World Wine Bar,bar,,,33.4992992,-111.9271898,node/4840570373
+Kelly's At Southbridge,restaurant,,,33.4988003,-111.9273797,node/4840570390
+La Petite Maison,restaurant,french,,33.5010884,-111.9254987,node/1654901351
+Lorenzo's Pizza,restaurant,pizza,,33.700664,-111.924237,node/7990332637
+Macayo's Mexican Food,restaurant,mexican,,33.5830852,-111.894909,way/1155676348
+Marcellino Ristorante,restaurant,,,33.4991163,-111.9283122,node/4840570402
+Maskadores Taco Shop,restaurant,mexican,,33.6240683,-111.896647,node/10780808501
+Mason's Famous Lobster Rolls,restaurant,seafood,,33.6247807,-111.9235754,node/13768519620
+Modern Market,restaurant,,,33.5063019,-111.9257184,node/4797331487
+Morning Squeeze,restaurant,,,33.4977419,-111.9258764,node/4840570371
+Moxie's,restaurant,bar_and_grill,,33.5033722,-111.9276351,node/4586165689
+Nonna,restaurant,,,33.4935055,-111.9249665,node/5173662872
+O.H.S.O Brewery + Distillery,pub,,,33.6278635,-111.8935269,node/6131002461
+Obon Sushi Bar,restaurant,sushi,,33.6233761,-111.9245634,node/13768519607
+OEB Breakfast Co.,restaurant,,,33.6501133,-111.9244855,node/8000958329
+Oregano's,restaurant,pizza,,33.6271491,-111.891488,way/231265194
+Oregano's,restaurant,,,33.483292,-111.9267323,way/546212109
+Original Chop Shop Company,restaurant,,,33.4985152,-111.9263096,node/4860843148
+Paradise Valley Burger,restaurant,burger,,33.6280599,-111.8918445,node/13545242301
+Pei Wei,restaurant,asian,,33.781034,-111.9240899,node/8912461589
+Peter Piper Pizza,restaurant,pizza,,33.4654564,-111.9164951,node/1592989343
+Phil’s Grill,restaurant,american,,33.6782894,-111.8973233,node/7840566463
+Pink Pony,restaurant,,,33.4925856,-111.9259307,node/5173662920
+Pita House,restaurant,,,33.4942742,-111.925666,node/5173662830
+Pizza Hut,restaurant,pizza,,33.5014168,-111.9177651,node/13246409753
+Poke Spot,restaurant,,,33.6764127,-111.9233162,node/7998235497
+Prankster's Too,bar,,,33.478904,-111.9108301,way/1303547586
+Pretty please lounge,bar,,,33.5016169,-111.9223597,node/2610288525
+RA Sushi,restaurant,sushi,,33.4920104,-111.925898,node/5173662890
+Ray's Pizza,restaurant,pizza,,33.6272991,-111.89317,node/10780768260
+Red Dragon Chinese Bistro,restaurant,chinese,,33.6212968,-111.8990318,node/10783507386
+Rehab Burger Therapy,restaurant,,,33.491512,-111.9256433,node/5173662860
+ReVive,bar,,,33.4626627,-111.9256557,node/10559828835
+Rinaldi's Italian Deli,restaurant,italian,,33.6345873,-111.924284,node/8005379605
+RnR,restaurant,,,33.4915232,-111.9259314,node/5173662915
+Roadhouse,bar,,,33.49481,-111.9237801,node/4359545189
+S&V Urban Italian,restaurant,italian,,33.5818187,-111.8796909,node/10744352569
+Saigon Nites,restaurant,vietnamese,,33.6282079,-111.8913593,node/13545242201
+Salt & Lime Modern Mexican Grill,restaurant,mexican,,33.5815983,-111.8785881,node/10744394909
+Salty Senorita,restaurant,,,33.4916125,-111.926413,node/5173662836
+Scapegoat,bar,,,33.4985198,-111.9268166,node/4860843161
+Scottsdale Elks #2148,pub,,,33.4734835,-111.9448148,node/4756501495
+Sel,restaurant,,,33.4932563,-111.9290222,node/5173661304
+Sesame Inn,restaurant,chinese,,33.7983363,-111.9306222,node/8893289674
+Snooze,restaurant,breakfast,,33.5827617,-111.8945585,node/10747476420
+State 48 Lager House,pub,,,33.6275483,-111.8962575,way/985072774
+Stax Bistro,restaurant,,,33.5005162,-111.9264212,node/4840570412
+STK,restaurant,steak_house,,33.4994612,-111.9279612,node/12333533621
+Sugo Bistro,restaurant,italian,,33.6366141,-111.8836091,way/1177427267
+Summit Diner,restaurant,,,33.7804657,-111.9237574,node/8912461537
+SushiKo,restaurant,sushi,,33.5804608,-111.8803083,node/10744406558
+Taphouse Kitchen,restaurant,,,33.5267294,-111.9247526,node/9661407237
+Tejas Southwest Grill,restaurant,,,33.5576533,-111.8996871,node/13728424579
+The Breakfast Joynt,restaurant,,,33.6395357,-111.8649055,node/13541424388
+The Cantina at Legend Trail Golf Club,restaurant,,,33.8003736,-111.8772472,node/1883102053
+The Guest House,restaurant,,,33.6253927,-111.9250124,node/13768484470
+The Mint,bar,,,33.5019365,-111.9215793,node/3046809532
+The Preserve Tavern & Grille,bar,,,33.62876,-111.8933462,node/10780810859
+Tommy’s,restaurant,,,33.4947014,-111.9242375,way/156290531
+Treffpunkt,restaurant,,,33.6155209,-111.9090302,node/10797728796
+TT Roadhouse,bar,,,33.480826,-111.934531,way/1097208900
+Two Brothers,pub,,,33.4991591,-111.9258079,node/4840570423
+U.S. Egg,restaurant,breakfast,,33.4859708,-111.926538,way/546213767
+Wasted Grain,pub,,,33.4993616,-111.9241306,node/597550032
+"Wok ""n Roll",restaurant,chinese,,33.5004794,-111.9180378,way/546192708
+Yasu-O,restaurant,sushi,,33.5576389,-111.8991248,node/13728424587
+Yopaulys New York Pizza Co,restaurant,pizza,,33.56914,-111.8898043,node/10731811570
+Yume Sushi Grill,restaurant,sushi,,33.6362976,-111.922917,node/8005379487

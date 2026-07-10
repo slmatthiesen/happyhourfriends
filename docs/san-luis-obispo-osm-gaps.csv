@@ -1,0 +1,75 @@
+name,amenity,cuisine,website,lat,lng,osm_id
+201 Kitchen,restaurant,japanese,https://201kitchenslo.com/,35.2800267,-120.6623482,node/4929556822
+Aisuru Sushi,restaurant,sushi,http://aisurusushibar.com/index.html,35.2818907,-120.6608513,node/2456191202
+Bang the Drum Brewery,pub,bakery,https://bangthedrumbrewery.com/,35.263896,-120.645612,node/8368881182
+Bob Cantu's Pizza & Sports Bar,pub,,https://bobcantuspizzaandsportsbar.com/,35.2783124,-120.6641998,way/45644073
+Bon Temps Creole Cafe,restaurant,cajun,http://www.bontempscreolecafe.com/,35.275379,-120.655783,node/932525187
+Capriottti's Sandwich Shop,restaurant,sandwich,https://order.capriottis.com/,35.2938944,-120.671971,node/2261957364
+Cerro Caliente Cellars,bar,,https://cerrocalientecellars.com/,35.2584052,-120.6443862,node/5305551270
+Chilie Peppers,restaurant,mexican,http://chiliepeppers.com/,35.2705679,-120.6579404,way/45631213
+Cowgirl Cafe,restaurant,,http://www.cowgirlcafe.net/,35.2868825,-120.6647934,way/45597312
+Ebony,restaurant,ethiopian,https://www.ebony-slo.com/,35.2799661,-120.6635998,way/1344472132
+Efren’s Mexican Restaurant,restaurant,mexican,https://www.efrensmexicanrestaurant.com/,35.2662604,-120.639312,node/10577576658
+Et Voilà,restaurant,french,https://www.etvoilarestaurant.com/,35.2483331,-120.6833455,node/2908246026
+HELLAHOT,restaurant,chicken,http://hellahot.io/,35.2778807,-120.6668368,way/1333420718
+High St Deli,restaurant,sandwich,https://www.highstdeli.com/,35.2723177,-120.6644742,way/45630209
+La Esquina Taqueria,restaurant,mexican,https://laesquinaslo.com/,35.27842,-120.6660938,node/9153221172
+La Locanda,restaurant,italian,http://www.lalocandaslo.com/,35.2788121,-120.663068,node/2454775892
+Le Ciel Crepe Cafe,restaurant,crepe,http://www.lecielcrepes.com/,35.2609643,-120.650579,node/2522844354
+Lincoln Market & Deli,restaurant,,http://lincolnmarketanddeli.com/,35.2848965,-120.6685755,way/45597012
+Metro Brewing Company,bar,,http://www.metrobrewco.com/index.html,35.2793251,-120.6647216,node/4919512927
+Moe's Mediterranean,restaurant,mediterranean,https://www.moesmediterranean.com/,35.2800498,-120.6632529,way/1462741871
+Mother's Tavern,bar,american,https://motherstavern.com/,35.2790457,-120.6639702,node/4917413176
+New Earth Superfoods,restaurant,,https://newearthsuperfoods.com/,35.2813183,-120.6640188,node/2454776071
+Old San Luis BBQ Co,restaurant,barbecue,https://oldsanluisbbq.com/,35.2511856,-120.6425942,way/45221714
+Pappy McGregor's,pub,irish,https://pappymcgregors.com/,35.2890646,-120.6506291,node/2106517421
+Poke Chef,restaurant,sushi;poke,http://www.thepokechef.com/,35.2907723,-120.6593708,node/10195974704
+Quesadilla Gorilla,restaurant,mexican,https://www.quesadillagorilla.com/slo/,35.2779908,-120.6669386,way/1333420716
+Ribline,restaurant,american,https://www.ribline.com/,35.2483856,-120.6832476,node/2908246024
+Shake Shake Fresh Noodle,restaurant,chinese,https://www.ssfreshnoodle.com/,35.2781876,-120.6664713,way/1333420711
+Snofari Frozen Yogurt,restaurant,frozen_yogurt,http://snofarifroyo.com/,35.2581965,-120.6912992,node/10240903942
+Taqueria Santa Cruz Express 2,restaurant,mexican;burrito,https://www.taqueriasantacruzexpress.com/,35.2944092,-120.6705234,node/9179012030
+Urbane Cafe,restaurant,,https://urbanecafe.com/,35.2807236,-120.661666,node/2456192294
+Aloha Cafe,restaurant,,,35.2593246,-120.6437995,node/5305551275
+Apple Farm,restaurant,american,,35.2902609,-120.649381,node/3857193102
+Benjamin Franklin's,restaurant,sandwich,,35.2738912,-120.6692862,way/45595327
+Bowl'd,restaurant,,,35.280396,-120.6631585,node/2456191216
+Brooks Burgers,restaurant,burger,,35.2470854,-120.6715742,way/725153142
+Budget Cafe,restaurant,,,35.257801,-120.668087,node/3278610661
+Buffalo Pub and Grill,pub,american,,35.2789272,-120.6641538,node/4917413177
+Burger Village,restaurant,american,,35.278988,-120.664718,node/2553439212
+Central Coast Brewing,pub,,,35.2857943,-120.6556696,node/4915202339
+Chronic Tacos,restaurant,mexican,,35.2797356,-120.6615709,node/2109028967
+Cinco de Mayo,restaurant,mexican,,35.2885197,-120.6654961,way/45599419
+CJ’s BBQ,restaurant,barbecue,,35.2817377,-120.661082,node/2456191184
+Copper Cafe,restaurant,american,,35.2672076,-120.6746919,node/10808917040
+Coya Peruvian,restaurant,peruvian,,35.2786145,-120.6588559,node/11378760049
+Del Monte Cafe,restaurant,,,35.2741636,-120.6563814,way/45596564
+Deltina Coffee,restaurant,coffee_shop,,35.2911231,-120.6594506,node/12338209306
+Denny's,restaurant,american,,35.2642511,-120.6767288,way/45612935
+Frank's Famous Hot Dogs,restaurant,american;hot_dog,,35.2864863,-120.6547008,way/45598216
+Gus's Grocery,restaurant,sandwich,,35.2767148,-120.656643,node/932573584
+Hanabi Sushi,restaurant,sushi,,35.2870634,-120.6645516,way/45638030
+IHOP,restaurant,breakfast;pancake,,35.2637098,-120.6774964,way/45645290
+Jaffa Cafe,restaurant,mediterranean,,35.284631,-120.657058,node/1449700955
+Kumi-Ko Japanese,restaurant,japanese,,35.251034,-120.644123,node/2407226170
+Luis Wine Bar,bar,,,35.2814043,-120.6600581,node/4076926919
+Mongo Madness,restaurant,,,35.2796026,-120.66387,node/4929624649
+Oki Momo,restaurant,,,35.2689148,-120.6554653,node/4444817526
+Old San Luis BBQ Co,restaurant,barbecue,,35.2786161,-120.6653052,node/2553439180
+Olive Garden,restaurant,italian,,35.2525034,-120.6869302,way/236458345
+Pancho Villa's Mexican Restaurant,restaurant,,,35.2934265,-120.6681928,node/2464214862
+Pizza Republic,restaurant,pizza,,35.250135,-120.643562,node/12206368063
+Round Table Pizza,restaurant,pizza,,35.2689722,-120.655508,node/4444817527
+S.Low Bar,bar,,,35.2817888,-120.66322,node/8462565582
+San Luis Fish BBQ,restaurant,,,35.2764032,-120.6668638,node/4915195854
+Seeds,restaurant,,,35.2788453,-120.6630939,node/4931188564
+SLO Brew Rock,pub,american;burger,,35.2416954,-120.640878,way/805562184
+SLO Provisions,restaurant,,,35.284086,-120.6572612,node/662579814
+Tacos de Aculpuco,restaurant,mexican,,35.24829,-120.683394,node/3436084693
+Tacos de Mexico,restaurant,mexican,,35.288098,-120.6643871,way/45594006
+Tahoe Joe's,restaurant,,,35.2604177,-120.6783169,node/3841819017
+Taqueria Santa Cruz Express,restaurant,mexican,,35.284664,-120.657011,node/2597849163
+The Breakfast Buzz,restaurant,,,35.2883789,-120.6653772,way/45599420
+Tiki Hut,restaurant,,,35.2911215,-120.6595422,node/12338209308
+"UBATUBA, Acai bowls",restaurant,,,35.2787752,-120.6624763,node/2456191374

@@ -1,0 +1,141 @@
+name,amenity,cuisine,website,lat,lng,osm_id
+Alderwood,restaurant,steak_house;french,https://www.alderwoodsantacruz.com/,36.973161,-122.0272867,node/6260271466
+Bagelry,restaurant,bagel,https://bagelrysantacruz.com/,36.9795231,-122.0096375,node/409473213
+Chocolate,restaurant,,https://chocolatesantacruz.com/,36.975568,-122.0264126,node/392899144
+Crepe Place,bar,,https://www.thecrepeplace.com/,36.9794109,-122.0108755,way/64281627
+Cruz N Gourmet Food Truck,restaurant,regional;californian;burger;international;chicken;indonesian,https://www.cruzngourmet.com/,36.9991568,-122.0621928,node/6456721963
+Daisuki Octagon Sushi,restaurant,japanese,https://daisukioctagonsushi.us/,36.974996,-122.025603,node/11052157244
+Denny's,restaurant,american,https://www.dennys.com/,36.9851034,-122.0241221,way/35557773
+Engfer Pizza Works,restaurant,pizza,https://www.engferpizzaworks.com/,36.9681264,-122.008049,node/415277167
+Erik's DeliCafé,restaurant,,https://www.eriksdelicafe.com/,36.9887943,-121.9810357,node/431420728
+Falafel of Santa Cruz,restaurant,,https://www.falafelofsantacruz.com/,36.9669989,-122.0395151,node/6564075064
+Fog Bank,pub,american,https://www.the-fogbank.com/,36.9722096,-121.952265,node/2604085612
+Gayle's Bakery,restaurant,deli;bakery,https://www.gaylesbakery.com/,36.9784477,-121.9524921,way/941861185
+Geisha Sushi,restaurant,sushi,https://www.geishasushicapitola.com/,36.9728099,-121.9503459,node/2604804346
+Golden City,restaurant,chinese,https://goldencityfood.wordpress.com/,36.9688631,-122.0380793,way/35027325
+Harbor Café,restaurant,,https://www.harborcafesantacruz.com,36.9682395,-121.9981627,way/58671159
+Jeffery’s,restaurant,,https://www.jefferysrestaurant.com,36.9821864,-121.9961981,way/35127760
+Laili,restaurant,asian,https://lailirestaurant.com/,36.9751363,-122.0261512,node/415505256
+Linda's Seabreeze Cafe,restaurant,,https://www.seabreezecafe.com/,36.9683011,-122.007766,node/412292017
+Melo Melo Kava Bar,bar,,https://melomelokavabar.com/,36.9719029,-122.025684,node/10030110830
+O'mei,restaurant,chinese,http://www.omeichow.com/,36.9616159,-122.0473583,node/409807176
+Oasis Tasting Room & Kitchen,restaurant,pizza,https://www.oasissantacruz.com/,36.9813135,-122.0297338,node/8163034046
+Odonata Wines,bar,,http://www.odonatawines.com/,36.9607816,-122.047498,node/2415621550
+Olive Garden,restaurant,italian,https://www.olivegarden.com,36.9778982,-121.9690203,way/916557455
+Oyunaa's,restaurant,mongolian,https://www.oyunaas.com/,36.9800804,-122.010297,node/2356569535
+Phoenix Asian Restaurant,restaurant,chinese,https://phoenixsantacruz.com,36.9611921,-122.0468005,way/35022307
+Pizzeria Avanti,restaurant,pizza,https://pizzeriaavanti.net/,36.9650534,-122.0413006,node/409821484
+Santa Cruz Diner,restaurant,,https://www.santacruzdiner.com/,36.9803942,-122.021902,way/35557247
+Seabright Social,pub,,https://seabrightsocial.com/,36.9674866,-122.0084318,way/663064529
+Sesame Korean Grill,restaurant,korean,https://www.sesame-koreangrill.com/,36.9716254,-122.02461,node/415277178
+Steamer Lane Supply,restaurant,,http://steamerlanesc.com/,36.9532385,-122.0260906,node/8129648829
+Sushi Mori,restaurant,sushi,https://www.sushimorisantacruz.com/,36.9714698,-122.0245577,node/10240930564
+Tacqueria Santa Cruz,restaurant,mexican,https://taqueriasantacruz.com/,36.9784134,-122.0127954,way/35126587
+Taqueria Los Pericos,restaurant,mexican,https://aptos.taquerialospericos.com/,36.977875,-121.9074869,node/881511329
+Taqueria Los Primos,restaurant,mexican,http://www.losprimosinctaqueria.com/,36.9710381,-122.0176531,way/38079847
+Taqueria Vallarta,restaurant,mexican,http://taqueriavallartaonline.com,36.9764311,-122.0163935,way/35556039
+Taqueria Vallarta,restaurant,mexican,http://taqueriavallartaonline.com/,36.9688163,-122.0374868,way/271022691
+The Bagelry,restaurant,bagel,https://bagelrysantacruz.com/,36.9698513,-122.026277,node/1507769627
+The Buzz Sushi,restaurant,sushi,https://www.thebuzzsushi.com/,36.9716121,-122.0251575,node/10871825280
+The Jerk House,restaurant,jamaican,http://jerkhousesantacruz.com/,36.9883417,-121.9745002,node/4879583152
+The Penny Ice Creamery,restaurant,,https://www.thepennyicecreamery.com/,36.9748975,-122.0278273,node/1275062857
+Tony & Alba's,restaurant,pizza,http://www.tonyandalbas.com/,36.9780038,-122.0145202,way/35126589
+Venus Pie Trap,restaurant,pizza;coffee_shop;dessert,https://www.venuspietrap.com/,36.9696513,-121.9057375,node/453821699
+Walnut Avenue Café,restaurant,regional,https://www.walnutavenuecafe.com/,36.973588,-122.026371,node/406683058
+Zachary's,restaurant,regional,http://www.zacharyssantacruz.com/,36.9699019,-122.0251388,node/408446132
+515 Kitchen & Cocktails,restaurant,regional,,36.9713274,-122.0270632,way/136035363
+Akira,restaurant,japanese,,36.981233,-122.0014628,node/415817541
+Ambrosia,restaurant,,,36.9755777,-121.9126144,node/453792674
+American Café,restaurant,american,,36.9778793,-122.0228479,node/3627740242
+Aptos Pizza,restaurant,,,36.9769545,-121.9053412,node/453722437
+Aquarius,restaurant,,,36.9622023,-122.0242973,node/499500835
+Assembly,restaurant,,,36.9720929,-122.0253874,node/6818087386
+Asti,bar,,,36.9689977,-122.0249322,node/405737374
+Au Midi,restaurant,,,36.9761229,-121.9051265,node/453720668
+Bamboo Garden,restaurant,chinese,,36.9734997,-121.9687076,node/3146806529
+Bangkok West,restaurant,,,36.9846581,-121.9320945,node/589287696
+Beach St. Pizza And Bar,restaurant,pizza,,36.9640527,-122.0208993,node/3179709254
+Bedda Mia,restaurant,italian,,36.9808203,-122.015925,node/410817367
+Bedroom Desserts,restaurant,,,36.9726564,-121.9522644,node/2604085634
+Blue Lounge,bar,,,36.9679264,-122.0080475,node/411933134
+Bocci's Cellar,restaurant,italian,,36.9867644,-122.0319561,node/410821473
+Bowls by Cafe Brasil,restaurant,,,36.9942151,-122.0658138,node/1286979143
+Cafe Iveta,restaurant,cafe,,36.9980873,-122.0558021,node/395037306
+Cafe Mare,restaurant,italian,,36.975349,-122.0251555,node/406683108
+Cafe Sparrow,restaurant,french,,36.9770816,-121.9018811,node/1130366443
+Capitola Diner,restaurant,,,36.9767716,-121.9646375,node/13837934201
+Carpos,restaurant,american,,36.9838684,-121.9566387,way/153021269
+CAVA,restaurant,mediterranean,,36.9722847,-121.951703,node/2604085668
+Center Street Grill,restaurant,,,36.9760044,-122.0288799,node/394951410
+Chelito's Pupuseria,restaurant,central_american;pupusa,,36.97844,-122.0203976,node/443199003
+Chinese Village,restaurant,chinese,,36.9735186,-121.9682406,node/3146806629
+Crown/Merrill Dining Hall,restaurant,,,37.0001475,-122.0544155,node/1951380221
+Cypress Lounge,biergarten,,,36.9760119,-122.0284041,way/111749944
+D'Anna's Deli,restaurant,,,36.987336,-121.9575808,node/1674436091
+De La Hacienda,restaurant,mexican,,36.9687174,-122.028083,node/414150596
+Dharma's,restaurant,,,36.9732174,-121.961814,node/5204418624
+Don Gino's,restaurant,pizza,,36.9782925,-121.9529916,node/2701740101
+East Cliff Brewing Company,pub,,,36.9645435,-121.9892478,node/6452893708
+El Jardín,restaurant,mexican,,36.9796466,-121.9918962,node/431405448
+Erik's Deli Cafe,restaurant,,,36.9717394,-121.9654081,node/13838009002
+Food Lounge,restaurant,regional,,36.9760493,-122.028999,node/4196011241
+Fresh Choice,restaurant,,,36.9787003,-121.9671305,node/3197912844
+Golden Buddah,restaurant,,,36.9875725,-121.9581592,node/1674436101
+Golden Palace,restaurant,chinese,,36.9736844,-122.0186657,node/1355566608
+Green Burrito,restaurant,mexican,,36.975625,-121.9663083,node/490229788
+Hokkaido Ramen House,restaurant,ramen,,36.963606,-122.0424361,node/11624843448
+I Love Sushi,restaurant,japanese,,36.9725347,-122.0241752,node/413762570
+IHOP,restaurant,breakfast;pancake,,36.9726501,-121.9653026,way/488384252
+It's Wine Tyme,bar,,,36.9728952,-121.9520438,node/2604085628
+Joe's Pizza & Subs,restaurant,pizza,,36.9811513,-122.0144986,node/395034987
+Kianti's Pizza & Pasta,restaurant,pizza,,36.9635099,-122.0242149,node/1437137217
+Linwood's,bar,,,36.9964916,-121.9857458,node/705460246
+Loards Ice Cream,restaurant,ice_cream,,36.9640655,-122.0208385,node/3512832345
+Malabar Café,restaurant,asian,,36.9726184,-122.0242056,node/413762569
+Mandarin Gourmet,restaurant,chinese,,36.9752873,-122.0276617,node/392892541
+Mayflower Chinese Cuisine,restaurant,chinese,,36.9788227,-121.969122,node/2718251515
+Mexican Kitchen,restaurant,mexican,,36.9649413,-122.0413956,node/416567870
+Michael's On Main,restaurant,,,36.9850808,-121.9557577,way/266287779
+Mission Street Barbecue,restaurant,barbecue,,36.9661095,-122.0411567,way/35026950
+Mountain Mike's,restaurant,pizza,,36.9768863,-121.9065151,node/11145469971
+Mr. Kebab and Falafel,restaurant,mediterranean,,36.9718694,-121.951691,node/2604085667
+Nine & Ten Dining Commons,restaurant,,,37.0007956,-122.0578984,node/497392046
+Pacific Point Market & Cafe,restaurant,,,36.9650639,-122.0258097,node/10239649294
+Palmetto Superfoods,restaurant,,,36.973906,-122.026252,node/13841856801
+Peking,restaurant,,,36.9848645,-121.9657129,node/395039816
+Planet Fresh Burritos,restaurant,mexican,,36.975132,-122.0279117,node/392892689
+Poké House,restaurant,hawaiian,,36.9762291,-122.026923,node/8441956086
+Red Restaurant and Bar,bar,,,36.9752221,-122.0279223,node/394924919
+Reef Bar,bar,,,36.9759037,-122.0283816,node/2868267406
+Rio Room,restaurant,,,36.9485979,-121.8749162,way/1072945825
+Round Table Pizza,restaurant,pizza,,36.962104,-122.044243,node/8519267364
+Round Table Pizza,restaurant,pizza,,36.9854999,-121.9645897,way/178180127
+Roux Dat,restaurant,,,36.9787515,-121.968765,node/3197912858
+Salsa's Taco Bar,restaurant,mexican,,36.9708857,-121.98437,node/7138282889
+Sanderling's,restaurant,,,36.9507296,-121.8772352,node/896693957
+Santa Cruz Aleworks & Deli,pub,,,36.9866777,-122.0383401,node/2733247084
+Sawasdee Thai Cuisine,restaurant,,,36.987551,-121.9528336,node/5483930126
+SPLASH!,restaurant,,,36.9590602,-122.0185837,node/410821029
+Stagnaro Brothers Sea Food (Restaurant and Fish Market),restaurant,,,36.9582635,-122.0177795,node/410821030
+Star Bene,restaurant,italian,,36.9645225,-121.9928285,node/2697001386
+Stevenson/Cowell Dining Hall,restaurant,,,36.9968403,-122.053033,way/68148717
+Sunset's,restaurant,,,36.9963473,-121.985272,node/705460247
+Surf Dog,restaurant,american,,36.9690567,-122.0249373,node/2627861157
+Sushi Garden,restaurant,sushi,,36.9817312,-121.9553355,way/1153336732
+Tacos Moreno,restaurant,mexican,,36.9733622,-121.9663757,node/3173193061
+Takara,restaurant,japanese,,36.9740022,-121.9680403,way/40468285
+Taqueria Agave 2,restaurant,mexican,,36.9813855,-122.000307,node/436628464
+Taqueria Los Gordos,restaurant,mexican,,36.9818076,-121.9107745,node/453754912
+Taqueria Los Pericos,restaurant,mexican,,36.9778036,-122.0257286,node/406683131
+Taqueria Michoacan,restaurant,mexican,,36.9638931,-121.9914513,node/2327964413
+Taqueria Tepeque,restaurant,mexican,,36.9787438,-121.969783,node/3197912853
+Terra Fresca Restaurant,restaurant,,,37.0006733,-122.0577796,node/2013538192
+The Avenue,bar,,,36.9689284,-122.0249098,node/415277181
+The Poet & the Patriot,pub,,,36.969686,-122.0257105,node/1549536530
+Uncle Kwok,restaurant,,,36.9762761,-121.9046825,node/453719516
+Vasili's,restaurant,greek,,36.9669587,-122.0394651,node/406683111
+Village Dining,restaurant,,,36.98865,-122.0550419,node/3227028669
+Village Grill and Creamery,restaurant,,,36.9726995,-121.9523329,node/2604085632
+Vivas Organic Mexican Grill,restaurant,mexican,,37.0001992,-122.0533822,way/380886719
+"Whale City Cafe, Bakery, Bar & Grill",restaurant,,,36.977944,-121.9061347,way/132966270
+Windjammer,pub,,,36.9790269,-121.908918,node/453739556
