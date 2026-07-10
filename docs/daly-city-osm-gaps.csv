@@ -1,0 +1,27 @@
+name,amenity,cuisine,website,lat,lng,osm_id
+CyBelles Pizza,restaurant,pizza,https://www.cybellespizzadalycity.com/,37.687061,-122.4698687,node/2624313649
+Gilman Brewing,pub,,https://gilmanbrew.com/location/daly-city/,37.7011786,-122.470545,node/9980882195
+Sizzler,restaurant,steak_house,https://sizzler.com/locations/sizzler-colma/,37.672544,-122.4654802,way/152722801
+Supreme Pot,restaurant,asian,https://www.supremepots.com/,37.6748446,-122.4786142,way/727199603
+Bart Grocery,restaurant,korean,,37.7057378,-122.4641443,way/349599260
+Burma Cafe,restaurant,burmese,,37.6743971,-122.4793551,node/1573722979
+Casa Barajas,restaurant,mexican,,37.7068511,-122.4589184,node/9938215039
+Chopstix,restaurant,chinese,,37.6982465,-122.4644814,node/8246336431
+El Taconazo,restaurant,mexican,,37.6901839,-122.4660567,node/7827733259
+Gee Yin,restaurant,sushi,,37.7060436,-122.4617473,way/289415245
+Great Wall,restaurant,chinese,,37.6742963,-122.4788308,node/1573722722
+Kadok's,restaurant,asian,,37.6743396,-122.4792429,node/1573722944
+Kamameshi,restaurant,sushi,,37.6501973,-122.4534075,node/5753077923
+Lech' Go,restaurant,asian,,37.6743492,-122.478509,way/727199596
+Los Cuates,restaurant,mexican,,37.6902445,-122.4622791,node/7253722298
+Max's Restaurant,restaurant,asian,,37.6680942,-122.4681539,node/6810730578
+Meet Fresh,restaurant,taiwanese,,37.6703383,-122.4734807,node/11338930626
+Mr. Fong's Noodle House,restaurant,chinese,,37.6520727,-122.4681761,node/1573655666
+Pacific,restaurant,american;chinese,,37.6913195,-122.4714007,node/4569893089
+Pieology Pizzeria,restaurant,pizza,,37.6680682,-122.4684665,node/3508153135
+Pop Kitchen,restaurant,chinese,,37.6520835,-122.4679629,node/10276799169
+San Vicente,restaurant,salvadoran,,37.6862337,-122.4595299,node/8258383746
+T.C. Pastry,restaurant,chinese,,37.6743937,-122.4794713,node/1573723023
+Toast,restaurant,sandwich,,37.6517757,-122.4677579,node/1573655553
+Val's Restaurant & Lounge,restaurant,,,37.691682,-122.4713706,way/385042424
+Via Mare,restaurant,seafood,,37.7034908,-122.4626206,node/8893186803

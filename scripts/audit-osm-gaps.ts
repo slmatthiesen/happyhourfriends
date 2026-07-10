@@ -21,6 +21,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import postgres from "postgres";
 import { requireCityArgs, resolveCity } from "@/lib/cities/resolveCity";
 import { haversineMeters } from "@/lib/geo/distance";
+import { isDenylistedChain, isLikelyNoHappyHourFormat } from "@/lib/places/chainDenylist";
 
 // OSM amenity values we treat as candidate venues. fast_food is excluded — same policy as the
 // Google sweep (fast-food chains never run a happy hour and would only add noise).
@@ -161,9 +162,14 @@ async function main() {
       if (deduped.some((d) => haversineMeters(d, v) < 40 && namesMatch(d.name, v.name))) continue;
       deduped.push(v);
     }
-    // Apply our discovery type-exclusion policy (thai/indian) so gaps are directly actionable.
-    const excludedByCuisine = deduped.filter((v) => isExcludedCuisine(v.cuisine)).length;
-    osm = deduped.filter((v) => !isExcludedCuisine(v.cuisine));
+    // Apply the SAME gates the Google sweep uses so gaps are directly actionable, not bloat:
+    //  - thai/indian cuisine (zero confirmed HH),
+    //  - denylisted chains (IHOP/Sizzler/Denny's… — never a happy hour),
+    //  - buffet/AYCE formats (Moonstar Buffet et al).
+    const isNoise = (v: OsmVenue) =>
+      isExcludedCuisine(v.cuisine) || isDenylistedChain(v.name) || isLikelyNoHappyHourFormat(v.name, v.website);
+    const excludedNoise = deduped.filter(isNoise).length;
+    osm = deduped.filter((v) => !isNoise(v));
 
     // ---- Our census (candidates + venues) ----
     const dbRows = await sql<DbRow[]>`
@@ -192,7 +198,7 @@ async function main() {
     writeFileSync(outPath, header + body + "\n");
 
     console.log(`\n=== OSM gap audit: ${city.name}, ${city.state.toUpperCase()} ===`);
-    console.log(`  OSM ${OSM_AMENITIES.join("/")} inside boundary: ${osm.length} (excluded ${excludedByCuisine} thai/indian per policy)`);
+    console.log(`  OSM ${OSM_AMENITIES.join("/")} inside boundary: ${osm.length} (dropped ${excludedNoise} chain/buffet/thai/indian per policy)`);
     console.log(`  We already have (candidate/venue match): ${osm.length - gaps.length}`);
     console.log(`  MISSING (discovery gaps): ${gaps.length}  (${withSite} have a website → enrichable now)`);
     console.log(`  → wrote ${outPath}`);

@@ -1,0 +1,4 @@
+city,action,venue,primary_type,reviews,website,reason
+"san-francisco",delete,"St. Francis Fountain",diner,890,"","no alcohol signal + no site"
+"san-francisco",delete,"Cafe Mystique",mediterranean_restaurant,767,"","no alcohol signal + no site"
+"san-francisco",delete,"Fireside",american_restaurant,470,"","no alcohol signal + no site"

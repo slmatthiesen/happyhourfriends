@@ -1,0 +1,7 @@
+city,action,venue,primary_type,reviews,website,reason
+"oakland",delete,"Shimizu Cuisine",japanese_restaurant,592,"http://shimizu.menu11.com/","menu-platform-only site"
+"oakland",delete,"TGI Oni Sushi",japanese_restaurant,165,"https://tgioni.menu11.com/","menu-platform-only site"
+"oakland",hide,"Hong Kong East Ocean Seafood Restaurant",chinese_restaurant,1688,"https://www.hkeo.com/","zero-HH cuisine (chinese_restaurant)"
+"oakland",hide,"Ly-Luck",chinese_restaurant,257,"https://www.lyluckrestaurantonline.com/","zero-HH cuisine (chinese_restaurant)"
+"oakland",hide,"King Yen",chinese_restaurant,254,"https://www.kingyenrestaurant.com/","zero-HH cuisine (chinese_restaurant)"
+"oakland",hide,"Joodooboo",korean_restaurant,233,"http://www.joodooboo.co/","zero-HH cuisine (korean_restaurant)"

@@ -1,0 +1,12 @@
+city,action,venue,primary_type,reviews,website,reason
+"berkeley",delete,"Yo Sushi",sushi_restaurant,470,"https://yosushialbany.menu11.com/","menu-platform-only site"
+"berkeley",delete,"Mainichi Sushi",japanese_restaurant,175,"https://mainichisushi.menu11.com/berkeley/order","menu-platform-only site"
+"berkeley",delete,"Daruma Sushi",japanese_restaurant,74,"https://darumaca2215.kwickmenu.com/","menu-platform-only site"
+"berkeley",hide,"Bowl'd Korean Rice Bar",korean_restaurant,803,"http://www.bowldbbq.com/albany","zero-HH cuisine (korean_restaurant)"
+"berkeley",hide,"Chengdu Style Restaurant",chinese_restaurant,798,"https://chengdustylerestaurant.com/","zero-HH cuisine (chinese_restaurant)"
+"berkeley",hide,"China Village",chinese_restaurant,736,"https://chinavillagecatogo.com/","zero-HH cuisine (chinese_restaurant)"
+"berkeley",hide,"Sichuan Style",chinese_restaurant,358,"https://www.sichuanstylerestaurant.com/","zero-HH cuisine (chinese_restaurant)"
+"berkeley",hide,"Mint Leaf",vietnamese_restaurant,319,"http://www.mintleafvr.com/","zero-HH cuisine (vietnamese_restaurant)"
+"berkeley",hide,"Pyeong Chang Tofu Berkeley 버클리 평창 순두부",korean_restaurant,298,"https://www.pctofu.com/","zero-HH cuisine (korean_restaurant)"
+"berkeley",hide,"Korean Superette",korean_restaurant,263,"http://korean-superette.com/","zero-HH cuisine (korean_restaurant)"
+"berkeley",hide,"Renee's Place",chinese_restaurant,81,"http://www.reneesplacerestaurant.com/","zero-HH cuisine (chinese_restaurant)"
