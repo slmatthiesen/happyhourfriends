@@ -525,4 +525,24 @@ check("La Marcha: bare 22:00–close [1-6] beside Fri/Sat deal → minority cove
   assert.ok(bare.reasons.includes("bare_covered_clip"));
 });
 
+check("Fuji: narrow 3-6 HH survives beside 'all day' day-deals mis-encoded as 11-20 op-hours windows", () => {
+  // "Taco Tuesday / Thirsty Thursday ALL DAY" deals extract as 11am-8pm clock windows that
+  // CONTAIN and overlap the real bare 3-6pm happy hour. An operating-hours-wide deal window
+  // must NOT suppress a distinct narrow HH — neither via bare_covered_clip nor overlap_conflict.
+  // They are different offers and coexist. (Regression guard for the reconcile fix, 2026-07-10.)
+  const rs = reconcileWindows(
+    [
+      { ...w([1, 2, 4, 5], "15:00:00", "18:00:00"), offeringsKey: "" },
+      { ...w([1], "11:00:00", "20:00:00"), offeringsKey: "streetfood|0" },
+      { ...w([2], "11:00:00", "20:00:00"), offeringsKey: "taco|300" },
+      { ...w([4], "11:00:00", "20:00:00"), offeringsKey: "oldfashioned|500" },
+    ],
+    null,
+  );
+  const hh = rs.find((r) => r.window.startTime === "15:00:00")!;
+  assert.equal(hh.active, true);
+  assert.deepEqual(hh.window.daysOfWeek, [1, 2, 4, 5]);
+  assert.equal(rs.filter((r) => r.window.startTime === "11:00:00" && r.active).length, 3);
+});
+
 console.log(`\n${passed} checks passed.`);
