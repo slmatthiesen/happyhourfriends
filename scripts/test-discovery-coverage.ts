@@ -21,12 +21,14 @@ function check(name: string, fn: () => void) { fn(); passed++; console.log(`  �
 async function checkAsync(name: string, fn: () => Promise<void>) { await fn(); passed++; console.log(`  ✓ ${name}`); }
 
 async function main() {
-  check("splitTile returns 4 children at r/2 radius, depth+1, offset from center", () => {
+  check("splitTile returns 4 children at r/√2 radius, depth+1, offset from center", () => {
     const parent: Tile = { lat: 47.25, lng: -122.44, radiusMeters: 3000, depth: 0 };
     const kids = splitTile(parent);
     assert.equal(kids.length, 4, "four children");
     for (const k of kids) {
-      assert.equal(k.radiusMeters, 1500, "half radius (r/2)");
+      // r/√2 children centered at ±r/2 FULLY cover the parent (no center hole) at no extra call
+      // count — the fix for the Fuji-class blind spot. r/√2 of 3000 ≈ 2121.32m.
+      assert.ok(Math.abs(k.radiusMeters - 3000 / Math.SQRT2) < 0.01, "r/√2 radius");
       assert.equal(k.depth, 1, "depth + 1");
       assert.notEqual(k.lat, parent.lat, "lat offset from parent");
       assert.notEqual(k.lng, parent.lng, "lng offset from parent");
@@ -35,10 +37,21 @@ async function main() {
     assert.equal(new Set(kids.map((k) => k.lng)).size, 2, "two distinct child longitudes");
   });
 
+  check("child circles fully cover the parent's center (no blind-spot hole)", () => {
+    // The old r/2 geometry left a ~620m uncovered hole around the parent center; r/√2 closes it.
+    const parent: Tile = { lat: 47.25, lng: -122.44, radiusMeters: 3000, depth: 0 };
+    const kids = splitTile(parent);
+    const nearestChildToCenter = Math.min(
+      ...kids.map((k) => haversineMeters({ lat: parent.lat, lng: parent.lng }, { lat: k.lat, lng: k.lng })),
+    );
+    // The parent center is inside (at the corner of) each child circle → covered.
+    assert.ok(nearestChildToCenter <= kids[0].radiusMeters + 1, "parent center lies within a child circle");
+  });
+
   check("tiling constants are the agreed completeness-leaning defaults", () => {
     assert.equal(MAX_RESULTS, 20, "Google Places per-call cap");
     assert.equal(MIN_RADIUS_METERS, 700, "subdivision floor radius");
-    assert.equal(MAX_DEPTH, 1, "max recursion depth (one subdivision level)");
+    assert.equal(MAX_DEPTH, 2, "max recursion depth (two subdivision levels — closes the blind spot)");
     assert.equal(DEFAULT_MAX_TILES, 300, "runaway-tile safety cap default");
   });
 
@@ -91,6 +104,39 @@ async function main() {
     for (const [id, v] of collected) assert.equal(id, v.id, "map keyed on the venue's own id");
   });
 
+  await checkAsync("recovers a venue in the old center-hole blind spot (Fuji case)", async () => {
+    // A saturated 3000m seed tile whose nearest-20 are all within ~480m, plus ONE target venue
+    // at 549m from center — just past the truncation. Under the old r/2 + depth-1 geometry this
+    // venue fell in the uncovered center hole and was never re-queried. The r/√2 + depth-2 fix
+    // must recover it. (Deterministic: no PRNG.)
+    const centerLat = 38.5816, centerLng = -121.4944;
+    const latPerM = 1 / 111_320;
+    const lngPerM = 1 / (111_320 * Math.cos((centerLat * Math.PI) / 180));
+    const at = (dxE: number, dyN: number) => ({ lat: centerLat + dyN * latPerM, lng: centerLng + dxE * lngPerM });
+    const venues: MockVenue[] = [];
+    // 24 core venues on a tight ring 300–470m out (all closer than the target → they fill the cap).
+    for (let i = 0; i < 24; i++) {
+      const ang = (i / 24) * Math.PI * 2;
+      const rad = 300 + (i % 6) * 30; // 300..470m
+      const p = at(Math.cos(ang) * rad, Math.sin(ang) * rad);
+      venues.push({ id: `core${i}`, ...p });
+    }
+    const target = at(549 / Math.SQRT2, 549 / Math.SQRT2); // 549m diagonal
+    venues.push({ id: "FUJI", ...target });
+
+    // A single flat call truncates the target away (it is the 25th-nearest, cap is 20).
+    const flat = await mockFetch(venues)({ lat: centerLat, lng: centerLng, radiusMeters: 3000, depth: 0 });
+    assert.equal(flat.length, MAX_RESULTS, "flat call is saturated (truncated)");
+    assert.ok(!flat.some((v) => v.id === "FUJI"), "flat call DROPS the blind-spot venue");
+
+    // Adaptive tiling with the fixed geometry recovers it.
+    const collected = await collectAdaptive<MockVenue>({
+      seedTiles: [{ lat: centerLat, lng: centerLng, radiusMeters: 3000, depth: 0 }],
+      fetchTile: mockFetch(venues),
+    });
+    assert.ok(collected.has("FUJI"), "adaptive tiling recovers the blind-spot venue");
+  });
+
   await checkAsync("onFloorSaturated fires (not subdivide) for a saturated floor tile", async () => {
     let floorHits = 0;
     let fetches = 0;
@@ -111,7 +157,7 @@ async function main() {
     let floorHits = 0;
     let fetches = 0;
     await collectAdaptive<MockVenue>({
-      // depth is BELOW the cap, but a 700m tile's children (350m) are below the radius floor.
+      // depth is BELOW the cap, but a 700m tile's children (~495m = r/√2) are below the radius floor.
       seedTiles: [{ lat: 47.25, lng: -122.44, radiusMeters: MIN_RADIUS_METERS, depth: MAX_DEPTH - 1 }],
       fetchTile: async () => {
         fetches++;
