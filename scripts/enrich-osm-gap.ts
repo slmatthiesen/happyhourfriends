@@ -130,8 +130,9 @@ async function main() {
     let venueId: string | null = null, created = false;
     for (let i = 0; i < slugs.length; i++) {
       try { venueId = await doInsert(slugs[i]); created = venueId != null; break; }
-      catch (e: any) {
-        if (e?.code === "23505" && String(e?.constraint_name ?? "").includes("slug") && i < slugs.length - 1) continue;
+      catch (e) {
+        const err = e as { code?: string; constraint_name?: string };
+        if (err.code === "23505" && String(err.constraint_name ?? "").includes("slug") && i < slugs.length - 1) continue;
         throw e;
       }
     }

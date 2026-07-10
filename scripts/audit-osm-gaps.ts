@@ -86,7 +86,16 @@ function namesMatch(a: string, b: string): boolean {
   return inter / union >= 0.5;
 }
 
-async function overpass(query: string): Promise<any[]> {
+interface OverpassElement {
+  type: string;
+  id: number;
+  lat?: number;
+  lon?: number;
+  center?: { lat: number; lon: number };
+  tags?: Record<string, string>;
+}
+
+async function overpass(query: string): Promise<OverpassElement[]> {
   const res = await fetch("https://overpass-api.de/api/interpreter", {
     method: "POST",
     headers: {
@@ -136,12 +145,12 @@ async function main() {
     const els = await overpass(q);
 
     // Keep named elements with coordinates, inside the boundary polygon.
-    const rawVenues: OsmVenue[] = els.map((e: any) => {
+    const rawVenues: OsmVenue[] = els.map((e) => {
       const t = e.tags ?? {};
       return {
         name: t.name ?? "",
-        lat: e.lat ?? e.center?.lat,
-        lng: e.lon ?? e.center?.lon,
+        lat: (e.lat ?? e.center?.lat) as number,
+        lng: (e.lon ?? e.center?.lon) as number,
         amenity: t.amenity,
         cuisine: t.cuisine ?? null,
         website: t.website ?? t["contact:website"] ?? null,
