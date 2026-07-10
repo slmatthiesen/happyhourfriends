@@ -290,7 +290,17 @@ export function reconcileWindows(
     const coveredDays = new Set(
       days.filter((d) =>
         activeDealWindows.some(
-          (deal) => deal !== r && deal.window.daysOfWeek.includes(d) && windowContains(deal.window, r.window),
+          (deal) =>
+            deal !== r &&
+            deal.window.daysOfWeek.includes(d) &&
+            windowContains(deal.window, r.window) &&
+            // A deal window that is itself operating-hours-wide must NOT "cover" a distinct
+            // narrow happy-hour window it merely spans — they are different offers. Fuji's daily
+            // 3-6pm HH was dropped because "Taco Tuesday / Thirsty Thursday ALL DAY" deals,
+            // mis-encoded as 11am-8pm clock windows, contained it on a majority of days. A real
+            // coverer is HH-shaped (Eureka's 15-18 priced beside its bare 15-18); a 9-hour
+            // operating-day span is not.
+            !isOperatingHours(deal.window, hoursJson),
         ),
       ),
     );
@@ -325,9 +335,13 @@ export function reconcileWindows(
         conflicted.add(a);
         conflicted.add(b);
       } else if (ka === "") {
-        conflicted.add(a);
+        // a is bare, b carries deals — normally the bare side loses. But an operating-hours-wide
+        // deal window (an "all day" day-deal mis-encoded as an 11am-8pm clock window) is not a
+        // better-evidenced version of a distinct narrow HH it merely overlaps; they coexist
+        // (Fuji: bare 3-6pm HH vs "Taco Tuesday ALL DAY" recorded 11-20). Same guard as pass 2.5.
+        if (!isOperatingHours(b.window, hoursJson)) conflicted.add(a);
       } else if (kb === "") {
-        conflicted.add(b);
+        if (!isOperatingHours(a.window, hoursJson)) conflicted.add(b);
       }
     }
   }
