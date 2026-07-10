@@ -181,10 +181,13 @@ export default async function VenuePage({
 
   return (
     <main className="mx-auto w-full max-w-3xl px-6 py-12">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      {/* Closed venues are noindexed — don't advertise an open Restaurant entity to crawlers. */}
+      {!isClosed && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}

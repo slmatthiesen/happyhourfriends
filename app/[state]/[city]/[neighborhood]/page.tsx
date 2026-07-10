@@ -37,6 +37,10 @@ export async function generateMetadata({
     title: `${n.name} Happy Hours · ${c.name} · Happy Hour Friends`,
     description: `Happy hours in the ${n.name} neighborhood of ${c.name}${c.state ? `, ${c.state}` : ""}.`,
     alternates: { canonical: neighborhoodPath(c.state, c.slug, n.slug) },
+    // Thin + orphaned today (no inbound links, omitted from the sitemap). Keep them out
+    // of the index until we invest in real neighborhood pages; follow preserves link
+    // equity to the venues they list.
+    robots: { index: false, follow: true },
   };
 }
 

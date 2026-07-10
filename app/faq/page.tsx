@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "FAQ · Happy Hour Friends",
   description:
     "How submissions work, how we verify data, and how we prevent fake edits.",
+  alternates: { canonical: "/faq" },
 };
 
 const faqs = [

@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "For Restaurants · Happy Hour Friends",
   description:
     "Own or manage a bar or restaurant listed on Happy Hour Friends? Learn how to keep your happy hour info accurate.",
+  alternates: { canonical: "/for-restaurants" },
 };
 
 export default function ForRestaurantsPage() {

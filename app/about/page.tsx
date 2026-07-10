@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/site-footer";
 export const metadata: Metadata = {
   title: "About · Happy Hour Friends",
   description: "How Happy Hour Friends collects and verifies happy hour data.",
+  alternates: { canonical: "/about" },
 };
 
 export default function AboutPage() {

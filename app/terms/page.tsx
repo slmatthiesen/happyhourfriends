@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Terms of Service · Happy Hour Friends",
   description:
     "The terms for using Happy Hour Friends, including limits on automated scraping and redistribution of our data.",
+  alternates: { canonical: "/terms" },
 };
 
 // Operator-confirm before launch: contact email and the "last updated" date. The data

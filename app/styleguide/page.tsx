@@ -1,4 +1,13 @@
+import type { Metadata } from "next";
+
 /** Design-system reference (PRD §6.1). Not linked publicly. */
+
+// Internal reference page — keep it out of the index even if the URL is discovered.
+export const metadata: Metadata = {
+  title: "Styleguide · Happy Hour Friends",
+  robots: { index: false, follow: false },
+};
+
 const swatches = [
   { name: "bg-deep", var: "--bg-deep" },
   { name: "bg-surface", var: "--bg-surface" },
