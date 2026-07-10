@@ -40,6 +40,7 @@
     "audit:hh-anomalies": "tsx scripts/audit-hh-anomalies.ts",
     "audit:venue-sites": "tsx scripts/audit-venue-sites.ts",
     "audit:fix": "tsx scripts/audit-fix.ts",
+    "audit:osm-gaps": "tsx scripts/audit-osm-gaps.ts",
     "spotcheck:free": "tsx scripts/spotcheck-free.ts",
     "review:hidden": "tsx scripts/review-hidden-hh.ts",
     "review:meal-specials": "tsx scripts/review-meal-specials.ts",
