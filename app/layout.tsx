@@ -30,7 +30,6 @@ export const metadata: Metadata = {
     siteName: "Happy Hour Friends",
     type: "website",
     locale: "en_US",
-    url: "/",
     title: "Happy Hour Friends",
     description:
       "Every happy hour in your city, in one sortable table. No guesses — every detail traces to a source.",

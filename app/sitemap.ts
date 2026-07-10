@@ -15,6 +15,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/`, changeFrequency: "daily" },
     { url: `${base}/about` },
     { url: `${base}/faq` },
+    { url: `${base}/for-restaurants` },
+    { url: `${base}/terms` },
   ];
 
   const allCities = await db.select().from(cities).where(eq(cities.status, "live"));

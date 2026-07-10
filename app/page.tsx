@@ -12,6 +12,7 @@ export const metadata: Metadata = {
   title: "Happy Hour Friends — the simplest way to find happy hour near you",
   description:
     "Find happy hours near you — sortable by time, day, and deal, every deal sourced and kept fresh. No fluff, just the data.",
+  alternates: { canonical: "/" },
 };
 
 export default async function Home() {
