@@ -30,24 +30,29 @@ export interface TilePlace {
 export const MAX_RESULTS = 20;
 /** Subdivision floor: never query a circle smaller than this radius. */
 export const MIN_RADIUS_METERS = 700;
-/** Subdivision floor: never recurse deeper than this. ONE level of subdivision — the densest
- *  cells stay at the seed-grid resolution's child size and are logged as floor-saturated rather
- *  than chased deeper (deliberate cost cap; bump this to trade money for density). */
-export const MAX_DEPTH = 1;
-/** Safety cap on total tiles processed per run (runaway-spend backstop). At MAX_DEPTH=1 a run
- *  is bounded well under this; if it ever trips, a parameter is wrong. */
+/** Subdivision floor: never recurse deeper than this. TWO levels of subdivision. One level is
+ *  not enough: a saturated seed tile's first-level children (see splitTile) fully COVER the
+ *  parent but are themselves too large/dense to rank a venue just past the parent's nearest-20
+ *  in THEIR own nearest-20 — so a venue in that annulus (e.g. Fuji Sacramento, 549m from a tile
+ *  center whose 20th-nearest was 488m) is only recovered when a saturated child subdivides
+ *  again. Two levels closes that blind spot; deeper is a cost/density trade (raise to spend more
+ *  for density). Offline simulation: scripts/test-discovery-coverage.ts. */
+export const MAX_DEPTH = 2;
+/** Safety cap on total tiles processed per run (runaway-spend backstop). seed-discover scales
+ *  its own maxTiles to the seed count × the MAX_DEPTH tree size; this is a hard floor default. */
 export const DEFAULT_MAX_TILES = 300;
 
 /**
- * Radius of a child tile = parent radius / 2. Children are centered at ±radius/2 offsets.
- * NOTE: 4 circles of radius r/2 do not perfectly cover the parent circle — small arcs along
- * the parent's N/S/E/W edges are uncovered — but the seed grid overlaps heavily (seed spacing
- * = seed radius) so neighboring tiles cover those arcs in practice. We use r/2 (not r/√2,
- * which fully covers but shrinks so slowly it quadruples cost for ~4 subdivision levels) as a
- * deliberate cost/coverage trade: r/2 reaches the floor in far fewer levels.
+ * Radius of a child tile = parent radius / √2. Children are centered at ±radius/2 offsets, so
+ * the four child circles of radius r/√2 FULLY cover the parent circle (each child circumscribes
+ * its quadrant sub-square of side r, whose half-diagonal is r/√2) — no uncovered center hole.
+ * We formerly used r/2, which leaves an uncovered annulus around the parent center; a venue
+ * there, just past the parent's truncated nearest-20, was dropped and never re-queried (the
+ * Fuji blind spot). r/√2 costs no extra CALLS (still 4 children per split) and only 2 levels of
+ * recursion (MAX_DEPTH) — the old worry that r/√2 "shrinks too slowly" only bit at ~4 levels.
  */
 function subdividedRadius(tile: Tile): number {
-  return tile.radiusMeters / 2;
+  return tile.radiusMeters / Math.SQRT2;
 }
 
 /**

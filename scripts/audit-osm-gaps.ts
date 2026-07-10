@@ -1,11 +1,12 @@
 /**
  * audit:osm-gaps — free (no Google, no AI) discovery-gap finder.
  *
- * The Google Places Nearby sweep has a structural blind spot: a saturated 3000m seed tile
- * truncates to its 20 nearest, and the single MAX_DEPTH=1 subdivision leaves an uncovered
- * hole around the tile center (splitTile offsets children ±r/2 with radius r/2). A venue in
- * that hole — e.g. Fuji Sacramento, a 4.6★/152-review Japanese spot with a real HH — is never
- * discovered. OpenStreetMap is a second, independent census that doesn't share this geometry.
+ * The Google Places Nearby sweep HAD a structural blind spot: a saturated 3000m seed tile
+ * truncates to its 20 nearest, and the old single-level r/2 subdivision left an uncovered hole
+ * around the tile center, so a venue there — e.g. Fuji Sacramento, a 4.6★/152-review Japanese
+ * spot with a real HH — was never discovered. That geometry is now fixed (r/√2 children,
+ * MAX_DEPTH=2 in discoveryTiling.ts), but OSM remains a valuable second, independent census:
+ * it surfaces venues Google lacks/mis-types entirely and is free to query.
  *
  * This tool loads the city boundary, pulls OSM eat/drink amenities inside it via Overpass
  * (free), and reports which ones have NO matching seed_candidate or venue in our DB — the
