@@ -11,6 +11,7 @@ import {
   type VenueLocalNow,
 } from "@/lib/geo/timezone";
 import type { HappyHourRow, VenueListItem } from "@/lib/queries/venues";
+import { NowBadge } from "@/components/now-badge";
 import { labelForVenueType } from "@/lib/places/venueType";
 import { haversineMiles, formatDistance } from "@/lib/geo/distance";
 import { directionsUrl, isApplePlatform } from "@/lib/geo/mapsLink";
@@ -117,45 +118,6 @@ function activeDealLabel(w: HappyHourRow): string {
   const note = w.notes?.trim();
   if (!note) return "All day";
   return note.length > 28 ? `${note.slice(0, 27)}…` : note;
-}
-
-/**
- * Pulsing live indicator. Open = solid accent dot with a soft glow + a Tailwind
- * `animate-ping` ripple radiating outward (classic broadcast LIVE feel). Closed =
- * dim hollow ring so the column reads as a quiet status field that lights up.
- */
-function NowBadge({
-  open = true,
-  className = "",
-}: {
-  open?: boolean;
-  className?: string;
-}) {
-  if (open) {
-    return (
-      <span
-        title="Happy hour happening now"
-        aria-label="Happy hour happening now"
-        className={`relative inline-flex h-2.5 w-2.5 align-middle ${className}`}
-      >
-        <span
-          aria-hidden="true"
-          className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-warm opacity-75"
-        />
-        <span
-          aria-hidden="true"
-          className="relative inline-flex h-2.5 w-2.5 rounded-full bg-accent-warm shadow-[0_0_8px_var(--accent-warm)]"
-        />
-      </span>
-    );
-  }
-  return (
-    <span
-      title="Not happening right now — check the days and times"
-      aria-label="Not happening right now"
-      className={`inline-flex h-2.5 w-2.5 rounded-full border border-border bg-transparent align-middle ${className}`}
-    />
-  );
 }
 
 /**

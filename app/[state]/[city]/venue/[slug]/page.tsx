@@ -6,6 +6,7 @@ import { DirectionsButton } from "@/components/directions-button";
 import { SignalButton } from "@/components/signal/signal-button";
 import { SiteWordmark } from "@/components/site-wordmark";
 import { Contribute } from "@/components/submit/contribute";
+import { VenueLiveDot } from "@/components/venue-live-dot";
 import { ReportClosed } from "@/components/submit/report-closed";
 import { formatDays, formatDaysLong, formatPrice, formatWindowByDay } from "@/lib/format";
 import { getCityByPath, getVenueBySlug } from "@/lib/queries/venues";
@@ -366,12 +367,19 @@ export default async function VenuePage({
 
       {!isClosed && (
       <section className="mt-10">
-        <h2
-          className="text-2xl text-text-primary"
-          style={{ fontFamily: "var(--font-serif)" }}
-        >
-          Happy hours
-        </h2>
+        <div className="flex items-center gap-3">
+          <h2
+            className="text-2xl text-text-primary"
+            style={{ fontFamily: "var(--font-serif)" }}
+          >
+            Happy hours
+          </h2>
+          <VenueLiveDot
+            happyHours={activeHours}
+            hoursJson={venue.hoursJson ?? null}
+            timezone={venue.timezone ?? city.defaultTimezone}
+          />
+        </div>
 
         {activeHours.length > 0 && (
           <p className="mt-2 text-xs text-text-muted">
