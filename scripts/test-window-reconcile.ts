@@ -545,4 +545,23 @@ check("Fuji: narrow 3-6 HH survives beside 'all day' day-deals mis-encoded as 11
   assert.equal(rs.filter((r) => r.window.startTime === "11:00:00" && r.active).length, 3);
 });
 
+check("Fuji free-parse: a suspect open-ended window must not drag the real bare HH into hidden", () => {
+  // Fuji's free parser emits two BARE windows from the same pages: the real [1-7] 3-6pm (plausible)
+  // and a spurious [1-7] 3pm-close (suspect). Both bare + overlapping → the same-key overlap branch
+  // used to hide BOTH. A suspect window can be hidden but must not suppress a plausible one.
+  // (Regression guard, 2026-07-10.)
+  const rs = reconcileWindows(
+    [
+      { ...w([1, 2, 3, 4, 5, 6, 7], "15:00:00", "18:00:00"), offeringsKey: "", suspect: false },
+      { ...w([1, 2, 3, 4, 5, 6, 7], "15:00:00", null), offeringsKey: "", suspect: true },
+    ],
+    null,
+  );
+  const real = rs.find((r) => r.window.endTime === "18:00:00")!;
+  const spurious = rs.find((r) => r.window.endTime === null)!;
+  assert.equal(real.active, true, "the plausible 3-6pm window survives");
+  assert.equal(spurious.active, false, "the suspect 3pm-close window is hidden");
+  assert.ok(spurious.reasons.includes("overlap_conflict"));
+});
+
 console.log(`\n${passed} checks passed.`);
