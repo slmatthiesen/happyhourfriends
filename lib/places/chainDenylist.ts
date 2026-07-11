@@ -33,6 +33,9 @@ const CHAINS: string[] = [
   "elmers", "mod sushi", "bjs restaurant", "bjs brewhouse", "the old spaghetti factory",
   "old spaghetti factory", "texas de brazil", "kura revolving sushi", "kura sushi",
   "stack 571", "peter piper pizza",
+  // Family bakery/steakhouse chains — no HH (2026-07-10 OSM-gap review; "cocos" matches
+  // "Coco's Bakery"/"Coco's Restaurant & Bakery", NOT "Coconuts").
+  "cocos", "tahoe joes",
   // Operator-allowed chains (intentionally NOT here, do not add):
   //   - The Cheesecake Factory (real HH program)
   //   - Twin Peaks (operator confirmed has a great HH, 2026-05-28)
@@ -325,6 +328,11 @@ const EXCLUDED_PRIMARY_TYPE = new Set<string>([
   "bowling_alley",
   "food_court",
   "food_store",
+  // Grocery/convenience formats — never run a happy hour (2026-07-10 OSM-gap review: "Gus's
+  // Grocery"). Alcohol override still protects a bar Google happens to also tag grocery.
+  "grocery_store",
+  "supermarket",
+  "convenience_store",
   "juice_shop",
   "resort_hotel",
   "buffet_restaurant",

@@ -27,6 +27,8 @@ import {
   isLikelyNoHappyHourFormat,
   isExcludedByBusinessStatus,
   isLowSignalCandidate,
+  isExcludedByPlaceType,
+  isBowlingAlley,
 } from "@/lib/places/chainDenylist";
 import { resolveVenue } from "@/lib/recover/resolveVenue";
 
@@ -76,11 +78,17 @@ async function resolvePlace(name: string, cityName: string, state: string): Prom
   };
 }
 
-/** Gate a resolved place the way discovery/enrich would. Returns a reject reason or null (keep). */
+/** Gate a resolved place the way discovery/enrich would. Returns a reject reason or null (keep).
+ *  Uses Google's authoritative primaryType/types (isExcludedByPlaceType, with its alcohol-signal
+ *  override) so open-data (OSM) venues that resolve to a bakery/cafe/grocery/dessert/casino/
+ *  bowling format are dropped BEFORE any spend — a real "Restaurant & Bakery" is typed
+ *  restaurant and kept, unlike a blanket name-pattern which would hide it. */
 function gate(p: Place): string | null {
   if (isExcludedByBusinessStatus(p.businessStatus)) return `closed (${p.businessStatus})`;
   if (isDenylistedChain(p.name)) return "denylisted chain";
   if (isLikelyNoHappyHourFormat(p.name, p.website)) return "buffet/AYCE format";
+  if (isBowlingAlley(p.name, p.primaryType, p.types)) return "bowling alley";
+  if (isExcludedByPlaceType(p.primaryType, p.types)) return `excluded type (${p.primaryType ?? "?"})`;
   if (!p.servesAlcohol && isLowSignalCandidate(p.reviews, p.name, p.primaryType, p.types))
     return `low-signal (no alcohol signal, ${p.reviews ?? 0} reviews)`;
   if (!p.website) return "no website (can't extract)";
