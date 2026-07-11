@@ -39,6 +39,13 @@ function isExcludedCuisine(cuisine: string | null): boolean {
 // A DB row within this distance of an OSM venue, with a matching name, counts as "already have
 // it". Covers Google-vs-OSM coordinate drift (tens of metres) plus same-block placement.
 const MATCH_METERS = 150;
+// Tighter co-location tier: a DB row within this distance counts as the SAME venue even when the
+// name does NOT match. The name test alone was too strict — a venue we already have under an OSM
+// name variant our token/Jaccard match misses (e.g. "Fuji Sacramento" vs "Fuji Japanese Rest.")
+// was counted as a gap, inflating counts ~2-3× (measured 2026-07-10: SF 57% of "gaps" sat ≤50m of
+// a DB row). At this radius two distinct restaurants are essentially same-storefront, so the rare
+// dense-block false-dedup is worth cutting the large false-gap inflation. Deduped count is logged.
+const COLOCATION_METERS = 50;
 
 interface OsmVenue {
   name: string;
@@ -189,11 +196,19 @@ async function main() {
       SELECT name, lat::float8 AS lat, lng::float8 AS lng, 'venue' AS kind
         FROM venues WHERE city_id = ${city.id} AND deleted_at IS NULL AND lat IS NOT NULL`;
 
-    // ---- Gap detection: OSM venue with no name-matching DB row within MATCH_METERS ----
+    // ---- Gap detection: OSM venue we don't already have. "Already have it" = a DB row that
+    //      name-matches within MATCH_METERS, OR any DB row within the tighter COLOCATION_METERS
+    //      (same storefront → same venue even if the OSM name variant doesn't token-match). ----
     const gaps: OsmVenue[] = [];
+    let colocationDedups = 0; // caught by co-location but NOT by name-match (the inflation the tier removes)
     for (const v of osm) {
-      const covered = dbRows.some((r) => haversineMeters(r, v) <= MATCH_METERS && namesMatch(r.name, v.name));
-      if (!covered) gaps.push(v);
+      const nameMatch = dbRows.some((r) => haversineMeters(r, v) <= MATCH_METERS && namesMatch(r.name, v.name));
+      const coLocated = dbRows.some((r) => haversineMeters(r, v) <= COLOCATION_METERS);
+      if (nameMatch || coLocated) {
+        if (!nameMatch && coLocated) colocationDedups++;
+        continue;
+      }
+      gaps.push(v);
     }
 
     // Sort: enrichable (has website) first, then by name.
@@ -209,7 +224,7 @@ async function main() {
 
     console.log(`\n=== OSM gap audit: ${city.name}, ${city.state.toUpperCase()} ===`);
     console.log(`  OSM ${OSM_AMENITIES.join("/")} inside boundary: ${osm.length} (dropped ${excludedNoise} chain/buffet/thai/indian per policy)`);
-    console.log(`  We already have (candidate/venue match): ${osm.length - gaps.length}`);
+    console.log(`  We already have (candidate/venue match): ${osm.length - gaps.length}  (incl. ${colocationDedups} caught by co-location ≤${COLOCATION_METERS}m, name mismatch)`);
     console.log(`  MISSING (discovery gaps): ${gaps.length}  (${withSite} have a website → enrichable now)`);
     console.log(`  → wrote ${outPath}`);
     if (gaps.length > 0) {
