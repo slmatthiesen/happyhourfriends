@@ -23,6 +23,11 @@ export interface ReconcileWindow {
    *  3–7 in the bar and 3–6 in the dining room — not a conflict). Omitted/null/"all" is
    *  the wildcard: it spans every area, so it still conflicts with anything it overlaps. */
   location?: string | null;
+  /** The extractor/free-parser flagged this window implausible (it will be persisted HIDDEN
+   *  regardless). A suspect window can still be hidden by conflict, but must NOT drag a
+   *  plausible window into hidden — the plausible one is the better-evidenced listing (Fuji:
+   *  a real bare 3–6pm HH beside a spurious 3pm–close). Omitted/false = plausible. */
+  suspect?: boolean;
 }
 
 /** Order-insensitive fingerprint of an offering set, for merge identity. */
@@ -322,6 +327,14 @@ export function reconcileWindows(
   // non-empty deal sets coexist.
   const survivors = results.filter((r) => r.active);
   const conflicted = new Set<ReconcileResult>();
+  // A suspect (implausible) window will be hidden regardless, so it must never be the reason a
+  // plausible window is hidden — the plausible one is better evidenced (Fuji: a real bare
+  // 3–6pm HH beside a spurious 3pm–close both parse as bare, so the same-key branch below would
+  // otherwise hide both). Only blocks suppression BY a suspect window; a suspect loser is still
+  // free to be hidden.
+  const hide = (loser: ReconcileResult, partner: ReconcileResult) => {
+    if (loser.window.suspect === true || partner.window.suspect !== true) conflicted.add(loser);
+  };
   for (let i = 0; i < survivors.length; i++) {
     for (let j = i + 1; j < survivors.length; j++) {
       const a = survivors[i];
@@ -332,16 +345,16 @@ export function reconcileWindows(
       const kb = key(b);
       if (ka === kb) {
         if (ka !== "" && isDayVariant(a.window, b.window)) continue; // extended-day special
-        conflicted.add(a);
-        conflicted.add(b);
+        hide(a, b);
+        hide(b, a);
       } else if (ka === "") {
         // a is bare, b carries deals — normally the bare side loses. But an operating-hours-wide
         // deal window (an "all day" day-deal mis-encoded as an 11am-8pm clock window) is not a
         // better-evidenced version of a distinct narrow HH it merely overlaps; they coexist
         // (Fuji: bare 3-6pm HH vs "Taco Tuesday ALL DAY" recorded 11-20). Same guard as pass 2.5.
-        if (!isOperatingHours(b.window, hoursJson)) conflicted.add(a);
+        if (!isOperatingHours(b.window, hoursJson)) hide(a, b);
       } else if (kb === "") {
-        if (!isOperatingHours(a.window, hoursJson)) conflicted.add(b);
+        if (!isOperatingHours(a.window, hoursJson)) hide(b, a);
       }
     }
   }

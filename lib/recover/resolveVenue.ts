@@ -164,6 +164,8 @@ export async function persistExtractedWindows(
     allDay: hh.allDay,
     offeringsKey: hhOfferingsKey(hh),
     location: hh.locationWithinVenue,
+    // A window the parser flagged implausible must not suppress a plausible overlapping one.
+    suspect: hh.suspect,
   }));
   const reconResults = reconcileWindows(reconWindows, venueRow?.hoursJson ?? null);
   // Align reconcile verdicts back to source rows by identity index. reconcileWindows
