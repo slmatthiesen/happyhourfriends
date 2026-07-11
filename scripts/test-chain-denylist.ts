@@ -38,5 +38,13 @@ check("fast food still denied", () => {
 check("independent venue not denied", () => {
   assert.equal(isDenylistedChain("Trials Pub"), false);
 });
+check("Coco's / Tahoe Joe's denied (2026-07-10 OSM-gap review) without over-matching", () => {
+  assert.equal(isDenylistedChain("Coco's Bakery"), true);
+  assert.equal(isDenylistedChain("Coco's Restaurant & Bakery"), true);
+  assert.equal(isDenylistedChain("Tahoe Joe's Famous Steakhouse"), true);
+  // must NOT catch unrelated names sharing a prefix
+  assert.equal(isDenylistedChain("Coconuts Beach Bar"), false);
+  assert.equal(isDenylistedChain("Tahoe Tavern"), false);
+});
 
 console.log(`\n✓ ${passed} chain-denylist checks passed.`);

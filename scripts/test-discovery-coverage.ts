@@ -272,7 +272,7 @@ async function main() {
   {
     const { isExcludedByPlaceType, isLowSignalCandidate } = await import("@/lib/places/chainDenylist");
     check("non-food / dessert / deli / salad types are dropped", () => {
-      for (const t of ["dessert_restaurant","dessert_shop","deli","salad_shop","shopping_mall","clothing_store","service","catering_service","laundry"]) {
+      for (const t of ["dessert_restaurant","dessert_shop","deli","salad_shop","shopping_mall","clothing_store","service","catering_service","laundry","grocery_store","supermarket","convenience_store"]) {
         assert.equal(isExcludedByPlaceType(t, [t, "restaurant"]), true, t + " should be excluded");
       }
     });
