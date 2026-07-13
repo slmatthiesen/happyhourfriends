@@ -1,13 +1,37 @@
 "use client";
 
 import { directionsUrl, isApplePlatform } from "@/lib/geo/mapsLink";
+import { captureOutbound } from "@/lib/observability/track";
 
 // Apple Maps on Apple devices, Google Maps elsewhere (PRD §6.3). We deep-link
 // rather than embed a map (a v1 non-goal). Styled as a plain accent link with a
 // map-pin icon to match the sibling row actions — not a filled yellow CTA.
-export function DirectionsButton({ address }: { address: string }) {
+export function DirectionsButton({
+  address,
+  venueId,
+  venueSlug,
+  venueName,
+  citySlug,
+  stateSlug,
+}: {
+  address: string;
+  venueId?: string;
+  venueSlug?: string;
+  venueName?: string;
+  citySlug?: string;
+  stateSlug?: string;
+}) {
   function open() {
     const url = directionsUrl({ address }, null, isApplePlatform());
+    captureOutbound({
+      link_type: "map",
+      destination_url: url,
+      venue_id: venueId,
+      venue_slug: venueSlug,
+      venue_name: venueName,
+      city_slug: citySlug,
+      state_slug: stateSlug,
+    });
     window.open(url, "_blank", "noopener,noreferrer");
   }
   return (
