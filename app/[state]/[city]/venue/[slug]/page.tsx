@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CopyLinkButton } from "@/components/copy-link-button";
 import { DirectionsButton } from "@/components/directions-button";
+import { OutboundLink } from "@/components/outbound-link";
 import { SignalButton } from "@/components/signal/signal-button";
 import { SiteWordmark } from "@/components/site-wordmark";
 import { Contribute } from "@/components/submit/contribute";
@@ -245,10 +246,25 @@ export default async function VenuePage({
             "Address not yet confirmed"}
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">
-          {venue.address && <DirectionsButton address={venue.address} />}
+          {venue.address && (
+            <DirectionsButton
+              address={venue.address}
+              venueId={venue.id}
+              venueSlug={venue.slug}
+              venueName={venue.name}
+              citySlug={city.slug}
+              stateSlug={city.state}
+            />
+          )}
           {venue.websiteUrl && (
-            <a
+            <OutboundLink
+              link_type="website"
               href={venue.websiteUrl}
+              venue_id={venue.id}
+              venue_slug={venue.slug}
+              venue_name={venue.name}
+              city_slug={city.slug}
+              state_slug={city.state}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-sm text-accent-cool hover:underline"
@@ -269,11 +285,17 @@ export default async function VenuePage({
                 <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
               </svg>
               Website
-            </a>
+            </OutboundLink>
           )}
           {venue.otherUrl && (
-            <a
+            <OutboundLink
+              link_type="social_menu"
               href={venue.otherUrl}
+              venue_id={venue.id}
+              venue_slug={venue.slug}
+              venue_name={venue.name}
+              city_slug={city.slug}
+              state_slug={city.state}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-sm text-accent-cool hover:underline"
@@ -293,7 +315,7 @@ export default async function VenuePage({
                 <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
               </svg>
               Social / menu
-            </a>
+            </OutboundLink>
           )}
           {venue.phone && (
             <a
@@ -317,8 +339,15 @@ export default async function VenuePage({
             </a>
           )}
           {sourceUrl && source && (
-            <a
+            <OutboundLink
+              link_type="source"
               href={sourceUrl}
+              source_kind={source.kind}
+              venue_id={venue.id}
+              venue_slug={venue.slug}
+              venue_name={venue.name}
+              city_slug={city.slug}
+              state_slug={city.state}
               target="_blank"
               rel="noopener noreferrer"
               title={source.title}
@@ -355,7 +384,7 @@ export default async function VenuePage({
                 )}
               </svg>
               {source.label}
-            </a>
+            </OutboundLink>
           )}
         </div>
         {/* Our-page action on its own line — the row above is all about the business. */}

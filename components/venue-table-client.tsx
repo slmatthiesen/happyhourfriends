@@ -18,6 +18,7 @@ import { directionsUrl, isApplePlatform } from "@/lib/geo/mapsLink";
 import { useGeolocation } from "@/lib/geo/useGeolocation";
 import { consumeGeoIntent } from "@/lib/geo/geoIntent";
 import { venuePath } from "@/lib/routes";
+import { OutboundLink } from "@/components/outbound-link";
 
 // ISO day labels; index 1=Mon … 7=Sun
 const DAY_LABELS: Record<number, string> = {
@@ -129,24 +130,34 @@ function DistanceLink({
   origin,
   venue,
   isApple,
+  stateSlug,
+  citySlug,
 }: {
   origin: { lat: number; lng: number };
   venue: VenueListItem;
   isApple: boolean;
+  stateSlug: string;
+  citySlug: string;
 }): React.JSX.Element | null {
   if (venue.lat == null || venue.lng == null) return null;
   const dest = { lat: venue.lat, lng: venue.lng };
   const mi = haversineMiles(origin, dest);
   return (
-    <a
+    <OutboundLink
+      link_type="map"
       href={directionsUrl(dest, origin, isApple)}
+      venue_id={venue.id}
+      venue_slug={venue.slug}
+      venue_name={venue.name}
+      city_slug={citySlug}
+      state_slug={stateSlug}
       target="_blank"
       rel="noopener noreferrer"
       className="text-accent-cool hover:underline"
       title={`Directions to ${venue.name}`}
     >
       {formatDistance(mi)}
-    </a>
+    </OutboundLink>
   );
 }
 
@@ -895,7 +906,7 @@ export function VenueTableClient({
                         </Link>
                         {geo.coords && (
                           <div className="mt-0.5 text-xs">
-                            <DistanceLink origin={geo.coords} venue={v} isApple={isApple} />
+                            <DistanceLink origin={geo.coords} venue={v} isApple={isApple} stateSlug={stateSlug} citySlug={citySlug} />
                           </div>
                         )}
                       </td>
@@ -1020,7 +1031,7 @@ export function VenueTableClient({
                   </p>
                   {geo.coords && (
                     <p className="mt-0.5 text-xs">
-                      <DistanceLink origin={geo.coords} venue={v} isApple={isApple} />
+                      <DistanceLink origin={geo.coords} venue={v} isApple={isApple} stateSlug={stateSlug} citySlug={citySlug} />
                     </p>
                   )}
                   <p className="mt-1 text-sm text-text-primary">{b.days}</p>
@@ -1109,7 +1120,7 @@ export function VenueTableClient({
                     )}
                     {geo.coords && (
                       <span className="ml-2 text-xs">
-                        <DistanceLink origin={geo.coords} venue={v} isApple={isApple} />
+                        <DistanceLink origin={geo.coords} venue={v} isApple={isApple} stateSlug={stateSlug} citySlug={citySlug} />
                       </span>
                     )}
                   </span>
