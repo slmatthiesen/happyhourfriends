@@ -591,6 +591,19 @@ resource "aws_wafv2_web_acl" "cf" {
       managed_rule_group_statement {
         name        = "AWSManagedRulesCommonRuleSet"
         vendor_name = "AWS"
+
+        # Contribution submissions carry a base64 photo/PDF, so their JSON body routinely
+        # exceeds 8 KB. SizeRestrictions_BODY blocks any body >8 KB with a 403 (CloudFront's
+        # "Request blocked" page, which the client surfaces as a "network error"). Count it
+        # instead of blocking — the app enforces its own 10 MB cap (MAX_BODY_BYTES in
+        # app/api/submissions/route.ts) and validates every field. The other body rules
+        # (SQLi_BODY, XSS_BODY) still run on the inspectable portion.
+        rule_action_override {
+          name = "SizeRestrictions_BODY"
+          action_to_use {
+            count {}
+          }
+        }
       }
     }
     visibility_config {
