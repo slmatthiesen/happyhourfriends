@@ -143,6 +143,7 @@
     "test:own-site-hh-priority": "tsx scripts/test-own-site-hh-priority.ts",
     "test:own-site-hh-probe": "tsx scripts/test-own-site-hh-probe.ts",
     "test:parse-hh-text": "tsx scripts/test-parse-hh-text.ts",
+    "test:public-note": "tsx scripts/test-public-note.ts",
     "test:persist-unified": "tsx scripts/test-persist-unified.ts",
     "test:plan-supersede": "tsx scripts/test-plan-supersede.ts",
     "test:point-in-polygon": "tsx scripts/test-point-in-polygon.ts",
