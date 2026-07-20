@@ -137,6 +137,7 @@
     "test:neighborhood-canonical": "tsx scripts/test-neighborhood-canonical.ts",
     "test:neighborhood-name": "tsx scripts/test-neighborhood-name.ts",
     "test:new-happy-hour-dedup": "tsx scripts/test-new-happy-hour-dedup.ts",
+    "test:next-window-start": "tsx scripts/test-next-window-start.ts",
     "test:normalize-url": "tsx scripts/test-normalize-url.ts",
     "test:offering-junk": "tsx scripts/test-offering-junk.ts",
     "test:offering-sanity": "tsx scripts/test-offering-sanity.ts",

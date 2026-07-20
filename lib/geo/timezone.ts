@@ -140,6 +140,53 @@ export function isWindowActive(
   return lateOnStartDay || earlyNextDay;
 }
 
+export interface NextWindowStart {
+  dayOffset: number; // 0 = today, 1 = tomorrow, … (venue-local days from now)
+  isoDay: number; // ISO weekday the window next starts on (1=Mon..7=Sun)
+  startTime: string; // "HH:MM" venue-local start
+}
+
+/**
+ * The next upcoming happy-hour start from `now` (venue-local), scanning the next 7 days.
+ * A window "starts" at its startTime on each day in daysOfWeek; open-ended windows
+ * (all-day / "open until X") start at the venue's open time that day, resolved from
+ * `hours` — if that open time is unknown the window is skipped (we never guess a start we
+ * don't have). Today's already-started/passed windows are skipped. Returns null when
+ * nothing is resolvable. Intended for the not-currently-active case (pairs with
+ * isWindowActive): show "starts <day> at <time>" instead of a bare dot.
+ */
+export function nextWindowStart(
+  windows: HappyHourWindow[],
+  now: VenueLocalNow,
+  hours?: OpenPeriod[] | null,
+): NextWindowStart | null {
+  let best: NextWindowStart | null = null;
+  for (let offset = 0; offset <= 7; offset++) {
+    const isoDay = ((now.dayOfWeek - 1 + offset) % 7) + 1;
+    for (const w of windows) {
+      if (!w.daysOfWeek.includes(isoDay)) continue;
+      let startMin: number | null;
+      if (w.startTime != null) {
+        startMin = toMinutes(w.startTime);
+      } else {
+        // all-day / "open until X": the window opens with the venue that day.
+        const resolved = resolveBoundsForDay(w, hours, isoDay);
+        startMin = resolved ? toMinutes(resolved.startTime) : null;
+      }
+      if (startMin == null) continue;
+      if (offset === 0 && startMin <= now.minutes) continue; // already started or passed today
+      if (
+        best == null ||
+        offset < best.dayOffset ||
+        (offset === best.dayOffset && startMin < toMinutes(best.startTime))
+      ) {
+        best = { dayOffset: offset, isoDay, startTime: minutesToHHMM(startMin) };
+      }
+    }
+  }
+  return best;
+}
+
 /** Minutes-since-midnight → "HH:MM" (24h, wraps at 1440). */
 function minutesToHHMM(min: number): string {
   const h = Math.floor(min / 60) % 24;
