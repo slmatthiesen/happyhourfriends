@@ -117,6 +117,59 @@ export default async function VenuePage({
     (a, b) => Math.min(...a.days) - Math.min(...b.days),
   );
 
+  // Split a window's offerings into Drinks / Food / More on the extractor-set `kind`, each
+  // sorted cheapest-first. Priceless / discount-only items have no absolute price to rank, so
+  // they float to the top of their group. Headers render only when a window actually spans
+  // more than one group — a drinks-only window stays a flat list, not a lone "Drinks" heading.
+  type Offering = (typeof activeHours)[number]["offerings"][number];
+  const OFFERING_GROUPS: { kind: Offering["kind"]; label: string }[] = [
+    { kind: "drink", label: "Drinks" },
+    { kind: "food", label: "Food" },
+    { kind: "other", label: "More" },
+  ];
+  const groupOfferings = (offerings: Offering[]) => {
+    const byKind = new Map<Offering["kind"], Offering[]>();
+    for (const o of offerings) {
+      const list = byKind.get(o.kind);
+      if (list) list.push(o);
+      else byKind.set(o.kind, [o]);
+    }
+    const byPrice = (a: Offering, b: Offering) =>
+      a.priceCents == null || b.priceCents == null
+        ? (a.priceCents == null ? 0 : 1) - (b.priceCents == null ? 0 : 1)
+        : a.priceCents - b.priceCents;
+    return OFFERING_GROUPS.map((g) => ({
+      ...g,
+      items: [...(byKind.get(g.kind) ?? [])].sort(byPrice),
+    })).filter((g) => g.items.length > 0);
+  };
+
+  const renderOffering = (o: Offering) => {
+    const price =
+      formatPrice(o.priceCents, o.currencyCode ?? currency) ??
+      (o.discountCents
+        ? `${formatPrice(o.discountCents, o.currencyCode ?? currency)} off`
+        : o.discountPercent
+          ? `${o.discountPercent}% off`
+          : null);
+    // Don't repeat a description that just restates the name (case-insensitive).
+    const showDesc =
+      o.description &&
+      o.description.trim().toLowerCase() !== (o.name ?? "").trim().toLowerCase();
+    return (
+      <li key={o.id} className="flex flex-col gap-0.5">
+        <div className="flex justify-between">
+          <span className="text-text-primary">
+            {o.name ?? o.category}
+            {o.conditions && <span className="text-text-muted"> · {o.conditions}</span>}
+          </span>
+          {price && <span className="tabular-nums text-accent-warm">{price}</span>}
+        </div>
+        {showDesc && <span className="text-xs text-text-muted">{o.description}</span>}
+      </li>
+    );
+  };
+
   // Venue-level source: the first sourced happy hour (they usually share one).
   const sourceUrl =
     activeHours.find((h) => h.sourceUrl)?.sourceUrl ??
@@ -438,6 +491,8 @@ export default async function VenuePage({
                 { allDay: h.allDay, startTime: h.startTime, endTime: h.endTime, daysOfWeek: days },
                 venue.hoursJson,
               );
+              const offeringGroups = groupOfferings(h.offerings);
+              const showOfferingHeaders = offeringGroups.length > 1;
               return (
               <li
                 key={h.id}
@@ -457,42 +512,19 @@ export default async function VenuePage({
                 {h.notes && (
                   <p className="mt-1 text-sm text-text-muted">{h.notes}</p>
                 )}
-                {h.offerings.length > 0 && (
-                  <ul className="mt-3 space-y-1 text-sm">
-                    {h.offerings.map((o) => {
-                      const price =
-                        formatPrice(o.priceCents, o.currencyCode ?? currency) ??
-                        (o.discountCents
-                          ? `${formatPrice(o.discountCents, o.currencyCode ?? currency)} off`
-                          : o.discountPercent
-                            ? `${o.discountPercent}% off`
-                            : null);
-                      // Don't repeat a description that just restates the name (case-insensitive).
-                      const showDesc =
-                        o.description &&
-                        o.description.trim().toLowerCase() !== (o.name ?? "").trim().toLowerCase();
-                      return (
-                        <li key={o.id} className="flex flex-col gap-0.5">
-                          <div className="flex justify-between">
-                            <span className="text-text-primary">
-                              {o.name ?? o.category}
-                              {o.conditions && (
-                                <span className="text-text-muted"> · {o.conditions}</span>
-                              )}
-                            </span>
-                            {price && (
-                              <span className="tabular-nums text-accent-warm">
-                                {price}
-                              </span>
-                            )}
-                          </div>
-                          {showDesc && (
-                            <span className="text-xs text-text-muted">{o.description}</span>
-                          )}
-                        </li>
-                      );
-                    })}
-                  </ul>
+                {offeringGroups.length > 0 && (
+                  <div className="mt-3 space-y-3">
+                    {offeringGroups.map((g) => (
+                      <div key={g.kind}>
+                        {showOfferingHeaders && (
+                          <p className="mb-1 text-xs font-medium uppercase tracking-wide text-text-muted">
+                            {g.label}
+                          </p>
+                        )}
+                        <ul className="space-y-1 text-sm">{g.items.map(renderOffering)}</ul>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </li>
               );
