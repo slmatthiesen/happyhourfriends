@@ -517,7 +517,7 @@ export default async function VenuePage({
                     {offeringGroups.map((g) => (
                       <div key={g.kind}>
                         {showOfferingHeaders && (
-                          <p className="mb-1 text-xs font-medium uppercase tracking-wide text-text-muted">
+                          <p className="mb-2 border-b border-border pb-1 text-xs font-medium uppercase tracking-wide text-text-muted">
                             {g.label}
                           </p>
                         )}
