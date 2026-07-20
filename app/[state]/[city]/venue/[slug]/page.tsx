@@ -10,6 +10,7 @@ import { Contribute } from "@/components/submit/contribute";
 import { VenueLiveDot } from "@/components/venue-live-dot";
 import { ReportClosed } from "@/components/submit/report-closed";
 import { formatDays, formatDaysLong, formatPrice, formatWindowByDay } from "@/lib/format";
+import { publicNote } from "@/lib/notes";
 import { getCityByPath, getVenueBySlug } from "@/lib/queries/venues";
 import { cityPath, venuePath } from "@/lib/routes";
 import { breadcrumbListLd } from "@/lib/seo/structuredData";
@@ -493,6 +494,7 @@ export default async function VenuePage({
               );
               const offeringGroups = groupOfferings(h.offerings);
               const showOfferingHeaders = offeringGroups.length > 1;
+              const note = publicNote(h.notes);
               return (
               <li
                 key={h.id}
@@ -509,8 +511,8 @@ export default async function VenuePage({
                     </div>
                   ))}
                 </div>
-                {h.notes && (
-                  <p className="mt-1 text-sm text-text-muted">{h.notes}</p>
+                {note && (
+                  <p className="mt-1 text-sm text-text-muted">{note}</p>
                 )}
                 {offeringGroups.length > 0 && (
                   <div className="mt-3 space-y-3">
