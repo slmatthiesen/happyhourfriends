@@ -11,7 +11,7 @@ import { VenueLiveDot } from "@/components/venue-live-dot";
 import { ReportClosed } from "@/components/submit/report-closed";
 import { formatDays, formatDaysLong, formatPrice, formatWindowByDay } from "@/lib/format";
 import { publicNote } from "@/lib/notes";
-import { getCityByPath, getVenueBySlug } from "@/lib/queries/venues";
+import { getCityByPath, getRelatedHhVenues, getVenueBySlug } from "@/lib/queries/venues";
 import { cityPath, venuePath } from "@/lib/routes";
 import { breadcrumbListLd } from "@/lib/seo/structuredData";
 import { labelForVenueType } from "@/lib/places/venueType";
@@ -76,6 +76,9 @@ export default async function VenuePage({
 
   const activeHours = venue.happyHours.filter((h) => h.active && !h.deletedAt);
   const isClosed = venue.status === "closed";
+  // Internal-link mesh: other HH venues nearby. Links flow venue→venue among indexable pages,
+  // giving each the sibling inbound links that lift it out of "discovered – not indexed".
+  const related = await getRelatedHhVenues(city.id, venue.neighborhoodId, venue.id);
   const currency = city.currencyCode ?? "USD";
 
   // "Last updated" reflects any change to the displayed data, not just the venue row:
@@ -550,6 +553,40 @@ export default async function VenuePage({
             <ReportClosed venueId={venue.id} venueName={venue.name} />
           </div>
         </section>
+      )}
+
+      {related.venues.length > 0 && (
+        <nav
+          aria-label="More happy hours nearby"
+          className="mt-12 border-t border-border pt-8"
+        >
+          <h2 className="text-xl text-text-primary" style={{ fontFamily: "var(--font-serif)" }}>
+            More happy hours in{" "}
+            {related.scope === "neighborhood" && venue.neighborhoodName
+              ? venue.neighborhoodName
+              : city.name}
+          </h2>
+          <ul className="mt-4 grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2">
+            {related.venues.map((r) => (
+              <li key={r.slug}>
+                <Link
+                  href={venuePath(city.state, city.slug, r.slug)}
+                  className="text-sm text-accent-cool hover:underline"
+                >
+                  {r.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          {related.scope === "neighborhood" && (
+            <Link
+              href={cityPath(city.state, city.slug)}
+              className="mt-4 inline-block text-sm text-text-muted hover:underline"
+            >
+              See all happy hours in {city.name} →
+            </Link>
+          )}
+        </nav>
       )}
     </main>
   );
