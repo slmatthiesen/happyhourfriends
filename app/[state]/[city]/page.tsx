@@ -96,7 +96,7 @@ export default async function CityPage({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
         />
       ) : null}
-      <SiteWordmark className="mb-6" />
+      <SiteWordmark className="mb-6 text-base font-semibold text-text-primary" />
       <header>
         <h1
           className="text-4xl font-semibold text-text-primary"
