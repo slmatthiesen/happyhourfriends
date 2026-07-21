@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray, isNull, notInArray, or, sql } from "drizzle-orm";
+import { and, asc, eq, exists, inArray, isNull, ne, notInArray, or, sql } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { db } from "@/db/client";
 import { MIN_VENUES_PER_NEIGHBORHOOD } from "@/lib/geo/assignNeighborhoods";
@@ -472,6 +472,63 @@ export async function getVenueBySlug(
     .limit(1);
   if (!venue) return null;
   return assembleVenueDetail(venue);
+}
+
+export interface RelatedHhVenues {
+  scope: "neighborhood" | "city";
+  venues: { name: string; slug: string }[];
+}
+
+/** Related HH venues for the venue-page "More happy hours nearby" block — the internal-link
+ *  mesh that turns otherwise-orphaned venue pages into densely cross-linked ones (the main
+ *  on-site lever against "discovered – currently not indexed"). HH-only (never stubs), so both
+ *  the links and the crawl budget they carry stay on indexable pages. Prefers the same
+ *  neighborhood; falls back city-wide when the neighborhood is too thin to fill a useful block,
+ *  and reports which scope it used so the heading stays truthful. Deterministic order (name asc)
+ *  keeps the ISR-cached page stable. */
+export async function getRelatedHhVenues(
+  cityId: string,
+  neighborhoodId: string | null,
+  excludeVenueId: string,
+  limit = 8,
+): Promise<RelatedHhVenues> {
+  const hasActiveHh = exists(
+    db
+      .select({ id: happyHours.id })
+      .from(happyHours)
+      .where(
+        and(
+          eq(happyHours.venueId, venues.id),
+          eq(happyHours.active, true),
+          isNull(happyHours.deletedAt),
+        ),
+      ),
+  );
+
+  const pick = (scope: ReturnType<typeof eq> | undefined) =>
+    db
+      .select({ name: venues.name, slug: venues.slug })
+      .from(venues)
+      .where(
+        and(
+          eq(venues.cityId, cityId),
+          ne(venues.id, excludeVenueId),
+          isNull(venues.deletedAt),
+          PUBLIC_VISIBLE,
+          hasActiveHh,
+          scope,
+        ),
+      )
+      .orderBy(asc(venues.name))
+      .limit(limit);
+
+  // A 1–2 item "More in <neighborhood>" reads as broken; below that, show the city instead.
+  const MIN_NEIGHBORHOOD = 3;
+  if (neighborhoodId) {
+    const local = await pick(eq(venues.neighborhoodId, neighborhoodId));
+    if (local.length >= MIN_NEIGHBORHOOD) return { scope: "neighborhood", venues: local };
+  }
+  return { scope: "city", venues: await pick(undefined) };
 }
 
 /** Like getVenueBySlug but keyed on the venue id — used by the interpret stage, which
