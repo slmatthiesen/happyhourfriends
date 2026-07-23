@@ -96,10 +96,15 @@ export default async function NeighborhoodPage({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
         />
       ) : null}
-      <SiteWordmark className="mb-6" />
-      <Link href={cityPath(city.state, city.slug)} className="text-sm text-accent-cool hover:underline">
-        ← All {city.name}
-      </Link>
+      <nav className="mb-8 flex items-center justify-between gap-4">
+        <SiteWordmark />
+        <Link
+          href={cityPath(city.state, city.slug)}
+          className="shrink-0 text-base font-semibold text-accent-cool hover:underline"
+        >
+          ← All {city.name}
+        </Link>
+      </nav>
       <h1
         className="mt-3 text-4xl font-semibold text-text-primary"
         style={{ fontFamily: "var(--font-serif)" }}
