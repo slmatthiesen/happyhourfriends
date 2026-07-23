@@ -571,7 +571,14 @@ async function subtreeTimestamps(sql: Sql): Promise<Map<string, number>> {
 export async function publishChanged(
   local: Sql,
   prod: Sql,
-  opts: { dryRun?: boolean; sinceHours?: number; cutoffMs?: number; full?: boolean } = {},
+  opts: {
+    dryRun?: boolean;
+    sinceHours?: number;
+    cutoffMs?: number;
+    full?: boolean;
+    cityId?: string;
+    onProgress?: (done: number, total: number, venueId: string) => void;
+  } = {},
 ): Promise<{ venueId: string; results: SyncResult[] }[]> {
   // Normally bounded to a recent curation window for speed: re-diffing all ~4k venues on
   // every routine push is wasteful. cutoffMs (the CLI's persisted last-push watermark) takes
@@ -599,9 +606,24 @@ export async function publishChanged(
     if (prodTsForId !== undefined && ts > prodTsForId) staleVenueIds.push(id);
   }
 
+  // Optional per-city scoping: a one-time --full flush of the whole stranded backlog can be
+  // thousands of per-venue transactions over the tunnel. Scoping to a city lets it run in
+  // tractable, prioritizable chunks (and post-filtering staleVenueIds keeps the timestamp scan
+  // whole-DB but shrinks the expensive publish loop to that city).
+  let ids = staleVenueIds;
+  if (opts.cityId) {
+    const inCity = new Set(
+      (await local<{ id: string }[]>`SELECT id FROM venues WHERE city_id = ${opts.cityId}`).map((r) => r.id),
+    );
+    ids = ids.filter((id) => inCity.has(id));
+  }
+
   const out: { venueId: string; results: SyncResult[] }[] = [];
-  for (const venueId of staleVenueIds) {
+  opts.onProgress?.(0, ids.length, ""); // start signal so the caller can announce the total
+  for (let i = 0; i < ids.length; i++) {
+    const venueId = ids[i];
     out.push({ venueId, results: await publishVenue(local, prod, { venueId, dryRun: opts.dryRun }) });
+    opts.onProgress?.(i + 1, ids.length, venueId);
   }
   return out;
 }
