@@ -618,11 +618,18 @@ export async function publishChanged(
     ids = ids.filter((id) => inCity.has(id));
   }
 
-  const out: { venueId: string; results: SyncResult[] }[] = [];
   opts.onProgress?.(0, ids.length, ""); // start signal so the caller can announce the total
+
+  // A dry run is a PREVIEW: report WHICH venues would reconcile, cheaply. Simulating each publish
+  // (running the full per-venue transaction and rolling back) costs almost as much as applying —
+  // which made a --full preview of thousands of venues take many minutes over the tunnel. The
+  // candidate set is the useful part of a preview; the per-venue row detail only matters on apply.
+  if (opts.dryRun) return ids.map((venueId) => ({ venueId, results: [] }));
+
+  const out: { venueId: string; results: SyncResult[] }[] = [];
   for (let i = 0; i < ids.length; i++) {
     const venueId = ids[i];
-    out.push({ venueId, results: await publishVenue(local, prod, { venueId, dryRun: opts.dryRun }) });
+    out.push({ venueId, results: await publishVenue(local, prod, { venueId, dryRun: false }) });
     opts.onProgress?.(i + 1, ids.length, venueId);
   }
   return out;

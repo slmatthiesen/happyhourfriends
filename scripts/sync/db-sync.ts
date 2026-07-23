@@ -121,6 +121,9 @@ async function main() {
       console.log(`\nlocal → prod (update changed venues, ${scopeNote})${dryRun ? " (DRY RUN — nothing written)" : ""}`);
       if (published.length === 0) {
         console.log("  (no existing venue is newer locally than on prod)");
+      } else if (dryRun) {
+        // Preview: the candidate count is the answer; publishes aren't simulated (see publishChanged).
+        console.log(`  ${published.length} venue(s) would be reconciled — re-run with --apply to commit`);
       } else {
         for (const p of published) {
           const rows = p.results.reduce((n, r) => n + r.changed, 0);
