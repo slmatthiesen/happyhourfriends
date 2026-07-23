@@ -49,6 +49,7 @@
     "promote:own-site-hh": "tsx scripts/promote-own-site-hh.ts",
     "apply:chain-happy-hours": "tsx scripts/apply-chain-happy-hours.ts",
     "backfill:offering-names": "tsx scripts/backfill-offering-names.ts",
+    "backfill:venue-names": "tsx scripts/backfill-venue-names.ts",
     "clean:junk-offerings": "tsx scripts/clean-junk-offerings.ts",
     "reverify:all-day": "tsx scripts/reverify-all-day.ts",
     "cleanup:stubs": "tsx scripts/cleanup-stubs.ts",
@@ -183,6 +184,7 @@
     "test:turnstile-verify": "tsx scripts/test-turnstile-verify.ts",
     "test:venue-quality": "tsx scripts/test-venue-quality.ts",
     "test:venue-type": "tsx scripts/test-venue-type.ts",
+    "test:venue-name": "tsx scripts/test-venue-name.ts",
     "test:window-reconcile": "tsx scripts/test-window-reconcile.ts"
   },
   "dependencies": {
