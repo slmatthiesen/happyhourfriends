@@ -51,6 +51,7 @@ import {
 import { haversineMeters } from "@/lib/geo/distance";
 import { parseRegularOpeningHours } from "@/lib/places/placeDetails";
 import { pickNeighborhood } from "@/lib/places/neighborhoodName";
+import { stripPromoName } from "@/lib/places/venueName";
 
 // ---------------------------------------------------------------------------
 // Arg parsing
@@ -1140,7 +1141,7 @@ async function main() {
         continue;
       }
 
-      const name = place.displayName.text;
+      const name = stripPromoName(place.displayName.text);
       const address = place.formattedAddress ?? null;
       const pLat = place.location?.latitude ?? null;
       const pLng = place.location?.longitude ?? null;

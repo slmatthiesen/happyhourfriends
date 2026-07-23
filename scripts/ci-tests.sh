@@ -20,6 +20,7 @@ set -uo pipefail
 
 TESTS=(
   test:venue-type
+  test:venue-name
   test:neighborhood-canonical
   test:first-party
   test:source-provenance
