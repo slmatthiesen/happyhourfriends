@@ -41,13 +41,6 @@ export default async function Home() {
       <p className="mt-3 text-lg font-medium text-text-primary">
         Find your spot:
       </p>
-      <p className="mt-2 text-xs text-text-muted">
-        We&apos;ve had{" "}
-        <span className="font-bold text-text-primary">
-          {COMMUNITY_CONTRIBUTION_COUNT}
-        </span>{" "}
-        community contributions so far.
-      </p>
 
       {cities.length > 0 ? (
         <CityPicker cities={cities} />
@@ -56,7 +49,13 @@ export default async function Home() {
           No cities are live yet — check back soon.
         </p>
       )}
-
+      <p className="mt-2 text-xs text-text-muted">
+        We&apos;ve had{" "}
+        <span className="font-bold text-text-primary">
+          {COMMUNITY_CONTRIBUTION_COUNT}
+        </span>{" "}
+        community contributions so far.
+      </p>
       <p className="mt-16 text-center text-sm text-text-muted/80">
         Built by a friend who loves trying new places.
       </p>
