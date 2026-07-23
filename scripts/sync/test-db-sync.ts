@@ -234,6 +234,21 @@ async function main() {
       !reconciled.some((v) => v.venueId === U.vProdNewer),
       "full reconcile must NOT select a venue that prod edited more recently",
     );
+    // City scoping: the same drift is selected when scoped to its city, and NOT to another.
+    const inCity = await publishChanged(local, prod, { dryRun: true, full: true, cityId: U.city });
+    assert.ok(
+      inCity.some((v) => v.venueId === U.vStranded),
+      "full reconcile scoped to the venue's city must still select its drift",
+    );
+    const otherCity = await publishChanged(local, prod, {
+      dryRun: true,
+      full: true,
+      cityId: "00000000-0000-0000-0000-0000000000ff",
+    });
+    assert.ok(
+      !otherCity.some((v) => v.venueId === U.vStranded),
+      "full reconcile scoped to a different city must exclude it",
+    );
 
     // ── 4. publishVenue: an EDIT to an EXISTING prod venue publishes up ────────────
     // vShared exists on BOTH sides. Stage a local edit to it + a NEW happy hour, then

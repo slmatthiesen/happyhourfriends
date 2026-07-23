@@ -13,6 +13,10 @@
 #                             # prod, ignoring the last-push watermark. Use this to flush
 #                             # curation stranded before the watermark (add --apply to commit).
 #                             # Slower (diffs all venues); the first run clears the backlog.
+#   pnpm push:prod -- --full --city san-francisco --state CA
+#                             # Scope the flush to ONE city — tractable, observable chunks with
+#                             # live N/total progress. A scoped run does NOT advance the global
+#                             # watermark (it only covered one city).
 #
 # One-time setup — put these in your gitignored .env (NEVER committed; this is a public repo):
 #   PROD_INSTANCE_ID=i-xxxxxxxxxxxxxxxxx   # EC2 prod box instance id

@@ -58,7 +58,7 @@ async function main() {
 
   const VALID = ["push", "push-updates", "pull", "publish-venue", "pull-queue", "reject-submission", "delete-venues"];
   if (!VALID.includes(direction)) {
-    console.error("Usage: db-sync.ts <push|push-updates|pull|publish-venue|pull-queue|reject-submission|delete-venues> [--apply] [--full] [--venue <id>] [--submission <id>]");
+    console.error("Usage: db-sync.ts <push|push-updates|pull|publish-venue|pull-queue|reject-submission|delete-venues> [--apply] [--full] [--city <slug> --state <code>] [--venue <id>] [--submission <id>]");
     process.exit(1);
   }
 
@@ -84,14 +84,40 @@ async function main() {
       printResults("local → prod (additive push — new venues)", await additivePush(local, prod, { dryRun }), dryRun);
 
       const full = flags.includes("--full");
+      const citySlug = flagValue("--city");
+      const stateCode = flagValue("--state");
+      let cityId: string | undefined;
+      if (citySlug) {
+        if (!stateCode) throw new Error("--city requires --state (city slugs are unique per state)");
+        const [c] = await local<{ id: string }[]>`
+          SELECT id FROM cities WHERE slug = ${citySlug} AND lower(state) = lower(${stateCode})`;
+        if (!c) throw new Error(`No city ${citySlug}/${stateCode} found locally`);
+        cityId = c.id;
+      }
       const runStartedAt = Date.now();
       const watermarkMs = readWatermarkMs();
-      const published = await publishChanged(local, prod, { dryRun, cutoffMs: watermarkMs, full });
-      const scopeNote = full
-        ? "FULL reconcile — every venue where local differs from prod (watermark ignored)"
-        : watermarkMs
-          ? `since last push (${new Date(watermarkMs).toISOString()})`
-          : "since last push — no watermark yet, defaulting to last 24h";
+      const published = await publishChanged(local, prod, {
+        dryRun,
+        cutoffMs: watermarkMs,
+        full,
+        cityId,
+        // Live progress — a --full flush can be thousands of per-venue round-trips, and the
+        // final list otherwise prints only after everything, which reads as a hang.
+        onProgress: (done, total) => {
+          if (done === 0) total && console.log(`  reconciling ${total} venue(s)…`);
+          else if (done % 25 === 0 || done === total) console.log(`    ${done}/${total}`);
+        },
+      });
+      const scopeNote = [
+        full
+          ? "FULL reconcile — every venue where local differs from prod (watermark ignored)"
+          : watermarkMs
+            ? `since last push (${new Date(watermarkMs).toISOString()})`
+            : "since last push — no watermark yet, defaulting to last 24h",
+        cityId ? `city=${citySlug}` : null,
+      ]
+        .filter(Boolean)
+        .join("; ");
       console.log(`\nlocal → prod (update changed venues, ${scopeNote})${dryRun ? " (DRY RUN — nothing written)" : ""}`);
       if (published.length === 0) {
         console.log("  (no existing venue is newer locally than on prod)");
@@ -102,9 +128,11 @@ async function main() {
         }
         console.log(`  ${"TOTAL VENUES".padEnd(24)} ${published.length}`);
       }
-      // Advance the watermark only on a real apply, to the moment this run started (not
-      // finished) — so any edit made mid-run is still caught by the next push.
-      if (!dryRun) writeWatermarkMs(runStartedAt);
+      // Advance the watermark only on a real, WHOLE-DB apply, to the moment this run started
+      // (not finished) — so any edit made mid-run is still caught by the next push. A
+      // city-scoped run covers only that city, so advancing the global watermark would strand
+      // other cities' edits made since the old watermark; leave it untouched then.
+      if (!dryRun && !cityId) writeWatermarkMs(runStartedAt);
     } else if (direction === "pull") {
       printResults("prod → local (upsert pull)", await upsertPull(prod, local, { dryRun }), dryRun);
     } else if (direction === "pull-queue") {
