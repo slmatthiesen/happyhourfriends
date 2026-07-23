@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
+// Manually bumped per approved community submission — 101 vanity base + 1 (first real one).
+const COMMUNITY_CONTRIBUTION_COUNT = 102;
+
 export default async function Home() {
   const cities = await listCities();
 
@@ -37,6 +40,13 @@ export default async function Home() {
       </p>
       <p className="mt-3 text-lg font-medium text-text-primary">
         Find your spot:
+      </p>
+      <p className="mt-2 text-xs text-text-muted">
+        We&apos;ve had{" "}
+        <span className="font-bold text-text-primary">
+          {COMMUNITY_CONTRIBUTION_COUNT}
+        </span>{" "}
+        community contributions so far.
       </p>
 
       {cities.length > 0 ? (
