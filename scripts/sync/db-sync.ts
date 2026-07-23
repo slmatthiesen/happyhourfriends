@@ -58,7 +58,7 @@ async function main() {
 
   const VALID = ["push", "push-updates", "pull", "publish-venue", "pull-queue", "reject-submission", "delete-venues"];
   if (!VALID.includes(direction)) {
-    console.error("Usage: db-sync.ts <push|push-updates|pull|publish-venue|pull-queue|reject-submission|delete-venues> [--apply] [--venue <id>] [--submission <id>]");
+    console.error("Usage: db-sync.ts <push|push-updates|pull|publish-venue|pull-queue|reject-submission|delete-venues> [--apply] [--full] [--venue <id>] [--submission <id>]");
     process.exit(1);
   }
 
@@ -83,12 +83,15 @@ async function main() {
       // never touched, and venues a user edited more recently on prod are skipped.
       printResults("local → prod (additive push — new venues)", await additivePush(local, prod, { dryRun }), dryRun);
 
+      const full = flags.includes("--full");
       const runStartedAt = Date.now();
       const watermarkMs = readWatermarkMs();
-      const published = await publishChanged(local, prod, { dryRun, cutoffMs: watermarkMs });
-      const scopeNote = watermarkMs
-        ? `since last push (${new Date(watermarkMs).toISOString()})`
-        : "since last push — no watermark yet, defaulting to last 24h";
+      const published = await publishChanged(local, prod, { dryRun, cutoffMs: watermarkMs, full });
+      const scopeNote = full
+        ? "FULL reconcile — every venue where local differs from prod (watermark ignored)"
+        : watermarkMs
+          ? `since last push (${new Date(watermarkMs).toISOString()})`
+          : "since last push — no watermark yet, defaulting to last 24h";
       console.log(`\nlocal → prod (update changed venues, ${scopeNote})${dryRun ? " (DRY RUN — nothing written)" : ""}`);
       if (published.length === 0) {
         console.log("  (no existing venue is newer locally than on prod)");

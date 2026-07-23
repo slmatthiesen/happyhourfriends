@@ -14,7 +14,7 @@ import "dotenv/config";
 import { execSync } from "node:child_process";
 import assert from "node:assert/strict";
 import postgres from "postgres";
-import { additivePush, upsertPull, publishVenue, pullQueuedSubmissions, markSubmissionRejected, pushDeletions } from "@/lib/sync/dbSync";
+import { additivePush, upsertPull, publishVenue, publishChanged, pullQueuedSubmissions, markSubmissionRejected, pushDeletions } from "@/lib/sync/dbSync";
 
 const BASE = process.env.DATABASE_URL;
 if (!BASE) throw new Error("DATABASE_URL must be set (local docker DB)");
@@ -51,6 +51,8 @@ const U = {
   nbStaged: "00000000-0000-0000-0000-0000000000a2", // local-only, has polygon (push round-trip)
   nbProdOnly: "00000000-0000-0000-0000-0000000000a3", // prod-only, has polygon (pull round-trip)
   subQueued: "00000000-0000-0000-0000-0000000000b1",
+  vStranded: "00000000-0000-0000-0000-000000000f05", // on both; local drift older than watermark
+  vProdNewer: "00000000-0000-0000-0000-000000000f06", // on both; prod edited more recently
 };
 
 const POLY = "MULTIPOLYGON(((-122.5 47.2,-122.4 47.2,-122.4 47.3,-122.5 47.3,-122.5 47.2)))";
@@ -198,6 +200,39 @@ async function main() {
       (await local`SELECT ST_AsText(polygon) t FROM neighborhoods WHERE id = ${U.nbProdOnly}`)[0].t,
       POLY,
       "neighbourhood polygon must survive the pull round-trip",
+    );
+
+    // ── 3b. publishChanged --full flushes watermark-stranded drift (root-cause fix) ────
+    // Two venues on BOTH sides. vStranded: local carries newer curation (a moved neighborhood)
+    // than prod, but its timestamp predates a later push watermark — the exact way real
+    // curation goes missing on prod. vProdNewer: prod was edited more recently and must never
+    // be clobbered, even by a full reconcile. Assert on the SELECTED set (dry-run, no writes):
+    // the fix is purely which venues publishChanged hands to publishVenue.
+    await prod`INSERT INTO venues (id, city_id, name, slug, google_place_id, neighborhood_id, status, updated_at)
+      VALUES (${U.vStranded}, ${U.city}, 'Stranded Bar', 'stranded-bar', 'gp_stranded', ${U.nbCoarse}, 'active', '2020-01-01T00:00:00Z')`;
+    await local`INSERT INTO venues (id, city_id, name, slug, google_place_id, neighborhood_id, status, updated_at)
+      VALUES (${U.vStranded}, ${U.city}, 'Stranded Bar', 'stranded-bar', 'gp_stranded', ${U.nbFine}, 'active', '2021-01-01T00:00:00Z')`;
+    await prod`INSERT INTO venues (id, city_id, name, slug, google_place_id, neighborhood_id, status, updated_at)
+      VALUES (${U.vProdNewer}, ${U.city}, 'Prod Newer Bar', 'prod-newer-bar', 'gp_prodnewer', ${U.nbFine}, 'active', '2021-01-01T00:00:00Z')`;
+    await local`INSERT INTO venues (id, city_id, name, slug, google_place_id, neighborhood_id, status, updated_at)
+      VALUES (${U.vProdNewer}, ${U.city}, 'Prod Newer Bar', 'prod-newer-bar', 'gp_prodnewer', ${U.nbCoarse}, 'active', '2020-01-01T00:00:00Z')`;
+
+    // Bug repro: the watermark path (cutoff AFTER the local edit) STRANDS genuine drift.
+    const windowed = await publishChanged(local, prod, { dryRun: true, cutoffMs: Date.UTC(2022, 0, 1) });
+    assert.ok(
+      !windowed.some((v) => v.venueId === U.vStranded),
+      "watermark push reproduces the bug: drift older than the cutoff is skipped",
+    );
+    // Fix: --full ignores the watermark, so the stranded drift IS selected for publish…
+    const reconciled = await publishChanged(local, prod, { dryRun: true, full: true });
+    assert.ok(
+      reconciled.some((v) => v.venueId === U.vStranded),
+      "full reconcile must select watermark-stranded drift",
+    );
+    // …but a venue prod edited MORE recently is still never selected (prod-wins holds).
+    assert.ok(
+      !reconciled.some((v) => v.venueId === U.vProdNewer),
+      "full reconcile must NOT select a venue that prod edited more recently",
     );
 
     // ── 4. publishVenue: an EDIT to an EXISTING prod venue publishes up ────────────

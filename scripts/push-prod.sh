@@ -9,6 +9,10 @@
 #
 #   pnpm push:prod            # PREVIEW (dry run — writes nothing)
 #   pnpm push:prod -- --apply # commit
+#   pnpm push:prod -- --full  # PREVIEW a FULL reconcile: every venue where local differs from
+#                             # prod, ignoring the last-push watermark. Use this to flush
+#                             # curation stranded before the watermark (add --apply to commit).
+#                             # Slower (diffs all venues); the first run clears the backlog.
 #
 # One-time setup — put these in your gitignored .env (NEVER committed; this is a public repo):
 #   PROD_INSTANCE_ID=i-xxxxxxxxxxxxxxxxx   # EC2 prod box instance id

@@ -571,14 +571,22 @@ async function subtreeTimestamps(sql: Sql): Promise<Map<string, number>> {
 export async function publishChanged(
   local: Sql,
   prod: Sql,
-  opts: { dryRun?: boolean; sinceHours?: number; cutoffMs?: number } = {},
+  opts: { dryRun?: boolean; sinceHours?: number; cutoffMs?: number; full?: boolean } = {},
 ): Promise<{ venueId: string; results: SyncResult[] }[]> {
-  // Bound to a recent curation window. Prod has only ever received additive INSERTs, so
-  // EVERY venue edited on any city since its last full push reads as "newer on local"
-  // forever — comparing all ~4k venues would try to re-publish that entire historical
-  // drift one transaction at a time. cutoffMs (the CLI's persisted last-push watermark)
-  // takes precedence; sinceHours is the fallback for a first run with no watermark yet.
-  const cutoff = opts.cutoffMs ?? Date.now() - (opts.sinceHours ?? 24) * 3600_000;
+  // Normally bounded to a recent curation window for speed: re-diffing all ~4k venues on
+  // every routine push is wasteful. cutoffMs (the CLI's persisted last-push watermark) takes
+  // precedence; sinceHours is the fallback for a first run with no watermark yet.
+  //
+  // BUT that window is a performance filter layered ON TOP of the real correctness check
+  // (`ts > prodTs`, below), and it silently STRANDS genuine drift whose timestamp is older
+  // than the watermark. This is how curation goes missing on prod: anything edited before the
+  // first `--apply` (which set the watermark to "now") is older than every later watermark, so
+  // it's never "new" (additivePush's job) and never "recent enough" here — permanently invisible.
+  // `full` drops the window (cutoff = 0) so EVERY venue where local genuinely differs from prod
+  // is reconciled regardless of age. Slower, and the first run flushes the whole stranded
+  // backlog — that's the point; afterwards the fast watermark path keeps up. The `ts > prodTs`
+  // guard still holds, so a more-recent prod-side user edit is never clobbered.
+  const cutoff = opts.full ? 0 : opts.cutoffMs ?? Date.now() - (opts.sinceHours ?? 24) * 3600_000;
 
   const [localTs, prodTs] = await Promise.all([subtreeTimestamps(local), subtreeTimestamps(prod)]);
 
