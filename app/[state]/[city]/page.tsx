@@ -106,7 +106,7 @@ export default async function CityPage({
         </h1>
         {withHours === 0 && (
           <p className="mt-2 text-text-muted">
-            We're still gathering happy hours here — help us fill it in.
+            We&apos;re still gathering happy hours here — help us fill it in.
           </p>
         )}
       </header>
