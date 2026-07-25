@@ -13,6 +13,7 @@
   --accent-warm: #f0b461; /* prices, primary CTA, "happening now" */
   --accent-cool: #d98a5c; /* warm clay — links + secondary actions (was cool blue #6b9ee8) */
   --accent-hot: #e0708a; /* flags, warnings, badges */
+  --accent-live: #8fbf7a; /* soft sage — NowBadge open state only; scoped exception to the warm palette for a "go" signal */
   --text-primary: #e8edf2;
   --text-muted: #8fa1b3;
   --border: #2a3441;
@@ -74,6 +75,7 @@
   --color-accent-warm: var(--accent-warm);
   --color-accent-cool: var(--accent-cool);
   --color-accent-hot: var(--accent-hot);
+  --color-accent-live: var(--accent-live);
   --color-text-primary: var(--text-primary);
   --color-text-muted: var(--text-muted);
   --color-border: var(--border);

@@ -104,16 +104,11 @@ export default async function CityPage({
         >
           Happy Hours in {city.name}
         </h1>
-        <p className="mt-2 text-text-muted">
-          {withHours > 0 ? (
-            <>
-              <span className="text-text-primary">{withHours}</span>{" "}
-              happy hour {withHours === 1 ? "spot" : "spots"} in {city.name}
-            </>
-          ) : (
-            "We're still gathering happy hours here — help us fill it in."
-          )}
-        </p>
+        {withHours === 0 && (
+          <p className="mt-2 text-text-muted">
+            We&apos;re still gathering happy hours here — help us fill it in.
+          </p>
+        )}
       </header>
 
       {/* How-it-works nudge: the photo loop is the social engine — the more people
