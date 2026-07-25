@@ -20,11 +20,11 @@ export function NowBadge({
       >
         <span
           aria-hidden="true"
-          className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-warm opacity-75"
+          className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-live opacity-75"
         />
         <span
           aria-hidden="true"
-          className="relative inline-flex h-2.5 w-2.5 rounded-full bg-accent-warm shadow-[0_0_8px_var(--accent-warm)]"
+          className="relative inline-flex h-2.5 w-2.5 rounded-full bg-accent-live shadow-[0_0_8px_var(--accent-live)]"
         />
       </span>
     );

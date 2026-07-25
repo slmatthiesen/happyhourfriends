@@ -621,38 +621,36 @@ export function VenueTableClient({
 
       {/* Filter bar */}
       <div className="sticky top-0 z-10 rounded-lg border border-border bg-bg-surface p-3 shadow-sm">
-        {/* Row 1: search + sort — stacked on mobile so the sort dropdown never
-            squeezes the search input down to a sliver (its placeholder was
-            clipping to "Search ve" at 375px). */}
-        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+        {/* Row 1: search + sort share one row at every width. Search filters live as
+            you type, so it doesn't need full width to pull its weight; the sort
+            <select> carries its own meaning (selected label + chevron), so it drops
+            the "Sort:" text label — the aria-label keeps it announced for a11y. */}
+        <div className="flex items-center gap-2">
           <input
             type="search"
-            placeholder="Search venues or deals…"
+            placeholder="Search…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="min-w-0 flex-1 rounded border border-border bg-bg-elevated px-3 py-1.5 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent-cool"
+            className="min-w-0 flex-1 basis-1/2 rounded border border-border bg-bg-elevated px-3 py-1.5 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent-cool"
             aria-label="Search venues by name or deal"
           />
-          <label className="flex items-center gap-1.5 text-sm text-text-muted">
-            <span>Sort:</span>
-            <select
-              value={sortKey}
-              onChange={(e) => setSortKey(e.target.value as SortKey)}
-              className="flex-1 rounded border border-border bg-bg-elevated px-2 py-1.5 text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-cool sm:flex-none"
-              aria-label="Sort venues"
-            >
-              <option value="now">Happening now</option>
-              {geo.status === "granted" && (
-                <option value="distance">Closest to me</option>
-              )}
-              <option value="startTime">Start time</option>
-              <option value="endTime">End time</option>
-              <option value="name">Name</option>
-              <option value="neighborhood">Neighborhood</option>
-              <option value="type">Type</option>
-              <option value="price">Price (low→high)</option>
-            </select>
-          </label>
+          <select
+            value={sortKey}
+            onChange={(e) => setSortKey(e.target.value as SortKey)}
+            className="min-w-0 flex-1 basis-1/2 rounded border border-border bg-bg-elevated px-2 py-1.5 text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-accent-cool"
+            aria-label="Sort venues"
+          >
+            <option value="now">Happening now</option>
+            {geo.status === "granted" && (
+              <option value="distance">Closest to me</option>
+            )}
+            <option value="startTime">Start time</option>
+            <option value="endTime">End time</option>
+            <option value="name">Name</option>
+            <option value="neighborhood">Neighborhood</option>
+            <option value="type">Type</option>
+            <option value="price">Price (low→high)</option>
+          </select>
         </div>
 
         {/* Mobile-only disclosure for the chip rows below. */}
@@ -673,8 +671,18 @@ export function VenueTableClient({
             {filtersOpen ? "▲" : "▼"}
           </span>
         </button>
+      </div>
 
-        {/* Chip rows — always visible on md+, behind the toggle on phones. */}
+      {/* Chip rows + count/clear — deliberately OUTSIDE the sticky bar above. When this
+          panel opens on phones it's tall (day/area/type chips); nesting it inside the
+          sticky container pinned it to the top of the viewport for as long as it stayed
+          open, eating up to half the screen while scrolling. Here it scrolls away
+          normally like any other content, and only the compact search/sort/toggle bar
+          stays pinned. Always visible on md+, behind the toggle (or an active filter,
+          for the count row) on phones. */}
+      <div
+        className={`${filtersOpen || hasActiveFilters ? "block" : "hidden"} mt-2 rounded-lg border border-border bg-bg-surface p-3 shadow-sm md:block`}
+      >
         <div className={`${filtersOpen ? "block" : "hidden"} md:block`}>
 
           {/* Row 2: day pills */}
@@ -793,8 +801,14 @@ export function VenueTableClient({
         </div>
 
         {/* Count + clear. Splits filtered results into "with data" vs "stub" so the
-            two numbers always read consistently with the city/home headers. */}
-        <div className="mt-2 flex items-center justify-between text-xs text-text-muted">
+            two numbers always read consistently with the city/home headers. Hidden on
+            phones when no filters are active — it just repeats the page H1 there; it
+            earns its spot on mobile once filtering, for the "Showing X of Y" + Clear. */}
+        <div
+          className={`mt-2 items-center justify-between text-xs text-text-muted ${
+            hasActiveFilters ? "flex" : "hidden md:flex"
+          }`}
+        >
           <span>
             {hasActiveFilters ? (
               <>
@@ -871,8 +885,8 @@ export function VenueTableClient({
                   // opacity (live/today are both false then), so we'd otherwise
                   // flash every non-promoted row dim, then brighten on hydration.
                   const muted = mounted && !promoted && !live && !today;
-                  // Promoted styling wins over live styling — they share the warm
-                  // left border, and a venue is unlikely to be both anyway.
+                  // Promoted wins over live — promoted keeps the warm left border
+                  // (sponsorship signal), live gets the sage border (matches NowBadge).
                   const rowStyle = promoted
                     ? {
                         backgroundColor: "var(--row-promoted)",
@@ -881,9 +895,9 @@ export function VenueTableClient({
                     : live
                       ? {
                           backgroundColor:
-                            "color-mix(in srgb, var(--accent-warm) 5%, transparent)",
+                            "color-mix(in srgb, var(--accent-live) 5%, transparent)",
                           borderLeft:
-                            "3px solid color-mix(in srgb, var(--accent-warm) 45%, transparent)",
+                            "3px solid color-mix(in srgb, var(--accent-live) 45%, transparent)",
                         }
                       : undefined;
                   const activeW = live ? activeWindow(v) : null;
@@ -991,9 +1005,9 @@ export function VenueTableClient({
                 : live
                   ? {
                       backgroundColor:
-                        "color-mix(in srgb, var(--accent-warm) 5%, transparent)",
+                        "color-mix(in srgb, var(--accent-live) 5%, transparent)",
                       borderLeft:
-                        "3px solid color-mix(in srgb, var(--accent-warm) 45%, transparent)",
+                        "3px solid color-mix(in srgb, var(--accent-live) 45%, transparent)",
                     }
                   : undefined;
               const activeW = live ? activeWindow(v) : null;
