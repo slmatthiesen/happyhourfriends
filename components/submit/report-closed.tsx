@@ -67,7 +67,14 @@ export function ReportClosed({
       setStatusUrl(data.statusUrl ?? null);
       setState("done");
     } catch (err) {
-      captureSubmissionFailed({ target_type: "venue", reason: "network_error" }, err);
+      captureSubmissionFailed(
+        {
+          target_type: "venue",
+          reason: "network_error",
+          message: err instanceof Error ? `${err.name}: ${err.message}` : String(err),
+        },
+        err,
+      );
       setError("Network error — please try again.");
       setState("error");
     }

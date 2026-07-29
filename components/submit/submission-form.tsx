@@ -224,7 +224,11 @@ export function SubmissionForm({
       setState("done");
     } catch (err) {
       captureSubmissionFailed(
-        { target_type: targetType, reason: "network_error" },
+        {
+          target_type: targetType,
+          reason: "network_error",
+          message: err instanceof Error ? `${err.name}: ${err.message}` : String(err),
+        },
         err,
       );
       setError("Network error — please try again.");
