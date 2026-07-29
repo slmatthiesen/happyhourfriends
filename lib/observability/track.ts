@@ -24,3 +24,31 @@ export function captureOutbound(event: OutboundLinkEvent): void {
     posthog.capture("outbound_link_clicked", event);
   });
 }
+
+export interface SubmissionFailedEvent {
+  target_type: string;
+  reason: "network_error" | "http_error";
+  status?: number;
+  message?: string;
+}
+
+/**
+ * The submit forms' fetch is wrapped in try/catch, so a failure is a *caught* error —
+ * Sentry's automatic instrumentation and PostHog's capture_exceptions (both uncaught-only)
+ * never see it. This is the only place that failure gets recorded anywhere.
+ */
+export function captureSubmissionFailed(
+  event: SubmissionFailedEvent,
+  error?: unknown,
+): void {
+  console.error("[submit] submission failed", event, error);
+  void import("@/instrumentation-client").then(({ captureClientException }) => {
+    captureClientException(error ?? new Error(`submission_failed: ${event.reason}`), {
+      ...event,
+    });
+  });
+  if (!process.env.NEXT_PUBLIC_POSTHOG_KEY) return;
+  void import("posthog-js").then(({ default: posthog }) => {
+    posthog.capture("submission_failed", event);
+  });
+}

@@ -14,3 +14,12 @@ const sentry = dsn
 export function onRouterTransitionStart(href: string, navigationType: string): void {
   void sentry?.then((Sentry) => Sentry.captureRouterTransitionStart(href, navigationType));
 }
+
+// No-op unless NEXT_PUBLIC_SENTRY_DSN is set — for reporting errors that were caught
+// (not uncaught), which Sentry's automatic instrumentation never sees.
+export function captureClientException(
+  error: unknown,
+  context?: Record<string, unknown>,
+): void {
+  void sentry?.then((Sentry) => Sentry.captureException(error, { extra: context }));
+}
