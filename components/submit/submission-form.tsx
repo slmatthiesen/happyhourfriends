@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { SubmissionPayload, SubmissionTargetType } from "@/lib/submit/payload";
 import { normalizeUrl } from "@/lib/submit/normalizeUrl";
+import { captureSubmissionFailed } from "@/lib/observability/track";
 import { Turnstile } from "./turnstile";
 
 export interface FieldSpec {
@@ -209,13 +210,23 @@ export function SubmissionForm({
       });
       const data = (await res.json()) as { error?: string; statusUrl?: string };
       if (!res.ok) {
+        captureSubmissionFailed({
+          target_type: targetType,
+          reason: "http_error",
+          status: res.status,
+          message: data.error,
+        });
         setError(data.error ?? "Something went wrong.");
         setState("error");
         return;
       }
       setStatusUrl(data.statusUrl ?? null);
       setState("done");
-    } catch {
+    } catch (err) {
+      captureSubmissionFailed(
+        { target_type: targetType, reason: "network_error" },
+        err,
+      );
       setError("Network error — please try again.");
       setState("error");
     }
