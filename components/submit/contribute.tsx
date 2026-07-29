@@ -175,7 +175,8 @@ export function Contribute({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="rounded-md bg-accent-warm px-4 py-2 text-sm font-medium text-bg-deep transition-opacity hover:opacity-90"
+        disabled={state === "submitting"}
+        className="rounded-md bg-accent-warm px-4 py-2 text-sm font-medium text-bg-deep transition-opacity hover:opacity-90 disabled:opacity-50"
       >
         {open ? "Cancel" : triggerLabel}
       </button>
@@ -185,6 +186,7 @@ export function Contribute({
           onSubmit={onSubmit}
           className="mt-3 space-y-4 rounded-lg border border-border bg-bg-surface p-4 text-sm"
         >
+        <fieldset disabled={state === "submitting"} className="contents">
           <div>
             <p className="mb-1 font-medium text-text-primary">{heading}</p>
             {blurb && <p className="text-xs text-text-muted">{blurb}</p>}
@@ -311,10 +313,14 @@ export function Contribute({
           <button
             type="submit"
             disabled={state === "submitting"}
-            className="rounded-md bg-accent-warm px-4 py-2 font-medium text-bg-deep transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-md bg-accent-warm px-4 py-2 font-medium text-bg-deep transition-opacity hover:opacity-90 disabled:opacity-50"
           >
+            {state === "submitting" && (
+              <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-bg-deep border-t-transparent" />
+            )}
             {state === "submitting" ? "Submitting…" : "Submit for review"}
           </button>
+        </fieldset>
         </form>
       )}
     </div>
