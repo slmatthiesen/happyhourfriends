@@ -591,6 +591,19 @@ resource "aws_wafv2_web_acl" "cf" {
       managed_rule_group_statement {
         name        = "AWSManagedRulesCommonRuleSet"
         vendor_name = "AWS"
+        # The rule group's built-in SizeRestrictions_BODY blocks any request body over
+        # 8KB (a hardcoded, non-configurable threshold in the AWS-managed rule). That
+        # silently blocked every happy-hour submission with an attached photo — the
+        # request never reached the app, so nothing about it was ever logged anywhere
+        # (2026-07-29 incident). Our own app already enforces a real 10MB cap
+        # (app/api/submissions/route.ts) with a clean, informative rejection, so this
+        # coarse edge heuristic is redundant for that path — count instead of block.
+        rule_action_override {
+          name = "SizeRestrictions_BODY"
+          action_to_use {
+            count {}
+          }
+        }
       }
     }
     visibility_config {
