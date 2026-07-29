@@ -120,6 +120,7 @@ export function ReportClosed({
         actually shut down for good.
       </p>
 
+      <fieldset disabled={state === "submitting"} className="contents">
       <div className="mt-3">
         <label className="mb-1 block text-text-muted">Your email (optional)</label>
         <input
@@ -154,18 +155,23 @@ export function ReportClosed({
           type="button"
           onClick={submitClosed}
           disabled={state === "submitting"}
-          className="rounded-md bg-accent-hot px-4 py-2 font-medium text-bg-deep transition-opacity hover:opacity-90 disabled:opacity-50"
+          className="flex items-center gap-2 rounded-md bg-accent-hot px-4 py-2 font-medium text-bg-deep transition-opacity hover:opacity-90 disabled:opacity-50"
         >
+          {state === "submitting" && (
+            <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-bg-deep border-t-transparent" />
+          )}
           {state === "submitting" ? "Submitting…" : "Yes, it's closed"}
         </button>
         <button
           type="button"
           onClick={() => setConfirming(false)}
-          className="rounded-md border border-border px-4 py-2 text-text-muted hover:text-text-primary"
+          disabled={state === "submitting"}
+          className="rounded-md border border-border px-4 py-2 text-text-muted hover:text-text-primary disabled:opacity-50"
         >
           Cancel
         </button>
       </div>
+      </fieldset>
     </div>
   );
 }

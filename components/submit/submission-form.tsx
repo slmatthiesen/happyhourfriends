@@ -282,6 +282,7 @@ export function SubmissionForm({
 
   return (
     <form onSubmit={onSubmit} className="space-y-4 text-sm">
+    <fieldset disabled={state === "submitting"} className="contents">
       {critical && (
         <p className="rounded-md border border-accent-hot/40 bg-accent-hot/10 px-3 py-2 text-accent-hot">
           This is a major change. We&apos;ll corroborate it before applying, and the
@@ -461,10 +462,14 @@ export function SubmissionForm({
       <button
         type="submit"
         disabled={state === "submitting"}
-        className="rounded-md bg-accent-warm px-4 py-2 font-medium text-bg-deep transition-opacity hover:opacity-90 disabled:opacity-50"
+        className="flex items-center gap-2 rounded-md bg-accent-warm px-4 py-2 font-medium text-bg-deep transition-opacity hover:opacity-90 disabled:opacity-50"
       >
+        {state === "submitting" && (
+          <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-bg-deep border-t-transparent" />
+        )}
         {state === "submitting" ? "Submitting…" : submitLabel}
       </button>
+    </fieldset>
     </form>
   );
 }
