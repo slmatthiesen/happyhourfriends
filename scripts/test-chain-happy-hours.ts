@@ -11,6 +11,7 @@ import {
   CHAIN_HH_MODEL,
   buildChainExtractResult,
   chainHappyHourFor,
+  chainHappyHoursFor,
 } from "@/lib/places/chainHappyHours";
 
 let passed = 0;
@@ -58,6 +59,30 @@ check("buildChainExtractResult emits one gated-ready window with sourced offerin
   assert.equal(r.costCents, 0);
   assert.equal(r.model, CHAIN_HH_MODEL);
   assert.equal(r.usage.inputTokens, 0);
+});
+
+check("a multi-window chain returns EVERY window, not just the first", () => {
+  // Pacific Catch publishes a weekday and a weekend Aloha Hour with different end times.
+  // chainHappyHourFor returns only the first, so the applier must use chainHappyHoursFor —
+  // otherwise every location silently loses its weekend window.
+  const all = chainHappyHoursFor("Pacific Catch");
+  assert.equal(all.length, 2, "expected both Aloha Hour windows");
+  const weekday = all.find((c) => c.daysOfWeek.length === 5)!;
+  const weekend = all.find((c) => c.daysOfWeek.length === 2)!;
+  assert.deepEqual(weekday.daysOfWeek, [1, 2, 3, 4, 5]);
+  assert.equal(weekday.startTime, "15:00");
+  assert.equal(weekday.endTime, "18:00");
+  assert.deepEqual(weekend.daysOfWeek, [6, 7]);
+  assert.equal(weekend.startTime, "15:00");
+  assert.equal(weekend.endTime, "17:00");
+  // Matches real location names, not just the bare chain key.
+  assert.equal(chainHappyHoursFor("Pacific Catch - Chestnut St").length, 2);
+  assert.equal(chainHappyHoursFor("Pacific Cafe").length, 0);
+});
+
+check("single-window chains still return exactly one match", () => {
+  assert.equal(chainHappyHoursFor("Super Duper Burgers").length, 1);
+  assert.equal(chainHappyHoursFor("Joe's Diner").length, 0);
 });
 
 console.log(`\n${passed} checks passed.`);

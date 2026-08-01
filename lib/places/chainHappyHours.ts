@@ -43,6 +43,23 @@ export interface ChainHappyHour {
   notes: string;
 }
 
+/** Shared by both Pacific Catch windows — the weekday and weekend Aloha Hours run the same
+ *  menu, only the end time differs. Verbatim from pacificcatch.com/menu/#aloha-hour. */
+const PACIFIC_CATCH_ALOHA_OFFERINGS: ChainOffering[] = [
+  { kind: "food", category: "appetizer", name: "Chips & Salsa" },
+  { kind: "food", category: "appetizer", name: "Choice of Fries", description: "Regular, chile-lime, sweet potato" },
+  { kind: "food", category: "appetizer", name: "Thai Brussels" },
+  { kind: "food", category: "appetizer", name: "Coconut Shrimp", description: "Five-spice crispy shrimp, Thai sweet chili sauce" },
+  { kind: "food", category: "appetizer", name: "Sticky Ribs", description: "Pan-glazed Korean-style pork ribs, sesame seeds, scallion" },
+  { kind: "food", category: "appetizer", name: "Guaca-Poke", description: "Original ahi poke, guacamole, tortilla chips" },
+  { kind: "drink", category: "cocktail", name: "Shark Fin", description: "Pearl vodka, honey-guava syrup, lemon, prosecco" },
+  { kind: "drink", category: "cocktail", name: "Mai Tai", description: "Flor de Caña silver rum, Lahaina dark rum, lime juice, overproof rum, house-made POG" },
+  { kind: "drink", category: "cocktail", name: "Agave Margarita", description: "Lunazul reposado tequila, lime juice, agave nectar, half salt rim" },
+  { kind: "drink", category: "cocktail", name: "Guava-Rita", description: "Cazadores blanco tequila, guava purée, lime juice, agave nectar, half salt rim" },
+  { kind: "drink", category: "cocktail", name: "Spicy Pacific", description: "Pearl vodka, passion fruit, serrano chile, lemon juice" },
+  { kind: "drink", category: "cocktail", name: "Well Cocktails" },
+];
+
 export const CHAIN_HAPPY_HOURS: ChainHappyHour[] = [
   {
     // Operator-confirmed 2026-06-18: "Happy Hour drinks and fries at any Super Duper
@@ -60,16 +77,51 @@ export const CHAIN_HAPPY_HOURS: ChainHappyHour[] = [
     sourceUrl: "https://www.superduperburgers.com/#seasonal-specials",
     notes: "Happy Hour drinks and fries (chain-wide).",
   },
+  // Operator-confirmed 2026-07-31: "ALOHA HOUR: MON - FRI: 3:00 PM - 6:00 PM / SAT - SUN:
+  // 3:00 PM - 5:00 PM", identical on the sf-9th-avenue, sf-chestnut-st and mountain-view
+  // location pages. Two entries because the weekend window has a different end time.
+  //
+  // Why this chain earned a floor: Google reported serves_alcohol=false at 8 of the 9 Bay Area
+  // listings, so the alcohol gate dropped them all pre-enrich and only Mountain View was ever
+  // built. The gate now takes a confirmed sibling HH as an override, but this floor is the
+  // belt-and-braces — it also covers locations opened after the last discovery sweep.
+  // Offerings are the /menu/#aloha-hour Share Plates + the $9 cocktails, which every location
+  // shares; individual prices are omitted because the menu publishes none (PRD §13: null, not a guess).
+  {
+    chain: "pacific catch",
+    label: "Pacific Catch (Aloha Hour, weekdays)",
+    daysOfWeek: [1, 2, 3, 4, 5],
+    startTime: "15:00",
+    endTime: "18:00",
+    offerings: PACIFIC_CATCH_ALOHA_OFFERINGS,
+    sourceUrl: "https://www.pacificcatch.com/menu/#aloha-hour",
+    notes: "Aloha Hour (chain-wide).",
+  },
+  {
+    chain: "pacific catch",
+    label: "Pacific Catch (Aloha Hour, weekends)",
+    daysOfWeek: [6, 7],
+    startTime: "15:00",
+    endTime: "17:00",
+    offerings: PACIFIC_CATCH_ALOHA_OFFERINGS,
+    sourceUrl: "https://www.pacificcatch.com/menu/#aloha-hour",
+    notes: "Aloha Hour (chain-wide).",
+  },
 ];
 
-/** The curated HH for a venue name, or null when no chain matches. */
-export function chainHappyHourFor(name: string): ChainHappyHour | null {
+/** Every curated window for a venue name — a chain may publish more than one (Pacific Catch
+ *  runs a weekday and a separate weekend Aloha Hour). Empty when no chain matches. */
+export function chainHappyHoursFor(name: string): ChainHappyHour[] {
   const n = normalize(name);
-  return (
-    CHAIN_HAPPY_HOURS.find(
-      (c) => n === c.chain || n.startsWith(c.chain + " ") || n.includes(" " + c.chain + " "),
-    ) ?? null
+  return CHAIN_HAPPY_HOURS.filter(
+    (c) => n === c.chain || n.startsWith(c.chain + " ") || n.includes(" " + c.chain + " "),
   );
+}
+
+/** The FIRST curated window for a venue name, or null when no chain matches. Use
+ *  chainHappyHoursFor when you need every window a chain publishes. */
+export function chainHappyHourFor(name: string): ChainHappyHour | null {
+  return chainHappyHoursFor(name)[0] ?? null;
 }
 
 /** Marker recorded as model/prompt_hash in ai_usage_ledger — a curated, $0, non-AI source. */
