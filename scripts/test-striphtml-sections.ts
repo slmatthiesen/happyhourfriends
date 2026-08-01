@@ -75,4 +75,36 @@ check("heading with a '>' inside an attribute value does not leak attr garbage",
   assert.ok(!/data-x|a>b|class=/.test(t), "attribute garbage leaked into heading");
 });
 
+check("numeric character references decode — letter-spaced headings stay searchable", () => {
+  // Koo Japanese Restaurant letter-spaces its heading with thin spaces, so the raw markup is
+  // "&#8201;HAPPY&#8201;HOUR". Undecoded, the literal phrase "happy hour" never appears, the
+  // HH-signal gate sees nothing, and a real happy hour is invisible to the whole pipeline.
+  const t = stripHtml(`<div>&#8201;HAPPY&#8201;HOUR</div><p>&#8201;Sun-Thu until 6:30PM</p>`);
+  assert.ok(!/&#\d+;/.test(t), `numeric entity survived: ${t}`);
+  assert.match(t, /happy\s*hour/i);
+  assert.match(t, /Sun-Thu until 6:30PM/);
+});
+
+check("hex character references and common named entities decode", () => {
+  const t = stripHtml(`<p>Beer&#x26;Wine&nbsp;&ndash;&emsp;Mon&ndash;Fri&#183;4&#8211;6pm</p>`);
+  assert.ok(!/&#x?[0-9a-f]+;|&(nbsp|ndash|emsp);/i.test(t), `entity survived: ${t}`);
+  assert.match(t, /Beer&Wine/);
+  assert.match(t, /Mon-Fri/);
+});
+
+check("a malformed / control-char numeric reference is left alone, not turned into junk", () => {
+  const t = stripHtml(`<p>A&#0;B&#99999999;C</p>`);
+  assert.match(t, /&#0;/);
+  assert.match(t, /&#99999999;/);
+});
+
+check("adjacent kept windows join seamlessly — no fabricated ellipsis mid-sentence", () => {
+  // The over-budget trim slices at a fixed width, so a blanket " … " between every kept
+  // window severed "Sun-Thu until" from "6:30PM" and the model read no time at all (Koo).
+  const filler = "Happy Hour well drinks $5 draft beer $4 wine $6 apps $7. ".repeat(400);
+  const t = stripHtml(`<p>${filler}Sun-Thu until 6:30PM</p>`, 4000);
+  assert.ok(t.length <= 4200, `trim did not engage (len ${t.length})`);
+  assert.ok(!/until\s*…\s*6:30/.test(t), `ellipsis fabricated inside intact prose: ${t.slice(-200)}`);
+});
+
 console.log(`\n${passed} checks passed.`);

@@ -41,6 +41,39 @@ check("alcohol gate: null serves_alcohol passes (unknown never gates out)", () =
   assert.equal(passesAlcoholGate(sig({ servesAlcohol: null, primaryType: "restaurant", name: "Somewhere" })), true);
 });
 
+check("alcohol gate: a same-chain sibling with a confirmed HH OVERRIDES a false negative", () => {
+  // Pacific Catch: Google said serves_alcohol=false at 8 of 9 Bay Area listings, yet the 9th
+  // extracted a full Aloha Hour. Without the chain override both SF locations stay unbuilt.
+  assert.equal(
+    passesAlcoholGate(
+      sig({ servesAlcohol: false, primaryType: "seafood_restaurant", name: "Pacific Catch" }),
+    ),
+    false,
+  );
+  assert.equal(
+    passesAlcoholGate(
+      sig({
+        servesAlcohol: false,
+        primaryType: "seafood_restaurant",
+        name: "Pacific Catch",
+        chainHasHappyHour: true,
+      }),
+    ),
+    true,
+  );
+});
+
+check("alcohol gate: chainHasHappyHour false/null does NOT rescue a no-alcohol venue", () => {
+  for (const chainHasHappyHour of [false, null, undefined]) {
+    assert.equal(
+      passesAlcoholGate(
+        sig({ servesAlcohol: false, primaryType: "restaurant", name: "Pho 88", chainHasHappyHour }),
+      ),
+      false,
+    );
+  }
+});
+
 check("dead-end signal: no-alcohol restaurant is a dead end", () => {
   assert.equal(isDeadEndSignal(sig({ servesAlcohol: false, primaryType: "restaurant", name: "Tea House" })), true);
 });

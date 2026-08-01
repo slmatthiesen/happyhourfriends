@@ -321,6 +321,18 @@ function isBlockedByRobots(
 // HTML stripping
 // ---------------------------------------------------------------------------
 
+/** Decode one numeric character reference. Control chars (which would corrupt the payload
+ *  rather than read as text) and out-of-range code points fall back to the literal source. */
+function codePointOrSelf(code: number, source: string): string {
+  if (!Number.isInteger(code) || code < 0x20 || code > 0x10ffff) return source;
+  if (code >= 0x7f && code <= 0x9f) return source;
+  try {
+    return String.fromCodePoint(code);
+  } catch {
+    return source;
+  }
+}
+
 export function stripHtml(html: string, maxContent: number = MAX_CONTENT): string {
   // 1. Drop heavy noise FIRST: comments, scripts/styles/svg/etc., inline style attrs,
   //    and base64 data URIs. On SSR builders this is the bulk of the bytes.
@@ -341,14 +353,25 @@ export function stripHtml(html: string, maxContent: number = MAX_CONTENT): strin
     .replace(/<\/(p|li|tr|div|section|article|header|footer|ul|ol|table)\s*>/gi, "\n");
   // 2. Remove remaining tags
   text = text.replace(/<[^>]+>/g, " ");
-  // 3. Decode common HTML entities
+  // 3. Decode HTML entities. Numeric character references MUST be decoded too: sites that
+  //    letter-space a heading with thin spaces emit "&#8201;HAPPY&#8201;HOUR", so the literal
+  //    phrase "happy hour" never appears and both the HH-signal gate and the model miss the
+  //    section entirely (Koo Japanese Restaurant, reported 2026-07-31). Numeric first, then
+  //    named — decoding &amp; first would turn a literal "&amp;#8201;" into a live entity.
   text = text
+    .replace(/&#(\d{1,7});/g, (m, d) => codePointOrSelf(Number(d), m))
+    .replace(/&#x([0-9a-f]{1,6});/gi, (m, h) => codePointOrSelf(parseInt(h, 16), m))
     .replace(/&amp;/gi, "&")
     .replace(/&lt;/gi, "<")
     .replace(/&gt;/gi, ">")
     .replace(/&quot;/gi, '"')
-    .replace(/&#39;/gi, "'")
-    .replace(/&nbsp;/gi, " ");
+    .replace(/&(nbsp|ensp|emsp|thinsp|hairsp);/gi, " ")
+    .replace(/&(ndash|mdash|minus);/gi, "-")
+    .replace(/&(lsquo|rsquo|apos);/gi, "'")
+    .replace(/&(ldquo|rdquo);/gi, '"')
+    .replace(/&middot;/gi, "·")
+    .replace(/&hellip;/gi, "…")
+    .replace(/&(copy|reg|trade);/gi, " ");
   // 4. Collapse intra-line whitespace but PRESERVE the line breaks from step 1b (the
   //    section signal). Cap blank-line runs so payload stays tight.
   text = text
@@ -396,7 +419,13 @@ export function stripHtml(html: string, maxContent: number = MAX_CONTENT): strin
     if (used >= maxContent) break;
   }
   picked.sort((a, b) => a.i - b.i);
-  return picked.map((w) => w.text).join(" … ");
+  // Join ADJACENT windows seamlessly — the fixed-width slice cuts mid-sentence, so a blanket
+  // " … " between every kept window fabricates an elision inside intact prose and can sever a
+  // time from its days ("Sun-Thu until" | "6:30PM" → the model reads no time at all, Koo
+  // Japanese Restaurant). The elision marker belongs only where a window was actually dropped.
+  return picked
+    .map((w, idx) => (idx > 0 && picked[idx - 1].i + WIN < w.i ? " … " : "") + w.text)
+    .join("");
 }
 
 // ---------------------------------------------------------------------------
