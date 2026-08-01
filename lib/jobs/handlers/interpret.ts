@@ -180,22 +180,34 @@ export async function handleInterpret(submissionId: string): Promise<void> {
       cityId: venue.cityId,
     });
     const lines = await fanOutExtracted(parent, venue, extracted, parentSourceUrl);
-    if (lines.length > 0) {
-      try {
-        const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-        const adminUrl = `${base}/admin`;
-        const { subject, html } = extractedHappyHoursEmail({
-          venueName: venue.name,
-          windowCount: lines.length,
-          windowLines: lines,
-          confidence: extracted.confidence,
-          sourceUrl: parentSourceUrl,
-          adminUrl,
-        });
-        await sendEmail({ to: adminRecipients(), subject, html });
-      } catch (e) {
-        console.error("Failed to send extracted-happy-hours email", e);
-      }
+    if (lines.length === 0) {
+      // Extraction came back empty — the reporter still saw a happy hour we can't parse
+      // (JS-walled menu, undecodable markup, photo-only page). Mirror the interpreter
+      // branch's `created === 0` fallback: keep the human in the loop instead of silently
+      // marking the report `interpreted`, which lost it AND suppressed the admin email
+      // (Koo Japanese Restaurant, reported 2026-07-31).
+      await queueForReview(parent, {
+        status: "queued_admin",
+        aiClassifierReasoning:
+          `Extracted 0 window(s) from first-party source ${parentSourceUrl} — ` +
+          `review the page manually: ${note || "(no note)"}`,
+      });
+      return;
+    }
+    try {
+      const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+      const adminUrl = `${base}/admin`;
+      const { subject, html } = extractedHappyHoursEmail({
+        venueName: venue.name,
+        windowCount: lines.length,
+        windowLines: lines,
+        confidence: extracted.confidence,
+        sourceUrl: parentSourceUrl,
+        adminUrl,
+      });
+      await sendEmail({ to: adminRecipients(), subject, html });
+    } catch (e) {
+      console.error("Failed to send extracted-happy-hours email", e);
     }
     await setStatus(submissionId, {
       status: "interpreted",

@@ -59,16 +59,33 @@ export interface AlcoholTypeSignal {
   primaryType: string | null;
   /** seed_candidates.types. */
   types: string[] | null;
+  /** True when a SIBLING location of this same chain (same normalized name + same website
+   *  domain) already has a CONFIRMED active happy hour. Google's serves* mask is per-listing
+   *  and frequently wrong for chains — Pacific Catch reported serves_alcohol=false at 8 of 9
+   *  Bay Area listings while the 9th (Mountain View) extracted a full Aloha Hour, so the 8
+   *  were never built at all. A live sibling HH is proof the flag is a false negative.
+   *
+   *  Deliberately NOT keyed on a sibling's serves_alcohol=true: that flag is exactly the
+   *  unreliable signal being overridden, and trusting it re-admits fast-casual chains
+   *  (Krispy Krunchy Chicken, "The Good Salad (to go only)") off one bad listing — 57
+   *  candidates unlocked with noise vs 11 clean ones on the confirmed-HH signal.
+   *  Computed by the caller from seed_candidates; null/undefined = not checked. */
+  chainHasHappyHour?: boolean | null;
 }
 
 /**
  * Does this candidate clear the alcohol gate? Drops ONLY when discovery explicitly captured
- * serves_alcohol=false AND there is no bar-type / alcohol-name override (hasAlcoholSignal).
+ * serves_alcohol=false AND there is no bar-type / alcohol-name override (hasAlcoholSignal)
+ * AND no same-chain sibling has a confirmed happy hour.
  * Mirrors the gate seed-enrich-candidates.ts applies pre-enrich — this is now the shared home
  * for it (the script imports this).
  */
 export function passesAlcoholGate(sig: AlcoholTypeSignal): boolean {
-  if (sig.servesAlcohol === false && !hasAlcoholSignal(sig.name, sig.primaryType, sig.types)) {
+  if (
+    sig.servesAlcohol === false &&
+    sig.chainHasHappyHour !== true &&
+    !hasAlcoholSignal(sig.name, sig.primaryType, sig.types)
+  ) {
     return false;
   }
   return true;

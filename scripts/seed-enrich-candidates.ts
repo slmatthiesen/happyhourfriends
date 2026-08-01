@@ -53,7 +53,11 @@ import { applyChainHappyHourIfMissing } from "@/lib/recover/applyChainHappyHour"
 import { assignNeighborhoods } from "@/lib/geo/assignNeighborhoods";
 import { PlaceDetailsQuotaError } from "@/lib/places/placeDetails";
 import type { OpenPeriod } from "@/lib/geo/timezone";
-import { isDenylistedChain, isLikelyNoHappyHourFormat } from "@/lib/places/chainDenylist";
+import {
+  isDenylistedChain,
+  isLikelyNoHappyHourFormat,
+  normalize as normalizeChainName,
+} from "@/lib/places/chainDenylist";
 import { passesAlcoholGate as sigPassesAlcoholGate, isDeadEndSignal, type AlcoholTypeSignal } from "@/lib/places/stubGate";
 import { slugify, placeIdSuffix } from "@/lib/places/venueSlug";
 import { deriveVenueType, isVenueType, type VenueType } from "@/lib/places/venueType";
@@ -170,13 +174,60 @@ function killReasonOf(reason: string): KillReason {
   return "no_site";
 }
 
+/**
+ * Chain keys (`normalized name|website domain`) with a CONFIRMED happy hour at some location,
+ * across every city. Google's serves* mask is per-listing and wrong often enough that a chain
+ * can be mass-dropped: Pacific Catch reported serves_alcohol=false at 8 of its 9 Bay Area
+ * listings, so only Mountain View was ever enriched — and it extracted a full Aloha Hour,
+ * proving the other 8 (including both SF locations) were false negatives.
+ *
+ * Keyed on name AND domain together, never domain alone: ordering platforms (order.online,
+ * sites.google.com) put unrelated restaurants on one domain, so a domain-only match would
+ * hand an alcohol pass to every pho and boba shop sharing it.
+ */
+const chainHappyHourKeys = new Set<string>();
+
+/** `normalized name|registrable-ish domain`, or null when either half is missing. */
+function chainKeyOf(name: string | null, websiteUrl: string | null): string | null {
+  if (!websiteUrl) return null;
+  let host: string;
+  try {
+    host = new URL(websiteUrl).hostname.toLowerCase().replace(/^www\./, "");
+  } catch {
+    return null;
+  }
+  const n = normalizeChainName(name ?? "");
+  return host && n ? `${n}|${host}` : null;
+}
+
+/** Populate chainHappyHourKeys once per run. Evidence is deliberately ONLY a sibling that
+ *  resolved to a venue carrying an active happy hour — see AlcoholTypeSignal.chainHasHappyHour
+ *  for why a sibling's serves_alcohol=true is too weak to use here. */
+async function loadChainHappyHourKeys(sql: Sql): Promise<void> {
+  const rows = await sql<{ name: string | null; website_url: string | null }[]>`
+    SELECT DISTINCT sc.name, sc.website_url
+    FROM seed_candidates sc
+    WHERE sc.website_url IS NOT NULL
+      AND EXISTS (
+        SELECT 1 FROM happy_hours h
+        WHERE h.venue_id = sc.resulting_venue_id AND h.active AND h.deleted_at IS NULL
+      )
+  `;
+  for (const r of rows) {
+    const key = chainKeyOf(r.name, r.website_url);
+    if (key) chainHappyHourKeys.add(key);
+  }
+}
+
 /** A candidate's alcohol/cuisine signal for the shared stub gate (lib/places/stubGate). */
 function candidateSignal(c: SeedCandidate): AlcoholTypeSignal {
+  const key = chainKeyOf(c.name, c.website_url ?? null);
   return {
     servesAlcohol: c.serves_alcohol,
     name: c.name,
     primaryType: c.primary_type,
     types: c.types,
+    chainHasHappyHour: key ? chainHappyHourKeys.has(key) : null,
   };
 }
 
@@ -488,6 +539,10 @@ async function main() {
     // ---- Resolve city row --------------------------------------------------
     const { slug, state } = requireCityArgs();
     const city = await resolveCity(sql, slug, state);
+
+    // Cross-city confirmed-chain-HH evidence, read once — feeds the alcohol gate's override so
+    // a chain isn't mass-dropped by per-listing serves_alcohol false negatives.
+    await loadChainHappyHourKeys(sql);
 
     // ---- Re-queue prior kills/errors before loading (both paths read processed_at IS NULL).
     // A candidate that ended killed_no_site/error set processed_at and never retried, so a venue
